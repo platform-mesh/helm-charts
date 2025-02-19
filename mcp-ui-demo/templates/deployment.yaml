@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-ui-demo
+  namespace: mcp-ui
+  labels:
+    app: mcp-ui-demo
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: mcp-ui-demo
+  template:
+    metadata:
+      labels:
+        app: mcp-ui-demo
+    spec:
+      imagePullSecrets:
+        - name: github-registry-secret
+      containers:
+        - name: mcp-ui-demo
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP

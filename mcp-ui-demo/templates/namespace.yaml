@@ -1,0 +1,6 @@
+{{- if not (lookup "v1" "Namespace" "" "mcp-ui") }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mcp-ui
+{{- end }}
