@@ -1,9 +1,18 @@
 replicaCount: 1
 
 image:
-  repository: mcp-ui-demo
+  repository: ghcr.io/platform-mesh/apeiro-mcp-ui-demo
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "0.0.2"
+
+# Secret containing GitHub container registry credentials
+# Create this secret manually with:
+# kubectl create secret docker-registry github-registry-secret \
+#   --docker-server=ghcr.io \
+#   --docker-username=GITHUB_USER \
+#   --docker-password=GITHUB_TOKEN
+imagePullSecrets:
+  name: ""  # e.g. "github-registry-secret"
 
 nameOverride: ""
 fullnameOverride: ""
@@ -11,13 +20,3 @@ fullnameOverride: ""
 service:
   type: ClusterIP
   port: 80
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: Prefix

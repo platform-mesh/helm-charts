@@ -1,22 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "mcp-ui-demo.fullname" . }}
+  name: mcp-ui-demo
+  namespace: mcp-ui
   labels:
-    {{- include "mcp-ui-demo.labels" . | nindent 4 }}
+    app: mcp-ui-demo
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "mcp-ui-demo.selectorLabels" . | nindent 6 }}
+      app: mcp-ui-demo
   template:
     metadata:
       labels:
-        {{- include "mcp-ui-demo.selectorLabels" . | nindent 8 }}
+        app: mcp-ui-demo
     spec:
+      imagePullSecrets:
+        - name: github-registry-secret
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        - name: mcp-ui-demo
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
