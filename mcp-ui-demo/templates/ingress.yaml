@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mcp-ui-ingress
+  namespace: mcp-ui
+  annotations:
+    cert.gardener.cloud/commonname: '*.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com'
+    cert.gardener.cloud/dnsnames: ""
+    cert.gardener.cloud/issuer: kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com
+    cert.gardener.cloud/purpose: managed
+    dns.gardener.cloud/class: garden
+    dns.gardener.cloud/dnsnames: mcp-ui.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com
+    dns.gardener.cloud/ttl: "600"
+    kubernetes.io/ingress.class: nginx
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - mcp-ui.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com
+    secretName: tls-secret
+  rules:
+  - host: mcp-ui.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: mcp-ui-demo
+            port:
+              number: {{ .Values.service.port }}
