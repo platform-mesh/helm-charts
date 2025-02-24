@@ -1,0 +1,16 @@
+externalHostname: "kcp-inst.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com"
+kcpFrontProxy:
+  service:
+    annotations:
+      cert.gardener.cloud/purpose: managed
+      cert.gardener.cloud/commonname: '*.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com'
+      cert.gardener.cloud/dnsnames: ""
+      cert.gardener.cloud/secretname: tls-secret
+      dns.gardener.cloud/dnsnames: "kcp-inst.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com" 
+      dns.gardener.cloud/ttl: "600"
+      kubernetes.io/ingress.class: nginx
+    type: LoadBalancer
+
+extraFlags:
+  - --authentication-drop-groups=system:kcp:logical-cluster-admin
+

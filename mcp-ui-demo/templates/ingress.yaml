@@ -6,7 +6,7 @@ metadata:
   annotations:
     cert.gardener.cloud/commonname: '*.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com'
     cert.gardener.cloud/dnsnames: ""
-    cert.gardener.cloud/issuer: kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com
+    #cert.gardener.cloud/issuer: kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com
     cert.gardener.cloud/purpose: managed
     dns.gardener.cloud/class: garden
     dns.gardener.cloud/dnsnames: mcp-ui.kcp-dev.kcp.shoot.canary.k8s-hana.ondemand.com
