@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/platform-mesh/showroom-mcp-demo
   pullPolicy: IfNotPresent
-  tag: "0.0.5"
+  tag: "0.0.8"
 
 # Secret containing GitHub container registry credentials
 # Create this secret manually with:

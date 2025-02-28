@@ -3,4 +3,4 @@ name: mcp-ui-demo
 description: A Helm chart for MCP UI Demo application
 type: application
 version: 0.1.1
-appVersion: "0.0.5"
+appVersion: "0.0.8"
