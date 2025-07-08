@@ -1,0 +1,15 @@
+suite: crds
+values:
+  - ../test-values.yaml
+chart:
+  version: 0.1.1
+  appVersion: 1.16.0
+tests:
+  - it: crds match the snapshot
+    asserts:
+      - matchSnapshot: {}
+  - it: crds with kcp enabled match the snapshot
+    set:
+      kcp.enabled: true
+    asserts:
+      - matchSnapshot: {}

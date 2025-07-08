@@ -1,0 +1,70 @@
+image:
+  # -- The image repository
+  name: ghcr.io/platform-mesh/account-operator
+  # Overwrite image.tag to use a different image tag then .chart.appVersion
+  #  tag: latest
+
+crds:
+  # -- Enable CRDs
+  enabled: true
+
+webhooks:
+  # -- Enable webhooks
+  enabled: true
+
+  # -- Register webhooks, flag to toggle if webhooks should be registered on the runtime cluster
+  register: false
+  # -- The directory for webhook certificates
+  certDir: /certs
+
+# -- The KCP configuration
+kcp:
+  # -- Enable KCP
+  enabled: false
+  # -- The URL for the virtual workspace
+  virtualWorkspaceUrl: ""
+  # -- KCP APIExportEndpointSliceName
+  apiExportEndpointSliceName: "core.platform-mesh.org"
+
+subroutines:
+  namespace:
+    # -- Enable namespace subroutines
+    enabled: true
+  fga:
+    # -- Enable FGA subroutines
+    enabled: true
+    # -- The gRPC address for FGA
+    grpcAddr: platform-mesh-openfga:8081
+    # -- The root namespace for FGA
+    rootNamespace: platform-mesh-root
+    # -- The object type for FGA
+    objectType: account
+    # -- The parent relation for FGA
+    parentRelation: parent
+    # -- The creator relation for FGA
+    creatorRelation: owner
+  extension:
+    # -- Enable extension subroutines
+    enabled: true
+  extensionReady:
+    # -- Enable extension ready subroutines
+    enabled: true
+
+# -- The secret for kubeconfig
+kubeconfigSecret: ""
+
+security:
+  # -- Mount the service account token
+  mountServiceAccountToken: true
+
+deployment:
+  specTemplate:
+    # -- The annotations for the deployment
+    annotations: {}
+    # -- The labels for the deployment
+    labels: {}
+
+  hostAliases: []
+#    - hostnames:
+#        - kcp.dev.local
+#      ip: 10.96.0.100

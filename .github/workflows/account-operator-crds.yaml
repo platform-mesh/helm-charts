@@ -1,0 +1,34 @@
+name: Build account-operator-crds Workflow
+on:
+  push:
+    paths:
+      - 'charts/account-operator-crds/**'
+      - '.github/workflows/account-operator-crds.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+  pull_request:
+    paths:
+      - 'charts/account-operator-crds/**'
+      - '.github/workflows/account-operator-crds.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: account-operator-crds-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: account-operator-crds
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@switch-oci-repo
+    secrets: inherit
+    with:
+      chartPath: charts/account-operator-crds
+      componentName: github.com/platform-mesh/account-operator-crds
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml

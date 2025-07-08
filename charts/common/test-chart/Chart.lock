@@ -1,0 +1,6 @@
+dependencies:
+- name: common
+  repository: file://..
+  version: 0.5.2
+digest: sha256:48fe6cceebb5ec59156a0bf0d25d3eb9685d2d3e59cc375fb8c846c52fa0b207
+generated: "2025-06-10T21:41:47.458012+02:00"

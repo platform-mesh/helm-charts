@@ -1,0 +1,9 @@
+dependencies:
+- name: account-operator-crds
+  repository: file://../account-operator-crds
+  version: 0.2.2
+- name: common
+  repository: file://../common
+  version: 0.5.2
+digest: sha256:1f4ceaa12898042e86638d88976f623ca1b412456a4fa88eba4142e47ca8aade
+generated: "2025-07-08T18:24:07.36703473+03:00"
