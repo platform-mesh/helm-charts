@@ -4,6 +4,7 @@ description: A Helm chart to deploy platform-mesh Account-Operator
 type: application
 version: 0.8.14
 appVersion: "v0.170.12"
+
 dependencies:
   - name: account-operator-crds
     version: 0.2.2
