@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}
+  {{- if .Values.webhooks.enabled }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "common.entity.name" . }}-serving-cert
+  {{- end }}
+spec:
+  revisionHistoryLimit: {{ include "common.getKeyValue" (dict "Values" .Values "key" "deployment.revisionHistoryLimit") }}
+  selector:
+    matchLabels:
+      {{- include "common.labelMatcher" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labelMatcher" . | indent 8 }}
+        {{- with .Values.deployment.specTemplate.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        control-plane: controller-manager
+      annotations:
+        {{- with .Values.deployment.specTemplate.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.webhooks.enabled }}
+        traffic.sidecar.istio.io/excludeInboundPorts: "9443"
+        {{- end }}
+    spec:
+      {{- include "common.pod.securityContext" . | indent 6 }}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      containers:
+      - {{- include "common.podBasics" . | indent 8 }}
+        {{- include "common.container.securityContext" . | indent 8 }}
+        {{- include "common.operatorHealthAndReadyness" . | indent 8}}
+        ports:
+        {{- include "common.PortsMetricsHealth" . | nindent 10 }}
+        {{- if .Values.webhooks.enabled }}
+          - name: webhook-port
+            containerPort: 9443
+            protocol: TCP
+        {{- end }}
+        args:
+          - operator
+          {{- include "common.commonOperatorArgs" . | indent 8 }}
+          {{- if .Values.webhooks.enabled }}
+          - --webhooks-enabled
+          - --webhooks-cert-dir={{ .Values.webhooks.certDir }}
+          {{- end }}
+        env:
+          {{- include "common.basicEnvironment" . | nindent 10 }}
+          - name: SUBROUTINES_NAMESPACE_ENABLED
+            value: "{{ .Values.subroutines.namespace.enabled }}"
+          - name: SUBROUTINES_FGA_ENABLED
+            value: "{{ .Values.subroutines.fga.enabled }}"
+          - name: SUBROUTINES_FGA_GRPC_ADDR
+            value: "{{ .Values.subroutines.fga.grpcAddr }}"
+          - name: SUBROUTINES_FGA_ROOT_NAMESPACE
+            value: "{{ .Values.subroutines.fga.rootNamespace }}"
+          - name: SUBROUTINES_FGA_OBJECT_TYPE
+            value: "{{ .Values.subroutines.fga.objectType }}"
+          - name: SUBROUTINES_FGA_PARENT_RELATION
+            value: "{{ .Values.subroutines.fga.parentRelation }}"
+          - name: SUBROUTINES_FGA_CREATOR_RELATION
+            value: "{{ .Values.subroutines.fga.creatorRelation }}"
+          - name: SUBROUTINES_EXTENSION_ENABLED
+            value: "{{ .Values.subroutines.extension.enabled }}"
+          - name: SUBROUTINES_EXTENSION_READY_ENABLED
+            value: "{{ .Values.subroutines.extensionReady.enabled }}"
+          - name: KCP_ENABLED
+            value: "{{ .Values.kcp.enabled }}"
+          - name: KCP_VIRTUAL_WORKSPACE_URL
+            value: "{{ .Values.kcp.virtualWorkspaceUrl }}"
+          - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
+            value: "{{ .Values.kcp.apiExportEndpointSliceName }}"
+          {{- if .Values.kubeconfigSecret }}
+          - name: KUBECONFIG
+            value: /api-kubeconfig/kubeconfig
+          {{- end }}
+        volumeMounts:
+          {{- include "common.extraVolumeMounts" . | nindent 8 }}
+        {{- if .Values.kubeconfigSecret }}
+        - name: external-api-server
+          mountPath: /api-kubeconfig
+        {{- end }}
+        {{- if .Values.webhooks.enabled }}
+        - mountPath: {{ .Values.webhooks.certDir }}
+          name: cert
+          readOnly: true
+        {{- end }}
+      {{- if .Values.deployment.hostAliases }}
+      hostAliases:
+      {{- range .Values.deployment.hostAliases }}
+        - ip: {{ .ip }}
+          hostnames:
+        {{- range .hostnames }}
+            - {{ . }}
+        {{- end }}
+      {{- end }}
+      {{- else }}
+      {{- end }}
+      volumes:
+        {{- include "common.extraVolumes" . | nindent 8 }}
+        {{- if .Values.kubeconfigSecret }}
+        - name: external-api-server
+          secret:
+            secretName: {{ .Values.kubeconfigSecret }}
+        {{- end }}
+        {{- if .Values.webhooks.enabled }}
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: {{ include "common.entity.name" . }}-webhook-server-cert
+        {{- end }}

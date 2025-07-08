@@ -1,0 +1,21 @@
+{{- if eq (include "common.istioEnabled" .) "true" -}}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "common.entity.name" . }}
+spec:
+  gateways:
+    - {{ .Release.Namespace }}/gateway
+  hosts:
+    - some.domain
+  http:
+      match:
+        - uri:
+            exact: some.domain
+      name: default
+      route:
+        - destination:
+            host: some.host
+            port:
+              number: 8080
+{{- end -}}

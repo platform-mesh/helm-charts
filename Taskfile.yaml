@@ -1,0 +1,78 @@
+version: '3'
+
+vars:
+  LOCAL_BIN: bin
+  CHARTS:
+    sh: "printf '%s' $(ls -d charts/*/ | paste -sd ',' -)"
+  CHANGED_CHARTS:
+    sh: "git status --porcelain | grep '^ M charts/' | cut -d'/' -f2 | sort -u | sed 's|^|charts/|' | paste -sd ',' -"
+  PACKAGED_CHARTS:
+    sh: "ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
+tasks:
+  ## Setup
+  setup:kube-lint:
+    internal: true
+    cmds:
+      - mkdir -p $(pwd)/{{.LOCAL_BIN}}
+      - test -s {{.LOCAL_BIN}}/kube-linter || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install golang.stackrox.io/kube-linter/cmd/kube-linter@latest
+      - chmod +x $(pwd)/{{.LOCAL_BIN}}/kube-linter
+  setup:helm-docs:
+    internal: true
+    cmds:
+      - test -s {{.LOCAL_BIN}}/helm-docs || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
+  ## Development
+  lint:
+    deps: []
+    cmds:
+      - "ct lint --target-branch main --chart-dirs=charts --validate-maintainers=false --chart-repos=bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts"
+  helmtest:
+    cmds:
+      - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm unittest $chart; done"
+  helmtest-update:
+    cmds:
+      - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm unittest -u $chart; done"
+  test:
+    deps:
+      - task: helmtest
+  update-changed:
+    deps:
+      - task: helm-docs
+    cmds:
+      - "for chart in $(echo {{.CHANGED_CHARTS}} | tr ',' ' '); do helm dependency update $chart && helm unittest -u $chart; done"
+  update:
+    deps:
+      - task: helm-docs
+    cmds:
+      - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm dependency update $chart; done"
+  validate:
+    cmds:
+      - task: test
+      - task: helm-docs
+      - task: update
+      - task: lint
+      - task: oci
+  vulnerability:
+    deps:
+      - task: setup:kube-lint
+    cmds:
+      - "{{.LOCAL_BIN}}/kube-linter lint \"charts/\" --format \"plain\""
+  helm-docs:
+    deps:
+      - task: setup:helm-docs
+    cmds:
+      - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do {{.LOCAL_BIN}}/helm-docs --log-level=debug --chart-search-root $chart --template-files=../../docs-templates/header.md.gotmpl,README.md.gotmpl,../../docs-templates/footer.md.gotmpl --skip-version-footer=false; done"
+  helmpackage:
+    cmds:
+      - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm package $chart -d oci/; done"
+  helmpush:
+    deps:
+      - task: helmpackage
+    cmds:
+      - "for chart in $(echo {{.PACKAGED_CHARTS}} | tr ',' ' '); do helm push $chart oci://localhost:5000/platform-mesh; done"
+  oci:
+    cmds:
+      - "rm oci/* || true"
+      - task: helmpackage
+  local-setup:
+    cmds:
+      - "./local-setup/scripts/start.sh"
