@@ -1,0 +1,71 @@
+name: Update chart parameters
+
+on:
+  workflow_dispatch:
+    inputs:
+      chart:
+        description: 'The name of the helm chart'
+        required: true
+        default: ''
+      appVersion:
+        description: 'The version tag of the docker image'
+        required: true
+        default: '0.0.0'
+
+jobs:
+  version-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
+        id: app-token
+        with:
+          app-id: "1415820"
+          private-key: ${{ secrets.PM_PUBLISHER_PRIVATE_KEY }}
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Setup yq@latest
+        run: |
+          if ! command -v yq &>/dev/null
+          then
+            mkdir -p /home/runner/.local/bin
+            wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /home/runner/.local/bin/yq &&\
+              chmod +x /home/runner/.local/bin/yq
+          fi
+      - name: Configure GIT
+        run: |
+          git config --global user.name "Platform Mesh Publisher"
+          git config --global user.email "platformmesh@gmail.com"
+      - name: Update appVersion in Chart.yaml
+        run: |
+          chart_file="charts/${{ inputs.chart }}/Chart.yaml"
+          ls -al charts/
+          if [ -f "$chart_file" ]; then
+            echo "Chart.yaml file found at $chart_file"
+            yq e -i '.appVersion = "${{ inputs.appVersion }}"' "$chart_file"
+            echo "Updated appVersion to ${{ inputs.appVersion }} in $chart_file"
+
+            # bump version parameter in chart
+            CHART_VERSION=$(yq '.version' "$chart_file")
+            IFS='.' read -r -a VERSION_PARTS <<< "$CHART_VERSION"
+            MAJOR=${VERSION_PARTS[0]}
+            MINOR=${VERSION_PARTS[1]}
+            PATCH=${VERSION_PARTS[2]}
+            NEW_PATCH=$((PATCH + 1))
+            NEW_CHART_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+            yq e -i ".version = \"$NEW_CHART_VERSION\"" "$chart_file"
+            echo "Version bumped to $NEW_CHART_VERSION in $chart_file"
+
+            git add "$chart_file"
+            git commit -m "Updating appVersion to ${{ inputs.appVersion }} in $chart_file" || echo "appVersion was already up to date"
+          else
+            echo "Chart.yaml file not found at $chart_file"
+            exit 1
+          fi
+      - name: Git push
+        run: |
+          git push origin main
+          echo "Pushed changes to main"
+          git show HEAD
+
+
