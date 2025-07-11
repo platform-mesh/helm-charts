@@ -63,8 +63,12 @@ deployment:
     annotations: {}
     # -- The labels for the deployment
     labels: {}
+  replicas: 2
 
   hostAliases: []
 #    - hostnames:
 #        - kcp.dev.local
 #      ip: 10.96.0.100
+
+operator:
+  leaderElect: true

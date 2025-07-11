@@ -7,7 +7,7 @@
 | `oci://ghcr.io/platform-mesh/helm-charts` | `account-operator-crds` | The `account-operator-crds` chart provides CRDS introduced by the `account-operator`. |[source](https://github.com/platform-mesh/helm-charts/tree/main/charts/account-operator-crds)|
 # account-operator
 
-![Version: 0.8.14](https://img.shields.io/badge/Version-0.8.14-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.170.12](https://img.shields.io/badge/AppVersion-v0.170.12-informational?style=flat-square)
+![Version: 0.8.16](https://img.shields.io/badge/Version-0.8.16-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.1.6](https://img.shields.io/badge/AppVersion-v0.1.6-informational?style=flat-square)
 
 A Helm chart to deploy platform-mesh Account-Operator
 
@@ -24,6 +24,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 |-----|------|---------|-------------|
 | crds.enabled | bool | `true` | Enable CRDs |
 | deployment.hostAliases | list | `[]` |  |
+| deployment.replicas | int | `2` |  |
 | deployment.specTemplate.annotations | object | `{}` | The annotations for the deployment |
 | deployment.specTemplate.labels | object | `{}` | The labels for the deployment |
 | image.name | string | `"ghcr.io/platform-mesh/account-operator"` | The image repository |
@@ -32,6 +33,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 | kcp.enabled | bool | `false` | Enable KCP |
 | kcp.virtualWorkspaceUrl | string | `""` | The URL for the virtual workspace |
 | kubeconfigSecret | string | `""` | The secret for kubeconfig |
+| operator.leaderElect | bool | `true` |  |
 | security.mountServiceAccountToken | bool | `true` | Mount the service account token |
 | subroutines.extension.enabled | bool | `true` | Enable extension subroutines |
 | subroutines.extensionReady.enabled | bool | `true` | Enable extension ready subroutines |

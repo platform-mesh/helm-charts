@@ -11,6 +11,7 @@ spec:
   selector:
     matchLabels:
       {{- include "common.labelMatcher" . | indent 6 }}
+  replicas: {{ .Values.deployment.replicas }}
   template:
     metadata:
       labels:
