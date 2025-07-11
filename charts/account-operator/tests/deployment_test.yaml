@@ -78,3 +78,17 @@ tests:
           endpoint: test:4317
     asserts:
       - matchSnapshot: {}
+  - it: multi-pod leader election
+    template: deployment.yaml
+    set:
+      deployment:
+        replicas: 2
+      operator:
+        leaderElect: true
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2
+      - equal:
+          path: spec.template.spec.containers[0].args[1]
+          value: "--leader-elect"
