@@ -1,0 +1,19 @@
+kubeconfigSecretName: account-operator-kubeconfig
+virtualWorkspaceSecretName: kcp-virtual-workspaces-cert
+
+image:
+  # -- The image repository
+  name: ghcr.io/platform-mesh/virtual-workspaces
+  # Overwrite image.tag to use a different image tag then .chart.appVersion
+  #  tag: latest
+
+deployment:
+  entityLabel: ""
+  contentForLabel: ""
+  serverUrl: ""
+  providerWorkspaceId: ""
+  resourceSchemaName: ""
+  resourceSchemaWorkspace: ""
+
+service:
+  port: 8443

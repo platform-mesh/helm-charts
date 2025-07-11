@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}
+spec:
+  revisionHistoryLimit: {{ include "common.getKeyValue" (dict "Values" .Values "key" "deployment.revisionHistoryLimit") }}
+  selector:
+    matchLabels:
+      {{- include "common.labelMatcher" . | indent 6 }}
+  replicas: {{ .Values.deployment.replicas }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labelMatcher" . | indent 8 }}
+        {{- with ((.Values.deployment).specTemplate).labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- with ((.Values.deployment).specTemplate).annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        traffic.sidecar.istio.io/excludeInboundPorts: "{{ .Values.service.port }}"
+    spec:
+      {{- include "common.pod.securityContext" . | indent 6 }}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      containers:
+      - {{- include "common.podBasics" . | indent 8 }}
+        {{- include "common.container.securityContext" . | indent 8 }}
+        ports:
+          - name: vws
+            containerPort: {{ .Values.service.port }}
+            protocol: TCP
+        args:
+          - start
+          - --tls-cert-file=/certs/tls.crt
+          - --tls-private-key-file=/certs/tls.key
+          - --kubeconfig=/api-kubeconfig/kubeconfig
+          {{- with .Values.deployment.entityLabel }}
+          - --entity-label={{ . }}
+          {{- end }}
+          {{- with .Values.deployment.contentForLabel }}
+          - --content-for-label={{ . }}
+          {{- end }}
+          {{- with .Values.deployment.serverUrl }}
+          - --server-url={{ . }}
+          {{- end }}
+          {{- with .Values.deployment.providerWorkspaceId }}
+          - --provider-workspace-id={{ . }}
+          {{- end }}
+          {{- with .Values.deployment.resourceSchemaName }}
+          - --resource-schema-name={{ . }}
+          {{- end }}
+          {{- with .Values.deployment.resourceSchemaWorkspace }}
+          - --resource-schema-workspace={{ . }}
+          {{- end }}
+        volumeMounts:
+          {{- include "common.extraVolumeMounts" . | nindent 8 }}
+        - name: external-api-server
+          mountPath: /api-kubeconfig
+        - name: vws-cert
+          mountPath: /certs
+      {{- if .Values.deployment.hostAliases }}
+      hostAliases:
+      {{- range .Values.deployment.hostAliases }}
+        - ip: {{ .ip }}
+          hostnames:
+        {{- range .hostnames }}
+            - {{ . }}
+        {{- end }}
+      {{- end }}
+      {{- else }}
+      {{- end }}
+      volumes:
+        {{- include "common.extraVolumes" . | nindent 8 }}
+        - name: external-api-server
+          secret:
+            secretName: {{ .Values.kubeconfigSecretName }}
+        - name: vws-cert
+          secret:
+            secretName: {{ .Values.virtualWorkspaceSecretName }}
