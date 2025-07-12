@@ -1,0 +1,74 @@
+virtual-workspaces match the snapshot:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: virtual-workspaces
+    spec:
+      replicas: null
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: virtual-workspaces
+      template:
+        metadata:
+          annotations:
+            traffic.sidecar.istio.io/excludeInboundPorts: "8443"
+          labels:
+            app: virtual-workspaces
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - start
+                - --tls-cert-file=/certs/tls.crt
+                - --tls-private-key-file=/certs/tls.key
+                - --kubeconfig=/api-kubeconfig/kubeconfig
+              image: ghcr.io/platform-mesh/virtual-workspaces:0.0.0
+              imagePullPolicy: IfNotPresent
+              name: virtual-workspaces
+              ports:
+                - containerPort: 8443
+                  name: vws
+                  protocol: TCP
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts:
+                - mountPath: /api-kubeconfig
+                  name: external-api-server
+                - mountPath: /certs
+                  name: vws-cert
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: virtual-workspaces
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: external-api-server
+              secret:
+                secretName: account-operator-kubeconfig
+            - name: vws-cert
+              secret:
+                secretName: kcp-virtual-workspaces-cert
+  2: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: virtual-workspaces
+    spec:
+      ports:
+        - port: 8443
+          protocol: TCP
+          targetPort: 8443
+      selector:
+        app: virtual-workspaces
