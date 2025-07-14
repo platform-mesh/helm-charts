@@ -1,0 +1,35 @@
+components:
+  - name: {{ .COMPONENT_NAME }}
+    version: {{ .VERSION }}
+    provider:
+      name: The Open Micro Frontend Platform Team
+    resources:
+      - name: chart
+        type: helmChart
+        relation: external
+        version: {{ .VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
+      - name: image
+        type: ociImage
+        relation: external
+        version: {{ .APP_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "{{ .IMAGE_NAME }}:{{ .APP_VERSION }}"
+    sources:
+      - name: source
+        type: git
+        version: {{ .APP_VERSION }}
+        access:
+          commit: {{ .IMAGE_REPO_SHA }}
+          repoUrl: {{ .IMAGE_NAME }}
+          type: gitHub
+      - name: chart
+        type: git
+        version: {{ .VERSION }}
+        access:
+          commit: {{ .COMMIT }}
+          repoUrl: {{ .CHART_REPO }}
+          type: gitHub
