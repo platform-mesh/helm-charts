@@ -63,7 +63,7 @@ deployment:
     annotations: {}
     # -- The labels for the deployment
     labels: {}
-  replicas: 2
+  replicas: 1
 
   hostAliases: []
 #    - hostnames:
