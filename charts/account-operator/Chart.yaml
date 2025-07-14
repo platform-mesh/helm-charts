@@ -11,6 +11,6 @@ dependencies:
     # repository: oci://ghcr.io/platform-mesh/helm-charts
     repository: file://../account-operator-crds
   - name: common
-    version: 0.5.2
+    version: 0.5.3
     # repository: oci://ghcr.io/platform-mesh/helm-charts
     repository: file://../common
