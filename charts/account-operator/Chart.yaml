@@ -6,7 +6,7 @@ version: 0.8.17
 appVersion: "v0.1.6"
 dependencies:
   - name: account-operator-crds
-    version: 0.2.2
+    version: 0.2.3
     condition: crds.enabled
     # repository: oci://ghcr.io/platform-mesh/helm-charts
     repository: file://../account-operator-crds
