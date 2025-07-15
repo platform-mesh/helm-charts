@@ -32,3 +32,4 @@ jobs:
       chartPath: charts/account-operator-crds
       componentName: github.com/platform-mesh/account-operator-crds
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      ocmRegistryUrl: ghcr.io/openmfp/ocm

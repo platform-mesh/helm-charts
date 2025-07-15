@@ -31,3 +31,4 @@ jobs:
     with:
       chartPath: charts/account-operator
       componentName: github.com/platform-mesh/account-operator
+      ocmRegistryUrl: ghcr.io/openmfp/ocm
