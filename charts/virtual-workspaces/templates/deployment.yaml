@@ -38,6 +38,10 @@ spec:
           - --authentication-kubeconfig=/api-authentication-kubeconfig/kubeconfig
           - --authentication-skip-lookup
           - --client-ca-file=/client-ca/tls.crt
+          - --requestheader-client-ca-file=/requestheader-client-ca/tls.crt
+          - --requestheader-username-headers=X-Remote-User
+          - --requestheader-group-headers=X-Remote-Group
+          - --requestheader-extra-headers-prefix=X-Remote-Extra-
           {{- with .Values.service.port }}
           - --secure-port={{ . }}
           {{- end }}
@@ -69,6 +73,8 @@ spec:
           mountPath: /client-ca
         - name: vws-cert
           mountPath: /certs
+        - name: requestheader-client-ca
+          mountPath: /requestheader-client-ca
       {{- if .Values.deployment.hostAliases }}
       hostAliases:
       {{- range .Values.deployment.hostAliases }}
@@ -94,3 +100,6 @@ spec:
         - name: vws-cert
           secret:
             secretName: {{ .Values.virtualWorkspaceSecretName }}
+        - name: requestheader-client-ca
+          secret:
+            secretName: {{ .Values.requestHeaderClientCASecretName }}

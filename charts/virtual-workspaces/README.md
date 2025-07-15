@@ -23,6 +23,7 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | deployment.serverUrl | string | `""` |  |
 | image.name | string | `"ghcr.io/platform-mesh/virtual-workspaces"` | The image repository |
 | kubeconfigSecretName | string | `"account-operator-kubeconfig"` |  |
+| requestHeaderClientCASecretName | string | `"kcp-requestheader-client-ca"` |  |
 | service.port | int | `8443` |  |
 | virtualWorkspaceSecretName | string | `"kcp-virtual-workspaces-cert"` |  |
 
