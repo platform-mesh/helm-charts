@@ -12,8 +12,7 @@ virtual-workspaces match the snapshot:
           app: virtual-workspaces
       template:
         metadata:
-          annotations:
-            traffic.sidecar.istio.io/excludeInboundPorts: "8443"
+          annotations: null
           labels:
             app: virtual-workspaces
         spec:
