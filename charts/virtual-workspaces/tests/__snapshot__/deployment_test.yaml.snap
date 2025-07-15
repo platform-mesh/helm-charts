@@ -24,6 +24,9 @@ virtual-workspaces match the snapshot:
                 - --tls-private-key-file=/certs/tls.key
                 - --kubeconfig=/api-kubeconfig/kubeconfig
                 - --bind-address=0.0.0.0
+                - --authentication-kubeconfig=/api-authentication-kubeconfig/kubeconfig
+                - --authentication-skip-lookup
+                - --client-ca-file=/client-ca/tls.crt
                 - --secure-port=8443
               image: ghcr.io/platform-mesh/virtual-workspaces:0.0.0
               imagePullPolicy: IfNotPresent
@@ -46,6 +49,10 @@ virtual-workspaces match the snapshot:
               volumeMounts:
                 - mountPath: /api-kubeconfig
                   name: external-api-server
+                - mountPath: /api-authentication-kubeconfig
+                  name: authentication
+                - mountPath: /client-ca
+                  name: client-ca-secret
                 - mountPath: /certs
                   name: vws-cert
           securityContext:
@@ -58,6 +65,12 @@ virtual-workspaces match the snapshot:
             - name: external-api-server
               secret:
                 secretName: account-operator-kubeconfig
+            - name: authentication
+              secret:
+                secretName: portal-kubeconfig
+            - name: client-ca-secret
+              secret:
+                secretName: kcp-ca
             - name: vws-cert
               secret:
                 secretName: kcp-virtual-workspaces-cert

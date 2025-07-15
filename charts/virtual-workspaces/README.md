@@ -13,6 +13,8 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| authenticationKubeconfigSecretName | string | `"portal-kubeconfig"` |  |
+| clientCASecretName | string | `"kcp-ca"` |  |
 | deployment.contentForLabel | string | `""` |  |
 | deployment.entityLabel | string | `""` |  |
 | deployment.providerWorkspaceId | string | `""` |  |

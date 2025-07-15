@@ -35,6 +35,9 @@ spec:
           - --tls-private-key-file=/certs/tls.key
           - --kubeconfig=/api-kubeconfig/kubeconfig
           - --bind-address=0.0.0.0
+          - --authentication-kubeconfig=/api-authentication-kubeconfig/kubeconfig
+          - --authentication-skip-lookup
+          - --client-ca-file=/client-ca/tls.crt
           {{- with .Values.service.port }}
           - --secure-port={{ . }}
           {{- end }}
@@ -60,6 +63,10 @@ spec:
           {{- include "common.extraVolumeMounts" . | nindent 8 }}
         - name: external-api-server
           mountPath: /api-kubeconfig
+        - name: authentication
+          mountPath: /api-authentication-kubeconfig
+        - name: client-ca-secret
+          mountPath: /client-ca
         - name: vws-cert
           mountPath: /certs
       {{- if .Values.deployment.hostAliases }}
@@ -78,6 +85,12 @@ spec:
         - name: external-api-server
           secret:
             secretName: {{ .Values.kubeconfigSecretName }}
+        - name: authentication
+          secret:
+            secretName: {{ .Values.authenticationKubeconfigSecretName }}
+        - name: client-ca-secret
+          secret:
+            secretName: {{ .Values.clientCASecretName }}
         - name: vws-cert
           secret:
             secretName: {{ .Values.virtualWorkspaceSecretName }}
