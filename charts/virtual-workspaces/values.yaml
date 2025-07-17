@@ -13,11 +13,10 @@ image:
 deployment:
   entityLabel: ""
   contentForLabel: ""
-  serverUrl: ""
+  serverUrl: "https://kcp-front-proxy.openmfp-system:8443"
   providerWorkspaceId: ""
   resourceSchemaName: ""
   resourceSchemaWorkspace: ""
-  serverUrl: "https://kcp-front-proxy.openmfp-system:8443"
 
 service:
   port: 8443
