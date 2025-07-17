@@ -16,6 +16,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 | crds.enabled | bool | `true` | Enable CRDs |
 | deployment.hostAliases | list | `[]` |  |
 | deployment.replicas | int | `1` |  |
+| deployment.serverUrl | string | `"https://kcp-front-proxy.openmfp-system:8443"` | The service account name for the deployment |
 | deployment.specTemplate.annotations | object | `{}` | The annotations for the deployment |
 | deployment.specTemplate.labels | object | `{}` | The labels for the deployment |
 | image.name | string | `"ghcr.io/platform-mesh/account-operator"` | The image repository |
