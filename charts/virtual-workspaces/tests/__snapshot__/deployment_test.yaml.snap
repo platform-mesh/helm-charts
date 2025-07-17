@@ -32,6 +32,7 @@ virtual-workspaces match the snapshot:
                 - --requestheader-group-headers=X-Remote-Group
                 - --requestheader-extra-headers-prefix=X-Remote-Extra-
                 - --secure-port=8443
+                - --server-url=https://kcp-front-proxy.openmfp-system:8443
               image: ghcr.io/platform-mesh/virtual-workspaces:0.0.0
               imagePullPolicy: IfNotPresent
               name: virtual-workspaces
