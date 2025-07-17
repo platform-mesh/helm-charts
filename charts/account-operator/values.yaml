@@ -65,9 +65,6 @@ deployment:
     labels: {}
   replicas: 1
 
-  # -- The service account name for the deployment
-  serverUrl: "https://kcp-front-proxy.openmfp-system:8443"
-
   hostAliases: []
 #    - hostnames:
 #        - kcp.dev.local
