@@ -20,7 +20,6 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | deployment.providerWorkspaceId | string | `""` |  |
 | deployment.resourceSchemaName | string | `""` |  |
 | deployment.resourceSchemaWorkspace | string | `""` |  |
-| deployment.serverUrl | string | `""` |  |
 | deployment.serverUrl | string | `"https://kcp-front-proxy.openmfp-system:8443"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/virtual-workspaces"` | The image repository |
 | kubeconfigSecretName | string | `"account-operator-kubeconfig"` |  |
