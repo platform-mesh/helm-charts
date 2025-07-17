@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}-initializer
+  namespace: {{ .Release.Namespace }}
+spec:
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      service: {{ include "common.entity.name" . }}-initializer
+  template:
+    metadata:
+      labels:
+        service: {{ include "common.entity.name" . }}-initializer
+        control-plane: controller-manager
+    spec:
+      {{- include "common.pod.securityContext" . | indent 6 }}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      containers:
+      - {{- include "common.podBasics" . | indent 8 }}
+        {{- include "common.container.securityContext" . | indent 8 }}
+        {{- include "common.operatorHealthAndReadyness" . | indent 8}}
+        ports:
+        {{- include "common.PortsMetricsHealth" . | nindent 10 }}
+        args:
+          - initializer
+          - --core-module-path=/data/coreModule.fga
+        {{- include "common.commonOperatorArgs" . | indent 8 }}
+        env:
+        {{- include "common.basicEnvironment" . | nindent 10 }}
+          - name: FGA_TARGET
+            value: {{ .Values.fga.target }}
+          {{- if .Values.initializer.kubeconfigSecret }}
+          - name: KUBECONFIG
+            value: /api-kubeconfig/kubeconfig
+          {{- end }}
+        volumeMounts:
+          {{- include "common.extraVolumeMounts" . | nindent 10 }}
+          {{- if .Values.initializer.kubeconfigSecret }}
+          - name: external-api-server
+            mountPath: /api-kubeconfig
+          {{- end }}
+          - name: core-module
+            mountPath: /data
+      volumes:
+        {{- include "common.extraVolumes" . | nindent 8 }}
+        {{- if .Values.initializer.kubeconfigSecret }}
+        - name: external-api-server
+          secret:
+            secretName: {{ .Values.initializer.kubeconfigSecret }}
+        {{- end }}
+        - name: core-module
+          configMap:
+            name: {{ include "common.entity.name" . }}-core-module
+      {{- if .Values.hostAliases.enabled }}
+      hostAliases:
+        {{- with .Values.hostAliases.items }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}

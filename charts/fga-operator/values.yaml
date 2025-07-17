@@ -1,0 +1,72 @@
+image:
+  name: ghcr.io/openmfp/fga-operator
+
+# -- environment indicator, used for logging and observability
+environment: local
+# -- region indicator, used for logging and observability
+region: local
+
+deployment:
+  revisionHistoryLimit: 3
+  resources:
+    limits:
+      cpu: 260m
+      memory: 512Mi
+    requests:
+      cpu: 150m
+      memory: 128Mi
+
+crds:
+  enabled: false
+
+logLevel: info
+
+# -- The kubeconfig secret for operator and generator
+kubeconfigSecret: ""
+
+initializer:
+  # -- The kubeconfig secret for the initializer
+  kubeconfigSecret: ""
+
+fga:
+  target: openmfp-openfga.openmfp-system.svc.cluster.local:8081
+
+hostAliases:
+  enabled: true
+  items:
+    - ip: 10.96.0.100
+      hostnames:
+        - kcp.dev.local
+
+coreModule: |
+  module core
+
+  type user
+
+  type role
+    relations
+      define assignee: [user,user:*]
+
+  type account
+    relations
+
+      define parent: [account]
+      define owner: [role#assignee]
+      define member: [role#assignee] or owner
+
+      define get: member or get from parent
+      define update: member or update from parent
+      define delete: owner or delete from parent
+
+      define create_core_openmfp_org_accounts: member
+      define list_core_openmfp_org_accounts: member
+      define watch_core_openmfp_org_accounts: member
+
+      define member_manage: owner or owner from parent
+
+      # org and account specific
+      define watch: member or watch from parent
+
+      # org specific
+      define create: member or create from parent
+      define list: member or list from parent

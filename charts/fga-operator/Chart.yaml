@@ -1,0 +1,14 @@
+apiVersion: v2
+name: fga-operator
+description: A Helm chart for fga-operator
+type: application
+version: 0.7.53
+appVersion: "v0.101.17"
+dependencies:
+  - name: fga-operator-crds
+    version: 0.2.2
+    condition: crds.enabled
+    repository: oci://ghcr.io/openmfp/helm-charts-priv
+  - name: common
+    version: 0.5.2
+    repository: oci://ghcr.io/openmfp/helm-charts

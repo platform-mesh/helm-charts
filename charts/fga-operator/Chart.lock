@@ -1,0 +1,9 @@
+dependencies:
+- name: fga-operator-crds
+  repository: oci://ghcr.io/openmfp/helm-charts-priv
+  version: 0.2.2
+- name: common
+  repository: oci://ghcr.io/openmfp/helm-charts
+  version: 0.5.2
+digest: sha256:1442150df0d58c36f04c44b8deb29c0729fd207bdd240fe0a212e6b91e91a1fc
+generated: "2025-06-14T08:12:06.400418444Z"
