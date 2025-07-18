@@ -1,0 +1,37 @@
+name: Build security-operator-crds Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/security-operator-crds/**'
+      - '.github/workflows/security-operator-crds.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+  pull_request:
+    paths:
+      - 'charts/security-operator-crds/**'
+      - '.github/workflows/security-operator-crds.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: security-operator-crds-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: security-operator-crds
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/security-operator-crds
+      componentName: github.com/platform-mesh/security-operator-crds
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      ocmRegistryUrl: ghcr.io/openmfp/ocm
