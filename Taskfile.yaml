@@ -56,7 +56,7 @@ tasks:
       - task: setup:kube-lint
     cmds:
       - "{{.LOCAL_BIN}}/kube-linter lint \"charts/\" --format \"plain\""
-  helm-docs:
+  docs:
     deps:
       - task: setup:helm-docs
     cmds:
