@@ -1,0 +1,24 @@
+name: Build common Workflow
+on:
+  push:
+    paths:
+      - 'charts/common/**'
+      - '.github/workflows/common.yaml'
+  pull_request:
+    paths:
+      - 'charts/common/**'
+      - '.github/workflows/common.yaml'
+
+concurrency:
+  group: common-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: common
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
