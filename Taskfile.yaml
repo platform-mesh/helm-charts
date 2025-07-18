@@ -19,7 +19,7 @@ tasks:
   setup:helm-docs:
     internal: true
     cmds:
-      - test -s {{.LOCAL_BIN}}/helm-docs || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
+      - test -s {{.LOCAL_BIN}}/helm-docs || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/norwoodj/helm-docs/cmd/helm-docs@v1.14.2
   ## Development
   lint:
     deps: []
