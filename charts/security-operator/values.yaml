@@ -84,6 +84,9 @@ coreModule: |-
     relations
       define parent: [core_platform-mesh_io_account]
 
+      define member: member from parent
+      define owner: owner from parent
+
       define get: get from parent
       define update: update from parent
       define delete: delete from parent

@@ -84,6 +84,9 @@ operator match the snapshot:
           relations
             define parent: [core_platform-mesh_io_account]
 
+            define member: member from parent
+            define owner: owner from parent
+
             define get: get from parent
             define update: update from parent
             define delete: delete from parent
@@ -491,6 +494,9 @@ operator match the snapshot w. sentry:
         type core_namespace
           relations
             define parent: [core_platform-mesh_io_account]
+
+            define member: member from parent
+            define owner: owner from parent
 
             define get: get from parent
             define update: update from parent
