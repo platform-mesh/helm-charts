@@ -63,6 +63,12 @@ spec:
           {{- with .Values.deployment.resourceSchemaWorkspace }}
           - --resource-schema-workspace={{ . }}
           {{- end }}
+          {{- with .Values.deployment.providerMetadataVirtualWorkspacePath }}
+          - --provider-metadata-virtual-workspace-path={{ . }}
+          {{- end }}
+          {{- with .Values.deployment.apiExportVirtualWorkspacePath }}
+          - --apiexport-virtual-workspace-path={{ . }}
+          {{- end }}
         volumeMounts:
           {{- include "common.extraVolumeMounts" . | nindent 8 }}
         - name: external-api-server

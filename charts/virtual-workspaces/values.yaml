@@ -17,6 +17,8 @@ deployment:
   providerWorkspaceId: ""
   resourceSchemaName: ""
   resourceSchemaWorkspace: ""
+  providerMetadataVirtualWorkspacePath: ""
+  apiExportVirtualWorkspacePath: ""
 
 service:
   port: 8443
