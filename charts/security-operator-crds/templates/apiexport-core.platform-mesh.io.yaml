@@ -1,0 +1,10 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIExport
+metadata:
+  creationTimestamp: null
+  name: core.platform-mesh.io
+spec:
+  latestResourceSchemas:
+  - v250718-a64f278.authorizationmodels.core.platform-mesh.io
+  - v250718-a64f278.stores.core.platform-mesh.io
+status: {}
