@@ -38,7 +38,7 @@ subroutines:
     # -- The root namespace for FGA
     rootNamespace: platform-mesh-root
     # -- The object type for FGA
-    objectType: account
+    objectType: core_platform-mesh_io_account
     # -- The parent relation for FGA
     parentRelation: parent
     # -- The creator relation for FGA

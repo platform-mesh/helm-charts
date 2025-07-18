@@ -1,6 +1,8 @@
 name: Build account-operator Workflow
 on:
   push:
+    branches:
+      - main
     paths:
       - 'charts/account-operator/**'
       - '.github/workflows/account-operator.yaml'

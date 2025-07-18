@@ -15,12 +15,14 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 |-----|------|---------|-------------|
 | authenticationKubeconfigSecretName | string | `"portal-kubeconfig"` |  |
 | clientCASecretName | string | `"kcp-ca"` |  |
+| deployment.apiExportVirtualWorkspacePath | string | `""` |  |
 | deployment.contentForLabel | string | `""` |  |
 | deployment.entityLabel | string | `""` |  |
+| deployment.providerMetadataVirtualWorkspacePath | string | `""` |  |
 | deployment.providerWorkspaceId | string | `""` |  |
 | deployment.resourceSchemaName | string | `""` |  |
 | deployment.resourceSchemaWorkspace | string | `""` |  |
-| deployment.serverUrl | string | `""` |  |
+| deployment.serverUrl | string | `"https://kcp-front-proxy.openmfp-system:8443"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/virtual-workspaces"` | The image repository |
 | kubeconfigSecretName | string | `"account-operator-kubeconfig"` |  |
 | requestHeaderClientCASecretName | string | `"kcp-requestheader-client-ca"` |  |
