@@ -1,6 +1,6 @@
-# fga-operator
+# security-operator
 
-A Helm chart for fga-operator
+A Helm chart for security-operator
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 ## Values
@@ -18,7 +18,7 @@ A Helm chart for fga-operator
 | hostAliases.enabled | bool | `true` |  |
 | hostAliases.items[0].hostnames[0] | string | `"kcp.dev.local"` |  |
 | hostAliases.items[0].ip | string | `"10.96.0.100"` |  |
-| image.name | string | `"ghcr.io/openmfp/fga-operator"` |  |
+| image.name | string | `"ghcr.io/platform-mesh/security-operator"` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |

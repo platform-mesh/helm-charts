@@ -1,5 +1,5 @@
 image:
-  name: ghcr.io/openmfp/fga-operator
+  name: ghcr.io/platform-mesh/security-operator
 
 # -- environment indicator, used for logging and observability
 environment: local
@@ -58,9 +58,9 @@ coreModule: |
       define update: member or update from parent
       define delete: owner or delete from parent
 
-      define create_core_openmfp_org_accounts: member
-      define list_core_openmfp_org_accounts: member
-      define watch_core_openmfp_org_accounts: member
+      define create_core_platform_mesh_org_accounts: member
+      define list_core_platform_mesh_org_accounts: member
+      define watch_core_platform_mesh_org_accounts: member
 
       define member_manage: owner or owner from parent
 

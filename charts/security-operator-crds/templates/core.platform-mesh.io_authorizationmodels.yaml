@@ -4,20 +4,21 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.16.4
-  name: stores.core.openmfp.io
+  name: authorizationmodels.core.platform-mesh.io
 spec:
-  group: core.openmfp.io
+  group: core.platform-mesh.io
   names:
-    kind: Store
-    listKind: StoreList
-    plural: stores
-    singular: store
+    kind: AuthorizationModel
+    listKind: AuthorizationModelList
+    plural: authorizationmodels
+    singular: authorizationmodel
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Store is the Schema for the stores API.
+        description: AuthorizationModel is the Schema for the authorizationmodels
+          API.
         properties:
           apiVersion:
             description: |-
@@ -37,9 +38,9 @@ spec:
           metadata:
             type: object
           spec:
-            description: StoreSpec defines the desired state of Store.
+            description: AuthorizationModelSpec defines the desired state of AuthorizationModel.
             properties:
-              coreModule:
+              model:
                 type: string
               tuples:
                 items:
@@ -57,13 +58,11 @@ spec:
                   type: object
                 type: array
             required:
-            - coreModule
+            - model
             type: object
           status:
-            description: StoreStatus defines the observed state of Store.
+            description: AuthorizationModelStatus defines the observed state of AuthorizationModel.
             properties:
-              authorizationModelId:
-                type: string
               conditions:
                 items:
                   description: Condition contains details for one aspect of the current
@@ -135,8 +134,6 @@ spec:
                   - user
                   type: object
                 type: array
-              storeId:
-                type: string
             type: object
         type: object
     served: true

@@ -1,4 +1,4 @@
-# fga-operator-crds
+# security-operator-crds
 
 A Helm chart for Kubernetes
 
