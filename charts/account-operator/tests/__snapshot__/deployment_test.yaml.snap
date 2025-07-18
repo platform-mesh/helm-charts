@@ -50,7 +50,7 @@ deployment with tracing:
                 - name: SUBROUTINES_FGA_ROOT_NAMESPACE
                   value: platform-mesh-root
                 - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: account
+                  value: core_platform-mesh_io_account
                 - name: SUBROUTINES_FGA_PARENT_RELATION
                   value: parent
                 - name: SUBROUTINES_FGA_CREATOR_RELATION
@@ -604,7 +604,7 @@ operator match the snapshot:
                 - name: SUBROUTINES_FGA_ROOT_NAMESPACE
                   value: platform-mesh-root
                 - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: account
+                  value: core_platform-mesh_io_account
                 - name: SUBROUTINES_FGA_PARENT_RELATION
                   value: parent
                 - name: SUBROUTINES_FGA_CREATOR_RELATION
@@ -1202,7 +1202,7 @@ operator match the snapshot (with kubeconfigSecret):
                 - name: SUBROUTINES_FGA_ROOT_NAMESPACE
                   value: platform-mesh-root
                 - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: account
+                  value: core_platform-mesh_io_account
                 - name: SUBROUTINES_FGA_PARENT_RELATION
                   value: parent
                 - name: SUBROUTINES_FGA_CREATOR_RELATION
@@ -1802,7 +1802,7 @@ operator match the snapshot with webhook enabled:
                 - name: SUBROUTINES_FGA_ROOT_NAMESPACE
                   value: platform-mesh-root
                 - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: account
+                  value: core_platform-mesh_io_account
                 - name: SUBROUTINES_FGA_PARENT_RELATION
                   value: parent
                 - name: SUBROUTINES_FGA_CREATOR_RELATION

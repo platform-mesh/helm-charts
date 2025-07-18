@@ -1,6 +1,8 @@
 name: Build common Workflow
 on:
   push:
+    branches:
+      - main
     paths:
       - 'charts/common/**'
       - '.github/workflows/common.yaml'

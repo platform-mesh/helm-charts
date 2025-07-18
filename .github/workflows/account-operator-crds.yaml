@@ -1,6 +1,8 @@
 name: Build account-operator-crds Workflow
 on:
   push:
+    branches:
+      - main
     paths:
       - 'charts/account-operator-crds/**'
       - '.github/workflows/account-operator-crds.yaml'
