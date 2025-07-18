@@ -1,0 +1,36 @@
+name: Build rebac-authz-webhook Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/rebac-authz-webhook/**'
+      - '.github/workflows/rebac-authz-webhook.yaml'
+      - '.ocm/component-constructor.yaml'
+  pull_request:
+    paths:
+      - 'charts/rebac-authz-webhook/**'
+      - '.github/workflows/rebac-authz-webhook.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: rebac-authz-webhook-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: rebac-authz-webhook
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/rebac-authz-webhook
+      componentName: github.com/platform-mesh/rebac-authz-webhook
+      ocmRegistryUrl: ghcr.io/openmfp/ocm
