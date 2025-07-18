@@ -3,7 +3,7 @@ operator match the snapshot:
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
     metadata:
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
     rules:
       - apiGroups:
           - coordination.k8s.io
@@ -27,19 +27,19 @@ operator match the snapshot:
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
     subjects:
       - kind: ServiceAccount
-        name: RELEASE-NAME-fga-operator
+        name: RELEASE-NAME-security-operator
         namespace: NAMESPACE
   3: |
     apiVersion: v1
     data:
-      coreModule.fga: |
+      coreModule.fga: |2-
         module core
 
         type user
@@ -48,10 +48,10 @@ operator match the snapshot:
           relations
             define assignee: [user,user:*]
 
-        type account
+        type core_platform-mesh_io_account
           relations
 
-            define parent: [account]
+            define parent: [core_platform-mesh_io_account]
             define owner: [role#assignee]
             define member: [role#assignee] or owner
 
@@ -59,9 +59,9 @@ operator match the snapshot:
             define update: member or update from parent
             define delete: owner or delete from parent
 
-            define create_core_openmfp_org_accounts: member
-            define list_core_openmfp_org_accounts: member
-            define watch_core_openmfp_org_accounts: member
+            define create_core_platform-mesh_io_accounts: member
+            define list_core_platform-mesh_io_accounts: member
+            define watch_core_platform-mesh_io_accounts: member
 
             define member_manage: owner or owner from parent
 
@@ -71,24 +71,63 @@ operator match the snapshot:
             # org specific
             define create: member or create from parent
             define list: member or list from parent
+
+            define create_core_namespaces: member
+            define list_core_namespaces: member
+            define watch_core_namespaces: member
+
+            define create_core_platform-mesh_io_accountinfos: member
+            define list_core_platform-mesh_io_accountinfos: member
+            define watch_core_platform-mesh_io_accountinfos: member
+
+        type core_namespace
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define get: get from parent
+            define update: update from parent
+            define delete: delete from parent
+
+            # org and account specific
+            define watch: watch from parent
+
+            # org specific
+            define create: create from parent
+            define list: list from parent
+
+        type core_platform-mesh_io_accountinfo
+          relations
+
+            define parent: [core_platform-mesh_io_account]
+
+            define get: get from parent
+            define update: update from parent
+            define delete: delete from parent
+
+            # org and account specific
+            define watch: watch from parent
+
+            # org specific
+            define create: create from parent
+            define list: list from parent
     kind: ConfigMap
     metadata:
-      name: RELEASE-NAME-fga-operator-core-module
+      name: RELEASE-NAME-security-operator-core-module
   4: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
     spec:
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          app: RELEASE-NAME-fga-operator
+          app: RELEASE-NAME-security-operator
       template:
         metadata:
           labels:
-            app: RELEASE-NAME-fga-operator
+            app: RELEASE-NAME-security-operator
             control-plane: controller-manager
         spec:
           automountServiceAccountToken: true
@@ -102,7 +141,7 @@ operator match the snapshot:
                 - --region=local
                 - --environment=local
                 - --image-tag=1.0.0
-                - --image-name="ghcr.io/openmfp/fga-operator"
+                - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
@@ -110,7 +149,7 @@ operator match the snapshot:
                   value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/openmfp/fga-operator:1.0.0
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -118,7 +157,7 @@ operator match the snapshot:
                   path: /healthz
                   port: 8090
                 periodSeconds: 10
-              name: RELEASE-NAME-fga-operator
+              name: RELEASE-NAME-security-operator
               ports:
                 - containerPort: 9090
                   name: metrics
@@ -161,7 +200,7 @@ operator match the snapshot:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-          serviceAccountName: RELEASE-NAME-fga-operator
+          serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
             - name: external-api-server
@@ -171,18 +210,18 @@ operator match the snapshot:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: RELEASE-NAME-fga-operator-generator
+      name: RELEASE-NAME-security-operator-generator
       namespace: NAMESPACE
     spec:
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          service: RELEASE-NAME-fga-operator-generator
+          service: RELEASE-NAME-security-operator-generator
       template:
         metadata:
           labels:
             control-plane: controller-manager
-            service: RELEASE-NAME-fga-operator-generator
+            service: RELEASE-NAME-security-operator-generator
         spec:
           automountServiceAccountToken: true
           containers:
@@ -195,7 +234,7 @@ operator match the snapshot:
                 - --region=local
                 - --environment=local
                 - --image-tag=1.0.0
-                - --image-name="ghcr.io/openmfp/fga-operator"
+                - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
@@ -203,7 +242,7 @@ operator match the snapshot:
                   value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/openmfp/fga-operator:1.0.0
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -211,7 +250,7 @@ operator match the snapshot:
                   path: /healthz
                   port: 8090
                 periodSeconds: 10
-              name: RELEASE-NAME-fga-operator
+              name: RELEASE-NAME-security-operator
               ports:
                 - containerPort: 9090
                   name: metrics
@@ -254,7 +293,7 @@ operator match the snapshot:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-          serviceAccountName: RELEASE-NAME-fga-operator
+          serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
             - name: external-api-server
@@ -264,18 +303,18 @@ operator match the snapshot:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: RELEASE-NAME-fga-operator-initializer
+      name: RELEASE-NAME-security-operator-initializer
       namespace: NAMESPACE
     spec:
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          service: RELEASE-NAME-fga-operator-initializer
+          service: RELEASE-NAME-security-operator-initializer
       template:
         metadata:
           labels:
             control-plane: controller-manager
-            service: RELEASE-NAME-fga-operator-initializer
+            service: RELEASE-NAME-security-operator-initializer
         spec:
           automountServiceAccountToken: true
           containers:
@@ -289,7 +328,7 @@ operator match the snapshot:
                 - --region=local
                 - --environment=local
                 - --image-tag=1.0.0
-                - --image-name="ghcr.io/openmfp/fga-operator"
+                - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
@@ -297,7 +336,7 @@ operator match the snapshot:
                   value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/openmfp/fga-operator:1.0.0
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -305,7 +344,7 @@ operator match the snapshot:
                   path: /healthz
                   port: 8090
                 periodSeconds: 10
-              name: RELEASE-NAME-fga-operator
+              name: RELEASE-NAME-security-operator
               ports:
                 - containerPort: 9090
                   name: metrics
@@ -350,14 +389,14 @@ operator match the snapshot:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-          serviceAccountName: RELEASE-NAME-fga-operator
+          serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
             - name: external-api-server
               secret:
                 secretName: kcp-initializer-kubeconfig
             - configMap:
-                name: RELEASE-NAME-fga-operator-core-module
+                name: RELEASE-NAME-security-operator-core-module
               name: core-module
   7: |
     apiVersion: v1
@@ -365,14 +404,14 @@ operator match the snapshot:
       - name: github
     kind: ServiceAccount
     metadata:
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
 operator match the snapshot w. sentry:
   1: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
     metadata:
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
     rules:
       - apiGroups:
           - coordination.k8s.io
@@ -396,19 +435,19 @@ operator match the snapshot w. sentry:
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
     subjects:
       - kind: ServiceAccount
-        name: RELEASE-NAME-fga-operator
+        name: RELEASE-NAME-security-operator
         namespace: NAMESPACE
   3: |
     apiVersion: v1
     data:
-      coreModule.fga: |
+      coreModule.fga: |2-
         module core
 
         type user
@@ -417,10 +456,10 @@ operator match the snapshot w. sentry:
           relations
             define assignee: [user,user:*]
 
-        type account
+        type core_platform-mesh_io_account
           relations
 
-            define parent: [account]
+            define parent: [core_platform-mesh_io_account]
             define owner: [role#assignee]
             define member: [role#assignee] or owner
 
@@ -428,9 +467,9 @@ operator match the snapshot w. sentry:
             define update: member or update from parent
             define delete: owner or delete from parent
 
-            define create_core_openmfp_org_accounts: member
-            define list_core_openmfp_org_accounts: member
-            define watch_core_openmfp_org_accounts: member
+            define create_core_platform-mesh_io_accounts: member
+            define list_core_platform-mesh_io_accounts: member
+            define watch_core_platform-mesh_io_accounts: member
 
             define member_manage: owner or owner from parent
 
@@ -440,24 +479,63 @@ operator match the snapshot w. sentry:
             # org specific
             define create: member or create from parent
             define list: member or list from parent
+
+            define create_core_namespaces: member
+            define list_core_namespaces: member
+            define watch_core_namespaces: member
+
+            define create_core_platform-mesh_io_accountinfos: member
+            define list_core_platform-mesh_io_accountinfos: member
+            define watch_core_platform-mesh_io_accountinfos: member
+
+        type core_namespace
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define get: get from parent
+            define update: update from parent
+            define delete: delete from parent
+
+            # org and account specific
+            define watch: watch from parent
+
+            # org specific
+            define create: create from parent
+            define list: list from parent
+
+        type core_platform-mesh_io_accountinfo
+          relations
+
+            define parent: [core_platform-mesh_io_account]
+
+            define get: get from parent
+            define update: update from parent
+            define delete: delete from parent
+
+            # org and account specific
+            define watch: watch from parent
+
+            # org specific
+            define create: create from parent
+            define list: list from parent
     kind: ConfigMap
     metadata:
-      name: RELEASE-NAME-fga-operator-core-module
+      name: RELEASE-NAME-security-operator-core-module
   4: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
     spec:
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          app: RELEASE-NAME-fga-operator
+          app: RELEASE-NAME-security-operator
       template:
         metadata:
           labels:
-            app: RELEASE-NAME-fga-operator
+            app: RELEASE-NAME-security-operator
             control-plane: controller-manager
         spec:
           automountServiceAccountToken: true
@@ -471,7 +549,7 @@ operator match the snapshot w. sentry:
                 - --region=local
                 - --environment=local
                 - --image-tag=1.0.0
-                - --image-name="ghcr.io/openmfp/fga-operator"
+                - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
@@ -479,12 +557,12 @@ operator match the snapshot w. sentry:
                   valueFrom:
                     secretKeyRef:
                       key: dsn
-                      name: RELEASE-NAME-fga-operator-sentry
+                      name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
                 - name: FGA_TARGET
                   value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
-              image: ghcr.io/openmfp/fga-operator:1.0.0
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -492,7 +570,7 @@ operator match the snapshot w. sentry:
                   path: /healthz
                   port: 8090
                 periodSeconds: 10
-              name: RELEASE-NAME-fga-operator
+              name: RELEASE-NAME-security-operator
               ports:
                 - containerPort: 9090
                   name: metrics
@@ -536,7 +614,7 @@ operator match the snapshot w. sentry:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-          serviceAccountName: RELEASE-NAME-fga-operator
+          serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
             - name: kcp-kubeconfig
@@ -546,18 +624,18 @@ operator match the snapshot w. sentry:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: RELEASE-NAME-fga-operator-generator
+      name: RELEASE-NAME-security-operator-generator
       namespace: NAMESPACE
     spec:
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          service: RELEASE-NAME-fga-operator-generator
+          service: RELEASE-NAME-security-operator-generator
       template:
         metadata:
           labels:
             control-plane: controller-manager
-            service: RELEASE-NAME-fga-operator-generator
+            service: RELEASE-NAME-security-operator-generator
         spec:
           automountServiceAccountToken: true
           containers:
@@ -570,7 +648,7 @@ operator match the snapshot w. sentry:
                 - --region=local
                 - --environment=local
                 - --image-tag=1.0.0
-                - --image-name="ghcr.io/openmfp/fga-operator"
+                - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
@@ -578,12 +656,12 @@ operator match the snapshot w. sentry:
                   valueFrom:
                     secretKeyRef:
                       key: dsn
-                      name: RELEASE-NAME-fga-operator-sentry
+                      name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
                 - name: FGA_TARGET
                   value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
-              image: ghcr.io/openmfp/fga-operator:1.0.0
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -591,7 +669,7 @@ operator match the snapshot w. sentry:
                   path: /healthz
                   port: 8090
                 periodSeconds: 10
-              name: RELEASE-NAME-fga-operator
+              name: RELEASE-NAME-security-operator
               ports:
                 - containerPort: 9090
                   name: metrics
@@ -635,7 +713,7 @@ operator match the snapshot w. sentry:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-          serviceAccountName: RELEASE-NAME-fga-operator
+          serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
             - name: kcp-kubeconfig
@@ -645,18 +723,18 @@ operator match the snapshot w. sentry:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: RELEASE-NAME-fga-operator-initializer
+      name: RELEASE-NAME-security-operator-initializer
       namespace: NAMESPACE
     spec:
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          service: RELEASE-NAME-fga-operator-initializer
+          service: RELEASE-NAME-security-operator-initializer
       template:
         metadata:
           labels:
             control-plane: controller-manager
-            service: RELEASE-NAME-fga-operator-initializer
+            service: RELEASE-NAME-security-operator-initializer
         spec:
           automountServiceAccountToken: true
           containers:
@@ -670,7 +748,7 @@ operator match the snapshot w. sentry:
                 - --region=local
                 - --environment=local
                 - --image-tag=1.0.0
-                - --image-name="ghcr.io/openmfp/fga-operator"
+                - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
@@ -678,12 +756,12 @@ operator match the snapshot w. sentry:
                   valueFrom:
                     secretKeyRef:
                       key: dsn
-                      name: RELEASE-NAME-fga-operator-sentry
+                      name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
                 - name: FGA_TARGET
                   value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
-              image: ghcr.io/openmfp/fga-operator:1.0.0
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -691,7 +769,7 @@ operator match the snapshot w. sentry:
                   path: /healthz
                   port: 8090
                 periodSeconds: 10
-              name: RELEASE-NAME-fga-operator
+              name: RELEASE-NAME-security-operator
               ports:
                 - containerPort: 9090
                   name: metrics
@@ -737,27 +815,27 @@ operator match the snapshot w. sentry:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-          serviceAccountName: RELEASE-NAME-fga-operator
+          serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig
             - configMap:
-                name: RELEASE-NAME-fga-operator-core-module
+                name: RELEASE-NAME-security-operator-core-module
               name: core-module
   7: |
     apiVersion: external-secrets.io/v1beta1
     kind: ExternalSecret
     metadata:
-      name: RELEASE-NAME-fga-operator-sentry
+      name: RELEASE-NAME-security-operator-sentry
       namespace: NAMESPACE
     spec:
       data:
         - remoteRef:
             conversionStrategy: Default
             key: sentry/sentry-dsn
-            property: RELEASE-NAME-fga-operator-sentry
+            property: RELEASE-NAME-security-operator-sentry
           secretKey: dsn
       refreshInterval: 10m
       secretStoreRef:
@@ -766,12 +844,12 @@ operator match the snapshot w. sentry:
       target:
         creationPolicy: Owner
         deletionPolicy: Retain
-        name: RELEASE-NAME-fga-operator-sentry
+        name: RELEASE-NAME-security-operator-sentry
   8: |
     apiVersion: v1
     imagePullSecrets:
       - name: github
     kind: ServiceAccount
     metadata:
-      name: RELEASE-NAME-fga-operator
+      name: RELEASE-NAME-security-operator
       namespace: NAMESPACE

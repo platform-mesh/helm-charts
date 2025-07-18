@@ -1,9 +1,9 @@
 dependencies:
 - name: security-operator-crds
   repository: file://../security-operator-crds
-  version: 0.2.2
+  version: 0.3.0
 - name: common
   repository: file://../common
-  version: 0.5.3
-digest: sha256:88ebcd273e0b6e234087c85ded06508feaeec9171e09bab48977afcab00c231b
-generated: "2025-07-17T21:01:55.94035049+02:00"
+  version: 0.5.4
+digest: sha256:9c30681293f72710808d24425aea1bb87f9f7796b834f9927bac0ac052c850eb
+generated: "2025-07-18T11:51:10.958416+02:00"
