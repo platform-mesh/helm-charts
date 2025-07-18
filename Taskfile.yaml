@@ -36,18 +36,18 @@ tasks:
       - task: helmtest
   update-changed:
     deps:
-      - task: helm-docs
+      - task: docs
     cmds:
       - "for chart in $(echo {{.CHANGED_CHARTS}} | tr ',' ' '); do helm dependency update $chart && helm unittest -u $chart; done"
   update:
     deps:
-      - task: helm-docs
+      - task: docs
     cmds:
       - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm dependency update $chart; done"
   validate:
     cmds:
       - task: test
-      - task: helm-docs
+      - task: docs
       - task: update
       - task: lint
       - task: oci
