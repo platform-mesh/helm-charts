@@ -80,7 +80,7 @@ it should render the application manifests:
                 - --log-level=INFO
                 - --health-probe-bind-address=:8081
               env: null
-              image: ghcr.io/openmfp/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -262,7 +262,7 @@ it should render the application manifests with service account:
                 - --log-level=INFO
                 - --health-probe-bind-address=:8081
               env: null
-              image: ghcr.io/openmfp/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -444,7 +444,7 @@ it should render the application manifests with service monitor:
                 - --log-level=INFO
                 - --health-probe-bind-address=:8081
               env: null
-              image: ghcr.io/openmfp/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -648,7 +648,7 @@ it should render the application manifests with useInClusterClient:
                 - --log-level=INFO
                 - --health-probe-bind-address=:8081
               env: null
-              image: ghcr.io/openmfp/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -830,7 +830,7 @@ it should render the cert-manager manifests with certManager enabled:
                 - --log-level=INFO
                 - --health-probe-bind-address=:8081
               env: null
-              image: ghcr.io/openmfp/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
                 httpGet:

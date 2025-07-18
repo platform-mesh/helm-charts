@@ -13,7 +13,7 @@ A Helm chart for Kubernetes
 | certManager.ipAddresses[0] | string | `"10.96.86.219"` |  |
 | health.port | int | `8081` |  |
 | healthProbeBindAddress | string | `":8081"` |  |
-| image.name | string | `"ghcr.io/openmfp/rebac-authz-webhook"` |  |
+| image.name | string | `"ghcr.io/platform-mesh/rebac-authz-webhook"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | string | `"github"` |  |
 | istio.dnsNames | list | `[]` |  |

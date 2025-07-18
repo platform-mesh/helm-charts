@@ -6,7 +6,7 @@ certManager:
   caSecretName: iam-authorization-webhook-webhook-ca
   createCA: false
 image:
-  name: ghcr.io/openmfp/rebac-authz-webhook
+  name: ghcr.io/platform-mesh/rebac-authz-webhook
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
