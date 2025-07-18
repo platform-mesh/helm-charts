@@ -16,12 +16,12 @@ The values in the `defaults:` section can be reused from other charts by using t
 3. Uses the `key` in the chart's values.yaml
 4. Uses the `common.defaults.key` value from the table below.
 
-1 has precendence over 2 over 3 over 4 respectively. This approach allows for individual charts to have minimal configuration, while still being able to override parameters locally.
+1 has precedence over 2 over 3 over 4 respectively. This approach allows for individual charts to have minimal configuration, while still being able to override parameters locally.
 
 Example
 ```
-1) .Values.deployment.resources.limits.memoryOveride =  4096MB
-2) .Values.global.deployment.resources.limits.memory =  2048MB
-3) .Values.deployment.resources.limits.memory =  1024MB
+1) .Values.deployment.resources.limits.memoryOverride = 4096MB
+2) .Values.global.deployment.resources.limits.memory = 2048MB
+3) .Values.deployment.resources.limits.memory = 1024MB
 4) .Values.common.defaults.deployment.resources.limits.memory = default 512MB
 ```

@@ -6,7 +6,7 @@ A Helm chart for security-operator
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| coreModule | string | `"module core\n\ntype user\n\ntype role\n  relations\n    define assignee: [user,user:*]\n\ntype account\n  relations\n\n    define parent: [account]\n    define owner: [role#assignee]\n    define member: [role#assignee] or owner\n\n    define get: member or get from parent\n    define update: member or update from parent\n    define delete: owner or delete from parent\n\n    define create_core_openmfp_org_accounts: member\n    define list_core_openmfp_org_accounts: member\n    define watch_core_openmfp_org_accounts: member\n\n    define member_manage: owner or owner from parent\n\n    # org and account specific\n    define watch: member or watch from parent\n\n    # org specific\n    define create: member or create from parent\n    define list: member or list from parent\n"` |  |
+| coreModule | string | `"\nmodule core\n\ntype user\n\ntype role\n  relations\n    define assignee: [user,user:*]\n\ntype core_platform-mesh_io_account\n  relations\n\n    define parent: [core_platform-mesh_io_account]\n    define owner: [role#assignee]\n    define member: [role#assignee] or owner\n\n    define get: member or get from parent\n    define update: member or update from parent\n    define delete: owner or delete from parent\n\n    define create_core_platform-mesh_io_accounts: member\n    define list_core_platform-mesh_io_accounts: member\n    define watch_core_platform-mesh_io_accounts: member\n\n    define member_manage: owner or owner from parent\n\n    # org and account specific\n    define watch: member or watch from parent\n\n    # org specific\n    define create: member or create from parent\n    define list: member or list from parent\n\n    define create_core_namespaces: member\n    define list_core_namespaces: member\n    define watch_core_namespaces: member\n\n    define create_core_platform-mesh_io_accountinfos: member\n    define list_core_platform-mesh_io_accountinfos: member\n    define watch_core_platform-mesh_io_accountinfos: member\n\ntype core_namespace\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define get: get from parent\n    define update: update from parent\n    define delete: delete from parent\n\n    # org and account specific\n    define watch: watch from parent\n\n    # org specific\n    define create: create from parent\n    define list: list from parent\n\ntype core_platform-mesh_io_accountinfo\n  relations\n\n    define parent: [core_platform-mesh_io_account]\n\n    define get: get from parent\n    define update: update from parent\n    define delete: delete from parent\n\n    # org and account specific\n    define watch: watch from parent\n\n    # org specific\n    define create: create from parent\n    define list: list from parent"` |  |
 | crds.enabled | bool | `false` |  |
 | deployment.resources.limits.cpu | string | `"260m"` |  |
 | deployment.resources.limits.memory | string | `"512Mi"` |  |
@@ -33,12 +33,12 @@ The values in the `defaults:` section can be reused from other charts by using t
 3. Uses the `key` in the chart's values.yaml
 4. Uses the `common.defaults.key` value from the table below.
 
-1 has precendence over 2 over 3 over 4 respectively. This approach allows for individual charts to have minimal configuration, while still being able to override parameters locally.
+1 has precedence over 2 over 3 over 4 respectively. This approach allows for individual charts to have minimal configuration, while still being able to override parameters locally.
 
 Example
 ```
-1) .Values.deployment.resources.limits.memoryOveride =  4096MB
-2) .Values.global.deployment.resources.limits.memory =  2048MB
-3) .Values.deployment.resources.limits.memory =  1024MB
+1) .Values.deployment.resources.limits.memoryOverride = 4096MB
+2) .Values.global.deployment.resources.limits.memory = 2048MB
+3) .Values.deployment.resources.limits.memory = 1024MB
 4) .Values.common.defaults.deployment.resources.limits.memory = default 512MB
 ```
