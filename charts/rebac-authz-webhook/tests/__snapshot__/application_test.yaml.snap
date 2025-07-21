@@ -122,7 +122,7 @@ it should render the application manifests:
                 secretName: rebac-authz-webhook-cert
             - name: kcp-kubeconfig
               secret:
-                secretName: iam-authorization-webhook-kubeconfig
+                secretName: rebac-authz-webhook-kubeconfig
   4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
@@ -131,7 +131,7 @@ it should render the application manifests:
       namespace: openmfp-system
     spec:
       ca:
-        secretName: iam-authorization-webhook-webhook-ca
+        secretName: rebac-authz-webhook-webhook-ca
   5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -304,7 +304,7 @@ it should render the application manifests with service account:
                 secretName: rebac-authz-webhook-cert
             - name: kcp-kubeconfig
               secret:
-                secretName: iam-authorization-webhook-kubeconfig
+                secretName: rebac-authz-webhook-kubeconfig
   4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
@@ -313,7 +313,7 @@ it should render the application manifests with service account:
       namespace: openmfp-system
     spec:
       ca:
-        secretName: iam-authorization-webhook-webhook-ca
+        secretName: rebac-authz-webhook-webhook-ca
   5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -486,7 +486,7 @@ it should render the application manifests with service monitor:
                 secretName: rebac-authz-webhook-cert
             - name: kcp-kubeconfig
               secret:
-                secretName: iam-authorization-webhook-kubeconfig
+                secretName: rebac-authz-webhook-kubeconfig
   4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
@@ -495,7 +495,7 @@ it should render the application manifests with service monitor:
       namespace: openmfp-system
     spec:
       ca:
-        secretName: iam-authorization-webhook-webhook-ca
+        secretName: rebac-authz-webhook-webhook-ca
   5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -690,7 +690,7 @@ it should render the application manifests with useInClusterClient:
                 secretName: rebac-authz-webhook-cert
             - name: kcp-kubeconfig
               secret:
-                secretName: iam-authorization-webhook-kubeconfig
+                secretName: rebac-authz-webhook-kubeconfig
   4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
@@ -699,7 +699,7 @@ it should render the application manifests with useInClusterClient:
       namespace: openmfp-system
     spec:
       ca:
-        secretName: iam-authorization-webhook-webhook-ca
+        secretName: rebac-authz-webhook-webhook-ca
   5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -872,7 +872,7 @@ it should render the cert-manager manifests with certManager enabled:
                 secretName: rebac-authz-webhook-cert
             - name: kcp-kubeconfig
               secret:
-                secretName: iam-authorization-webhook-kubeconfig
+                secretName: rebac-authz-webhook-kubeconfig
   4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
@@ -881,7 +881,7 @@ it should render the cert-manager manifests with certManager enabled:
       namespace: openmfp-system
     spec:
       ca:
-        secretName: iam-authorization-webhook-webhook-ca
+        secretName: rebac-authz-webhook-webhook-ca
   5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate

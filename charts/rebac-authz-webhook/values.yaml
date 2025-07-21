@@ -3,7 +3,7 @@ certManager:
   dnsNames: []
   ipAddresses:
     - 10.96.86.219
-  caSecretName: iam-authorization-webhook-webhook-ca
+  caSecretName: rebac-authz-webhook-webhook-ca
   createCA: false
 image:
   name: ghcr.io/platform-mesh/rebac-authz-webhook
@@ -45,7 +45,7 @@ kcp:
   kubeconfig:
     path: /etc/kcp-kubeconfig
     file: kubeconfig
-    secret: iam-authorization-webhook-kubeconfig
+    secret: rebac-authz-webhook-kubeconfig
 
 service:
   clusterIP: ""

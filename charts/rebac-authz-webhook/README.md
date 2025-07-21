@@ -6,7 +6,7 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| certManager.caSecretName | string | `"iam-authorization-webhook-webhook-ca"` |  |
+| certManager.caSecretName | string | `"rebac-authz-webhook-webhook-ca"` |  |
 | certManager.createCA | bool | `false` |  |
 | certManager.dnsNames | list | `[]` |  |
 | certManager.enabled | bool | `true` |  |
@@ -20,7 +20,7 @@ A Helm chart for Kubernetes
 | istio.exposed | bool | `false` |  |
 | kcp.kubeconfig.file | string | `"kubeconfig"` |  |
 | kcp.kubeconfig.path | string | `"/etc/kcp-kubeconfig"` |  |
-| kcp.kubeconfig.secret | string | `"iam-authorization-webhook-kubeconfig"` |  |
+| kcp.kubeconfig.secret | string | `"rebac-authz-webhook-kubeconfig"` |  |
 | logLevel | string | `"INFO"` |  |
 | openfga.url | string | `"openmfp-openfga:8081"` |  |
 | podLabels."networking.gardener.cloud/to-public-networks" | string | `"allowed"` |  |
