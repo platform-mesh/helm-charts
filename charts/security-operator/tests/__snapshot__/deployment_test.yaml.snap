@@ -199,6 +199,8 @@ operator match the snapshot:
             - hostnames:
                 - kcp.dev.local
               ip: 10.96.0.100
+          imagePullSecrets:
+            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -616,6 +618,8 @@ operator match the snapshot w. sentry:
             - hostnames:
                 - kcp.dev.local
               ip: 10.96.0.100
+          imagePullSecrets:
+            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:

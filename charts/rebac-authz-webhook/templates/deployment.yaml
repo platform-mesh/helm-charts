@@ -16,8 +16,7 @@ spec:
       annotations:  {{- include "common.tplvalues.render" ( dict "value" .Values.service.annotations "context" $) | nindent 8 }}
     spec:
       serviceAccountName: {{ include "common.entity.name" . }}
-      imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets }}
+      {{- include "common.imagePullSecret" . | indent 6 }}
       volumes:
       - name: certs
         secret:
