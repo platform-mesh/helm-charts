@@ -40,6 +40,7 @@ deployment with tracing:
                 - --tracing-config-collector-endpoint=test:4317
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
+                - --webhooks-deny-list=admin,root,system,www
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -65,6 +66,8 @@ deployment with tracing:
                   value: ""
                 - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
                   value: core.platform-mesh.org
+                - name: WEBHOOKS_DENY_LIST
+                  value: admin,root,system,www
               image: ghcr.io/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -594,6 +597,7 @@ operator match the snapshot:
                 - --max-concurrent-reconciles=10
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
+                - --webhooks-deny-list=admin,root,system,www
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -619,6 +623,8 @@ operator match the snapshot:
                   value: ""
                 - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
                   value: core.platform-mesh.org
+                - name: WEBHOOKS_DENY_LIST
+                  value: admin,root,system,www
               image: ghcr.io/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1192,6 +1198,7 @@ operator match the snapshot (with kubeconfigSecret):
                 - --max-concurrent-reconciles=10
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
+                - --webhooks-deny-list=admin,root,system,www
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -1217,6 +1224,8 @@ operator match the snapshot (with kubeconfigSecret):
                   value: ""
                 - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
                   value: core.platform-mesh.org
+                - name: WEBHOOKS_DENY_LIST
+                  value: admin,root,system,www
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/account-operator:0.0.0
@@ -1792,6 +1801,7 @@ operator match the snapshot with webhook enabled:
                 - --max-concurrent-reconciles=10
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
+                - --webhooks-deny-list=admin,root,system,www
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -1817,6 +1827,8 @@ operator match the snapshot with webhook enabled:
                   value: ""
                 - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
                   value: core.platform-mesh.org
+                - name: WEBHOOKS_DENY_LIST
+                  value: admin,root,system,www
               image: ghcr.io/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:

@@ -16,6 +16,8 @@ webhooks:
   register: false
   # -- The directory for webhook certificates
   certDir: /certs
+  # -- List of denied organization names
+  denyList: ["admin", "root", "system", "www"]
 
 # -- The KCP configuration
 kcp:
