@@ -28,6 +28,7 @@ spec:
         traffic.sidecar.istio.io/excludeInboundPorts: "9443"
         {{- end }}
     spec:
+      {{- include "common.imagePullSecret" . | indent 6 }}
       {{- include "common.pod.securityContext" . | indent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
       containers:

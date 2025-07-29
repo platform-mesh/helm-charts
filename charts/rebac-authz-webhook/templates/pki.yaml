@@ -1,0 +1,52 @@
+{{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "certManager.enabled")) "true" -}}
+{{- if .Values.certManager.createCA }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "common.entity.name" . }}-ca-issuer
+  namespace: {{ .Release.Namespace }}
+spec:
+  selfSigned: {}
+---
+# Create a CA certificate for the webhook to use
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "common.entity.name" . }}-ca
+  namespace: {{ .Release.Namespace }}
+spec:
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: {{ include "common.entity.name" . }}-ca-issuer
+  isCA: true
+  commonName: {{ include "common.entity.name" . }}-ca
+  secretName: {{ .Values.certManager.caSecretName }}
+---
+{{- end }}
+
+# Create an Issuer that uses the above generated CA certificate to issue certs
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "common.entity.name" . }}-issuer
+  namespace: {{ .Release.Namespace }}
+spec:
+  ca:
+    secretName: {{ .Values.certManager.caSecretName }}
+
+---
+
+# Finally, generate a serving certificate for the webhook to use
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "common.entity.name" . }}-cert
+  namespace: {{ .Release.Namespace }}
+spec:
+  secretName: {{ include "common.entity.name" . }}-cert
+  issuerRef:
+    name: {{ include "common.entity.name" . }}-issuer
+  dnsNames: {{ .Values.istio.dnsNames | toYaml | nindent 4 }}
+  ipAddresses: {{ .Values.certManager.ipAddresses | toYaml | nindent 4 }}
+{{- end -}}

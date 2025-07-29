@@ -1,0 +1,69 @@
+certManager:
+  enabled: true
+  dnsNames: []
+  ipAddresses:
+    - 10.96.86.219
+  caSecretName: rebac-authz-webhook-webhook-ca
+  createCA: false
+image:
+  name: ghcr.io/platform-mesh/rebac-authz-webhook
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: github
+
+podLabels:
+  networking.gardener.cloud/to-public-networks: allowed
+
+
+# Set the webhookAudience to the value the fga service expects
+# webhookAudience: your-audience
+
+# Set the openfga service URL and store name
+# openfga:
+#   url: your-domain-of-the-fga-service:443
+#   storeName: a-store-name
+
+logLevel: "INFO"
+healthProbeBindAddress: ":8081"
+
+health:
+  port: 8081
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  # name:
+
+kcp:
+  kubeconfig:
+    path: /etc/kcp-kubeconfig
+    file: kubeconfig
+    secret: rebac-authz-webhook-kubeconfig
+
+service:
+  clusterIP: ""
+  type: ClusterIP
+  port: 9443
+  metricsPort: 8080
+  labels:
+    networking.resources.gardener.cloud/to-openfga-tcp-grpc: allowed
+  annotations: {}
+
+serviceMonitor:
+  enabled: false
+  labels:
+    prometheus: seed
+
+openfga:
+  url: openmfp-openfga:8081
+
+istio:
+  exposed: false
+  dnsNames: []

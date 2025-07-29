@@ -14,6 +14,7 @@ spec:
         {{- include "common.labelMatcher" . | indent 8 }}
         control-plane: controller-manager
     spec:
+      {{- include "common.imagePullSecret" . | indent 6 }}
       {{- include "common.pod.securityContext" . | indent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
       containers:
