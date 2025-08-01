@@ -139,12 +139,21 @@ readinessProbe:
 imagePullPolicy: {{ include "common.getKeyValue" (dict "Values" .Values "key" "imagePullPolicy") }}
 {{- end }}
 {{- define "common.PortsMetricsHealth" }}
+
+{{- $containerPort := include "common.getKeyValue" (dict "Values" .Values "key" "port") }}
+{{- $metricsPort := include "common.getKeyValue" (dict "Values" .Values "key" "metrics.port") }}
+{{- if not (eq $containerPort $metricsPort) }}
 - name: metrics
-  containerPort: {{ include "common.getKeyValue" (dict "Values" .Values "key" "metrics.port") }}
+  containerPort: {{ $metricsPort }}
   protocol: TCP
+{{- end }}
+
+{{- $healthPort := include "common.getKeyValue" (dict "Values" .Values "key" "health.port") }}
+{{- if not (eq $containerPort $healthPort) }}
 - name: health-port
-  containerPort: {{ include "common.getKeyValue" (dict "Values" .Values "key" "health.port") }}
+  containerPort: {{ $healthPort }}
   protocol: TCP
+{{- end }}
 {{- end -}}
 
 

@@ -76,3 +76,9 @@ tests:
             endpoint: collector:4317
     asserts:
       - matchSnapshot: {}
+  - it: test duplicate ports
+    set:
+      health:
+        port: 8080
+    asserts:
+      - matchSnapshot: {}
