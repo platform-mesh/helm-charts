@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mcp-ui-demo
+  name: {{ .Release.Name }}
   namespace: mcp-ui
   labels:
-    app: mcp-ui-demo
+    app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: mcp-ui-demo
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: mcp-ui-demo
+        app: {{ .Release.Name }}
     spec:
       imagePullSecrets:
         - name: github-registry-secret
