@@ -8,7 +8,7 @@ dependencies:
   - name: security-operator-crds
     version: 0.3.0
     condition: crds.enabled
-    repository: file://../security-operator-crds
+    repository: oci://ghcr.io/platform-mesh/helm-charts
   - name: common
-    version: 0.5.4
-    repository: file://../common
+    version: 0.5.5
+    repository: oci://ghcr.io/platform-mesh/helm-charts
