@@ -80,6 +80,10 @@ coreModule: |-
       define list_core_platform-mesh_io_accountinfos: member
       define watch_core_platform-mesh_io_accountinfos: member
 
+      define create_apis_kcp_io_apibindings: owner
+      define list__apis_kcp_io_apibindings: member
+      define watch_apis_kcp_io_apibindings: member
+
   type core_namespace
     relations
       define parent: [core_platform-mesh_io_account]
@@ -113,3 +117,12 @@ coreModule: |-
       # org specific
       define create: create from parent
       define list: list from parent
+
+    type apis_kcp_io_apibinding
+      relations
+        define parent: [core_platform-mesh_io_account]
+
+        define get: member from parent
+        define update: member from parent
+        define delete: owner from parent
+        define watch: member from parent
