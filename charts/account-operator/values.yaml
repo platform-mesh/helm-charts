@@ -13,7 +13,7 @@ webhooks:
   enabled: true
 
   # -- Register webhooks, flag to toggle if webhooks should be registered on the runtime cluster
-  register: false
+  register: true
   # -- The directory for webhook certificates
   certDir: /certs
   # -- List of denied organization names
