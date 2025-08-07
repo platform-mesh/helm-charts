@@ -48,6 +48,9 @@ spec:
           {{- if .Values.webhooks.enabled }}
           - --webhooks-enabled
           - --webhooks-cert-dir={{ .Values.webhooks.certDir }}
+          {{- if .Values.webhooks.denyList }}
+          - --webhooks-deny-list={{ join "," .Values.webhooks.denyList }}
+          {{- end }}
           {{- end }}
         env:
           {{- include "common.basicEnvironment" . | nindent 10 }}
@@ -75,6 +78,10 @@ spec:
             value: "{{ .Values.kcp.virtualWorkspaceUrl }}"
           - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
             value: "{{ .Values.kcp.apiExportEndpointSliceName }}"
+          {{- if .Values.webhooks.denyList }}
+          - name: WEBHOOKS_DENY_LIST
+            value: "{{ join "," .Values.webhooks.denyList }}"
+          {{- end }}
           {{- if .Values.kubeconfigSecret }}
           - name: KUBECONFIG
             value: /api-kubeconfig/kubeconfig
