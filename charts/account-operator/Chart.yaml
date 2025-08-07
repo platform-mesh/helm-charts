@@ -9,7 +9,6 @@ dependencies:
     version: 0.2.3
     condition: crds.enabled
     repository: oci://ghcr.io/platform-mesh/helm-charts
-
   - name: common
     version: 0.5.4
     repository: oci://ghcr.io/platform-mesh/helm-charts
