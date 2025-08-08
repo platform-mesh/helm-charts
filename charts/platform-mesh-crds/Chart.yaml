@@ -9,4 +9,6 @@ dependencies:
   - name: extension-manager-operator-crds
     version: 0.2.1
     repository: oci://ghcr.io/openmfp/helm-charts
+  # TODO: switch to platform-mesh registry
+  # repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: components.extension-manager-operator-crds.enabled

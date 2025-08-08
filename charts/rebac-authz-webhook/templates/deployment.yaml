@@ -31,7 +31,15 @@ spec:
       - name: {{ .Chart.Name }}
         {{- include "common.operatorHealthAndReadyness" . | indent 8 }}
         image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65532
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
           limits:
             memory: "128Mi"
             cpu: "500m"
@@ -64,5 +72,9 @@ spec:
           {{- toYaml . | nindent 10 }}
           {{- end }}
         ports:
-        - containerPort: 9443 # default port of the webhook server in controllerruntime
-        - containerPort: 8080
+        - name: webhook
+          containerPort: 9443 # default port of the webhook server in controllerruntime
+        - name: metrics
+          containerPort: 8080
+        - name: health
+          containerPort: {{ .Values.health.port }}

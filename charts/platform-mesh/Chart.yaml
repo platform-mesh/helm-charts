@@ -9,20 +9,30 @@ dependencies:
   - name: example-content
     version: 0.114.39
     repository: oci://ghcr.io/openmfp/helm-charts
+  # TODO: switch to platform-mesh registry
+  # repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: components.example-content.enabled
   - name: portal
     version: 0.74.11
     repository: oci://ghcr.io/openmfp/helm-charts
+  # TODO: switch to platform-mesh registry
+  # repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: components.portal.enabled
   - name: infra
     version: 0.63.3
     repository: oci://ghcr.io/openmfp/helm-charts
+  # TODO: switch to platform-mesh registry
+  # repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: components.infra.enabled
   - name: extension-manager-operator
     version: 0.30.95
     repository: oci://ghcr.io/openmfp/helm-charts
+  # TODO: switch to platform-mesh registry
+  # repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: components.extension-manager-operator.enabled
   - name: keycloak
     version: 0.64.12
     repository: oci://ghcr.io/openmfp/helm-charts
+  # TODO: switch to platform-mesh registry
+  # repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: components.keycloak.enabled

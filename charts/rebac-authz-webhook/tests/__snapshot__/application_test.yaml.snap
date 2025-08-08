@@ -90,7 +90,11 @@ it should render the application manifests:
               name: rebac-authz-webhook
               ports:
                 - containerPort: 9443
+                  name: webhook
                 - containerPort: 8080
+                  name: metrics
+                - containerPort: 8081
+                  name: health
               readinessProbe:
                 httpGet:
                   path: /readyz
@@ -101,6 +105,14 @@ it should render the application manifests:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 65532
               startupProbe:
                 failureThreshold: 30
                 httpGet:
@@ -274,7 +286,11 @@ it should render the application manifests with service account:
               name: rebac-authz-webhook
               ports:
                 - containerPort: 9443
+                  name: webhook
                 - containerPort: 8080
+                  name: metrics
+                - containerPort: 8081
+                  name: health
               readinessProbe:
                 httpGet:
                   path: /readyz
@@ -285,6 +301,14 @@ it should render the application manifests with service account:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 65532
               startupProbe:
                 failureThreshold: 30
                 httpGet:
@@ -458,7 +482,11 @@ it should render the application manifests with service monitor:
               name: rebac-authz-webhook
               ports:
                 - containerPort: 9443
+                  name: webhook
                 - containerPort: 8080
+                  name: metrics
+                - containerPort: 8081
+                  name: health
               readinessProbe:
                 httpGet:
                   path: /readyz
@@ -469,6 +497,14 @@ it should render the application manifests with service monitor:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 65532
               startupProbe:
                 failureThreshold: 30
                 httpGet:
@@ -664,7 +700,11 @@ it should render the application manifests with useInClusterClient:
               name: rebac-authz-webhook
               ports:
                 - containerPort: 9443
+                  name: webhook
                 - containerPort: 8080
+                  name: metrics
+                - containerPort: 8081
+                  name: health
               readinessProbe:
                 httpGet:
                   path: /readyz
@@ -675,6 +715,14 @@ it should render the application manifests with useInClusterClient:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 65532
               startupProbe:
                 failureThreshold: 30
                 httpGet:
@@ -848,7 +896,11 @@ it should render the cert-manager manifests with certManager enabled:
               name: rebac-authz-webhook
               ports:
                 - containerPort: 9443
+                  name: webhook
                 - containerPort: 8080
+                  name: metrics
+                - containerPort: 8081
+                  name: health
               readinessProbe:
                 httpGet:
                   path: /readyz
@@ -859,6 +911,14 @@ it should render the cert-manager manifests with certManager enabled:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 65532
               startupProbe:
                 failureThreshold: 30
                 httpGet:
