@@ -1,0 +1,9 @@
+version = 1
+SPDX-PackageName = "helm-charts"
+SPDX-PackageDownloadLocation = "https://github.com/platform-mesh/helm-charts"
+
+[[annotations]]
+path = "**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 SAP SE or an SAP affiliate company and platform-mesh contributors."
+SPDX-License-Identifier = "Apache-2.0"
