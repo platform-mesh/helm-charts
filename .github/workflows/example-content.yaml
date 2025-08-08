@@ -1,0 +1,34 @@
+name: Build example-content Workflow
+on:
+  push:
+    paths:
+      - 'charts/example-content/**'
+      - 'example-content.yaml'
+      - '.ocm/component-constructor.yaml'
+  pull_request:
+    paths:
+      - 'charts/example-content/**'
+      - 'example-content.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: example-content-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: example-content
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [ pipeline ]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/example-content
+      componentName: github.com/platform-mesh/example-content
+      ocmRegistryUrl: ghcr.io/platform-mesh/ocm

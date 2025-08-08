@@ -1,0 +1,34 @@
+name: Build extension-manager-operator Workflow
+on:
+  push:
+    paths:
+      - 'charts/extension-manager-operator/**'
+      - '.github/workflows/extension-manager-operator.yaml'
+      - '.ocm/component-constructor.yaml'
+  pull_request:
+    paths:
+      - 'charts/extension-manager-operator/**'
+      - '.github/workflows/extension-manager-operator.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: extension-manager-operator-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: extension-manager-operator
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/extension-manager-operator
+      componentName: github.com/platform-mesh/extension-manager-operator
+      ocmRegistryUrl: ghcr.io/platform-mesh/ocm

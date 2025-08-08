@@ -1,0 +1,34 @@
+name: Build portal Workflow
+on:
+  push:
+    paths:
+      - 'charts/portal/**'
+      - '.github/workflows/portal.yaml'
+      - '.ocm/component-constructor.yaml'
+  pull_request:
+    paths:
+      - 'charts/portal/**'
+      - '.github/workflows/portal.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: portal-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: portal
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/portal
+      componentName: github.com/platform-mesh/portal
+      ocmRegistryUrl: ghcr.io/platform-mesh/ocm

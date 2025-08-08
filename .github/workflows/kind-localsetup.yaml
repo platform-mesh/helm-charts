@@ -1,0 +1,117 @@
+name: test-local-setup
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: localsetup-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  kind-localsetup:
+    if: github.event.pull_request.changed_files > 0
+    runs-on: ubuntu-latest-large
+
+    steps:
+      # Step 0: Generate a GitHub token
+      - uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
+        id: app-token
+        with:
+          app-id: "838464"
+          private-key: ${{ secrets.OPENMFP_PUBLISHER_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      # Step 1: Checkout the code
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Get changed files for local setup relevant files
+        id: changed-files
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46
+        with:
+          files_yaml: |
+            localsetup:
+              - 'local-setup/**'
+              - charts/platform-mesh-priv/**
+              - charts/platform-mesh-priv-crds/**
+
+      # Step 2: Install github cli
+      - name: Install the gh cli
+        if: steps.changed-files.outputs.localsetup_any_changed == 'true'
+        uses: ksivamuthu/actions-setup-gh-cli@c78dbed4be2f8d6133a14a9a597ee12fd4ed5c93 # v3
+        with:
+          version: 2.24.3
+
+      # Step 3: Run start.sh
+      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
+        name: Run start.sh
+        id: run_start_sh
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_USER: ${{ github.repository_owner }}
+          DEBUG: true
+        run: |
+          chmod +x ./local-setup/scripts/start.sh
+          ./local-setup/scripts/start.sh
+        continue-on-error: true
+
+      - if: steps.changed-files.outputs.localsetup_any_changed == 'true' && steps.run_start_sh.outcome == 'failure'
+        name: Debug
+        run: |
+          set -x
+          docker ps
+          curl -s -i http://localhost:8000/ || true
+          
+          kubectl get pods -A -o wide
+          kubectl get svc -A
+          kubectl get helmreleases -A
+          kubectl get deployments -A
+          kubectl get secrets -A
+          kubectl get crds -A
+          kubectl get nodes -o wide
+          echo "Describe all pods which are not Running"
+          kubectl get pods -A --field-selector=status.phase!=Running -o jsonpath='{range .items[*]}{.metadata.namespace} {.metadata.name}{"\n"}{end}' | while read namespace name; do kubectl describe pod $name -n $namespace; done
+          echo "Describe all helmreleases which are not Ready yet"
+          kubectl get helmreleases -A -o json | jq -r '.items[] | select(.status.conditions[]? | select(.type == "Ready" and .status != "True")) | "\(.metadata.namespace) \(.metadata.name)"' | while read namespace name; do kubectl describe helmrelease $name -n $namespace; done
+          echo "Print imagePullSecret"
+          kubectl get secret github -n platform-mesh-system -o yaml
+          echo "Test docker login and pull"
+          docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ steps.app-token.outputs.token }}
+          docker pull ghcr.io/platform-mesh/portal:0.287.0
+
+      # Step 4: Prepare the NodeJS/playwright environment
+      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
+        name: Cache node modules
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        with:
+          path: ~/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Step 5: Install NodeJS and dependencies
+      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
+        name: Node ${{ matrix.node-version }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'local-setup/e2e'
+
+      # Step 6: Install npm dependencies
+      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
+        name: Clean install of npm dependencies
+        run: |
+          cd local-setup/e2e
+          npm ci
+          npx playwright install 
+
+      # Step 7: Run the end-to-end tests
+      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
+        name: End2End tests
+        run: |
+          cd local-setup/e2e/
+          npx playwright test
+      - if: steps.changed-files.outputs.localsetup_any_changed == 'false'
+        name: No-op
+        run: echo "No changes detected, skipping job."
