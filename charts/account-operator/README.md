@@ -38,7 +38,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 | webhooks.certDir | string | `"/certs"` | The directory for webhook certificates |
 | webhooks.denyList | list | `["admin","root","system","www"]` | List of denied organization names |
 | webhooks.enabled | bool | `true` | Enable webhooks |
-| webhooks.register | bool | `false` | Register webhooks, flag to toggle if webhooks should be registered on the runtime cluster |
+| webhooks.register | bool | `true` | Register webhooks, flag to toggle if webhooks should be registered on the runtime cluster |
 
 ## Overriding Values
 

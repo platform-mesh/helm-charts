@@ -1,0 +1,22 @@
+name: Build Platform Mesh CRDs
+on:
+  push:
+    paths:
+      - 'charts/platform-mesh-crds/**'
+      - '.github/workflows/platform-mesh-crds.yaml'
+  pull_request:
+    paths:
+      - 'charts/platform-mesh-crds/**'
+      - '.github/workflows/platform-mesh-crds.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: platform-mesh-crds-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: platform-mesh-crds
+      additionalTestFilesCommand: ''
+    secrets: inherit

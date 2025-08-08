@@ -1,0 +1,11 @@
+components:
+  example-content:
+    enabled: true
+  portal:
+    enabled: true
+  infra:
+    enabled: true
+  keycloak:
+    enabled: true
+  extension-manager-operator:
+    enabled: true

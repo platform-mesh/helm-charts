@@ -1,0 +1,23 @@
+name: Build Platform Mesh
+on:
+  push:
+    paths:
+      - 'charts/platform-mesh/**'
+      - '.github/workflows/platform-mesh.yaml'
+  pull_request:
+    paths:
+      - 'charts/platform-mesh/**'
+      - '.github/workflows/platform-mesh.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: platform-mesh-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: platform-mesh
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit

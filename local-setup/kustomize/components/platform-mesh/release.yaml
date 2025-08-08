@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: platform-mesh
+  namespace: platform-mesh-system
+spec:
+  timeout: 10m
+  interval: 5m
+  chartRef:
+    kind: OCIRepository
+    name: platform-mesh
+  releaseName: platform-mesh
+  dependsOn:
+    - name: platform-mesh-crds
+      namespace: platform-mesh-system
+    - name: istio-istiod
+      namespace: istio-system
+    - name: crossplane
+      namespace: crossplane-system

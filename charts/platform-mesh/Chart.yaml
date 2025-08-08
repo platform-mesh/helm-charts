@@ -1,0 +1,28 @@
+apiVersion: v2
+name: platform-mesh
+description: The Platform Mesh chart for Kubernetes
+type: application
+version: 0.0.661
+appVersion: "0.0.0"
+
+dependencies:
+  - name: example-content
+    version: 0.114.39
+    repository: oci://ghcr.io/openmfp/helm-charts
+    condition: components.example-content.enabled
+  - name: portal
+    version: 0.74.11
+    repository: oci://ghcr.io/openmfp/helm-charts
+    condition: components.portal.enabled
+  - name: infra
+    version: 0.63.3
+    repository: oci://ghcr.io/openmfp/helm-charts
+    condition: components.infra.enabled
+  - name: extension-manager-operator
+    version: 0.30.95
+    repository: oci://ghcr.io/openmfp/helm-charts
+    condition: components.extension-manager-operator.enabled
+  - name: keycloak
+    version: 0.64.12
+    repository: oci://ghcr.io/openmfp/helm-charts
+    condition: components.keycloak.enabled

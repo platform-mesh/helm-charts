@@ -149,7 +149,7 @@ operator match the snapshot:
                 - --max-concurrent-reconciles=10
               env:
                 - name: FGA_TARGET
-                  value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
+                  value: platform-mesh-openfga.platform-mesh-system.svc.cluster.local:8081
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/security-operator:1.0.0
@@ -244,7 +244,7 @@ operator match the snapshot:
                 - --max-concurrent-reconciles=10
               env:
                 - name: FGA_TARGET
-                  value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
+                  value: platform-mesh-openfga.platform-mesh-system.svc.cluster.local:8081
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/security-operator:1.0.0
@@ -338,7 +338,7 @@ operator match the snapshot:
                 - --max-concurrent-reconciles=10
               env:
                 - name: FGA_TARGET
-                  value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
+                  value: platform-mesh-openfga.platform-mesh-system.svc.cluster.local:8081
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/security-operator:1.0.0
@@ -569,7 +569,7 @@ operator match the snapshot w. sentry:
                 - name: TEST_ENV
                   value: test
                 - name: FGA_TARGET
-                  value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
+                  value: platform-mesh-openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -670,7 +670,7 @@ operator match the snapshot w. sentry:
                 - name: TEST_ENV
                   value: test
                 - name: FGA_TARGET
-                  value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
+                  value: platform-mesh-openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -770,7 +770,7 @@ operator match the snapshot w. sentry:
                 - name: TEST_ENV
                   value: test
                 - name: FGA_TARGET
-                  value: openmfp-openfga.openmfp-system.svc.cluster.local:8081
+                  value: platform-mesh-openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:

@@ -1,0 +1,12 @@
+apiVersion: v2
+name: platform-mesh-crds
+description: A chart containing CRD Definitions for Platform Mesh
+type: application
+version: 0.0.18
+appVersion: "0.0.0"
+
+dependencies:
+  - name: extension-manager-operator-crds
+    version: 0.2.1
+    repository: oci://ghcr.io/openmfp/helm-charts
+    condition: components.extension-manager-operator-crds.enabled

@@ -1,0 +1,9 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: platform-mesh-crds
+  namespace: platform-mesh-system
+spec:
+  url: oci://registry.default.svc.cluster.local:5000/platform-mesh/platform-mesh-crds
+  ref:
+    semver: 0.0.1

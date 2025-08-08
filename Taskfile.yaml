@@ -3,9 +3,9 @@ version: '3'
 vars:
   LOCAL_BIN: bin
   CHARTS:
-    sh: "printf '%s' $(ls -d charts/*/ | paste -sd ',' -)"
+    sh: "find charts -mindepth 2 -maxdepth 2 -name Chart.yaml -exec dirname {} \\; | sort | paste -sd ',' -"
   CHANGED_CHARTS:
-    sh: "git status --porcelain | grep '^ M charts/' | cut -d'/' -f2 | sort -u | sed 's|^|charts/|' | paste -sd ',' -"
+  sh: "git status --porcelain | sed -E 's/^.. //' | grep '^charts/' | cut -d'/' -f1-2 | sort -u | paste -sd ',' -"
   PACKAGED_CHARTS:
     sh: "ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
 tasks:
@@ -20,11 +20,27 @@ tasks:
     internal: true
     cmds:
       - test -s {{.LOCAL_BIN}}/helm-docs || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/norwoodj/helm-docs/cmd/helm-docs@v1.14.2
+  setup:ct:
+    internal: true
+    cmds:
+      - mkdir -p $(pwd)/{{.LOCAL_BIN}}
+      - test -s {{.LOCAL_BIN}}/ct || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/helm/chart-testing/v3/ct@latest
+  setup:helm-login:
+    cmds:
+      - |
+        if [ -n "${GH_USER:-}" ] && [ -n "${GH_TOKEN:-}" ]; then
+          echo "$GH_TOKEN" | helm registry login ghcr.io -u "$GH_USER" --password-stdin
+        fi
   ## Development
   lint:
     deps: []
     cmds:
       - "ct lint --target-branch main --chart-dirs=charts --validate-maintainers=false --chart-repos=bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts"
+  lint-local:
+    deps:
+      - task: setup:ct
+    cmds:
+      - "{{.LOCAL_BIN}}/ct lint --chart-dirs=charts --validate-maintainers=false --validate-chart-schema=false --validate-yaml=false"
   helmtest:
     cmds:
       - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm unittest $chart; done"
@@ -36,11 +52,13 @@ tasks:
       - task: helmtest
   update-changed:
     deps:
+      - task: setup:helm-login
       - task: docs
     cmds:
       - "for chart in $(echo {{.CHANGED_CHARTS}} | tr ',' ' '); do helm dependency update $chart && helm unittest -u $chart; done"
   update:
     deps:
+      - task: setup:helm-login
       - task: docs
     cmds:
       - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm dependency update $chart; done"
@@ -50,6 +68,13 @@ tasks:
       - task: docs
       - task: update
       - task: lint
+      - task: oci
+  validate-local:
+    cmds:
+      - task: test
+      - task: docs
+      - task: update
+      - task: lint-local
       - task: oci
   vulnerability:
     deps:
