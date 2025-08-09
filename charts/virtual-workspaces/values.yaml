@@ -13,7 +13,7 @@ image:
 deployment:
   entityLabel: ""
   contentForLabel: ""
-  serverUrl: "https://kcp-front-proxy.openmfp-system:8443"
+  serverUrl: "https://kcp-front-proxy.platform-mesh-system:8443"
   providerWorkspaceId: ""
   resourceSchemaName: ""
   resourceSchemaWorkspace: ""

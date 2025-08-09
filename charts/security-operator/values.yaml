@@ -29,7 +29,7 @@ initializer:
   kubeconfigSecret: ""
 
 fga:
-  target: openmfp-openfga.openmfp-system.svc.cluster.local:8081
+  target: platform-mesh-openfga.platform-mesh-system.svc.cluster.local:8081
 
 hostAliases:
   enabled: true

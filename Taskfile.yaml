@@ -3,7 +3,7 @@ version: '3'
 vars:
   LOCAL_BIN: bin
   CHARTS:
-    sh: "printf '%s' $(ls -d charts/*/ | paste -sd ',' -)"
+    sh: "printf '%s' $(find charts -mindepth 1 -maxdepth 1 -type d -exec test -f {}/Chart.yaml ';' -print | sort | paste -sd ',' -)"
   CHANGED_CHARTS:
     sh: "git status --porcelain | grep '^ M charts/' | cut -d'/' -f2 | sort -u | sed 's|^|charts/|' | paste -sd ',' -"
   PACKAGED_CHARTS:
