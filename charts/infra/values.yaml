@@ -1,0 +1,35 @@
+crossplane:
+  enabled: true
+istio:
+  networking:
+    apiVersion: networking.istio.io/v1
+  serviceEntries:
+    https:
+      enabled: false
+      hosts: []
+  enabled: true
+  main:
+    gateway:
+      hosts:
+        - "*"
+      port: 8000
+      name: http
+      protocol: HTTP
+  passThrough:
+    gateway:
+      enabled: false
+
+  gateway:
+    annotations: {}
+    apiVersion: networking.istio.io/v1
+    name: gateway
+    selector:
+      istio: gateway
+
+kcp:
+  enabled: false
+  clientCertIssuer: kcp-client-issuer
+
+fga:
+  enabled: false
+  stores: []

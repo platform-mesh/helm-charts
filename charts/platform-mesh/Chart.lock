@@ -1,0 +1,18 @@
+dependencies:
+- name: example-content
+  repository: file://../example-content
+  version: 0.114.40
+- name: portal
+  repository: file://../portal
+  version: 0.74.12
+- name: infra
+  repository: file://../infra
+  version: 0.63.4
+- name: extension-manager-operator
+  repository: file://../extension-manager-operator
+  version: 0.30.96
+- name: keycloak
+  repository: file://../keycloak
+  version: 0.64.13
+digest: sha256:5c698f65ffdb86852f5408d24543509c051b72700cd0c0e1862aff329a3e8ad3
+generated: "2025-08-10T00:21:30.733858+03:00"

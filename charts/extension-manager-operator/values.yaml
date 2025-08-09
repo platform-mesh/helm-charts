@@ -1,0 +1,35 @@
+# The image configuration for the Extension Manager Operator
+## @param image.name The image repository
+## @param image.tag The image tag
+image:
+  name: ghcr.io/platform-mesh/extension-manager-operator
+  ## Overwrite this value to use a different image tag then the .chart.appVersion
+  # tag: v0.0.0
+
+# The Custom Resource Definitions (CRDs) configuration
+## @param crds.enabled Enable or disable the CRDs
+crds:
+  enabled: true
+
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+
+validationServer:
+  # -- port for the validation server
+  port: 8088
+  # -- host for the validation VirtualService
+  host: "*"
+
+istio:
+  # -- enable Istio VirtualService
+  enabled: false
+
+## @param kubeconfigSecret The secret containing the kubeconfig for the operator
+kubeconfigSecret: ""
+
+kcp:
+  # -- enable the kcp mode of the operator
+  enabled: false
+  # -- name the secret that holds the kubeconfig for the kcp mode
+  kubeconfigSecret: ""

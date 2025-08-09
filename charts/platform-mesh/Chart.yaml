@@ -1,0 +1,28 @@
+apiVersion: v2
+name: platform-mesh
+description: The Platform Mesh chart for Kubernetes
+type: application
+version: 0.0.662
+appVersion: "0.0.0"
+
+dependencies:
+  - name: example-content
+    version: 0.114.40
+    repository: file://../example-content
+    condition: components.example-content.enabled
+  - name: portal
+    version: 0.74.12
+    repository: file://../portal
+    condition: components.portal.enabled
+  - name: infra
+    version: 0.63.4
+    repository: file://../infra
+    condition: components.infra.enabled
+  - name: extension-manager-operator
+    version: 0.30.96
+    repository: file://../extension-manager-operator
+    condition: components.extension-manager-operator.enabled
+  - name: keycloak
+    version: 0.64.13
+    repository: file://../keycloak
+    condition: components.keycloak.enabled

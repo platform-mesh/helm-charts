@@ -1,0 +1,3 @@
+components:
+  extension-manager-operator-crds:
+    enabled: true

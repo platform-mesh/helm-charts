@@ -1,0 +1,6 @@
+dependencies:
+- name: extension-manager-operator-crds
+  repository: file://../extension-manager-operator-crds
+  version: 0.2.1
+digest: sha256:bd6571096713d291a5e70921e2c6c8ba08ce0ff5f9a3a190f248d8aab757718b
+generated: "2025-08-10T00:21:39.305725+03:00"

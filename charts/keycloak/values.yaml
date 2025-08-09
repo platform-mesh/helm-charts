@@ -1,0 +1,93 @@
+istio:
+  virtualservice:
+    hosts: ["*"]
+  https:
+    port: 8443
+
+debug: false
+
+crossplane:
+  enabled: true
+  providerConfig:
+    name: keycloak-provider-config
+    namespace: openmfp-system
+  realm:
+    name: openmfp
+    displayName: OpenMFP
+    registrationAllowed: true
+    accessTokenLifespan: 8h
+  clients:
+    openmfp:
+      name: OpenMFP
+      validRedirectUris:
+        - http://localhost:8000/callback*
+        - http://localhost:4300/callback*
+  trustedAudiences: []
+  identityProviders: {}
+
+keycloak:
+  auth:
+    adminUser: keycloak-admin
+    existingSecret: keycloak-admin
+    passwordSecretKey: secret
+  httpRelativePath: "/keycloak/"
+  extraEnvVars:
+    - name: KEYCLOAK_USER
+      value: keycloak-admin
+    - name: KEYCLOAK_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin
+          key: secret
+    - name: JAVA_OPTS_APPEND
+      value: |-
+        -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
+  postgresql:
+    primary:
+      resourcesPreset: none
+    nameOverride: postgresql-keycloak
+    auth:
+      username: keycloak
+      existingSecret: ""
+      secretKeys:
+        userPasswordKey: password
+        adminPasswordKey: password
+
+keycloakConfig:
+  url: http://openmfp-keycloak.openmfp-system.svc.cluster.local/keycloak
+  userRegistration:
+    enabled: true
+  redirectUrls: ["http://localhost:8000/callback*"]
+  realm:
+    name: master
+  client:
+    name: openmfp
+    targetSecret:
+      name: portal-client-secret-openmfp
+      namespace: openmfp-system
+    tokenLifespan: 3600
+  admin:
+    username:
+      value: keycloak-admin
+    password:
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-admin
+          key: secret
+
+service:
+  name: openmfp-keycloak
+  port: 80
+
+domain:
+  name: openmfp.org
+  pathPrefix: "/keycloak"
+
+job:
+  serviceAccount: keycloak-client-creation
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+
+externalSecrets:
+  keycloakAdminRemoteRef: ""
+  postgres-adminRemoteRef: ""

@@ -1,0 +1,57 @@
+image:
+  name: ghcr.io/platform-mesh/portal
+  pullPolicyOverride: IfNotPresent
+
+http:
+  protocol: http
+
+importContent: false
+
+validWebcomponentUrls: ".?"
+featureToggles: "enableSessionAutoRefresh=true"
+
+virtualService:
+  hosts:
+    - "*"
+
+environment: local
+
+developmentLandcsape: "true"
+
+frontendPort: 8000
+
+baseDomains:
+  - "localhost"
+
+cookieDomain: "localhost"
+
+kubeconfigSecret: ""
+
+extraEnvVars:
+  - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+    value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+  - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+    value: https://portal.dev.local:8443/iam/query
+  - name: OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
+    value: >-
+      {"account":{"contextProperty":"entityId"}}
+
+trust:
+  openmfp:
+    baseDomains: "localhost"
+    discoveryEndpoint: ""
+    authDomain: http://localhost:8000/keycloak/realms/openmfp/protocol/openid-connect/auth
+    tokenUrl: http://openmfp-keycloak/keycloak/realms/openmfp/protocol/openid-connect/token
+    oidcClientSecretName: openmfp-client
+    loginAudience: openmfp
+    secretKeyRef: attribute.client_secret
+    contentConfigurationValidatorApiUrl: http://openmfp-extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate
+
+health:
+  port: 9000
+  readiness:
+    path: /rest/health
+  liveness:
+    path: /rest/health
+  startup:
+    path: /rest/health
