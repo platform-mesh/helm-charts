@@ -1,0 +1,4 @@
+checks:
+  ignorePaths:
+    - charts/keycloak/charts/keycloak/**
+    - charts/platform-mesh/charts/**

@@ -1,5 +1,5 @@
 apiVersion: v2
-description: Helm Chart for the openmfp Portal
+description: Helm Chart for the Platform Mesh Portal
 name: portal
 version: 0.74.12
 appVersion: "v0.377.193"

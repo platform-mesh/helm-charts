@@ -1,6 +1,6 @@
 # portal
 
-Helm Chart for the openmfp Portal
+Helm Chart for the Platform Mesh Portal
 
 ## Values
 | Key | Type | Default | Description |
@@ -9,11 +9,11 @@ Helm Chart for the openmfp Portal
 | cookieDomain | string | `"localhost"` |  |
 | developmentLandcsape | string | `"true"` |  |
 | environment | string | `"local"` |  |
-| extraEnvVars[0].name | string | `"OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
+| extraEnvVars[0].name | string | `"PLATFORM_MESH_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
 | extraEnvVars[0].value | string | `"https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
-| extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
+| extraEnvVars[1].name | string | `"PLATFORM_MESH_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
 | extraEnvVars[1].value | string | `"https://portal.dev.local:8443/iam/query"` |  |
-| extraEnvVars[2].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG"` |  |
+| extraEnvVars[2].name | string | `"PLATFORM_MESH_PORTAL_CONTEXT_IAM_ENTITY_CONFIG"` |  |
 | extraEnvVars[2].value | string | `"{\"account\":{\"contextProperty\":\"entityId\"}}"` |  |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` |  |
@@ -26,14 +26,14 @@ Helm Chart for the openmfp Portal
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | importContent | bool | `false` |  |
 | kubeconfigSecret | string | `""` |  |
-| trust.openmfp.authDomain | string | `"http://localhost:8000/keycloak/realms/openmfp/protocol/openid-connect/auth"` |  |
-| trust.openmfp.baseDomains | string | `"localhost"` |  |
-| trust.openmfp.contentConfigurationValidatorApiUrl | string | `"http://openmfp-extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate"` |  |
-| trust.openmfp.discoveryEndpoint | string | `""` |  |
-| trust.openmfp.loginAudience | string | `"openmfp"` |  |
-| trust.openmfp.oidcClientSecretName | string | `"openmfp-client"` |  |
-| trust.openmfp.secretKeyRef | string | `"attribute.client_secret"` |  |
-| trust.openmfp.tokenUrl | string | `"http://openmfp-keycloak/keycloak/realms/openmfp/protocol/openid-connect/token"` |  |
+| trust.platform-mesh.authDomain | string | `"http://localhost:8000/keycloak/realms/platform-mesh/protocol/openid-connect/auth"` |  |
+| trust.platform-mesh.baseDomains | string | `"localhost"` |  |
+| trust.platform-mesh.contentConfigurationValidatorApiUrl | string | `"http://platform-mesh-extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate"` |  |
+| trust.platform-mesh.discoveryEndpoint | string | `""` |  |
+| trust.platform-mesh.loginAudience | string | `"platform-mesh"` |  |
+| trust.platform-mesh.oidcClientSecretName | string | `"platform-mesh-client"` |  |
+| trust.platform-mesh.secretKeyRef | string | `"attribute.client_secret"` |  |
+| trust.platform-mesh.tokenUrl | string | `"http://platform-mesh-keycloak/keycloak/realms/platform-mesh/protocol/openid-connect/token"` |  |
 | validWebcomponentUrls | string | `".?"` |  |
 | virtualService.hosts[0] | string | `"*"` |  |
 
@@ -59,7 +59,7 @@ Example
 
 ![Version: 0.74.12](https://img.shields.io/badge/Version-0.74.12-informational?style=flat-square) ![AppVersion: v0.377.193](https://img.shields.io/badge/AppVersion-v0.377.193-informational?style=flat-square)
 
-Helm Chart for the openmfp Portal
+Helm Chart for the Platform Mesh Portal
 
 ## Requirements
 
@@ -75,11 +75,11 @@ Helm Chart for the openmfp Portal
 | cookieDomain | string | `"localhost"` |  |
 | developmentLandcsape | string | `"true"` |  |
 | environment | string | `"local"` |  |
-| extraEnvVars[0].name | string | `"OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
+| extraEnvVars[0].name | string | `"PLATFORM_MESH_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
 | extraEnvVars[0].value | string | `"https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
-| extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
+| extraEnvVars[1].name | string | `"PLATFORM_MESH_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
 | extraEnvVars[1].value | string | `"https://portal.dev.local:8443/iam/query"` |  |
-| extraEnvVars[2].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG"` |  |
+| extraEnvVars[2].name | string | `"PLATFORM_MESH_PORTAL_CONTEXT_IAM_ENTITY_CONFIG"` |  |
 | extraEnvVars[2].value | string | `"{\"account\":{\"contextProperty\":\"entityId\"}}"` |  |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` |  |
@@ -92,14 +92,14 @@ Helm Chart for the openmfp Portal
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | importContent | bool | `false` |  |
 | kubeconfigSecret | string | `""` |  |
-| trust.openmfp.authDomain | string | `"http://localhost:8000/keycloak/realms/openmfp/protocol/openid-connect/auth"` |  |
-| trust.openmfp.baseDomains | string | `"localhost"` |  |
-| trust.openmfp.contentConfigurationValidatorApiUrl | string | `"http://openmfp-extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate"` |  |
-| trust.openmfp.discoveryEndpoint | string | `""` |  |
-| trust.openmfp.loginAudience | string | `"openmfp"` |  |
-| trust.openmfp.oidcClientSecretName | string | `"openmfp-client"` |  |
-| trust.openmfp.secretKeyRef | string | `"attribute.client_secret"` |  |
-| trust.openmfp.tokenUrl | string | `"http://openmfp-keycloak/keycloak/realms/openmfp/protocol/openid-connect/token"` |  |
+| trust.platform-mesh.authDomain | string | `"http://localhost:8000/keycloak/realms/platform-mesh/protocol/openid-connect/auth"` |  |
+| trust.platform-mesh.baseDomains | string | `"localhost"` |  |
+| trust.platform-mesh.contentConfigurationValidatorApiUrl | string | `"http://platform-mesh-extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate"` |  |
+| trust.platform-mesh.discoveryEndpoint | string | `""` |  |
+| trust.platform-mesh.loginAudience | string | `"platform-mesh"` |  |
+| trust.platform-mesh.oidcClientSecretName | string | `"platform-mesh-client"` |  |
+| trust.platform-mesh.secretKeyRef | string | `"attribute.client_secret"` |  |
+| trust.platform-mesh.tokenUrl | string | `"http://platform-mesh-keycloak/keycloak/realms/platform-mesh/protocol/openid-connect/token"` |  |
 | validWebcomponentUrls | string | `".?"` |  |
 | virtualService.hosts[0] | string | `"*"` |  |
 

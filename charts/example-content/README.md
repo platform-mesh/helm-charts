@@ -1,15 +1,15 @@
 # example-content
 
-Helm Chart for the openmfp Portal
+Helm Chart for the Platform Mesh Portal
 
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | contentConfigurations.ui.enabled | bool | `true` |  |
-| contentConfigurations.ui.internalUrl | string | `"http://openmfp-example-content.openmfp-system.svc.cluster.local:8080/ui/example-content/ui/assets/config.json"` |  |
+| contentConfigurations.ui.internalUrl | string | `"http://platform-mesh-example-content.platform-mesh-system.svc.cluster.local:8080/ui/example-content/ui/assets/config.json"` |  |
 | contentConfigurations.ui.url | string | `"http://localhost:8000/ui/example-content/ui/assets/config.json"` |  |
 | contentConfigurations.wc.enabled | bool | `true` |  |
-| contentConfigurations.wc.internalUrl | string | `"http://openmfp-example-content.openmfp-system.svc.cluster.local:8080/ui/example-content/wc/assets/config.json"` |  |
+| contentConfigurations.wc.internalUrl | string | `"http://platform-mesh-example-content.platform-mesh-system.svc.cluster.local:8080/ui/example-content/wc/assets/config.json"` |  |
 | contentConfigurations.wc.url | string | `"http://localhost:8000/ui/example-content/wc/assets/config.json"` |  |
 | contentProtocolDomain | string | `"https://example-content.some-domain.com"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/example-content"` | The image name |
@@ -40,7 +40,7 @@ Example
 
 ![Version: 0.114.40](https://img.shields.io/badge/Version-0.114.40-informational?style=flat-square) ![AppVersion: v0.158.15](https://img.shields.io/badge/AppVersion-v0.158.15-informational?style=flat-square)
 
-Helm Chart for the openmfp Portal
+Helm Chart for the Platform Mesh Portal
 
 ## Requirements
 
@@ -53,10 +53,10 @@ Helm Chart for the openmfp Portal
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | contentConfigurations.ui.enabled | bool | `true` |  |
-| contentConfigurations.ui.internalUrl | string | `"http://openmfp-example-content.openmfp-system.svc.cluster.local:8080/ui/example-content/ui/assets/config.json"` |  |
+| contentConfigurations.ui.internalUrl | string | `"http://platform-mesh-example-content.platform-mesh-system.svc.cluster.local:8080/ui/example-content/ui/assets/config.json"` |  |
 | contentConfigurations.ui.url | string | `"http://localhost:8000/ui/example-content/ui/assets/config.json"` |  |
 | contentConfigurations.wc.enabled | bool | `true` |  |
-| contentConfigurations.wc.internalUrl | string | `"http://openmfp-example-content.openmfp-system.svc.cluster.local:8080/ui/example-content/wc/assets/config.json"` |  |
+| contentConfigurations.wc.internalUrl | string | `"http://platform-mesh-example-content.platform-mesh-system.svc.cluster.local:8080/ui/example-content/wc/assets/config.json"` |  |
 | contentConfigurations.wc.url | string | `"http://localhost:8000/ui/example-content/wc/assets/config.json"` |  |
 | contentProtocolDomain | string | `"https://example-content.some-domain.com"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/example-content"` | The image name |

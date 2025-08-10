@@ -10,15 +10,15 @@ crossplane:
   enabled: true
   providerConfig:
     name: keycloak-provider-config
-    namespace: openmfp-system
+    namespace: platform-mesh-system
   realm:
-    name: openmfp
-    displayName: OpenMFP
+    name: platform-mesh
+    displayName: Platform Mesh
     registrationAllowed: true
     accessTokenLifespan: 8h
   clients:
-    openmfp:
-      name: OpenMFP
+    platform-mesh:
+      name: Platform Mesh
       validRedirectUris:
         - http://localhost:8000/callback*
         - http://localhost:4300/callback*
@@ -41,7 +41,7 @@ keycloak:
           key: secret
     - name: JAVA_OPTS_APPEND
       value: |-
-        -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
+        -Djgroups.dns.query=platform-mesh-keycloak-headless.platform-mesh-system.svc.cluster.local
   postgresql:
     primary:
       resourcesPreset: none
@@ -54,17 +54,17 @@ keycloak:
         adminPasswordKey: password
 
 keycloakConfig:
-  url: http://openmfp-keycloak.openmfp-system.svc.cluster.local/keycloak
+  url: http://platform-mesh-keycloak.platform-mesh-system.svc.cluster.local/keycloak
   userRegistration:
     enabled: true
   redirectUrls: ["http://localhost:8000/callback*"]
   realm:
     name: master
   client:
-    name: openmfp
+    name: platform-mesh
     targetSecret:
-      name: portal-client-secret-openmfp
-      namespace: openmfp-system
+      name: portal-client-secret-platform-mesh
+      namespace: platform-mesh-system
     tokenLifespan: 3600
   admin:
     username:
@@ -76,11 +76,11 @@ keycloakConfig:
           key: secret
 
 service:
-  name: openmfp-keycloak
+  name: platform-mesh-keycloak
   port: 80
 
 domain:
-  name: openmfp.org
+  name: platform-mesh.org
   pathPrefix: "/keycloak"
 
 job:

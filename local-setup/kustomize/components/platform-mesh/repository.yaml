@@ -1,0 +1,13 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: OCIRepository
+metadata:
+  name: platform-mesh
+  namespace: platform-mesh-system
+spec:
+  interval: 5m
+  url: oci://ghcr.io/platform-mesh/helm-charts/platform-mesh
+  ref:
+    # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh
+    semver: 0.0.662
+  secretRef:
+    name: github

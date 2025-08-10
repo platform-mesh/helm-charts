@@ -1,0 +1,17 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: platform-mesh-crds
+  namespace: platform-mesh-system
+spec:
+  interval: 5m
+  chartRef:
+    kind: OCIRepository
+    name: platform-mesh-crds
+  releaseName: platform-mesh-crds
+  values:
+    imagePullSecret: ghcr-credentials
+    extension-manager-operator-crds:
+      enabled: true
+    account-operator-crds:
+      enabled: true

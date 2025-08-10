@@ -19,10 +19,10 @@ contentConfigurations:
   ui:
     enabled: true
     url: http://localhost:8000/ui/example-content/ui/assets/config.json
-    internalUrl: http://openmfp-example-content.openmfp-system.svc.cluster.local:8080/ui/example-content/ui/assets/config.json
+    internalUrl: http://platform-mesh-example-content.platform-mesh-system.svc.cluster.local:8080/ui/example-content/ui/assets/config.json
   wc:
     enabled: true
     url: http://localhost:8000/ui/example-content/wc/assets/config.json
-    internalUrl: http://openmfp-example-content.openmfp-system.svc.cluster.local:8080/ui/example-content/wc/assets/config.json
+    internalUrl: http://platform-mesh-example-content.platform-mesh-system.svc.cluster.local:8080/ui/example-content/wc/assets/config.json
 
 contentProtocolDomain: https://example-content.some-domain.com

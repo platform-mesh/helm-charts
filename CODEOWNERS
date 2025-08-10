@@ -1,0 +1,8 @@
+# Default code owners
+* @platform-mesh/frame
+Chart.lock
+Chart.yaml
+*.tgz
+local-setup/kustomize/components/platform-mesh/repository.yaml
+local-setup/kustomize/components/platform-mesh-crds/repository.yaml
+

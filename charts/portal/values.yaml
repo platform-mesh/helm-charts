@@ -28,24 +28,24 @@ cookieDomain: "localhost"
 kubeconfigSecret: ""
 
 extraEnvVars:
-  - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+  - name: PLATFORM_MESH_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
     value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
-  - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+  - name: PLATFORM_MESH_PORTAL_CONTEXT_IAM_SERVICE_API_URL
     value: https://portal.dev.local:8443/iam/query
-  - name: OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
+  - name: PLATFORM_MESH_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
     value: >-
       {"account":{"contextProperty":"entityId"}}
 
 trust:
-  openmfp:
+  platform-mesh:
     baseDomains: "localhost"
     discoveryEndpoint: ""
-    authDomain: http://localhost:8000/keycloak/realms/openmfp/protocol/openid-connect/auth
-    tokenUrl: http://openmfp-keycloak/keycloak/realms/openmfp/protocol/openid-connect/token
-    oidcClientSecretName: openmfp-client
-    loginAudience: openmfp
+    authDomain: http://localhost:8000/keycloak/realms/platform-mesh/protocol/openid-connect/auth
+    tokenUrl: http://platform-mesh-keycloak/keycloak/realms/platform-mesh/protocol/openid-connect/token
+    oidcClientSecretName: platform-mesh-client
+    loginAudience: platform-mesh
     secretKeyRef: attribute.client_secret
-    contentConfigurationValidatorApiUrl: http://openmfp-extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate
+    contentConfigurationValidatorApiUrl: http://platform-mesh-extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate
 
 health:
   port: 9000
