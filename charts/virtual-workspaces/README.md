@@ -23,6 +23,13 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | deployment.resourceSchemaName | string | `""` |  |
 | deployment.resourceSchemaWorkspace | string | `""` |  |
 | deployment.serverUrl | string | `"https://kcp-front-proxy.openmfp-system:8443"` |  |
+| hpa.enabled | bool | `true` |  |
+| hpa.maxReplicas | int | `10` |  |
+| hpa.metrics[0].resource.name | string | `"cpu"` |  |
+| hpa.metrics[0].resource.target.averageUtilization | int | `80` |  |
+| hpa.metrics[0].resource.target.type | string | `"Utilization"` |  |
+| hpa.metrics[0].type | string | `"Resource"` |  |
+| hpa.minReplicas | int | `1` |  |
 | image.name | string | `"ghcr.io/platform-mesh/virtual-workspaces"` | The image repository |
 | kubeconfigSecretName | string | `"account-operator-kubeconfig"` |  |
 | requestHeaderClientCASecretName | string | `"kcp-requestheader-client-ca"` |  |
