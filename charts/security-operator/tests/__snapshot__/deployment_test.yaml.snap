@@ -23,6 +23,18 @@ operator match the snapshot:
           - events
         verbs:
           - '*'
+      - apiGroups:
+          - helm.toolkit.fluxcd.io
+        resources:
+          - helmreleases
+        verbs:
+          - get
+          - list
+          - watch
+          - create
+          - delete
+          - update
+          - patch
   2: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
@@ -449,6 +461,18 @@ operator match the snapshot w. sentry:
           - events
         verbs:
           - '*'
+      - apiGroups:
+          - helm.toolkit.fluxcd.io
+        resources:
+          - helmreleases
+        verbs:
+          - get
+          - list
+          - watch
+          - create
+          - delete
+          - update
+          - patch
   2: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
