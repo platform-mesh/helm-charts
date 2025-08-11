@@ -9,3 +9,14 @@ rules:
 - apiGroups: [""]
   resources: ["events"]
   verbs: ["*"]
+- apiGroups: ["helm.toolkit.fluxcd.io"]
+  resources:
+    - helmreleases
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - delete
+    - update
+    - patch
