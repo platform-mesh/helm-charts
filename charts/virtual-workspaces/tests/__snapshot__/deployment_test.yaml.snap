@@ -87,33 +87,13 @@ virtual-workspaces match the snapshot:
               secret:
                 secretName: kcp-requestheader-client-ca
   2: |
-    apiVersion: autoscaling/v2
-    kind: HorizontalPodAutoscaler
-    metadata:
-      name: virtual-workspaces
-      namespace: NAMESPACE
-    spec:
-      maxReplicas: 10
-      metrics:
-        - resource:
-            name: cpu
-            target:
-              averageUtilization: 80
-              type: Utilization
-          type: Resource
-      minReplicas: 1
-      scaleTargetRef:
-        apiVersion: apps/v1
-        kind: Deployment
-        name: virtual-workspaces
-  3: |
     apiVersion: v1
     imagePullSecrets:
       - name: github
     kind: ServiceAccount
     metadata:
       name: virtual-workspaces
-  4: |
+  3: |
     apiVersion: v1
     kind: Service
     metadata:

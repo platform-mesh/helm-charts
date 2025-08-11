@@ -124,26 +124,6 @@ it should render the application manifests:
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
-    apiVersion: autoscaling/v2
-    kind: HorizontalPodAutoscaler
-    metadata:
-      name: rebac-authz-webhook
-      namespace: openmfp-system
-    spec:
-      maxReplicas: 10
-      metrics:
-        - resource:
-            name: cpu
-            target:
-              averageUtilization: 80
-              type: Utilization
-          type: Resource
-      minReplicas: 1
-      scaleTargetRef:
-        apiVersion: apps/v1
-        kind: Deployment
-        name: rebac-authz-webhook
-  5: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -152,7 +132,7 @@ it should render the application manifests:
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
-  6: |
+  5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -165,7 +145,7 @@ it should render the application manifests:
       issuerRef:
         name: rebac-authz-webhook-issuer
       secretName: rebac-authz-webhook-cert
-  7: |
+  6: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -188,7 +168,7 @@ it should render the application manifests:
         app.kubernetes.io/instance: rebac-authz-webhook
         app.kubernetes.io/name: rebac-authz-webhook
       type: ClusterIP
-  8: |
+  7: |
     apiVersion: v1
     automountServiceAccountToken: true
     imagePullSecrets:
@@ -328,26 +308,6 @@ it should render the application manifests with service account:
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
-    apiVersion: autoscaling/v2
-    kind: HorizontalPodAutoscaler
-    metadata:
-      name: rebac-authz-webhook
-      namespace: openmfp-system
-    spec:
-      maxReplicas: 10
-      metrics:
-        - resource:
-            name: cpu
-            target:
-              averageUtilization: 80
-              type: Utilization
-          type: Resource
-      minReplicas: 1
-      scaleTargetRef:
-        apiVersion: apps/v1
-        kind: Deployment
-        name: rebac-authz-webhook
-  5: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -356,7 +316,7 @@ it should render the application manifests with service account:
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
-  6: |
+  5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -369,7 +329,7 @@ it should render the application manifests with service account:
       issuerRef:
         name: rebac-authz-webhook-issuer
       secretName: rebac-authz-webhook-cert
-  7: |
+  6: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -392,7 +352,7 @@ it should render the application manifests with service account:
         app.kubernetes.io/instance: rebac-authz-webhook
         app.kubernetes.io/name: rebac-authz-webhook
       type: ClusterIP
-  8: |
+  7: |
     apiVersion: v1
     automountServiceAccountToken: true
     imagePullSecrets:
@@ -532,26 +492,6 @@ it should render the application manifests with service monitor:
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
-    apiVersion: autoscaling/v2
-    kind: HorizontalPodAutoscaler
-    metadata:
-      name: rebac-authz-webhook
-      namespace: openmfp-system
-    spec:
-      maxReplicas: 10
-      metrics:
-        - resource:
-            name: cpu
-            target:
-              averageUtilization: 80
-              type: Utilization
-          type: Resource
-      minReplicas: 1
-      scaleTargetRef:
-        apiVersion: apps/v1
-        kind: Deployment
-        name: rebac-authz-webhook
-  5: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -560,7 +500,7 @@ it should render the application manifests with service monitor:
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
-  6: |
+  5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -573,7 +513,7 @@ it should render the application manifests with service monitor:
       issuerRef:
         name: rebac-authz-webhook-issuer
       secretName: rebac-authz-webhook-cert
-  7: |
+  6: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -596,7 +536,7 @@ it should render the application manifests with service monitor:
         app.kubernetes.io/instance: rebac-authz-webhook
         app.kubernetes.io/name: rebac-authz-webhook
       type: ClusterIP
-  8: |
+  7: |
     apiVersion: v1
     automountServiceAccountToken: true
     imagePullSecrets:
@@ -610,7 +550,7 @@ it should render the application manifests with service monitor:
         app.kubernetes.io/version: 0.0.0
         helm.sh/chart: rebac-authz-webhook-0.0.0
       name: rebac-authz-webhook
-  9: |
+  8: |
     apiVersion: monitoring.coreos.com/v1
     kind: ServiceMonitor
     metadata:
@@ -758,26 +698,6 @@ it should render the application manifests with useInClusterClient:
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
-    apiVersion: autoscaling/v2
-    kind: HorizontalPodAutoscaler
-    metadata:
-      name: rebac-authz-webhook
-      namespace: openmfp-system
-    spec:
-      maxReplicas: 10
-      metrics:
-        - resource:
-            name: cpu
-            target:
-              averageUtilization: 80
-              type: Utilization
-          type: Resource
-      minReplicas: 1
-      scaleTargetRef:
-        apiVersion: apps/v1
-        kind: Deployment
-        name: rebac-authz-webhook
-  5: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -786,7 +706,7 @@ it should render the application manifests with useInClusterClient:
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
-  6: |
+  5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -799,7 +719,7 @@ it should render the application manifests with useInClusterClient:
       issuerRef:
         name: rebac-authz-webhook-issuer
       secretName: rebac-authz-webhook-cert
-  7: |
+  6: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -822,7 +742,7 @@ it should render the application manifests with useInClusterClient:
         app.kubernetes.io/instance: rebac-authz-webhook
         app.kubernetes.io/name: rebac-authz-webhook
       type: ClusterIP
-  8: |
+  7: |
     apiVersion: v1
     automountServiceAccountToken: true
     imagePullSecrets:
@@ -962,26 +882,6 @@ it should render the cert-manager manifests with certManager enabled:
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
-    apiVersion: autoscaling/v2
-    kind: HorizontalPodAutoscaler
-    metadata:
-      name: rebac-authz-webhook
-      namespace: openmfp-system
-    spec:
-      maxReplicas: 10
-      metrics:
-        - resource:
-            name: cpu
-            target:
-              averageUtilization: 80
-              type: Utilization
-          type: Resource
-      minReplicas: 1
-      scaleTargetRef:
-        apiVersion: apps/v1
-        kind: Deployment
-        name: rebac-authz-webhook
-  5: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -990,7 +890,7 @@ it should render the cert-manager manifests with certManager enabled:
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
-  6: |
+  5: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1004,7 +904,7 @@ it should render the cert-manager manifests with certManager enabled:
       issuerRef:
         name: rebac-authz-webhook-issuer
       secretName: rebac-authz-webhook-cert
-  7: |
+  6: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -1028,7 +928,7 @@ it should render the cert-manager manifests with certManager enabled:
         app.kubernetes.io/instance: rebac-authz-webhook
         app.kubernetes.io/name: rebac-authz-webhook
       type: ClusterIP
-  8: |
+  7: |
     apiVersion: v1
     automountServiceAccountToken: true
     imagePullSecrets:
@@ -1042,7 +942,7 @@ it should render the cert-manager manifests with certManager enabled:
         app.kubernetes.io/version: 0.0.0
         helm.sh/chart: rebac-authz-webhook-0.0.0
       name: rebac-authz-webhook
-  9: |
+  8: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
