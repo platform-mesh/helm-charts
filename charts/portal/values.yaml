@@ -1,5 +1,5 @@
 image:
-  name: ghcr.io/platform-mesh/portal
+  name: ghcr.io/openmfp/portal
   pullPolicyOverride: IfNotPresent
 
 http:
@@ -37,15 +37,15 @@ extraEnvVars:
       {"account":{"contextProperty":"entityId"}}
 
 trust:
-  platform-mesh:
+  openmfp:
     baseDomains: "localhost"
     discoveryEndpoint: ""
-    authDomain: http://localhost:8000/keycloak/realms/platform-mesh/protocol/openid-connect/auth
-    tokenUrl: http://platform-mesh-keycloak/keycloak/realms/platform-mesh/protocol/openid-connect/token
-    oidcClientSecretName: platform-mesh-client
-    loginAudience: platform-mesh
+    authDomain: http://localhost:8000/keycloak/realms/openmfp/protocol/openid-connect/auth
+    tokenUrl: http://openmfp-keycloak/keycloak/realms/openmfp/protocol/openid-connect/token
+    oidcClientSecretName: openmfp-client
+    loginAudience: openmfp
     secretKeyRef: attribute.client_secret
-    contentConfigurationValidatorApiUrl: http://platform-mesh-extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate
+    contentConfigurationValidatorApiUrl: http://openmfp-extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate
 
 health:
   port: 9000

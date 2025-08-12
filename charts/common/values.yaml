@@ -80,7 +80,7 @@ defaults:
     enabled: false
     collector:
       # -- the OpenTelemetry collector endpoint
-      endpoint: observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
+      endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
 
   istio:
     # -- toggle to enable/disable istio
