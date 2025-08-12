@@ -27,18 +27,18 @@ Helm Chart for the Platform Mesh Portal
 | health.readiness.path | string | `"/rest/health"` |  |
 | health.startup.path | string | `"/rest/health"` |  |
 | http.protocol | string | `"http"` |  |
-| image.name | string | `"ghcr.io/platform-mesh/portal"` |  |
+| image.name | string | `"ghcr.io/openmfp/portal"` |  |
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | importContent | bool | `false` |  |
 | kubeconfigSecret | string | `""` |  |
-| trust.platform-mesh.authDomain | string | `"http://localhost:8000/keycloak/realms/platform-mesh/protocol/openid-connect/auth"` |  |
-| trust.platform-mesh.baseDomains | string | `"localhost"` |  |
-| trust.platform-mesh.contentConfigurationValidatorApiUrl | string | `"http://platform-mesh-extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate"` |  |
-| trust.platform-mesh.discoveryEndpoint | string | `""` |  |
-| trust.platform-mesh.loginAudience | string | `"platform-mesh"` |  |
-| trust.platform-mesh.oidcClientSecretName | string | `"platform-mesh-client"` |  |
-| trust.platform-mesh.secretKeyRef | string | `"attribute.client_secret"` |  |
-| trust.platform-mesh.tokenUrl | string | `"http://platform-mesh-keycloak/keycloak/realms/platform-mesh/protocol/openid-connect/token"` |  |
+| trust.openmfp.authDomain | string | `"http://localhost:8000/keycloak/realms/openmfp/protocol/openid-connect/auth"` |  |
+| trust.openmfp.baseDomains | string | `"localhost"` |  |
+| trust.openmfp.contentConfigurationValidatorApiUrl | string | `"http://openmfp-extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate"` |  |
+| trust.openmfp.discoveryEndpoint | string | `""` |  |
+| trust.openmfp.loginAudience | string | `"openmfp"` |  |
+| trust.openmfp.oidcClientSecretName | string | `"openmfp-client"` |  |
+| trust.openmfp.secretKeyRef | string | `"attribute.client_secret"` |  |
+| trust.openmfp.tokenUrl | string | `"http://openmfp-keycloak/keycloak/realms/openmfp/protocol/openid-connect/token"` |  |
 | validWebcomponentUrls | string | `".?"` |  |
 | virtualService.hosts[0] | string | `"*"` |  |
 

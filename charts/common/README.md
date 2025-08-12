@@ -41,7 +41,7 @@ A Helm chart containing reuse templates
 | defaults.sentry.externalSecrets.secretKey | string | `"sentry/sentry-dsn"` | the secret name that holds the sentry DSNs |
 | defaults.service.port | int | `8080` |  |
 | defaults.service.type | string | `"ClusterIP"` |  |
-| defaults.tracing.collector.endpoint | string | `"observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317"` | the OpenTelemetry collector endpoint |
+| defaults.tracing.collector.endpoint | string | `"observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317"` | the OpenTelemetry collector endpoint |
 | defaults.tracing.enabled | bool | `false` | toggle to enable/disable OpenTelemetry |
 
 ## Overriding Values

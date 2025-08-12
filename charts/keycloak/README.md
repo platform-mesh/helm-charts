@@ -13,20 +13,20 @@ A Helm chart to deploy keycloak as OIDC provider in platform-mesh
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| crossplane.clients.platform-mesh.name | string | `"Platform Mesh"` |  |
-| crossplane.clients.platform-mesh.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` |  |
-| crossplane.clients.platform-mesh.validRedirectUris[1] | string | `"http://localhost:4300/callback*"` |  |
+| crossplane.clients.openmfp.name | string | `"OpenMFP"` |  |
+| crossplane.clients.openmfp.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` |  |
+| crossplane.clients.openmfp.validRedirectUris[1] | string | `"http://localhost:4300/callback*"` |  |
 | crossplane.enabled | bool | `true` |  |
 | crossplane.identityProviders | object | `{}` |  |
 | crossplane.providerConfig.name | string | `"keycloak-provider-config"` |  |
-| crossplane.providerConfig.namespace | string | `"platform-mesh-system"` |  |
+| crossplane.providerConfig.namespace | string | `"openmfp-system"` |  |
 | crossplane.realm.accessTokenLifespan | string | `"8h"` |  |
-| crossplane.realm.displayName | string | `"Platform Mesh"` |  |
-| crossplane.realm.name | string | `"platform-mesh"` |  |
+| crossplane.realm.displayName | string | `"OpenMFP"` |  |
+| crossplane.realm.name | string | `"openmfp"` |  |
 | crossplane.realm.registrationAllowed | bool | `true` |  |
 | crossplane.trustedAudiences | list | `[]` |  |
 | debug | bool | `false` |  |
-| domain.name | string | `"platform-mesh.org"` |  |
+| domain.name | string | `"openmfp.org"` |  |
 | domain.pathPrefix | string | `"/keycloak"` |  |
 | externalSecrets.keycloakAdminRemoteRef | string | `""` |  |
 | externalSecrets.postgres-adminRemoteRef | string | `""` |  |
@@ -43,7 +43,7 @@ A Helm chart to deploy keycloak as OIDC provider in platform-mesh
 | keycloak.extraEnvVars[1].valueFrom.secretKeyRef.key | string | `"secret"` |  |
 | keycloak.extraEnvVars[1].valueFrom.secretKeyRef.name | string | `"keycloak-admin"` |  |
 | keycloak.extraEnvVars[2].name | string | `"JAVA_OPTS_APPEND"` |  |
-| keycloak.extraEnvVars[2].value | string | `"-Djgroups.dns.query=platform-mesh-keycloak-headless.platform-mesh-system.svc.cluster.local"` |  |
+| keycloak.extraEnvVars[2].value | string | `"-Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local"` |  |
 | keycloak.httpRelativePath | string | `"/keycloak/"` |  |
 | keycloak.postgresql.auth.existingSecret | string | `""` |  |
 | keycloak.postgresql.auth.secretKeys.adminPasswordKey | string | `"password"` |  |
@@ -55,14 +55,14 @@ A Helm chart to deploy keycloak as OIDC provider in platform-mesh
 | keycloakConfig.admin.password.valueFrom.secretKeyRef.name | string | `"keycloak-admin"` |  |
 | keycloakConfig.admin.username.value | string | `"keycloak-admin"` |  |
 | keycloakConfig.client.name | string | `"platform-mesh"` |  |
-| keycloakConfig.client.targetSecret.name | string | `"portal-client-secret-platform-mesh"` |  |
-| keycloakConfig.client.targetSecret.namespace | string | `"platform-mesh-system"` |  |
+| keycloakConfig.client.targetSecret.name | string | `"portal-client-secret-openmfp"` |  |
+| keycloakConfig.client.targetSecret.namespace | string | `"openmfp-system"` |  |
 | keycloakConfig.client.tokenLifespan | int | `3600` |  |
 | keycloakConfig.realm.name | string | `"master"` |  |
 | keycloakConfig.redirectUrls[0] | string | `"http://localhost:8000/callback*"` |  |
-| keycloakConfig.url | string | `"http://platform-mesh-keycloak.platform-mesh-system.svc.cluster.local/keycloak"` |  |
+| keycloakConfig.url | string | `"http://openmfp-keycloak.openmfp-system.svc.cluster.local/keycloak"` |  |
 | keycloakConfig.userRegistration.enabled | bool | `true` |  |
-| service.name | string | `"platform-mesh-keycloak"` |  |
+| service.name | string | `"openmfp-keycloak"` |  |
 | service.port | int | `80` |  |
 
 ## Overriding Values
