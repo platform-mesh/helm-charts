@@ -1,0 +1,35 @@
+name: Build kubernetes-graphql-gateway
+ Workflow
+on:
+  push:
+    paths:
+      - 'charts/kubernetes-graphql-gateway/**'
+      - '.github/workflows/kubernetes-graphql-gateway.yaml'
+      - '.ocm/component-constructor.yaml'
+  pull_request:
+    paths:
+      - 'charts/kubernetes-graphql-gateway/**'
+      - '.github/workflows/kubernetes-graphql-gateway.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: kubernetes-graphql-gateway-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: kubernetes-graphql-gateway
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts,kcp=https://kcp-dev.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/kubernetes-graphql-gateway
+      componentName: github.com/openmfp/kubernetes-graphql-gateway
+      ocmRegistryUrl: ghcr.io/platform-mesh/ocm

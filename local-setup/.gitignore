@@ -1,0 +1,12 @@
+# IDE
+.vscode
+.idea
+
+# directory for local secrets
+.secret
+
+# GitHub actions binaries
+bin/
+webhook-config/*
+!webhook-config/*.sh
+!webhook-config/*.yaml
