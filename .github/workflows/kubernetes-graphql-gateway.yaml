@@ -32,4 +32,5 @@ jobs:
     with:
       chartPath: charts/kubernetes-graphql-gateway
       componentName: github.com/openmfp/kubernetes-graphql-gateway
-      ocmRegistryUrl: ghcr.io/platform-mesh/ocm
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      ocmRegistryUrl: ghcr.io/openmfp/ocm

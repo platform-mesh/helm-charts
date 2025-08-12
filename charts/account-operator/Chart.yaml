@@ -8,7 +8,7 @@ dependencies:
   - name: account-operator-crds
     version: 0.2.3
     condition: crds.enabled
-    repository: oci://ghcr.io/platform-mesh/helm-charts
+    repository: oci://ghcr.io/openmfp/helm-charts
   - name: common
     version: 0.5.5
-    repository: oci://ghcr.io/platform-mesh/helm-charts
+    repository: oci://ghcr.io/openmfp/helm-charts

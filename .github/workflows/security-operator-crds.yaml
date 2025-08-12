@@ -34,4 +34,4 @@ jobs:
       chartPath: charts/security-operator-crds
       componentName: github.com/platform-mesh/security-operator-crds
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
-  ocmRegistryUrl: ghcr.io/platform-mesh/ocm
+  ocmRegistryUrl: ghcr.io/openmfp/ocm

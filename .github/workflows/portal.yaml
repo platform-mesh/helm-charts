@@ -31,4 +31,5 @@ jobs:
     with:
       chartPath: charts/portal
       componentName: github.com/openmfp/portal
-      ocmRegistryUrl: ghcr.io/platform-mesh/ocm
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      ocmRegistryUrl: ghcr.io/openmfp/ocm
