@@ -3,6 +3,12 @@
 The infra platform-mesh chart configures a number of common infrastructure components for the Platform Mesh platform.
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+
+## Requirements
+
+| Repository | Name | Description | Sources |
+|------------|------|-------------|---------|
+| `oci://ghcr.io/openmfp/helm-charts` | `common` | The `common` chart is a library of common resources that are shared across all other charts in the repository. It has no templates, but provides helm template functions and [default values](https://github.com/openmfp/helm-charts/blob/main/charts/common/values.yaml) that can be used by other charts. |[source](https://github.com/openmfp/helm-charts/tree/main/charts/common)|
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
@@ -43,38 +49,3 @@ Example
 3) .Values.deployment.resources.limits.memory = 1024MB
 4) .Values.common.defaults.deployment.resources.limits.memory = default 512MB
 ```
-# infra
-
-![Version: 0.63.4](https://img.shields.io/badge/Version-0.63.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
-
-The infra platform-mesh chart configures a number of common infrastructure components for the Platform Mesh platform.
-
-## Requirements
-
-| Repository | Name | Version |
-|------------|------|---------|
-| oci://ghcr.io/platform-mesh/helm-charts | common | 0.5.5 |
-
-## Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| crossplane.enabled | bool | `true` |  |
-| fga.enabled | bool | `false` |  |
-| fga.stores | list | `[]` |  |
-| istio.enabled | bool | `true` |  |
-| istio.gateway.annotations | object | `{}` |  |
-| istio.gateway.apiVersion | string | `"networking.istio.io/v1"` |  |
-| istio.gateway.name | string | `"gateway"` |  |
-| istio.gateway.selector.istio | string | `"gateway"` |  |
-| istio.main.gateway.hosts[0] | string | `"*"` |  |
-| istio.main.gateway.name | string | `"http"` |  |
-| istio.main.gateway.port | int | `8000` |  |
-| istio.main.gateway.protocol | string | `"HTTP"` |  |
-| istio.networking.apiVersion | string | `"networking.istio.io/v1"` |  |
-| istio.passThrough.gateway.enabled | bool | `false` |  |
-| istio.serviceEntries.https.enabled | bool | `false` |  |
-| istio.serviceEntries.https.hosts | list | `[]` |  |
-| kcp.clientCertIssuer | string | `"kcp-client-issuer"` |  |
-| kcp.enabled | bool | `false` |  |
-

@@ -7,4 +7,4 @@ appVersion: "v0.5.16"
 dependencies:
   - name: common
     version: 0.5.5
-    repository: oci://ghcr.io/openmfp/helm-charts
+    repository: oci://ghcr.io/platform-mesh/helm-charts
