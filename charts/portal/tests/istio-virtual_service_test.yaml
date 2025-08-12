@@ -1,0 +1,15 @@
+suite: virtual service
+templates:
+  - istio-virtual-service.yaml
+values:
+  - ../test-values.yaml
+release:
+  name: portal
+tests:
+  - it: virtual service match the snapshot
+    set:
+      global:
+        istio:
+          enabled: true
+    asserts:
+      - matchSnapshot: {}

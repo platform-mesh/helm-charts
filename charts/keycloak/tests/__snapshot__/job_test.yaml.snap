@@ -1,0 +1,8 @@
+matches the snapshot:
+  1: |
+    apiVersion: v1
+    imagePullSecrets:
+      - name: ghcr-credentials
+    kind: ServiceAccount
+    metadata:
+      name: keycloak-client-creation

@@ -1,0 +1,305 @@
+{{- if not .Values.crossplane.enabled -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "common.entity.name" . }}-configuration
+  annotations:
+    {{ range $key, $value := .Values.job.annotations }}
+    {{ $key }}: {{ $value }}
+    {{ end }}
+spec:
+  activeDeadlineSeconds: 1800
+  template:
+    spec:
+      automountServiceAccountToken: true
+      serviceAccountName: {{ .Values.job.serviceAccount}}
+      imagePullSecrets:
+        - name: {{ include "common.imagePullSecret" . | nindent 2 }}
+      containers:
+        - name: {{ include "common.entity.name" . }}
+          image: ghcr.io/openmfp/charts/job/curl-jq:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              #!/bin/sh
+              set +e
+              {{- if .Values.debug }}
+              set -x
+              {{- end }}
+
+              REALM={{ .Values.keycloakConfig.realm.name }}
+
+              function quitIstio {
+                {{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "istio.quitSidecar")) "true" }}
+                curl -s -X POST http://localhost:15000/quitquitquit
+                {{- end }}
+              }
+
+              MAX_RETRIES=15
+              RETRY_DELAY=5
+
+              for i in $(seq 1 $MAX_RETRIES); do
+               # Get the admin token
+               TOKEN=$(curl -s --location --request POST "$KEYCLOAK_URL/realms/{{ .Values.keycloakConfig.realm.name }}/protocol/openid-connect/token" \
+               --header 'Content-Type: application/x-www-form-urlencoded' \
+               --data-urlencode "username=$KEYCLOAK_USER" \
+               --data-urlencode "password=$KEYCLOAK_PASSWORD" \
+               --data-urlencode 'grant_type=password' \
+               --data-urlencode 'client_id=admin-cli' | jq -r '.access_token')
+
+               if [ -n "$TOKEN" ]; then
+                 break
+               elif [ $i -eq $MAX_RETRIES ]; then
+                 echo "Failed to get token after $MAX_RETRIES attempts, exiting"
+                 quitIstio
+                 exit 1
+               else
+                 echo "Failed to get token, attempt $i/$MAX_RETRIES. Retrying in $RETRY_DELAY seconds..."
+                 sleep $RETRY_DELAY
+               fi
+              done
+
+              {{- if .Values.keycloakConfig.userRegistration.enabled }}
+              echo "Patch the realm to allow for user registration"
+              curl -s -X PUT -H 'Content-Type: application/json' -H "Authorization: bearer $TOKEN" -d '{"registrationAllowed": true, "registrationEmailAsUsername": true}' $KEYCLOAK_URL/admin/realms/$REALM
+              {{- end }}
+
+              CLIENT_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/clients" | jq -r '.[] | select(.clientId=="openmfp") | .id')
+              if [ -z "$CLIENT_ID" ]; then
+                echo "Creating client '{{ .Values.keycloakConfig.client.name }}'"
+              CREATE_CLIENT_PAYLOAD=$(cat <<EOF
+              {
+                "clientId": "{{ .Values.keycloakConfig.client.name }}",
+                "redirectUris": {{ .Values.keycloakConfig.redirectUrls | toJson }},
+                "attributes": {
+                  "access.token.lifespan": {{ .Values.keycloakConfig.client.tokenLifespan}}
+                }
+              }
+              EOF
+              )
+
+                CLIENT_CREATE_RESP=$(curl -s -X POST \
+                  -d "$CREATE_CLIENT_PAYLOAD" \
+                  -H "Content-Type:application/json" \
+                  -H "Authorization: bearer ${TOKEN}" \
+                  "$KEYCLOAK_URL/realms/$REALM/clients-registrations/default")
+
+                CLIENT_ID=$(echo "$CLIENT_CREATE_RESP" | jq -r '.id')
+
+                echo "Client created"
+                CLIENT_SECRET=$(echo "$CLIENT_CREATE_RESP" |  jq -r '.secret')
+
+                # Get the bearer token and API server address
+                API_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+                API_SERVER_URL=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT
+
+                CLIENT_ID_B64=$(echo -n "{{ .Values.keycloakConfig.client.name}}" | base64)
+                CLIENT_SECRET_B64=$(echo -n "$CLIENT_SECRET" | base64)
+
+              PAYLOAD=$(cat <<EOF
+              {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "metadata": {
+                  "name": "{{ .Values.keycloakConfig.client.targetSecret.name }}",
+                  "namespace": "{{ .Values.keycloakConfig.client.targetSecret.namespace }}"
+                },
+                "type": "Opaque",
+                "data": {
+                  "id": "$CLIENT_ID_B64",
+                  "secret": "$CLIENT_SECRET_B64"
+                }
+              }
+              EOF
+              )
+                echo "Storing secret"
+                SECRET_RESP=$(curl -s -k -X POST $API_SERVER_URL/api/v1/namespaces/{{ .Values.keycloakConfig.client.targetSecret.namespace }}/secrets \
+                -H "Authorization: Bearer $API_TOKEN" \
+                -H 'Content-Type: application/json' \
+                -d "$PAYLOAD")
+
+                echo "Response: $SECRET_RESP"
+
+                CLIENT_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/clients" | jq -r '.[] | select(.clientId=="openmfp") | .id')
+              else
+                echo "Client '{{ .Values.keycloakConfig.client.name }}' already exists (ID: $CLIENT_ID)"
+              fi
+
+              PROFILE_CLIENT_SCOPE=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes" |jq -r '.[] | select(.name=="profile") |.id')
+              FAMILY_NAME_MAPPER_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$PROFILE_CLIENT_SCOPE/protocol-mappers/models" | jq -r '.[] | select(.name=="family name") | .id')
+              FAMILY_NAME_MAPPER_PAYLOAD=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$PROFILE_CLIENT_SCOPE/protocol-mappers/models/$FAMILY_NAME_MAPPER_ID" | jq -c '.config.["claim.name"]="last_name"')
+
+              echo "Updating family name mapper"
+              curl -s -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$FAMILY_NAME_MAPPER_PAYLOAD" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$PROFILE_CLIENT_SCOPE/protocol-mappers/models/$FAMILY_NAME_MAPPER_ID"
+
+              GIVEN_NAME_MAPPER_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$PROFILE_CLIENT_SCOPE/protocol-mappers/models" | jq -r '.[] | select(.name=="given name") | .id')
+              GIVEN_NAME_MAPPER_PAYLOAD=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$PROFILE_CLIENT_SCOPE/protocol-mappers/models/$GIVEN_NAME_MAPPER_ID" | jq -c '.config.["claim.name"]="first_name"')
+
+              echo "Updating given name mapper"
+              curl -s -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$GIVEN_NAME_MAPPER_PAYLOAD" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$PROFILE_CLIENT_SCOPE/protocol-mappers/models/$GIVEN_NAME_MAPPER_ID"
+
+              # Create the client scope "groups"
+
+              # Check if the "groups" client scope exists
+              GROUPS_SCOPE_EXISTS=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes" | jq -r '.[] | select(.name=="groups") | .name')
+
+              if [ -z "$GROUPS_SCOPE_EXISTS" ]; then
+                # "groups" client scope does not exist, proceed with creation
+                GROUPS_SCOPE_PAYLOAD='{"name": "groups", "protocol": "openid-connect"}'
+                GROUPS_SCOPE_RESP=$(curl -s -X POST -d "$GROUPS_SCOPE_PAYLOAD" -H "Content-Type:application/json" -H "Authorization: Bearer ${TOKEN}" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes")
+                GROUPS_SCOPE_ERR_RESP=$(echo "$GROUPS_SCOPE_RESP" | jq -r '.errorMessage')
+
+                if [ -n "$GROUPS_SCOPE_ERR_RESP" ]; then
+                  echo "Error creating 'groups' client scope: ${GROUPS_SCOPE_ERR_RESP}"
+                  quitIstio
+                  exit 1
+                else
+                  echo "Created client scope 'groups' successfully"
+                fi
+              else
+                # "groups" client scope already exists, skip creation
+                echo "Skipping creation of 'groups' client scope as it already exists"
+              fi
+
+              GROUPS_SCOPE_PAYLOAD='{"name": "groups", "protocol": "openid-connect"}'
+              GROUPS_SCOPE_RESP=$(curl -s -X POST -d "$GROUPS_SCOPE_PAYLOAD" -H "Content-Type:application/json" -H "Authorization: Bearer ${TOKEN}" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes")
+
+              # Add the "groups" scope to the "default" client scope
+              GROUPS_SCOPE_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes" | jq -r '.[] | select(.name=="groups") | .id')
+              DEFAULT_CLIENT_SCOPES=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/default-default-client-scopes" | jq -r '.[] | .id')
+
+              if echo "$DEFAULT_CLIENT_SCOPES" | grep -q "$GROUPS_SCOPE_ID"; then
+                echo "Skipping addition og 'groups' client scope the client's client scopes"
+              else
+                # Add the "groups" scope to the "default" client scopes
+                curl -s -X PUT -H "Authorization: Bearer $TOKEN" $KEYCLOAK_URL/admin/realms/$REALM/default-default-client-scopes/$GROUPS_SCOPE_ID
+                echo "Skipping addition of 'groups' client scope to default client scopes, as its already port of the default scopes"
+              fi
+
+              # Add the client scope groups to the default scopes of the client
+              curl -s -X PUT -H "Authorization: Bearer ${TOKEN}" "$KEYCLOAK_URL/admin/realms/$REALM/clients/$CLIENT_ID/default-client-scopes/$GROUPS_SCOPE_ID"
+
+              # Define the payload for the "groups" mapper
+              GROUPS_MAPPERS_RESP=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$GROUPS_SCOPE_ID/protocol-mappers/models")
+              GROUPS_MAPPERS=$(echo $GROUPS_MAPPERS_RESP | jq '.')
+              # Check if the "groups" mapper already exists
+              GROUPS_MAPPER_EXISTS=$(echo "$GROUPS_MAPPERS" | jq -r '.[] | select(.name=="groups") | .id')
+
+              if [ -z "$GROUPS_MAPPER_EXISTS" ]; then
+              GROUPS_MAPPER_PAYLOAD=$(cat <<EOF
+              {
+                "name": "groups",
+                "protocol": "openid-connect",
+                "protocolMapper": "oidc-group-membership-mapper",
+                "config": {
+                  "full.path": "true",
+                  "id.token.claim": "true",
+                  "access.token.claim": "true",
+                  "claim.name": "groups",
+                  "jsonType.label": "String"
+                }
+              }
+              EOF
+              )
+
+                # Create the "groups" mapper
+                echo "Creating 'groups' mapper"
+                curl -s -X POST -d "$GROUPS_MAPPER_PAYLOAD" -H "Content-Type:application/json" -H "Authorization: Bearer ${TOKEN}" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$GROUPS_SCOPE_ID/protocol-mappers/models"
+              else
+                echo "Skipping creation of 'groups' mapper it exists already"
+              fi
+
+              # Check if the "portal" group exists
+              PORTAL_GROUP_EXISTS=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/groups" | jq -r '.[] | select(.name=="portal") | .name')
+
+              if [ -z "$PORTAL_GROUP_EXISTS" ]; then
+                # "portal" group does not exist, proceed with creation
+                PORTAL_GROUP_PAYLOAD='{"name": "portal"}'
+                curl -s -X POST -d "$PORTAL_GROUP_PAYLOAD" -H "Content-Type:application/json" -H "Authorization: Bearer ${TOKEN}" "$KEYCLOAK_URL/admin/realms/$REALM/groups"
+                echo "Created group 'portal' successfully"
+              else
+                # "portal" group already exists, skip creation
+                echo "Skipping creation of 'portal' group as it already exists"
+              fi
+
+              PORTAL_GROUP_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/groups" | jq -r '.[] | select(.name=="portal") | .id')
+
+              # Check if the "portal" group ID was successfully retrieved
+              if [ -z "$PORTAL_GROUP_ID" ]; then
+                echo "Failed to retrieve 'portal' group ID"
+                quitIstio
+                exit 1
+              else
+                # Set the "portal" group as a default group in the realm
+                curl -s -X PUT -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/default-groups/$PORTAL_GROUP_ID"
+                echo "Set 'portal' group as default group successfully"
+              fi
+
+              # Manage email verified
+              CLIENT_SCOPE_ID=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes" | jq -r '.[] | select(.name=="email") | .id')
+              MAPPER_DETAILS=$(curl -s -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$CLIENT_SCOPE_ID/protocol-mappers/models" | jq -r '.[] | select(.name=="email verified")')
+              CREATE=false
+
+              if [ -z "MAPPER_DETAILS" ]; then
+                CREATE=true
+              fi
+
+              # Extract mapper ID and protocolMapper type
+              MAPPER_ID=$(echo "$MAPPER_DETAILS" | jq -r '.id')
+              MAPPER_TYPE=$(echo "$MAPPER_DETAILS" | jq -r '.protocolMapper')
+
+              if [ "$MAPPER_TYPE" != "oidc-hardcoded-claim-mapper" ]; then
+                if [ -n "$MAPPER_ID" ]; then
+                  curl -s -X DELETE -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$CLIENT_SCOPE_ID/protocol-mappers/models/$MAPPER_ID"
+                  echo "Mapper 'email verified' removed successfully. continuing"
+                  CREATE=true
+                else
+                  echo "Mapper 'email verified' not found or already removed."
+                  CREATE=true
+                fi
+              else
+                  echo "Mapper 'email verified' is of type 'oidc-hardcoded-claim-mapper'."
+              fi
+
+              if [ "$CREATE" = true ]; then
+                echo "Creating 'email verified' mapper"
+              EMAIL_VERIFIED_MAPPER_PAYLOAD=$(cat <<EOF
+              {
+                "protocol":"openid-connect",
+                "protocolMapper":"oidc-hardcoded-claim-mapper",
+                "name":"email verified",
+                "config":{
+                  "claim.name":"email_verified",
+                  "claim.value":"true",
+                  "jsonType.label":"boolean",
+                  "id.token.claim":"true",
+                  "access.token.claim":"true",
+                  "lightweight.claim":"false",
+                  "userinfo.token.claim":"true",
+                  "access.tokenResponse.claim":"false",
+                  "introspection.token.claim":"true"
+                }
+              }
+              EOF
+              )
+                curl -s -X POST -d "$EMAIL_VERIFIED_MAPPER_PAYLOAD" -H "Content-Type:application/json" -H "Authorization: Bearer $TOKEN" "$KEYCLOAK_URL/admin/realms/$REALM/client-scopes/$CLIENT_SCOPE_ID/protocol-mappers/models"
+              fi
+
+              echo "Quiting istio"
+              quitIstio
+          env:
+            - name: KEYCLOAK_URL
+              value: {{ .Values.keycloakConfig.url }}
+            - name: KEYCLOAK_USER
+              {{ .Values.keycloakConfig.admin.username | toYaml }}
+            - name: KEYCLOAK_PASSWORD
+{{ .Values.keycloakConfig.admin.password | toYaml | indent 14 }}
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      restartPolicy: Never
+{{- end -}}

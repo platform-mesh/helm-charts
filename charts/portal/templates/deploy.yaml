@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}
+  labels:
+    app: {{ include "common.entity.name" . }}
+spec:
+  {{ include "common.deploymentBasics" . | indent 2 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labelMatcher" . | indent 8 }}
+    spec:
+      {{- include "common.pod.securityContext" . | indent 6 }}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      containers:
+      - {{- include "common.podBasics" . | indent 8 }}
+        {{- include "common.container.securityContext" . | indent 8 }}
+        {{- include "common.operatorHealthAndReadyness" . | indent 8 }}
+        env:
+        - name: HTTP_PROTOCOL
+          value: {{ .Values.http.protocol }}
+      {{- range $key, $idp := .Values.trust }}
+        - name: OIDC_CLIENT_ID_{{ $key | upper | replace "-" "_" }}
+          value: "{{ $idp.loginAudience | default $idp.audience }}"
+        - name: OIDC_CLIENT_SECRET_{{ $key | upper | replace "-" "_" }}
+          valueFrom:
+            secretKeyRef:
+              name: portal-client-secret-{{ $idp.secretKey | default $key }}
+              key: {{ $idp.secretKeyRef | default "secret" }}
+      {{ if not (eq $idp.discoveryEndpoint "") }}
+        - name: DISCOVERY_ENDPOINT_{{ $key | upper | replace "-" "_" }}
+          value: {{ $idp.discoveryEndpoint }}
+      {{- else }}
+        - name: TOKEN_URL_{{ $key | upper | replace "-" "_" }}
+          value: {{ $idp.tokenUrl | default $idp.trustedIssuer }}
+        - name: AUTH_SERVER_URL_{{ $key | upper | replace "-" "_" }}
+          value: {{ $idp.authDomain | default $idp.trustedIssuer }}
+      {{- end }}
+        - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
+          value: {{ $idp.contentConfigurationValidatorApiUrl }}
+      {{- if $idp.baseDomains }}
+        - name: BASE_DOMAINS_{{ $key | upper | replace "-" "_" }}
+          value: {{ $idp.baseDomains }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.trust }}
+        - name: IDP_NAMES
+          {{- $keys := keys .Values.trust | sortAlpha }}
+          value: "{{ join "," $keys  }}"
+      {{- end }}
+        {{- if .Values.developmentLandcsape }}
+        - name: DEVELOPMENT_INSTANCE
+          value: "{{ .Values.developmentLandcsape }}"
+        {{- end }}
+        {{- if .Values.featureToggles }}
+        - name: FEATURE_TOGGLES
+          value: "{{ .Values.featureToggles }}"
+        {{- end }}
+        - name: PORT
+          value: "{{ include "common.getKeyValue" (dict "Values" .Values "key" "port") }}"
+        - name: REGION
+          value: {{ .Values.region }}
+        - name: IMAGE_TAG
+          value: "{{ .Chart.AppVersion }}"
+        - name: IMAGE_NAME
+          value: "{{ .Values.image.name }}"
+        {{- if .Values.cookieDomain }}
+        - name: COOKIE_DOMAIN
+          value: {{ .Values.cookieDomain }}
+        {{- end }}
+        {{- if .Values.frontendPort }}
+        - name: FRONTEND_PORT
+          value: "{{ .Values.frontendPort }}"
+        {{- end }}
+        {{- if .Values.environment }}
+        - name: ENVIRONMENT
+          value: "{{ .Values.environment }}"
+        {{- end }}
+        {{- if .Values.validWebcomponentUrls }}
+        - name: VALID_WEBCOMPONENT_URLS
+          value: '{{ .Values.validWebcomponentUrls }}'
+        {{- end }}
+        {{ range .Values.extraEnvVars }}
+        - name: {{ .name }}
+          value: {{ .value | toJson }}
+        {{ end }}
+        {{- if .Values.kubeconfigSecret }}
+        - name: KUBECONFIG
+          value: /api-kubeconfig/kubeconfig
+        {{- end }}
+        ports:
+          {{- include "common.ports" . | nindent 10 }}
+        volumeMounts:
+          {{- include "common.extraVolumeMounts" . | nindent 8 }}
+          {{- if .Values.kubeconfigSecret }}
+          - name: kcp-api-server
+            mountPath: /api-kubeconfig
+          {{- end }}
+      volumes:
+        {{- include "common.extraVolumes" . | nindent 8 }}
+        {{- if .Values.kubeconfigSecret }}
+        - name: kcp-api-server
+          secret:
+            secretName: {{ .Values.kubeconfigSecret }}
+        {{- end }}

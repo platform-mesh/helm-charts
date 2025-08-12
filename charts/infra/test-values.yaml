@@ -1,0 +1,36 @@
+gateway:
+  apiVersion: networking.istio.io/v1
+  name: gateway
+  selector:
+    istio: gateway
+  servers:
+    - port:
+        number: 8080
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+
+kcp:
+  enabled: false
+#  host: ""
+
+auth:
+#  host: ""
+
+externalSecrets:
+  accountOperatorSaKubeconfig: account-operator-sa-kubeconfig
+  enabled: false
+
+stores:
+  - name: test
+    namespace: test
+    coreModuleName: |
+      module core
+
+      type user
+
+      type account
+        relations
+          define owner: [user]
+          define member: [user] or owner

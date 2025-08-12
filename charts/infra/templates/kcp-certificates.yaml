@@ -1,0 +1,40 @@
+{{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "kcp.enabled")) "true" -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kcp-system-masters-client-cert-authz-webhook
+  namespace: {{ .Release.Namespace }}
+spec:
+  commonName: authz-webhook
+  issuerRef:
+    name: {{ .Values.kcp.clientCertIssuer }}
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  secretName: kcp-system-masters-client-cert-authz-webhook
+  subject:
+    organizations:
+    - system:masters
+  usages:
+  - client auth
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kcp-system-masters-client-cert-openmfp-operator
+  namespace: {{ .Release.Namespace }}
+spec:
+  commonName: openmfp-operator
+  issuerRef:
+    name: {{ .Values.kcp.clientCertIssuer }}
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  secretName: kcp-system-masters-client-cert-openmfp-operator
+  subject:
+    organizations:
+      - system:masters
+  usages:
+    - client auth
+{{- end }}

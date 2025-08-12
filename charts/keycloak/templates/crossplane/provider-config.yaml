@@ -1,0 +1,31 @@
+{{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "crossplane.enabled")) "true" -}}
+apiVersion: keycloak.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: {{ .Values.crossplane.providerConfig.name }}
+  namespace: {{ .Values.crossplane.providerConfig.namespace }}
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: {{ .Values.crossplane.providerConfig.name }}
+      namespace: {{ .Values.crossplane.providerConfig.namespace }}
+      key: config
+{{- if not .Values.externalSecrets.enabled }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.crossplane.providerConfig.name }}
+  namespace: {{ .Values.crossplane.providerConfig.namespace }}
+stringData:
+  config: |
+    {
+      "client_id":"admin-cli",
+      "username": "{{ .Values.keycloakConfig.admin.username.value }}",
+      "password": "admin",
+      "url": "{{ .Values.keycloakConfig.url }}",
+      "realm": "master"
+    }
+{{- end -}}
+{{- end -}}

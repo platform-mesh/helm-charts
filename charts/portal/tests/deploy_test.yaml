@@ -1,0 +1,27 @@
+suite: deploy
+templates:
+  - deploy.yaml
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+release:
+  name: portal
+tests:
+  - it: matches the snapshot
+    values:
+      - ../test-values.yaml
+    template: deploy.yaml
+    asserts:
+      - matchSnapshot: {}
+  - it: has all health checks
+    template: deploy.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /rest/health
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /rest/health
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.path
+          value: /rest/health

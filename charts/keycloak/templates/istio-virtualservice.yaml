@@ -1,0 +1,30 @@
+{{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "istio.enabled")) "true" -}}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "common.entity.name" . }}
+spec:
+  hosts:
+    {{ .Values.istio.virtualservice.hosts | toYaml | nindent 4 }}
+  gateways:
+    - {{ .Release.Namespace}}/{{ include "common.getKeyValue" (dict "Values" .Values "key" "istio.gateway.name") }}
+  http:
+    - route:
+      - destination:
+          host: {{ .Values.service.name }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: {{ .Values.service.port }}
+      {{- if .Values.domain.pathPrefix }}
+      match:
+        - uri:
+            prefix: {{ .Values.domain.pathPrefix }}
+      {{ end }}
+      {{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "istio.https.enabled")) "true" }}
+      headers:
+        request:
+          set:
+            x-forwarded-proto: "https"
+            x-forwarded-port: "{{ .Values.istio.https.port }}"
+      {{ end }}
+
+{{- end }}

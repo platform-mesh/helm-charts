@@ -1,0 +1,50 @@
+suite: snapshot
+values:
+  - ../test-values.yaml
+tests:
+  - it: matches the snapshot
+    asserts:
+      - matchSnapshot: {}
+  - it: disables externalsecrets
+    set:
+      externalSecrets:
+        accountOperatorSaKubeconfig: null
+    asserts:
+      - matchSnapshot: {}
+  - it: with https
+    set:
+      kcp:
+        enabled: true
+      istio:
+        main:
+          gateway:
+            hosts:
+              - "my-domain.com"
+              - "my-domain2.com"
+            port: 8000
+            name: pass-https
+            protocol: HTTPS
+            tls:
+              mode: SIMPLE
+              credentialName: my-credential
+              minProtocolVersion: TLSV1_2
+    asserts:
+      - matchSnapshot: {}
+  - it: with kcp
+    set:
+      kcp:
+        enabled: true
+      istio:
+        passThrough:
+          gateway:
+            enabled: true
+            hosts:
+              - "passthrough.my-domain.com"
+              - "passthrough2.my-domain.com"
+            port: 8000
+            name: pass-https
+            protocol: HTTPS
+
+    asserts:
+      - matchSnapshot: {}
+

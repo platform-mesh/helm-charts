@@ -1,0 +1,11 @@
+suite: rbac
+templates:
+  - rbac.yaml
+release:
+  namespace: openmfp-system
+values:
+  - ../test-values.yaml
+tests:
+  - it: matches the snapshot
+    asserts:
+      - matchSnapshot: {}

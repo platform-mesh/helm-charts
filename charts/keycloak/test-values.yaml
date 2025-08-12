@@ -1,0 +1,9 @@
+istio:
+  virtualservice:
+    hosts: [keycloak.openmfp.org]
+
+domain:
+  subdomain: keycloak
+
+keycloakConfig:
+  redirectUrls: [ "http://localhost:3000/*" ]

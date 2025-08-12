@@ -1,0 +1,376 @@
+matches the snapshot:
+  1: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: openmfp
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: openmfp
+        enabled: true
+        name: OpenMFP
+        realmIdRef:
+          name: openmfp
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: portal-client-secret-openmfp
+        namespace: openmfp-system
+  2: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: openmfp-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: openmfp
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+          - trusted-openmfp-audiences
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  3: |
+    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
+    kind: DefaultGroups
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        groupIdsRefs:
+          - name: portal
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  4: |
+    apiVersion: group.keycloak.crossplane.io/v1alpha1
+    kind: Group
+    metadata:
+      name: portal
+    spec:
+      forProvider:
+        name: portal
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  5: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        includeInTokenScope: true
+        name: groups
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  6: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  7: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: trusted-openmfp-audiences
+    spec:
+      forProvider:
+        includeInTokenScope: true
+        name: trusted-openmfp-audiences
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  8: |
+    apiVersion: keycloak.crossplane.io/v1beta1
+    kind: ProviderConfig
+    metadata:
+      name: keycloak-provider-config
+      namespace: openmfp-system
+    spec:
+      credentials:
+        secretRef:
+          key: config
+          name: keycloak-provider-config
+          namespace: openmfp-system
+        source: Secret
+  9: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: keycloak-provider-config
+      namespace: openmfp-system
+    stringData:
+      config: |-
+        {
+          "client_id":"admin-cli",
+          "username": "keycloak-admin",
+          "password": "admin",
+          "url": "http://openmfp-keycloak.openmfp-system.svc.cluster.local/keycloak",
+          "realm": "master"
+        }
+  10: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: openmfp
+    spec:
+      forProvider:
+        accessTokenLifespan: 8h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: OpenMFP
+        displayNameHtml: <b>OpenMFP</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: openmfp
+        registrationAllowed: true
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 8h
+      providerConfigRef:
+        name: keycloak-provider-config
+matches the snapshot with custom config:
+  1: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: openmfp
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: openmfp
+        enabled: true
+        name: OpenMFP
+        realmIdRef:
+          name: openmfp
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: portal-client-secret-openmfp
+        namespace: openmfp-system
+  2: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: openmfp-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: openmfp
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+          - trusted-openmfp-audiences
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  3: |
+    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
+    kind: DefaultGroups
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        groupIdsRefs:
+          - name: portal
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  4: |
+    apiVersion: group.keycloak.crossplane.io/v1alpha1
+    kind: Group
+    metadata:
+      name: portal
+    spec:
+      forProvider:
+        name: portal
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  5: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        includeInTokenScope: true
+        name: groups
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  6: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  7: |
+    apiVersion: oidc.keycloak.crossplane.io/v1alpha1
+    kind: IdentityProvider
+    metadata:
+      name: custom-provider
+    spec:
+      forProvider:
+        alias: custom-provider
+        authorizationUrl: https://custom-provider.com/oauth/authorize
+        clientId: custom-client-id
+        clientSecretSecretRef:
+          key: secret-key
+          name: custom-client-secret
+        defaultScopes: openid email profile
+        extraConfig:
+          CustomConfig: value
+        hideOnLoginPage: true
+        issuer: https://custom-provider.com
+        realmRef:
+          name: openmfp
+        tokenUrl: https://custom-provider.com/oauth/token
+        trustEmail: true
+      providerConfigRef:
+        name: keycloak-provider-config
+  8: |
+    apiVersion: identityprovider.keycloak.crossplane.io/v1alpha1
+    kind: IdentityProviderMapper
+    metadata:
+      name: lastname
+    spec:
+      forProvider:
+        extraConfig:
+          Claim: last_name
+          UserAttribute: lastName
+          syncMode: INHERIT
+        identityProviderAlias: custom-provider
+        identityProviderMapper: oidc-user-attribute-idp-mapper
+        name: last_name
+        realmRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  9: |
+    apiVersion: identityprovider.keycloak.crossplane.io/v1alpha1
+    kind: IdentityProviderMapper
+    metadata:
+      name: firstname
+    spec:
+      forProvider:
+        extraConfig:
+          Claim: first_name
+          UserAttribute: firstName
+          syncMode: INHERIT
+        identityProviderAlias: custom-provider
+        identityProviderMapper: oidc-user-attribute-idp-mapper
+        name: first_name
+        realmRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  10: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: trusted-openmfp-audiences
+    spec:
+      forProvider:
+        includeInTokenScope: true
+        name: trusted-openmfp-audiences
+        realmIdRef:
+          name: openmfp
+      providerConfigRef:
+        name: keycloak-provider-config
+  11: |
+    apiVersion: keycloak.crossplane.io/v1beta1
+    kind: ProviderConfig
+    metadata:
+      name: keycloak-provider-config
+      namespace: openmfp-system
+    spec:
+      credentials:
+        secretRef:
+          key: config
+          name: keycloak-provider-config
+          namespace: openmfp-system
+        source: Secret
+  12: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: keycloak-provider-config
+      namespace: openmfp-system
+    stringData:
+      config: |-
+        {
+          "client_id":"admin-cli",
+          "username": "keycloak-admin",
+          "password": "admin",
+          "url": "http://openmfp-keycloak.openmfp-system.svc.cluster.local/keycloak",
+          "realm": "master"
+        }
+  13: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: openmfp
+    spec:
+      forProvider:
+        accessTokenLifespan: 8h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: OpenMFP
+        displayNameHtml: <b>OpenMFP</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: openmfp
+        registrationAllowed: true
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 8h
+      providerConfigRef:
+        name: keycloak-provider-config

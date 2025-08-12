@@ -1,0 +1,305 @@
+match the Snapshot:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: openmfp-kubernetes-graphql-gateway
+      name: openmfp-kubernetes-graphql-gateway
+      namespace: openmfp-system
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: openmfp-kubernetes-graphql-gateway
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+      template:
+        metadata:
+          labels:
+            app: openmfp-kubernetes-graphql-gateway
+            version: 1.0.0
+        spec:
+          containers:
+            - args:
+                - gateway
+                - --metrics-bind-address=:8081
+                - --health-probe-bind-address=:3389
+                - --tracing-enabled=true
+                - --tracing-config-service-name=openmfp-kubernetes-graphql-gateway.openmfp-system
+                - --tracing-config-service-version=1.0.0
+                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+              env:
+                - name: KEY1
+                  value: value1
+                - name: OPENAPI_DEFINITIONS_PATH
+                  value: /app/definitions
+                - name: LOCAL_DEVELOPMENT
+                  value: "false"
+                - name: ENABLE_KCP
+                  value: "true"
+                - name: KEY1
+                  value: value1
+                - name: GATEWAY_HANDLER_CFG_GRAPHI_QL
+                  value: "true"
+                - name: GATEWAY_LOG_LEVEL
+                  value: trace
+                - name: GATEWAY_PORT
+                  value: "8080"
+                - name: GATEWAY_USERNAME_CLAIM
+                  value: email
+                - name: GATEWAY_SHOULD_IMPERSONATE
+                  value: "true"
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 3389
+                periodSeconds: 10
+              name: openmfp-kubernetes-graphql-gateway-gateway
+              ports:
+                - containerPort: 8081
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 3389
+                  name: health-port
+                  protocol: TCP
+                - containerPort: 8080
+                  name: service-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 3389
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 3389
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /app/definitions
+                  name: definitions-volume
+            - args:
+                - listener
+                - --metrics-bind-address=:8091
+                - --health-probe-bind-address=:3390
+              env:
+                - name: KEY1
+                  value: value1
+                - name: OPENAPI_DEFINITIONS_PATH
+                  value: /app/definitions
+                - name: LOCAL_DEVELOPMENT
+                  value: "false"
+                - name: ENABLE_KCP
+                  value: "true"
+                - name: KEY1
+                  value: value1
+                - name: LISTENER_APIEXPORT_NAME
+                  value: kcp.io
+                - name: VIRTUAL_WORKSPACES_CONFIG_PATH
+                  value: /app/config/virtual-workspaces.yaml
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 3390
+                periodSeconds: 10
+              name: openmfp-kubernetes-graphql-gateway-listener
+              ports:
+                - containerPort: 8091
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 3390
+                  name: health-port
+                  protocol: TCP
+                - containerPort: 8090
+                  name: service-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 3390
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 3390
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /app/definitions
+                  name: definitions-volume
+                - mountPath: /app/config
+                  name: virtual-workspaces-config-volume
+          imagePullSecrets:
+            - name: github
+          serviceAccountName: openmfp-kubernetes-graphql-gateway
+          volumes:
+            - emptyDir:
+                sizeLimit: 500Mi
+              name: definitions-volume
+            - configMap:
+                name: virtual-workspaces-config
+              name: virtual-workspaces-config-volume
+  2: |
+    apiVersion: security.istio.io/v1
+    kind: AuthorizationPolicy
+    metadata:
+      name: openmfp-kubernetes-graphql-gateway
+      namespace: openmfp-system
+    spec:
+      action: ALLOW
+      rules:
+        - to:
+            - operation:
+                methods:
+                  - GET
+                paths:
+                  - '*/graphql'
+        - from:
+            - source:
+                requestPrincipals:
+                  - '*'
+          to:
+            - operation:
+                methods:
+                  - POST
+                paths:
+                  - '*/graphql'
+      selector:
+        matchLabels:
+          app: openmfp-kubernetes-graphql-gateway
+  3: |
+    apiVersion: networking.istio.io/v1alpha3
+    kind: DestinationRule
+    metadata:
+      name: openmfp-kubernetes-graphql-gateway
+      namespace: openmfp-system
+    spec:
+      host: openmfp-kubernetes-graphql-gateway.openmfp-system.svc.cluster.local
+      trafficPolicy:
+        tls:
+          mode: ISTIO_MUTUAL
+  4: |
+    apiVersion: security.istio.io/v1beta1
+    kind: PeerAuthentication
+    metadata:
+      name: openmfp-kubernetes-graphql-gateway
+      namespace: openmfp-system
+    spec:
+      mtls:
+        mode: STRICT
+      selector:
+        matchLabels:
+          app: openmfp-kubernetes-graphql-gateway
+  5: |
+    apiVersion: security.istio.io/v1beta1
+    kind: RequestAuthentication
+    metadata:
+      name: openmfp-kubernetes-graphql-gateway
+      namespace: openmfp-system
+    spec:
+      jwtRules: null
+      selector:
+        matchLabels:
+          app: openmfp-kubernetes-graphql-gateway
+  6: |
+    apiVersion: networking.istio.io/v1alpha3
+    kind: VirtualService
+    metadata:
+      name: openmfp-kubernetes-graphql-gateway
+      namespace: openmfp-system
+    spec:
+      gateways:
+        - openmfp-system/gateway
+      hosts:
+        - '*'
+      http:
+        - corsPolicy:
+            allowHeaders:
+              - Authorization
+              - Content-Type
+              - '*'
+            allowMethods:
+              - GET
+              - POST
+            allowOrigins:
+              - regex: .*
+          match:
+            - uri:
+                prefix: /kubernetes-graphql-gateway/
+          rewrite:
+            uri: /
+          route:
+            - destination:
+                host: openmfp-kubernetes-graphql-gateway.openmfp-system.svc.cluster.local
+                port:
+                  number: 8080
+  7: |
+    apiVersion: v1
+    imagePullSecrets:
+      - name: github
+    kind: ServiceAccount
+    metadata:
+      name: openmfp-kubernetes-graphql-gateway
+      namespace: openmfp-system
+  8: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: openmfp-kubernetes-graphql-gateway
+      namespace: openmfp-system
+    spec:
+      ports:
+        - name: http-8080
+          port: 8080
+          protocol: TCP
+        - name: health
+          port: 3389
+          protocol: TCP
+      selector:
+        app: openmfp-kubernetes-graphql-gateway
+      type: ClusterIP
+  9: |
+    apiVersion: v1
+    data:
+      virtual-workspaces.yaml: "virtualWorkspaces:\n  - name: custom-ws\n    url: https://example.com\n    kubeconfig: /etc/kubeconfig/kubeconfig "
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: openmfp-kubernetes-graphql-gateway
+      name: virtual-workspaces-config
+      namespace: openmfp-system

@@ -1,0 +1,31 @@
+suite: crossplane
+release:
+  name: keycloak
+  namespace: openmfp-system
+templates:
+  - crossplane/*
+values:
+  - ../test-values.yaml
+set:
+  crossplane:
+    enabled: true
+tests:
+  - it: matches the snapshot
+    asserts:
+      - matchSnapshot: {}
+  - it: matches the snapshot with custom config
+    set:
+      crossplane:
+        identityProviders:
+          custom-provider:
+            authorizationUrl: https://custom-provider.com/oauth/authorize
+            tokenUrl: https://custom-provider.com/oauth/token
+            issuer: https://custom-provider.com
+            clientId: custom-client-id
+            clientSecretRef:
+              name: custom-client-secret
+              key: secret-key
+            extraConfig:
+              CustomConfig: value
+    asserts:
+      - matchSnapshot: {}

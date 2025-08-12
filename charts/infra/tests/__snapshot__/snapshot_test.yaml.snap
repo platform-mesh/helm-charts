@@ -1,0 +1,158 @@
+disables externalsecrets:
+  1: |
+    apiVersion: networking.istio.io/v1
+    kind: Gateway
+    metadata:
+      name: gateway
+      namespace: NAMESPACE
+    spec:
+      selector:
+        istio: gateway
+      servers:
+        - hosts:
+            - '*'
+          port:
+            name: http
+            number: 8000
+            protocol: HTTP
+matches the snapshot:
+  1: |
+    apiVersion: networking.istio.io/v1
+    kind: Gateway
+    metadata:
+      name: gateway
+      namespace: NAMESPACE
+    spec:
+      selector:
+        istio: gateway
+      servers:
+        - hosts:
+            - '*'
+          port:
+            name: http
+            number: 8000
+            protocol: HTTP
+with https:
+  1: |
+    apiVersion: networking.istio.io/v1
+    kind: Gateway
+    metadata:
+      name: gateway
+      namespace: NAMESPACE
+    spec:
+      selector:
+        istio: gateway
+      servers:
+        - hosts:
+            - my-domain.com
+            - my-domain2.com
+          port:
+            name: pass-https
+            number: 8000
+            protocol: HTTPS
+          tls:
+            credentialName: my-credential
+            minProtocolVersion: TLSV1_2
+            mode: SIMPLE
+  2: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: kcp-system-masters-client-cert-authz-webhook
+      namespace: NAMESPACE
+    spec:
+      commonName: authz-webhook
+      issuerRef:
+        name: kcp-client-issuer
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      secretName: kcp-system-masters-client-cert-authz-webhook
+      subject:
+        organizations:
+          - system:masters
+      usages:
+        - client auth
+  3: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: kcp-system-masters-client-cert-openmfp-operator
+      namespace: NAMESPACE
+    spec:
+      commonName: openmfp-operator
+      issuerRef:
+        name: kcp-client-issuer
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      secretName: kcp-system-masters-client-cert-openmfp-operator
+      subject:
+        organizations:
+          - system:masters
+      usages:
+        - client auth
+with kcp:
+  1: |
+    apiVersion: networking.istio.io/v1
+    kind: Gateway
+    metadata:
+      name: gateway
+      namespace: NAMESPACE
+    spec:
+      selector:
+        istio: gateway
+      servers:
+        - hosts:
+            - '*'
+          port:
+            name: http
+            number: 8000
+            protocol: HTTP
+        - hosts:
+            - passthrough.my-domain.com
+            - passthrough2.my-domain.com
+          port:
+            name: pass-https
+            number: 8000
+            protocol: HTTPS
+          tls:
+            mode: PASSTHROUGH
+  2: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: kcp-system-masters-client-cert-authz-webhook
+      namespace: NAMESPACE
+    spec:
+      commonName: authz-webhook
+      issuerRef:
+        name: kcp-client-issuer
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      secretName: kcp-system-masters-client-cert-authz-webhook
+      subject:
+        organizations:
+          - system:masters
+      usages:
+        - client auth
+  3: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: kcp-system-masters-client-cert-openmfp-operator
+      namespace: NAMESPACE
+    spec:
+      commonName: openmfp-operator
+      issuerRef:
+        name: kcp-client-issuer
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      secretName: kcp-system-masters-client-cert-openmfp-operator
+      subject:
+        organizations:
+          - system:masters
+      usages:
+        - client auth

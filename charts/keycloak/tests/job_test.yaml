@@ -1,0 +1,16 @@
+suite: istio
+templates:
+  - job-keycloak-configuration.yaml
+  - sa.yaml
+release:
+  namespace: openmfp-system
+values:
+  - ../test-values.yaml
+tests:
+  - it: matches the snapshot
+    set:
+      imagePullSecretOverride: "ghcr-credentials"
+      istio:
+        quitSidecar: true
+    asserts:
+      - matchSnapshot: {}

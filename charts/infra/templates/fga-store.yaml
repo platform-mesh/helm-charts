@@ -1,0 +1,16 @@
+{{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "fga.enabled")) "true" -}}
+{{- range .Values.fga.stores }}
+---
+apiVersion: core.openmfp.io/v1alpha1
+kind: Store
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+spec:
+{{- with .tuples }}
+  tuples: {{ . | toYaml | nindent 4 }}    
+{{- end }}
+  coreModule: |
+    {{ .coreModuleName | nindent 4 }}
+{{- end}}
+{{- end }}
