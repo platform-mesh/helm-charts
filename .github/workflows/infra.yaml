@@ -1,4 +1,8 @@
+permissions:
+  contents: read
+
 name: Build infra Workflow
+
 on:
   push:
     paths:

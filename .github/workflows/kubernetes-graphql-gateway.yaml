@@ -1,5 +1,8 @@
-name: Build kubernetes-graphql-gateway
- Workflow
+permissions:
+  contents: read
+
+name: Build kubernetes-graphql-gateway Workflow
+
 on:
   push:
     paths:
