@@ -31,4 +31,4 @@ jobs:
     with:
       chartPath: charts/virtual-workspaces
       componentName: github.com/platform-mesh/virtual-workspaces
-  ocmRegistryUrl: ghcr.io/openmfp/ocm
+      ocmRegistryUrl: ghcr.io/openmfp/ocm
