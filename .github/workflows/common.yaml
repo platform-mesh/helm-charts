@@ -1,3 +1,6 @@
+permissions:
+  contents: read
+
 name: Build common Workflow
 on:
   push:
@@ -24,3 +27,14 @@ jobs:
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
     secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/common
+      componentName: github.com/platform-mesh/common
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      ocmRegistryUrl: ghcr.io/platform-mesh/ocm
