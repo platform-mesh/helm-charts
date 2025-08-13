@@ -1,5 +1,6 @@
 permissions:
   contents: read
+  packages: read
 
 name: Build portal Workflow
 
