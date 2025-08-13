@@ -1,9 +1,9 @@
 dependencies:
 - name: account-operator-crds
-  repository: oci://ghcr.io/platform-mesh/helm-charts
+  repository: file://../account-operator-crds
   version: 0.2.3
 - name: common
   repository: file://../common
   version: 0.5.6
-digest: sha256:eab458d0142bba561d5666e41565bc5bc6c938f89e7e6b17c3d740efa6b60361
-generated: "2025-08-13T13:56:34.049484675+03:00"
+digest: sha256:f29134f777e824d14fba2e0d26711ec3a482dbe082a41ffe8f48593b00d1cd4c
+generated: "2025-08-13T14:02:59.093427771+03:00"
