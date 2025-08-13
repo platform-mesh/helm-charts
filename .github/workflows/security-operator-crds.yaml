@@ -17,7 +17,7 @@ jobs:
     concurrency:
       group: security-operator-crds-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@fix/docs-checkout-branch
     with:
       chartFolder: charts
       chartName: security-operator-crds
