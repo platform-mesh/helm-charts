@@ -2,7 +2,7 @@
 ## @param image.name The image repository
 ## @param image.tag The image tag
 image:
-  name: ghcr.io/openmfp/extension-manager-operator
+  name: ghcr.io/platform-mesh/extension-manager-operator
   ## Overwrite this value to use a different image tag then the .chart.appVersion
   # tag: v0.0.0
 
