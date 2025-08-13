@@ -35,3 +35,4 @@ jobs:
     with:
       chartPath: charts/extension-manager-operator-crds
       componentName: github.com/platform-mesh/extension-manager-operator-crds
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
