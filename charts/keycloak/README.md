@@ -9,7 +9,7 @@ A Helm chart to deploy keycloak as OIDC provider in platform-mesh
 | Repository | Name | Description | Sources |
 |------------|------|-------------|---------|
 | `oci://registry-1.docker.io/bitnamicharts` | `keycloak` | The open source bitnami keycloak chart to deploy keycloak. | [source](https://github.com/bitnami/charts/tree/main/bitnami/keycloak) |
-| `oci://ghcr.io/openmfp/helm-charts` | `common` | The `common` chart is a library of common resources that are shared across all other charts in the repository. It has no templates, but provides helm template functions and [default values](https://github.com/openmfp/helm-charts/blob/main/charts/common/values.yaml) that can be used by other charts. |[source](https://github.com/openmfp/helm-charts/tree/main/charts/common)|
+| `oci://ghcr.io/platform-mesh/helm-charts` | `common` | The `common` chart is a library of common resources that are shared across all other charts in the repository. It has no templates, but provides helm template functions and [default values](https://github.com/openmfp/helm-charts/blob/main/charts/common/values.yaml) that can be used by other charts. |[source](https://github.com/openmfp/helm-charts/tree/main/charts/common)|
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|

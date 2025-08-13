@@ -3,7 +3,7 @@ dependencies:
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 25.0.0
 - name: common
-  repository: oci://ghcr.io/openmfp/helm-charts
-  version: 0.5.3
-digest: sha256:674db38523852958f17e52d930acd75607d7db5977703a6cda8688ffef14ef6e
-generated: "2025-08-12T19:55:35.96748+03:00"
+  repository: file://../common
+  version: 0.5.6
+digest: sha256:e00756aabd2b0f91f140d4af55302140b010f0a139da0f9cf78b6ad438e63f39
+generated: "2025-08-13T15:04:23.233917184+03:00"
