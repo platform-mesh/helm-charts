@@ -8,8 +8,8 @@ A Helm chart for extension-manager-operator which manages resources like Content
 
 | Repository | Name | Description | Sources |
 |------------|------|-------------|---------|
-| `oci://ghcr.io/openmfp/helm-charts` | `common` | The `common` chart is a library of common resources that are shared across all other charts in the repository. It has no templates, but provides helm template functions and [default values](https://github.com/openmfp/helm-charts/blob/main/charts/common/values.yaml) that can be used by other charts. |[source](https://github.com/openmfp/helm-charts/tree/main/charts/common)|
-| `oci://ghcr.io/openmfp/helm-charts` | `extension-manager-operator-crds` | The `extension-manager-operator-crds` chart provides CRDS introduced by the `extension-manager-operator`. |[source](https://github.com/openmfp/helm-charts/tree/main/charts/extension-manager-operator-crds)|
+| `oci://ghcr.io/platform-mesh/helm-charts` | `common` | The `common` chart is a library of common resources that are shared across all other charts in the repository. It has no templates, but provides helm template functions and [default values](https://github.com/platform-mesh/helm-charts/blob/main/charts/common/values.yaml) that can be used by other charts. |[source](https://github.com/platform-mesh/helm-charts/tree/main/charts/common)|
+| `oci://ghcr.io/platform-mesh/helm-charts` | `extension-manager-operator-crds` | The `extension-manager-operator-crds` chart provides CRDS introduced by the `extension-manager-operator`. |[source](https://github.com/platform-mesh/helm-charts/tree/main/charts/extension-manager-operator-crds)|
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|

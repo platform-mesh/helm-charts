@@ -189,9 +189,6 @@ operator match the snapshot:
               imagePullPolicy: IfNotPresent
               name: extension-manager-operator
               ports:
-                - containerPort: 8080
-                  name: metrics
-                  protocol: TCP
                 - containerPort: 8081
                   name: health-port
                   protocol: TCP
@@ -279,9 +276,6 @@ operator match the snapshot:
                 periodSeconds: 10
               name: extension-manager-operator
               ports:
-                - containerPort: 8080
-                  name: metrics
-                  protocol: TCP
                 - containerPort: 8081
                   name: health-port
                   protocol: TCP
@@ -368,9 +362,6 @@ operator match the snapshot with tracing:
               imagePullPolicy: IfNotPresent
               name: extension-manager-operator
               ports:
-                - containerPort: 8080
-                  name: metrics
-                  protocol: TCP
                 - containerPort: 8090
                   name: health-port
                   protocol: TCP
@@ -461,9 +452,6 @@ operator match the snapshot with tracing:
                 periodSeconds: 10
               name: extension-manager-operator
               ports:
-                - containerPort: 8080
-                  name: metrics
-                  protocol: TCP
                 - containerPort: 8090
                   name: health-port
                   protocol: TCP
