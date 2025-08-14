@@ -1,6 +1,6 @@
 permissions:
   contents: read
-  packages: read
+  packages: write
 
 name: Build extension-manager-operator-crds Workflow
 on:
@@ -35,3 +35,4 @@ jobs:
     with:
       chartPath: charts/extension-manager-operator-crds
       componentName: github.com/platform-mesh/extension-manager-operator-crds
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
