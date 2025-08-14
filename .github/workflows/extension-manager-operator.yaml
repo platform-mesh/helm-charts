@@ -1,6 +1,6 @@
 permissions:
   contents: read
-  packages: read
+  packages: write
 
 name: Build extension-manager-operator Workflow
 on:
