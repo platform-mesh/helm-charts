@@ -9,6 +9,8 @@ A Helm chart for Kubernetes
 | baseDomain | string | `"example.com"` |  |
 | componentVersion.semver | string | `"0.0.660"` |  |
 | iamWebhookCA | string | `nil` |  |
+| ocm.componentName | string | `"platform-mesh"` |  |
+| ocm.repoName | string | `"platform-mesh"` |  |
 | port | int | `443` |  |
 | protocol | string | `"https"` |  |
 | services.account-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
@@ -20,58 +22,18 @@ A Helm chart for Kubernetes
 | services.account-operator.values.kubeconfigSecret | string | `"account-operator-kubeconfig"` |  |
 | services.account-operator.values.log.level | string | `"debug"` |  |
 | services.account-operator.values.subroutines.fga.grpcAddr | string | `"openfga:8081"` |  |
-| services.account-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317"` |  |
+| services.account-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.account-operator.values.tracing.enabled | bool | `true` |  |
-| services.account-ui.enabled | bool | `false` |  |
-| services.apeiro-example-content.dependsOn[0].name | string | `"istio-gateway"` |  |
-| services.apeiro-example-content.dependsOn[0].namespace | string | `"default"` |  |
-| services.apeiro-example-content.enabled | bool | `false` |  |
-| services.apeiro-example-content.values.contentConfigurations.kubermatic.enabled | bool | `true` |  |
-| services.apeiro-example-content.values.contentConfigurations.kubermatic.url | string | `"{{ .Values.baseDomain }}:{{ .Values.port }}/ui/example-content/ui/assets/config.json"` |  |
-| services.apeiro-example-content.values.istio.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.apeiro-portal.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.apeiro-portal.dependsOn[0].namespace | string | `"default"` |  |
-| services.apeiro-portal.enabled | bool | `true` |  |
-| services.apeiro-portal.values.baseDomains[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.apeiro-portal.values.contentConfigurationValidatorApiUrl | string | `"https://{{ .Values.baseDomain }}/validate"` |  |
-| services.apeiro-portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
-| services.apeiro-portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
-| services.apeiro-portal.values.environment | string | `"kind"` |  |
-| services.apeiro-portal.values.extraEnvVars[0].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
-| services.apeiro-portal.values.extraEnvVars[0].value | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/api/iam/query"` |  |
-| services.apeiro-portal.values.extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG"` |  |
-| services.apeiro-portal.values.extraEnvVars[1].value | string | `"{\"account\":{\"contextProperty\":\"entityId\"}}"` |  |
-| services.apeiro-portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
-| services.apeiro-portal.values.http.protocol | string | `"https"` |  |
-| services.apeiro-portal.values.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
-| services.apeiro-portal.values.trust.openmfp.authDomain | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/openmfp/protocol/openid-connect/auth"` | auth domain (if discoveryEndpoint is not specified) |
-| services.apeiro-portal.values.trust.openmfp.baseDomains | string | `"{{ .Values.baseDomain }}"` | base domains |
-| services.apeiro-portal.values.trust.openmfp.contentConfigurationValidatorApiUrl | string | `"http://extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate"` | ContentConfiguration validator api url |
-| services.apeiro-portal.values.trust.openmfp.discoveryEndpoint | string | `""` | discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required |
-| services.apeiro-portal.values.trust.openmfp.loginAudience | string | `"openmfp"` | login audience |
-| services.apeiro-portal.values.trust.openmfp.oidcClientSecretName | string | `"openmfp-client"` | oidc client secret name |
-| services.apeiro-portal.values.trust.openmfp.secretKeyRef | string | `"attribute.client_secret"` | secret key reference |
-| services.apeiro-portal.values.trust.openmfp.tokenUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/openmfp/protocol/openid-connect/token"` | token url (if discoveryEndpoint is not specified) |
-| services.apeiro-portal.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.apeiro-portal.values.virtualService.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.crossplane.enabled | bool | `true` |  |
 | services.crossplane.targetNamespace | string | `"crossplane-system"` |  |
 | services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0"` |  |
-| services.example-resources.dependsOn[0].name | string | `"extension-manager-operator"` |  |
-| services.example-resources.dependsOn[0].namespace | string | `"default"` |  |
-| services.example-resources.enabled | bool | `false` |  |
-| services.example-resources.values.accounts.enabled | bool | `false` |  |
-| services.example-resources.values.authorizationModels.enabled | bool | `false` |  |
-| services.example-resources.values.contentConfigurations.home.enabled | bool | `true` |  |
-| services.example-resources.values.contentProtocolDomain | string | `"{{ .Values.protocol }}://{{ .Values.baseDomain }}{{ .Values.port }}"` |  |
-| services.example-resources.values.kcp.enabled | bool | `false` |  |
 | services.extension-manager-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.extension-manager-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
 | services.extension-manager-operator.values.kcp.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
-| services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317"` |  |
+| services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `true` |  |
 | services.iam-service.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.iam-service.dependsOn[0].namespace | string | `"default"` |  |
@@ -80,9 +42,9 @@ A Helm chart for Kubernetes
 | services.iam-service.enabled | bool | `true` |  |
 | services.iam-service.values.gateway.name | string | `"gateway"` |  |
 | services.iam-service.values.hostname | string | `"api.{{ .Values.baseDomain }}"` |  |
-| services.iam-service.values.trust.openmfp.audience | string | `"openmfp"` |  |
-| services.iam-service.values.trust.openmfp.jwksUrl | string | `"http://keycloak-headless.openmfp-system:8080/keycloak/realms/openmfp/protocol/openid-connect/certs"` |  |
-| services.iam-service.values.trust.openmfp.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/openmfp"` |  |
+| services.iam-service.values.trust.default.audience | string | `"default"` |  |
+| services.iam-service.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
+| services.iam-service.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
 | services.iam-ui.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.iam-ui.dependsOn[0].namespace | string | `"default"` |  |
 | services.iam-ui.enabled | bool | `true` |  |
@@ -132,7 +94,7 @@ A Helm chart for Kubernetes
 | services.istio-istiod.values.meshConfig.extensionProviders[0].name | string | `"otel-tracing"` |  |
 | services.istio-istiod.values.meshConfig.extensionProviders[0].opentelemetry.port | int | `4317` |  |
 | services.istio-istiod.values.meshConfig.extensionProviders[0].opentelemetry.protocol | string | `"grpc"` |  |
-| services.istio-istiod.values.meshConfig.extensionProviders[0].opentelemetry.service | string | `"observability-opentelemetry-collector.openmfp-observability.svc.cluster.local"` |  |
+| services.istio-istiod.values.meshConfig.extensionProviders[0].opentelemetry.service | string | `"observability-opentelemetry-collector.observability.svc.cluster.local"` |  |
 | services.istio-istiod.values.tracing.enabled | bool | `false` |  |
 | services.istio-istiod.values.tracing.telemetry.tracing[0].providers[0].name | string | `"otel-tracing"` |  |
 | services.istio-istiod.values.tracing.telemetry.tracing[0].randomSamplingPercentage | int | `100` |  |
@@ -142,45 +104,45 @@ A Helm chart for Kubernetes
 | services.kcp.values.auth.adminCert.issuerRef | string | `"kcp-front-proxy-client-issuer"` |  |
 | services.kcp.values.istio.gateway.create | bool | `false` |  |
 | services.kcp.values.istio.hosts[0] | string | `"kcp.api.{{ .Values.baseDomain }}"` |  |
-| services.kcp.values.kcp.certificates.dnsNames[0] | string | `"virtual-workspaces.openmfp-system"` |  |
-| services.kcp.values.kcp.certificates.dnsNames[1] | string | `"kcp.openmfp-system"` |  |
+| services.kcp.values.kcp.certificates.dnsNames[0] | string | `"virtual-workspaces.platform-mesh-system"` |  |
+| services.kcp.values.kcp.certificates.dnsNames[1] | string | `"kcp.platform-mesh-system"` |  |
 | services.kcp.values.kcp.certificates.dnsNames[2] | string | `"localhost"` |  |
 | services.kcp.values.kcp.certificates.dnsNames[3] | string | `"kcp.{{ .Values.baseDomain }}"` |  |
 | services.kcp.values.kcp.externalHostname | string | `"kcp.api.{{ .Values.baseDomain }}"` |  |
 | services.kcp.values.kcp.externalPort | string | `"{{ .Values.port }}"` |  |
 | services.kcp.values.kcp.kcp.authorization.webhook.secretName | string | `"kcp-webhook-secret"` |  |
 | services.kcp.values.kcp.kcp.podAnnotations."traffic.sidecar.istio.io/excludeOutboundPorts" | string | `"9443"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].backend | string | `"https://virtual-workspaces.openmfp-system:8443"` |  |
+| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].backend | string | `"https://virtual-workspaces.platform-mesh-system:8443"` |  |
 | services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].backend_server_ca | string | `"/etc/kcp/tls/ca/tls.crt"` |  |
 | services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].path | string | `"/services/contentconfigurations"` |  |
 | services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
 | services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].backend | string | `"https://virtual-workspaces.openmfp-system:8443"` |  |
+| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].backend | string | `"https://virtual-workspaces.platform-mesh-system:8443"` |  |
 | services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].backend_server_ca | string | `"/etc/kcp/tls/ca/tls.crt"` |  |
 | services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].path | string | `"/services/marketplace"` |  |
 | services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
 | services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.extraDNSNames[0] | string | `"kcp-front-proxy.openmfp-system"` |  |
+| services.kcp.values.kcp.kcpFrontProxy.extraDNSNames[0] | string | `"kcp-front-proxy.platform-mesh-system"` |  |
 | services.kcp.values.kcp.monitoring.serviceMonitor.enabled | bool | `true` |  |
-| services.kcp.values.kcp.oidc.clientId | string | `"openmfp"` |  |
+| services.kcp.values.kcp.oidc.clientId | string | `"default"` |  |
 | services.kcp.values.kcp.oidc.enabled | bool | `true` |  |
 | services.kcp.values.kcp.oidc.groupClaim | string | `"groups"` |  |
-| services.kcp.values.kcp.oidc.issuerUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/openmfp"` |  |
+| services.kcp.values.kcp.oidc.issuerUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
 | services.kcp.values.kcp.oidc.usernameClaim | string | `"email"` |  |
 | services.kcp.values.webhook.caData | string | `"{{ .Values.iamWebhookCA }}"` |  |
 | services.kcp.values.webhook.enabled | bool | `true` |  |
-| services.kcp.values.webhook.server | string | `"https://iam-authorization-webhook.openmfp-system.svc.cluster.local:9443/authz"` |  |
+| services.kcp.values.webhook.server | string | `"https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz"` |  |
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
-| services.keycloak.values.crossplane.clients.openmfp.validRedirectUris[0] | string | `"{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"` |  |
+| services.keycloak.values.crossplane.clients.default.validRedirectUris[0] | string | `"{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"` |  |
 | services.keycloak.values.domain.pathPrefix | string | `"/keycloak"` |  |
 | services.keycloak.values.externalSecrets.keycloakAdminRemoteRef | string | `"keycloak-admin"` |  |
 | services.keycloak.values.externalSecrets.postgresAdminRemoteRef | string | `"postgres-admin"` |  |
 | services.keycloak.values.istio.https.enabled | bool | `true` |  |
 | services.keycloak.values.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.keycloak.values.keycloak.extraEnvVars[0].name | string | `"JAVA_OPTS_APPEND"` |  |
-| services.keycloak.values.keycloak.extraEnvVars[0].value | string | `"-Djgroups.dns.query=keycloak-headless.openmfp-system.svc.cluster.local"` |  |
+| services.keycloak.values.keycloak.extraEnvVars[0].value | string | `"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"` |  |
 | services.keycloak.values.keycloak.extraEnvVars[1].name | string | `"KC_PROXY_HEADERS"` |  |
 | services.keycloak.values.keycloak.extraEnvVars[1].value | string | `"xforwarded"` |  |
 | services.keycloak.values.keycloak.extraEnvVars[2].name | string | `"KC_HOSTNAME_STRICT"` |  |
@@ -195,14 +157,14 @@ A Helm chart for Kubernetes
 | services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-grapqhl-gateway-kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].name | string | `"contentconfigurations"` |  |
-| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://kcp-front-proxy.openmfp-system:8443/services/contentconfigurations"` |  |
+| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].name | string | `"marketplace"` |  |
-| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://kcp-front-proxy.openmfp-system:8443/services/marketplace"` |  |
+| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.enabled | bool | `true` |  |
-| services.kubernetes-graphql-gateway.values.trust.openmfp.audience | string | `"openmfp"` |  |
-| services.kubernetes-graphql-gateway.values.trust.openmfp.jwksUrl | string | `"http://keycloak-headless.openmfp-system:8080/keycloak/realms/openmfp/protocol/openid-connect/certs"` |  |
-| services.kubernetes-graphql-gateway.values.trust.openmfp.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/openmfp"` |  |
+| services.kubernetes-graphql-gateway.values.trust.default.audience | string | `"default"` |  |
+| services.kubernetes-graphql-gateway.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
+| services.kubernetes-graphql-gateway.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowHeaders[0] | string | `"*"` |  |
@@ -218,7 +180,7 @@ A Helm chart for Kubernetes
 | services.observability.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.observability.dependsOn[0].namespace | string | `"default"` |  |
 | services.observability.enabled | bool | `false` |  |
-| services.observability.targetNamespace | string | `"openmfp-observability"` |  |
+| services.observability.targetNamespace | string | `"observability"` |  |
 | services.observability.values.istio.grafana.virtualService.hosts[0] | string | `"grafana.{{ .Values.baseDomain }}"` |  |
 | services.observability.values.istio.tracing.enabled | bool | `true` |  |
 | services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
@@ -227,65 +189,44 @@ A Helm chart for Kubernetes
 | services.openfga.dependsOn[0].namespace | string | `"default"` |  |
 | services.openfga.enabled | bool | `true` |  |
 | services.openfga.values.databaseService | string | `"openfga-openfga-postgres"` |  |
-| services.openfga.values.rbac.writePrincipals[0] | string | `"cluster.local/ns/openmfp-system/sa/iam-service"` |  |
-| services.openfga.values.rbac.writePrincipals[1] | string | `"cluster.local/ns/openmfp-system/sa/iam-service-dataloader-sa"` |  |
-| services.openfga.values.rbac.writePrincipals[2] | string | `"cluster.local/ns/openmfp-system/sa/security-operator"` |  |
-| services.openfga.values.rbac.writePrincipals[3] | string | `"cluster.local/ns/openmfp-system/sa/account-operator"` |  |
-| services.openfga.values.trust.openmfp.audience | string | `"openmfp"` |  |
-| services.openfga.values.trust.openmfp.jwksUrl | string | `"http://keycloak-headless.openmfp-system:8080/keycloak/realms/openmfp/protocol/openid-connect/certs"` |  |
-| services.openfga.values.trust.openmfp.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/openmfp"` |  |
-| services.pm-portal.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.pm-portal.dependsOn[0].namespace | string | `"default"` |  |
-| services.pm-portal.enabled | bool | `false` |  |
-| services.pm-portal.values.baseDomains[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.pm-portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
-| services.pm-portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
-| services.pm-portal.values.environment | string | `"kind"` |  |
-| services.pm-portal.values.extraEnvVars[0].name | string | `"OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
-| services.pm-portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
-| services.pm-portal.values.extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
-| services.pm-portal.values.extraEnvVars[1].value | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/iam/query"` |  |
-| services.pm-portal.values.extraEnvVars[2].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG"` |  |
-| services.pm-portal.values.extraEnvVars[2].value | string | `"{\"account\":{\"contextProperty\":\"entityId\"}}"` |  |
-| services.pm-portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
-| services.pm-portal.values.http.protocol | string | `"https"` |  |
-| services.pm-portal.values.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
-| services.pm-portal.values.trust.openmfp.authDomain | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/openmfp/protocol/openid-connect/auth"` | auth domain (if discoveryEndpoint is not specified) |
-| services.pm-portal.values.trust.openmfp.baseDomains | string | `"portal.dev.local"` | base domains |
-| services.pm-portal.values.trust.openmfp.contentConfigurationValidatorApiUrl | string | `"http://extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate"` | ContentConfiguration validator api url |
-| services.pm-portal.values.trust.openmfp.discoveryEndpoint | string | `""` | discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required |
-| services.pm-portal.values.trust.openmfp.loginAudience | string | `"openmfp"` | login audience |
-| services.pm-portal.values.trust.openmfp.oidcClientSecretName | string | `"openmfp-client"` | oidc client secret name |
-| services.pm-portal.values.trust.openmfp.secretKeyRef | string | `"attribute.client_secret"` | secret key reference |
-| services.pm-portal.values.trust.openmfp.tokenUrl | string | `"http://keycloak/keycloak/realms/openmfp/protocol/openid-connect/token"` | token url (if discoveryEndpoint is not specified) |
-| services.pm-portal.values.virtualService.hosts | bool | `false` |  |
+| services.openfga.values.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
+| services.openfga.values.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa"` |  |
+| services.openfga.values.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
+| services.openfga.values.rbac.writePrincipals[3] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
+| services.openfga.values.trust.default.audience | string | `"default"` |  |
+| services.openfga.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
+| services.openfga.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
 | services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.portal.dependsOn[0].namespace | string | `"default"` |  |
-| services.portal.enabled | bool | `true` |  |
+| services.portal.enabled | bool | `false` |  |
 | services.portal.values.baseDomains[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.environment | string | `"kind"` |  |
-| services.portal.values.extraEnvVars[0].name | string | `"OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
-| services.portal.values.extraEnvVars[0].value | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:openmfp/graphql"` |  |
+| services.portal.values.extraEnvVars[0].name | string | `"DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
+| services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
+| services.portal.values.extraEnvVars[1].name | string | `"DEFAULT_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
+| services.portal.values.extraEnvVars[1].value | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/iam/query"` |  |
+| services.portal.values.extraEnvVars[2].name | string | `"DEFAULT_PORTAL_CONTEXT_IAM_ENTITY_CONFIG"` |  |
+| services.portal.values.extraEnvVars[2].value | string | `"{\"account\":{\"contextProperty\":\"entityId\"}}"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
 | services.portal.values.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
-| services.portal.values.trust.openmfp.authDomain | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/openmfp/protocol/openid-connect/auth"` | auth domain (if discoveryEndpoint is not specified) |
-| services.portal.values.trust.openmfp.baseDomains | string | `"portal.dev.local"` | base domains |
-| services.portal.values.trust.openmfp.contentConfigurationValidatorApiUrl | string | `"http://extension-manager-operator-server.openmfp-system.svc.cluster.local:8088/validate"` | ContentConfiguration validator api url |
-| services.portal.values.trust.openmfp.discoveryEndpoint | string | `""` | discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required |
-| services.portal.values.trust.openmfp.loginAudience | string | `"openmfp"` | login audience |
-| services.portal.values.trust.openmfp.oidcClientSecretName | string | `"openmfp-client"` | oidc client secret name |
-| services.portal.values.trust.openmfp.secretKeyRef | string | `"attribute.client_secret"` | secret key reference |
-| services.portal.values.trust.openmfp.tokenUrl | string | `"http://keycloak/keycloak/realms/openmfp/protocol/openid-connect/token"` | token url (if discoveryEndpoint is not specified) |
+| services.portal.values.trust.default.authDomain | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default/protocol/openid-connect/auth"` | auth domain (if discoveryEndpoint is not specified) |
+| services.portal.values.trust.default.baseDomains | string | `"portal.dev.local"` | base domains |
+| services.portal.values.trust.default.contentConfigurationValidatorApiUrl | string | `"http://extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate"` | ContentConfiguration validator api url |
+| services.portal.values.trust.default.discoveryEndpoint | string | `""` | discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required |
+| services.portal.values.trust.default.loginAudience | string | `"default"` | login audience |
+| services.portal.values.trust.default.oidcClientSecretName | string | `"default-client"` | oidc client secret name |
+| services.portal.values.trust.default.secretKeyRef | string | `"attribute.client_secret"` | secret key reference |
+| services.portal.values.trust.default.tokenUrl | string | `"http://keycloak/keycloak/realms/default/protocol/openid-connect/token"` | token url (if discoveryEndpoint is not specified) |
 | services.portal.values.virtualService.hosts | bool | `false` |  |
 | services.rebac-authz-webhook.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.rebac-authz-webhook.dependsOn[0].namespace | string | `"default"` |  |
 | services.rebac-authz-webhook.enabled | bool | `true` |  |
 | services.rebac-authz-webhook.values.certManager.createCA | bool | `true` |  |
 | services.rebac-authz-webhook.values.certManager.enabled | bool | `true` |  |
-| services.rebac-authz-webhook.values.istio.dnsNames[0] | string | `"rebac-authz-webhook.openmfp-system.svc.cluster.local"` |  |
+| services.rebac-authz-webhook.values.istio.dnsNames[0] | string | `"rebac-authz-webhook.platform-mesh-system.svc.cluster.local"` |  |
 | services.rebac-authz-webhook.values.istio.exposed | bool | `false` |  |
 | services.rebac-authz-webhook.values.log.level | string | `"debug"` |  |
 | services.rebac-authz-webhook.values.openfga.url | string | `"openfga:8081"` |  |
@@ -293,7 +234,7 @@ A Helm chart for Kubernetes
 | services.security-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.security-operator.enabled | bool | `true` |  |
 | services.security-operator.values.crds.enabled | bool | `false` |  |
-| services.security-operator.values.fga.target | string | `"openfga.openmfp-system.svc.cluster.local:8081"` |  |
+| services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |
 | services.security-operator.values.kubeconfigSecret | string | `"security-operator-kubeconfig"` |  |
 | services.security-operator.values.log.level | string | `"debug"` |  |
@@ -302,9 +243,9 @@ A Helm chart for Kubernetes
 | services.virtual-workspaces.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.virtual-workspaces.dependsOn[0].namespace | string | `"default"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
-| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://kcp-front-proxy.openmfp-system:8443"` |  |
+| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://kcp-front-proxy.platform-mesh-system:8443"` |  |
 | services.virtual-workspaces.values.service.port | int | `8443` |  |
-| targetNamespace | string | `"openmfp-system"` |  |
+| targetNamespace | string | `"platform-mesh-system"` |  |
 
 ## Overriding Values
 
