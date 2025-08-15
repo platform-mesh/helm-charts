@@ -22,7 +22,7 @@ rules:
   verbs:
   - update
 - apiGroups:
-  - core.platform-mesh.org
+  - core.platform-mesh.io
   resources:
   - platformmeshes/status
   verbs:

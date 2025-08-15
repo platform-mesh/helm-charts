@@ -26,7 +26,7 @@ kcp:
   # -- The URL for the virtual workspace
   virtualWorkspaceUrl: ""
   # -- KCP APIExportEndpointSliceName
-  apiExportEndpointSliceName: "core.platform-mesh.org"
+  apiExportEndpointSliceName: "core.platform-mesh.io"
 
 subroutines:
   namespace:

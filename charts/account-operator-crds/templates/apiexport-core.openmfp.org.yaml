@@ -2,11 +2,11 @@ apiVersion: apis.kcp.io/v1alpha1
 kind: APIExport
 metadata:
   creationTimestamp: null
-  name: core.platform-mesh.org
+  name: core.platform-mesh.io
 spec:
   latestResourceSchemas:
-  - v250516-0b27c30.accountinfos.core.platform-mesh.org
-  - v250305-70de32b.accounts.core.platform-mesh.org
+  - v250516-0b27c30.accountinfos.core.platform-mesh.io
+  - v250305-70de32b.accounts.core.platform-mesh.io
   permissionClaims:
   - all: true
     resource: namespaces
