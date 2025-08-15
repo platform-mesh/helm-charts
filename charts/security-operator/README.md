@@ -14,7 +14,7 @@ A Helm chart for security-operator
 | deployment.resources.requests.memory | string | `"128Mi"` |  |
 | deployment.revisionHistoryLimit | int | `3` |  |
 | environment | string | `"local"` | environment indicator, used for logging and observability |
-| fga.target | string | `"openmfp-openfga.openmfp-system.svc.cluster.local:8081"` |  |
+| fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | hostAliases.enabled | bool | `true` |  |
 | hostAliases.items[0].hostnames[0] | string | `"kcp.dev.local"` |  |
 | hostAliases.items[0].ip | string | `"10.96.0.100"` |  |

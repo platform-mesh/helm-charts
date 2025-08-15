@@ -42,7 +42,7 @@ it should render the application manifests:
     subjects:
       - kind: ServiceAccount
         name: rebac-authz-webhook
-        namespace: openmfp-system
+        namespace: platform-mesh-system
   3: |
     apiVersion: apps/v1
     kind: Deployment
@@ -54,7 +54,7 @@ it should render the application manifests:
         app.kubernetes.io/version: 0.0.0
         helm.sh/chart: rebac-authz-webhook-0.0.0
       name: rebac-authz-webhook
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       selector:
         matchLabels:
@@ -128,7 +128,7 @@ it should render the application manifests:
     kind: Issuer
     metadata:
       name: rebac-authz-webhook-issuer
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
@@ -137,7 +137,7 @@ it should render the application manifests:
     kind: Certificate
     metadata:
       name: rebac-authz-webhook-cert
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       dnsNames: []
       ipAddresses:
@@ -226,7 +226,7 @@ it should render the application manifests with service account:
     subjects:
       - kind: ServiceAccount
         name: rebac-authz-webhook
-        namespace: openmfp-system
+        namespace: platform-mesh-system
   3: |
     apiVersion: apps/v1
     kind: Deployment
@@ -238,7 +238,7 @@ it should render the application manifests with service account:
         app.kubernetes.io/version: 0.0.0
         helm.sh/chart: rebac-authz-webhook-0.0.0
       name: rebac-authz-webhook
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       selector:
         matchLabels:
@@ -312,7 +312,7 @@ it should render the application manifests with service account:
     kind: Issuer
     metadata:
       name: rebac-authz-webhook-issuer
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
@@ -321,7 +321,7 @@ it should render the application manifests with service account:
     kind: Certificate
     metadata:
       name: rebac-authz-webhook-cert
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       dnsNames: []
       ipAddresses:
@@ -410,7 +410,7 @@ it should render the application manifests with service monitor:
     subjects:
       - kind: ServiceAccount
         name: rebac-authz-webhook
-        namespace: openmfp-system
+        namespace: platform-mesh-system
   3: |
     apiVersion: apps/v1
     kind: Deployment
@@ -422,7 +422,7 @@ it should render the application manifests with service monitor:
         app.kubernetes.io/version: 0.0.0
         helm.sh/chart: rebac-authz-webhook-0.0.0
       name: rebac-authz-webhook
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       selector:
         matchLabels:
@@ -496,7 +496,7 @@ it should render the application manifests with service monitor:
     kind: Issuer
     metadata:
       name: rebac-authz-webhook-issuer
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
@@ -505,7 +505,7 @@ it should render the application manifests with service monitor:
     kind: Certificate
     metadata:
       name: rebac-authz-webhook-cert
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       dnsNames: []
       ipAddresses:
@@ -616,7 +616,7 @@ it should render the application manifests with useInClusterClient:
     subjects:
       - kind: ServiceAccount
         name: rebac-authz-webhook
-        namespace: openmfp-system
+        namespace: platform-mesh-system
   3: |
     apiVersion: apps/v1
     kind: Deployment
@@ -628,7 +628,7 @@ it should render the application manifests with useInClusterClient:
         app.kubernetes.io/version: 0.0.0
         helm.sh/chart: rebac-authz-webhook-0.0.0
       name: rebac-authz-webhook
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       selector:
         matchLabels:
@@ -702,7 +702,7 @@ it should render the application manifests with useInClusterClient:
     kind: Issuer
     metadata:
       name: rebac-authz-webhook-issuer
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
@@ -711,7 +711,7 @@ it should render the application manifests with useInClusterClient:
     kind: Certificate
     metadata:
       name: rebac-authz-webhook-cert
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       dnsNames: []
       ipAddresses:
@@ -800,7 +800,7 @@ it should render the cert-manager manifests with certManager enabled:
     subjects:
       - kind: ServiceAccount
         name: rebac-authz-webhook
-        namespace: openmfp-system
+        namespace: platform-mesh-system
   3: |
     apiVersion: apps/v1
     kind: Deployment
@@ -812,7 +812,7 @@ it should render the cert-manager manifests with certManager enabled:
         app.kubernetes.io/version: 0.0.0
         helm.sh/chart: rebac-authz-webhook-0.0.0
       name: rebac-authz-webhook
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       selector:
         matchLabels:
@@ -886,7 +886,7 @@ it should render the cert-manager manifests with certManager enabled:
     kind: Issuer
     metadata:
       name: rebac-authz-webhook-issuer
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       ca:
         secretName: rebac-authz-webhook-webhook-ca
@@ -895,7 +895,7 @@ it should render the cert-manager manifests with certManager enabled:
     kind: Certificate
     metadata:
       name: rebac-authz-webhook-cert
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       dnsNames:
         - webhook.portal.cc.showroom.apeirora.eu
@@ -947,10 +947,10 @@ it should render the cert-manager manifests with certManager enabled:
     kind: VirtualService
     metadata:
       name: rebac-authz-webhook
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     spec:
       gateways:
-        - openmfp-system/gateway
+        - platform-mesh-system/gateway
       hosts:
         - webhook.portal.cc.showroom.apeirora.eu
       tls:
@@ -959,6 +959,6 @@ it should render the cert-manager manifests with certManager enabled:
                 - webhook.portal.cc.showroom.apeirora.eu
           route:
             - destination:
-                host: rebac-authz-webhook.openmfp-system.svc.cluster.local
+                host: rebac-authz-webhook.platform-mesh-system.svc.cluster.local
                 port:
                   number: 9443

@@ -5,7 +5,7 @@ metadata:
 spec:
   repositoryRef:
     name: {{ .Values.ocm.repoName }}
-  component: github.com/openmfp/openmfp-priv
+  component: github.com/platform-mesh/platform-mesh
   semver: {{ .Values.componentVersion.semver }}
   interval: 1m
   ocmConfig:
