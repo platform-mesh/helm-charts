@@ -12,6 +12,10 @@ on:
       - 'charts/platform-mesh-operator/**'
       - '.github/workflows/platform-mesh-operator.yaml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   pipeline:
     concurrency:
