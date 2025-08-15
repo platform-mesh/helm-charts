@@ -10,7 +10,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: account-operator
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"crds":{"enabled":false},"kcp":{"apiExportEndpointSliceName":"","enabled":true},"kubeconfigSecret":"account-operator-kubeconfig","log":{"level":"debug"},"subroutines":{"fga":{"grpcAddr":"openfga:8081"}},"tracing":{"collector":{"host":"observability-opentelemetry-collector.observability.svc.cluster.local:4317"},"enabled":true}}"'
   2: |
@@ -24,7 +24,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: crossplane
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: crossplane-system
       values: '"{"provider":{"packages":["xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0"]}}"'
   3: |
@@ -38,7 +38,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: extension-manager-operator
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"crds":{"enabled":false},"kcp":{"enabled":true,"kubeconfigSecret":"extension-manager-operator-kubeconfig"},"tracing":{"collector":{"host":"observability-opentelemetry-collector.observability.svc.cluster.local:4317"},"enabled":true}}"'
   4: |
@@ -52,7 +52,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: iam-service
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"gateway":{"name":"gateway"},"hostname":"api.{{ .Values.baseDomain }}","trust":{"default":{"audience":"default","jwksUrl":"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs","trustedIssuer":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"}}}"'
   5: |
@@ -66,7 +66,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: iam-ui
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"istio":{"virtualService":{"hosts":["{{ .Values.baseDomain }}"]}}}"'
   6: |
@@ -80,7 +80,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: infra
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"fga":{"enabled":false},"istio":{"enabled":true,"main":{"gateway":{"hosts":["{{ .Values.baseDomain }}","*.{{ .Values.baseDomain }}"],"name":"https","port":"{{ .Values.port }}","protocol":"HTTPS","tls":{"credentialName":"domain-certificate","minProtocolVersion":"TLSV1_2","mode":"SIMPLE"}}},"passThrough":{"gateway":{"enabled":true,"hosts":["kcp.api.{{ .Values.baseDomain }}"],"name":"pass-https","port":"{{ .Values.port }}","protocol":"HTTPS"}}},"kcp":{"enabled":true}}"'
   7: |
@@ -94,7 +94,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: istio-base
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: istio-system
       values: '"null"'
   8: |
@@ -108,7 +108,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: istio-gateway
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: istio-system
       values: '"{"service":{"ports":[{"name":"https","nodePort":31000,"port":8443},{"name":"status-port","nodePort":32000,"port":15021}],"type":"NodePort"}}"'
   9: |
@@ -122,7 +122,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: istiod
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: istio-system
       values: '"{"meshConfig":{"defaultConfig":{"holdApplicationUntilProxyStarts":true,"tracing":{"provider":{"name":"otel-tracing"}}},"extensionProviders":[{"name":"otel-tracing","opentelemetry":{"port":4317,"protocol":"grpc","service":"observability-opentelemetry-collector.observability.svc.cluster.local"}}]},"tracing":{"enabled":false,"telemetry":{"tracing":[{"providers":[{"name":"otel-tracing"}],"randomSamplingPercentage":100}]}}}"'
   10: |
@@ -136,7 +136,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: kcp
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"auth":{"adminCert":{"issuerRef":"kcp-front-proxy-client-issuer"}},"istio":{"gateway":{"create":false},"hosts":["kcp.api.{{ .Values.baseDomain }}"]},"kcp":{"certificates":{"dnsNames":["virtual-workspaces.platform-mesh-system","kcp.platform-mesh-system","localhost","kcp.{{ .Values.baseDomain }}"]},"externalHostname":"kcp.api.{{ .Values.baseDomain }}","externalPort":"{{ .Values.port }}","kcp":{"authorization":{"webhook":{"secretName":"kcp-webhook-secret"}},"podAnnotations":{"traffic.sidecar.istio.io/excludeOutboundPorts":"9443"}},"kcpFrontProxy":{"additionalPathMappings":[{"backend":"https://virtual-workspaces.platform-mesh-system:8443","backend_server_ca":"/etc/kcp/tls/ca/tls.crt","path":"/services/contentconfigurations","proxy_client_cert":"/etc/kcp-front-proxy/requestheader-client/tls.crt","proxy_client_key":"/etc/kcp-front-proxy/requestheader-client/tls.key"},{"backend":"https://virtual-workspaces.platform-mesh-system:8443","backend_server_ca":"/etc/kcp/tls/ca/tls.crt","path":"/services/marketplace","proxy_client_cert":"/etc/kcp-front-proxy/requestheader-client/tls.crt","proxy_client_key":"/etc/kcp-front-proxy/requestheader-client/tls.key"}],"extraDNSNames":["kcp-front-proxy.platform-mesh-system"]},"monitoring":{"serviceMonitor":{"enabled":true}},"oidc":{"clientId":"default","enabled":true,"groupClaim":"groups","issuerUrl":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default","usernameClaim":"email"}},"webhook":{"caData":"{{ .Values.iamWebhookCA }}","enabled":true,"server":"https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz"}}"'
   11: |
@@ -150,7 +150,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: keycloak
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"crossplane":{"clients":{"default":{"validRedirectUris":["{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"]}}},"domain":{"pathPrefix":"/keycloak"},"externalSecrets":{"keycloakAdminRemoteRef":"keycloak-admin","postgresAdminRemoteRef":"postgres-admin"},"istio":{"https":{"enabled":true},"virtualservice":{"hosts":["{{ .Values.baseDomain }}"]}},"keycloak":{"extraEnvVars":[{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"},{"name":"KC_PROXY_HEADERS","value":"xforwarded"},{"name":"KC_HOSTNAME_STRICT","value":"false"}]},"keycloakConfig":{"redirectUrls":["{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"],"url":"https://{{ .Values.baseDomain }}/keycloak"},"service":{"name":"keycloak"}}"'
   12: |
@@ -164,7 +164,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: kubernetes-graphql-gateway
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"kubeConfig":{"enabled":true,"secretName":"kubernetes-grapqhl-gateway-kubeconfig"},"listener":{"virtualWorkspacesConfig":{"content":{"virtualWorkspaces":[{"kubeconfig":"/app/kubeconfig/kubeconfig","name":"contentconfigurations","url":"https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations"},{"kubeconfig":"/app/kubeconfig/kubeconfig","name":"marketplace","url":"https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace"}]},"enabled":true}},"trust":{"default":{"audience":"default","jwksUrl":"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs","trustedIssuer":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"}},"virtualService":{"hosts":["{{ .Values.baseDomain }}","*.{{ .Values.baseDomain }}"],"httpRules":[{"cors":{"allowHeaders":["*"],"allowMethods":["GET","POST"],"allowOrigins":[{"regex":".*"}]},"name":"default"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}}"'
   13: |
@@ -178,7 +178,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: openfga
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"databaseService":"openfga-openfga-postgres","rbac":{"writePrincipals":["cluster.local/ns/platform-mesh-system/sa/iam-service","cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa","cluster.local/ns/platform-mesh-system/sa/security-operator","cluster.local/ns/platform-mesh-system/sa/account-operator"]},"trust":{"default":{"audience":"default","jwksUrl":"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs","trustedIssuer":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"}}}"'
   14: |
@@ -192,7 +192,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: rebac-authz-webhook
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"certManager":{"createCA":true,"enabled":true},"istio":{"dnsNames":["rebac-authz-webhook.platform-mesh-system.svc.cluster.local"],"exposed":false},"log":{"level":"debug"},"openfga":{"url":"openfga:8081"}}"'
   15: |
@@ -206,7 +206,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: security-operator
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"crds":{"enabled":false},"fga":{"target":"openfga.platform-mesh-system.svc.cluster.local:8081"},"initializer":{"kubeconfigSecret":"security-initializer-kubeconfig"},"kubeconfigSecret":"security-operator-kubeconfig","log":{"level":"debug"},"operator":{"maxConcurrentReconciles":1,"shutdownTimeout":"1m"}}"'
   16: |
@@ -220,7 +220,7 @@ it should render the application manifests:
       createNamespace: false
       driftDetectionMode: enabled
       resourcePath: virtual-workspaces
-      secretName: null
+      secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"deployment":{"serverUrl":"https://kcp-front-proxy.platform-mesh-system:8443"},"service":{"port":8443}}"'
   17: |
@@ -233,7 +233,7 @@ it should render the application manifests:
       interval: 1m
       ocmConfig:
         - kind: Secret
-          name: null
+          name: ocm-oci-github-pull
       repositoryRef:
         name: platform-mesh
       semver: 0.0.0
@@ -246,7 +246,7 @@ it should render the application manifests:
       interval: 1m
       ocmConfig:
         - kind: Secret
-          name: null
+          name: ocm-oci-github-pull
       repositorySpec:
         baseUrl: ghcr.io/platform-mesh
         type: OCIRegistry
