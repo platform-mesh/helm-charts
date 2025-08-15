@@ -1,4 +1,4 @@
-# openmfp-operator-crds
+# platform-mesh-operator-crds
 
 A Helm chart for Kubernetes
 
