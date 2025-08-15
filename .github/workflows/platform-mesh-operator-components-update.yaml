@@ -20,7 +20,7 @@ jobs:
       - uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
         id: app-token
         with:
-          app-id: "838464"
+          app-id: "1415820"
           private-key: ${{ secrets.PM_PUBLISHER_PRIVATE_KEY }}
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
