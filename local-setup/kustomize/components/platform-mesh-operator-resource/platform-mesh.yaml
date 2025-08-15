@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.8.1
+  chartVersion: 0.8.2
   values:
     istio-gateway:
       enabled: true
@@ -26,6 +26,7 @@ spec:
               port: 15021
               nodePort: 32000
     keycloak:
+      enabled: false
       values:
         crossplane:
           clients:
@@ -43,11 +44,10 @@ spec:
         provider:
           packages:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2
-    apeiro-portal:
-      enabled: false
     observability:
       enabled: false
     kcp:
+      enabled: false
       values:
         istio:
           hosts:
@@ -83,13 +83,14 @@ spec:
         webhook:
           server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     marketplace-ui:
-      enabled: true
+      enabled: false
       values:
         istio:
           virtualService:
             hosts:
               - "portal.dev.local"
     iam-ui:
+      enabled: false
       values:
         istio:
           virtualService:
@@ -104,17 +105,6 @@ spec:
               hostnames:
                 - kcp.api.portal.dev.local
     portal:
-      enabled: false
-      values:
-        extraEnvVars:
-          - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-            value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
-          - name: DEFAULT_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-            value: https://portal.dev.local:8443/iam/query
-          - name: DEFAULT_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
-            value: >-
-              {"account":{"contextProperty":"entityId"}}
-    pm-portal:
       enabled: true
       values:
         extraEnvVars:
@@ -137,6 +127,7 @@ spec:
               hostnames:
                 - "portal.dev.local"
     openfga:
+      enabled: false
       values:
         openfga:
           telemetry:
