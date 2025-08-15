@@ -1,0 +1,19 @@
+crds:
+  enabled: true
+
+deployment:
+  replicas: 1
+
+log:
+  level: debug
+
+operator:
+  leaderElect: true
+
+image:
+  name: ghcr.io/platform-mesh/platform-mesh-operator
+
+tracing:
+  enabled: false
+  collector:
+    endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317

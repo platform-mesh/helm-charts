@@ -1,0 +1,58 @@
+suite: operator
+templates:
+  - deployment.yaml
+  - service-account.yaml
+  - cluster-role.yaml
+  - cluster-rolebinding.yaml
+  - role.yaml
+  - rolebinding.yaml
+values:
+  - ../test-values.yaml
+chart:
+  version: 1.0.0
+  appVersion: 1.0.0
+release:
+  name: openmfp-operator
+tests:
+- it: operator match the snapshot
+  set:
+    deployment:
+      replicas: 0
+  asserts:
+  - matchSnapshot: {}
+- it: deployment with tracing
+  template: deployment.yaml
+  set:
+    tracing:
+      enabled: true
+      collector:
+        endpoint: test:4317
+  asserts:
+    - matchSnapshot: {}
+- it: has all health checks
+  template: deployment.yaml
+  asserts:
+    - equal:
+        path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+        value: /healthz
+    - equal:
+        path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+        value: /readyz
+    - equal:
+        path: spec.template.spec.containers[0].startupProbe.httpGet.path
+        value: /readyz
+
+- it: multi-pod leader election
+  template: deployment.yaml
+  set:
+    deployment:
+      replicas: 3
+    operator:
+      leaderElect: true
+  asserts:
+    - equal:
+        path: spec.replicas
+        value: 3
+    - equal:
+        path: spec.template.spec.containers[0].args[1]
+        value: "--leader-elect"
