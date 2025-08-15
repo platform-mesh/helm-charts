@@ -1,0 +1,112 @@
+components:
+  ## TODO should be moved to 3rd party components
+  - name: github.com/crossplane/crossplane
+    version: {{ .CROSSPLANE_VERSION }}
+    provider:
+      name: crossplane
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .CROSSPLANE_VERSION }}
+        access:
+          type: helm
+          helmChart: crossplane:{{ .CROSSPLANE_VERSION }}
+          helmRepository: https://charts.crossplane.io/stable
+  ## TODO should be moved to 3rd party components
+  - name: github.com/istio/istio/base
+    version: {{ .ISTIO_VERSION }}
+    provider:
+      name: istio
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .ISTIO_VERSION }}
+        access:
+          type: helm
+          helmChart: base:{{ .ISTIO_VERSION }}
+          helmRepository: https://istio-release.storage.googleapis.com/charts
+  ## TODO should be moved to 3rd party components
+  - name: github.com/istio/istio/istiod
+    version: {{ .ISTIO_VERSION }}
+    provider:
+      name: istio
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .ISTIO_VERSION }}
+        access:
+          type: helm
+          helmChart: istiod:{{ .ISTIO_VERSION }}
+          helmRepository: https://istio-release.storage.googleapis.com/charts
+  ## TODO should be moved to 3rd party components
+  - name: github.com/istio/istio/gateway
+    version: {{ .ISTIO_VERSION }}
+    provider:
+      name: istio
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .ISTIO_VERSION }}
+        access:
+          type: helm
+          helmChart: gateway:{{ .ISTIO_VERSION }}
+          helmRepository: https://istio-release.storage.googleapis.com/charts
+  - name: github.com/platform-mesh/platform-mesh
+    version: {{ .VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    componentReferences:
+      - name: account-operator
+        componentName: github.com/platform-mesh/account-operator
+        version: {{ .ACCOUNT_OPERATOR_VERSION }}
+      - name: extension-manager-operator
+        componentName: github.com/platform-mesh/extension-manager-operator
+        version: {{ .EXTENSION_MANAGER_OPERATOR_VERSION }}
+      - name: security-operator
+        componentName: github.com/platform-mesh/security-operator
+        version: {{ .SECURITY_OPERATOR_VERSION }}
+      - name: rebac-authz-webhook
+        componentName: github.com/platform-mesh/rebac-authz-webhook
+        version: {{ .IAM_AUTHORIZATION_WEBHOOK_VERSION }}
+#      - name: iam-service
+#        componentName: github.com/platform-mesh/iam-service
+#        version: {{ .IAM_SERVICE_VERSION }}
+#      - name: iam-ui
+#        componentName: github.com/platform-mesh/iam-ui
+#        version: {{ .IAM_UI_VERSION }}
+#      - name: infra
+#        componentName: github.com/platform-mesh/infra
+#        version: {{ .INFRA_VERSION }}
+#      - name: kcp
+#        componentName: github.com/openmfp/kcp
+#        version: {{ .KCP_VERSION }}
+#      - name: kubernetes-graphql-gateway
+#        componentName: github.com/openmfp/kubernetes-graphql-gateway
+#        version: {{ .KUBERNETES_GRAPHQL_GATEWAY_VERSION }}
+      - name: portal
+        componentName: github.com/platform-mesh/portal
+        version: {{ .PORTAL_VERSION }}
+      - name: virtual-workspaces
+        componentName: github.com/platform-mesh/virtual-workspaces
+        version: {{ .VIRTUAL_WORKSPACES_VERSION }}
+      ## 3rd party components
+      ## TODO should be moved to 3rd party components
+      - name: crossplane
+        componentName: github.com/crossplane/crossplane
+        version: {{ .CROSSPLANE_VERSION }}
+      ## TODO should be moved to 3rd party components
+      - name: istio-base
+        componentName: github.com/istio/istio/base
+        version: {{ .ISTIO_VERSION }}
+      - name: istiod
+        componentName: github.com/istio/istio/istiod
+        version: {{ .ISTIO_VERSION }}
+      - name: istio-gateway
+        componentName: github.com/istio/istio/gateway
+        version: {{ .ISTIO_VERSION }}
+#      - name: keycloak
+#        componentName: github.com/openmfp/keycloak
+#        version: {{ .KEYCLOAK_VERSION }}
+#      - name: openfga
+#        componentName: github.com/openmfp/openfga
+#        version: {{ .OPENFGA_VERSION }}
