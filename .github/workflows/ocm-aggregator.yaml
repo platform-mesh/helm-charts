@@ -110,6 +110,6 @@ jobs:
 
       - name: Transfer to OCM REPO
         run: ./ocm transfer ctf --overwrite .ocm/transport.ctf "ghcr.io/platform-mesh"
-#      - run: gh workflow run platform-mesh-operator-components-update.yaml --repo "platform-mesh/helm-charts"
-#        env:
-#          GITHUB_TOKEN: ${{ github.token }}
+      - run: gh workflow run platform-mesh-operator-components-update.yaml --repo "platform-mesh/helm-charts"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
