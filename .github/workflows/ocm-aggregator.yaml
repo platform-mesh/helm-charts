@@ -1,0 +1,114 @@
+name: Build Platform Mesh OCM Component
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/ocm.yaml'
+      - '.ocm/component-constructor.yaml'
+concurrency:
+  group: ocm-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  ocm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup yq@latest
+        run: |
+          if ! command -v yq &>/dev/null
+          then
+            mkdir -p /home/runner/.local/bin
+            wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /home/runner/.local/bin/yq &&\
+              chmod +x /home/runner/.local/bin/yq
+          fi
+      - name: Check out the repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - name: setup OCM CLI
+        run: |
+          REPO=${repo:=open-component-model/ocm}
+          if [ -z "$version" -o "$version" == latest ]; then
+            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
+            echo "Selecting latest version: $version"
+          fi
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          echo "Installing ocm-cli version $version from $REPO"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          chmod a+x ocm
+      - name: Write Credentials file
+        run: |
+          cat <<EOF > $HOME/.ocmconfig
+          type: generic.config.ocm.software/v1
+          configurations:
+            - type: credentials.config.ocm.software
+              consumers:
+                - identity:
+                    type: OCIRegistry
+                    scheme: https
+                    hostname: ghcr.io
+                    pathprefix: platform-mesh
+                  credentials:
+                    - type: Credentials
+                      properties:
+                        username: github
+                        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get versions
+        run: |
+          set -e
+          echo ACCOUNT_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/account-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo SECURITY_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/security-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo REBAC_AUTHORIZATION_WEBHOOK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-authorization-webhook --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo IAM_SERVICE_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-service --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo IAM_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo INFRA_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/infra --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo KCP_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kcp --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo KEYCLOAK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/keycloak --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kubernetes-graphql-gateway --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo OPENFGA_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/openfga --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo OBSERVABILITY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/observability --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo PORTAL_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/portal --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo TUPLE_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/tuple-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo VIRTUAL_WORKSPACES_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/virtual-workspaces --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          
+          PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
+          PM_VERSION=${PM_VERSION:-0.0.0}
+          IFS='.' read -r major minor patch <<< "PM_VERSION"
+          patch=$((patch + 1))
+          echo VERSION="$major.$minor.$patch" >> $GITHUB_ENV
+      - name: create OCM ComponentArchive
+        run: |
+          ocm_ctf=.ocm/transport.ctf
+          mkdir -p "$(dirname "$ocm_ctf")"
+          ./ocm add components -c --templater=go --file "$ocm_ctf" .ocm/component-constructor.yaml -- \
+            VERSION=${{ env.VERSION }} \
+            ACCOUNT_OPERATOR_VERSION=${{ env.ACCOUNT_OPERATOR_VERSION }} \
+            ACCOUNT_UI_VERSION=${{ env.ACCOUNT_UI_VERSION }} \
+            APEIRO_PORTAL_VERSION=${{ env.APEIRO_PORTAL_VERSION }} \
+            APEIRO_EXAMPLE_CONTENT_VERSION=${{ env.APEIRO_EXAMPLE_CONTENT_VERSION }} \
+            EXAMPLE_RESOURCES_VERSION=${{ env.EXAMPLE_RESOURCES_VERSION }} \
+            EXAMPLE_CONTENT_VERSION=${{ env.EXAMPLE_CONTENT_VERSION }} \
+            EXTENSION_MANAGER_OPERATOR_VERSION=${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }} \
+            SECURITY_OPERATOR_VERSION=${{ env.SECURITY_OPERATOR_VERSION }} \
+            IAM_AUTHORIZATION_WEBHOOK_VERSION=${{ env.IAM_AUTHORIZATION_WEBHOOK_VERSION }} \
+            IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \
+            IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
+            INFRA_VERSION=${{ env.INFRA_VERSION }} \
+            KCP_VERSION=${{ env.KCP_VERSION }} \
+            KUBERNETES_GRAPHQL_GATEWAY_VERSION=${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }} \
+            KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION }} \
+            OPENFGA_VERSION=${{ env.OPENFGA_VERSION }} \
+            OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }} \
+            PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
+            TUPLE_OPERATOR_VERSION=${{ env.TUPLE_OPERATOR_VERSION }} \
+            VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
+            ISTIO_VERSION=1.25.0 \
+            CROSSPLANE_VERSION=1.9.2
+
+      - name: Transfer to OCM REPO
+        run: ./ocm transfer ctf --overwrite .ocm/transport.ctf "ghcr.io/platform-mesh"
+#      - run: gh workflow run platform-mesh-operator-components-update.yaml --repo "platform-mesh/helm-charts"
+#        env:
+#          GITHUB_TOKEN: ${{ github.token }}
