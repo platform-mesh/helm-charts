@@ -1,0 +1,37 @@
+name: Build platform-mesh-operator-crds Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/platform-mesh-operator-crds/**'
+      - '.github/workflows/platform-mesh-operator-crds.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+  pull_request:
+    paths:
+      - 'charts/platform-mesh-operator-crds/**'
+      - '.github/workflows/platform-mesh-operator-crds.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: platform-mesh-operator-crds-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: platform-mesh-operator-crds
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/platform-mesh-operator-crds
+      componentName: github.com/platform-mesh/platform-mesh-operator-crds
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      ocmRegistryUrl: ghcr.io/openmfp/ocm
