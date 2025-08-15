@@ -133,11 +133,11 @@ operator match the snapshot:
     kind: APIExport
     metadata:
       creationTimestamp: null
-      name: core.platform-mesh.io
+      name: core.platform-mesh.org
     spec:
       latestResourceSchemas:
-        - v250516-0b27c30.accountinfos.core.platform-mesh.io
-        - v250305-70de32b.accounts.core.platform-mesh.io
+        - v250516-0b27c30.accountinfos.core.platform-mesh.org
+        - v250305-70de32b.accounts.core.platform-mesh.org
       permissionClaims:
         - all: true
           resource: namespaces
@@ -154,19 +154,19 @@ operator match the snapshot:
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIExportEndpointSlice
     metadata:
-      name: core.platform-mesh.io
+      name: core.platform-mesh.org
     spec:
       export:
-        name: core.platform-mesh.io
+        name: core.platform-mesh.org
         path: root:platform-mesh-system
   3: |
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250516-0b27c30.accountinfos.core.platform-mesh.io
+      name: v250516-0b27c30.accountinfos.core.platform-mesh.org
     spec:
-      group: core.platform-mesh.io
+      group: core.platform-mesh.org
       names:
         kind: AccountInfo
         listKind: AccountInfoList
@@ -302,9 +302,9 @@ operator match the snapshot:
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250305-70de32b.accounts.core.platform-mesh.io
+      name: v250305-70de32b.accounts.core.platform-mesh.org
     spec:
-      group: core.platform-mesh.io
+      group: core.platform-mesh.org
       names:
         kind: Account
         listKind: AccountList
@@ -736,11 +736,11 @@ operator match the snapshot (with kubeconfigSecret):
     kind: APIExport
     metadata:
       creationTimestamp: null
-      name: core.platform-mesh.io
+      name: core.platform-mesh.org
     spec:
       latestResourceSchemas:
-        - v250516-0b27c30.accountinfos.core.platform-mesh.io
-        - v250305-70de32b.accounts.core.platform-mesh.io
+        - v250516-0b27c30.accountinfos.core.platform-mesh.org
+        - v250305-70de32b.accounts.core.platform-mesh.org
       permissionClaims:
         - all: true
           resource: namespaces
@@ -757,19 +757,19 @@ operator match the snapshot (with kubeconfigSecret):
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIExportEndpointSlice
     metadata:
-      name: core.platform-mesh.io
+      name: core.platform-mesh.org
     spec:
       export:
-        name: core.platform-mesh.io
+        name: core.platform-mesh.org
         path: root:platform-mesh-system
   3: |
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250516-0b27c30.accountinfos.core.platform-mesh.io
+      name: v250516-0b27c30.accountinfos.core.platform-mesh.org
     spec:
-      group: core.platform-mesh.io
+      group: core.platform-mesh.org
       names:
         kind: AccountInfo
         listKind: AccountInfoList
@@ -905,9 +905,9 @@ operator match the snapshot (with kubeconfigSecret):
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250305-70de32b.accounts.core.platform-mesh.io
+      name: v250305-70de32b.accounts.core.platform-mesh.org
     spec:
-      group: core.platform-mesh.io
+      group: core.platform-mesh.org
       names:
         kind: Account
         listKind: AccountList
@@ -1341,11 +1341,11 @@ operator match the snapshot with webhook enabled:
     kind: APIExport
     metadata:
       creationTimestamp: null
-      name: core.platform-mesh.io
+      name: core.platform-mesh.org
     spec:
       latestResourceSchemas:
-        - v250516-0b27c30.accountinfos.core.platform-mesh.io
-        - v250305-70de32b.accounts.core.platform-mesh.io
+        - v250516-0b27c30.accountinfos.core.platform-mesh.org
+        - v250305-70de32b.accounts.core.platform-mesh.org
       permissionClaims:
         - all: true
           resource: namespaces
@@ -1362,19 +1362,19 @@ operator match the snapshot with webhook enabled:
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIExportEndpointSlice
     metadata:
-      name: core.platform-mesh.io
+      name: core.platform-mesh.org
     spec:
       export:
-        name: core.platform-mesh.io
+        name: core.platform-mesh.org
         path: root:platform-mesh-system
   3: |
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250516-0b27c30.accountinfos.core.platform-mesh.io
+      name: v250516-0b27c30.accountinfos.core.platform-mesh.org
     spec:
-      group: core.platform-mesh.io
+      group: core.platform-mesh.org
       names:
         kind: AccountInfo
         listKind: AccountInfoList
@@ -1510,9 +1510,9 @@ operator match the snapshot with webhook enabled:
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250305-70de32b.accounts.core.platform-mesh.io
+      name: v250305-70de32b.accounts.core.platform-mesh.org
     spec:
-      group: core.platform-mesh.io
+      group: core.platform-mesh.org
       names:
         kind: Account
         listKind: AccountList
