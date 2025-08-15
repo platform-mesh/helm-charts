@@ -1,4 +1,4 @@
-# openmfp-operator-components
+# platform-mesh-operator-components
 
 A Helm chart for Kubernetes
 

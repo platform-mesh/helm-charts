@@ -7,7 +7,7 @@ chart:
   appVersion: "0.0.0"
 release:
   name: rebac-authz-webhook
-  namespace: openmfp-system
+  namespace: platform-mesh-system
 tests:
 - it: it should render the application manifests
   asserts:

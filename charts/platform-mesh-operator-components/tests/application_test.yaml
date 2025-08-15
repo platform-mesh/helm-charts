@@ -2,7 +2,7 @@
 suite: Test the application manifests
 release:
   name: operator-components
-  namespace: openmfp-system
+  namespace: platform-mesh-system
 tests:
 - it: it should render the application manifests
   set:

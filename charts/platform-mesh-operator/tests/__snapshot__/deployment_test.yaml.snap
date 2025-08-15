@@ -3,14 +3,14 @@ deployment with tracing:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
       namespace: NAMESPACE
     spec:
       replicas: 1
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          app: openmfp-operator-platform-mesh-operator
+          app: platform-mesh-operator
       strategy:
         rollingUpdate:
           maxSurge: 5
@@ -21,7 +21,7 @@ deployment with tracing:
           annotations:
             sidecar.istio.io/inject: "true"
           labels:
-            app: openmfp-operator-platform-mesh-operator
+            app: platform-mesh-operator
             control-plane: controller-manager
         spec:
           automountServiceAccountToken: true
@@ -39,7 +39,7 @@ deployment with tracing:
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
                 - --tracing-enabled=true
-                - --tracing-config-service-name=openmfp-operator-platform-mesh-operator.NAMESPACE
+                - --tracing-config-service-name=platform-mesh-operator.NAMESPACE
                 - --tracing-config-service-version=0.0.0
                 - --tracing-config-collector-endpoint=test:4317
               env: null
@@ -51,7 +51,7 @@ deployment with tracing:
                   path: /healthz
                   port: 8090
                 periodSeconds: 10
-              name: openmfp-operator-platform-mesh-operator
+              name: platform-mesh-operator
               ports:
                 - containerPort: 9090
                   name: metrics
@@ -86,14 +86,14 @@ deployment with tracing:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-          serviceAccountName: openmfp-operator-platform-mesh-operator
+          serviceAccountName: platform-mesh-operator
           terminationGracePeriodSeconds: 10
 operator match the snapshot:
   1: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
     metadata:
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
     rules:
       - apiGroups:
           - core.platform-mesh.io
@@ -188,27 +188,27 @@ operator match the snapshot:
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: ClusterRole
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
     subjects:
       - kind: ServiceAccount
-        name: openmfp-operator-platform-mesh-operator
+        name: platform-mesh-operator
         namespace: NAMESPACE
   3: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
       namespace: NAMESPACE
     spec:
       replicas: 0
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          app: openmfp-operator-platform-mesh-operator
+          app: platform-mesh-operator
       strategy:
         rollingUpdate:
           maxSurge: 5
@@ -219,7 +219,7 @@ operator match the snapshot:
           annotations:
             sidecar.istio.io/inject: "true"
           labels:
-            app: openmfp-operator-platform-mesh-operator
+            app: platform-mesh-operator
             control-plane: controller-manager
         spec:
           automountServiceAccountToken: true
@@ -245,7 +245,7 @@ operator match the snapshot:
                   path: /healthz
                   port: 8090
                 periodSeconds: 10
-              name: openmfp-operator-platform-mesh-operator
+              name: platform-mesh-operator
               ports:
                 - containerPort: 9090
                   name: metrics
@@ -280,13 +280,13 @@ operator match the snapshot:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
-          serviceAccountName: openmfp-operator-platform-mesh-operator
+          serviceAccountName: platform-mesh-operator
           terminationGracePeriodSeconds: 10
   4: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: Role
     metadata:
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
     rules:
       - apiGroups:
           - coordination.k8s.io
@@ -323,14 +323,14 @@ operator match the snapshot:
     apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding
     metadata:
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: Role
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
     subjects:
       - kind: ServiceAccount
-        name: openmfp-operator-platform-mesh-operator
+        name: platform-mesh-operator
         namespace: NAMESPACE
   6: |
     apiVersion: v1
@@ -338,5 +338,5 @@ operator match the snapshot:
       - name: github
     kind: ServiceAccount
     metadata:
-      name: openmfp-operator-platform-mesh-operator
+      name: platform-mesh-operator
       namespace: NAMESPACE

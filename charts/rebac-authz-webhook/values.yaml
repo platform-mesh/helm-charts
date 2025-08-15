@@ -62,7 +62,7 @@ serviceMonitor:
     prometheus: seed
 
 openfga:
-  url: openmfp-openfga:8081
+  url: openfga:8081
 
 istio:
   exposed: false

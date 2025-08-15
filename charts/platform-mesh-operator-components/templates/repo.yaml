@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.ocm.repoName }}
 spec:
   repositorySpec:
-    baseUrl: ghcr.io/openmfp/ocm
+    baseUrl: ghcr.io/platform-mesh
     type: OCIRegistry
   interval: 1m
   ocmConfig:

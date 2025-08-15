@@ -22,7 +22,7 @@ A Helm chart for Kubernetes
 | kcp.kubeconfig.path | string | `"/etc/kcp-kubeconfig"` |  |
 | kcp.kubeconfig.secret | string | `"rebac-authz-webhook-kubeconfig"` |  |
 | logLevel | string | `"INFO"` |  |
-| openfga.url | string | `"openmfp-openfga:8081"` |  |
+| openfga.url | string | `"openfga:8081"` |  |
 | podLabels."networking.gardener.cloud/to-public-networks" | string | `"allowed"` |  |
 | service.annotations | object | `{}` |  |
 | service.clusterIP | string | `""` |  |
