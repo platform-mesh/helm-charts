@@ -1,3 +1,10 @@
 secret.yaml
 bin/*
 .idea
+
+local-setup/webhook-config/*
+!local-setup/webhook-config/*.sh
+!local-setup/webhook-config/*.yaml
+!local-setup/webhook-config/*.conf
+local-setup/e2e/test-results/.last-run.json
+local-setup/scripts/certs
