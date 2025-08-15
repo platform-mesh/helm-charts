@@ -1,0 +1,430 @@
+targetNamespace: platform-mesh-system
+baseDomain: example.com
+protocol: https
+port: 443
+ocm:
+  componentName: platform-mesh
+  repoName: platform-mesh
+componentVersion:
+  semver: 0.0.660
+iamWebhookCA: null
+services:
+  istio-base:
+    enabled: true
+    targetNamespace: istio-system
+    driftDetectionMode: disabled
+    install:
+      createNamespace: true
+  istio-istiod:
+    resourcePath: istiod
+    enabled: true
+    targetNamespace: istio-system
+    driftDetectionMode: disabled
+    dependsOn:
+      - name: istio-base
+        namespace: default
+    values:
+      tracing:
+        enabled: false
+        telemetry:
+          tracing:
+            - providers:
+                - name: otel-tracing
+              randomSamplingPercentage: 100
+      meshConfig:
+        defaultConfig:
+          holdApplicationUntilProxyStarts: true
+          tracing:
+            provider:
+              name: otel-tracing
+        extensionProviders:
+          - name: otel-tracing
+            opentelemetry:
+              service: observability-opentelemetry-collector.observability.svc.cluster.local
+              port: 4317
+              protocol: grpc
+  istio-gateway:
+    enabled: true
+    targetNamespace: istio-system
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      service:
+        type: NodePort
+        ports:
+          - name: https
+            port: 8443
+            nodePort: 31000
+          - name: status-port
+            port: 15021
+            nodePort: 32000
+  account-operator:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      tracing:
+        enabled: true
+        collector:
+          host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+      kubeconfigSecret: account-operator-kubeconfig
+      log:
+        level: debug
+      crds:
+        enabled: false
+      kcp:
+        enabled: true
+        apiExportEndpointSliceName: ""
+      subroutines:
+        fga:
+          grpcAddr: openfga:8081
+  crossplane:
+    enabled: true
+    targetNamespace: crossplane-system
+    values:
+      provider:
+        packages:
+          - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
+  extension-manager-operator:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      crds:
+        enabled: false
+      kcp:
+        enabled: true
+        kubeconfigSecret: extension-manager-operator-kubeconfig
+      tracing:
+        enabled: true
+        collector:
+          host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+  security-operator:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      crds:
+        enabled: false
+      fga:
+        target: openfga.platform-mesh-system.svc.cluster.local:8081
+      initializer:
+        kubeconfigSecret: security-initializer-kubeconfig
+      kubeconfigSecret: security-operator-kubeconfig
+      log:
+        level: debug
+      operator:
+        shutdownTimeout: 1m
+        maxConcurrentReconciles: 1
+  rebac-authz-webhook:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      log:
+        level: debug
+      openfga:
+        url: openfga:8081
+      istio:
+        exposed: false
+        dnsNames:
+          - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
+      certManager:
+        enabled: true
+        createCA: true
+  iam-service:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+      - name: openfga
+        namespace: default
+    values:
+      trust:
+        default:
+          trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
+          jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+          audience: default
+      hostname: "api.{{ .Values.baseDomain }}"
+      gateway:
+        name: gateway
+  iam-ui:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      istio:
+        virtualService:
+          hosts:
+            - "{{ .Values.baseDomain }}"
+  infra:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      kcp:
+        enabled: true
+      fga:
+        enabled: false
+      istio:
+        enabled: true
+        main:
+          gateway:
+            hosts:
+              - "{{ .Values.baseDomain }}"
+              - "*.{{ .Values.baseDomain }}"
+            port: '{{ .Values.port }}'
+            name: https
+            protocol: HTTPS
+            tls:
+              mode: SIMPLE
+              credentialName: domain-certificate
+              minProtocolVersion: TLSV1_2
+        passThrough:
+          gateway:
+            enabled: true
+            hosts:
+              - "kcp.api.{{ .Values.baseDomain }}"
+            port: '{{ .Values.port }}'
+            name: pass-https
+            protocol: HTTPS
+  kcp:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      auth:
+        adminCert:
+          issuerRef: kcp-front-proxy-client-issuer
+      webhook:
+        enabled: true
+        server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
+        caData: "{{ .Values.iamWebhookCA }}"
+      istio:
+        hosts:
+          - "kcp.api.{{ .Values.baseDomain }}"
+        gateway:
+          create: false
+      kcp:
+        externalPort: "{{ .Values.port }}"
+        externalHostname: "kcp.api.{{ .Values.baseDomain }}"
+        kcp:
+          podAnnotations:
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+          authorization:
+            webhook:
+              secretName: kcp-webhook-secret
+        oidc:
+          enabled: true
+          issuerUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
+          clientId: default
+          groupClaim: groups
+          usernameClaim: email
+        kcpFrontProxy:
+          additionalPathMappings:
+            - path: /services/contentconfigurations
+              backend: https://virtual-workspaces.platform-mesh-system:8443
+              backend_server_ca: /etc/kcp/tls/ca/tls.crt
+              proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+              proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+            - path: /services/marketplace
+              backend: https://virtual-workspaces.platform-mesh-system:8443
+              backend_server_ca: /etc/kcp/tls/ca/tls.crt
+              proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+              proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+          extraDNSNames:
+            - kcp-front-proxy.platform-mesh-system
+        certificates:
+          dnsNames:
+            - virtual-workspaces.platform-mesh-system
+            - kcp.platform-mesh-system
+            - localhost
+            - "kcp.{{ .Values.baseDomain }}"
+        monitoring:
+          serviceMonitor:
+            enabled: true
+  keycloak:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      service:
+        name: keycloak
+      externalSecrets:
+        keycloakAdminRemoteRef: keycloak-admin
+        postgresAdminRemoteRef: postgres-admin
+      keycloak:
+        extraEnvVars:
+          - name: JAVA_OPTS_APPEND
+            value: |-
+              -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
+          - name: KC_PROXY_HEADERS
+            value: xforwarded
+          - name: KC_HOSTNAME_STRICT
+            value: "false"
+      domain:
+        pathPrefix: "/keycloak"
+      istio:
+        https:
+          enabled: true
+        virtualservice:
+          hosts:
+            - "{{ .Values.baseDomain }}"
+      crossplane:
+        clients:
+          default:
+            validRedirectUris:
+              - "{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"
+      keycloakConfig:
+        url: "https://{{ .Values.baseDomain }}/keycloak"
+        redirectUrls:
+          - "{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"
+  kubernetes-graphql-gateway:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      trust:
+        default:
+          trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
+          jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+          audience: default
+      kubeConfig:
+        enabled: true
+        secretName: kubernetes-grapqhl-gateway-kubeconfig
+      virtualService:
+        pathPrefix: /api/kubernetes-graphql-gateway/
+        hosts:
+          - "{{ .Values.baseDomain }}"
+          - "*.{{ .Values.baseDomain }}"
+        httpRules:
+          - name: default
+            cors:
+              allowHeaders:
+                - "*"
+              allowMethods:
+                - GET
+                - POST
+              allowOrigins:
+                - regex: .*
+      listener:
+        virtualWorkspacesConfig:
+          enabled: true
+          content:
+            virtualWorkspaces:
+              - name: contentconfigurations
+                url: "https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations"
+                kubeconfig: /app/kubeconfig/kubeconfig
+              - name: marketplace
+                url: "https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace"
+                kubeconfig: /app/kubeconfig/kubeconfig
+  openfga:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      databaseService: openfga-openfga-postgres
+      trust:
+        default:
+          trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
+          jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+          audience: default
+      rbac:
+        writePrincipals:
+          - cluster.local/ns/platform-mesh-system/sa/iam-service
+          - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
+          - cluster.local/ns/platform-mesh-system/sa/security-operator
+          - cluster.local/ns/platform-mesh-system/sa/account-operator
+  marketplace-ui:
+    enabled: false
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      istio:
+        virtualService:
+          hosts:
+            - "{{ .Values.baseDomain }}"
+  portal:
+    enabled: false
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      kubeconfigSecret: portal-kubeconfig
+      crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+      environment: kind
+      http:
+        protocol: https
+      frontendPort: '{{ .Values.port }}'
+      trust:
+        default:
+          # -- base domains
+          baseDomains: "portal.dev.local"
+          # -- discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required
+          discoveryEndpoint: ""
+          # -- auth domain (if discoveryEndpoint is not specified)
+          authDomain: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default/protocol/openid-connect/auth"
+          # -- token url (if discoveryEndpoint is not specified)
+          tokenUrl: http://keycloak/keycloak/realms/default/protocol/openid-connect/token
+          # -- oidc client secret name
+          oidcClientSecretName: default-client
+          # -- login audience
+          loginAudience: default
+          # -- secret key reference
+          secretKeyRef: attribute.client_secret
+          # -- ContentConfiguration validator api url
+          contentConfigurationValidatorApiUrl: http://extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate
+      virtualService:
+        hosts: false
+      baseDomains:
+        - "{{ .Values.baseDomain }}"
+      cookieDomain: "{{ .Values.baseDomain }}"
+      extraEnvVars:
+        - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+          value: https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+        - name: DEFAULT_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+          value: https://{{ .Values.baseDomain }}:{{ .Values.port }}/iam/query
+        - name: DEFAULT_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
+          value: >-
+            {"account":{"contextProperty":"entityId"}}
+  observability:
+    enabled: false
+    targetNamespace: observability
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      istio:
+        grafana:
+          virtualService:
+            hosts: ["grafana.{{ .Values.baseDomain }}"]
+        tracing:
+          enabled: true
+      opentelemetry-collector:
+        service:
+          type: ClusterIP
+        ports:
+          metrics:
+            enabled: true
+  virtual-workspaces:
+    enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      service:
+        port: 8443
+      deployment:
+        serverUrl: "https://kcp-front-proxy.platform-mesh-system:8443"
