@@ -78,13 +78,11 @@ jobs:
           # echo OBSERVABILITY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/observability --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo VIRTUAL_WORKSPACES_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/virtual-workspaces --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           
-          # PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
-          # PM_VERSION=${PM_VERSION:-0.0.0}
-          
-          # IFS='.' read -r major minor patch <<< "PM_VERSION"
-          # patch=$((patch + 1))
-          # echo VERSION="$major.$minor.$patch" >> $GITHUB_ENV
-          echo VERSION="0.0.1" >> $GITHUB_ENV
+          PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
+          PM_VERSION=${PM_VERSION:-0.0.0}
+          IFS='.' read -r major minor patch <<< "PM_VERSION"
+          patch=$((patch + 1))
+          echo VERSION="$major.$minor.$patch" >> $GITHUB_ENV
 
       - name: create OCM ComponentArchive
         run: |
