@@ -1,26 +1,29 @@
-name: Build security-operator Workflow
+name: Build portal Workflow
 on:
   push:
     branches:
       - main
     paths:
-      - 'charts/security-operator/**'
-      - '.github/workflows/security-operator.yaml'
+      - 'charts/portal/**'
+      - '.github/workflows/portal.yaml'
       - '.ocm/component-constructor.yaml'
   pull_request:
     paths:
-      - 'charts/security-operator/**'
-      - '.github/workflows/security-operator.yaml'
+      - 'charts/portal/**'
+      - '.github/workflows/portal.yaml'
 
+permissions:
+  contents: read
+  packages: write
 jobs:
   pipeline:
     concurrency:
-      group: security-operator-${{ github.ref }}
+      group: portal-${{ github.ref }}
       cancel-in-progress: true
     uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
     with:
       chartFolder: charts
-      chartName: security-operator
+      chartName: portal
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
     secrets: inherit
@@ -31,8 +34,8 @@ jobs:
     uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
     secrets: inherit
     with:
-      chartPath: charts/security-operator
-      componentName: github.com/platform-mesh/security-operator
+      chartPath: charts/portal
+      componentName: github.com/platform-mesh/portal
       ocmRegistryUrl: ghcr.io/platform-mesh
 
   ocmOpenMFP:
@@ -41,6 +44,6 @@ jobs:
     uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
     secrets: inherit
     with:
-      chartPath: charts/security-operator
-      componentName: github.com/platform-mesh/security-operator
+      chartPath: charts/portal
+      componentName: github.com/platform-mesh/portal
       ocmRegistryUrl: ghcr.io/openmfp/ocm

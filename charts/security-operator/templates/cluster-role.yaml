@@ -20,3 +20,6 @@ rules:
     - delete
     - update
     - patch
+- apiGroups: ["source.toolkit.fluxcd.io"]
+  resources: ["ocirepositories", "helmreleases"]
+  verbs: ["get", "list", "create", "update", "patch", "delete", "watch"]

@@ -8,6 +8,11 @@ vars:
     sh: "git status --porcelain | grep '^ M charts/' | cut -d'/' -f2 | sort -u | sed 's|^|charts/|' | paste -sd ',' -"
   PACKAGED_CHARTS:
     sh: "ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
+  GOOS:
+    sh: go env GOOS
+  GOARCH:
+    sh: go env GOARCH
+  OCM_VERSION: 0.24.0
 tasks:
   ## Setup
   setup:kube-lint:
@@ -25,6 +30,11 @@ tasks:
     cmds:
       - test -s {{.LOCAL_BIN}}/mkcert || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install filippo.io/mkcert@latest
       - export PATH=$(pwd)/{{.LOCAL_BIN}}:$PATH
+
+  setup:ocm:
+    internal: true
+    cmds:
+      - test -s {{.LOCAL_BIN}}/ocm || (curl -o {{.LOCAL_BIN}}/ocm.tar.gz -sSL https://github.com/open-component-model/ocm/releases/download/v{{ .OCM_VERSION }}/ocm-{{ .OCM_VERSION }}-{{ .GOOS }}-{{ .GOARCH }}.tar.gz && tar -xzf {{ .LOCAL_BIN }}/ocm.tar.gz -C {{ .LOCAL_BIN }} && rm {{ .LOCAL_BIN }}/ocm.tar.gz && chmod +x {{.LOCAL_BIN}}/ocm && chmod 755 {{.LOCAL_BIN}}/ocm)
   ## Development
   lint:
     deps: []
@@ -101,3 +111,13 @@ tasks:
   local-setup-cached:iterate:
     cmds:
       - ./local-setup/scripts/start.sh --cached
+
+  bump-component-versions:
+    deps: [setup:ocm]
+    cmds:
+      - |
+        COMP_VERSION_JSON=$(bin/ocm get componentversions github.com/platform-mesh/platform-mesh --latest --repo ghcr.io/platform-mesh -o json)
+        SERVICES=$(echo ''$COMP_VERSION_JSON'' | jq -r '.items[0] | .component.componentReferences[] | .name')
+        COMPONENT_VERSION=$(echo ''$COMP_VERSION_JSON'' | jq -r '.items[0] | .component["version"]')
+        echo "Bumping component version to $COMPONENT_VERSION"
+        yq -i '.componentVersion.semver = "'$COMPONENT_VERSION'"' charts/platform-mesh-operator-components/values.yaml
