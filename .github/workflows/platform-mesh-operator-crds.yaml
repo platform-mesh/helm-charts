@@ -12,6 +12,10 @@ on:
       - 'charts/platform-mesh-operator-crds/**'
       - '.github/workflows/platform-mesh-operator-crds.yaml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   pipeline:
     concurrency:
