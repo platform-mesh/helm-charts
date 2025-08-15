@@ -25,6 +25,16 @@ jobs:
 
   ocm:
     if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [ pipeline ]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: charts/virtual-workspaces
+      componentName: github.com/platform-mesh/virtual-workspaces
+      ocmRegistryUrl: ghcr.io/platform-mesh
+
+  ocmOpenMFP:
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: [pipeline]
     uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
     secrets: inherit
