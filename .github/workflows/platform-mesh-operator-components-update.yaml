@@ -9,6 +9,10 @@ concurrency:
   group: platform-mesh-operator-components-update-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  packages: read
+  contents: read
+
 jobs:
   bump-versions:
     runs-on: ubuntu-latest
