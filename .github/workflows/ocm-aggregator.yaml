@@ -7,6 +7,10 @@ on:
     paths:
       - '.github/workflows/ocm.yaml'
       - 'constructor/component-constructor.yaml'
+permissions:
+  packages: read
+  contents: read
+
 concurrency:
   group: ocm-${{ github.ref }}
   cancel-in-progress: true
