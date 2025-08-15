@@ -1,0 +1,182 @@
+matches the snapshot:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: portal
+      name: portal
+    spec:
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: portal
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app: portal
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - env:
+                - name: HTTP_PROTOCOL
+                  value: http
+                - name: OIDC_CLIENT_ID_PORTAL
+                  value: "12345"
+                - name: OIDC_CLIENT_SECRET_PORTAL
+                  valueFrom:
+                    secretKeyRef:
+                      key: secret
+                      name: portal-client-secret-portal
+                - name: DISCOVERY_ENDPOINT_PORTAL
+                  value: https://auth.example.com/.well-known/openid-configuration
+                - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
+                  value: null
+                - name: BASE_DOMAINS_PORTAL
+                  value: portal.example.com,portal2.example.com
+                - name: IDP_NAMES
+                  value: portal
+                - name: DEVELOPMENT_INSTANCE
+                  value: "true"
+                - name: FEATURE_TOGGLES
+                  value: enableSessionAutoRefresh=true
+                - name: PORT
+                  value: "8080"
+                - name: REGION
+                  value: null
+                - name: IMAGE_TAG
+                  value: 1.0.0
+                - name: IMAGE_NAME
+                  value: ghcr.io/platform-mesh/portal
+                - name: COOKIE_DOMAIN
+                  value: localhost
+                - name: FRONTEND_PORT
+                  value: "8000"
+                - name: ENVIRONMENT
+                  value: local
+                - name: VALID_WEBCOMPONENT_URLS
+                  value: .?
+                - name: TEST_TEST
+                  value: test test
+                - name: DEMO_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+                  value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+                - name: DEMO_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+                  value: https://portal.dev.local:8443/iam/query
+                - name: DEMO_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
+                  value: '{"account":{"contextProperty":"entityId"}}'
+              image: ghcr.io/platform-mesh/portal:12345
+              imagePullPolicy: IfNotPresent
+              name: portal
+              ports:
+                - containerPort: 8080
+                  name: http
+                  protocol: TCP
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts: null
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: portal
+          terminationGracePeriodSeconds: 10
+          volumes: null
+test hosAliases:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: portal
+      name: portal
+    spec:
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: portal
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          labels:
+            app: portal
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - env:
+                - name: HTTP_PROTOCOL
+                  value: http
+                - name: DEVELOPMENT_INSTANCE
+                  value: "true"
+                - name: FEATURE_TOGGLES
+                  value: enableSessionAutoRefresh=true
+                - name: PORT
+                  value: "8080"
+                - name: REGION
+                  value: null
+                - name: IMAGE_TAG
+                  value: 1.0.0
+                - name: IMAGE_NAME
+                  value: ghcr.io/platform-mesh/portal
+                - name: COOKIE_DOMAIN
+                  value: localhost
+                - name: FRONTEND_PORT
+                  value: "8000"
+                - name: ENVIRONMENT
+                  value: local
+                - name: VALID_WEBCOMPONENT_URLS
+                  value: .?
+              image: ghcr.io/platform-mesh/portal:1.0.0
+              imagePullPolicy: IfNotPresent
+              name: portal
+              ports:
+                - containerPort: 8080
+                  name: http
+                  protocol: TCP
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              volumeMounts: null
+          hostAliases:
+            - hostnames:
+                - example.com
+                - test.example.com
+              ip: 10.0.0.1
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: portal
+          terminationGracePeriodSeconds: 10
+          volumes: null
