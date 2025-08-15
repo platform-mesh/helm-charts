@@ -67,7 +67,7 @@ components:
         version: {{ .SECURITY_OPERATOR_VERSION }}
       - name: rebac-authz-webhook
         componentName: github.com/platform-mesh/rebac-authz-webhook
-        version: {{ .IAM_AUTHORIZATION_WEBHOOK_VERSION }}
+        version: {{ .REBAC_AUTHZ_WEBHOOK_VERSION }}
 #      - name: iam-service
 #        componentName: github.com/platform-mesh/iam-service
 #        version: {{ .IAM_SERVICE_VERSION }}
