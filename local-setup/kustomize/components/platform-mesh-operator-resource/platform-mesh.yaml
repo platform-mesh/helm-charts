@@ -1,0 +1,159 @@
+apiVersion: core.openmfp.org/v1alpha1
+kind: OpenMFP
+metadata:
+  name: openmfp
+  namespace: openmfp-system
+spec:
+  exposure:
+    port: 8443
+  # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
+  chartVersion: 0.7.147
+  values:
+    istio-gateway:
+      enabled: true
+      targetNamespace: istio-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      values:
+        service:
+          type: None
+          ports:
+            - name: https
+              port: 8443
+              nodePort: 31000
+            - name: status-port
+              port: 15021
+              nodePort: 32000
+    keycloak:
+      values:
+        crossplane:
+          clients:
+            openmfp:
+              validRedirectUris:
+                - "https://portal.dev.local:8443/callback*"
+                - "http://localhost:4300/callback*"
+        keycloakConfig:
+          url: http://keycloak.openmfp-system.svc.cluster.local/keycloak
+        keycloak:
+          service:
+            clusterIP: 10.96.0.110
+    crossplane:
+      values:
+        provider:
+          packages:
+            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2
+    apeiro-portal:
+      enabled: false
+    observability:
+      enabled: false
+    kcp:
+      values:
+        istio:
+          hosts:
+            - kcp.api.portal.dev.local
+        kcp:
+          oidc:
+            caSecretName: domain-certificate-ca
+          externalHostname: kcp.api.portal.dev.local
+          certificates:
+            dnsNames:
+              - localhost
+              - kcp.api.portal.dev.local
+              - virtual-workspaces.openmfp-system
+          kcp:
+            hostAliases:
+              enabled: true
+              values:
+                - ip: "10.96.0.100"
+                  hostnames:
+                    - "kcp.api.portal.dev.local"
+          kcpFrontProxy:
+            hostAliases:
+              enabled: true
+              values:
+                - ip: "10.96.188.4"
+                  hostnames:
+                    - "portal.dev.local"
+            service:
+              clusterIP: "10.96.0.100"
+            monitoring:
+              serviceMonitor:
+                enabled: false
+        webhook:
+          server: https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz
+    marketplace-ui:
+      enabled: true
+      values:
+        istio:
+          virtualService:
+            hosts:
+              - "portal.dev.local"
+    iam-ui:
+      values:
+        istio:
+          virtualService:
+            hosts:
+              - "portal.dev.local"
+    security-operator:
+      values:
+        hostAliases:
+          enabled: true
+          items:
+            - ip: 10.96.0.100
+              hostnames:
+                - kcp.api.portal.dev.local
+    portal:
+      enabled: false
+      values:
+        extraEnvVars:
+          - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+            value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+          - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+            value: https://portal.dev.local:8443/iam/query
+          - name: OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
+            value: >-
+              {"account":{"contextProperty":"entityId"}}
+    pm-portal:
+      enabled: true
+      values:
+        extraEnvVars:
+          - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+            value: "https://portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:openmfp/graphql"
+          - name: NODE_EXTRA_CA_CERTS
+            value: /etc/ssl/certs/domain-ca.crt
+        extraVolumes:
+          - name: domain-ca
+            secret:
+              secretName: domain-certificate-ca
+        extraVolumeMounts:
+          - name: domain-ca
+            mountPath: /etc/ssl/certs/domain-ca.crt
+            subPath: tls.crt
+            readOnly: true
+        deployment:
+          hostAliases:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "portal.dev.local"
+    openfga:
+      values:
+        openfga:
+          telemetry:
+            trace:
+              enabled: true
+              otlp:
+                endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+                tls:
+                  enabled: false
+    virtual-workspaces:
+      enabled: true
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      values:
+        deployment:
+          entityLabel: "portal.openmfp.org/entity"
+          providerWorkspaceId: 27kmjnmuuwqfxszl
+          providerMetadataVirtualWorkspacePath: /services/apiexport/27kmjnmuuwqfxszl/core.platform-mesh.io
+          apiExportVirtualWorkspacePath: /services/apiexport/27kmjnmuuwqfxszl/core.platform-mesh.io

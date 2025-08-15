@@ -1,0 +1,19 @@
+apiVersion: core.openmfp.org/v1alpha1
+kind: OpenMFP
+metadata:
+  name: openmfp
+  namespace: openmfp-system
+spec:
+  components:
+    keycloak:
+      values:
+        keycloak:
+          extraEnvVars:
+            - name: JAVA_OPTS_APPEND
+              value: |-
+                -Djgroups.dns.query=keycloak-headless.openmfp-system.svc.cluster.local
+                -XX:UseSVE=0
+            - name: KC_PROXY_HEADERS
+              value: xforwarded
+            - name: KC_HOSTNAME_STRICT
+              value: "false"

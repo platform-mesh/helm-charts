@@ -1,0 +1,24 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: ocm-k8s-toolkit
+  namespace: default
+spec:
+  interval: 1m
+  url: https://github.com/open-component-model/ocm-k8s-toolkit
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ocm-k8s-toolkit
+  namespace: default
+spec:
+  interval: 1m
+  targetNamespace: ocm-system
+  sourceRef:
+    kind: GitRepository
+    name: ocm-k8s-toolkit
+  path: ./config/default
+  prune: true

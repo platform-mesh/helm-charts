@@ -1,0 +1,103 @@
+apiVersion: core.openmfp.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  labels:
+    portal.openmfp.org/entity: account
+    ui.platform-mesh.io/content-for: orchestrate.cloud.sap
+  name: httpbin-ui
+spec:
+  inlineConfiguration:
+    content: |-
+      {
+          "name": "httpbins",
+          "creationTimestamp": "2022-05-17T11:37:17Z",
+          "luigiConfigFragment": {
+              "data": {
+                  "nodes": [
+                      {
+                          "pathSegment": "orchestrate_cloud_sap_httpbins",
+                          "navigationContext": "orchestrate_cloud_sap_httpbins",
+                          "label": "Http Bins",
+                          "icon": "paint-bucket",
+                          "entityType": "main.account.core_namespace",
+                          "loadingIndicator": {
+                              "enabled": false
+                          },
+                          "keepSelectedForChildren": true,
+                          "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                          "webcomponent": {
+                              "selfRegistered": true
+                          },
+                          "context": {
+                              "resourceDefinition": {
+                                  "group": "orchestrate.cloud.sap",
+                                  "plural": "httpbins",
+                                  "singular": "httpbin",
+                                  "kind": "HttpBin",
+                                  "scope": "Namespaced",
+                                  "namespace": null,
+                                  "ui": {
+                                      "logoUrl": "https://www.kcp.io/icons/logo.svg",
+                                      "listView": {
+                                          "fields": [
+                                              {
+                                                  "label": "Name",
+                                                  "property": "metadata.name"
+                                              }
+                                          ]
+                                      },
+                                      "detailView": {},
+                                      "createView": {
+                                          "fields": [
+                                              {
+                                                  "label": "Name",
+                                                  "property": "metadata.name",
+                                                  "required": true
+                                              }
+                                          ]
+                                      }
+                                  }
+                              }
+                          },
+                          "children": [
+                            {
+                                "pathSegment": ":httpbinId",
+                                "hideFromNav": true,
+                                "keepSelectedForChildren": false,
+                                "defineEntity": {
+                                    "id": "orchestrate_cloud_sap_httpbin",
+                                    "contextKey": "httpbinId",
+                                    "graphqlEntity": {
+                                        "group": "orchestrate_cloud_sap",
+                                        "kind": "HttpBin",
+                                        "query": "{ metadata { name } }"
+                                    }
+                                },
+                                "context": {
+                                    "accountId": ":accountId",
+                                    "namespaceId": ":namespaceId",
+                                    "resourceId": ":httpbinId"
+                                }
+                            }
+                          ]
+                      },
+                      {
+                        "entityType": "main.account.orchestrate_cloud_sap_httpbin",
+                        "pathSegment": "dashboard",
+                        "label": "Dashboard",
+                        "url": "/assets/openmfp-portal-ui-wc.js#generic-detail-view",
+                        "webcomponent": {
+                          "selfRegistered": true
+                        },
+                        "defineEntity": {
+                            "id": "dashboard"
+                        },
+                        "compound": {
+                            "children": []
+                        }
+                      }
+                  ]
+              }
+          }
+      }
+    contentType: json
