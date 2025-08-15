@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - '.github/workflows/ocm.yaml'
-      - '.ocm/component-constructor.yaml'
+      - 'constructor/component-constructor.yaml'
 concurrency:
   group: ocm-${{ github.ref }}
   cancel-in-progress: true
@@ -82,7 +82,7 @@ jobs:
         run: |
           ocm_ctf=.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
-          ./ocm add components -c --templater=go --file "$ocm_ctf" .ocm/component-constructor.yaml -- \
+          ./ocm add components -c --templater=go --file "$ocm_ctf" constructor/component-constructor.yaml -- \
             VERSION=${{ env.VERSION }} \
             ACCOUNT_OPERATOR_VERSION=${{ env.ACCOUNT_OPERATOR_VERSION }} \
             ACCOUNT_UI_VERSION=${{ env.ACCOUNT_UI_VERSION }} \
