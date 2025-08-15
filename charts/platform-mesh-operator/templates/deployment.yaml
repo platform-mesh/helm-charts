@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}
+  namespace: {{ .Release.Namespace }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  {{- include "common.deploymentBasics" . | indent 2 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labelMatcher" . | indent 8 }}
+        control-plane: controller-manager
+      annotations:
+        sidecar.istio.io/inject: "{{ (include "common.istioEnabled" .) }}"
+      {{- if ((.Values.deployment).template).annotations }}
+      {{ .Values.deployment.template.annotations | toYaml | nindent 8 }}
+      {{- end }}
+    spec:
+      {{ include "common.pod.securityContext" . | nindent 6 }}
+      containers:
+      - {{- include "common.podBasics" . | indent 8 }}
+        {{- include "common.container.securityContext" . | indent 8 }}
+        {{- include "common.healthAndReadiness" . | indent 8 }}
+        args:
+          - operator
+          {{- include "common.commonOperatorArgs" . | indent 8 }}
+        ports:
+        {{- include "common.PortsMetricsHealth" . | nindent 10 }}
+        env:
+        {{- include "common.basicEnvironment" . | nindent 10 }}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
