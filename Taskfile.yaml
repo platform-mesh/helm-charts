@@ -20,6 +20,11 @@ tasks:
     internal: true
     cmds:
       - test -s {{.LOCAL_BIN}}/helm-docs || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/norwoodj/helm-docs/cmd/helm-docs@v1.14.2
+  setup:mkcert:
+    internal: true
+    cmds:
+      - test -s {{.LOCAL_BIN}}/mkcert || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install filippo.io/mkcert@latest
+      - export PATH=$(pwd)/{{.LOCAL_BIN}}:$PATH
   ## Development
   lint:
     deps: []
