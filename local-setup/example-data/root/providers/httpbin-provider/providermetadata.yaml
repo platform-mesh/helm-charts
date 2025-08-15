@@ -1,4 +1,4 @@
-apiVersion: core.openmfp.io/v1alpha1
+apiVersion: core.platform-mesh.io/v1alpha1
 kind: ProviderMetadata
 metadata:
   name: orchestrate.cloud.sap

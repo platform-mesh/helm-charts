@@ -9,11 +9,11 @@ spec:
     spec:
       values: string
       resourcePath: string | required=true
-      targetNamespace: string | required=true default="openmfp-system"
+      targetNamespace: string | required=true default="platform-mesh-system"
       driftDetectionMode: string | required=true default="enabled"
       createNamespace: boolean | required=true default="false"
-      secretName: string | required=true default="openmfp-system"
-      componentName: string | required=true default="openmfp-priv"
+      secretName: string | required=true default="platform-mesh-system"
+      componentName: string | required=true default="platform-mesh"
   resources:
     - id: resourceChart
       template:

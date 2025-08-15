@@ -1,8 +1,8 @@
-apiVersion: core.openmfp.org/v1alpha1
-kind: OpenMFP
+apiVersion: core.platform-mesh.io/v1alpha1
+kind: PlatforMesh
 metadata:
-  name: openmfp
-  namespace: openmfp-system
+  name: platform-mesh
+  namespace: platform-mesh-system
 spec:
   exposure:
     port: 8443
@@ -29,12 +29,12 @@ spec:
       values:
         crossplane:
           clients:
-            openmfp:
+            default:
               validRedirectUris:
                 - "https://portal.dev.local:8443/callback*"
                 - "http://localhost:4300/callback*"
         keycloakConfig:
-          url: http://keycloak.openmfp-system.svc.cluster.local/keycloak
+          url: http://keycloak.platform-mesh-system.svc.cluster.local/keycloak
         keycloak:
           service:
             clusterIP: 10.96.0.110
@@ -60,7 +60,7 @@ spec:
             dnsNames:
               - localhost
               - kcp.api.portal.dev.local
-              - virtual-workspaces.openmfp-system
+              - virtual-workspaces.platform-mesh-system
           kcp:
             hostAliases:
               enabled: true
@@ -81,7 +81,7 @@ spec:
               serviceMonitor:
                 enabled: false
         webhook:
-          server: https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz
+          server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     marketplace-ui:
       enabled: true
       values:
@@ -107,19 +107,19 @@ spec:
       enabled: false
       values:
         extraEnvVars:
-          - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+          - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
             value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
-          - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+          - name: DEFAULT_PORTAL_CONTEXT_IAM_SERVICE_API_URL
             value: https://portal.dev.local:8443/iam/query
-          - name: OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
+          - name: DEFAULT_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
             value: >-
               {"account":{"contextProperty":"entityId"}}
     pm-portal:
       enabled: true
       values:
         extraEnvVars:
-          - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-            value: "https://portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:openmfp/graphql"
+          - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+            value: "https://portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:default/graphql"
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
@@ -143,7 +143,7 @@ spec:
             trace:
               enabled: true
               otlp:
-                endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+                endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
                 tls:
                   enabled: false
     virtual-workspaces:
@@ -153,7 +153,7 @@ spec:
           namespace: default
       values:
         deployment:
-          entityLabel: "portal.openmfp.org/entity"
+          entityLabel: "ui.platform-mesh.io/entity"
           providerWorkspaceId: 27kmjnmuuwqfxszl
           providerMetadataVirtualWorkspacePath: /services/apiexport/27kmjnmuuwqfxszl/core.platform-mesh.io
           apiExportVirtualWorkspacePath: /services/apiexport/27kmjnmuuwqfxszl/core.platform-mesh.io

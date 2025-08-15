@@ -1,4 +1,4 @@
-# OpenMFP - Getting Started
+# Platform Mesh - Getting Started
 
 [![test](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/test/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
 [![e2e](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/e2e/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
@@ -34,14 +34,14 @@ upgrade the Helm releases to their latest chart version based on semver ranges.
 ## Bootstrap local environment
 
 The `scripts/start.sh` contains all steps needed to bootstrap the local environment. The script will automate the following steps:
-- Create kind cluster called `openmfp`
+- Create kind cluster called `platform-mesh`
 - install flux
 - prepare secrets
 
 ```sh
 ## [Secrets]: configure the following environment variables:
-export KEYCLOAK_SECRET='' # client secret for the 'openmfp' keycloak client
-export GH_TOKEN='' # token used to pull the openmfp docker images
+export KEYCLOAK_SECRET='' # client secret for the 'default' keycloak client
+export GH_TOKEN='' # token used to pull the platform-mesh docker images
 ```
 - apply flux deployment configuration
 

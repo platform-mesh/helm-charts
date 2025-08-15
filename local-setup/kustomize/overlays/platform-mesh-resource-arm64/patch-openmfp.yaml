@@ -1,8 +1,8 @@
-apiVersion: core.openmfp.org/v1alpha1
-kind: OpenMFP
+apiVersion: core.platform-mesh.io/v1alpha1
+kind: PlatformMesh
 metadata:
-  name: openmfp
-  namespace: openmfp-system
+  name: platform-mesh
+  namespace: platform-mesh-system
 spec:
   components:
     keycloak:
@@ -11,7 +11,7 @@ spec:
           extraEnvVars:
             - name: JAVA_OPTS_APPEND
               value: |-
-                -Djgroups.dns.query=keycloak-headless.openmfp-system.svc.cluster.local
+                -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
                 -XX:UseSVE=0
             - name: KC_PROXY_HEADERS
               value: xforwarded
