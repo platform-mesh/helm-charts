@@ -80,7 +80,7 @@ jobs:
           
           PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
-          IFS='.' read -r major minor patch <<< "PM_VERSION"
+          IFS='.' read -r major minor patch <<< "$PM_VERSION"
           patch=$((patch + 1))
           echo VERSION="$major.$minor.$patch" >> $GITHUB_ENV
 
