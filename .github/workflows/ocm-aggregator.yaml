@@ -92,6 +92,11 @@ jobs:
             EXTENSION_MANAGER_OPERATOR_VERSION=${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }} \
             SECURITY_OPERATOR_VERSION=${{ env.SECURITY_OPERATOR_VERSION }} \
             REBAC_AUTHZ_WEBHOOK_VERSION=${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }} \
+            PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
+            VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
+            ISTIO_VERSION=1.25.0 \
+            CROSSPLANE_VERSION=1.9.2
+          
             # IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \
             # IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
             # INFRA_VERSION=${{ env.INFRA_VERSION }} \
@@ -100,11 +105,6 @@ jobs:
             # KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION }} \
             # OPENFGA_VERSION=${{ env.OPENFGA_VERSION }} \
             # OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }} \
-            PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
-            # TUPLE_OPERATOR_VERSION=${{ env.TUPLE_OPERATOR_VERSION }} \
-            VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
-            ISTIO_VERSION=1.25.0 \
-            CROSSPLANE_VERSION=1.9.2
 
       - name: Transfer to OCM REPO
         run: ./ocm transfer ctf --overwrite .ocm/transport.ctf "ghcr.io/platform-mesh"
