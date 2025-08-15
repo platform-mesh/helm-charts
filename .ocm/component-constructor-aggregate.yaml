@@ -68,21 +68,6 @@ components:
       - name: rebac-authz-webhook
         componentName: github.com/platform-mesh/rebac-authz-webhook
         version: {{ .REBAC_AUTHZ_WEBHOOK_VERSION }}
-#      - name: iam-service
-#        componentName: github.com/platform-mesh/iam-service
-#        version: {{ .IAM_SERVICE_VERSION }}
-#      - name: iam-ui
-#        componentName: github.com/platform-mesh/iam-ui
-#        version: {{ .IAM_UI_VERSION }}
-#      - name: infra
-#        componentName: github.com/platform-mesh/infra
-#        version: {{ .INFRA_VERSION }}
-#      - name: kcp
-#        componentName: github.com/openmfp/kcp
-#        version: {{ .KCP_VERSION }}
-#      - name: kubernetes-graphql-gateway
-#        componentName: github.com/openmfp/kubernetes-graphql-gateway
-#        version: {{ .KUBERNETES_GRAPHQL_GATEWAY_VERSION }}
       - name: portal
         componentName: github.com/platform-mesh/portal
         version: {{ .PORTAL_VERSION }}
@@ -104,9 +89,3 @@ components:
       - name: istio-gateway
         componentName: github.com/istio/istio/gateway
         version: {{ .ISTIO_VERSION }}
-#      - name: keycloak
-#        componentName: github.com/openmfp/keycloak
-#        version: {{ .KEYCLOAK_VERSION }}
-#      - name: openfga
-#        componentName: github.com/openmfp/openfga
-#        version: {{ .OPENFGA_VERSION }}
