@@ -98,7 +98,7 @@ operator match the snapshot:
       - apiGroups:
           - core.platform-mesh.io
         resources:
-          - platformmeshs
+          - platformmeshes
         verbs:
           - create
           - delete
@@ -110,13 +110,13 @@ operator match the snapshot:
       - apiGroups:
           - core.platform-mesh.io
         resources:
-          - platformmeshs/finalizers
+          - platformmeshes/finalizers
         verbs:
           - update
       - apiGroups:
           - core.platform-mesh.org
         resources:
-          - platformmeshs/status
+          - platformmeshes/status
         verbs:
           - get
           - patch
