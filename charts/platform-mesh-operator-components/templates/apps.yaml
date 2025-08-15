@@ -1,0 +1,20 @@
+{{ $values := .Values }}
+{{- range $service, $config := .Values.services }}
+{{- if $config.enabled -}}
+apiVersion: kro.run/v1alpha1
+kind: App
+metadata:
+  name: {{ $service }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  values: |-
+    "{{ $config.values | toJson }}"
+  targetNamespace: {{ $config.targetNamespace }}
+  driftDetectionMode: enabled
+  createNamespace: false
+  secretName: {{ $values.ociPullSecret }}
+  componentName: {{ $values.ocm.componentName }}
+  resourcePath: {{ default $service $config.resourcePath }}
+---
+{{ end -}}
+{{ end -}}

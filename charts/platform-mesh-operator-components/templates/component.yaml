@@ -1,0 +1,13 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Component
+metadata:
+  name: {{ .Values.ocm.componentName }}
+spec:
+  repositoryRef:
+    name: {{ .Values.ocm.repoName }}
+  component: github.com/openmfp/openmfp-priv
+  semver: {{ .Values.componentVersion.semver }}
+  interval: 1m
+  ocmConfig:
+    - kind: Secret
+      name: {{ .Values.ociPullSecret }}

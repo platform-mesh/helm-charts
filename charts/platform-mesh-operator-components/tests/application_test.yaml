@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Test the application manifests
+release:
+  name: operator-components
+  namespace: openmfp-system
+tests:
+- it: it should render the application manifests
+  set:
+    componentVersion:
+      semver: 0.0.0
+  asserts:
+  - matchSnapshot: {}

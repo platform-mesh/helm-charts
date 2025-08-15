@@ -1,0 +1,12 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Repository
+metadata:
+  name: {{ .Values.ocm.repoName }}
+spec:
+  repositorySpec:
+    baseUrl: ghcr.io/openmfp/ocm
+    type: OCIRegistry
+  interval: 1m
+  ocmConfig:
+    - kind: Secret
+      name: {{ .Values.ociPullSecret }}
