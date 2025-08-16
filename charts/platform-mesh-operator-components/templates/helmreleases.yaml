@@ -1,0 +1,25 @@
+{{ $values := .Values }}
+{{- range $service, $config := .Values.services }}
+{{- if $config.enabled -}}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: {{ $service}}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: {{ $service}}
+    namespace: {{ $.Release.Namespace }}
+  interval: 1m
+  releaseName: {{ $service}}
+  targetNamespace: {{ $values.targetNamespace }}
+  dependsOn:
+    {{ $config.dependsOn | toYaml | nindent 4 }}
+  timeout: 5m
+  values:
+    {{ $config.values | toYaml | nindent 4 }}
+
+---
+{{ end -}}
+{{ end -}}
