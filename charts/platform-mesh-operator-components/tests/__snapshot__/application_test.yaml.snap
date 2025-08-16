@@ -238,6 +238,554 @@ it should render the application manifests:
         name: platform-mesh
       semver: 0.0.0
   18: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: account-operator
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: account-operator
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: account-operator
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        crds:
+          enabled: false
+        kcp:
+          apiExportEndpointSliceName: ""
+          enabled: true
+        kubeconfigSecret: account-operator-kubeconfig
+        log:
+          level: debug
+        subroutines:
+          fga:
+            grpcAddr: openfga:8081
+        tracing:
+          collector:
+            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+          enabled: true
+  19: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: crossplane
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: crossplane
+        namespace: platform-mesh-system
+      dependsOn: null
+      interval: 1m
+      releaseName: crossplane
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        provider:
+          packages:
+            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
+  20: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: extension-manager-operator
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: extension-manager-operator
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: extension-manager-operator
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        crds:
+          enabled: false
+        kcp:
+          enabled: true
+          kubeconfigSecret: extension-manager-operator-kubeconfig
+        tracing:
+          collector:
+            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+          enabled: true
+  21: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-service
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-service
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+        - name: openfga
+          namespace: default
+      interval: 1m
+      releaseName: iam-service
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        gateway:
+          name: gateway
+        hostname: api.{{ .Values.baseDomain }}
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+  22: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-ui
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-ui
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: iam-ui
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        istio:
+          virtualService:
+            hosts:
+              - '{{ .Values.baseDomain }}'
+  23: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: infra
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: infra
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: infra
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        fga:
+          enabled: false
+        istio:
+          enabled: true
+          main:
+            gateway:
+              hosts:
+                - '{{ .Values.baseDomain }}'
+                - '*.{{ .Values.baseDomain }}'
+              name: https
+              port: '{{ .Values.port }}'
+              protocol: HTTPS
+              tls:
+                credentialName: domain-certificate
+                minProtocolVersion: TLSV1_2
+                mode: SIMPLE
+          passThrough:
+            gateway:
+              enabled: true
+              hosts:
+                - kcp.api.{{ .Values.baseDomain }}
+              name: pass-https
+              port: '{{ .Values.port }}'
+              protocol: HTTPS
+        kcp:
+          enabled: true
+  24: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: istio-base
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: istio-base
+        namespace: platform-mesh-system
+      dependsOn: null
+      interval: 1m
+      releaseName: istio-base
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values: null
+  25: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: istio-gateway
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: istio-gateway
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: istio-gateway
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        service:
+          ports:
+            - name: https
+              nodePort: 31000
+              port: 8443
+            - name: status-port
+              nodePort: 32000
+              port: 15021
+          type: NodePort
+  26: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: istio-istiod
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: istio-istiod
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-base
+          namespace: default
+      interval: 1m
+      releaseName: istio-istiod
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        meshConfig:
+          defaultConfig:
+            holdApplicationUntilProxyStarts: true
+            tracing:
+              provider:
+                name: otel-tracing
+          extensionProviders:
+            - name: otel-tracing
+              opentelemetry:
+                port: 4317
+                protocol: grpc
+                service: observability-opentelemetry-collector.observability.svc.cluster.local
+        tracing:
+          enabled: false
+          telemetry:
+            tracing:
+              - providers:
+                  - name: otel-tracing
+                randomSamplingPercentage: 100
+  27: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: kcp
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: kcp
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        auth:
+          adminCert:
+            issuerRef: kcp-front-proxy-client-issuer
+        istio:
+          gateway:
+            create: false
+          hosts:
+            - kcp.api.{{ .Values.baseDomain }}
+        kcp:
+          certificates:
+            dnsNames:
+              - virtual-workspaces.platform-mesh-system
+              - kcp.platform-mesh-system
+              - localhost
+              - kcp.{{ .Values.baseDomain }}
+          externalHostname: kcp.api.{{ .Values.baseDomain }}
+          externalPort: '{{ .Values.port }}'
+          kcp:
+            authorization:
+              webhook:
+                secretName: kcp-webhook-secret
+            podAnnotations:
+              traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+          kcpFrontProxy:
+            additionalPathMappings:
+              - backend: https://virtual-workspaces.platform-mesh-system:8443
+                backend_server_ca: /etc/kcp/tls/ca/tls.crt
+                path: /services/contentconfigurations
+                proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+                proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+              - backend: https://virtual-workspaces.platform-mesh-system:8443
+                backend_server_ca: /etc/kcp/tls/ca/tls.crt
+                path: /services/marketplace
+                proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+                proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+            extraDNSNames:
+              - kcp-front-proxy.platform-mesh-system
+          monitoring:
+            serviceMonitor:
+              enabled: true
+          oidc:
+            clientId: default
+            enabled: true
+            groupClaim: groups
+            issuerUrl: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+            usernameClaim: email
+        webhook:
+          caData: '{{ .Values.iamWebhookCA }}'
+          enabled: true
+          server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
+  28: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: keycloak
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: keycloak
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: keycloak
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        crossplane:
+          clients:
+            default:
+              validRedirectUris:
+                - '{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*'
+        domain:
+          pathPrefix: /keycloak
+        externalSecrets:
+          keycloakAdminRemoteRef: keycloak-admin
+          postgresAdminRemoteRef: postgres-admin
+        istio:
+          https:
+            enabled: true
+          virtualservice:
+            hosts:
+              - '{{ .Values.baseDomain }}'
+        keycloak:
+          extraEnvVars:
+            - name: JAVA_OPTS_APPEND
+              value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
+            - name: KC_PROXY_HEADERS
+              value: xforwarded
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+        keycloakConfig:
+          redirectUrls:
+            - '{{ .Values.baseDomain }}:{{ .Values.port }}/callback*'
+          url: https://{{ .Values.baseDomain }}/keycloak
+        service:
+          name: keycloak
+  29: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: kubernetes-graphql-gateway
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: kubernetes-graphql-gateway
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        kubeConfig:
+          enabled: true
+          secretName: kubernetes-grapqhl-gateway-kubeconfig
+        listener:
+          virtualWorkspacesConfig:
+            content:
+              virtualWorkspaces:
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: contentconfigurations
+                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: marketplace
+                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace
+            enabled: true
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+        virtualService:
+          hosts:
+            - '{{ .Values.baseDomain }}'
+            - '*.{{ .Values.baseDomain }}'
+          httpRules:
+            - cors:
+                allowHeaders:
+                  - '*'
+                allowMethods:
+                  - GET
+                  - POST
+                allowOrigins:
+                  - regex: .*
+              name: default
+          pathPrefix: /api/kubernetes-graphql-gateway/
+  30: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: openfga
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: openfga
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        databaseService: openfga-openfga-postgres
+        rbac:
+          writePrincipals:
+            - cluster.local/ns/platform-mesh-system/sa/iam-service
+            - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
+            - cluster.local/ns/platform-mesh-system/sa/security-operator
+            - cluster.local/ns/platform-mesh-system/sa/account-operator
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+  31: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: rebac-authz-webhook
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: rebac-authz-webhook
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: rebac-authz-webhook
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        certManager:
+          createCA: true
+          enabled: true
+        istio:
+          dnsNames:
+            - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
+          exposed: false
+        log:
+          level: debug
+        openfga:
+          url: openfga:8081
+  32: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: security-operator
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: security-operator
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: security-operator
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        crds:
+          enabled: false
+        fga:
+          target: openfga.platform-mesh-system.svc.cluster.local:8081
+        initializer:
+          kubeconfigSecret: security-initializer-kubeconfig
+        kubeconfigSecret: security-operator-kubeconfig
+        log:
+          level: debug
+        operator:
+          maxConcurrentReconciles: 1
+          shutdownTimeout: 1m
+  33: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: virtual-workspaces
+      namespace: platform-mesh-system
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: virtual-workspaces
+        namespace: platform-mesh-system
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+      interval: 1m
+      releaseName: virtual-workspaces
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        deployment:
+          serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
+        service:
+          port: 8443
+  34: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     metadata:
