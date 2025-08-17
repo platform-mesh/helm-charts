@@ -5,7 +5,7 @@ metadata:
 spec:
   schema:
     apiVersion: v1alpha1
-    kind: App
+    kind: OciApp
     spec:
       values: string
       resourcePath: string | required=true
@@ -54,21 +54,3 @@ spec:
             tag: ${resourceChart.status.reference.tag}
           secretRef:
             name: github
-#    - id: helmrelease
-#      template:
-#        apiVersion: helm.toolkit.fluxcd.io/v2
-#        kind: HelmRelease
-#        metadata:
-#          name: ${schema.metadata.name}
-#        spec:
-#          releaseName: ${schema.metadata.name}
-#          targetNamespace: platform-mesh-system
-##          dependsOn: ${schema.spec.dependsOn}
-#          interval: 1m
-#          timeout: 5m
-#          chartRef:
-#            kind: OCIRepository
-#            name: ${ocirepository.metadata.name}
-#            namespace: default
-#          values: |
-#            ${schema.spec.values}
