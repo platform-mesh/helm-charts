@@ -8,7 +8,11 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   chartRef:
+    {{ if $config.helmRepo -}}
+    kind: HelmRepository
+    {{- else }}
     kind: OCIRepository
+    {{- end }}
     name: {{ $service}}
     namespace: {{ $.Release.Namespace }}
   interval: 1m

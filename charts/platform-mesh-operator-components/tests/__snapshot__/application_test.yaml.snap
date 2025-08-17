@@ -424,7 +424,7 @@ it should render the application manifests:
       namespace: platform-mesh-system
     spec:
       chartRef:
-        kind: OCIRepository
+        kind: HelmRepository
         name: istio-base
         namespace: platform-mesh-system
       dependsOn: null
@@ -441,7 +441,7 @@ it should render the application manifests:
       namespace: platform-mesh-system
     spec:
       chartRef:
-        kind: OCIRepository
+        kind: HelmRepository
         name: istio-gateway
         namespace: platform-mesh-system
       dependsOn:
@@ -469,7 +469,7 @@ it should render the application manifests:
       namespace: platform-mesh-system
     spec:
       chartRef:
-        kind: OCIRepository
+        kind: HelmRepository
         name: istio-istiod
         namespace: platform-mesh-system
       dependsOn:
