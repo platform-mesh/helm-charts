@@ -1,7 +1,7 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: app
+  name: helm-repo-app
 spec:
   schema:
     apiVersion: v1alpha1
@@ -46,7 +46,7 @@ spec:
           name: ${schema.metadata.name}
         spec:
           interval: 5m0s
-          url: ${resourceChart.status.reference.registry}/${resourceChart.status.reference.repository}
+          url: ${resourceChart.status.reference.registry}
     - id: helmrelease
       template:
         apiVersion: helm.toolkit.fluxcd.io/v2
@@ -55,13 +55,13 @@ spec:
           name: ${schema.metadata.name}
         spec:
           releaseName: ${schema.metadata.name}
-          targetNamespace: platform-mesh-system
+          targetNamespace: ${schema.spec.targetNamespace}
           interval: 1m
           timeout: 5m
           chart:
             spec:
-              chart: ${schema.metadata.name}
-              version: "${resourceChart.status.reference.tag}"
+              chart: ${resourceChart.status.reference.repository}
+              version: "${resourceChart.status.resource.version}"
               sourceRef:
                 kind: HelmRepository
                 name: ${schema.metadata.name}

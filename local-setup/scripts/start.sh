@@ -103,7 +103,10 @@ kubectl apply -k $SCRIPT_DIR/../kustomize/components/rgd
 
 kubectl wait \
   --for=condition=Ready rgd \
-  --timeout=480s app
+  --timeout=480s oci-app
+kubectl wait \
+  --for=condition=Ready rgd \
+  --timeout=480s helm-repo-app
 
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default

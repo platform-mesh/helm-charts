@@ -1,7 +1,7 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: app
+  name: oci-app
 spec:
   schema:
     apiVersion: v1alpha1
