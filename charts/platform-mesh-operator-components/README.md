@@ -71,11 +71,13 @@ A Helm chart for Kubernetes
 | services.infra.values.kcp.enabled | bool | `true` |  |
 | services.istio-base.driftDetectionMode | string | `"disabled"` |  |
 | services.istio-base.enabled | bool | `true` |  |
+| services.istio-base.helmRepo | bool | `true` |  |
 | services.istio-base.install.createNamespace | bool | `true` |  |
 | services.istio-base.targetNamespace | string | `"istio-system"` |  |
 | services.istio-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.istio-gateway.dependsOn[0].namespace | string | `"default"` |  |
 | services.istio-gateway.enabled | bool | `true` |  |
+| services.istio-gateway.helmRepo | bool | `true` |  |
 | services.istio-gateway.targetNamespace | string | `"istio-system"` |  |
 | services.istio-gateway.values.service.ports[0].name | string | `"https"` |  |
 | services.istio-gateway.values.service.ports[0].nodePort | int | `31000` |  |
@@ -88,6 +90,7 @@ A Helm chart for Kubernetes
 | services.istio-istiod.dependsOn[0].namespace | string | `"default"` |  |
 | services.istio-istiod.driftDetectionMode | string | `"disabled"` |  |
 | services.istio-istiod.enabled | bool | `true` |  |
+| services.istio-istiod.helmRepo | bool | `true` |  |
 | services.istio-istiod.resourcePath | string | `"istiod"` |  |
 | services.istio-istiod.targetNamespace | string | `"istio-system"` |  |
 | services.istio-istiod.values.meshConfig.defaultConfig.holdApplicationUntilProxyStarts | bool | `true` |  |

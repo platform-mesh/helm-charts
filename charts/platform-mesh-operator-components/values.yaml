@@ -11,12 +11,14 @@ componentVersion:
 iamWebhookCA: null
 services:
   istio-base:
+    helmRepo: true
     enabled: true
     targetNamespace: istio-system
     driftDetectionMode: disabled
     install:
       createNamespace: true
   istio-istiod:
+    helmRepo: true
     resourcePath: istiod
     enabled: true
     targetNamespace: istio-system
@@ -45,6 +47,7 @@ services:
               port: 4317
               protocol: grpc
   istio-gateway:
+    helmRepo: true
     enabled: true
     targetNamespace: istio-system
     dependsOn:
