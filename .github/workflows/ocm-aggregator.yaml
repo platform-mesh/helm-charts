@@ -97,7 +97,7 @@ jobs:
             REBAC_AUTHZ_WEBHOOK_VERSION=${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }} \
             PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
             VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
-            ISTIO_VERSION=1.25.0 \
+            ISTIO_VERSION=1.27.0 \
             CROSSPLANE_VERSION=1.9.2 \
             KCP_OPERATOR_VERSION=0.1.1
           
