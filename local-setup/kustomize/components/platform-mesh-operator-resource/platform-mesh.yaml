@@ -7,28 +7,14 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.9.2
+  chartVersion: 0.9.5
   values:
     istio-gateway:
       enabled: true
       targetNamespace: istio-system
-      dependsOn:
-        - name: istio-istiod
-          namespace: default
       values:
         service:
           type: None
-          ports:
-          - name: https
-            port: 8443
-            nodePort: 31000
-            protocol: TCP
-            targetPort: 8443
-          - name: status-port
-            nodePort: 32000
-            port: 15021
-            protocol: TCP
-            targetPort: 15021
     keycloak:
       enabled: false
       values:

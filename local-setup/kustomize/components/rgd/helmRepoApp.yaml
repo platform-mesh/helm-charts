@@ -63,6 +63,8 @@ spec:
           dependsOn:
             - name: ${schema.spec.dependsOn}
               namespace: default
+          install:
+            createNamespace: true
           chart:
             spec:
               chart: ${resourceChart.status.reference.repository}
