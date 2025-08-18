@@ -62,7 +62,7 @@ components:
         access:
           type: helm
           helmChart: kcp-operator:{{ .KCP_OPERATOR_VERSION }}
-          helmRepository: https://github.com/kcp-dev/helm-charts
+          helmRepository: https://kcp-dev.github.io/helm-charts
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
