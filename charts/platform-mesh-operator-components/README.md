@@ -74,11 +74,13 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
 | services.infra.values.kcp.enabled | bool | `true` |  |
+| services.istio-base.chart | string | `"base"` |  |
 | services.istio-base.driftDetectionMode | string | `"disabled"` |  |
 | services.istio-base.enabled | bool | `true` |  |
 | services.istio-base.helmRepo | bool | `true` |  |
 | services.istio-base.install.createNamespace | bool | `true` |  |
 | services.istio-base.targetNamespace | string | `"istio-system"` |  |
+| services.istio-gateway.chart | string | `"gateway"` |  |
 | services.istio-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.istio-gateway.dependsOn[0].namespace | string | `"default"` |  |
 | services.istio-gateway.enabled | bool | `true` |  |
@@ -91,12 +93,12 @@ A Helm chart for Kubernetes
 | services.istio-gateway.values.service.ports[1].nodePort | int | `32000` |  |
 | services.istio-gateway.values.service.ports[1].port | int | `15021` |  |
 | services.istio-gateway.values.service.type | string | `"NodePort"` |  |
+| services.istio-istiod.chart | string | `"istiod"` |  |
 | services.istio-istiod.dependsOn[0].name | string | `"istio-base"` |  |
 | services.istio-istiod.dependsOn[0].namespace | string | `"default"` |  |
 | services.istio-istiod.driftDetectionMode | string | `"disabled"` |  |
 | services.istio-istiod.enabled | bool | `true` |  |
 | services.istio-istiod.helmRepo | bool | `true` |  |
-| services.istio-istiod.resourcePath | string | `"istiod"` |  |
 | services.istio-istiod.targetNamespace | string | `"istio-system"` |  |
 | services.istio-istiod.values.meshConfig.defaultConfig.holdApplicationUntilProxyStarts | bool | `true` |  |
 | services.istio-istiod.values.meshConfig.defaultConfig.tracing.provider.name | string | `"otel-tracing"` |  |
