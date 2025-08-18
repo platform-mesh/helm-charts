@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.9.5
+  chartVersion: 0.10.0
   values:
     istio-gateway:
       enabled: true
@@ -88,6 +88,8 @@ spec:
           virtualService:
             hosts:
               - "portal.dev.local"
+    iam-service:
+      enabled: false
     security-operator:
       values:
         hostAliases:

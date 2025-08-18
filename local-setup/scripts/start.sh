@@ -95,22 +95,14 @@ kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=480s kro
-kubectl rollout status deployment -n kro kro
+  --timeout=480s kyverno
 
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/components/rgd
-
-kubectl wait \
-  --for=condition=Ready rgd \
-  --timeout=480s oci-repo-app
-kubectl wait \
-  --for=condition=Ready rgd \
-  --timeout=480s helm-repo-app
+kubectl apply -k $SCRIPT_DIR/../kustomize/components/policies
 
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
-
+#
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=480s platform-mesh-operator

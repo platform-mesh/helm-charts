@@ -8,6 +8,13 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: kcp-system
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: crossplane-system
   labels:
     istio-injection: disabled
