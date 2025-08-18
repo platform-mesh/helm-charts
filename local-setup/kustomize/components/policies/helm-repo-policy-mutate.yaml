@@ -1,7 +1,7 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: helm-release-mutate
+  name: helm-repo-mutate
 spec:
   mutateExistingOnPolicyUpdate: true
   rules:

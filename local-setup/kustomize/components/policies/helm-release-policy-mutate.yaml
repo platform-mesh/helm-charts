@@ -25,5 +25,7 @@ spec:
             namespace: "{{ request.object.metadata.namespace }}"
         patchStrategicMerge:
           spec:
-            ref:
-              tag: "{{ request.object.spec.chart.spec.version }}"
+            chart:
+              spec:
+                chart: "{{request.object.status.reference.repository}}"
+                version: "{{request.object.status.reference.reference}}"

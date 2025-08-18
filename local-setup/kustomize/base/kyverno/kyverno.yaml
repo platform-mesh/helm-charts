@@ -55,6 +55,7 @@ spec:
                 - update
                 - patch
                 - get
+                - delete
             - apiGroups:
               - delivery.ocm.software
               resources:
