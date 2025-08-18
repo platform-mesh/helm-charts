@@ -64,7 +64,7 @@ components:
           helmChart: kcp-operator:{{ .KCP_OPERATOR_VERSION }}
           helmRepository: https://kcp-dev.github.io/helm-charts
   - name: github.com/gardener/etcd-druid
-    version: {{ .GARDENER_ETCD_DRUID_VERSION }}
+    version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
     provider:
       name: gardener
     resources:
@@ -76,6 +76,14 @@ components:
           repoUrl: https://github.com/gardener/etcd-druid
           ref: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
           commit: 58fa963fc3583daf2e5488a708d198fa38f4413d
+      - name: image
+        type: ociImage
+        relation: external
+        version: {{ .APP_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "europe-docker.pkg.dev/gardener-project/public/gardener/etcd-druid:{{ .GARDENER_ETCD_DRUID_SOURCE_REF }}"
+
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
