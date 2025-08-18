@@ -14,6 +14,7 @@ spec:
       createNamespace: boolean | required=true default="false"
       secretName: string | required=true default="platform-mesh-system"
       componentName: string | required=true default="platform-mesh"
+      dependsOn: string | required=true default="kro"
     types:
       dependsOn:
         name: string
@@ -44,6 +45,7 @@ spec:
         kind: HelmRepository
         metadata:
           name: ${schema.metadata.name}
+          namespace: default
         spec:
           interval: 5m0s
           url: ${resourceChart.status.reference.registry}
@@ -58,6 +60,9 @@ spec:
           targetNamespace: ${schema.spec.targetNamespace}
           interval: 1m
           timeout: 5m
+          dependsOn:
+            - name: ${schema.spec.dependsOn}
+              namespace: default
           chart:
             spec:
               chart: ${resourceChart.status.reference.repository}
