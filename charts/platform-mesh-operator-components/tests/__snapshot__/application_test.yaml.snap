@@ -1,504 +1,5 @@
 it should render the application manifests:
   1: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: account-operator
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: account-operator
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        crds:
-          enabled: false
-        kcp:
-          apiExportEndpointSliceName: ""
-          enabled: true
-        kubeconfigSecret: account-operator-kubeconfig
-        log:
-          level: debug
-        subroutines:
-          fga:
-            grpcAddr: openfga:8081
-        tracing:
-          collector:
-            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
-          enabled: true
-  2: |
-    apiVersion: kro.run/v1alpha1
-    kind: HelmRepoApp
-    metadata:
-      name: crossplane
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: crossplane
-      secretName: ocm-oci-github-pull
-      targetNamespace: crossplane-system
-      values: |2-
-        provider:
-          packages:
-          - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
-  3: |
-    apiVersion: kro.run/v1alpha1
-    kind: GitRepoApp
-    metadata:
-      name: etcd-druid
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: etcd-druid
-      secretName: ocm-oci-github-pull
-      targetNamespace: etcd-druid-system
-      values: |2-
-        {}
-  4: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: extension-manager-operator
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: extension-manager-operator
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        crds:
-          enabled: false
-        kcp:
-          enabled: true
-          kubeconfigSecret: extension-manager-operator-kubeconfig
-        tracing:
-          collector:
-            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
-          enabled: true
-  5: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: iam-service
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: iam-service
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        gateway:
-          name: gateway
-        hostname: api.{{ .Values.baseDomain }}
-        trust:
-          default:
-            audience: default
-            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  6: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: iam-ui
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: iam-ui
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        istio:
-          virtualService:
-            hosts:
-            - '{{ .Values.baseDomain }}'
-  7: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: infra
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: infra
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        fga:
-          enabled: false
-        istio:
-          enabled: true
-          main:
-            gateway:
-              hosts:
-              - '{{ .Values.baseDomain }}'
-              - '*.{{ .Values.baseDomain }}'
-              name: https
-              port: '{{ .Values.port }}'
-              protocol: HTTPS
-              tls:
-                credentialName: domain-certificate
-                minProtocolVersion: TLSV1_2
-                mode: SIMPLE
-          passThrough:
-            gateway:
-              enabled: true
-              hosts:
-              - kcp.api.{{ .Values.baseDomain }}
-              name: pass-https
-              port: '{{ .Values.port }}'
-              protocol: HTTPS
-        kcp:
-          enabled: true
-  8: |
-    apiVersion: kro.run/v1alpha1
-    kind: HelmRepoApp
-    metadata:
-      name: istio-base
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: istio-base
-      secretName: ocm-oci-github-pull
-      targetNamespace: istio-system
-      values: |2-
-        null
-  9: |
-    apiVersion: kro.run/v1alpha1
-    kind: HelmRepoApp
-    metadata:
-      name: istio-gateway
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      dependsOn: istio-istiod
-      driftDetectionMode: enabled
-      resourcePath: istio-gateway
-      secretName: ocm-oci-github-pull
-      targetNamespace: istio-system
-      values: |2-
-        service:
-          ports:
-          - name: https
-            nodePort: 31000
-            port: 8443
-          - name: status-port
-            nodePort: 32000
-            port: 15021
-          type: NodePort
-  10: |
-    apiVersion: kro.run/v1alpha1
-    kind: HelmRepoApp
-    metadata:
-      name: istio-istiod
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      dependsOn: istio-base
-      driftDetectionMode: enabled
-      resourcePath: istiod
-      secretName: ocm-oci-github-pull
-      targetNamespace: istio-system
-      values: |2-
-        meshConfig:
-          defaultConfig:
-            holdApplicationUntilProxyStarts: true
-            tracing:
-              provider:
-                name: otel-tracing
-          extensionProviders:
-          - name: otel-tracing
-            opentelemetry:
-              port: 4317
-              protocol: grpc
-              service: observability-opentelemetry-collector.observability.svc.cluster.local
-        tracing:
-          enabled: false
-          telemetry:
-            tracing:
-            - providers:
-              - name: otel-tracing
-              randomSamplingPercentage: 100
-  11: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: kcp
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: kcp
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        auth:
-          adminCert:
-            issuerRef: kcp-front-proxy-client-issuer
-        istio:
-          gateway:
-            create: false
-          hosts:
-          - kcp.api.{{ .Values.baseDomain }}
-        kcp:
-          certificates:
-            dnsNames:
-            - virtual-workspaces.platform-mesh-system
-            - kcp.platform-mesh-system
-            - localhost
-            - kcp.{{ .Values.baseDomain }}
-          externalHostname: kcp.api.{{ .Values.baseDomain }}
-          externalPort: '{{ .Values.port }}'
-          kcp:
-            authorization:
-              webhook:
-                secretName: kcp-webhook-secret
-            podAnnotations:
-              traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
-          kcpFrontProxy:
-            additionalPathMappings:
-            - backend: https://virtual-workspaces.platform-mesh-system:8443
-              backend_server_ca: /etc/kcp/tls/ca/tls.crt
-              path: /services/contentconfigurations
-              proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-              proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-            - backend: https://virtual-workspaces.platform-mesh-system:8443
-              backend_server_ca: /etc/kcp/tls/ca/tls.crt
-              path: /services/marketplace
-              proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-              proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-            extraDNSNames:
-            - kcp-front-proxy.platform-mesh-system
-          monitoring:
-            serviceMonitor:
-              enabled: true
-          oidc:
-            clientId: default
-            enabled: true
-            groupClaim: groups
-            issuerUrl: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-            usernameClaim: email
-        webhook:
-          caData: '{{ .Values.iamWebhookCA }}'
-          enabled: true
-          server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-  12: |
-    apiVersion: kro.run/v1alpha1
-    kind: HelmRepoApp
-    metadata:
-      name: kcp-operator
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: kcp-operator
-      secretName: ocm-oci-github-pull
-      targetNamespace: kcp-operator
-      values: |2-
-        null
-  13: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: keycloak
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: keycloak
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        crossplane:
-          clients:
-            default:
-              validRedirectUris:
-              - '{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*'
-        domain:
-          pathPrefix: /keycloak
-        externalSecrets:
-          keycloakAdminRemoteRef: keycloak-admin
-          postgresAdminRemoteRef: postgres-admin
-        istio:
-          https:
-            enabled: true
-          virtualservice:
-            hosts:
-            - '{{ .Values.baseDomain }}'
-        keycloak:
-          extraEnvVars:
-          - name: JAVA_OPTS_APPEND
-            value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
-          - name: KC_PROXY_HEADERS
-            value: xforwarded
-          - name: KC_HOSTNAME_STRICT
-            value: "false"
-        keycloakConfig:
-          redirectUrls:
-          - '{{ .Values.baseDomain }}:{{ .Values.port }}/callback*'
-          url: https://{{ .Values.baseDomain }}/keycloak
-        service:
-          name: keycloak
-  14: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: kubernetes-graphql-gateway
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: kubernetes-graphql-gateway
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        kubeConfig:
-          enabled: true
-          secretName: kubernetes-grapqhl-gateway-kubeconfig
-        listener:
-          virtualWorkspacesConfig:
-            content:
-              virtualWorkspaces:
-              - kubeconfig: /app/kubeconfig/kubeconfig
-                name: contentconfigurations
-                url: https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations
-              - kubeconfig: /app/kubeconfig/kubeconfig
-                name: marketplace
-                url: https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace
-            enabled: true
-        trust:
-          default:
-            audience: default
-            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-        virtualService:
-          hosts:
-          - '{{ .Values.baseDomain }}'
-          - '*.{{ .Values.baseDomain }}'
-          httpRules:
-          - cors:
-              allowHeaders:
-              - '*'
-              allowMethods:
-              - GET
-              - POST
-              allowOrigins:
-              - regex: .*
-            name: default
-          pathPrefix: /api/kubernetes-graphql-gateway/
-  15: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: openfga
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: openfga
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        databaseService: openfga-openfga-postgres
-        rbac:
-          writePrincipals:
-          - cluster.local/ns/platform-mesh-system/sa/iam-service
-          - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
-          - cluster.local/ns/platform-mesh-system/sa/security-operator
-          - cluster.local/ns/platform-mesh-system/sa/account-operator
-        trust:
-          default:
-            audience: default
-            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  16: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: rebac-authz-webhook
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: rebac-authz-webhook
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        certManager:
-          createCA: true
-          enabled: true
-        istio:
-          dnsNames:
-          - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
-          exposed: false
-        log:
-          level: debug
-        openfga:
-          url: openfga:8081
-  17: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: security-operator
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: security-operator
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        crds:
-          enabled: false
-        fga:
-          target: openfga.platform-mesh-system.svc.cluster.local:8081
-        initializer:
-          kubeconfigSecret: security-initializer-kubeconfig
-        kubeconfigSecret: security-operator-kubeconfig
-        log:
-          level: debug
-        operator:
-          maxConcurrentReconciles: 1
-          shutdownTimeout: 1m
-  18: |
-    apiVersion: kro.run/v1alpha1
-    kind: OciRepoApp
-    metadata:
-      name: virtual-workspaces
-      namespace: default
-    spec:
-      componentName: platform-mesh
-      driftDetectionMode: enabled
-      resourcePath: virtual-workspaces
-      secretName: ocm-oci-github-pull
-      targetNamespace: null
-      values: |2-
-        deployment:
-          serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
-        service:
-          port: 8443
-  19: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Component
-    metadata:
-      name: platform-mesh
-    spec:
-      component: github.com/platform-mesh/platform-mesh
-      interval: 1m
-      ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
-      repositoryRef:
-        name: platform-mesh
-      semver: 0.0.0
-  20: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -532,7 +33,27 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  21: |
+  2: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: crossplane
+      namespace: default
+    spec:
+      chartRef:
+        kind: HelmRepository
+        name: crossplane
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: crossplane
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        provider:
+          packages:
+            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
+  3: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -549,7 +70,7 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 5m
       values: {}
-  22: |
+  4: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -577,7 +98,7 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  23: |
+  5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -606,7 +127,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  24: |
+  6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -629,7 +150,7 @@ it should render the application manifests:
           virtualService:
             hosts:
               - '{{ .Values.baseDomain }}'
-  25: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -674,7 +195,86 @@ it should render the application manifests:
               protocol: HTTPS
         kcp:
           enabled: true
-  26: |
+  8: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: istio-base
+      namespace: default
+    spec:
+      chartRef:
+        kind: HelmRepository
+        name: istio-base
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: istio-base
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values: null
+  9: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: istio-gateway
+      namespace: default
+    spec:
+      chartRef:
+        kind: HelmRepository
+        name: istio-gateway
+        namespace: default
+      dependsOn: istio-istiod
+      interval: 1m
+      releaseName: istio-gateway
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        service:
+          ports:
+            - name: https
+              nodePort: 31000
+              port: 8443
+            - name: status-port
+              nodePort: 32000
+              port: 15021
+          type: NodePort
+  10: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: istio-istiod
+      namespace: default
+    spec:
+      chartRef:
+        kind: HelmRepository
+        name: istio-istiod
+        namespace: default
+      dependsOn: istio-base
+      interval: 1m
+      releaseName: istio-istiod
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values:
+        meshConfig:
+          defaultConfig:
+            holdApplicationUntilProxyStarts: true
+            tracing:
+              provider:
+                name: otel-tracing
+          extensionProviders:
+            - name: otel-tracing
+              opentelemetry:
+                port: 4317
+                protocol: grpc
+                service: observability-opentelemetry-collector.observability.svc.cluster.local
+        tracing:
+          enabled: false
+          telemetry:
+            tracing:
+              - providers:
+                  - name: otel-tracing
+                randomSamplingPercentage: 100
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -743,7 +343,24 @@ it should render the application manifests:
           caData: '{{ .Values.iamWebhookCA }}'
           enabled: true
           server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-  27: |
+  12: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+      namespace: default
+    spec:
+      chartRef:
+        kind: HelmRepository
+        name: kcp-operator
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: kcp-operator
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values: null
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -792,7 +409,7 @@ it should render the application manifests:
           url: https://{{ .Values.baseDomain }}/keycloak
         service:
           name: keycloak
-  28: |
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -845,7 +462,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  29: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -876,7 +493,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  30: |
+  16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -906,7 +523,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  31: |
+  17: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -937,7 +554,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  32: |
+  18: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -960,7 +577,21 @@ it should render the application manifests:
           serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
         service:
           port: 8443
-  33: |
+  19: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Component
+    metadata:
+      name: platform-mesh
+    spec:
+      component: github.com/platform-mesh/platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      repositoryRef:
+        name: platform-mesh
+      semver: 0.0.0
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     metadata:
@@ -973,3 +604,363 @@ it should render the application manifests:
       repositorySpec:
         baseUrl: ghcr.io/platform-mesh
         type: OCIRegistry
+  21: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: account-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: account-operator
+          resource:
+            name: chart
+  22: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: helm
+      name: crossplane
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: crossplane
+          resource:
+            name: chart
+  23: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: git
+      name: etcd-druid
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: chart
+  24: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: extension-manager-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: extension-manager-operator
+          resource:
+            name: chart
+  25: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: iam-service
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: iam-service
+          resource:
+            name: chart
+  26: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: iam-ui
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: iam-ui
+          resource:
+            name: chart
+  27: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: infra
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: infra
+          resource:
+            name: chart
+  28: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: helm
+      name: istio-base
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: istio-base
+          resource:
+            name: chart
+  29: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: helm
+      name: istio-gateway
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: istio-gateway
+          resource:
+            name: chart
+  30: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: helm
+      name: istio-istiod
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: istio-istiod
+          resource:
+            name: chart
+  31: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: kcp
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp
+          resource:
+            name: chart
+  32: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: helm
+      name: kcp-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: chart
+  33: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: keycloak
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: keycloak
+          resource:
+            name: chart
+  34: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: kubernetes-graphql-gateway
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: kubernetes-graphql-gateway
+          resource:
+            name: chart
+  35: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: openfga
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: openfga
+          resource:
+            name: chart
+  36: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: rebac-authz-webhook
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: rebac-authz-webhook
+          resource:
+            name: chart
+  37: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: security-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: security-operator
+          resource:
+            name: chart
+  38: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        repo: oci
+      name: virtual-workspaces
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - kind: Secret
+          name: ocm-oci-github-pull
+      resource:
+        byReference:
+          referencePath:
+            - name: virtual-workspaces
+          resource:
+            name: chart

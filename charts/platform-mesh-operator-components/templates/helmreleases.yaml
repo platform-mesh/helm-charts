@@ -1,6 +1,6 @@
 {{ $values := .Values }}
 {{- range $service, $config := .Values.services }}
-{{- if and $config.enabled (not $config.helmRepo) -}}
+{{- if and $config.enabled -}}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -23,7 +23,6 @@ spec:
   timeout: 5m
   values:
     {{ $config.values | toYaml | nindent 4 }}
-
 ---
 {{ end -}}
 {{ end -}}

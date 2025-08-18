@@ -29,6 +29,10 @@ A Helm chart for Kubernetes
 | services.crossplane.helmRepo | bool | `true` |  |
 | services.crossplane.targetNamespace | string | `"crossplane-system"` |  |
 | services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0"` |  |
+| services.etcd-druid.enabled | bool | `true` |  |
+| services.etcd-druid.gitRepo | bool | `true` |  |
+| services.etcd-druid.targetNamespace | string | `"etcd-druid-system"` |  |
+| services.etcd-druid.values | object | `{}` |  |
 | services.extension-manager-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.extension-manager-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |

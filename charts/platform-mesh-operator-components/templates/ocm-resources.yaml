@@ -1,0 +1,33 @@
+{{ $values := .Values }}
+{{- range $service, $config := .Values.services }}
+{{- if $config.enabled }}
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  name: {{ $service }}
+  labels:
+    {{- if $config.helmRepo }}
+    repo: helm
+    {{- end }}
+    {{- if $config.gitRepo }}
+      repo: git
+    {{- end }}
+    {{- if not (or $config.gitRepo $config.helmRepo) }}
+        repo: oci
+    {{- end }}
+spec:
+  componentRef:
+    name: {{ $values.ocm.componentName }}
+  resource:
+    byReference:
+      resource:
+        name: chart
+      referencePath:
+        - name: {{ $service}}
+  interval: 1m
+  ocmConfig:
+    - kind: Secret
+      name: {{ $values.ociPullSecret }}
+---
+{{ end -}}
+{{ end -}}
