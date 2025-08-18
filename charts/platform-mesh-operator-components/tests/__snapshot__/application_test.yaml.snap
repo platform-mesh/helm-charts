@@ -289,26 +289,6 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: crossplane
-      namespace: default
-    spec:
-      chartRef:
-        kind: HelmRepository
-        name: crossplane
-        namespace: default
-      dependsOn: null
-      interval: 1m
-      releaseName: crossplane
-      targetNamespace: platform-mesh-system
-      timeout: 5m
-      values:
-        provider:
-          packages:
-            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
-  21: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: extension-manager-operator
       namespace: default
     spec:
@@ -333,7 +313,7 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  22: |
+  21: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -362,7 +342,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  23: |
+  22: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -385,7 +365,7 @@ it should render the application manifests:
           virtualService:
             hosts:
               - '{{ .Values.baseDomain }}'
-  24: |
+  23: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -430,90 +410,7 @@ it should render the application manifests:
               protocol: HTTPS
         kcp:
           enabled: true
-  25: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: istio-base
-      namespace: default
-    spec:
-      chartRef:
-        kind: HelmRepository
-        name: istio-base
-        namespace: default
-      dependsOn: null
-      interval: 1m
-      releaseName: istio-base
-      targetNamespace: platform-mesh-system
-      timeout: 5m
-      values: null
-  26: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: istio-gateway
-      namespace: default
-    spec:
-      chartRef:
-        kind: HelmRepository
-        name: istio-gateway
-        namespace: default
-      dependsOn:
-        - name: istio-istiod
-          namespace: default
-      interval: 1m
-      releaseName: istio-gateway
-      targetNamespace: platform-mesh-system
-      timeout: 5m
-      values:
-        service:
-          ports:
-            - name: https
-              nodePort: 31000
-              port: 8443
-            - name: status-port
-              nodePort: 32000
-              port: 15021
-          type: NodePort
-  27: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: istio-istiod
-      namespace: default
-    spec:
-      chartRef:
-        kind: HelmRepository
-        name: istio-istiod
-        namespace: default
-      dependsOn:
-        - name: istio-base
-          namespace: default
-      interval: 1m
-      releaseName: istio-istiod
-      targetNamespace: platform-mesh-system
-      timeout: 5m
-      values:
-        meshConfig:
-          defaultConfig:
-            holdApplicationUntilProxyStarts: true
-            tracing:
-              provider:
-                name: otel-tracing
-          extensionProviders:
-            - name: otel-tracing
-              opentelemetry:
-                port: 4317
-                protocol: grpc
-                service: observability-opentelemetry-collector.observability.svc.cluster.local
-        tracing:
-          enabled: false
-          telemetry:
-            tracing:
-              - providers:
-                  - name: otel-tracing
-                randomSamplingPercentage: 100
-  28: |
+  24: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -582,24 +479,7 @@ it should render the application manifests:
           caData: '{{ .Values.iamWebhookCA }}'
           enabled: true
           server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-  29: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: kcp-operator
-      namespace: default
-    spec:
-      chartRef:
-        kind: HelmRepository
-        name: kcp-operator
-        namespace: default
-      dependsOn: null
-      interval: 1m
-      releaseName: kcp-operator
-      targetNamespace: platform-mesh-system
-      timeout: 5m
-      values: null
-  30: |
+  25: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -648,7 +528,7 @@ it should render the application manifests:
           url: https://{{ .Values.baseDomain }}/keycloak
         service:
           name: keycloak
-  31: |
+  26: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -701,7 +581,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  32: |
+  27: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -732,7 +612,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  33: |
+  28: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -762,7 +642,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  34: |
+  29: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -793,7 +673,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  35: |
+  30: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -816,7 +696,7 @@ it should render the application manifests:
           serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
         service:
           port: 8443
-  36: |
+  31: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     metadata:
