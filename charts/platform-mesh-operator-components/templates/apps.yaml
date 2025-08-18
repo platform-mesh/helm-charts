@@ -8,7 +8,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   values: |-
-    "{{ $config.values | toJson }}"
+    {{ $config.values | toYaml | nindent 4 }}
   targetNamespace: {{ $config.targetNamespace }}
   driftDetectionMode: enabled
   createNamespace: false
