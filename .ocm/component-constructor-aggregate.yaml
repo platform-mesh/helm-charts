@@ -79,11 +79,10 @@ components:
       - name: image
         type: ociImage
         relation: external
-        version: {{ .APP_VERSION }}
+        version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
         access:
           type: ociArtifact
           imageReference: "europe-docker.pkg.dev/gardener-project/public/gardener/etcd-druid:{{ .GARDENER_ETCD_DRUID_SOURCE_REF }}"
-
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
@@ -125,3 +124,6 @@ components:
       - name: kcp-operator
         componentName: github.com/kcp-dev/kcp-operator
         version: {{ .KCP_OPERATOR_VERSION }}
+      - name: etcd-druid
+        componentName: github.com/gardener/etcd-druid
+        version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
