@@ -1,0 +1,40 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: oci-repos-generate
+spec:
+  mutateExistingOnPolicyUpdate: true
+  rules:
+    - name: generate-oci-repo
+      match:
+        any:
+          - resources:
+              kinds:
+                - "delivery.ocm.software/v1alpha1/Resource"
+              namespaces:
+                - default
+              selector:
+                matchLabels:
+                  repo: oci
+                  artifact: chart
+      generate:
+        # Only used for inital creation, a mutation rule will be used for updates
+        synchronize: false
+        apiVersion: source.toolkit.fluxcd.io/v1
+        kind: OCIRepository
+        name: "{{request.object.metadata.name}}"
+        namespace: "{{request.object.metadata.namespace}}"
+        data:
+          spec:
+            interval: 5m
+            layerSelector:
+              mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+              operation: copy
+            ref:
+              tag: "{{ request.object.status.resource.version }}"
+            secretRef:
+              name: github
+            timeout: 60s
+            url: "oci://{{ request.object.status.reference.registry }}/{{ request.object.status.reference.repository }}"
+
+

@@ -1,11 +1,11 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: mutate-oci-repos
+  name: oci-repos-mutate
 spec:
   mutateExistingOnPolicyUpdate: true
   rules:
-    - name: mutate-oci-repos
+    - name: generate-oci-repo
       match:
         any:
           - resources:
@@ -16,12 +16,13 @@ spec:
               selector:
                 matchLabels:
                   repo: oci
+                  artifact: chart
       mutate:
         targets:
           - apiVersion: source.toolkit.fluxcd.io/v1
             kind: OCIRepository
-            name: "{{ request.object.metadata.name }}"
-            namespace: "{{ request.object.metadata.namespace }}"
+            name: "{{request.object.metadata.name}}"
+            namespace: "{{request.object.metadata.namespace}}"
         patchStrategicMerge:
           spec:
             ref:

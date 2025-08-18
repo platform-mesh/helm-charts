@@ -38,6 +38,18 @@ spec:
               - source.toolkit.fluxcd.io
               resources:
                 - ocirepositories
+                - helmrepositories
+                - gitrepositories
+              verbs:
+                - create
+                - update
+                - patch
+                - get
+                - delete
+            - apiGroups:
+                - helm.toolkit.fluxcd.io
+              resources:
+                - helmreleases
               verbs:
                 - create
                 - update
@@ -49,4 +61,6 @@ spec:
                 - resources
               verbs:
                 - get
+                - list
+                - watch
 
