@@ -4,7 +4,7 @@ it should render the application manifests:
     kind: OciRepoApp
     metadata:
       name: account-operator
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -18,7 +18,7 @@ it should render the application manifests:
     kind: HelmRepoApp
     metadata:
       name: crossplane
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -32,7 +32,7 @@ it should render the application manifests:
     kind: OciRepoApp
     metadata:
       name: extension-manager-operator
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -46,7 +46,7 @@ it should render the application manifests:
     kind: OciRepoApp
     metadata:
       name: iam-service
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -60,7 +60,7 @@ it should render the application manifests:
     kind: OciRepoApp
     metadata:
       name: iam-ui
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -74,7 +74,7 @@ it should render the application manifests:
     kind: OciRepoApp
     metadata:
       name: infra
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -88,7 +88,7 @@ it should render the application manifests:
     kind: HelmRepoApp
     metadata:
       name: istio-base
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -102,7 +102,7 @@ it should render the application manifests:
     kind: HelmRepoApp
     metadata:
       name: istio-gateway
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -116,7 +116,7 @@ it should render the application manifests:
     kind: HelmRepoApp
     metadata:
       name: istio-istiod
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -130,7 +130,7 @@ it should render the application manifests:
     kind: OciRepoApp
     metadata:
       name: kcp
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -141,10 +141,24 @@ it should render the application manifests:
       values: '"{"auth":{"adminCert":{"issuerRef":"kcp-front-proxy-client-issuer"}},"istio":{"gateway":{"create":false},"hosts":["kcp.api.{{ .Values.baseDomain }}"]},"kcp":{"certificates":{"dnsNames":["virtual-workspaces.platform-mesh-system","kcp.platform-mesh-system","localhost","kcp.{{ .Values.baseDomain }}"]},"externalHostname":"kcp.api.{{ .Values.baseDomain }}","externalPort":"{{ .Values.port }}","kcp":{"authorization":{"webhook":{"secretName":"kcp-webhook-secret"}},"podAnnotations":{"traffic.sidecar.istio.io/excludeOutboundPorts":"9443"}},"kcpFrontProxy":{"additionalPathMappings":[{"backend":"https://virtual-workspaces.platform-mesh-system:8443","backend_server_ca":"/etc/kcp/tls/ca/tls.crt","path":"/services/contentconfigurations","proxy_client_cert":"/etc/kcp-front-proxy/requestheader-client/tls.crt","proxy_client_key":"/etc/kcp-front-proxy/requestheader-client/tls.key"},{"backend":"https://virtual-workspaces.platform-mesh-system:8443","backend_server_ca":"/etc/kcp/tls/ca/tls.crt","path":"/services/marketplace","proxy_client_cert":"/etc/kcp-front-proxy/requestheader-client/tls.crt","proxy_client_key":"/etc/kcp-front-proxy/requestheader-client/tls.key"}],"extraDNSNames":["kcp-front-proxy.platform-mesh-system"]},"monitoring":{"serviceMonitor":{"enabled":true}},"oidc":{"clientId":"default","enabled":true,"groupClaim":"groups","issuerUrl":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default","usernameClaim":"email"}},"webhook":{"caData":"{{ .Values.iamWebhookCA }}","enabled":true,"server":"https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz"}}"'
   11: |
     apiVersion: kro.run/v1alpha1
+    kind: HelmRepoApp
+    metadata:
+      name: kcp-operator
+      namespace: default
+    spec:
+      componentName: platform-mesh
+      createNamespace: false
+      driftDetectionMode: enabled
+      resourcePath: kcp-operator
+      secretName: ocm-oci-github-pull
+      targetNamespace: kcp-operator
+      values: '"null"'
+  12: |
+    apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
       name: keycloak
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -153,12 +167,12 @@ it should render the application manifests:
       secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"crossplane":{"clients":{"default":{"validRedirectUris":["{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"]}}},"domain":{"pathPrefix":"/keycloak"},"externalSecrets":{"keycloakAdminRemoteRef":"keycloak-admin","postgresAdminRemoteRef":"postgres-admin"},"istio":{"https":{"enabled":true},"virtualservice":{"hosts":["{{ .Values.baseDomain }}"]}},"keycloak":{"extraEnvVars":[{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"},{"name":"KC_PROXY_HEADERS","value":"xforwarded"},{"name":"KC_HOSTNAME_STRICT","value":"false"}]},"keycloakConfig":{"redirectUrls":["{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"],"url":"https://{{ .Values.baseDomain }}/keycloak"},"service":{"name":"keycloak"}}"'
-  12: |
+  13: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
       name: kubernetes-graphql-gateway
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -167,12 +181,12 @@ it should render the application manifests:
       secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"kubeConfig":{"enabled":true,"secretName":"kubernetes-grapqhl-gateway-kubeconfig"},"listener":{"virtualWorkspacesConfig":{"content":{"virtualWorkspaces":[{"kubeconfig":"/app/kubeconfig/kubeconfig","name":"contentconfigurations","url":"https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations"},{"kubeconfig":"/app/kubeconfig/kubeconfig","name":"marketplace","url":"https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace"}]},"enabled":true}},"trust":{"default":{"audience":"default","jwksUrl":"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs","trustedIssuer":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"}},"virtualService":{"hosts":["{{ .Values.baseDomain }}","*.{{ .Values.baseDomain }}"],"httpRules":[{"cors":{"allowHeaders":["*"],"allowMethods":["GET","POST"],"allowOrigins":[{"regex":".*"}]},"name":"default"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}}"'
-  13: |
+  14: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
       name: openfga
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -181,12 +195,12 @@ it should render the application manifests:
       secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"databaseService":"openfga-openfga-postgres","rbac":{"writePrincipals":["cluster.local/ns/platform-mesh-system/sa/iam-service","cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa","cluster.local/ns/platform-mesh-system/sa/security-operator","cluster.local/ns/platform-mesh-system/sa/account-operator"]},"trust":{"default":{"audience":"default","jwksUrl":"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs","trustedIssuer":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"}}}"'
-  14: |
+  15: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
       name: rebac-authz-webhook
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -195,12 +209,12 @@ it should render the application manifests:
       secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"certManager":{"createCA":true,"enabled":true},"istio":{"dnsNames":["rebac-authz-webhook.platform-mesh-system.svc.cluster.local"],"exposed":false},"log":{"level":"debug"},"openfga":{"url":"openfga:8081"}}"'
-  15: |
+  16: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
       name: security-operator
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -209,12 +223,12 @@ it should render the application manifests:
       secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"crds":{"enabled":false},"fga":{"target":"openfga.platform-mesh-system.svc.cluster.local:8081"},"initializer":{"kubeconfigSecret":"security-initializer-kubeconfig"},"kubeconfigSecret":"security-operator-kubeconfig","log":{"level":"debug"},"operator":{"maxConcurrentReconciles":1,"shutdownTimeout":"1m"}}"'
-  16: |
+  17: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
       name: virtual-workspaces
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       componentName: platform-mesh
       createNamespace: false
@@ -223,7 +237,7 @@ it should render the application manifests:
       secretName: ocm-oci-github-pull
       targetNamespace: null
       values: '"{"deployment":{"serverUrl":"https://kcp-front-proxy.platform-mesh-system:8443"},"service":{"port":8443}}"'
-  17: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Component
     metadata:
@@ -237,17 +251,17 @@ it should render the application manifests:
       repositoryRef:
         name: platform-mesh
       semver: 0.0.0
-  18: |
+  19: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: account-operator
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: account-operator
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -271,17 +285,17 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  19: |
+  20: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: crossplane
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: HelmRepository
         name: crossplane
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn: null
       interval: 1m
       releaseName: crossplane
@@ -291,17 +305,17 @@ it should render the application manifests:
         provider:
           packages:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
-  20: |
+  21: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: extension-manager-operator
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: extension-manager-operator
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -319,17 +333,17 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  21: |
+  22: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: iam-service
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: iam-service
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -348,17 +362,17 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  22: |
+  23: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: iam-ui
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: iam-ui
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -371,17 +385,17 @@ it should render the application manifests:
           virtualService:
             hosts:
               - '{{ .Values.baseDomain }}'
-  23: |
+  24: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: infra
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: infra
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -416,34 +430,34 @@ it should render the application manifests:
               protocol: HTTPS
         kcp:
           enabled: true
-  24: |
+  25: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: istio-base
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: HelmRepository
         name: istio-base
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn: null
       interval: 1m
       releaseName: istio-base
       targetNamespace: platform-mesh-system
       timeout: 5m
       values: null
-  25: |
+  26: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: istio-gateway
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: HelmRepository
         name: istio-gateway
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -461,17 +475,17 @@ it should render the application manifests:
               nodePort: 32000
               port: 15021
           type: NodePort
-  26: |
+  27: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: istio-istiod
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: HelmRepository
         name: istio-istiod
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-base
           namespace: default
@@ -499,17 +513,17 @@ it should render the application manifests:
               - providers:
                   - name: otel-tracing
                 randomSamplingPercentage: 100
-  27: |
+  28: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: kcp
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: kcp
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -568,17 +582,34 @@ it should render the application manifests:
           caData: '{{ .Values.iamWebhookCA }}'
           enabled: true
           server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-  28: |
+  29: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+      namespace: default
+    spec:
+      chartRef:
+        kind: HelmRepository
+        name: kcp-operator
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: kcp-operator
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values: null
+  30: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: keycloak
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: keycloak
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -617,17 +648,17 @@ it should render the application manifests:
           url: https://{{ .Values.baseDomain }}/keycloak
         service:
           name: keycloak
-  29: |
+  31: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: kubernetes-graphql-gateway
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: kubernetes-graphql-gateway
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -670,17 +701,17 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  30: |
+  32: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: openfga
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: openfga
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -701,17 +732,17 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  31: |
+  33: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: rebac-authz-webhook
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: rebac-authz-webhook
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -731,17 +762,17 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  32: |
+  34: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: security-operator
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: security-operator
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -762,17 +793,17 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  33: |
+  35: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
       name: virtual-workspaces
-      namespace: platform-mesh-system
+      namespace: default
     spec:
       chartRef:
         kind: OCIRepository
         name: virtual-workspaces
-        namespace: platform-mesh-system
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -785,7 +816,7 @@ it should render the application manifests:
           serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
         service:
           port: 8443
-  34: |
+  36: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     metadata:

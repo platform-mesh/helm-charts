@@ -92,6 +92,11 @@ services:
       provider:
         packages:
           - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
+  kcp-operator:
+    helmRepo: true
+    enabled: true
+    targetNamespace: kcp-operator
+
   extension-manager-operator:
     enabled: true
     dependsOn:
