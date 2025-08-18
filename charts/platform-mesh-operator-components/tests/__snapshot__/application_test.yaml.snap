@@ -12,7 +12,22 @@ it should render the application manifests:
       resourcePath: account-operator
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"crds":{"enabled":false},"kcp":{"apiExportEndpointSliceName":"","enabled":true},"kubeconfigSecret":"account-operator-kubeconfig","log":{"level":"debug"},"subroutines":{"fga":{"grpcAddr":"openfga:8081"}},"tracing":{"collector":{"host":"observability-opentelemetry-collector.observability.svc.cluster.local:4317"},"enabled":true}}"'
+      values: |2-
+        crds:
+          enabled: false
+        kcp:
+          apiExportEndpointSliceName: ""
+          enabled: true
+        kubeconfigSecret: account-operator-kubeconfig
+        log:
+          level: debug
+        subroutines:
+          fga:
+            grpcAddr: openfga:8081
+        tracing:
+          collector:
+            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+          enabled: true
   2: |
     apiVersion: kro.run/v1alpha1
     kind: HelmRepoApp
@@ -40,7 +55,16 @@ it should render the application manifests:
       resourcePath: extension-manager-operator
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"crds":{"enabled":false},"kcp":{"enabled":true,"kubeconfigSecret":"extension-manager-operator-kubeconfig"},"tracing":{"collector":{"host":"observability-opentelemetry-collector.observability.svc.cluster.local:4317"},"enabled":true}}"'
+      values: |2-
+        crds:
+          enabled: false
+        kcp:
+          enabled: true
+          kubeconfigSecret: extension-manager-operator-kubeconfig
+        tracing:
+          collector:
+            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+          enabled: true
   4: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
@@ -54,7 +78,15 @@ it should render the application manifests:
       resourcePath: iam-service
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"gateway":{"name":"gateway"},"hostname":"api.{{ .Values.baseDomain }}","trust":{"default":{"audience":"default","jwksUrl":"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs","trustedIssuer":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"}}}"'
+      values: |2-
+        gateway:
+          name: gateway
+        hostname: api.{{ .Values.baseDomain }}
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
   5: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
@@ -68,7 +100,11 @@ it should render the application manifests:
       resourcePath: iam-ui
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"istio":{"virtualService":{"hosts":["{{ .Values.baseDomain }}"]}}}"'
+      values: |2-
+        istio:
+          virtualService:
+            hosts:
+            - '{{ .Values.baseDomain }}'
   6: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
@@ -82,7 +118,33 @@ it should render the application manifests:
       resourcePath: infra
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"fga":{"enabled":false},"istio":{"enabled":true,"main":{"gateway":{"hosts":["{{ .Values.baseDomain }}","*.{{ .Values.baseDomain }}"],"name":"https","port":"{{ .Values.port }}","protocol":"HTTPS","tls":{"credentialName":"domain-certificate","minProtocolVersion":"TLSV1_2","mode":"SIMPLE"}}},"passThrough":{"gateway":{"enabled":true,"hosts":["kcp.api.{{ .Values.baseDomain }}"],"name":"pass-https","port":"{{ .Values.port }}","protocol":"HTTPS"}}},"kcp":{"enabled":true}}"'
+      values: |2-
+        fga:
+          enabled: false
+        istio:
+          enabled: true
+          main:
+            gateway:
+              hosts:
+              - '{{ .Values.baseDomain }}'
+              - '*.{{ .Values.baseDomain }}'
+              name: https
+              port: '{{ .Values.port }}'
+              protocol: HTTPS
+              tls:
+                credentialName: domain-certificate
+                minProtocolVersion: TLSV1_2
+                mode: SIMPLE
+          passThrough:
+            gateway:
+              enabled: true
+              hosts:
+              - kcp.api.{{ .Values.baseDomain }}
+              name: pass-https
+              port: '{{ .Values.port }}'
+              protocol: HTTPS
+        kcp:
+          enabled: true
   7: |
     apiVersion: kro.run/v1alpha1
     kind: HelmRepoApp
@@ -140,7 +202,57 @@ it should render the application manifests:
       resourcePath: kcp
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"auth":{"adminCert":{"issuerRef":"kcp-front-proxy-client-issuer"}},"istio":{"gateway":{"create":false},"hosts":["kcp.api.{{ .Values.baseDomain }}"]},"kcp":{"certificates":{"dnsNames":["virtual-workspaces.platform-mesh-system","kcp.platform-mesh-system","localhost","kcp.{{ .Values.baseDomain }}"]},"externalHostname":"kcp.api.{{ .Values.baseDomain }}","externalPort":"{{ .Values.port }}","kcp":{"authorization":{"webhook":{"secretName":"kcp-webhook-secret"}},"podAnnotations":{"traffic.sidecar.istio.io/excludeOutboundPorts":"9443"}},"kcpFrontProxy":{"additionalPathMappings":[{"backend":"https://virtual-workspaces.platform-mesh-system:8443","backend_server_ca":"/etc/kcp/tls/ca/tls.crt","path":"/services/contentconfigurations","proxy_client_cert":"/etc/kcp-front-proxy/requestheader-client/tls.crt","proxy_client_key":"/etc/kcp-front-proxy/requestheader-client/tls.key"},{"backend":"https://virtual-workspaces.platform-mesh-system:8443","backend_server_ca":"/etc/kcp/tls/ca/tls.crt","path":"/services/marketplace","proxy_client_cert":"/etc/kcp-front-proxy/requestheader-client/tls.crt","proxy_client_key":"/etc/kcp-front-proxy/requestheader-client/tls.key"}],"extraDNSNames":["kcp-front-proxy.platform-mesh-system"]},"monitoring":{"serviceMonitor":{"enabled":true}},"oidc":{"clientId":"default","enabled":true,"groupClaim":"groups","issuerUrl":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default","usernameClaim":"email"}},"webhook":{"caData":"{{ .Values.iamWebhookCA }}","enabled":true,"server":"https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz"}}"'
+      values: |2-
+        auth:
+          adminCert:
+            issuerRef: kcp-front-proxy-client-issuer
+        istio:
+          gateway:
+            create: false
+          hosts:
+          - kcp.api.{{ .Values.baseDomain }}
+        kcp:
+          certificates:
+            dnsNames:
+            - virtual-workspaces.platform-mesh-system
+            - kcp.platform-mesh-system
+            - localhost
+            - kcp.{{ .Values.baseDomain }}
+          externalHostname: kcp.api.{{ .Values.baseDomain }}
+          externalPort: '{{ .Values.port }}'
+          kcp:
+            authorization:
+              webhook:
+                secretName: kcp-webhook-secret
+            podAnnotations:
+              traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+          kcpFrontProxy:
+            additionalPathMappings:
+            - backend: https://virtual-workspaces.platform-mesh-system:8443
+              backend_server_ca: /etc/kcp/tls/ca/tls.crt
+              path: /services/contentconfigurations
+              proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+              proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+            - backend: https://virtual-workspaces.platform-mesh-system:8443
+              backend_server_ca: /etc/kcp/tls/ca/tls.crt
+              path: /services/marketplace
+              proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+              proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+            extraDNSNames:
+            - kcp-front-proxy.platform-mesh-system
+          monitoring:
+            serviceMonitor:
+              enabled: true
+          oidc:
+            clientId: default
+            enabled: true
+            groupClaim: groups
+            issuerUrl: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+            usernameClaim: email
+        webhook:
+          caData: '{{ .Values.iamWebhookCA }}'
+          enabled: true
+          server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
   11: |
     apiVersion: kro.run/v1alpha1
     kind: HelmRepoApp
@@ -168,7 +280,37 @@ it should render the application manifests:
       resourcePath: keycloak
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"crossplane":{"clients":{"default":{"validRedirectUris":["{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"]}}},"domain":{"pathPrefix":"/keycloak"},"externalSecrets":{"keycloakAdminRemoteRef":"keycloak-admin","postgresAdminRemoteRef":"postgres-admin"},"istio":{"https":{"enabled":true},"virtualservice":{"hosts":["{{ .Values.baseDomain }}"]}},"keycloak":{"extraEnvVars":[{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"},{"name":"KC_PROXY_HEADERS","value":"xforwarded"},{"name":"KC_HOSTNAME_STRICT","value":"false"}]},"keycloakConfig":{"redirectUrls":["{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"],"url":"https://{{ .Values.baseDomain }}/keycloak"},"service":{"name":"keycloak"}}"'
+      values: |2-
+        crossplane:
+          clients:
+            default:
+              validRedirectUris:
+              - '{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*'
+        domain:
+          pathPrefix: /keycloak
+        externalSecrets:
+          keycloakAdminRemoteRef: keycloak-admin
+          postgresAdminRemoteRef: postgres-admin
+        istio:
+          https:
+            enabled: true
+          virtualservice:
+            hosts:
+            - '{{ .Values.baseDomain }}'
+        keycloak:
+          extraEnvVars:
+          - name: JAVA_OPTS_APPEND
+            value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
+          - name: KC_PROXY_HEADERS
+            value: xforwarded
+          - name: KC_HOSTNAME_STRICT
+            value: "false"
+        keycloakConfig:
+          redirectUrls:
+          - '{{ .Values.baseDomain }}:{{ .Values.port }}/callback*'
+          url: https://{{ .Values.baseDomain }}/keycloak
+        service:
+          name: keycloak
   13: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
@@ -182,7 +324,41 @@ it should render the application manifests:
       resourcePath: kubernetes-graphql-gateway
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"kubeConfig":{"enabled":true,"secretName":"kubernetes-grapqhl-gateway-kubeconfig"},"listener":{"virtualWorkspacesConfig":{"content":{"virtualWorkspaces":[{"kubeconfig":"/app/kubeconfig/kubeconfig","name":"contentconfigurations","url":"https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations"},{"kubeconfig":"/app/kubeconfig/kubeconfig","name":"marketplace","url":"https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace"}]},"enabled":true}},"trust":{"default":{"audience":"default","jwksUrl":"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs","trustedIssuer":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"}},"virtualService":{"hosts":["{{ .Values.baseDomain }}","*.{{ .Values.baseDomain }}"],"httpRules":[{"cors":{"allowHeaders":["*"],"allowMethods":["GET","POST"],"allowOrigins":[{"regex":".*"}]},"name":"default"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}}"'
+      values: |2-
+        kubeConfig:
+          enabled: true
+          secretName: kubernetes-grapqhl-gateway-kubeconfig
+        listener:
+          virtualWorkspacesConfig:
+            content:
+              virtualWorkspaces:
+              - kubeconfig: /app/kubeconfig/kubeconfig
+                name: contentconfigurations
+                url: https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations
+              - kubeconfig: /app/kubeconfig/kubeconfig
+                name: marketplace
+                url: https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace
+            enabled: true
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+        virtualService:
+          hosts:
+          - '{{ .Values.baseDomain }}'
+          - '*.{{ .Values.baseDomain }}'
+          httpRules:
+          - cors:
+              allowHeaders:
+              - '*'
+              allowMethods:
+              - GET
+              - POST
+              allowOrigins:
+              - regex: .*
+            name: default
+          pathPrefix: /api/kubernetes-graphql-gateway/
   14: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
@@ -196,7 +372,19 @@ it should render the application manifests:
       resourcePath: openfga
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"databaseService":"openfga-openfga-postgres","rbac":{"writePrincipals":["cluster.local/ns/platform-mesh-system/sa/iam-service","cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa","cluster.local/ns/platform-mesh-system/sa/security-operator","cluster.local/ns/platform-mesh-system/sa/account-operator"]},"trust":{"default":{"audience":"default","jwksUrl":"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs","trustedIssuer":"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"}}}"'
+      values: |2-
+        databaseService: openfga-openfga-postgres
+        rbac:
+          writePrincipals:
+          - cluster.local/ns/platform-mesh-system/sa/iam-service
+          - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
+          - cluster.local/ns/platform-mesh-system/sa/security-operator
+          - cluster.local/ns/platform-mesh-system/sa/account-operator
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
   15: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
@@ -210,7 +398,18 @@ it should render the application manifests:
       resourcePath: rebac-authz-webhook
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"certManager":{"createCA":true,"enabled":true},"istio":{"dnsNames":["rebac-authz-webhook.platform-mesh-system.svc.cluster.local"],"exposed":false},"log":{"level":"debug"},"openfga":{"url":"openfga:8081"}}"'
+      values: |2-
+        certManager:
+          createCA: true
+          enabled: true
+        istio:
+          dnsNames:
+          - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
+          exposed: false
+        log:
+          level: debug
+        openfga:
+          url: openfga:8081
   16: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
@@ -224,7 +423,19 @@ it should render the application manifests:
       resourcePath: security-operator
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"crds":{"enabled":false},"fga":{"target":"openfga.platform-mesh-system.svc.cluster.local:8081"},"initializer":{"kubeconfigSecret":"security-initializer-kubeconfig"},"kubeconfigSecret":"security-operator-kubeconfig","log":{"level":"debug"},"operator":{"maxConcurrentReconciles":1,"shutdownTimeout":"1m"}}"'
+      values: |2-
+        crds:
+          enabled: false
+        fga:
+          target: openfga.platform-mesh-system.svc.cluster.local:8081
+        initializer:
+          kubeconfigSecret: security-initializer-kubeconfig
+        kubeconfigSecret: security-operator-kubeconfig
+        log:
+          level: debug
+        operator:
+          maxConcurrentReconciles: 1
+          shutdownTimeout: 1m
   17: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
@@ -238,7 +449,11 @@ it should render the application manifests:
       resourcePath: virtual-workspaces
       secretName: ocm-oci-github-pull
       targetNamespace: null
-      values: '"{"deployment":{"serverUrl":"https://kcp-front-proxy.platform-mesh-system:8443"},"service":{"port":8443}}"'
+      values: |2-
+        deployment:
+          serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
+        service:
+          port: 8443
   18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Component
