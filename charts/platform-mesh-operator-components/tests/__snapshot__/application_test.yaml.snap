@@ -40,10 +40,13 @@ it should render the application manifests:
       name: crossplane
       namespace: default
     spec:
-      chartRef:
-        kind: HelmRepository
-        name: crossplane
-        namespace: default
+      chart:
+        spec:
+          chart: crossplane
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: crossplane
       dependsOn: null
       interval: 1m
       releaseName: crossplane
@@ -202,10 +205,13 @@ it should render the application manifests:
       name: istio-base
       namespace: default
     spec:
-      chartRef:
-        kind: HelmRepository
-        name: istio-base
-        namespace: default
+      chart:
+        spec:
+          chart: istio-base
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: istio-base
       dependsOn: null
       interval: 1m
       releaseName: istio-base
@@ -219,10 +225,13 @@ it should render the application manifests:
       name: istio-gateway
       namespace: default
     spec:
-      chartRef:
-        kind: HelmRepository
-        name: istio-gateway
-        namespace: default
+      chart:
+        spec:
+          chart: istio-gateway
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: istio-gateway
       dependsOn: istio-istiod
       interval: 1m
       releaseName: istio-gateway
@@ -245,10 +254,13 @@ it should render the application manifests:
       name: istio-istiod
       namespace: default
     spec:
-      chartRef:
-        kind: HelmRepository
-        name: istio-istiod
-        namespace: default
+      chart:
+        spec:
+          chart: istio-istiod
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: istio-istiod
       dependsOn: istio-base
       interval: 1m
       releaseName: istio-istiod
@@ -350,10 +362,13 @@ it should render the application manifests:
       name: kcp-operator
       namespace: default
     spec:
-      chartRef:
-        kind: HelmRepository
-        name: kcp-operator
-        namespace: default
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
       dependsOn: null
       interval: 1m
       releaseName: kcp-operator

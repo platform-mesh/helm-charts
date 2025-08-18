@@ -7,14 +7,21 @@ metadata:
   name: {{ $service}}
   namespace: {{ $.Release.Namespace }}
 spec:
+  {{- if $config.helmRepo }}
+  chart:
+    spec:
+      chart: {{ $service }}
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: {{ $service }}
+  {{- end }}
+  {{- if not $config.helmRepo }}
   chartRef:
-    {{ if $config.helmRepo -}}
-    kind: HelmRepository
-    {{- else }}
     kind: OCIRepository
-    {{- end }}
-    name: {{ $service}}
+    name: {{ $service }}
     namespace: {{ $.Release.Namespace }}
+  {{- end }}
   interval: 1m
   releaseName: {{ $service}}
   targetNamespace: {{ $values.targetNamespace }}
