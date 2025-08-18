@@ -23,7 +23,9 @@ services:
     enabled: true
     targetNamespace: istio-system
     driftDetectionMode: disabled
-    dependsOn: istio-base
+    dependsOn:
+      - name: istio-base
+        namespace: default
     values:
       tracing:
         enabled: false
@@ -48,7 +50,9 @@ services:
     helmRepo: true
     enabled: true
     targetNamespace: istio-system
-    dependsOn: istio-istiod
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       service:
         type: NodePort

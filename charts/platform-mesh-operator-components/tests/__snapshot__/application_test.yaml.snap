@@ -232,7 +232,9 @@ it should render the application manifests:
           sourceRef:
             kind: HelmRepository
             name: istio-gateway
-      dependsOn: istio-istiod
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
       interval: 1m
       releaseName: istio-gateway
       targetNamespace: platform-mesh-system
@@ -261,7 +263,9 @@ it should render the application manifests:
           sourceRef:
             kind: HelmRepository
             name: istio-istiod
-      dependsOn: istio-base
+      dependsOn:
+        - name: istio-base
+          namespace: default
       interval: 1m
       releaseName: istio-istiod
       targetNamespace: platform-mesh-system
