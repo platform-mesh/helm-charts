@@ -1,6 +1,7 @@
 {{ $values := .Values }}
 {{- range $service, $config := .Values.services }}
-{{- if and $config.enabled (not $config.helmRepo) -}}
+{{- if $config.enabled }}
+{{- if not (or $config.helmRepo $config.gitRepo) -}}
 apiVersion: kro.run/v1alpha1
 kind: OciRepoApp
 metadata:
@@ -11,13 +12,12 @@ spec:
     {{ $config.values | toYaml | nindent 4 }}
   targetNamespace: {{ $config.targetNamespace }}
   driftDetectionMode: enabled
-  createNamespace: false
   secretName: {{ $values.ociPullSecret }}
   componentName: {{ $values.ocm.componentName }}
   resourcePath: {{ default $service $config.resourcePath }}
 ---
 {{ end -}}
-{{- if and $config.enabled $config.helmRepo  -}}
+{{- if $config.helmRepo  -}}
 apiVersion: kro.run/v1alpha1
 kind: HelmRepoApp
 metadata:
@@ -25,10 +25,9 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   values: |-
-    "{{ $config.values | toJson }}"
+    {{ $config.values | toYaml | nindent 4 }}
   targetNamespace: {{ $config.targetNamespace }}
   driftDetectionMode: enabled
-  createNamespace: false
   {{- if and $config.helmRepo (and $config.dependsOn (ne $config.dependsOn "")) }}
   dependsOn: {{ $config.dependsOn }}
   {{- end }}
@@ -36,5 +35,22 @@ spec:
   componentName: {{ $values.ocm.componentName }}
   resourcePath: {{ default $service $config.resourcePath }}
 ---
+{{ end -}}
+{{- if $config.gitRepo  -}}
+apiVersion: kro.run/v1alpha1
+kind: GitRepoApp
+metadata:
+  name: {{ $service }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  values: |-
+    {{ $config.values | toYaml | nindent 4 }}
+  targetNamespace: {{ $config.targetNamespace }}
+  driftDetectionMode: enabled
+  secretName: {{ $values.ociPullSecret }}
+  componentName: {{ $values.ocm.componentName }}
+  resourcePath: {{ default $service $config.resourcePath }}
+---
+{{ end -}}
 {{ end -}}
 {{ end -}}

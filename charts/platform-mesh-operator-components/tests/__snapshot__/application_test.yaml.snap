@@ -7,7 +7,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: account-operator
       secretName: ocm-oci-github-pull
@@ -36,13 +35,29 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: crossplane
       secretName: ocm-oci-github-pull
       targetNamespace: crossplane-system
-      values: '"{"provider":{"packages":["xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0"]}}"'
+      values: |2-
+        provider:
+          packages:
+          - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
   3: |
+    apiVersion: kro.run/v1alpha1
+    kind: GitRepoApp
+    metadata:
+      name: etcd-druid
+      namespace: default
+    spec:
+      componentName: platform-mesh
+      driftDetectionMode: enabled
+      resourcePath: etcd-druid
+      secretName: ocm-oci-github-pull
+      targetNamespace: etcd-druid-system
+      values: |2-
+        {}
+  4: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -50,7 +65,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: extension-manager-operator
       secretName: ocm-oci-github-pull
@@ -65,7 +79,7 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  4: |
+  5: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -73,7 +87,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: iam-service
       secretName: ocm-oci-github-pull
@@ -87,7 +100,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  5: |
+  6: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -95,7 +108,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: iam-ui
       secretName: ocm-oci-github-pull
@@ -105,7 +117,7 @@ it should render the application manifests:
           virtualService:
             hosts:
             - '{{ .Values.baseDomain }}'
-  6: |
+  7: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -113,7 +125,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: infra
       secretName: ocm-oci-github-pull
@@ -145,7 +156,7 @@ it should render the application manifests:
               protocol: HTTPS
         kcp:
           enabled: true
-  7: |
+  8: |
     apiVersion: kro.run/v1alpha1
     kind: HelmRepoApp
     metadata:
@@ -153,13 +164,13 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: istio-base
       secretName: ocm-oci-github-pull
       targetNamespace: istio-system
-      values: '"null"'
-  8: |
+      values: |2-
+        null
+  9: |
     apiVersion: kro.run/v1alpha1
     kind: HelmRepoApp
     metadata:
@@ -167,14 +178,22 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       dependsOn: istio-istiod
       driftDetectionMode: enabled
       resourcePath: istio-gateway
       secretName: ocm-oci-github-pull
       targetNamespace: istio-system
-      values: '"{"service":{"ports":[{"name":"https","nodePort":31000,"port":8443},{"name":"status-port","nodePort":32000,"port":15021}],"type":"NodePort"}}"'
-  9: |
+      values: |2-
+        service:
+          ports:
+          - name: https
+            nodePort: 31000
+            port: 8443
+          - name: status-port
+            nodePort: 32000
+            port: 15021
+          type: NodePort
+  10: |
     apiVersion: kro.run/v1alpha1
     kind: HelmRepoApp
     metadata:
@@ -182,14 +201,32 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       dependsOn: istio-base
       driftDetectionMode: enabled
       resourcePath: istiod
       secretName: ocm-oci-github-pull
       targetNamespace: istio-system
-      values: '"{"meshConfig":{"defaultConfig":{"holdApplicationUntilProxyStarts":true,"tracing":{"provider":{"name":"otel-tracing"}}},"extensionProviders":[{"name":"otel-tracing","opentelemetry":{"port":4317,"protocol":"grpc","service":"observability-opentelemetry-collector.observability.svc.cluster.local"}}]},"tracing":{"enabled":false,"telemetry":{"tracing":[{"providers":[{"name":"otel-tracing"}],"randomSamplingPercentage":100}]}}}"'
-  10: |
+      values: |2-
+        meshConfig:
+          defaultConfig:
+            holdApplicationUntilProxyStarts: true
+            tracing:
+              provider:
+                name: otel-tracing
+          extensionProviders:
+          - name: otel-tracing
+            opentelemetry:
+              port: 4317
+              protocol: grpc
+              service: observability-opentelemetry-collector.observability.svc.cluster.local
+        tracing:
+          enabled: false
+          telemetry:
+            tracing:
+            - providers:
+              - name: otel-tracing
+              randomSamplingPercentage: 100
+  11: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -197,7 +234,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: kcp
       secretName: ocm-oci-github-pull
@@ -253,7 +289,7 @@ it should render the application manifests:
           caData: '{{ .Values.iamWebhookCA }}'
           enabled: true
           server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-  11: |
+  12: |
     apiVersion: kro.run/v1alpha1
     kind: HelmRepoApp
     metadata:
@@ -261,13 +297,13 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: kcp-operator
       secretName: ocm-oci-github-pull
       targetNamespace: kcp-operator
-      values: '"null"'
-  12: |
+      values: |2-
+        null
+  13: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -275,7 +311,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: keycloak
       secretName: ocm-oci-github-pull
@@ -311,7 +346,7 @@ it should render the application manifests:
           url: https://{{ .Values.baseDomain }}/keycloak
         service:
           name: keycloak
-  13: |
+  14: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -319,7 +354,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: kubernetes-graphql-gateway
       secretName: ocm-oci-github-pull
@@ -359,7 +393,7 @@ it should render the application manifests:
               - regex: .*
             name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  14: |
+  15: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -367,7 +401,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: openfga
       secretName: ocm-oci-github-pull
@@ -385,7 +418,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  15: |
+  16: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -393,7 +426,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: rebac-authz-webhook
       secretName: ocm-oci-github-pull
@@ -410,7 +442,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  16: |
+  17: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -418,7 +450,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: security-operator
       secretName: ocm-oci-github-pull
@@ -436,7 +467,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  17: |
+  18: |
     apiVersion: kro.run/v1alpha1
     kind: OciRepoApp
     metadata:
@@ -444,7 +475,6 @@ it should render the application manifests:
       namespace: default
     spec:
       componentName: platform-mesh
-      createNamespace: false
       driftDetectionMode: enabled
       resourcePath: virtual-workspaces
       secretName: ocm-oci-github-pull
@@ -454,7 +484,7 @@ it should render the application manifests:
           serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
         service:
           port: 8443
-  18: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Component
     metadata:
@@ -468,7 +498,7 @@ it should render the application manifests:
       repositoryRef:
         name: platform-mesh
       semver: 0.0.0
-  19: |
+  20: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -502,7 +532,24 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  20: |
+  21: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: etcd-druid
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: etcd-druid
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: etcd-druid
+      targetNamespace: platform-mesh-system
+      timeout: 5m
+      values: {}
+  22: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -530,7 +577,7 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  21: |
+  23: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -559,7 +606,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  22: |
+  24: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -582,7 +629,7 @@ it should render the application manifests:
           virtualService:
             hosts:
               - '{{ .Values.baseDomain }}'
-  23: |
+  25: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -627,7 +674,7 @@ it should render the application manifests:
               protocol: HTTPS
         kcp:
           enabled: true
-  24: |
+  26: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -696,7 +743,7 @@ it should render the application manifests:
           caData: '{{ .Values.iamWebhookCA }}'
           enabled: true
           server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-  25: |
+  27: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -745,7 +792,7 @@ it should render the application manifests:
           url: https://{{ .Values.baseDomain }}/keycloak
         service:
           name: keycloak
-  26: |
+  28: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -798,7 +845,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  27: |
+  29: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -829,7 +876,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  28: |
+  30: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -859,7 +906,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  29: |
+  31: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -890,7 +937,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  30: |
+  32: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -913,7 +960,7 @@ it should render the application manifests:
           serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
         service:
           port: 8443
-  31: |
+  33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     metadata:
