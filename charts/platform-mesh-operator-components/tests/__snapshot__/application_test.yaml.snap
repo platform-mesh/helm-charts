@@ -106,6 +106,7 @@ it should render the application manifests:
     spec:
       componentName: platform-mesh
       createNamespace: false
+      dependsOn: istio-istiod
       driftDetectionMode: enabled
       resourcePath: istio-gateway
       secretName: ocm-oci-github-pull
@@ -120,6 +121,7 @@ it should render the application manifests:
     spec:
       componentName: platform-mesh
       createNamespace: false
+      dependsOn: istio-base
       driftDetectionMode: enabled
       resourcePath: istiod
       secretName: ocm-oci-github-pull
