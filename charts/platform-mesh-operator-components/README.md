@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.4"` |  |
+| componentVersion.semver | string | `"0.0.5"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.componentName | string | `"platform-mesh"` |  |
@@ -103,6 +103,9 @@ A Helm chart for Kubernetes
 | services.istio-istiod.values.tracing.enabled | bool | `false` |  |
 | services.istio-istiod.values.tracing.telemetry.tracing[0].providers[0].name | string | `"otel-tracing"` |  |
 | services.istio-istiod.values.tracing.telemetry.tracing[0].randomSamplingPercentage | int | `100` |  |
+| services.kcp-operator.enabled | bool | `true` |  |
+| services.kcp-operator.helmRepo | bool | `true` |  |
+| services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
 | services.kcp.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.kcp.dependsOn[0].namespace | string | `"default"` |  |
 | services.kcp.enabled | bool | `true` |  |

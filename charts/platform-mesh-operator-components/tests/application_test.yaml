@@ -2,7 +2,7 @@
 suite: Test the application manifests
 release:
   name: operator-components
-  namespace: platform-mesh-system
+  namespace: default
 tests:
 - it: it should render the application manifests
   set:
