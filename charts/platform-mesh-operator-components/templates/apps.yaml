@@ -29,6 +29,9 @@ spec:
   targetNamespace: {{ $config.targetNamespace }}
   driftDetectionMode: enabled
   createNamespace: false
+  {{- if and $config.helmRepo (and $config.dependsOn (ne $config.dependsOn "")) }}
+  dependsOn: {{ $config.dependsOn }}
+  {{- end }}
   secretName: {{ $values.ociPullSecret }}
   componentName: {{ $values.ocm.componentName }}
   resourcePath: {{ default $service $config.resourcePath }}

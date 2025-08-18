@@ -7,7 +7,7 @@ ocm:
   componentName: platform-mesh
   repoName: platform-mesh
 componentVersion:
-  semver: 0.0.6
+  semver: 0.0.7
 iamWebhookCA: null
 services:
   istio-base:
@@ -23,9 +23,7 @@ services:
     enabled: true
     targetNamespace: istio-system
     driftDetectionMode: disabled
-    dependsOn:
-      - name: istio-base
-        namespace: default
+    dependsOn: istio-base
     values:
       tracing:
         enabled: false
@@ -50,9 +48,7 @@ services:
     helmRepo: true
     enabled: true
     targetNamespace: istio-system
-    dependsOn:
-      - name: istio-istiod
-        namespace: default
+    dependsOn: istio-istiod
     values:
       service:
         type: NodePort
