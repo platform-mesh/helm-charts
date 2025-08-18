@@ -63,6 +63,19 @@ components:
           type: helm
           helmChart: kcp-operator:{{ .KCP_OPERATOR_VERSION }}
           helmRepository: https://kcp-dev.github.io/helm-charts
+  - name: github.com/gardener/etcd-druid
+    version: {{ .GARDENER_ETCD_DRUID_VERSION }}
+    provider:
+      name: gardener
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .GARDENER_ETCD_DRUID_VERSION }}
+        access:
+          type: github
+          repoUrl: https://github.com/gardener/etcd-druid
+          ref: v0.31.0
+          commit: 58fa963fc3583daf2e5488a708d198fa38f4413d
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
