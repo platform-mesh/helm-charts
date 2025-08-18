@@ -70,11 +70,11 @@ components:
     resources:
       - name: chart
         type: helmChart
-        version: {{ .GARDENER_ETCD_DRUID_VERSION }}
+        version: {{ .GARDENER_ETCD_DRUID_CHART_VERSION }}
         access:
           type: github
           repoUrl: https://github.com/gardener/etcd-druid
-          ref: v0.31.0
+          ref: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
           commit: 58fa963fc3583daf2e5488a708d198fa38f4413d
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
