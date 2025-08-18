@@ -51,6 +51,18 @@ components:
           type: helm
           helmChart: gateway:{{ .ISTIO_VERSION }}
           helmRepository: https://istio-release.storage.googleapis.com/charts
+  - name: github.com/kcp-dev/kcp-operator
+    version: {{ .KCP_OPERATOR_VERSION }}
+    provider:
+      name: kcp
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .KCP_OPERATOR_VERSION }}
+        access:
+          type: helm
+          helmChart: kcp-operator:{{ .KCP_OPERATOR_VERSION }}
+          helmRepository: https://github.com/kcp-dev/helm-charts
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:

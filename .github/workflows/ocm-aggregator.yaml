@@ -98,7 +98,8 @@ jobs:
             PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
             VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
             ISTIO_VERSION=1.25.0 \
-            CROSSPLANE_VERSION=1.9.2
+            CROSSPLANE_VERSION=1.9.2 \
+            KCP_OPERATOR_VERSION=0.1.1
           
             # IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \
             # IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
