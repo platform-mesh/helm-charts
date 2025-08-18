@@ -26,6 +26,7 @@ A Helm chart for Kubernetes
 | services.account-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.account-operator.values.tracing.enabled | bool | `true` |  |
 | services.crossplane.enabled | bool | `true` |  |
+| services.crossplane.helmRepo | bool | `true` |  |
 | services.crossplane.targetNamespace | string | `"crossplane-system"` |  |
 | services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0"` |  |
 | services.extension-manager-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
