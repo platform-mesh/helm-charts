@@ -96,7 +96,6 @@ services:
     helmRepo: true
     enabled: true
     targetNamespace: kcp-operator
-
   extension-manager-operator:
     enabled: true
     dependsOn:
