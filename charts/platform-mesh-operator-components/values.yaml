@@ -88,10 +88,11 @@ services:
       provider:
         packages:
           - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0
-  kcp-operator:
-    helmRepo: true
+  etcd-druid:
     enabled: true
-    targetNamespace: kcp-operator
+    gitRepo: true
+    targetNamespace: etcd-druid-system
+    values: {}
   extension-manager-operator:
     enabled: true
     dependsOn:
@@ -200,6 +201,10 @@ services:
             port: '{{ .Values.port }}'
             name: pass-https
             protocol: HTTPS
+  kcp-operator:
+    helmRepo: true
+    enabled: true
+    targetNamespace: kcp-operator
   kcp:
     enabled: true
     dependsOn:
