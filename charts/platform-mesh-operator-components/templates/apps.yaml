@@ -2,7 +2,7 @@
 {{- range $service, $config := .Values.services }}
 {{- if and $config.enabled (not $config.helmRepo) -}}
 apiVersion: kro.run/v1alpha1
-kind: OciApp
+kind: OciRepoApp
 metadata:
   name: {{ $service }}
   namespace: {{ $.Release.Namespace }}
