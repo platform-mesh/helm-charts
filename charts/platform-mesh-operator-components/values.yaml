@@ -15,11 +15,12 @@ services:
     enabled: true
     targetNamespace: istio-system
     driftDetectionMode: disabled
+    chart: base
     install:
       createNamespace: true
   istio-istiod:
     helmRepo: true
-    resourcePath: istiod
+    chart: istiod
     enabled: true
     targetNamespace: istio-system
     driftDetectionMode: disabled
@@ -49,6 +50,7 @@ services:
   istio-gateway:
     helmRepo: true
     enabled: true
+    chart: gateway
     targetNamespace: istio-system
     dependsOn:
       - name: istio-istiod

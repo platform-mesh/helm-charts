@@ -10,7 +10,7 @@ spec:
   {{- if $config.helmRepo }}
   chart:
     spec:
-      chart: {{ $service }}
+      chart: {{ $config.chart | default $service }}
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
