@@ -103,7 +103,7 @@ kubectl apply -k $SCRIPT_DIR/../kustomize/components/rgd
 
 kubectl wait \
   --for=condition=Ready rgd \
-  --timeout=480s oci-app
+  --timeout=480s oci-repo-app
 kubectl wait \
   --for=condition=Ready rgd \
   --timeout=480s helm-repo-app

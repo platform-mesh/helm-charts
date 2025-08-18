@@ -1,11 +1,11 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: oci-app
+  name: oci-repo-app
 spec:
   schema:
     apiVersion: v1alpha1
-    kind: OciApp
+    kind: OciRepoApp
     spec:
       values: string
       resourcePath: string | required=true
