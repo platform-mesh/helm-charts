@@ -75,8 +75,7 @@ A Helm chart for Kubernetes
 | services.istio-base.helmRepo | bool | `true` |  |
 | services.istio-base.install.createNamespace | bool | `true` |  |
 | services.istio-base.targetNamespace | string | `"istio-system"` |  |
-| services.istio-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.istio-gateway.dependsOn[0].namespace | string | `"default"` |  |
+| services.istio-gateway.dependsOn | string | `"istio-istiod"` |  |
 | services.istio-gateway.enabled | bool | `true` |  |
 | services.istio-gateway.helmRepo | bool | `true` |  |
 | services.istio-gateway.targetNamespace | string | `"istio-system"` |  |
@@ -87,8 +86,7 @@ A Helm chart for Kubernetes
 | services.istio-gateway.values.service.ports[1].nodePort | int | `32000` |  |
 | services.istio-gateway.values.service.ports[1].port | int | `15021` |  |
 | services.istio-gateway.values.service.type | string | `"NodePort"` |  |
-| services.istio-istiod.dependsOn[0].name | string | `"istio-base"` |  |
-| services.istio-istiod.dependsOn[0].namespace | string | `"default"` |  |
+| services.istio-istiod.dependsOn | string | `"istio-base"` |  |
 | services.istio-istiod.driftDetectionMode | string | `"disabled"` |  |
 | services.istio-istiod.enabled | bool | `true` |  |
 | services.istio-istiod.helmRepo | bool | `true` |  |
