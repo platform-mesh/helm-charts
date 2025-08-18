@@ -6,14 +6,15 @@ kind: Resource
 metadata:
   name: {{ $service }}
   labels:
+    artifact: chart
     {{- if $config.helmRepo }}
     repo: helm
     {{- end }}
     {{- if $config.gitRepo }}
-      repo: git
+    repo: git
     {{- end }}
     {{- if not (or $config.gitRepo $config.helmRepo) }}
-        repo: oci
+    repo: oci
     {{- end }}
 spec:
   componentRef:
