@@ -1,11 +1,11 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: oci-repos-mutate
+  name: helm-release-mutate
 spec:
   mutateExistingOnPolicyUpdate: true
   rules:
-    - name: oci-repos-mutate
+    - name: helm-release-mutate
       match:
         any:
           - resources:
@@ -15,16 +15,15 @@ spec:
                 - default
               selector:
                 matchLabels:
-                  repo: oci
+                  repo: helm
                   artifact: chart
       mutate:
         targets:
-          - apiVersion: source.toolkit.fluxcd.io/v1
-            kind: OCIRepository
-            name: "{{request.object.metadata.name}}"
-            namespace: "{{request.object.metadata.namespace}}"
+          - apiVersion: helm.toolkit.fluxcd.io/v2
+            kind: HelmRelease
+            name: "{{ request.object.metadata.name }}"
+            namespace: "{{ request.object.metadata.namespace }}"
         patchStrategicMerge:
           spec:
             ref:
-              tag: "{{ request.object.status.resource.version }}"
-            url: "oci://{{ request.object.status.reference.registry }}/{{ request.object.status.reference.repository }}"
+              tag: "{{ request.object.spec.chart.spec.version }}"

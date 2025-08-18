@@ -1,28 +1,28 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: mutate-helm-releases
+  name: helm-release-mutate
 spec:
   mutateExistingOnPolicyUpdate: true
   rules:
-    - name: mutate-oci-repos
+    - name: helm-release-mutate
       match:
         any:
           - resources:
               kinds:
-                - "delivery.ocm.software/v1alpha1/Resource"
+                - "delivery.ocm.software/v1alpha1/Resource/status"
               namespaces:
                 - default
               selector:
                 matchLabels:
                   repo: helm
+                  artifact: chart
       mutate:
         targets:
-          - apiVersion: helm.toolkit.fluxcd.io/v2
-            kind: HelmRelease
+          - apiVersion: source.toolkit.fluxcd.io/v1
+            kind: HelmRepository
             name: "{{ request.object.metadata.name }}"
             namespace: "{{ request.object.metadata.namespace }}"
         patchStrategicMerge:
           spec:
-            ref:
-              tag: "{{ request.object.spec.chart.spec.version }}"
+            url: "{{ request.object.status.resource.access.helmRepository }}"

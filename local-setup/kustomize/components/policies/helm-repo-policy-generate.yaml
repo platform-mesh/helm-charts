@@ -5,7 +5,7 @@ metadata:
 spec:
   mutateExistingOnPolicyUpdate: true
   rules:
-    - name: generate-oci-repo
+    - name: helm-repos-generate
       match:
         any:
           - resources:
@@ -15,7 +15,7 @@ spec:
                 - default
               selector:
                 matchLabels:
-                  repo: oci
+                  repo: helm
                   artifact: chart
       generate:
         # Only used for inital creation, a mutation rule will be used for updates
@@ -28,6 +28,6 @@ spec:
           spec:
             interval: 5m
             provider: generic
-            url: "{{ request.object.status.resource.access.helmRepository }}"
+            url: "https://local-the-url-will-be-here-soon"
 
 

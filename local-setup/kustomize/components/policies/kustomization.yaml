@@ -3,5 +3,6 @@ kind: Kustomization
 
 resources:
   - helm-repo-policy-generate.yaml
+  - helm-repo-policy-mutate.yaml
   - oci-repo-policy-generate.yaml
   - oci-repo-policy-mutate.yaml

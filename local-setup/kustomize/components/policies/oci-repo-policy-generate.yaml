@@ -5,7 +5,7 @@ metadata:
 spec:
   mutateExistingOnPolicyUpdate: true
   rules:
-    - name: generate-oci-repo
+    - name: oci-repos-generate
       match:
         any:
           - resources:
@@ -31,10 +31,10 @@ spec:
               mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
               operation: copy
             ref:
-              tag: "{{ request.object.status.resource.version }}"
+              tag: "0.0.0"
             secretRef:
               name: github
             timeout: 60s
-            url: "oci://{{ request.object.status.reference.registry }}/{{ request.object.status.reference.repository }}"
+            url: "oci://local-the-url-will-be-here-soon"
 
 
