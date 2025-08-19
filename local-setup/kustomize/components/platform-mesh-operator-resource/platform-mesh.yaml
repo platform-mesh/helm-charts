@@ -132,7 +132,7 @@ spec:
                 tls:
                   enabled: false
     infra:
-      enabled: false
+      enabled: true
     kubernetes-graphql-gateway:
       enabled: false
     virtual-workspaces:
