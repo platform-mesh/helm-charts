@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | hostAliases.enabled | bool | `false` |  |
-| hostAliases.entries[0].hostnames[0] | string | `"kcp.portal.dev.local"` |  |
+| hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
 | hostAliases.entries[0].ip | string | `"10.96.0.100"` |  |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
@@ -60,7 +60,7 @@ A Helm chart for Kubernetes
 | kcp.istio.gateway.servers.port | int | `8443` |  |
 | kcp.istio.gateway.servers.protocol | string | `"HTTPS"` |  |
 | kcp.istio.gateway.tls.mode | string | `"PASSTHROUGH"` |  |
-| kcp.istio.hosts[0] | string | `"kcp.portal.dev.local"` |  |
+| kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
 | kcp.namespace | string | `"kcp-system"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |
 | kcp.oidc.enabled | bool | `true` |  |

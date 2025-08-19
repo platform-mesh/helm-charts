@@ -124,7 +124,7 @@ match snapshots:
         istio: gateway
       servers:
         - hosts:
-            - kcp.portal.dev.local
+            - kcp.api.portal.dev.local
           port:
             name: https
             number: 8443
@@ -141,11 +141,11 @@ match snapshots:
       gateways:
         - platform-mesh-system/infra-tls-passthrough
       hosts:
-        - kcp.portal.dev.local
+        - kcp.api.portal.dev.local
       tls:
         - match:
             - sniHosts:
-                - kcp.portal.dev.local
+                - kcp.api.portal.dev.local
           route:
             - destination:
                 host: frontproxy-front-proxy.kcp-system.svc.cluster.local
@@ -277,7 +277,7 @@ match snapshots w. hostAliases enabled:
             spec:
               hostAliases:
                 - hostnames:
-                    - kcp.portal.dev.local
+                    - kcp.api.portal.dev.local
                   ip: 10.96.0.100
       rootShard:
         ref:
@@ -304,7 +304,7 @@ match snapshots w. hostAliases enabled:
         istio: gateway
       servers:
         - hosts:
-            - kcp.portal.dev.local
+            - kcp.api.portal.dev.local
           port:
             name: https
             number: 8443
@@ -321,11 +321,11 @@ match snapshots w. hostAliases enabled:
       gateways:
         - platform-mesh-system/infra-tls-passthrough
       hosts:
-        - kcp.portal.dev.local
+        - kcp.api.portal.dev.local
       tls:
         - match:
             - sniHosts:
-                - kcp.portal.dev.local
+                - kcp.api.portal.dev.local
           route:
             - destination:
                 host: frontproxy-front-proxy.kcp-system.svc.cluster.local
@@ -350,7 +350,7 @@ match snapshots w. hostAliases enabled:
             spec:
               hostAliases:
                 - hostnames:
-                    - kcp.portal.dev.local
+                    - kcp.api.portal.dev.local
                   ip: 10.96.0.100
       etcd:
         endpoints:

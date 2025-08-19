@@ -4,7 +4,7 @@ hostAliases:
   entries:
     - ip: "10.96.0.100"
       hostnames:
-        - "kcp.portal.dev.local"
+        - "kcp.api.portal.dev.local"
 kcp:
   namespace: kcp-system
   auth:
@@ -65,7 +65,7 @@ kcp:
 
   istio:
     hosts:
-      - kcp.portal.dev.local
+      - kcp.api.portal.dev.local
     gateway:
       create: true
       annotations: {}
