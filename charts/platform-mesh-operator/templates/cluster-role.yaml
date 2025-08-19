@@ -64,6 +64,14 @@ rules:
     - delete
     - update
     - patch
+- apiGroups: ["operator.kcp.io"]
+  resources:
+    - rootshards
+    - frontproxies
+  verbs:
+    - get
+    - list
+    - watch
 - apiGroups: ["cert-manager.io"]
   resources:
     - certificates
