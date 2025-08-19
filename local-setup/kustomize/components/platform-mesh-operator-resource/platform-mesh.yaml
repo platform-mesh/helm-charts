@@ -34,6 +34,10 @@ spec:
         provider:
           packages:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2
+    infra:
+      values:
+        kcp:
+          namespace: platform-mesh-system
     observability:
       enabled: false
     kcp-operator:
