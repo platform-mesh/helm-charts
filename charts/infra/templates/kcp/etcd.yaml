@@ -1,0 +1,59 @@
+apiVersion: druid.gardener.cloud/v1alpha1
+kind: Etcd
+metadata:
+  name: {{ .Values.kcp.etcd.name | default "etcd-kcp-client" }}
+  namespace: {{ .Values.kcp.etcd.namespace | default "kcp-system" }}
+  labels:
+    app: etcd-statefulset
+    gardener.cloud/role: controlplane
+    role: kcp
+spec:
+  annotations:
+    app: etcd-statefulset
+    gardener.cloud/role: controlplane
+    role: kcp
+  labels:
+    app: etcd-statefulset
+    gardener.cloud/role: controlplane
+    role: kcp
+  etcd:
+    metrics: basic
+    defragmentationSchedule: {{ .Values.kcp.etcd.defragmentationSchedule | default "\"0 */24 * * *\"" }}
+    resources:
+      limits:
+        cpu: {{ .Values.kcp.etcd.resources.limits.cpu | default "500m" }}
+        memory: {{ .Values.kcp.etcd.resources.limits.memory | default "1Gi" }}
+      requests:
+        cpu: {{ .Values.kcp.etcd.resources.requests.cpu | default "100m" }}
+        memory: {{ .Values.kcp.etcd.resources.requests.memory | default "200Mi" }}
+    clientPort: {{ .Values.kcp.etcd.service.port | default 2379 }}
+    serverPort: {{ .Values.kcp.etcd.serverPort | default 2380 }}
+    quota: {{ .Values.kcp.etcd.quota | default "8Gi" }}
+  backup:
+    port: {{ .Values.kcp.etcd.backup.port | default 8080 }}
+    fullSnapshotSchedule: {{ .Values.kcp.etcd.backup.fullSnapshotSchedule | default "\"0 */24 * * *\"" }}
+    resources:
+      limits:
+        cpu: {{ .Values.kcp.etcd.backup.resources.limits.cpu | default "200m" }}
+        memory: {{ .Values.kcp.etcd.backup.resources.limits.memory | default "1Gi" }}
+      requests:
+        cpu: {{ .Values.kcp.etcd.backup.resources.requests.cpu | default "23m" }}
+        memory: {{ .Values.kcp.etcd.backup.resources.requests.memory | default "128Mi" }}
+    garbageCollectionPolicy: {{ .Values.kcp.etcd.backup.garbageCollectionPolicy | default "Exponential" }}
+    garbageCollectionPeriod: {{ .Values.kcp.etcd.backup.garbageCollectionPeriod | default "43200s" }}
+    deltaSnapshotPeriod: {{ .Values.kcp.etcd.backup.deltaSnapshotPeriod | default "300s" }}
+    deltaSnapshotMemoryLimit: {{ .Values.kcp.etcd.backup.deltaSnapshotMemoryLimit | default "1Gi" }}
+    compression:
+      enabled: {{ .Values.kcp.etcd.backup.compression.enabled | default false }}
+      policy: {{ .Values.kcp.etcd.backup.compression.policy | default "\"gzip\"" }}
+    leaderElection:
+      reelectionPeriod: {{ .Values.kcp.etcd.backup.leaderElection.reelectionPeriod | default "5s" }}
+      etcdConnectionTimeout: {{ .Values.kcp.etcd.backup.leaderElection.etcdConnectionTimeout | default "5s" }}
+
+  sharedConfig:
+    autoCompactionMode: {{ .Values.kcp.etcd.sharedConfig.autoCompactionMode | default "periodic" }}
+    autoCompactionRetention: {{ .Values.kcp.etcd.sharedConfig.autoCompactionRetention | default "\"30m\"" }}
+
+
+  replicas: {{ .Values.kcp.etcd.replicas | default 1 }}
+
