@@ -1,5 +1,14 @@
 kcp:
   namespace: kcp-system
+  auth:
+    adminCert:
+      enabled: true
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      subject:
+        organizations:
+          - system:kcp:admin
   etcd:
     name: etcd-kcp
     service:
