@@ -114,6 +114,42 @@ match snapshots:
     spec:
       selfSigned: {}
   5: |
+    apiVersion: networking.istio.io/v1beta1
+    kind: Gateway
+    metadata:
+      name: infra-tls-passthrough
+      namespace: platform-mesh-system
+    spec:
+      selector:
+        istio: gateway
+      servers:
+        - hosts:
+            - kcp.portal.dev.local
+          port:
+            name: https
+            number: 8443
+            protocol: HTTPS
+          tls:
+            mode: PASSTHROUGH
+  6: |
+    apiVersion: networking.istio.io/v1beta1
+    kind: VirtualService
+    metadata:
+      name: infra
+      namespace: platform-mesh-system
+    spec:
+      gateways:
+        - platform-mesh-system/infra-tls-passthrough
+      hosts:
+        - kcp.portal.dev.local
+      tls:
+        - match:
+            - sniHosts:
+                - kcp.portal.dev.local
+          route:
+            - destination:
+                host: frontproxy-front-proxy.kcp-system.svc.cluster.local
+  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:

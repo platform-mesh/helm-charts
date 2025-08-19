@@ -56,7 +56,31 @@ kcp:
     groupsClaim: groups
     usernameClaim: email
 
+  istio:
+    hosts:
+      - kcp.portal.dev.local
+    gateway:
+      create: true
+      annotations: {}
+      selector:
+        istio: gateway
+      servers:
+        port: 8443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: PASSTHROUGH
+      existingGateway:
+        namespace: openmfp-system
+        name: gateway
+  webhook:
+    enabled: false
+    caData: ""
+    server: https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz
+    authorizationWebhookSecretName: kcp-webhook-secret
+
   frontProxy:
+    name: frontproxy
     additionalPathMappings:
       - path: /services/contentconfigurations
         backend: https://virtual-workspaces.platform-mesh-system:8443
