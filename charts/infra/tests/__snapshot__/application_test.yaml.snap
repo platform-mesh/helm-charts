@@ -344,15 +344,15 @@ match snapshots w. hostAliases enabled:
           group: cert-manager.io
           kind: Issuer
           name: selfsigned
+      deploymentTemplate:
+        spec:
+          template:
+            spec:
+              hostAliases:
+                - hostnames:
+                    - kcp.portal.dev.local
+                  ip: 10.96.0.100
       etcd:
-        deploymentTemplate:
-          spec:
-            template:
-              spec:
-                hostAliases:
-                  - hostnames:
-                      - kcp.portal.dev.local
-                    ip: 10.96.0.100
         endpoints:
           - http://etcd-kcp-client.kcp-system.svc.cluster.local:2379
       external:
