@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 suite: Test the application manifests
 release:
-  name: kcp
-  namespace: kcp-system
+  name: infra
+  namespace: platform-mesh-system
 tests:
 - it: match snapshots
   asserts:

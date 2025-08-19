@@ -2,6 +2,6 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: selfsigned
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   selfSigned: {}

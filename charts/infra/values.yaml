@@ -1,7 +1,7 @@
 kcp:
+  namespace: kcp-system
   etcd:
     name: etcd-kcp
-    namespace: kcp-system
     service:
       name: etcd-kcp-client
       port: 2379
