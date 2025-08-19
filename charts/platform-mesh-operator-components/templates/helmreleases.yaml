@@ -16,7 +16,16 @@ spec:
         kind: HelmRepository
         name: {{ $service }}
   {{- end }}
-  {{- if not $config.helmRepo }}
+  {{- if $config.gitRepo }}
+  chart:
+    spec:
+      chart: {{ $config.path | default $service }}
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: GitRepository
+        name: {{ $service }}
+  {{- end }}
+  {{- if not (or $config.helmRepo $config.gitRepo) }}
   chartRef:
     kind: OCIRepository
     name: {{ $service }}
@@ -24,7 +33,7 @@ spec:
   {{- end }}
   interval: 1m
   releaseName: {{ $service}}
-  targetNamespace: {{ $values.targetNamespace }}
+  targetNamespace: {{ $config.targetNamespace | default $values.targetNamespace }}
   dependsOn:
     {{ $config.dependsOn | toYaml | nindent 4 }}
   timeout: 5m
