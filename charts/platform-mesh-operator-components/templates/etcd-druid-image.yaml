@@ -7,6 +7,7 @@ metadata:
   labels:
     artifact: image
     repo: oci
+    component: "etcd-druid"
 spec:
   componentRef:
     name: {{ .Values.ocm.componentName }}
