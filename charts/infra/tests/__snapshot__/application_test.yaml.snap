@@ -168,7 +168,7 @@ match snapshots:
         endpoints:
           - http://etcd-kcp-client.kcp-system.svc.cluster.local:2379
       external:
-        hostname: kcp.portal.dev.local
+        hostname: kcp.api.portal.dev.local
         port: 8443
 match snapshots w. hostAliases enabled:
   1: |
@@ -356,5 +356,5 @@ match snapshots w. hostAliases enabled:
         endpoints:
           - http://etcd-kcp-client.kcp-system.svc.cluster.local:2379
       external:
-        hostname: kcp.portal.dev.local
+        hostname: kcp.api.portal.dev.local
         port: 8443

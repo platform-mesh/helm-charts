@@ -6,8 +6,8 @@ metadata:
 spec:
   external:
     # replace the hostname with the external DNS name for your kcp instance
-    hostname: kcp.portal.dev.local
-    port: 8443
+    hostname: {{ .Values.kcp.external.hostname }}
+    port: {{ .Values.kcp.external.port }}
   certificates:
     # this references the issuer created above
     issuerRef:

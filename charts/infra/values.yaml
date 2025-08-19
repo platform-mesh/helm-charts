@@ -7,6 +7,9 @@ hostAliases:
         - "kcp.api.portal.dev.local"
 kcp:
   namespace: kcp-system
+  external:
+    hostname: kcp.api.portal.dev.local
+    port: 8443
   auth:
     adminCert:
       enabled: true
