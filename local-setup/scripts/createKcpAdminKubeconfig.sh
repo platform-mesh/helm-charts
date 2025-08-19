@@ -1,9 +1,9 @@
 #!/bin/bash
 
-KCP_CA_SECRET=kcp-front-proxy-cert
+KCP_CA_SECRET=root-front-proxy-client-ca
 KCP_ADMIN_SECRET=kcp-cluster-admin-client-cert
-#KCP_URL=https://kcp.api.portal.dev.local:8443
-KCP_URL=https://kcp.api.portal.cc-one.showroom.apeirora.eu
+KCP_URL=https://kcp.api.portal.dev.local:8443
+#KCP_URL=https://kcp.api.portal.cc-one.showroom.apeirora.eu
 
 mkdir -p $PWD/.secret/kcp
 kubectl get secret $KCP_CA_SECRET -n platform-mesh-system -o=jsonpath='{.data.tls\.crt}' | base64 -d > $PWD/.secret/kcp/ca.crt
