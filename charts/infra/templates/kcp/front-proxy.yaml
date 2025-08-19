@@ -1,0 +1,26 @@
+apiVersion: operator.kcp.io/v1alpha1
+kind: FrontProxy
+metadata:
+  name: frontproxy
+  namespace: {{ .Release.Namespace }}
+spec:
+  auth:
+    {{- if .Values.kcp.oidc.enabled }}
+    {{ with .Values.kcp.oidc }}
+    oidc:
+      enabled: true
+      issuerURL: {{ .issuerUrl }}
+      clientID: {{ .clientID }}
+      groupsClaim: {{ .groupsClaim }}
+      usernameClaim: {{ .usernameClaim }}
+    {{- end }}
+    {{- end }}
+
+  additionalPathMappings:
+{{ toYaml .Values.kcp.frontProxy.additionalPathMappings | indent 4 }}
+  rootShard:
+    ref:
+      name: root
+  serviceTemplate:
+    spec:
+      type: ClusterIP

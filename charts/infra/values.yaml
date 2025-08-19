@@ -1,0 +1,61 @@
+kcp:
+  etcd:
+    name: etcd-kcp
+    namespace: kcp-system
+    service:
+      name: etcd-kcp-client
+      port: 2379
+    defragmentationSchedule: "0 */24 * * *"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 200Mi
+    serverPort: 2380
+    quota: 8Gi
+    backup:
+      port: 8080
+      fullSnapshotSchedule: "0 */24 * * *"
+      resources:
+        limits:
+          cpu: 200m
+          memory: 1Gi
+        requests:
+          cpu: 23m
+          memory: 128Mi
+      garbageCollectionPolicy: Exponential
+      garbageCollectionPeriod: 43200s
+      deltaSnapshotPeriod: 300s
+      deltaSnapshotMemoryLimit: 1Gi
+      compression:
+        enabled: false
+        policy: "gzip"
+      leaderElection:
+        reelectionPeriod: 5s
+        etcdConnectionTimeout: 5s
+    sharedConfig:
+      autoCompactionMode: periodic
+      autoCompactionRetention: "30m"
+    replicas: 1
+
+  oidc:
+    enabled: true
+    issuerUrl: "https://portal.dev.local:8443/keycloak/realms/default"
+    clientID: default
+    groupsClaim: groups
+    usernameClaim: email
+
+  frontProxy:
+    additionalPathMappings:
+      - path: /services/contentconfigurations
+        backend: https://virtual-workspaces.platform-mesh-system:8443
+        backend_server_ca: /etc/kcp/tls/ca/tls.crt
+        proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+        proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      - path: /services/marketplace
+        backend: https://virtual-workspaces.platform-mesh-system:8443
+        backend_server_ca: /etc/kcp/tls/ca/tls.crt
+        proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+        proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
