@@ -1,5 +1,24 @@
 match snapshots:
   1: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: kcp-cluster-admin-client-cert
+      namespace: kcp-system
+    spec:
+      commonName: cluster-admin
+      issuerRef:
+        name: kcp-front-proxy-client-issuer
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      secretName: kcp-cluster-admin-client-cert
+      subject:
+        organizations:
+          - system:kcp:admin
+      usages:
+        - client auth
+  2: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -55,7 +74,7 @@ match snapshots:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  2: |
+  3: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -86,7 +105,7 @@ match snapshots:
       serviceTemplate:
         spec:
           type: ClusterIP
-  3: |
+  4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -94,7 +113,7 @@ match snapshots:
       namespace: kcp-system
     spec:
       selfSigned: {}
-  4: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:

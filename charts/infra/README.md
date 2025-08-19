@@ -6,6 +6,10 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| kcp.auth.adminCert.enabled | bool | `true` |  |
+| kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
+| kcp.auth.adminCert.privateKey.size | int | `2048` |  |
+| kcp.auth.adminCert.subject.organizations[0] | string | `"system:kcp:admin"` |  |
 | kcp.etcd.backup.compression.enabled | bool | `false` |  |
 | kcp.etcd.backup.compression.policy | string | `"gzip"` |  |
 | kcp.etcd.backup.deltaSnapshotMemoryLimit | string | `"1Gi"` |  |

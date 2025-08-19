@@ -1,0 +1,24 @@
+{{ if .Values.kcp.auth.adminCert.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kcp-cluster-admin-client-cert
+  namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
+spec:
+  commonName: cluster-admin
+  issuerRef:
+    {{- if .Values.kcp.auth.adminCert.issuerRef }}
+    name: {{ .Values.kcp.auth.adminCert.issuerRef }}
+    {{- else }}
+    name: kcp-front-proxy-client-issuer
+    {{- end }}
+  privateKey:
+    algorithm: {{ .Values.kcp.auth.adminCert.privateKey.algorithm }}
+    size: {{ .Values.kcp.auth.adminCert.privateKey.size }}
+  secretName: kcp-cluster-admin-client-cert
+  subject:
+    organizations:
+      {{ .Values.kcp.auth.adminCert.subject.organizations | toYaml | nindent 6 }}
+  usages:
+    - client auth
+{{ end }}
