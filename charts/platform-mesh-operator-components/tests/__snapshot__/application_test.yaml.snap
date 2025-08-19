@@ -71,7 +71,7 @@ it should render the application manifests:
       dependsOn: null
       interval: 1m
       releaseName: crossplane
-      targetNamespace: platform-mesh-system
+      targetNamespace: crossplane-system
       timeout: 5m
       values:
         provider:
@@ -84,14 +84,17 @@ it should render the application manifests:
       name: etcd-druid
       namespace: default
     spec:
-      chartRef:
-        kind: OCIRepository
-        name: etcd-druid
-        namespace: default
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
       dependsOn: null
       interval: 1m
       releaseName: etcd-druid
-      targetNamespace: platform-mesh-system
+      targetNamespace: etcd-druid-system
       timeout: 5m
       values: {}
   5: |
@@ -236,7 +239,7 @@ it should render the application manifests:
       dependsOn: null
       interval: 1m
       releaseName: istio-base
-      targetNamespace: platform-mesh-system
+      targetNamespace: istio-system
       timeout: 5m
       values: null
   10: |
@@ -258,7 +261,7 @@ it should render the application manifests:
           namespace: default
       interval: 1m
       releaseName: istio-gateway
-      targetNamespace: platform-mesh-system
+      targetNamespace: istio-system
       timeout: 5m
       values:
         service:
@@ -289,7 +292,7 @@ it should render the application manifests:
           namespace: default
       interval: 1m
       releaseName: istio-istiod
-      targetNamespace: platform-mesh-system
+      targetNamespace: istio-system
       timeout: 5m
       values:
         meshConfig:
@@ -397,7 +400,7 @@ it should render the application manifests:
       dependsOn: null
       interval: 1m
       releaseName: kcp-operator
-      targetNamespace: platform-mesh-system
+      targetNamespace: kcp-operator
       timeout: 5m
       values: null
   14: |

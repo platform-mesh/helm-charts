@@ -97,6 +97,7 @@ services:
   etcd-druid:
     enabled: true
     gitRepo: true
+    path: charts
     targetNamespace: etcd-druid-system
     values: {}
   extension-manager-operator:
