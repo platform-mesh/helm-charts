@@ -27,5 +27,4 @@ spec:
           spec:
             chart:
               spec:
-                chart: "{{request.object.status.reference.repository}}"
                 version: "{{request.object.status.reference.reference}}"
