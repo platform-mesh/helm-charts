@@ -20,7 +20,7 @@ spec:
       mutate:
         targets:
           - apiVersion: source.toolkit.fluxcd.io/v1
-            kind: OCIRepository
+            kind: GitRepository
             name: "{{request.object.metadata.name}}"
             namespace: "{{request.object.metadata.namespace}}"
         patchStrategicMerge:
