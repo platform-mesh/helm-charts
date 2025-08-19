@@ -1,0 +1,24 @@
+{{ $druid := index .Values.services "etcd-druid" }}
+{{- if $druid.enabled -}}
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  name: etcd-druid-image
+  labels:
+    artifact: image
+    repo: oci
+spec:
+  componentRef:
+    name: {{ .Values.ocm.componentName }}
+  resource:
+    byReference:
+      resource:
+        name: image
+      referencePath:
+        - name: "etcd-druid"
+  interval: 1m
+  ocmConfig:
+    - kind: Secret
+      name: {{ .Values.ociPullSecret }}
+---
+{{ end -}}
