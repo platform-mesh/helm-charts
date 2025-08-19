@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.10
+  chartVersion: 0.11.12
   values:
     istio-gateway:
       enabled: true
@@ -131,8 +131,6 @@ spec:
                 endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
                 tls:
                   enabled: false
-    infra:
-      enabled: true
     kubernetes-graphql-gateway:
       enabled: false
     virtual-workspaces:
