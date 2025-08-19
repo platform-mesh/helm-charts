@@ -7,3 +7,5 @@ resources:
   - helm-repo-policy-mutate.yaml
   - oci-repo-policy-generate.yaml
   - oci-repo-policy-mutate.yaml
+  - git-repo-policy-generate.yaml
+  - git-repo-policy-mutate.yaml

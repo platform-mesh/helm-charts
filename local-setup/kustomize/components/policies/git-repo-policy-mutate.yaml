@@ -1,0 +1,30 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: git-repos-mutate
+spec:
+  mutateExistingOnPolicyUpdate: true
+  rules:
+    - name: git-repos-mutate
+      match:
+        any:
+          - resources:
+              kinds:
+                - "delivery.ocm.software/v1alpha1/Resource/status"
+              namespaces:
+                - default
+              selector:
+                matchLabels:
+                  repo: git
+                  artifact: chart
+      mutate:
+        targets:
+          - apiVersion: source.toolkit.fluxcd.io/v1
+            kind: OCIRepository
+            name: "{{request.object.metadata.name}}"
+            namespace: "{{request.object.metadata.namespace}}"
+        patchStrategicMerge:
+          spec:
+            ref:
+              commit: "{{ request.object.status.resource.access.commit }}"
+            url: "{{ request.object.status.resource.access.repoUrl }}"
