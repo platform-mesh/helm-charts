@@ -6,6 +6,9 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| hostAliases.enabled | bool | `false` |  |
+| hostAliases.entries[0].hostnames[0] | string | `"kcp.portal.dev.local"` |  |
+| hostAliases.entries[0].ip | string | `"10.96.0.100"` |  |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
 | kcp.auth.adminCert.privateKey.size | int | `2048` |  |
