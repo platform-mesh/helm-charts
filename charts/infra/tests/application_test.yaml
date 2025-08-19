@@ -7,3 +7,9 @@ tests:
 - it: match snapshots
   asserts:
   - matchSnapshot: {}
+- it: match snapshots w. hostAliases enabled
+  set:
+    hostAliases:
+      enabled: true
+  asserts:
+    - matchSnapshot: {}

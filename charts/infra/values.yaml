@@ -1,3 +1,10 @@
+
+hostAliases:
+  enabled: false
+  entries:
+    - ip: "10.96.0.100"
+      hostnames:
+        - "kcp.portal.dev.local"
 kcp:
   namespace: kcp-system
   auth:

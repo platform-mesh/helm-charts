@@ -24,3 +24,13 @@ spec:
   serviceTemplate:
     spec:
       type: ClusterIP
+  {{- if .Values.hostAliases.enabled }}
+  {{- with .Values.hostAliases.entries }}
+  deploymentTemplate:
+    spec:
+      template:
+        spec:
+          hostAliases:
+            {{ toYaml . | nindent 12 }}
+  {{- end }}
+  {{- end }}
