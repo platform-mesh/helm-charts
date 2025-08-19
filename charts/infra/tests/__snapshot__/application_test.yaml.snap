@@ -111,7 +111,7 @@ match snapshots:
           name: selfsigned
       etcd:
         endpoints:
-          - http://etcd-kcp-client.kcp-system.svc.cluster.local:2379
+          - https://etcd-kcp-client.kcp-system:2379
       external:
         hostname: kcp.portal.dev.local
         port: 8443
