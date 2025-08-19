@@ -1,6 +1,7 @@
 secret.yaml
 bin/*
 .idea
+.secret
 
 local-setup/webhook-config/*
 !local-setup/webhook-config/*.sh
