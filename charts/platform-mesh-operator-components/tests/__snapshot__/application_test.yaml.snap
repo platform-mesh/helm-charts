@@ -192,6 +192,8 @@ it should render the application manifests:
       dependsOn:
         - name: istio-istiod
           namespace: default
+        - name: kcp-operator
+          namespace: default
       interval: 1m
       releaseName: infra
       targetNamespace: platform-mesh-system

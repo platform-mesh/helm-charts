@@ -58,6 +58,8 @@ A Helm chart for Kubernetes
 | services.iam-ui.values.istio.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
+| services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |
+| services.infra.dependsOn[1].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
 | services.infra.values.fga.enabled | bool | `false` |  |
 | services.infra.values.istio.enabled | bool | `true` |  |
