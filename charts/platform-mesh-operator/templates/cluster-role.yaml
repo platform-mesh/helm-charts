@@ -67,7 +67,7 @@ rules:
 - apiGroups: ["operator.kcp.io"]
   resources:
     - rootshards
-    - frontendproxies
+    - frontproxies
   verbs:
     - get
     - list

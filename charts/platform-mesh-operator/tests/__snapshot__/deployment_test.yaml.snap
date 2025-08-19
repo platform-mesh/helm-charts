@@ -163,7 +163,7 @@ operator match the snapshot:
           - operator.kcp.io
         resources:
           - rootshards
-          - frontendproxies
+          - frontproxies
         verbs:
           - get
           - list
