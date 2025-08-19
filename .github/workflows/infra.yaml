@@ -12,6 +12,10 @@ on:
       - 'charts/infra/**'
       - '.github/workflows/infra.yaml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   pipeline:
     concurrency:
