@@ -160,6 +160,15 @@ operator match the snapshot:
           - update
           - patch
       - apiGroups:
+          - operator.kcp.io
+        resources:
+          - rootshards
+          - frontendproxies
+        verbs:
+          - get
+          - list
+          - watch
+      - apiGroups:
           - cert-manager.io
         resources:
           - certificates
