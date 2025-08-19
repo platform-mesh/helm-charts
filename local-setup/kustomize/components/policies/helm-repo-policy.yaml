@@ -1,7 +1,7 @@
 apiVersion: kyverno.io/v1
 kind: ClusterPolicy
 metadata:
-  name: helm-repo-generate
+  name: helm-repos
 spec:
   mutateExistingOnPolicyUpdate: true
   rules:
@@ -29,5 +29,27 @@ spec:
             interval: 5m
             provider: generic
             url: "https://local-the-url-will-be-here-soon"
+    - name: helm-release-mutate
+      skipBackgroundRequests: false
+      match:
+        any:
+          - resources:
+              kinds:
+                - "delivery.ocm.software/v1alpha1/Resource/status"
+              namespaces:
+                - default
+              selector:
+                matchLabels:
+                  repo: helm
+                  artifact: chart
+      mutate:
+        targets:
+          - apiVersion: source.toolkit.fluxcd.io/v1
+            kind: HelmRepository
+            name: "{{ request.object.metadata.name }}"
+            namespace: "{{ request.object.metadata.namespace }}"
+        patchStrategicMerge:
+          spec:
+            url: "{{ request.object.status.resource.access.helmRepository }}"
 
 

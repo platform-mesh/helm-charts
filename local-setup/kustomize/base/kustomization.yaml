@@ -5,3 +5,4 @@ resources:
   - namespaces
   - kyverno
   - ocm-k8s-toolkit
+  - crds
