@@ -2,7 +2,7 @@ apiVersion: operator.kcp.io/v1alpha1
 kind: RootShard
 metadata:
   name: root
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   external:
     # replace the hostname with the external DNS name for your kcp instance
@@ -23,4 +23,4 @@ spec:
     endpoints:
       # this is the service URL to etcd. Replace if Helm chart was
       # installed under a different name or the namespace is not "default"
-      - http://{{ .Values.kcp.etcd.service.name}}.{{ .Values.kcp.etcd.namespace}}.svc.cluster.local:{{.Values.kcp.etcd.service.port}}
+      - http://{{ .Values.kcp.etcd.service.name}}.{{ .Values.kcp.namespace}}.svc.cluster.local:{{.Values.kcp.etcd.service.port}}

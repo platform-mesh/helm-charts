@@ -2,7 +2,7 @@ apiVersion: druid.gardener.cloud/v1alpha1
 kind: Etcd
 metadata:
   name: {{ .Values.kcp.etcd.name | default "etcd-kcp-client" }}
-  namespace: {{ .Values.kcp.etcd.namespace | default "kcp-system" }}
+  namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
   labels:
     app: etcd-statefulset
     gardener.cloud/role: controlplane

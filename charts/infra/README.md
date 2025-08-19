@@ -22,7 +22,6 @@ A Helm chart for Kubernetes
 | kcp.etcd.backup.resources.requests.memory | string | `"128Mi"` |  |
 | kcp.etcd.defragmentationSchedule | string | `"0 */24 * * *"` |  |
 | kcp.etcd.name | string | `"etcd-kcp"` |  |
-| kcp.etcd.namespace | string | `"kcp-system"` |  |
 | kcp.etcd.quota | string | `"8Gi"` |  |
 | kcp.etcd.replicas | int | `1` |  |
 | kcp.etcd.resources.limits.cpu | string | `"500m"` |  |
@@ -44,6 +43,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.additionalPathMappings[1].path | string | `"/services/marketplace"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
+| kcp.namespace | string | `"kcp-system"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |
 | kcp.oidc.enabled | bool | `true` |  |
 | kcp.oidc.groupsClaim | string | `"groups"` |  |
@@ -70,7 +70,7 @@ Example
 ```
 # infra
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -94,7 +94,6 @@ A Helm chart for Kubernetes
 | kcp.etcd.backup.resources.requests.memory | string | `"128Mi"` |  |
 | kcp.etcd.defragmentationSchedule | string | `"0 */24 * * *"` |  |
 | kcp.etcd.name | string | `"etcd-kcp"` |  |
-| kcp.etcd.namespace | string | `"kcp-system"` |  |
 | kcp.etcd.quota | string | `"8Gi"` |  |
 | kcp.etcd.replicas | int | `1` |  |
 | kcp.etcd.resources.limits.cpu | string | `"500m"` |  |
@@ -116,6 +115,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.additionalPathMappings[1].path | string | `"/services/marketplace"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
+| kcp.namespace | string | `"kcp-system"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |
 | kcp.oidc.enabled | bool | `true` |  |
 | kcp.oidc.groupsClaim | string | `"groups"` |  |
