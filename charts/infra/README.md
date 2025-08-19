@@ -47,12 +47,27 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.additionalPathMappings[1].path | string | `"/services/marketplace"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
+| kcp.frontProxy.name | string | `"frontproxy"` |  |
+| kcp.istio.gateway.annotations | object | `{}` |  |
+| kcp.istio.gateway.create | bool | `true` |  |
+| kcp.istio.gateway.existingGateway.name | string | `"gateway"` |  |
+| kcp.istio.gateway.existingGateway.namespace | string | `"openmfp-system"` |  |
+| kcp.istio.gateway.selector.istio | string | `"gateway"` |  |
+| kcp.istio.gateway.servers.name | string | `"https"` |  |
+| kcp.istio.gateway.servers.port | int | `8443` |  |
+| kcp.istio.gateway.servers.protocol | string | `"HTTPS"` |  |
+| kcp.istio.gateway.tls.mode | string | `"PASSTHROUGH"` |  |
+| kcp.istio.hosts[0] | string | `"kcp.portal.dev.local"` |  |
 | kcp.namespace | string | `"kcp-system"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |
 | kcp.oidc.enabled | bool | `true` |  |
 | kcp.oidc.groupsClaim | string | `"groups"` |  |
 | kcp.oidc.issuerUrl | string | `"https://portal.dev.local:8443/keycloak/realms/default"` |  |
 | kcp.oidc.usernameClaim | string | `"email"` |  |
+| kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
+| kcp.webhook.caData | string | `""` |  |
+| kcp.webhook.enabled | bool | `false` |  |
+| kcp.webhook.server | string | `"https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz"` |  |
 
 ## Overriding Values
 
