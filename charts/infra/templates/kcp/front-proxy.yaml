@@ -1,7 +1,7 @@
 apiVersion: operator.kcp.io/v1alpha1
 kind: FrontProxy
 metadata:
-  name: frontproxy
+  name: {{.Values.kcp.frontProxy.name }}
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   auth:
