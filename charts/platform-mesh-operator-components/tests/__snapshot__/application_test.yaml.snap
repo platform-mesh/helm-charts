@@ -5,6 +5,7 @@ it should render the application manifests:
     metadata:
       labels:
         artifact: image
+        component: etcd-druid
         repo: oci
       name: etcd-druid-image
     spec:
