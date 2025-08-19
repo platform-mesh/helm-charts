@@ -94,6 +94,9 @@ components:
       - name: extension-manager-operator
         componentName: github.com/platform-mesh/extension-manager-operator
         version: {{ .EXTENSION_MANAGER_OPERATOR_VERSION }}
+      - name: infra
+        componentName: github.com/platform-mesh/infra
+        version: {{ .INFRA_VERSION }}
       - name: security-operator
         componentName: github.com/platform-mesh/security-operator
         version: {{ .SECURITY_OPERATOR_VERSION }}
