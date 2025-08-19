@@ -115,7 +115,7 @@ components:
       - name: istio-base
         componentName: github.com/istio/istio/base
         version: {{ .ISTIO_VERSION }}
-      - name: istiod
+      - name: istio-istiod
         componentName: github.com/istio/istio/istiod
         version: {{ .ISTIO_VERSION }}
       - name: istio-gateway
