@@ -102,7 +102,7 @@ components:
         version: {{ .KEYCLOAK_VERSION }}
         access:
           type: ociArtifact
-          imageReference: "oci://registry-1.docker.io/bitnamicharts/keycloak:{{ .KEYCLOAK_VERSION }}"
+          imageReference: registry-1.docker.io/bitnamicharts/keycloak:{{ .KEYCLOAK_VERSION }}
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
