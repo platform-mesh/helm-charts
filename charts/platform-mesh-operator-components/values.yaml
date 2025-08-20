@@ -205,6 +205,12 @@ services:
             port: '{{ .Values.port }}'
             name: pass-https
             protocol: HTTPS
+      keycloak:
+            istio:
+              virtualservice:
+                hosts:
+                  - "{{ .Values.baseDomain }}"
+
   kcp-operator:
     helmRepo: true
     enabled: true
@@ -271,11 +277,6 @@ services:
       - name: istio-istiod
         namespace: default
     values:
-      #      service:
-      #        name: keycloak
-      #      externalSecrets:
-      #        keycloakAdminRemoteRef: keycloak-admin
-      #        postgresAdminRemoteRef: postgres-admin
       extraEnvVars:
         - name: JAVA_OPTS_APPEND
           value: |-
@@ -284,23 +285,7 @@ services:
           value: xforwarded
         - name: KC_HOSTNAME_STRICT
           value: "false"
-          #      domain:
-          #        pathPrefix: "/keycloak"
-          #      istio:
-          #        https:
-          #          enabled: true
-          #        virtualservice:
-          #          hosts:
-          #            - "{{ .Values.baseDomain }}"
-          #      crossplane:
-          #        clients:
-          #          default:
-          #            validRedirectUris:
-          #              - "{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"
-          #      keycloakConfig:
-          #        url: "https://{{ .Values.baseDomain }}/keycloak"
-          #        redirectUrls:
-          #          - "{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"
+
   kubernetes-graphql-gateway:
     enabled: true
     dependsOn:

@@ -220,6 +220,11 @@ it should render the application manifests:
               name: pass-https
               port: "443"
               protocol: HTTPS
+        keycloak:
+          istio:
+            virtualservice:
+              hosts:
+                - example.com
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
