@@ -1,0 +1,12 @@
+{{- if eq (include "common.istioEnabled" .) "true" -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: openfga
+  namespace: {{ .Release.Namespace }}
+spec:
+  host: openfga.{{ .Release.Namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+{{- end }}

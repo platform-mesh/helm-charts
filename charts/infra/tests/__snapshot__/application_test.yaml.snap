@@ -176,6 +176,89 @@ match snapshots:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+  8: |
+    apiVersion: security.istio.io/v1beta1
+    kind: AuthorizationPolicy
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      action: ALLOW
+      rules:
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/platform-mesh-system/sa/iam-service
+                  - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
+                  - cluster.local/ns/platform-mesh-system/sa/security-operator
+                  - cluster.local/ns/platform-mesh-system/sa/account-operator
+          to:
+            - operation:
+                methods:
+                  - POST
+                  - GET
+                  - PUT
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/platform-mesh-system/*
+          to:
+            - operation:
+                methods:
+                  - GET
+                paths:
+                  - /stores*
+            - operation:
+                methods:
+                  - POST
+                paths:
+                  - /stores/{*}/read
+                  - /stores/{*}/write
+                  - /stores/{*}/check
+                  - /stores/{*}/batch-check
+                  - /stores/{*}/expand
+                  - /stores/{*}/list-objects
+                  - /stores/{*}/streamed-list-objects
+                  - /openfga.v1.OpenFGAService/Read*
+                  - /openfga.v1.OpenFGAService/Check*
+                  - /openfga.v1.OpenFGAService/BatchCheck*
+                  - /openfga.v1.OpenFGAService/Expand*
+                  - /openfga.v1.OpenFGAService/List*
+                  - /openfga.v1.OpenFGAService/StreamedList*
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: openfga
+  9: |
+    apiVersion: networking.istio.io/v1alpha3
+    kind: DestinationRule
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      host: openfga.platform-mesh-system.svc.cluster.local
+      trafficPolicy:
+        tls:
+          mode: ISTIO_MUTUAL
+  10: |
+    apiVersion: security.istio.io/v1beta1
+    kind: RequestAuthentication
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      jwtRules: null
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: openfga
+  11: |
+    apiVersion: v1
+    data:
+      uri: cG9zdGdyZXM6Ly9wb3N0Z3Jlczpwb3N0Z3Jlc0BvcGVuZmdhLW9wZW5mZ2EtcG9zdGdyZXM6NTQzMi9wb3N0Z3Jlcw==
+    kind: Secret
+    metadata:
+      name: openfga-db
+      namespace: platform-mesh-system
+    type: Opaque
 match snapshots w. hostAliases enabled:
   1: |
     apiVersion: cert-manager.io/v1
@@ -371,3 +454,86 @@ match snapshots w. hostAliases enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+  8: |
+    apiVersion: security.istio.io/v1beta1
+    kind: AuthorizationPolicy
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      action: ALLOW
+      rules:
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/platform-mesh-system/sa/iam-service
+                  - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
+                  - cluster.local/ns/platform-mesh-system/sa/security-operator
+                  - cluster.local/ns/platform-mesh-system/sa/account-operator
+          to:
+            - operation:
+                methods:
+                  - POST
+                  - GET
+                  - PUT
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/platform-mesh-system/*
+          to:
+            - operation:
+                methods:
+                  - GET
+                paths:
+                  - /stores*
+            - operation:
+                methods:
+                  - POST
+                paths:
+                  - /stores/{*}/read
+                  - /stores/{*}/write
+                  - /stores/{*}/check
+                  - /stores/{*}/batch-check
+                  - /stores/{*}/expand
+                  - /stores/{*}/list-objects
+                  - /stores/{*}/streamed-list-objects
+                  - /openfga.v1.OpenFGAService/Read*
+                  - /openfga.v1.OpenFGAService/Check*
+                  - /openfga.v1.OpenFGAService/BatchCheck*
+                  - /openfga.v1.OpenFGAService/Expand*
+                  - /openfga.v1.OpenFGAService/List*
+                  - /openfga.v1.OpenFGAService/StreamedList*
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: openfga
+  9: |
+    apiVersion: networking.istio.io/v1alpha3
+    kind: DestinationRule
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      host: openfga.platform-mesh-system.svc.cluster.local
+      trafficPolicy:
+        tls:
+          mode: ISTIO_MUTUAL
+  10: |
+    apiVersion: security.istio.io/v1beta1
+    kind: RequestAuthentication
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      jwtRules: null
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: openfga
+  11: |
+    apiVersion: v1
+    data:
+      uri: cG9zdGdyZXM6Ly9wb3N0Z3Jlczpwb3N0Z3Jlc0BvcGVuZmdhLW9wZW5mZ2EtcG9zdGdyZXM6NTQzMi9wb3N0Z3Jlcw==
+    kind: Secret
+    metadata:
+      name: openfga-db
+      namespace: platform-mesh-system
+    type: Opaque
