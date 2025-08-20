@@ -144,9 +144,6 @@ kubectl rollout restart deployment portal -n platform-mesh-system
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s kcp
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
   --timeout=280s rebac-authz-webhook
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
@@ -159,10 +156,10 @@ kubectl wait --namespace default \
   --timeout=280s security-operator
 
 # Restart deployments to ensure they pick up updates
-kubectl rollout restart deployment kcp -n platform-mesh-system
-kubectl rollout restart deployment kcp-front-proxy -n platform-mesh-system
-kubectl rollout status deployment kcp -n platform-mesh-system
-kubectl rollout status deployment kcp-front-proxy -n platform-mesh-system
+kubectl rollout restart deployment root-kcp -n platform-mesh-system
+kubectl rollout restart deployment frontproxy-front-proxy -n platform-mesh-system
+kubectl rollout status deployment root-kcp -n platform-mesh-system
+kubectl rollout status deployment frontproxy-front-proxy -n platform-mesh-system
 
 kubectl rollout restart deployment rebac-authz-webhook -n platform-mesh-system
 kubectl rollout status deployment rebac-authz-webhook -n platform-mesh-system
@@ -174,18 +171,7 @@ kubectl rollout restart deployment kubernetes-graphql-gateway -n platform-mesh-s
 kubectl rollout status deployment kubernetes-graphql-gateway -n platform-mesh-system
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
-KCP_CA_SECRET=kcp-front-proxy-cert
-KCP_ADMIN_SECRET=kcp-cluster-admin-client-cert
-mkdir -p $PWD/.secret/kcp
-kubectl get secret $KCP_CA_SECRET -n platform-mesh-system -o=jsonpath='{.data.tls\.crt}' | base64 -d > $PWD/.secret/kcp/ca.crt
-kubectl --kubeconfig=$PWD/.secret/kcp/admin.kubeconfig config set-cluster workspace.kcp.io/current --server https://kcp.api.portal.dev.local:8443/clusters/root --certificate-authority=$PWD/.secret/kcp/ca.crt
-kubectl get secret $KCP_ADMIN_SECRET -n platform-mesh-system -o=jsonpath='{.data.tls\.crt}' | base64 -d > $PWD/.secret/kcp/client.crt
-kubectl get secret $KCP_ADMIN_SECRET -n platform-mesh-system -o=jsonpath='{.data.tls\.key}' | base64 -d > $PWD/.secret/kcp/client.key
-chmod 600 .secret/kcp/client.crt .secret/kcp/client.key
-kubectl --kubeconfig=$PWD/.secret/kcp/admin.kubeconfig config set-credentials kcp-admin --client-certificate=.secret/kcp/client.crt --client-key=$PWD/.secret/kcp/client.key
-kubectl --kubeconfig=$PWD/.secret/kcp/admin.kubeconfig config set-context workspace.kcp.io/current --cluster=workspace.kcp.io/current --user=kcp-admin
-kubectl --kubeconfig=$PWD/.secret/kcp/admin.kubeconfig config use-context workspace.kcp.io/current
-
+$SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
 export KUBECONFIG=$PWD/.secret/kcp/admin.kubeconfig
 CORE_EXPORT_ID=$(kubectl get apiexport core.platform-mesh.io --server='https://kcp.api.portal.dev.local:8443/clusters/root:platform-mesh-system' -ojson | jq -r '.metadata.annotations["kcp.io/cluster"]')
