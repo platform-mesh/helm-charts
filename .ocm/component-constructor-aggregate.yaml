@@ -129,12 +129,9 @@ components:
       - name: virtual-workspaces
         componentName: github.com/platform-mesh/virtual-workspaces
         version: {{ .VIRTUAL_WORKSPACES_VERSION }}
-      ## 3rd party components
-      ## TODO should be moved to 3rd party components
       - name: crossplane
         componentName: github.com/crossplane/crossplane
         version: {{ .CROSSPLANE_VERSION }}
-      ## TODO should be moved to 3rd party components
       - name: istio-base
         componentName: github.com/istio/istio/base
         version: {{ .ISTIO_VERSION }}
