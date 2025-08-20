@@ -5,6 +5,13 @@ hostAliases:
     - ip: "10.96.188.4"
       hostnames:
         - "kcp.api.portal.dev.local"
+
+crossplane:
+  enabled: true
+
+externalSecrets:
+  enabled: false
+
 kcp:
   namespace: platform-mesh-system
   external:
@@ -165,6 +172,43 @@ keycloak:
 
     identityProviders: {}
 
+  keycloakConfig:
+    # -- url of the keycloak server
+    url: http://keycloak.platform-mesh-system.svc.cluster.local/keycloak
+    userRegistration:
+      # -- toggle to enable/disable user registration
+      enabled: true
+    # -- redirect urls
+    redirectUrls: ["http://localhost:8000/callback*"]
+    # -- realm configuration
+    realm:
+      # -- realm name
+      name: master
+    # -- client configuration
+    client:
+      # -- client name
+      name: default
+      # -- target secret options
+      targetSecret:
+        # -- secret name
+        name: portal-client-secret-default
+        # -- secret namespace
+        namespace: platform-mesh-system
+      # -- token lifespan
+      tokenLifespan: 3600
+    # -- admin user configuration
+    admin:
+      username:
+        # -- username
+        value: keycloak-admin
+      # -- admin password
+      password:
+        valueFrom:
+          secretKeyRef:
+            # -- name of the secret containing the password
+            name: keycloak-admin
+            # -- key of the password in the secret
+            key: secret
 istio:
   networking:
     # -- The istio apiVersion used for networking resources in this chart eg. networking.istio.io/v1, networking.istio.io/v1beta1

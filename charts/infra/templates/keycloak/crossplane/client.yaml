@@ -19,8 +19,8 @@ spec:
     name: {{ $.Values.keycloak.crossplane.providerConfig.name }}
 {{- if ne $val.accessType "PUBLIC" }}
   writeConnectionSecretToRef:
-    name: {{ $.Values.keycloakConfig.client.targetSecret.name }}
-    namespace: {{ $.Values.keycloakConfig.client.targetSecret.namespace }}
+    name: {{ $.Values.keycloak.keycloakConfig.client.targetSecret.name }}
+    namespace: {{ $.Values.keycloak.keycloakConfig.client.targetSecret.namespace }}
 {{- end }}
 
 ---
