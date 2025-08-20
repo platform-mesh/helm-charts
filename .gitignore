@@ -1,6 +1,7 @@
 bin/*
 .idea
 .secret
+.debug
 
 local-setup/webhook-config/*
 !local-setup/webhook-config/*.sh
