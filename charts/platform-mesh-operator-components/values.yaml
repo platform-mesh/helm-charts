@@ -298,7 +298,6 @@ services:
         - name: JAVA_OPTS_APPEND
           value: |-
             -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
-
       # -- configuration for the postgresql sub-chart
       postgresql:
         primary:
@@ -317,7 +316,6 @@ services:
             userPasswordKey: password
             # -- admin password key
             adminPasswordKey: password
-
   kubernetes-graphql-gateway:
     enabled: true
     dependsOn:
