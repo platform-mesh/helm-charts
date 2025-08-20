@@ -342,10 +342,13 @@ it should render the application manifests:
       name: keycloak
       namespace: default
     spec:
-      chartRef:
-        kind: OCIRepository
-        name: keycloak
-        namespace: default
+      chart:
+        spec:
+          chart: keycloak
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: keycloak
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -354,36 +357,13 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 5m
       values:
-        crossplane:
-          clients:
-            default:
-              validRedirectUris:
-                - '{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*'
-        domain:
-          pathPrefix: /keycloak
-        externalSecrets:
-          keycloakAdminRemoteRef: keycloak-admin
-          postgresAdminRemoteRef: postgres-admin
-        istio:
-          https:
-            enabled: true
-          virtualservice:
-            hosts:
-              - '{{ .Values.baseDomain }}'
-        keycloak:
-          extraEnvVars:
-            - name: JAVA_OPTS_APPEND
-              value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
-            - name: KC_PROXY_HEADERS
-              value: xforwarded
-            - name: KC_HOSTNAME_STRICT
-              value: "false"
-        keycloakConfig:
-          redirectUrls:
-            - '{{ .Values.baseDomain }}:{{ .Values.port }}/callback*'
-          url: https://{{ .Values.baseDomain }}/keycloak
-        service:
-          name: keycloak
+        extraEnvVars:
+          - name: JAVA_OPTS_APPEND
+            value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
+          - name: KC_PROXY_HEADERS
+            value: xforwarded
+          - name: KC_HOSTNAME_STRICT
+            value: "false"
   14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -444,10 +424,13 @@ it should render the application manifests:
       name: openfga
       namespace: default
     spec:
-      chartRef:
-        kind: OCIRepository
-        name: openfga
-        namespace: default
+      chart:
+        spec:
+          chart: openfga
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: openfga
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -455,19 +438,7 @@ it should render the application manifests:
       releaseName: openfga
       targetNamespace: platform-mesh-system
       timeout: 5m
-      values:
-        databaseService: openfga-openfga-postgres
-        rbac:
-          writePrincipals:
-            - cluster.local/ns/platform-mesh-system/sa/iam-service
-            - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
-            - cluster.local/ns/platform-mesh-system/sa/security-operator
-            - cluster.local/ns/platform-mesh-system/sa/account-operator
-        trust:
-          default:
-            audience: default
-            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+      values: null
   16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -816,7 +787,7 @@ it should render the application manifests:
     metadata:
       labels:
         artifact: chart
-        repo: oci
+        repo: helm
       name: keycloak
     spec:
       componentRef:
@@ -858,7 +829,7 @@ it should render the application manifests:
     metadata:
       labels:
         artifact: chart
-        repo: oci
+        repo: helm
       name: openfga
     spec:
       componentRef:

@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.26"` |  |
+| componentVersion.semver | string | `"0.0.28"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.componentName | string | `"platform-mesh"` |  |
@@ -117,21 +117,13 @@ A Helm chart for Kubernetes
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
-| services.keycloak.values.crossplane.clients.default.validRedirectUris[0] | string | `"{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"` |  |
-| services.keycloak.values.domain.pathPrefix | string | `"/keycloak"` |  |
-| services.keycloak.values.externalSecrets.keycloakAdminRemoteRef | string | `"keycloak-admin"` |  |
-| services.keycloak.values.externalSecrets.postgresAdminRemoteRef | string | `"postgres-admin"` |  |
-| services.keycloak.values.istio.https.enabled | bool | `true` |  |
-| services.keycloak.values.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.keycloak.values.keycloak.extraEnvVars[0].name | string | `"JAVA_OPTS_APPEND"` |  |
-| services.keycloak.values.keycloak.extraEnvVars[0].value | string | `"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"` |  |
-| services.keycloak.values.keycloak.extraEnvVars[1].name | string | `"KC_PROXY_HEADERS"` |  |
-| services.keycloak.values.keycloak.extraEnvVars[1].value | string | `"xforwarded"` |  |
-| services.keycloak.values.keycloak.extraEnvVars[2].name | string | `"KC_HOSTNAME_STRICT"` |  |
-| services.keycloak.values.keycloak.extraEnvVars[2].value | string | `"false"` |  |
-| services.keycloak.values.keycloakConfig.redirectUrls[0] | string | `"{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"` |  |
-| services.keycloak.values.keycloakConfig.url | string | `"https://{{ .Values.baseDomain }}/keycloak"` |  |
-| services.keycloak.values.service.name | string | `"keycloak"` |  |
+| services.keycloak.helmRepo | bool | `true` |  |
+| services.keycloak.values.extraEnvVars[0].name | string | `"JAVA_OPTS_APPEND"` |  |
+| services.keycloak.values.extraEnvVars[0].value | string | `"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"` |  |
+| services.keycloak.values.extraEnvVars[1].name | string | `"KC_PROXY_HEADERS"` |  |
+| services.keycloak.values.extraEnvVars[1].value | string | `"xforwarded"` |  |
+| services.keycloak.values.extraEnvVars[2].name | string | `"KC_HOSTNAME_STRICT"` |  |
+| services.keycloak.values.extraEnvVars[2].value | string | `"false"` |  |
 | services.kubernetes-graphql-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.kubernetes-graphql-gateway.dependsOn[0].namespace | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.enabled | bool | `true` |  |
@@ -170,14 +162,7 @@ A Helm chart for Kubernetes
 | services.openfga.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.openfga.dependsOn[0].namespace | string | `"default"` |  |
 | services.openfga.enabled | bool | `true` |  |
-| services.openfga.values.databaseService | string | `"openfga-openfga-postgres"` |  |
-| services.openfga.values.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
-| services.openfga.values.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa"` |  |
-| services.openfga.values.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
-| services.openfga.values.rbac.writePrincipals[3] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
-| services.openfga.values.trust.default.audience | string | `"default"` |  |
-| services.openfga.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
-| services.openfga.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
+| services.openfga.helmRepo | bool | `true` |  |
 | services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.portal.dependsOn[0].namespace | string | `"default"` |  |
 | services.portal.enabled | bool | `false` |  |
