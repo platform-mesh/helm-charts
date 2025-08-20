@@ -61,8 +61,6 @@ A Helm chart for Kubernetes
 | services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[1].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
-| services.infra.values.fga.enabled | bool | `false` |  |
-| services.infra.values.istio.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.name | string | `"https"` |  |

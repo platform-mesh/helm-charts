@@ -184,10 +184,7 @@ services:
       - name: kcp-operator
         namespace: default
     values:
-      fga:
-        enabled: false
       istio:
-        enabled: true
         main:
           gateway:
             hosts:
