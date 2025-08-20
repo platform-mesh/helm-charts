@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.44
+  chartVersion: 0.11.47
   values:
     istio-gateway:
       enabled: true
@@ -35,6 +35,10 @@ spec:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2
     infra:
       values:
+        crossplane:
+          enabled: true
+        externalSecrets:
+          enabled: false
         hostAliases:
           enabled: true
         kcp:
