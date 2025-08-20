@@ -441,7 +441,6 @@ it should render the application manifests:
           ttl: 10s
         datastore:
           applyMigrations: true
-          deployOwnUriSecret: true
           engine: postgres
           maxOpenConns: 30
           migrationType: initContainer
@@ -450,7 +449,6 @@ it should render the application manifests:
               pullPolicy: Always
               repository: groundnuty/k8s-wait-for
               tag: v2.0
-          uriSecret: openfga-db
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users

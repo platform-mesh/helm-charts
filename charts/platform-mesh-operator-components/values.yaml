@@ -370,8 +370,6 @@ services:
         ttl: 10s
       datastore:
         engine: postgres
-        uriSecret: "openfga-db"
-        deployOwnUriSecret: true # if set to true, new secret will be deployed with the name of uriSecret.
         maxOpenConns: 30
         applyMigrations: true
         migrationType: "initContainer"
