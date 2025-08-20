@@ -381,7 +381,7 @@ services:
       postgresql:
         ## @param postgresql.enabled enable the bitnami/postgresql subchart and deploy Postgres
         enabled: true
-        nameOverride: openfga-postgres
+        nameOverride: postgres
       telemetry:
         trace:
           enabled: true

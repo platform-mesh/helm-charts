@@ -179,7 +179,7 @@ A Helm chart for Kubernetes
 | services.openfga.values.migrate.annotations."sidecar.istio.io/inject" | string | `"false"` |  |
 | services.openfga.values.podAnnotations."traffic.sidecar.istio.io/excludeInboundPorts" | string | `"2112"` |  |
 | services.openfga.values.postgresql.enabled | bool | `true` |  |
-| services.openfga.values.postgresql.nameOverride | string | `"openfga-postgres"` |  |
+| services.openfga.values.postgresql.nameOverride | string | `"postgres"` |  |
 | services.openfga.values.replicaCount | int | `1` |  |
 | services.openfga.values.telemetry.trace.enabled | bool | `true` |  |
 | services.openfga.values.telemetry.trace.otlp.endpoint | string | `"observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317"` |  |
