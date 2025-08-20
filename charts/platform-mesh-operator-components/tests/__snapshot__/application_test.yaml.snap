@@ -149,12 +149,12 @@ it should render the application manifests:
       values:
         gateway:
           name: gateway
-        hostname: api.{{ .Values.baseDomain }}
+        hostname: api.example.com
         trust:
           default:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+            trustedIssuer: https://example.com:443/keycloak/realms/default
   7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -177,7 +177,7 @@ it should render the application manifests:
         istio:
           virtualService:
             hosts:
-              - '{{ .Values.baseDomain }}'
+              - example.com
   8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -203,10 +203,10 @@ it should render the application manifests:
           main:
             gateway:
               hosts:
-                - '{{ .Values.baseDomain }}'
-                - '*.{{ .Values.baseDomain }}'
+                - example.com
+                - '*.example.com'
               name: https
-              port: '{{ .Values.port }}'
+              port: "443"
               protocol: HTTPS
               tls:
                 credentialName: domain-certificate
@@ -216,9 +216,9 @@ it should render the application manifests:
             gateway:
               enabled: true
               hosts:
-                - kcp.api.{{ .Values.baseDomain }}
+                - kcp.api.example.com
               name: pass-https
-              port: '{{ .Values.port }}'
+              port: "443"
               protocol: HTTPS
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -395,11 +395,11 @@ it should render the application manifests:
           default:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
+            trustedIssuer: https://example.com:443/keycloak/realms/default
         virtualService:
           hosts:
-            - '{{ .Values.baseDomain }}'
-            - '*.{{ .Values.baseDomain }}'
+            - example.com
+            - '*.example.com'
           httpRules:
             - cors:
                 allowHeaders:
