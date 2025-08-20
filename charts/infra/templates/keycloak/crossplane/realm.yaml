@@ -1,0 +1,21 @@
+{{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "crossplane.enabled")) "true" -}}
+apiVersion: realm.keycloak.crossplane.io/v1alpha1
+kind: Realm
+metadata:
+  name: {{ .Values.keycloak.crossplane.realm.name}}
+spec:
+  forProvider:
+    accessTokenLifespan: {{ .Values.keycloak.crossplane.realm.accessTokenLifespan }}
+    ssoSessionIdleTimeout: {{ .Values.keycloak.crossplane.realm.accessTokenLifespan }}
+    attributes:
+      organizationsEnabled: "true"
+    displayName: {{ .Values.keycloak.crossplane.realm.displayName }}
+    displayNameHtml: <b>{{ .Values.keycloak.crossplane.realm.displayName }}</b>
+    enabled: true
+    realm: {{ .Values.keycloak.crossplane.realm.name }}
+    loginWithEmailAllowed: true
+    registrationEmailAsUsername: true
+    registrationAllowed: {{ .Values.keycloak.crossplane.realm.registrationAllowed }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+{{- end -}}

@@ -68,15 +68,6 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.clusterIP | string | `""` |  |
 | kcp.frontProxy.name | string | `"frontproxy"` |  |
 | kcp.frontProxy.port | int | `8443` |  |
-| kcp.istio.gateway.annotations | object | `{}` |  |
-| kcp.istio.gateway.create | bool | `true` |  |
-| kcp.istio.gateway.existingGateway.name | string | `"gateway"` |  |
-| kcp.istio.gateway.existingGateway.namespace | string | `"openmfp-system"` |  |
-| kcp.istio.gateway.selector.istio | string | `"gateway"` |  |
-| kcp.istio.gateway.servers.name | string | `"https"` |  |
-| kcp.istio.gateway.servers.port | int | `8443` |  |
-| kcp.istio.gateway.servers.protocol | string | `"HTTPS"` |  |
-| kcp.istio.gateway.tls.mode | string | `"PASSTHROUGH"` |  |
 | kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |
@@ -87,7 +78,21 @@ A Helm chart for Kubernetes
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
 | kcp.webhook.caData | string | `""` |  |
 | kcp.webhook.enabled | bool | `false` |  |
-| kcp.webhook.server | string | `"https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz"` |  |
+| kcp.webhook.server | string | `"https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz"` |  |
+| keycloak.crossplane.clients.default.name | string | `"Default"` | name of the client |
+| keycloak.crossplane.clients.default.validRedirectUris | list | `["http://localhost:8000/callback*","http://localhost:4300/callback*"]` | valid redirect uris for the client |
+| keycloak.crossplane.clients.default.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
+| keycloak.crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
+| keycloak.crossplane.identityProviders | object | `{}` |  |
+| keycloak.crossplane.providerConfig | object | `{"name":"keycloak-provider-config","namespace":"platform-mesh-system"}` | crossplane provider config |
+| keycloak.crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
+| keycloak.crossplane.providerConfig.namespace | string | `"platform-mesh-system"` | client namespace |
+| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"default","registrationAllowed":true}` | crossplane realm config |
+| keycloak.crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
+| keycloak.crossplane.realm.displayName | string | `"default"` | realm display name |
+| keycloak.crossplane.realm.name | string | `"default"` | realm name |
+| keycloak.crossplane.realm.registrationAllowed | bool | `true` | realm registration allowed |
+| keycloak.crossplane.trustedAudiences | list | `[]` |  |
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |

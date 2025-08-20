@@ -1,0 +1,63 @@
+{{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "crossplane.enabled")) "true" -}}
+{{- range $key, $val := .Values.keycloak.crossplane.identityProviders }}
+apiVersion: oidc.keycloak.crossplane.io/v1alpha1
+kind: IdentityProvider
+metadata:
+  name: {{ $key }}
+spec:
+  forProvider:
+    alias: {{ $key }}
+    realmRef:
+      name: {{ $.Values.keycloak.crossplane.realm.name }}
+    authorizationUrl: {{ $val.authorizationUrl }}
+    tokenUrl: {{ $val.tokenUrl }}
+    issuer: {{ $val.issuer }}
+    clientId: {{ $val.clientId }}
+    clientSecretSecretRef: {{ $val.clientSecretRef | toYaml | nindent 6 }}
+    defaultScopes: openid email profile
+    trustEmail: true
+    hideOnLoginPage: true
+    {{ with $val.extraConfig }}
+    extraConfig:
+{{ toYaml . | nindent 6 }}
+    {{- end }}
+  providerConfigRef:
+    name: {{ $.Values.keycloak.crossplane.providerConfig.name }}
+---
+apiVersion: identityprovider.keycloak.crossplane.io/v1alpha1
+kind: IdentityProviderMapper
+metadata:
+  name: lastname
+spec:
+  forProvider:
+    realmRef:
+      name: {{ $.Values.keycloak.crossplane.realm.name }}
+    extraConfig:
+      Claim: last_name
+      UserAttribute: lastName
+      syncMode: INHERIT
+    identityProviderAlias: {{ $key }}
+    identityProviderMapper: 'oidc-user-attribute-idp-mapper'
+    name: last_name
+  providerConfigRef:
+    name: {{ $.Values.keycloak.crossplane.providerConfig.name }}
+---
+apiVersion: identityprovider.keycloak.crossplane.io/v1alpha1
+kind: IdentityProviderMapper
+metadata:
+  name: firstname
+spec:
+  forProvider:
+    realmRef:
+      name: {{ $.Values.keycloak.crossplane.realm.name }}
+    extraConfig:
+      Claim: first_name
+      UserAttribute: firstName
+      syncMode: INHERIT
+    identityProviderAlias: {{ $key }}
+    identityProviderMapper: 'oidc-user-attribute-idp-mapper'
+    name: first_name
+  providerConfigRef:
+    name: {{ $.Values.keycloak.crossplane.providerConfig.name }}
+{{ end -}}
+{{- end -}}

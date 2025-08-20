@@ -1,0 +1,61 @@
+{{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "crossplane.enabled")) "true" -}}
+apiVersion: defaults.keycloak.crossplane.io/v1alpha1
+kind: DefaultGroups
+metadata:
+  name: default
+spec:
+  forProvider:
+    groupIdsRefs:
+    - name: portal
+    realmIdRef:
+      name: {{ .Values.keycloak.crossplane.realm.name }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+---
+
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Group
+metadata:
+  name: portal
+spec:
+  forProvider:
+    name: portal
+    realmIdRef:
+      name: {{ .Values.keycloak.crossplane.realm.name }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+
+---
+
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientScope
+metadata:
+  name: groups-client-scope
+spec:
+  forProvider:
+    description: When requested, this scope will map a user's group memberships to
+      a claim
+    includeInTokenScope: true
+    name: groups
+    realmIdRef:
+      name: {{ .Values.keycloak.crossplane.realm.name }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+
+---
+
+apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+kind: GroupMembershipProtocolMapper
+metadata:
+  name: group-membership-mapper
+spec:
+  forProvider:
+    claimName: groups
+    clientIdRef:
+      name: groups-client-scope
+    name: group-membership-mapper
+    realmIdRef:
+      name: {{ .Values.keycloak.crossplane.realm.name }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+{{- end -}}
