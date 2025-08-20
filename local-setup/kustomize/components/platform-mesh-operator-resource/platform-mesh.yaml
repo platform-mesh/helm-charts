@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.25
+  chartVersion: 0.11.26
   values:
     istio-gateway:
       enabled: true
@@ -16,19 +16,18 @@ spec:
         service:
           type: None
     keycloak:
-      enabled: false
+      enabled: true
       values:
-        crossplane:
-          clients:
-            default:
-              validRedirectUris:
-                - "https://portal.dev.local:8443/callback*"
-                - "http://localhost:4300/callback*"
-        keycloakConfig:
-          url: http://keycloak.platform-mesh-system.svc.cluster.local/keycloak
-        keycloak:
-          service:
-            clusterIP: 10.96.0.110
+        service:
+          clusterIP: 10.96.0.110
+#        crossplane:
+#          clients:
+#            default:
+#              validRedirectUris:
+#                - "https://portal.dev.local:8443/callback*"
+#                - "http://localhost:4300/callback*"
+#        keycloakConfig:
+#          url: http://keycloak.platform-mesh-system.svc.cluster.local/keycloak
     crossplane:
       values:
         provider:
@@ -128,16 +127,15 @@ spec:
               hostnames:
                 - "portal.dev.local"
     openfga:
-      enabled: false
+      enabled: true
       values:
-        openfga:
-          telemetry:
-            trace:
-              enabled: true
-              otlp:
-                endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
-                tls:
-                  enabled: false
+        telemetry:
+          trace:
+            enabled: true
+            otlp:
+              endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+              tls:
+                enabled: false
     kubernetes-graphql-gateway:
       enabled: false
     virtual-workspaces:
