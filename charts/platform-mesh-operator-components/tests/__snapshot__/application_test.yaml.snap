@@ -356,13 +356,31 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 5m
       values:
+        auth:
+          adminUser: keycloak-admin
+          existingSecret: keycloak-admin
+          passwordSecretKey: secret
         extraEnvVars:
+          - name: KEYCLOAK_USER
+            value: keycloak-admin
+          - name: KEYCLOAK_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: secret
+                name: keycloak-admin
           - name: JAVA_OPTS_APPEND
-            value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
-          - name: KC_PROXY_HEADERS
-            value: xforwarded
-          - name: KC_HOSTNAME_STRICT
-            value: "false"
+            value: -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
+        httpRelativePath: /keycloak/
+        postgresql:
+          auth:
+            existingSecret: ""
+            secretKeys:
+              adminPasswordKey: password
+              userPasswordKey: password
+            username: keycloak
+          nameOverride: postgresql-keycloak
+          primary:
+            resourcesPreset: none
   14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
