@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.34
+  chartVersion: 0.11.36
   values:
     istio-gateway:
       enabled: true
@@ -129,6 +129,12 @@ spec:
     openfga:
       enabled: true
       values:
+        datastore:
+          uri: "postgres://postgres:password@openfga-postgresql.default.svc.cluster.local:5432/postgres?sslmode=disable"
+        postgresql:
+          auth:
+            postgresPassword: password
+            database: postgres
         telemetry:
           trace:
             enabled: true
