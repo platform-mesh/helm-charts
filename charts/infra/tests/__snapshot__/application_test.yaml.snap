@@ -175,6 +175,19 @@ match snapshots:
         hostname: kcp.api.portal.dev.local
         port: 8443
   8: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: trusted-platform-mesh-audiences
+    spec:
+      forProvider:
+        includeInTokenScope: true
+        name: trusted-platform-mesh-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  9: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -193,7 +206,7 @@ match snapshots:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  9: |
+  10: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -245,7 +258,7 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  10: |
+  11: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -256,7 +269,7 @@ match snapshots:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  11: |
+  12: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -461,6 +474,19 @@ match snapshots w. hostAliases enabled:
         hostname: kcp.api.portal.dev.local
         port: 8443
   8: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: trusted-platform-mesh-audiences
+    spec:
+      forProvider:
+        includeInTokenScope: true
+        name: trusted-platform-mesh-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  9: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -479,7 +505,7 @@ match snapshots w. hostAliases enabled:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  9: |
+  10: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -531,7 +557,7 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  10: |
+  11: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -542,7 +568,7 @@ match snapshots w. hostAliases enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  11: |
+  12: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:

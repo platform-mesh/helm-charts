@@ -73,7 +73,7 @@ kcp:
   webhook:
     enabled: false
     caData: ""
-    server: https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz
+    server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     authorizationWebhookSecretName: kcp-webhook-secret
 
   frontProxy:
@@ -129,6 +129,41 @@ keycloak:
     name: platform-mesh.io
     # -- path prefix
     pathPrefix: "/keycloak"
+
+  crossplane:
+    # -- toggle to enable/disable crossplane
+    enabled: true
+
+    # -- crossplane provider config
+    providerConfig:
+      # -- name of the client
+      name: keycloak-provider-config
+      # -- client namespace
+      namespace: platform-mesh-system
+
+    # -- crossplane realm config
+    realm:
+      # -- realm name
+      name: default
+      # -- realm display name
+      displayName: default
+      # -- realm registration allowed
+      registrationAllowed: true
+      # -- realm access token lifespan
+      accessTokenLifespan: 8h
+
+    clients:
+      default:
+        # -- name of the client
+        name: Default
+        # -- valid redirect uris for the client
+        validRedirectUris:
+          # -- keycloak callback url
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+    trustedAudiences: []
+
+    identityProviders: {}
 
 istio:
   networking:

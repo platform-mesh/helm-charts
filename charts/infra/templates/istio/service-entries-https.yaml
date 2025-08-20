@@ -2,7 +2,7 @@
 apiVersion: {{ .Values.istio.networking.apiVersion }}
 kind: ServiceEntry
 metadata:
-  name: openmfp-https
+  name: platform-mesh-https
   namespace: {{ .Release.Namespace }}
 spec:
   hosts:
