@@ -69,20 +69,7 @@ kcp:
   istio:
     hosts:
       - kcp.api.portal.dev.local
-    gateway:
-      create: true
-      annotations: {}
-      selector:
-        istio: gateway
-      servers:
-        port: 8443
-        name: https
-        protocol: HTTPS
-      tls:
-        mode: PASSTHROUGH
-      existingGateway:
-        namespace: openmfp-system
-        name: gateway
+
   webhook:
     enabled: false
     caData: ""

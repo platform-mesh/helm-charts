@@ -68,15 +68,6 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.clusterIP | string | `""` |  |
 | kcp.frontProxy.name | string | `"frontproxy"` |  |
 | kcp.frontProxy.port | int | `8443` |  |
-| kcp.istio.gateway.annotations | object | `{}` |  |
-| kcp.istio.gateway.create | bool | `true` |  |
-| kcp.istio.gateway.existingGateway.name | string | `"gateway"` |  |
-| kcp.istio.gateway.existingGateway.namespace | string | `"openmfp-system"` |  |
-| kcp.istio.gateway.selector.istio | string | `"gateway"` |  |
-| kcp.istio.gateway.servers.name | string | `"https"` |  |
-| kcp.istio.gateway.servers.port | int | `8443` |  |
-| kcp.istio.gateway.servers.protocol | string | `"HTTPS"` |  |
-| kcp.istio.gateway.tls.mode | string | `"PASSTHROUGH"` |  |
 | kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |

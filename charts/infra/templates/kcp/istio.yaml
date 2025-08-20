@@ -1,44 +1,13 @@
 {{- if eq (include "common.istioEnabled" .) "true" -}}
-{{- if .Values.kcp.istio.gateway.create -}}
----
-apiVersion: networking.istio.io/v1beta1
-kind: Gateway
-metadata:
-  name: {{ include "common.entity.name" . }}-tls-passthrough
-  namespace: {{ .Release.Namespace }}
-{{- if .Values.kcp.istio.gateway.annotations }}
-  annotations:
-    {{- toYaml .Values.kcp.istio.gateway.annotations | nindent 4 }}
-{{- end }}
-spec:
-  selector:
-    {{ .Values.kcp.istio.gateway.selector | toYaml | nindent 4 }}
-  servers:
-  - port:
-      number: {{ .Values.kcp.istio.gateway.servers.port }}
-      name: {{ .Values.kcp.istio.gateway.servers.name }}
-      protocol: {{ .Values.kcp.istio.gateway.servers.protocol }}
-    tls:
-      mode: {{ .Values.kcp.istio.gateway.tls.mode }}
-    hosts:
-    {{ .Values.kcp.istio.hosts | toYaml | nindent 6 }}
-
-{{- end }}
-
-
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: {{ include "common.entity.name" . }}
+  name: kcp
   namespace: {{ .Release.Namespace }}
 spec:
   gateways:
-  {{- if and (eq (include "common.istioEnabled" .) "true")  .Values.kcp.istio.gateway.create }}
-  - {{ .Release.Namespace }}/{{ include "common.entity.name" . }}-tls-passthrough
-  {{- else }}
-  - {{ .Values.kcp.istio.gateway.existingGateway.namespace }}/{{ .Values.kcp.istio.gateway.existingGateway.name }}
-  {{- end }}
+  - {{ .Release.Namespace }}/{{ .Values.istio.gateway.name}}
   hosts:
   {{ .Values.kcp.istio.hosts | toYaml | nindent 4 }}
   tls:
