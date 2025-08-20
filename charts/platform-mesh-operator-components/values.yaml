@@ -270,7 +270,6 @@ services:
     #            enabled: true
   keycloak:
     enabled: true
-    helmRepo: true
     dependsOn:
       - name: istio-istiod
         namespace: default
@@ -362,25 +361,20 @@ services:
         level: info
       autoscaling:
         enabled: false
-
       image:
         repository: "openfga/openfga"
         tag: ""
-
       replicaCount: 1
-
       podAnnotations:
         traffic.sidecar.istio.io/excludeInboundPorts: "2112"
-
       checkQueryCache:
         enabled: true
         limit: 10000
         ttl: 10s
-
       datastore:
         engine: postgres
         uriSecret: "openfga-db"
-        deployOwnUriSecret: true    # if set to true, new secret will be deployed with the name of uriSecret.
+        deployOwnUriSecret: true # if set to true, new secret will be deployed with the name of uriSecret.
         maxOpenConns: 30
         applyMigrations: true
         migrationType: "initContainer"
@@ -389,12 +383,10 @@ services:
             repository: groundnuty/k8s-wait-for
             pullPolicy: Always
             tag: "v2.0"
-
       postgresql:
         ## @param postgresql.enabled enable the bitnami/postgresql subchart and deploy Postgres
         enabled: true
         nameOverride: openfga-postgres
-
       telemetry:
         trace:
           enabled: true
@@ -402,7 +394,7 @@ services:
             endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
             tls:
               enabled: false
-          # sampleRatio:
+              # sampleRatio:
         #    values:
         #      databaseService: openfga-openfga-postgres
         #      trust:
