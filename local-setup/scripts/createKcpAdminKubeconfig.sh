@@ -1,6 +1,6 @@
 #!/bin/bash
 
-KCP_CA_SECRET=root-front-proxy-client-ca
+KCP_CA_SECRET=root-frontproxy-server
 KCP_ADMIN_SECRET=kcp-cluster-admin-client-cert
 KCP_URL=https://kcp.api.portal.dev.local:8443
 #KCP_URL=https://kcp.api.portal.cc-one.showroom.apeirora.eu
