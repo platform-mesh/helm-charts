@@ -117,7 +117,6 @@ A Helm chart for Kubernetes
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
-| services.keycloak.helmRepo | bool | `true` |  |
 | services.keycloak.values.extraEnvVars[0].name | string | `"JAVA_OPTS_APPEND"` |  |
 | services.keycloak.values.extraEnvVars[0].value | string | `"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"` |  |
 | services.keycloak.values.extraEnvVars[1].name | string | `"KC_PROXY_HEADERS"` |  |

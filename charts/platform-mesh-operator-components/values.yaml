@@ -270,7 +270,6 @@ services:
     #            enabled: true
   keycloak:
     enabled: true
-    helmRepo: true
     dependsOn:
       - name: istio-istiod
         namespace: default

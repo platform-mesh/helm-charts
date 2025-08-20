@@ -342,13 +342,10 @@ it should render the application manifests:
       name: keycloak
       namespace: default
     spec:
-      chart:
-        spec:
-          chart: keycloak
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: keycloak
+      chartRef:
+        kind: OCIRepository
+        name: keycloak
+        namespace: default
       dependsOn:
         - name: istio-istiod
           namespace: default
@@ -829,7 +826,7 @@ it should render the application manifests:
     metadata:
       labels:
         artifact: chart
-        repo: helm
+        repo: oci
       name: keycloak
     spec:
       componentRef:
