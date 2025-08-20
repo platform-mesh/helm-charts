@@ -250,15 +250,6 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  11: |
-    apiVersion: v1
-    data:
-      uri: cG9zdGdyZXM6Ly9wb3N0Z3Jlczpwb3N0Z3Jlc0BvcGVuZmdhLW9wZW5mZ2EtcG9zdGdyZXM6NTQzMi9wb3N0Z3Jlcw==
-    kind: Secret
-    metadata:
-      name: openfga-db
-      namespace: platform-mesh-system
-    type: Opaque
 match snapshots w. hostAliases enabled:
   1: |
     apiVersion: cert-manager.io/v1
@@ -528,12 +519,3 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  11: |
-    apiVersion: v1
-    data:
-      uri: cG9zdGdyZXM6Ly9wb3N0Z3Jlczpwb3N0Z3Jlc0BvcGVuZmdhLW9wZW5mZ2EtcG9zdGdyZXM6NTQzMi9wb3N0Z3Jlcw==
-    kind: Secret
-    metadata:
-      name: openfga-db
-      namespace: platform-mesh-system
-    type: Opaque

@@ -116,7 +116,7 @@ openfga:
   datastore:
     databaseService: openfga-openfga-postgres
     secret:
-      create: true
+      create: false
       name: openfga-db
     auth:
       username: postgres

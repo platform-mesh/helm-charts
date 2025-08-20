@@ -78,7 +78,7 @@ A Helm chart for Kubernetes
 | openfga.datastore.auth.password | string | `"postgres"` |  |
 | openfga.datastore.auth.username | string | `"postgres"` |  |
 | openfga.datastore.databaseService | string | `"openfga-openfga-postgres"` |  |
-| openfga.datastore.secret.create | bool | `true` |  |
+| openfga.datastore.secret.create | bool | `false` |  |
 | openfga.datastore.secret.name | string | `"openfga-db"` |  |
 | openfga.rbac.requestPrincipals | list | `[]` |  |
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |

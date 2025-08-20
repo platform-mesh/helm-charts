@@ -464,7 +464,7 @@ it should render the application manifests:
           traffic.sidecar.istio.io/excludeInboundPorts: "2112"
         postgresql:
           enabled: true
-          nameOverride: openfga-postgres
+          nameOverride: postgres
         replicaCount: 1
         telemetry:
           trace:
