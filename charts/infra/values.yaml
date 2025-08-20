@@ -2,11 +2,11 @@
 hostAliases:
   enabled: false
   entries:
-    - ip: "10.96.0.100"
+    - ip: "10.96.188.4"
       hostnames:
         - "kcp.api.portal.dev.local"
 kcp:
-  namespace: kcp-system
+  namespace: platform-mesh-system
   external:
     hostname: kcp.api.portal.dev.local
     port: 8443

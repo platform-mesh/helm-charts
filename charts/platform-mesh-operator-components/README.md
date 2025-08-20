@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.22"` |  |
+| componentVersion.semver | string | `"0.0.23"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.componentName | string | `"platform-mesh"` |  |
@@ -76,7 +76,6 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.name | string | `"pass-https"` |  |
 | services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
-| services.infra.values.kcp.enabled | bool | `true` |  |
 | services.istio-base.chart | string | `"base"` |  |
 | services.istio-base.driftDetectionMode | string | `"disabled"` |  |
 | services.istio-base.enabled | bool | `true` |  |
@@ -115,40 +114,6 @@ A Helm chart for Kubernetes
 | services.kcp-operator.enabled | bool | `true` |  |
 | services.kcp-operator.helmRepo | bool | `true` |  |
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
-| services.kcp.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.kcp.dependsOn[0].namespace | string | `"default"` |  |
-| services.kcp.enabled | bool | `true` |  |
-| services.kcp.values.auth.adminCert.issuerRef | string | `"kcp-front-proxy-client-issuer"` |  |
-| services.kcp.values.istio.gateway.create | bool | `false` |  |
-| services.kcp.values.istio.hosts[0] | string | `"kcp.api.{{ .Values.baseDomain }}"` |  |
-| services.kcp.values.kcp.certificates.dnsNames[0] | string | `"virtual-workspaces.platform-mesh-system"` |  |
-| services.kcp.values.kcp.certificates.dnsNames[1] | string | `"kcp.platform-mesh-system"` |  |
-| services.kcp.values.kcp.certificates.dnsNames[2] | string | `"localhost"` |  |
-| services.kcp.values.kcp.certificates.dnsNames[3] | string | `"kcp.{{ .Values.baseDomain }}"` |  |
-| services.kcp.values.kcp.externalHostname | string | `"kcp.api.{{ .Values.baseDomain }}"` |  |
-| services.kcp.values.kcp.externalPort | string | `"{{ .Values.port }}"` |  |
-| services.kcp.values.kcp.kcp.authorization.webhook.secretName | string | `"kcp-webhook-secret"` |  |
-| services.kcp.values.kcp.kcp.podAnnotations."traffic.sidecar.istio.io/excludeOutboundPorts" | string | `"9443"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].backend | string | `"https://virtual-workspaces.platform-mesh-system:8443"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].backend_server_ca | string | `"/etc/kcp/tls/ca/tls.crt"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].path | string | `"/services/contentconfigurations"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[0].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].backend | string | `"https://virtual-workspaces.platform-mesh-system:8443"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].backend_server_ca | string | `"/etc/kcp/tls/ca/tls.crt"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].path | string | `"/services/marketplace"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.additionalPathMappings[1].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
-| services.kcp.values.kcp.kcpFrontProxy.extraDNSNames[0] | string | `"kcp-front-proxy.platform-mesh-system"` |  |
-| services.kcp.values.kcp.monitoring.serviceMonitor.enabled | bool | `true` |  |
-| services.kcp.values.kcp.oidc.clientId | string | `"default"` |  |
-| services.kcp.values.kcp.oidc.enabled | bool | `true` |  |
-| services.kcp.values.kcp.oidc.groupClaim | string | `"groups"` |  |
-| services.kcp.values.kcp.oidc.issuerUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
-| services.kcp.values.kcp.oidc.usernameClaim | string | `"email"` |  |
-| services.kcp.values.webhook.caData | string | `"{{ .Values.iamWebhookCA }}"` |  |
-| services.kcp.values.webhook.enabled | bool | `true` |  |
-| services.kcp.values.webhook.server | string | `"https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz"` |  |
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
