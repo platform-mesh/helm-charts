@@ -199,10 +199,7 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 5m
       values:
-        fga:
-          enabled: false
         istio:
-          enabled: true
           main:
             gateway:
               hosts:

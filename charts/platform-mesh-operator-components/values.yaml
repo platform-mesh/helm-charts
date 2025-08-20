@@ -7,7 +7,7 @@ ocm:
   componentName: platform-mesh
   repoName: platform-mesh
 componentVersion:
-  semver: 0.0.27
+  semver: 0.0.28
 iamWebhookCA: null
 services:
   istio-base:
@@ -184,10 +184,7 @@ services:
       - name: kcp-operator
         namespace: default
     values:
-      fga:
-        enabled: false
       istio:
-        enabled: true
         main:
           gateway:
             hosts:
