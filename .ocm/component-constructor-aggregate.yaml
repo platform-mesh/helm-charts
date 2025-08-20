@@ -98,11 +98,11 @@ components:
     resources:
       - name: chart
         type: helmChart
+        relation: external
         version: {{ .KEYCLOAK_VERSION }}
         access:
-          type: helm
-          helmChart: keycloak:{{ .KEYCLOAK_VERSION }}
-          helmRepository: oci://registry-1.docker.io/bitnamicharts
+          type: ociArtifact
+          imageReference: "oci://registry-1.docker.io/bitnamicharts/keycloak:{{ .KEYCLOAK_VERSION }}"
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
