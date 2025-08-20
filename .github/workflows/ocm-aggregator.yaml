@@ -104,7 +104,8 @@ jobs:
             KCP_OPERATOR_VERSION=0.1.1 \
             GARDENER_ETCD_DRUID_SOURCE_REF=v0.31.0 \
             GARDENER_ETCD_DRUID_CHART_VERSION=0.1.0 \
-            OPENFGA_VERSION=0.2.38
+            OPENFGA_VERSION=0.2.38 \
+            KEYCLOAK_VERSION=24.8.1
           
           
             # IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \

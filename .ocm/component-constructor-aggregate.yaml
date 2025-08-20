@@ -91,6 +91,18 @@ components:
         access:
           type: ociArtifact
           imageReference: "europe-docker.pkg.dev/gardener-project/public/gardener/etcd-druid:{{ .GARDENER_ETCD_DRUID_SOURCE_REF }}"
+  - name: github.com/bitnami/keycloak
+    version: {{ .KEYCLOAK_VERSION }}
+    provider:
+      name: keycloak
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .KEYCLOAK_VERSION }}
+        access:
+          type: helm
+          helmChart: keycloak:{{ .KEYCLOAK_VERSION }}
+          helmRepository: oci://registry-1.docker.io/bitnamicharts
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
@@ -141,3 +153,6 @@ components:
       - name: openfga
         componentName: github.com/openfga/openfga
         version: {{ .OPENFGA_VERSION }}
+      - name: keycloak
+        componentName: github.com/bitnami/keycloak
+        version: {{ .KEYCLOAK_VERSION }}
