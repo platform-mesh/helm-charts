@@ -122,6 +122,27 @@ openfga:
       username: postgres
       password: postgres
 
+keycloak:
+  istio:
+    virtualservice:
+      # -- istio virtual service hosts
+      hosts: [ "*" ]
+    https:
+      port: 8443
+  # -- service configuration
+  service:
+    # -- service name
+    name: keycloak
+    # -- service port
+    port: 80
+
+  # -- domain configuration
+  domain:
+    # -- domain name
+    name: platform-mesh.io
+    # -- path prefix
+    pathPrefix: "/keycloak"
+
 istio:
   networking:
     # -- The istio apiVersion used for networking resources in this chart eg. networking.istio.io/v1, networking.istio.io/v1beta1

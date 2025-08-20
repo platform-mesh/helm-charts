@@ -88,6 +88,14 @@ A Helm chart for Kubernetes
 | kcp.webhook.caData | string | `""` |  |
 | kcp.webhook.enabled | bool | `false` |  |
 | kcp.webhook.server | string | `"https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz"` |  |
+| keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
+| keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
+| keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
+| keycloak.istio.https.port | int | `8443` |  |
+| keycloak.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
+| keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
+| keycloak.service.name | string | `"keycloak"` | service name |
+| keycloak.service.port | int | `80` | service port |
 | openfga.datastore.auth.password | string | `"postgres"` |  |
 | openfga.datastore.auth.username | string | `"postgres"` |  |
 | openfga.datastore.databaseService | string | `"openfga-openfga-postgres"` |  |

@@ -193,6 +193,25 @@ match snapshots:
         hostname: kcp.api.portal.dev.local
         port: 8443
   9: |
+    apiVersion: networking.istio.io/v1beta1
+    kind: VirtualService
+    metadata:
+      name: keycloak
+    spec:
+      gateways:
+        - platform-mesh-system/gateway
+      hosts:
+        - '*'
+      http:
+        - match:
+            - uri:
+                prefix: /keycloak
+          route:
+            - destination:
+                host: keycloak.platform-mesh-system.svc.cluster.local
+                port:
+                  number: 80
+  10: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -244,7 +263,7 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  10: |
+  11: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -255,7 +274,7 @@ match snapshots:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  11: |
+  12: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -478,6 +497,25 @@ match snapshots w. hostAliases enabled:
         hostname: kcp.api.portal.dev.local
         port: 8443
   9: |
+    apiVersion: networking.istio.io/v1beta1
+    kind: VirtualService
+    metadata:
+      name: keycloak
+    spec:
+      gateways:
+        - platform-mesh-system/gateway
+      hosts:
+        - '*'
+      http:
+        - match:
+            - uri:
+                prefix: /keycloak
+          route:
+            - destination:
+                host: keycloak.platform-mesh-system.svc.cluster.local
+                port:
+                  number: 80
+  10: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -529,7 +567,7 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  10: |
+  11: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -540,7 +578,7 @@ match snapshots w. hostAliases enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  11: |
+  12: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
