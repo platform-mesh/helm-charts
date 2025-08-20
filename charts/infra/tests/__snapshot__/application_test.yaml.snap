@@ -1,5 +1,21 @@
 match snapshots:
   1: |
+    apiVersion: networking.istio.io/v1
+    kind: Gateway
+    metadata:
+      name: gateway
+      namespace: platform-mesh-system
+    spec:
+      selector:
+        istio: gateway
+      servers:
+        - hosts:
+            - '*'
+          port:
+            name: http
+            number: 8000
+            protocol: HTTP
+  2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -18,7 +34,7 @@ match snapshots:
           - system:kcp:admin
       usages:
         - client auth
-  2: |
+  3: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -74,7 +90,7 @@ match snapshots:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  3: |
+  4: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -111,7 +127,7 @@ match snapshots:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  4: |
+  5: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -119,7 +135,7 @@ match snapshots:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  5: |
+  6: |
     apiVersion: networking.istio.io/v1beta1
     kind: Gateway
     metadata:
@@ -137,7 +153,7 @@ match snapshots:
             protocol: HTTPS
           tls:
             mode: PASSTHROUGH
-  6: |
+  7: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -155,7 +171,7 @@ match snapshots:
           route:
             - destination:
                 host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
-  7: |
+  8: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -176,7 +192,7 @@ match snapshots:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
-  8: |
+  9: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -228,7 +244,7 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  9: |
+  10: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -239,7 +255,7 @@ match snapshots:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  10: |
+  11: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -252,6 +268,22 @@ match snapshots:
           app.kubernetes.io/name: openfga
 match snapshots w. hostAliases enabled:
   1: |
+    apiVersion: networking.istio.io/v1
+    kind: Gateway
+    metadata:
+      name: gateway
+      namespace: platform-mesh-system
+    spec:
+      selector:
+        istio: gateway
+      servers:
+        - hosts:
+            - '*'
+          port:
+            name: http
+            number: 8000
+            protocol: HTTP
+  2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -270,7 +302,7 @@ match snapshots w. hostAliases enabled:
           - system:kcp:admin
       usages:
         - client auth
-  2: |
+  3: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -326,7 +358,7 @@ match snapshots w. hostAliases enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  3: |
+  4: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -372,7 +404,7 @@ match snapshots w. hostAliases enabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  4: |
+  5: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -380,7 +412,7 @@ match snapshots w. hostAliases enabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  5: |
+  6: |
     apiVersion: networking.istio.io/v1beta1
     kind: Gateway
     metadata:
@@ -398,7 +430,7 @@ match snapshots w. hostAliases enabled:
             protocol: HTTPS
           tls:
             mode: PASSTHROUGH
-  6: |
+  7: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -416,7 +448,7 @@ match snapshots w. hostAliases enabled:
           route:
             - destination:
                 host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
-  7: |
+  8: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -445,7 +477,7 @@ match snapshots w. hostAliases enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
-  8: |
+  9: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -497,7 +529,7 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  9: |
+  10: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -508,7 +540,7 @@ match snapshots w. hostAliases enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  10: |
+  11: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
