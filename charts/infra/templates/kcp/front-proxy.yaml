@@ -24,6 +24,17 @@ spec:
   serviceTemplate:
     spec:
       type: ClusterIP
+  {{- with .Values.kcp.frontProxy.clusterIP }}
+      clusterIP: {{ . }}
+  {{- end }}
+  {{- with .Values.kcp.frontProxy.port }}
+      ports:
+      - appProtocol: https
+        name: https
+        port: {{ . }}
+        protocol: TCP
+        targetPort: 6443
+  {{- end }}
   {{- if .Values.hostAliases.enabled }}
   {{- with .Values.hostAliases.entries }}
   deploymentTemplate:

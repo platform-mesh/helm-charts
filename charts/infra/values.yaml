@@ -91,6 +91,8 @@ kcp:
 
   frontProxy:
     name: frontproxy
+    clusterIP: ""
+    port: 8443
     additionalPathMappings:
       - path: /services/contentconfigurations
         backend: https://virtual-workspaces.platform-mesh-system:8443

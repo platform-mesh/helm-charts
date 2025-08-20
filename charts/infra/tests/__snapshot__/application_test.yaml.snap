@@ -104,6 +104,12 @@ match snapshots:
           name: root
       serviceTemplate:
         spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
           type: ClusterIP
   4: |
     apiVersion: cert-manager.io/v1
@@ -284,6 +290,13 @@ match snapshots w. hostAliases enabled:
           name: root
       serviceTemplate:
         spec:
+          clusterIP: 10.0.0.1
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
           type: ClusterIP
   4: |
     apiVersion: cert-manager.io/v1
