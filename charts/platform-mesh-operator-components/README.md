@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.33"` |  |
+| componentVersion.semver | string | `"0.0.34"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.componentName | string | `"platform-mesh"` |  |
@@ -74,6 +74,7 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.name | string | `"pass-https"` |  |
 | services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
+| services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.istio-base.chart | string | `"base"` |  |
 | services.istio-base.driftDetectionMode | string | `"disabled"` |  |
 | services.istio-base.enabled | bool | `true` |  |

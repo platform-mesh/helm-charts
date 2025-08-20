@@ -7,7 +7,7 @@ ocm:
   componentName: platform-mesh
   repoName: platform-mesh
 componentVersion:
-  semver: 0.0.33
+  semver: 0.0.34
 iamWebhookCA: null
 services:
   istio-base:
@@ -206,11 +206,10 @@ services:
             name: pass-https
             protocol: HTTPS
       keycloak:
-            istio:
-              virtualservice:
-                hosts:
-                  - "{{ .Values.baseDomain }}"
-
+        istio:
+          virtualservice:
+            hosts:
+              - "{{ .Values.baseDomain }}"
   kcp-operator:
     helmRepo: true
     enabled: true
@@ -285,7 +284,6 @@ services:
           value: xforwarded
         - name: KC_HOSTNAME_STRICT
           value: "false"
-
   kubernetes-graphql-gateway:
     enabled: true
     dependsOn:
