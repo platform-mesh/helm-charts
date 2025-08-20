@@ -1,5 +1,4 @@
 components:
-  ## TODO should be moved to 3rd party components
   - name: github.com/crossplane/crossplane
     version: {{ .CROSSPLANE_VERSION }}
     provider:
@@ -12,7 +11,6 @@ components:
           type: helm
           helmChart: crossplane:{{ .CROSSPLANE_VERSION }}
           helmRepository: https://charts.crossplane.io/stable
-  ## TODO should be moved to 3rd party components
   - name: github.com/istio/istio/base
     version: {{ .ISTIO_VERSION }}
     provider:
@@ -25,7 +23,6 @@ components:
           type: helm
           helmChart: base:{{ .ISTIO_VERSION }}
           helmRepository: https://istio-release.storage.googleapis.com/charts
-  ## TODO should be moved to 3rd party components
   - name: github.com/istio/istio/istiod
     version: {{ .ISTIO_VERSION }}
     provider:
@@ -38,7 +35,18 @@ components:
           type: helm
           helmChart: istiod:{{ .ISTIO_VERSION }}
           helmRepository: https://istio-release.storage.googleapis.com/charts
-  ## TODO should be moved to 3rd party components
+  - name: github.com/openfga/openfga
+    version: {{ .OPENFGA_VERSION }}
+    provider:
+      name: openfga
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .OPENFGA_VERSION }}
+        access:
+          type: helm
+          helmChart: openfga:{{ .OPENFGA_VERSION }}
+          helmRepository: https://openfga.github.io/helm-charts
   - name: github.com/istio/istio/gateway
     version: {{ .ISTIO_VERSION }}
     provider:
@@ -130,3 +138,6 @@ components:
       - name: etcd-druid
         componentName: github.com/gardener/etcd-druid
         version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
+      - name: openfga
+        componentName: github.com/openfga/openfga
+        version: {{ .OPENFGA_VERSION }}
