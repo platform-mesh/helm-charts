@@ -75,6 +75,16 @@ A Helm chart for Kubernetes
 | kcp.webhook.caData | string | `""` |  |
 | kcp.webhook.enabled | bool | `false` |  |
 | kcp.webhook.server | string | `"https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz"` |  |
+| openfga.datastore.auth.password | string | `"postgres"` |  |
+| openfga.datastore.auth.username | string | `"postgres"` |  |
+| openfga.datastore.databaseService | string | `"openfga-openfga-postgres"` |  |
+| openfga.datastore.secret.create | bool | `true` |  |
+| openfga.datastore.secret.name | string | `"openfga-db"` |  |
+| openfga.rbac.requestPrincipals | list | `[]` |  |
+| openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
+| openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa"` |  |
+| openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
+| openfga.rbac.writePrincipals[3] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
 
 ## Overriding Values
 

@@ -104,3 +104,20 @@ kcp:
         backend_server_ca: /etc/kcp/tls/ca/tls.crt
         proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
         proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+
+openfga:
+  rbac:
+    requestPrincipals: [ ]
+    writePrincipals:
+      - cluster.local/ns/platform-mesh-system/sa/iam-service
+      - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
+      - cluster.local/ns/platform-mesh-system/sa/security-operator
+      - cluster.local/ns/platform-mesh-system/sa/account-operator
+  datastore:
+    databaseService: openfga-openfga-postgres
+    secret:
+      create: true
+      name: openfga-db
+    auth:
+      username: postgres
+      password: postgres

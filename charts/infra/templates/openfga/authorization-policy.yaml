@@ -1,0 +1,59 @@
+{{- if eq (include "common.istioEnabled" .) "true" -}}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: openfga
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: openfga
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals:
+          {{ .Values.openfga.rbac.writePrincipals | toYaml | nindent 10 }}
+    {{- with .Values.openfga.rbac.requestPrincipals }}
+    - source:
+        requestPrincipals:
+          {{ . | toYaml | nindent 10 }}
+    {{- end }}
+    to:
+    - operation:
+        methods: ["POST", "GET", "PUT"]
+  - from:
+    - source:
+        principals:
+          - cluster.local/ns/{{ .Release.Namespace }}/*
+    {{- with .Values.openfga.allowedRequestPrincipals }}
+    - source:
+        requestPrincipals:
+          {{- range . }}
+          - {{ . }}
+          {{- end }}
+    {{- end }}
+    to:
+      # rest api
+      - operation:
+          methods: ["GET"]
+          paths: ["/stores*"]
+      - operation:
+          methods: ["POST"]
+          paths: [
+            "/stores/{*}/read",
+            # Temporarily allow write access to all stores
+            "/stores/{*}/write",
+            "/stores/{*}/check",
+            "/stores/{*}/batch-check",
+            "/stores/{*}/expand",
+            "/stores/{*}/list-objects",
+            "/stores/{*}/streamed-list-objects",
+            "/openfga.v1.OpenFGAService/Read*",
+            "/openfga.v1.OpenFGAService/Check*",
+            "/openfga.v1.OpenFGAService/BatchCheck*",
+            "/openfga.v1.OpenFGAService/Expand*",
+            "/openfga.v1.OpenFGAService/List*",
+            "/openfga.v1.OpenFGAService/StreamedList*"
+          ]
+{{- end }}
