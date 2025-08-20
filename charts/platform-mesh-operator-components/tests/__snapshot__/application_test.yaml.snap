@@ -223,8 +223,6 @@ it should render the application manifests:
               name: pass-https
               port: '{{ .Values.port }}'
               protocol: HTTPS
-        kcp:
-          enabled: true
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -321,75 +319,6 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: kcp
-      namespace: default
-    spec:
-      chartRef:
-        kind: OCIRepository
-        name: kcp
-        namespace: default
-      dependsOn:
-        - name: istio-istiod
-          namespace: default
-      interval: 1m
-      releaseName: kcp
-      targetNamespace: platform-mesh-system
-      timeout: 5m
-      values:
-        auth:
-          adminCert:
-            issuerRef: kcp-front-proxy-client-issuer
-        istio:
-          gateway:
-            create: false
-          hosts:
-            - kcp.api.{{ .Values.baseDomain }}
-        kcp:
-          certificates:
-            dnsNames:
-              - virtual-workspaces.platform-mesh-system
-              - kcp.platform-mesh-system
-              - localhost
-              - kcp.{{ .Values.baseDomain }}
-          externalHostname: kcp.api.{{ .Values.baseDomain }}
-          externalPort: '{{ .Values.port }}'
-          kcp:
-            authorization:
-              webhook:
-                secretName: kcp-webhook-secret
-            podAnnotations:
-              traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
-          kcpFrontProxy:
-            additionalPathMappings:
-              - backend: https://virtual-workspaces.platform-mesh-system:8443
-                backend_server_ca: /etc/kcp/tls/ca/tls.crt
-                path: /services/contentconfigurations
-                proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-                proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-              - backend: https://virtual-workspaces.platform-mesh-system:8443
-                backend_server_ca: /etc/kcp/tls/ca/tls.crt
-                path: /services/marketplace
-                proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-                proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-            extraDNSNames:
-              - kcp-front-proxy.platform-mesh-system
-          monitoring:
-            serviceMonitor:
-              enabled: true
-          oidc:
-            clientId: default
-            enabled: true
-            groupClaim: groups
-            issuerUrl: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-            usernameClaim: email
-        webhook:
-          caData: '{{ .Values.iamWebhookCA }}'
-          enabled: true
-          server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-  13: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: kcp-operator
       namespace: default
     spec:
@@ -406,7 +335,7 @@ it should render the application manifests:
       targetNamespace: kcp-operator
       timeout: 5m
       values: null
-  14: |
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -455,7 +384,7 @@ it should render the application manifests:
           url: https://{{ .Values.baseDomain }}/keycloak
         service:
           name: keycloak
-  15: |
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -508,7 +437,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  16: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -539,7 +468,7 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default
-  17: |
+  16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -569,7 +498,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  18: |
+  17: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -600,7 +529,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  19: |
+  18: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -623,7 +552,7 @@ it should render the application manifests:
           serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
         service:
           port: 8443
-  20: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Component
     metadata:
@@ -637,7 +566,7 @@ it should render the application manifests:
       repositoryRef:
         name: platform-mesh
       semver: 0.0.0
-  21: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     metadata:
@@ -650,7 +579,7 @@ it should render the application manifests:
       repositorySpec:
         baseUrl: ghcr.io/platform-mesh
         type: OCIRegistry
-  22: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -671,7 +600,7 @@ it should render the application manifests:
             - name: account-operator
           resource:
             name: chart
-  23: |
+  22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -692,7 +621,7 @@ it should render the application manifests:
             - name: crossplane
           resource:
             name: chart
-  24: |
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -713,7 +642,7 @@ it should render the application manifests:
             - name: etcd-druid
           resource:
             name: chart
-  25: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -734,7 +663,7 @@ it should render the application manifests:
             - name: extension-manager-operator
           resource:
             name: chart
-  26: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -755,7 +684,7 @@ it should render the application manifests:
             - name: iam-service
           resource:
             name: chart
-  27: |
+  26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -776,7 +705,7 @@ it should render the application manifests:
             - name: iam-ui
           resource:
             name: chart
-  28: |
+  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -797,7 +726,7 @@ it should render the application manifests:
             - name: infra
           resource:
             name: chart
-  29: |
+  28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -818,7 +747,7 @@ it should render the application manifests:
             - name: istio-base
           resource:
             name: chart
-  30: |
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -839,7 +768,7 @@ it should render the application manifests:
             - name: istio-gateway
           resource:
             name: chart
-  31: |
+  30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -860,28 +789,7 @@ it should render the application manifests:
             - name: istio-istiod
           resource:
             name: chart
-  32: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: oci
-      name: kcp
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 1m
-      ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
-      resource:
-        byReference:
-          referencePath:
-            - name: kcp
-          resource:
-            name: chart
-  33: |
+  31: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -902,7 +810,7 @@ it should render the application manifests:
             - name: kcp-operator
           resource:
             name: chart
-  34: |
+  32: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -923,7 +831,7 @@ it should render the application manifests:
             - name: keycloak
           resource:
             name: chart
-  35: |
+  33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -944,7 +852,7 @@ it should render the application manifests:
             - name: kubernetes-graphql-gateway
           resource:
             name: chart
-  36: |
+  34: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -965,7 +873,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: chart
-  37: |
+  35: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -986,7 +894,7 @@ it should render the application manifests:
             - name: rebac-authz-webhook
           resource:
             name: chart
-  38: |
+  36: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1007,7 +915,7 @@ it should render the application manifests:
             - name: security-operator
           resource:
             name: chart
-  39: |
+  37: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
