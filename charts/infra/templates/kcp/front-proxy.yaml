@@ -24,6 +24,9 @@ spec:
   serviceTemplate:
     spec:
       type: ClusterIP
+  {{- with .Values.kcp.frontProxy.clusterIP }}
+      clusterIP: {{ . }}
+  {{- end }}
   {{- if .Values.hostAliases.enabled }}
   {{- with .Values.hostAliases.entries }}
   deploymentTemplate:

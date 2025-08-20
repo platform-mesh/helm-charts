@@ -284,6 +284,7 @@ match snapshots w. hostAliases enabled:
           name: root
       serviceTemplate:
         spec:
+          clusterIP: 10.0.0.1
           type: ClusterIP
   4: |
     apiVersion: cert-manager.io/v1

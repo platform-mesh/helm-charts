@@ -9,6 +9,9 @@ tests:
   - matchSnapshot: {}
 - it: match snapshots w. hostAliases enabled
   set:
+    kcp:
+      frontProxy:
+        clusterIP: "10.0.0.1"
     hostAliases:
       enabled: true
   asserts:
