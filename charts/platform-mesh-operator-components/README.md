@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.28"` |  |
+| componentVersion.semver | string | `"0.0.29"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.componentName | string | `"platform-mesh"` |  |
@@ -165,14 +165,12 @@ A Helm chart for Kubernetes
 | services.openfga.values.checkQueryCache.limit | int | `10000` |  |
 | services.openfga.values.checkQueryCache.ttl | string | `"10s"` |  |
 | services.openfga.values.datastore.applyMigrations | bool | `true` |  |
-| services.openfga.values.datastore.deployOwnUriSecret | bool | `true` |  |
 | services.openfga.values.datastore.engine | string | `"postgres"` |  |
 | services.openfga.values.datastore.maxOpenConns | int | `30` |  |
 | services.openfga.values.datastore.migrationType | string | `"initContainer"` |  |
 | services.openfga.values.datastore.migrations.image.pullPolicy | string | `"Always"` |  |
 | services.openfga.values.datastore.migrations.image.repository | string | `"groundnuty/k8s-wait-for"` |  |
 | services.openfga.values.datastore.migrations.image.tag | string | `"v2.0"` |  |
-| services.openfga.values.datastore.uriSecret | string | `"openfga-db"` |  |
 | services.openfga.values.extraEnvVars[0].name | string | `"OPENFGA_EXPERIMENTALS"` |  |
 | services.openfga.values.extraEnvVars[0].value | string | `"enable-list-users"` |  |
 | services.openfga.values.image.repository | string | `"openfga/openfga"` |  |
