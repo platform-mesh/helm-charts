@@ -116,12 +116,19 @@ A Helm chart for Kubernetes
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
-| services.keycloak.values.extraEnvVars[0].name | string | `"JAVA_OPTS_APPEND"` |  |
-| services.keycloak.values.extraEnvVars[0].value | string | `"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"` |  |
-| services.keycloak.values.extraEnvVars[1].name | string | `"KC_PROXY_HEADERS"` |  |
-| services.keycloak.values.extraEnvVars[1].value | string | `"xforwarded"` |  |
-| services.keycloak.values.extraEnvVars[2].name | string | `"KC_HOSTNAME_STRICT"` |  |
-| services.keycloak.values.extraEnvVars[2].value | string | `"false"` |  |
+| services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
+| services.keycloak.values.auth.existingSecret | string | `"keycloak-admin"` | keycloak admin secret |
+| services.keycloak.values.auth.passwordSecretKey | string | `"secret"` | keycloak admin secret key |
+| services.keycloak.values.extraEnvVars | list | `[{"name":"KEYCLOAK_USER","value":"keycloak-admin"},{"name":"KEYCLOAK_PASSWORD","valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local"}]` | keycloak environment variables (raw) For Arm64 arch (especially Apple M4), add -XX:UseSVE=0 to JAVA_OPTS_APPEND |
+| services.keycloak.values.httpRelativePath | string | `"/keycloak/"` | keycloak http relative path |
+| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
+| services.keycloak.values.postgresql.auth | object | `{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"}` | authorization configuration |
+| services.keycloak.values.postgresql.auth.existingSecret | string | `""` | existing secret name |
+| services.keycloak.values.postgresql.auth.secretKeys.adminPasswordKey | string | `"password"` | admin password key |
+| services.keycloak.values.postgresql.auth.secretKeys.userPasswordKey | string | `"password"` | user password key |
+| services.keycloak.values.postgresql.auth.username | string | `"keycloak"` | postgresql username |
+| services.keycloak.values.postgresql.nameOverride | string | `"postgresql-keycloak"` | postgresql name override |
+| services.keycloak.values.postgresql.primary.resourcesPreset | string | `"none"` | primary postgresql resources preset |
 | services.kubernetes-graphql-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.kubernetes-graphql-gateway.dependsOn[0].namespace | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.enabled | bool | `true` |  |

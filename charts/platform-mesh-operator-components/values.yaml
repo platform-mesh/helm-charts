@@ -276,14 +276,48 @@ services:
       - name: istio-istiod
         namespace: default
     values:
+      auth:
+        # -- keycloak admin user
+        adminUser: keycloak-admin
+        # -- keycloak admin secret
+        existingSecret: keycloak-admin
+        # -- keycloak admin secret key
+        passwordSecretKey: secret
+      # -- keycloak http relative path
+      httpRelativePath: "/keycloak/"
+      # -- keycloak environment variables (raw)
+      # For Arm64 arch (especially Apple M4), add -XX:UseSVE=0 to JAVA_OPTS_APPEND
       extraEnvVars:
+        - name: KEYCLOAK_USER
+          value: keycloak-admin
+        - name: KEYCLOAK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-admin
+              key: secret
         - name: JAVA_OPTS_APPEND
           value: |-
-            -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
-        - name: KC_PROXY_HEADERS
-          value: xforwarded
-        - name: KC_HOSTNAME_STRICT
-          value: "false"
+            -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
+
+      # -- configuration for the postgresql sub-chart
+      postgresql:
+        primary:
+          # -- primary postgresql resources preset
+          resourcesPreset: none
+        # -- postgresql name override
+        nameOverride: postgresql-keycloak
+        # -- authorization configuration
+        auth:
+          # -- postgresql username
+          username: keycloak
+          # -- existing secret name
+          existingSecret: ""
+          secretKeys:
+            # -- user password key
+            userPasswordKey: password
+            # -- admin password key
+            adminPasswordKey: password
+
   kubernetes-graphql-gateway:
     enabled: true
     dependsOn:
