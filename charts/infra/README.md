@@ -9,6 +9,19 @@ A Helm chart for Kubernetes
 | hostAliases.enabled | bool | `false` |  |
 | hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
 | hostAliases.entries[0].ip | string | `"10.96.188.4"` |  |
+| istio.enabled | bool | `true` |  |
+| istio.gateway.annotations | object | `{}` |  |
+| istio.gateway.apiVersion | string | `"networking.istio.io/v1"` |  |
+| istio.gateway.name | string | `"gateway"` |  |
+| istio.gateway.selector.istio | string | `"gateway"` |  |
+| istio.main.gateway.hosts[0] | string | `"*"` |  |
+| istio.main.gateway.name | string | `"http"` |  |
+| istio.main.gateway.port | int | `8000` |  |
+| istio.main.gateway.protocol | string | `"HTTP"` |  |
+| istio.networking.apiVersion | string | `"networking.istio.io/v1"` | The istio apiVersion used for networking resources in this chart eg. networking.istio.io/v1, networking.istio.io/v1beta1 |
+| istio.passThrough.gateway.enabled | bool | `false` |  |
+| istio.serviceEntries.https.enabled | bool | `false` | A toggle to enable the service entries for external https communication |
+| istio.serviceEntries.https.hosts | list | `[]` | The list of hosts to be added to the service entry |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
 | kcp.auth.adminCert.privateKey.size | int | `2048` |  |
@@ -75,6 +88,14 @@ A Helm chart for Kubernetes
 | kcp.webhook.caData | string | `""` |  |
 | kcp.webhook.enabled | bool | `false` |  |
 | kcp.webhook.server | string | `"https://rebac-authz-webhook.openmfp-system.svc.cluster.local:9443/authz"` |  |
+| keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
+| keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
+| keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
+| keycloak.istio.https.port | int | `8443` |  |
+| keycloak.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
+| keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
+| keycloak.service.name | string | `"keycloak"` | service name |
+| keycloak.service.port | int | `80` | service port |
 | openfga.datastore.auth.password | string | `"postgres"` |  |
 | openfga.datastore.auth.username | string | `"postgres"` |  |
 | openfga.datastore.databaseService | string | `"openfga-openfga-postgres"` |  |

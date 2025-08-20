@@ -1,0 +1,37 @@
+{{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "istio.enabled")) "true" -}}
+apiVersion: {{ .Values.istio.networking.apiVersion }}
+kind: Gateway
+metadata:
+  name: {{ .Values.istio.gateway.name}}
+  namespace: {{ .Release.Namespace }}
+{{- if .Values.istio.gateway.annotations }}
+  annotations:
+    {{- toYaml .Values.istio.gateway.annotations | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+{{ .Values.istio.gateway.selector | toYaml | indent 4 }}
+  servers:
+    - hosts:
+{{ .Values.istio.main.gateway.hosts | toYaml | indent 6 }}
+      port:
+        number: {{.Values.istio.main.gateway.port}}
+        name: {{.Values.istio.main.gateway.name}}
+        protocol: {{.Values.istio.main.gateway.protocol}}
+      {{ if .Values.istio.main.gateway.tls }}
+      tls:
+        minProtocolVersion: {{.Values.istio.main.gateway.tls.minProtocolVersion}}
+        mode: {{ .Values.istio.main.gateway.tls.mode }}
+        credentialName: {{ .Values.istio.main.gateway.tls.credentialName }}
+      {{- end }}
+    {{- if .Values.istio.passThrough.gateway.enabled }}
+    - hosts:
+{{ .Values.istio.passThrough.gateway.hosts | toYaml | indent 6 }}
+      port:
+        name: {{ .Values.istio.passThrough.gateway.name }}
+        number: {{ .Values.istio.passThrough.gateway.port }}
+        protocol: {{ .Values.istio.passThrough.gateway.protocol }}
+      tls:
+        mode: PASSTHROUGH
+    {{- end }}
+{{- end -}}
