@@ -7,7 +7,7 @@ ocm:
   componentName: platform-mesh
   repoName: platform-mesh
 componentVersion:
-  semver: 0.0.28
+  semver: 0.0.26
 iamWebhookCA: null
 services:
   istio-base:
@@ -275,11 +275,11 @@ services:
       - name: istio-istiod
         namespace: default
     values:
-#      service:
-#        name: keycloak
-#      externalSecrets:
-#        keycloakAdminRemoteRef: keycloak-admin
-#        postgresAdminRemoteRef: postgres-admin
+      #      service:
+      #        name: keycloak
+      #      externalSecrets:
+      #        keycloakAdminRemoteRef: keycloak-admin
+      #        postgresAdminRemoteRef: postgres-admin
       extraEnvVars:
         - name: JAVA_OPTS_APPEND
           value: |-
@@ -288,23 +288,23 @@ services:
           value: xforwarded
         - name: KC_HOSTNAME_STRICT
           value: "false"
-#      domain:
-#        pathPrefix: "/keycloak"
-#      istio:
-#        https:
-#          enabled: true
-#        virtualservice:
-#          hosts:
-#            - "{{ .Values.baseDomain }}"
-#      crossplane:
-#        clients:
-#          default:
-#            validRedirectUris:
-#              - "{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"
-#      keycloakConfig:
-#        url: "https://{{ .Values.baseDomain }}/keycloak"
-#        redirectUrls:
-#          - "{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"
+          #      domain:
+          #        pathPrefix: "/keycloak"
+          #      istio:
+          #        https:
+          #          enabled: true
+          #        virtualservice:
+          #          hosts:
+          #            - "{{ .Values.baseDomain }}"
+          #      crossplane:
+          #        clients:
+          #          default:
+          #            validRedirectUris:
+          #              - "{{ .Values.protocol }}://{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"
+          #      keycloakConfig:
+          #        url: "https://{{ .Values.baseDomain }}/keycloak"
+          #        redirectUrls:
+          #          - "{{ .Values.baseDomain }}:{{ .Values.port }}/callback*"
   kubernetes-graphql-gateway:
     enabled: true
     dependsOn:
@@ -351,19 +351,19 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
-#    values:
-#      databaseService: openfga-openfga-postgres
-#      trust:
-#        default:
-#          trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
-#          jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-#          audience: default
-#      rbac:
-#        writePrincipals:
-#          - cluster.local/ns/platform-mesh-system/sa/iam-service
-#          - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
-#          - cluster.local/ns/platform-mesh-system/sa/security-operator
-#          - cluster.local/ns/platform-mesh-system/sa/account-operator
+        #    values:
+        #      databaseService: openfga-openfga-postgres
+        #      trust:
+        #        default:
+        #          trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
+        #          jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+        #          audience: default
+        #      rbac:
+        #        writePrincipals:
+        #          - cluster.local/ns/platform-mesh-system/sa/iam-service
+        #          - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
+        #          - cluster.local/ns/platform-mesh-system/sa/security-operator
+        #          - cluster.local/ns/platform-mesh-system/sa/account-operator
   marketplace-ui:
     enabled: false
     dependsOn:
