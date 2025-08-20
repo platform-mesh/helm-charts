@@ -6,6 +6,8 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| crossplane.enabled | bool | `true` |  |
+| externalSecrets.enabled | bool | `false` |  |
 | hostAliases.enabled | bool | `false` |  |
 | hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
 | hostAliases.entries[0].ip | string | `"10.96.188.4"` |  |
@@ -98,6 +100,22 @@ A Helm chart for Kubernetes
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
 | keycloak.istio.https.port | int | `8443` |  |
 | keycloak.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
+| keycloak.keycloakConfig.admin | object | `{"password":{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},"username":{"value":"keycloak-admin"}}` | admin user configuration |
+| keycloak.keycloakConfig.admin.password | object | `{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}}` | admin password |
+| keycloak.keycloakConfig.admin.password.valueFrom.secretKeyRef.key | string | `"secret"` | key of the password in the secret |
+| keycloak.keycloakConfig.admin.password.valueFrom.secretKeyRef.name | string | `"keycloak-admin"` | name of the secret containing the password |
+| keycloak.keycloakConfig.admin.username.value | string | `"keycloak-admin"` | username |
+| keycloak.keycloakConfig.client | object | `{"name":"default","targetSecret":{"name":"portal-client-secret-default","namespace":"platform-mesh-system"},"tokenLifespan":3600}` | client configuration |
+| keycloak.keycloakConfig.client.name | string | `"default"` | client name |
+| keycloak.keycloakConfig.client.targetSecret | object | `{"name":"portal-client-secret-default","namespace":"platform-mesh-system"}` | target secret options |
+| keycloak.keycloakConfig.client.targetSecret.name | string | `"portal-client-secret-default"` | secret name |
+| keycloak.keycloakConfig.client.targetSecret.namespace | string | `"platform-mesh-system"` | secret namespace |
+| keycloak.keycloakConfig.client.tokenLifespan | int | `3600` | token lifespan |
+| keycloak.keycloakConfig.realm | object | `{"name":"master"}` | realm configuration |
+| keycloak.keycloakConfig.realm.name | string | `"master"` | realm name |
+| keycloak.keycloakConfig.redirectUrls | list | `["http://localhost:8000/callback*"]` | redirect urls |
+| keycloak.keycloakConfig.url | string | `"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak"` | url of the keycloak server |
+| keycloak.keycloakConfig.userRegistration.enabled | bool | `true` | toggle to enable/disable user registration |
 | keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
 | keycloak.service.name | string | `"keycloak"` | service name |
 | keycloak.service.port | int | `80` | service port |

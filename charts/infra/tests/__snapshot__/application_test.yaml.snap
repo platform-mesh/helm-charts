@@ -176,6 +176,102 @@ match snapshots:
         port: 8443
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: default
+        enabled: true
+        name: Default
+        realmIdRef:
+          name: default
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: portal-client-secret-default
+        namespace: platform-mesh-system
+  9: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: default-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: default
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+          - trusted-platform-mesh-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  10: |
+    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
+    kind: DefaultGroups
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        groupIdsRefs:
+          - name: portal
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  11: |
+    apiVersion: group.keycloak.crossplane.io/v1alpha1
+    kind: Group
+    metadata:
+      name: portal
+    spec:
+      forProvider:
+        name: portal
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  12: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        includeInTokenScope: true
+        name: groups
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  13: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  14: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
       name: trusted-platform-mesh-audiences
@@ -187,7 +283,55 @@ match snapshots:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  9: |
+  15: |
+    apiVersion: keycloak.crossplane.io/v1beta1
+    kind: ProviderConfig
+    metadata:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+    spec:
+      credentials:
+        secretRef:
+          key: config
+          name: keycloak-provider-config
+          namespace: platform-mesh-system
+        source: Secret
+  16: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+    stringData:
+      config: |-
+        {
+          "client_id":"admin-cli",
+          "username": "keycloak-admin",
+          "password": "admin",
+          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
+          "realm": "master"
+        }
+  17: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        accessTokenLifespan: 8h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: default
+        displayNameHtml: <b>default</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: default
+        registrationAllowed: true
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 8h
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -206,7 +350,7 @@ match snapshots:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  10: |
+  19: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -258,7 +402,7 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  11: |
+  20: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -269,7 +413,7 @@ match snapshots:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  12: |
+  21: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -475,6 +619,102 @@ match snapshots w. hostAliases enabled:
         port: 8443
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: default
+        enabled: true
+        name: Default
+        realmIdRef:
+          name: default
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: portal-client-secret-default
+        namespace: platform-mesh-system
+  9: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: default-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: default
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+          - trusted-platform-mesh-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  10: |
+    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
+    kind: DefaultGroups
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        groupIdsRefs:
+          - name: portal
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  11: |
+    apiVersion: group.keycloak.crossplane.io/v1alpha1
+    kind: Group
+    metadata:
+      name: portal
+    spec:
+      forProvider:
+        name: portal
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  12: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        includeInTokenScope: true
+        name: groups
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  13: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  14: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
       name: trusted-platform-mesh-audiences
@@ -486,7 +726,55 @@ match snapshots w. hostAliases enabled:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  9: |
+  15: |
+    apiVersion: keycloak.crossplane.io/v1beta1
+    kind: ProviderConfig
+    metadata:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+    spec:
+      credentials:
+        secretRef:
+          key: config
+          name: keycloak-provider-config
+          namespace: platform-mesh-system
+        source: Secret
+  16: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+    stringData:
+      config: |-
+        {
+          "client_id":"admin-cli",
+          "username": "keycloak-admin",
+          "password": "admin",
+          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
+          "realm": "master"
+        }
+  17: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        accessTokenLifespan: 8h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: default
+        displayNameHtml: <b>default</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: default
+        registrationAllowed: true
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 8h
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -505,7 +793,7 @@ match snapshots w. hostAliases enabled:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  10: |
+  19: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -557,7 +845,7 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  11: |
+  20: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -568,7 +856,7 @@ match snapshots w. hostAliases enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  12: |
+  21: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
