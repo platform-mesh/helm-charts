@@ -52,7 +52,9 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.additionalPathMappings[1].path | string | `"/services/marketplace"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
+| kcp.frontProxy.clusterIP | string | `""` |  |
 | kcp.frontProxy.name | string | `"frontproxy"` |  |
+| kcp.frontProxy.port | int | `8443` |  |
 | kcp.istio.gateway.annotations | object | `{}` |  |
 | kcp.istio.gateway.create | bool | `true` |  |
 | kcp.istio.gateway.existingGateway.name | string | `"gateway"` |  |
