@@ -2,7 +2,7 @@
 hostAliases:
   enabled: false
   entries:
-    - ip: "10.96.0.100"
+    - ip: "10.96.188.4"
       hostnames:
         - "kcp.api.portal.dev.local"
 kcp:

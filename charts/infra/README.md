@@ -8,7 +8,7 @@ A Helm chart for Kubernetes
 |-----|------|---------|-------------|
 | hostAliases.enabled | bool | `false` |  |
 | hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
-| hostAliases.entries[0].ip | string | `"10.96.0.100"` |  |
+| hostAliases.entries[0].ip | string | `"10.96.188.4"` |  |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
 | kcp.auth.adminCert.privateKey.size | int | `2048` |  |
