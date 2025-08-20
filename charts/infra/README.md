@@ -65,7 +65,7 @@ A Helm chart for Kubernetes
 | kcp.istio.gateway.servers.protocol | string | `"HTTPS"` |  |
 | kcp.istio.gateway.tls.mode | string | `"PASSTHROUGH"` |  |
 | kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
-| kcp.namespace | string | `"kcp-system"` |  |
+| kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |
 | kcp.oidc.enabled | bool | `true` |  |
 | kcp.oidc.groupsClaim | string | `"groups"` |  |

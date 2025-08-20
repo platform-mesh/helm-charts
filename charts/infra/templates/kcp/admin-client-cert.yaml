@@ -10,7 +10,7 @@ spec:
     {{- if .Values.kcp.auth.adminCert.issuerRef }}
     name: {{ .Values.kcp.auth.adminCert.issuerRef }}
     {{- else }}
-    name: kcp-front-proxy-client-issuer
+    name: root-front-proxy-client-ca
     {{- end }}
   privateKey:
     algorithm: {{ .Values.kcp.auth.adminCert.privateKey.algorithm }}

@@ -4,11 +4,11 @@ match snapshots:
     kind: Certificate
     metadata:
       name: kcp-cluster-admin-client-cert
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: kcp-front-proxy-client-issuer
+        name: root-front-proxy-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -27,7 +27,7 @@ match snapshots:
         gardener.cloud/role: controlplane
         role: kcp
       name: etcd-kcp
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       annotations:
         app: etcd-statefulset
@@ -79,7 +79,7 @@ match snapshots:
     kind: FrontProxy
     metadata:
       name: frontproxy
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       additionalPathMappings:
         - backend: https://virtual-workspaces.platform-mesh-system:8443
@@ -116,7 +116,7 @@ match snapshots:
     kind: Issuer
     metadata:
       name: selfsigned
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       selfSigned: {}
   5: |
@@ -154,13 +154,13 @@ match snapshots:
                 - kcp.api.portal.dev.local
           route:
             - destination:
-                host: frontproxy-front-proxy.kcp-system.svc.cluster.local
+                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
       name: root
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       cache:
         embedded:
@@ -172,7 +172,7 @@ match snapshots:
           name: selfsigned
       etcd:
         endpoints:
-          - http://etcd-kcp-client.kcp-system.svc.cluster.local:2379
+          - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
@@ -182,11 +182,11 @@ match snapshots w. hostAliases enabled:
     kind: Certificate
     metadata:
       name: kcp-cluster-admin-client-cert
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: kcp-front-proxy-client-issuer
+        name: root-front-proxy-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -205,7 +205,7 @@ match snapshots w. hostAliases enabled:
         gardener.cloud/role: controlplane
         role: kcp
       name: etcd-kcp
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       annotations:
         app: etcd-statefulset
@@ -257,7 +257,7 @@ match snapshots w. hostAliases enabled:
     kind: FrontProxy
     metadata:
       name: frontproxy
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       additionalPathMappings:
         - backend: https://virtual-workspaces.platform-mesh-system:8443
@@ -303,7 +303,7 @@ match snapshots w. hostAliases enabled:
     kind: Issuer
     metadata:
       name: selfsigned
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       selfSigned: {}
   5: |
@@ -341,13 +341,13 @@ match snapshots w. hostAliases enabled:
                 - kcp.api.portal.dev.local
           route:
             - destination:
-                host: frontproxy-front-proxy.kcp-system.svc.cluster.local
+                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
       name: root
-      namespace: kcp-system
+      namespace: platform-mesh-system
     spec:
       cache:
         embedded:
@@ -367,7 +367,7 @@ match snapshots w. hostAliases enabled:
                   ip: 10.96.0.100
       etcd:
         endpoints:
-          - http://etcd-kcp-client.kcp-system.svc.cluster.local:2379
+          - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443

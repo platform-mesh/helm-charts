@@ -6,7 +6,7 @@ hostAliases:
       hostnames:
         - "kcp.api.portal.dev.local"
 kcp:
-  namespace: kcp-system
+  namespace: platform-mesh-system
   external:
     hostname: kcp.api.portal.dev.local
     port: 8443
