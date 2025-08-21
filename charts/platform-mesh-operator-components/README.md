@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.36"` |  |
+| componentVersion.semver | string | `"0.0.38"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.componentName | string | `"platform-mesh"` |  |
@@ -239,8 +239,13 @@ A Helm chart for Kubernetes
 | services.virtual-workspaces.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.virtual-workspaces.dependsOn[0].namespace | string | `"default"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
-| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://kcp-front-proxy.platform-mesh-system:8443"` |  |
+| services.virtual-workspaces.values.clientCASecretName | string | `"root-front-proxy-client-ca"` |  |
+| services.virtual-workspaces.values.deployment.entityLabel | string | `"ui.platform-mesh.io/entity"` |  |
+| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443"` |  |
+| services.virtual-workspaces.values.requestHeaderClientCASecretName | string | `"root-requestheader-client-ca"` |  |
+| services.virtual-workspaces.values.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
 | services.virtual-workspaces.values.service.port | int | `8443` |  |
+| services.virtual-workspaces.values.virtualWorkspaceSecretName | string | `"kcp-cluster-admin-client-cert"` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 
 ## Overriding Values

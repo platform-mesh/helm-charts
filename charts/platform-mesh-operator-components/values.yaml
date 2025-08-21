@@ -7,7 +7,7 @@ ocm:
   componentName: platform-mesh
   repoName: platform-mesh
 componentVersion:
-  semver: 0.0.36
+  semver: 0.0.38
 iamWebhookCA: null
 services:
   istio-base:
@@ -298,7 +298,6 @@ services:
         - name: JAVA_OPTS_APPEND
           value: |-
             -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
-
       # -- configuration for the postgresql sub-chart
       postgresql:
         primary:
@@ -317,7 +316,6 @@ services:
             userPasswordKey: password
             # -- admin password key
             adminPasswordKey: password
-
   kubernetes-graphql-gateway:
     enabled: true
     dependsOn:
@@ -498,7 +496,12 @@ services:
       - name: istio-istiod
         namespace: default
     values:
+      requestHeaderClientCASecretName: root-requestheader-client-ca
+      virtualWorkspaceSecretName: kcp-cluster-admin-client-cert
+      clientCASecretName: root-front-proxy-client-ca
+      resourceSchemaWorkspace: root:platform-mesh-system
+      deployment:
+        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:8443"
+        entityLabel: "ui.platform-mesh.io/entity"
       service:
         port: 8443
-      deployment:
-        serverUrl: "https://kcp-front-proxy.platform-mesh-system:8443"

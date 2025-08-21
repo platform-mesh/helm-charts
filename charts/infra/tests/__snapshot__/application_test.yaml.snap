@@ -115,6 +115,7 @@ match snapshots:
           groupsClaim: groups
           issuerURL: https://portal.dev.local:8443/keycloak/realms/default
           usernameClaim: email
+      replicas: 1
       rootShard:
         ref:
           name: root
@@ -174,6 +175,7 @@ match snapshots:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      replicas: 1
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
@@ -549,6 +551,7 @@ match snapshots w. hostAliases enabled:
                 - hostnames:
                     - kcp.api.portal.dev.local
                   ip: 10.96.188.4
+      replicas: 1
       rootShard:
         ref:
           name: root
@@ -617,6 +620,7 @@ match snapshots w. hostAliases enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      replicas: 1
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client

@@ -4,6 +4,7 @@ metadata:
   name: {{.Values.kcp.frontProxy.name }}
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
+  replicas: {{ .Values.kcp.frontProxy.replicas }}
   auth:
     {{- if .Values.kcp.oidc.enabled }}
     {{ with .Values.kcp.oidc }}
