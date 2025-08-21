@@ -11,6 +11,10 @@ on:
       - 'charts/kubernetes-graphql-gateway/**'
       - '.github/workflows/kubernetes-graphql-gateway.yaml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   pipeline:
     concurrency:
@@ -32,3 +36,4 @@ jobs:
     with:
       chartPath: charts/kubernetes-graphql-gateway
       componentName: github.com/openmfp/kubernetes-graphql-gateway
+      ocmRegistryUrl: ghcr.io/platform-mesh
