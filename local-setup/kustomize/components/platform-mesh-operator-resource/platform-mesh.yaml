@@ -40,6 +40,14 @@ spec:
         kcp:
           frontProxy:
             clusterIP: "10.96.0.100"
+        keycloak:
+          crossplane:
+            clients:
+              default:
+                validRedirectUris:
+                  - "http://localhost:8000/callback*"
+                  - "http://localhost:4300/callback*"
+                  - "https://portal.dev.local:8443/callback*"
     observability:
       enabled: false
     kcp-operator:
@@ -147,6 +155,6 @@ spec:
     virtual-workspaces:
       values:
         deployment:
-          providerWorkspaceId: 1v5k4l6jzkodorhl
-          providerMetadataVirtualWorkspacePath: /services/apiexport/1v5k4l6jzkodorhl/core.platform-mesh.io
-          apiExportVirtualWorkspacePath: /services/apiexport/1v5k4l6jzkodorhl/core.platform-mesh.io
+          providerWorkspaceId: 2vk60hk6b4zy83w2
+          providerMetadataVirtualWorkspacePath: /services/apiexport/2vk60hk6b4zy83w2/core.platform-mesh.io
+          apiExportVirtualWorkspacePath: /services/apiexport/2vk60hk6b4zy83w2/core.platform-mesh.io
