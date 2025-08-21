@@ -146,13 +146,7 @@ spec:
       enabled: false
     virtual-workspaces:
       values:
-        requestHeaderClientCASecretName: root-requestheader-client-ca
-        virtualWorkspaceSecretName: kcp-cluster-admin-client-cert
-        clientCASecretName: root-front-proxy-client-ca
-        resourceSchemaWorkspace: root:platform-mesh-system
         deployment:
-          serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:8443"
-          entityLabel: "ui.platform-mesh.io/entity"
           providerWorkspaceId: 1v5k4l6jzkodorhl
           providerMetadataVirtualWorkspacePath: /services/apiexport/1v5k4l6jzkodorhl/core.platform-mesh.io
           apiExportVirtualWorkspacePath: /services/apiexport/1v5k4l6jzkodorhl/core.platform-mesh.io
