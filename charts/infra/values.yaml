@@ -171,6 +171,7 @@ keycloak:
           # -- keycloak callback url
           - http://localhost:8000/callback*
           - http://localhost:4300/callback*
+          - https://portal.dev.local:8443/callback*
     trustedAudiences: []
 
     identityProviders: {}
