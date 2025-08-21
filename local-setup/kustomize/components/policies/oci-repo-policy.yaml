@@ -38,7 +38,7 @@ spec:
             timeout: 60s
             url: "oci://local-the-url-will-be-here-soon"
     - name: oci-repos-mutate
-      skipBackgroundRequests: false
+#      skipBackgroundRequests: false
       match:
         any:
           - resources:
@@ -60,4 +60,5 @@ spec:
           spec:
             ref:
               tag: "{{ request.object.status.resource.version }}"
-            url: "oci://{{ request.object.status.resource.access.imageReference }}/{{ request.object.status.resource.version }}"
+            url: |-
+              oci://{{request.object.status.resource.access.imageReference | to_string(@) | split(@, ':') | [0] }}/{{ request.object.status.resource.version }}
