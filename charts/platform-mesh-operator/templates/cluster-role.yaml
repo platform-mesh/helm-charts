@@ -42,9 +42,7 @@ rules:
   - patch
 - apiGroups: ["delivery.ocm.software"]
   resources:
-    - componentversions
-    - resources
-    - fluxdeployers
+    - "*"
   verbs:
     - get
     - list
