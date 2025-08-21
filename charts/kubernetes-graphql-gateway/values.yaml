@@ -1,0 +1,113 @@
+cors:
+  enabled: false
+  allowedHeaders: "*"
+  allowedOrigins: "*"
+
+image:
+  name: ghcr.io/openmfp/kubernetes-graphql-gateway
+  pullPolicy: IfNotPresent
+
+kcp:
+  enabled: true
+
+gateway:
+  port: 8080
+  healthCheck:
+    enabled: true
+    port: 3389
+  metricsPort: 8081
+  graphiql: true
+  logLevel: trace
+  shouldImpersonate: true
+  usernameClaim: email
+  resources:
+    limits:
+      memory: 1200Mi
+    requests:
+      cpu: 250m
+      memory: 1000Mi
+
+listener:
+  apiExportName: kcp.io
+  port: 8090
+  healthCheck:
+    enabled: true
+    port: 3390
+  metricsPort: 8091
+  virtualWorkspacesConfig:
+    enabled: false
+    configMapName: "virtual-workspaces-config"
+    path: "/app/config/virtual-workspaces.yaml"
+    content:
+      virtualWorkspaces: []
+  resources:
+    limits:
+      memory: 600Mi
+    requests:
+      cpu: 250m
+      memory: 500Mi
+
+deployment:
+  maxUnavailable: 0
+  maxSurge: 5
+  revisionHistoryLimit: 3
+  replicas: 1
+
+
+sentry:
+  environment: dev
+
+istio:
+  enabled: true
+  gateway:
+    name: gateway
+
+virtualService:
+  pathPrefix: /kubernetes-graphql-gateway/
+  hosts:
+    - "*"
+  httpRules:
+    - name: default
+      cors:
+        allowHeaders:
+          - "*"
+        allowMethods:
+          - GET
+          - POST
+        allowOrigins:
+          - regex: .*
+
+resources:
+  limits:
+    memory: 1800Mi
+  requests:
+    cpu: 500m
+    memory: 1500Mi
+
+kubeConfig:
+  createSecret: false
+  enabled: false
+  secretName: "kcp-root-kubeconfig"
+
+extraEnvs: []
+extraVolumes: []
+extraVolumeMounts: []
+
+tracing:
+  enabled: true
+
+# Health check configuration shared by both containers
+health:
+  periodSeconds: 10
+  readiness:
+    path: "/readyz"
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  liveness:
+    path: "/healthz"
+    failureThreshold: 1
+    periodSeconds: 10
+  startup:
+    path: "/readyz"
+    failureThreshold: 30
+    periodSeconds: 10

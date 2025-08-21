@@ -1,0 +1,39 @@
+{{- if eq (include "common.istioEnabled" .) "true" -}}
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: {{ include "common.entity.name" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "common.entity.name" . }}
+  jwtRules:
+{{- $allowedMtlsAudiences := .Values.allowedMtlsAudiences }}
+{{- $mtlsTrust := .Values.mtlsTrust }}
+{{- range $key, $idp := .Values.trust }}
+    - issuer: {{ $idp.trustedIssuer }}
+  {{- if $idp.jwksUrl }}
+      jwksUri: {{ $idp.jwksUrl }}
+  {{- end}}
+  {{- if $idp.jwks }}
+      jwks: {{ $idp.jwks | toJson | quote }}
+  {{- end}}
+      audiences:
+        - {{ $idp.audience }}
+  {{- if $idp.additionalAudiences }}
+    {{- $additionalAudiences := split "," $idp.additionalAudiences }}
+    {{- range $audience := $additionalAudiences }}
+        - {{ $audience }}
+    {{- end }}
+  {{- end }}
+  {{- if not (empty $idp.mtlsAudiences )}}
+    {{- range $mtlsAudience := $idp.mtlsAudiences }}
+        {{- if has $mtlsAudience.name $allowedMtlsAudiences}}
+        - {{ $mtlsAudience.audience }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+      forwardOriginalToken: true
+{{- end }}
+{{- end -}}

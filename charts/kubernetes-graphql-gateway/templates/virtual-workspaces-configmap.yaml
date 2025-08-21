@@ -1,0 +1,23 @@
+{{- if .Values.listener.virtualWorkspacesConfig.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.listener.virtualWorkspacesConfig.configMapName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "common.entity.name" . }}
+data:
+  virtual-workspaces.yaml: |
+    {{- if .Values.listener.virtualWorkspacesConfig.content.virtualWorkspaces }}
+    virtualWorkspaces:
+    {{- range .Values.listener.virtualWorkspacesConfig.content.virtualWorkspaces }}
+      - name: {{ .name }}
+        url: {{ .url }}
+        {{- if .kubeconfig }}
+        kubeconfig: {{ .kubeconfig }}
+        {{- end }}
+    {{- end }}
+    {{- else }}
+    virtualWorkspaces: []
+    {{- end }}
+{{- end }} 

@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "common.entity.name" . }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.deployment.maxSurge }}
+      maxUnavailable: {{ .Values.deployment.maxUnavailable }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: {{ include "common.entity.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "common.entity.name" . }}
+        version: "{{ .Chart.AppVersion }}"
+    spec:
+      serviceAccountName: {{ include "common.entity.name" . }}
+      {{- include "common.imagePullSecret" . | nindent 6 }}
+      containers:
+      - name: {{ include "common.entity.name" . }}-gateway
+        image: {{ include "common.image" . }}
+        {{- include "common.imagePullPolicy" . | nindent 8 }}
+        {{- include "common.resources" . | nindent 8 }}
+        {{- include "common.container.securityContext" . | nindent 8 }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.health.liveness.path }}
+            port: {{ .Values.gateway.healthCheck.port }}
+          failureThreshold: {{ .Values.health.liveness.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.health.readiness.path }}
+            port: {{ .Values.gateway.healthCheck.port }}
+          initialDelaySeconds: {{ .Values.health.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.health.readiness.periodSeconds }}
+        startupProbe:
+          httpGet:
+            path: {{ .Values.health.startup.path }}
+            port: {{ .Values.gateway.healthCheck.port }}
+          failureThreshold: {{ .Values.health.startup.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        args:
+        - gateway
+        - --metrics-bind-address=:{{ .Values.gateway.metricsPort }}
+        - --health-probe-bind-address=:{{ .Values.gateway.healthCheck.port }}
+        {{- include "common.collectorArgs" . | nindent 8 }}
+        ports:
+        - name: metrics
+          containerPort: {{ .Values.gateway.metricsPort }}
+          protocol: TCP
+        - name: health-port
+          containerPort: {{ .Values.gateway.healthCheck.port }}
+          protocol: TCP
+        - name: service-port
+          containerPort: {{ .Values.gateway.port }}
+          protocol: TCP
+        env:
+        {{ include "kubernetes-graphql-gateway.env" . | nindent 8 }}
+        - name: GATEWAY_HANDLER_CFG_GRAPHI_QL
+          value: "{{ .Values.gateway.graphiql }}"
+        - name: GATEWAY_LOG_LEVEL
+          value: "{{ .Values.gateway.logLevel }}"
+        - name: GATEWAY_PORT
+          value: "{{ .Values.gateway.port }}"
+        - name: GATEWAY_USERNAME_CLAIM
+          value: "{{ .Values.gateway.usernameClaim }}"
+        - name: GATEWAY_SHOULD_IMPERSONATE
+          value: "{{ .Values.gateway.shouldImpersonate }}"
+        {{- if (.Values.cors).enabled }}
+        - name: GATEWAY_CORS_ENABLED
+          value: "{{ .Values.cors.enabled }}"
+        - name: GATEWAY_CORS_ALLOWED_HEADERS
+          value: "{{ .Values.cors.allowedHeaders }}"
+        - name: GATEWAY_CORS_ALLOWED_ORIGINS
+          value: "{{ .Values.cors.allowedOrigins }}"
+        {{- end }}
+        volumeMounts:
+          - name: definitions-volume
+            mountPath: /app/definitions
+          {{- if .Values.kubeConfig.enabled }}
+          - name: kubeconfig-volume
+            mountPath: /app/kubeconfig
+          {{- end }}
+          {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
+      - name: {{ include "common.entity.name" . }}-listener
+        image: {{ include "common.image" . }}
+        {{- include "common.imagePullPolicy" . | nindent 8 }}
+        {{- include "common.resources" . | nindent 8 }}
+        {{- include "common.container.securityContext" . | nindent 8 }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.health.liveness.path }}
+            port: {{ .Values.listener.healthCheck.port }}
+          failureThreshold: {{ .Values.health.liveness.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.health.readiness.path }}
+            port: {{ .Values.listener.healthCheck.port }}
+          initialDelaySeconds: {{ .Values.health.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.health.readiness.periodSeconds }}
+        startupProbe:
+          httpGet:
+            path: {{ .Values.health.startup.path }}
+            port: {{ .Values.listener.healthCheck.port }}
+          failureThreshold: {{ .Values.health.startup.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        args:
+        - listener
+        - --metrics-bind-address=:{{ .Values.listener.metricsPort }}
+        - --health-probe-bind-address=:{{ .Values.listener.healthCheck.port }}
+        ports:
+          - name: metrics
+            containerPort: {{ .Values.listener.metricsPort }}
+            protocol: TCP
+          - name: health-port
+            containerPort: {{ .Values.listener.healthCheck.port }}
+            protocol: TCP
+          - name: service-port
+            containerPort: {{ .Values.listener.port }}
+            protocol: TCP
+        env:
+        {{- include "kubernetes-graphql-gateway.env" . | nindent 8 }}
+        - name: LISTENER_APIEXPORT_NAME
+          value: "{{ .Values.listener.apiExportName }}"
+        {{- if .Values.listener.virtualWorkspacesConfig.enabled }}
+        - name: VIRTUAL_WORKSPACES_CONFIG_PATH
+          value: {{ .Values.listener.virtualWorkspacesConfig.path | default "/app/config/virtual-workspaces.yaml" }}
+        {{- end }}
+        volumeMounts:
+          - name: definitions-volume
+            mountPath: /app/definitions
+        {{- if .Values.kubeConfig.enabled }}
+          - name: kubeconfig-volume
+            mountPath: /app/kubeconfig
+        {{- end }}
+        {{- if .Values.listener.virtualWorkspacesConfig.enabled }}
+          - name: virtual-workspaces-config-volume
+            mountPath: /app/config
+        {{- end }}
+        {{- with .Values.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      volumes:
+        - name: definitions-volume
+          emptyDir:
+            sizeLimit: 500Mi
+        {{- if .Values.kubeConfig.enabled }}
+        - name: kubeconfig-volume
+          secret:
+            secretName: {{ .Values.kubeConfig.secretName }}
+        {{- end }}
+        {{- if .Values.listener.virtualWorkspacesConfig.enabled }}
+        - name: virtual-workspaces-config-volume
+          configMap:
+            name: {{ .Values.listener.virtualWorkspacesConfig.configMapName }}
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}

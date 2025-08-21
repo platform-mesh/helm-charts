@@ -1,0 +1,26 @@
+suite: Test the Template files
+values:
+- ../values.yaml
+release:
+  name: openmfp
+  namespace: openmfp-system
+chart:
+  appVersion: 1.0.0
+templates:
+  - deploy.yaml
+tests:
+  - it: match the Snapshot
+    asserts:
+    - matchSnapshot: {}
+  - it: has all health checks
+    template: deploy.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /healthz
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /readyz
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.path
+          value: /readyz
