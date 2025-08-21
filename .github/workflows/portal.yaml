@@ -46,4 +46,4 @@ jobs:
     with:
       chartPath: charts/portal
       componentName: github.com/platform-mesh/portal
-      ocmRegistryUrl: ghcr.io/platform-mesh/ocm
+      ocmRegistryUrl: ghcr.io/platform-mesh

@@ -45,4 +45,4 @@ jobs:
     with:
       chartPath: charts/extension-manager-operator
       componentName: github.com/platform-mesh/extension-manager-operator
-      ocmRegistryUrl: ghcr.io/platform-mesh/ocm
+      ocmRegistryUrl: ghcr.io/platform-mesh
