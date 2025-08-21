@@ -576,10 +576,15 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 5m
       values:
+        clientCASecretName: root-front-proxy-client-ca
         deployment:
-          serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
+          entityLabel: ui.platform-mesh.io/entity
+          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443
+        requestHeaderClientCASecretName: root-requestheader-client-ca
+        resourceSchemaWorkspace: root:platform-mesh-system
         service:
           port: 8443
+        virtualWorkspaceSecretName: kcp-cluster-admin-client-cert
   19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Component
