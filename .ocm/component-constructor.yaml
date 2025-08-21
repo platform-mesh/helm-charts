@@ -10,14 +10,14 @@ components:
         version: {{ .VERSION }}
         access:
           type: ociArtifact
-          imageReference: "{{ .CHART_OCI_PATH }}/{{ .VERSION }}"
+          imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
       - name: image
         type: ociImage
         relation: external
         version: {{ .APP_VERSION }}
         access:
           type: ociArtifact
-          imageReference: "{{ .IMAGE_NAME }}/{{ .APP_VERSION }}"
+          imageReference: "{{ .IMAGE_NAME }}:{{ .APP_VERSION }}"
     sources:
       - name: source
         type: git

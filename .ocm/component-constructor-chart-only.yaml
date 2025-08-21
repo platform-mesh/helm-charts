@@ -10,7 +10,7 @@ components:
         version: {{ .VERSION }}
         access:
           type: ociArtifact
-          imageReference: "{{ .CHART_OCI_PATH }}/{{ .VERSION }}"
+          imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
     sources:
       - name: chart
         type: git
