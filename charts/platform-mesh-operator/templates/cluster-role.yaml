@@ -3,6 +3,14 @@ kind: ClusterRole
 metadata:
   name: {{ include "common.entity.name" . }}
 rules:
+- apiGroups: [ "" ]
+  resources:
+    - events
+  verbs:
+    - create
+    - get
+    - list
+    - watch
 - apiGroups:
   - core.platform-mesh.io
   resources:

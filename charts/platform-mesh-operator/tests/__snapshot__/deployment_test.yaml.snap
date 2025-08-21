@@ -96,6 +96,15 @@ operator match the snapshot:
       name: platform-mesh-operator
     rules:
       - apiGroups:
+          - ""
+        resources:
+          - events
+        verbs:
+          - create
+          - get
+          - list
+          - watch
+      - apiGroups:
           - core.platform-mesh.io
         resources:
           - platformmeshes
