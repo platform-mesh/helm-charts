@@ -83,7 +83,10 @@ kcp:
     server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     authorizationWebhookSecretName: kcp-webhook-secret
 
+  rootShard:
+    replicas: 1
   frontProxy:
+    replicas: 1
     name: frontproxy
     clusterIP: ""
     port: 8443

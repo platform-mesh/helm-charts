@@ -4,6 +4,7 @@ metadata:
   name: root
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
+  replicas: {{ .Values.kcp.rootShard.replicas }}
   external:
     # replace the hostname with the external DNS name for your kcp instance
     hostname: {{ .Values.kcp.external.hostname }}

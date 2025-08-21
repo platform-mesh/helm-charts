@@ -70,6 +70,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.clusterIP | string | `""` |  |
 | kcp.frontProxy.name | string | `"frontproxy"` |  |
 | kcp.frontProxy.port | int | `8443` |  |
+| kcp.frontProxy.replicas | int | `1` |  |
 | kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |
@@ -77,6 +78,7 @@ A Helm chart for Kubernetes
 | kcp.oidc.groupsClaim | string | `"groups"` |  |
 | kcp.oidc.issuerUrl | string | `"https://portal.dev.local:8443/keycloak/realms/default"` |  |
 | kcp.oidc.usernameClaim | string | `"email"` |  |
+| kcp.rootShard.replicas | int | `1` |  |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
 | kcp.webhook.caData | string | `""` |  |
 | kcp.webhook.enabled | bool | `false` |  |
