@@ -27,7 +27,7 @@ spec:
           spec:
             chart:
               spec:
-                version: "{{request.object.status.reference.reference}}"
+                version: "{{request.object.status.resource.version}}"
     - name: helm-release-mutate-git-version
       match:
         any:
