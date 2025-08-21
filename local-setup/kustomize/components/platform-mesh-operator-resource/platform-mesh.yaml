@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.48
+  chartVersion: 0.11.49
   values:
     istio-gateway:
       enabled: true
@@ -20,14 +20,14 @@ spec:
       values:
         service:
           clusterIP: 10.96.0.110
-#        crossplane:
-#          clients:
-#            default:
-#              validRedirectUris:
-#                - "https://portal.dev.local:8443/callback*"
-#                - "http://localhost:4300/callback*"
-#        keycloakConfig:
-#          url: http://keycloak.platform-mesh-system.svc.cluster.local/keycloak
+          #        crossplane:
+          #          clients:
+          #            default:
+          #              validRedirectUris:
+          #                - "https://portal.dev.local:8443/callback*"
+          #                - "http://localhost:4300/callback*"
+          #        keycloakConfig:
+          #          url: http://keycloak.platform-mesh-system.svc.cluster.local/keycloak
     crossplane:
       values:
         provider:
@@ -44,42 +44,42 @@ spec:
       enabled: false
     kcp-operator:
       enabled: true
-#    kcp:
-#      enabled: false
-#      values:
-#        istio:
-#          hosts:
-#            - kcp.api.portal.dev.local
-#        kcp:
-#          oidc:
-#            caSecretName: domain-certificate-ca
-#          externalHostname: kcp.api.portal.dev.local
-#          certificates:
-#            dnsNames:
-#              - localhost
-#              - kcp.api.portal.dev.local
-#              - virtual-workspaces.platform-mesh-system
-#          kcp:
-#            hostAliases:
-#              enabled: true
-#              values:
-#                - ip: "10.96.0.100"
-#                  hostnames:
-#                    - "kcp.api.portal.dev.local"
-#          kcpFrontProxy:
-#            hostAliases:
-#              enabled: true
-#              values:
-#                - ip: "10.96.188.4"
-#                  hostnames:
-#                    - "portal.dev.local"
-#            service:
-#              clusterIP: "10.96.0.100"
-#            monitoring:
-#              serviceMonitor:
-#                enabled: false
-#        webhook:
-#          server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
+      #    kcp:
+      #      enabled: false
+      #      values:
+      #        istio:
+      #          hosts:
+      #            - kcp.api.portal.dev.local
+      #        kcp:
+      #          oidc:
+      #            caSecretName: domain-certificate-ca
+      #          externalHostname: kcp.api.portal.dev.local
+      #          certificates:
+      #            dnsNames:
+      #              - localhost
+      #              - kcp.api.portal.dev.local
+      #              - virtual-workspaces.platform-mesh-system
+      #          kcp:
+      #            hostAliases:
+      #              enabled: true
+      #              values:
+      #                - ip: "10.96.0.100"
+      #                  hostnames:
+      #                    - "kcp.api.portal.dev.local"
+      #          kcpFrontProxy:
+      #            hostAliases:
+      #              enabled: true
+      #              values:
+      #                - ip: "10.96.188.4"
+      #                  hostnames:
+      #                    - "portal.dev.local"
+      #            service:
+      #              clusterIP: "10.96.0.100"
+      #            monitoring:
+      #              serviceMonitor:
+      #                enabled: false
+      #        webhook:
+      #          server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     marketplace-ui:
       enabled: false
       values:
@@ -145,13 +145,14 @@ spec:
     kubernetes-graphql-gateway:
       enabled: false
     virtual-workspaces:
-      enabled: true
-      dependsOn:
-        - name: istio-istiod
-          namespace: default
       values:
+        requestHeaderClientCASecretName: root-requestheader-client-ca
+        virtualWorkspaceSecretName: kcp-cluster-admin-client-cert
+        clientCASecretName: root-front-proxy-client-ca
+        resourceSchemaWorkspace: root:platform-mesh-system
         deployment:
+          serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:8443"
           entityLabel: "ui.platform-mesh.io/entity"
-          providerWorkspaceId: 27kmjnmuuwqfxszl
-          providerMetadataVirtualWorkspacePath: /services/apiexport/27kmjnmuuwqfxszl/core.platform-mesh.io
-          apiExportVirtualWorkspacePath: /services/apiexport/27kmjnmuuwqfxszl/core.platform-mesh.io
+          providerWorkspaceId: 1v5k4l6jzkodorhl
+          providerMetadataVirtualWorkspacePath: /services/apiexport/1v5k4l6jzkodorhl/core.platform-mesh.io
+          apiExportVirtualWorkspacePath: /services/apiexport/1v5k4l6jzkodorhl/core.platform-mesh.io

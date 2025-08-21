@@ -150,7 +150,7 @@ kubectl wait --namespace default \
   --timeout=280s account-operator
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=480s pm-portal
+  --timeout=480s portal
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
@@ -167,8 +167,8 @@ kubectl rollout status deployment rebac-authz-webhook -n platform-mesh-system
 kubectl rollout status deployment virtual-workspaces -n platform-mesh-system
 kubectl rollout restart deployment virtual-workspaces -n platform-mesh-system
 
-kubectl rollout restart deployment kubernetes-graphql-gateway -n platform-mesh-system
-kubectl rollout status deployment kubernetes-graphql-gateway -n platform-mesh-system
+#kubectl rollout restart deployment kubernetes-graphql-gateway -n platform-mesh-system
+#kubectl rollout status deployment kubernetes-graphql-gateway -n platform-mesh-system
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
