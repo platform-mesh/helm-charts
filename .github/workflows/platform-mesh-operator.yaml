@@ -37,4 +37,4 @@ jobs:
     with:
       chartPath: charts/platform-mesh-operator
       componentName: github.com/platform-mesh/platform-mesh-operator
-      ocmRegistryUrl: ghcr.io/openmfp/ocm
+      ocmRegistryUrl: ghcr.io/platform-mesh/ocm

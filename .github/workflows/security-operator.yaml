@@ -43,4 +43,4 @@ jobs:
     with:
       chartPath: charts/security-operator
       componentName: github.com/platform-mesh/security-operator
-      ocmRegistryUrl: ghcr.io/openmfp/ocm
+      ocmRegistryUrl: ghcr.io/platform-mesh/ocm

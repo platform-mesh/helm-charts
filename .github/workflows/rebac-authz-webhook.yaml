@@ -46,4 +46,4 @@ jobs:
     with:
       chartPath: charts/rebac-authz-webhook
       componentName: github.com/platform-mesh/rebac-authz-webhook
-      ocmRegistryUrl: ghcr.io/openmfp/ocm
+      ocmRegistryUrl: ghcr.io/platform-mesh/ocm
