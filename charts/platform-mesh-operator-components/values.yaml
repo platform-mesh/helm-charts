@@ -295,7 +295,6 @@ services:
           value: xforwarded
         - name: KC_HOSTNAME_STRICT
           value: "false"
-
       # -- configuration for the postgresql sub-chart
       postgresql:
         primary:
