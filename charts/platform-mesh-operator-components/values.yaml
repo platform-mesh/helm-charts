@@ -288,16 +288,14 @@ services:
       # -- keycloak environment variables (raw)
       # For Arm64 arch (especially Apple M4), add -XX:UseSVE=0 to JAVA_OPTS_APPEND
       extraEnvVars:
-        - name: KEYCLOAK_USER
-          value: keycloak-admin
-        - name: KEYCLOAK_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: keycloak-admin
-              key: secret
         - name: JAVA_OPTS_APPEND
           value: |-
             -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
+        - name: KC_PROXY_HEADERS
+          value: xforwarded
+        - name: KC_HOSTNAME_STRICT
+          value: "false"
+
       # -- configuration for the postgresql sub-chart
       postgresql:
         primary:
