@@ -61,4 +61,4 @@ spec:
             ref:
               tag: "{{ request.object.status.resource.version }}"
             url: |-
-              oci://{{request.object.status.resource.access.imageReference | to_string(@) | split(@, ':') | [0] }}/{{ request.object.status.resource.version }}
+              oci://{{request.object.status.resource.access.imageReference | to_string(@) | replace(@, 'oci://','',`1`) | split(@, ':') | [0] }}/{{ request.object.status.resource.version }}
