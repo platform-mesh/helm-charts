@@ -344,7 +344,12 @@ match snapshots:
       hosts:
         - '*'
       http:
-        - match:
+        - headers:
+            request:
+              set:
+                x-forwarded-port: "8443"
+                x-forwarded-proto: https
+          match:
             - uri:
                 prefix: /keycloak
           route:
@@ -789,7 +794,12 @@ match snapshots w. hostAliases enabled:
       hosts:
         - '*'
       http:
-        - match:
+        - headers:
+            request:
+              set:
+                x-forwarded-port: "8443"
+                x-forwarded-proto: https
+          match:
             - uri:
                 prefix: /keycloak
           route:

@@ -19,12 +19,9 @@ spec:
         - uri:
             prefix: {{ .Values.keycloak.domain.pathPrefix }}
       {{ end }}
-      {{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "istio.https.enabled")) "true" }}
       headers:
         request:
           set:
             x-forwarded-proto: "https"
             x-forwarded-port: "{{ .Values.keycloak.istio.https.port }}"
-      {{ end }}
-
 {{- end }}
