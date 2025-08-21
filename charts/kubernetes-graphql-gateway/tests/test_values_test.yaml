@@ -1,0 +1,12 @@
+suite: Test the Template files  with test values
+values:
+- ../test_values.yaml
+release:
+  name: openmfp
+  namespace: openmfp-system
+chart:
+  appVersion: 1.0.0
+tests:
+- it: match the Snapshot
+  asserts:
+  - matchSnapshot: {}

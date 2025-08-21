@@ -1,0 +1,84 @@
+cors:
+  enabled: false
+  allowedHeaders: "*"
+  allowedOrigins: "*"
+
+image:
+  name: ghcr.io/openmfp/kubernetes-graphql-gateway
+  pullPolicy: IfNotPresent
+
+kcp:
+  enabled: true
+
+gateway:
+  port: 8080
+  healthCheck:
+    enabled: true
+    port: 3389
+  metricsPort: 8081
+  graphiql: true
+  logLevel: trace
+  usernameClaim: email
+  shouldImpersonate: true
+
+listener:
+  port: 8090
+  healthCheck:
+    enabled: true
+    port: 3390
+  metricsPort: 8091
+  virtualWorkspacesConfig:
+    enabled: true
+    configMapName: "virtual-workspaces-config"
+    path: "/app/config/virtual-workspaces.yaml"
+    content:
+      virtualWorkspaces:
+        - name: custom-ws
+          url: https://example.com
+          kubeconfig: /etc/kubeconfig/kubeconfig
+deployment:
+  maxUnavailable: 0
+  maxSurge: 5
+
+sentry:
+  environment: dev
+
+istio:
+  enabled: true
+  gateway:
+    name: gateway
+
+virtualService:
+  pathPrefix: /kubernetes-graphql-gateway/
+  hosts:
+    - "*"
+  httpRules:
+    - name: default
+      cors:
+        allowHeaders:
+          - "*"
+        allowMethods:
+          - GET
+          - POST
+        allowOrigins:
+          - regex: .*
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 320Mi
+
+kubeConfig:
+  createSecret: false
+  enabled: false
+  secretName: "kcp-root-kubeconfig"
+
+extraEnvs:
+- name: KEY1
+  value: "value1"
+
+extraVolumes: []
+extraVolumeMounts: []
