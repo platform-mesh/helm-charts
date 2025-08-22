@@ -2,8 +2,8 @@ suite: Test the Template files
 values:
 - ../values.yaml
 release:
-  name: openmfp
-  namespace: openmfp-system
+  name: platform-mesh
+  namespace: platform-mesh-system
 chart:
   appVersion: 1.0.0
 templates:

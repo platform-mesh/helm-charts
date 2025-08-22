@@ -16,7 +16,7 @@ jobs:
     concurrency:
       group: kubernetes-graphql-gateway-${{ github.ref }}
       cancel-in-progress: true
-    uses: openmfp/gha/.github/workflows/pipeline-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
     with:
       chartFolder: charts
       chartName: kubernetes-graphql-gateway
@@ -27,8 +27,8 @@ jobs:
   ocm:
     if: ${{ github.ref == 'refs/heads/main' }}
     needs: [pipeline]
-    uses: openmfp/gha/.github/workflows/job-ocm.yml@switch-oci-repo
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
     secrets: inherit
     with:
       chartPath: charts/kubernetes-graphql-gateway
-      componentName: github.com/openmfp/kubernetes-graphql-gateway
+      componentName: github.com/platform-mesh/kubernetes-graphql-gateway
