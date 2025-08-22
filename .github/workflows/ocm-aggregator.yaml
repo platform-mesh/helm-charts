@@ -75,7 +75,7 @@ jobs:
           # echo INFRA_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/infra --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # echo KCP_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kcp --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # echo KEYCLOAK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/keycloak --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          # echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kubernetes-graphql-gateway --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kubernetes-graphql-gateway --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # echo OPENFGA_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/openfga --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # echo OBSERVABILITY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/observability --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo VIRTUAL_WORKSPACES_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/virtual-workspaces --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
@@ -105,13 +105,13 @@ jobs:
             GARDENER_ETCD_DRUID_SOURCE_REF=v0.31.0 \
             GARDENER_ETCD_DRUID_CHART_VERSION=0.1.0 \
             OPENFGA_VERSION=0.2.38 \
+            KUBERNETES_GRAPHQL_GATEWAY_VERSION=${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }} \
             KEYCLOAK_VERSION=24.8.1
           
           
             # IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \
             # IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
             # KCP_VERSION=${{ env.KCP_VERSION }} \
-            # KUBERNETES_GRAPHQL_GATEWAY_VERSION=${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }} \
             # KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION }} \
             # OPENFGA_VERSION=${{ env.OPENFGA_VERSION }} \
             # OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }} \
