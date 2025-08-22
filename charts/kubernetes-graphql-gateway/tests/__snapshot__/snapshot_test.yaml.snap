@@ -4,15 +4,15 @@ match the Snapshot:
     kind: Deployment
     metadata:
       labels:
-        app: openmfp-kubernetes-graphql-gateway
-      name: openmfp-kubernetes-graphql-gateway
-      namespace: openmfp-system
+        app: platform-mesh-kubernetes-graphql-gateway
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
     spec:
       replicas: 1
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          app: openmfp-kubernetes-graphql-gateway
+          app: platform-mesh-kubernetes-graphql-gateway
       strategy:
         rollingUpdate:
           maxSurge: 5
@@ -20,7 +20,7 @@ match the Snapshot:
       template:
         metadata:
           labels:
-            app: openmfp-kubernetes-graphql-gateway
+            app: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
           containers:
@@ -29,7 +29,7 @@ match the Snapshot:
                 - --metrics-bind-address=:8081
                 - --health-probe-bind-address=:3389
                 - --tracing-enabled=true
-                - --tracing-config-service-name=openmfp-kubernetes-graphql-gateway.openmfp-system
+                - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
                 - --tracing-config-collector-endpoint=observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
               env:
@@ -49,7 +49,7 @@ match the Snapshot:
                   value: email
                 - name: GATEWAY_SHOULD_IMPERSONATE
                   value: "true"
-              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -57,7 +57,7 @@ match the Snapshot:
                   path: /healthz
                   port: 3389
                 periodSeconds: 10
-              name: openmfp-kubernetes-graphql-gateway-gateway
+              name: platform-mesh-kubernetes-graphql-gateway-gateway
               ports:
                 - containerPort: 8081
                   name: metrics
@@ -107,7 +107,7 @@ match the Snapshot:
                   value: "true"
                 - name: LISTENER_APIEXPORT_NAME
                   value: kcp.io
-              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -115,7 +115,7 @@ match the Snapshot:
                   path: /healthz
                   port: 3390
                 periodSeconds: 10
-              name: openmfp-kubernetes-graphql-gateway-listener
+              name: platform-mesh-kubernetes-graphql-gateway-listener
               ports:
                 - containerPort: 8091
                   name: metrics
@@ -154,7 +154,7 @@ match the Snapshot:
                   name: definitions-volume
           imagePullSecrets:
             - name: github
-          serviceAccountName: openmfp-kubernetes-graphql-gateway
+          serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
             - emptyDir:
                 sizeLimit: 500Mi

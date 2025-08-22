@@ -4,7 +4,7 @@ cors:
   allowedOrigins: "*"
 
 image:
-  name: ghcr.io/openmfp/kubernetes-graphql-gateway
+  name: ghcr.io/platform-mesh/kubernetes-graphql-gateway
   pullPolicy: IfNotPresent
 
 kcp:

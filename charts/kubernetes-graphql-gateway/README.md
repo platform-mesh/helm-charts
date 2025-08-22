@@ -46,7 +46,7 @@ kubeConfig:
 | health.startup.failureThreshold | int | `30` |  |
 | health.startup.path | string | `"/readyz"` |  |
 | health.startup.periodSeconds | int | `10` |  |
-| image.name | string | `"ghcr.io/openmfp/kubernetes-graphql-gateway"` |  |
+| image.name | string | `"ghcr.io/platform-mesh/kubernetes-graphql-gateway"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | istio.enabled | bool | `true` |  |
 | istio.gateway.name | string | `"gateway"` |  |
