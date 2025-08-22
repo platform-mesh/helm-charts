@@ -1,5 +1,8 @@
-name: Build kubernetes-graphql-gateway
- Workflow
+name: Build kubernetes-graphql-gateway Workflow
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     paths:
@@ -21,14 +24,16 @@ jobs:
       chartFolder: charts
       chartName: kubernetes-graphql-gateway
       additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts,kcp=https://kcp-dev.github.io/helm-charts'
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
     secrets: inherit
 
   ocm:
     if: ${{ github.ref == 'refs/heads/main' }}
-    needs: [pipeline]
+    needs: [ pipeline ]
     uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
     secrets: inherit
     with:
       chartPath: charts/kubernetes-graphql-gateway
       componentName: github.com/platform-mesh/kubernetes-graphql-gateway
+      ocmRegistryUrl: ghcr.io/platform-mesh
+

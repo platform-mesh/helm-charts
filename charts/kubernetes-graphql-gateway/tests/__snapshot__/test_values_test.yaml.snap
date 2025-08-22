@@ -53,7 +53,7 @@ match the Snapshot:
                   value: email
                 - name: GATEWAY_SHOULD_IMPERSONATE
                   value: "true"
-              image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -117,7 +117,7 @@ match the Snapshot:
                   value: kcp.io
                 - name: VIRTUAL_WORKSPACES_CONFIG_PATH
                   value: /app/config/virtual-workspaces.yaml
-              image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
