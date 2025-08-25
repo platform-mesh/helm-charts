@@ -12,7 +12,7 @@ crossplane:
   # -- crossplane realm config
   realm:
     # -- realm name
-    name: default
+    name: defaultt
     # -- realm display name
     displayName: default
     # -- realm registration allowed
@@ -32,8 +32,6 @@ crossplane:
 
   trustedAudiences: []
 
-  identityProviders: {}
-
 keycloakConfig:
   # -- url of the keycloak server
   url: http://openmfp-keycloak.openmfp-system.svc.cluster.local/keycloak
@@ -50,15 +48,4 @@ keycloakConfig:
       namespace: openmfp-system
     # -- token lifespan
     tokenLifespan: 3600
-  # -- admin user configuration
-  admin:
-    username:
-      # -- username
-      value: keycloak-admin
 
-externalSecrets:
-  # -- keycloak admin secret
-  keycloakAdminRemoteRef: ""
-  # -- postgres admin secret
-  postgres-adminRemoteRef: ""
-  
