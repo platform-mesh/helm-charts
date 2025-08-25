@@ -1,7 +1,7 @@
 apiVersion: v2
 description: Helm Chart for the Platform Mesh Portal
 name: portal
-version: 0.0.26
+version: 0.0.27
 appVersion: "v0.7.5"
 dependencies:
   - name: common
