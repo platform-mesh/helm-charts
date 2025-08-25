@@ -11,7 +11,7 @@ matches the snapshot:
         enabled: true
         name: ClientName
         realmIdRef:
-          name: default
+          name: defaultt
         standardFlowEnabled: true
         validRedirectUris:
           - http://localhost:8000/callback*
@@ -38,7 +38,7 @@ matches the snapshot:
           - groups
           - trusted-openmfp-audiences
         realmIdRef:
-          name: default
+          name: defaultt
       providerConfigRef:
         name: keycloak-provider-config
   3: |
@@ -51,14 +51,14 @@ matches the snapshot:
         includeInTokenScope: true
         name: trusted-clientname-audiences
         realmIdRef:
-          name: default
+          name: defaultt
       providerConfigRef:
         name: keycloak-provider-config
   4: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
-      name: default
+      name: defaultt
     spec:
       forProvider:
         accessTokenLifespan: 8h
@@ -68,7 +68,7 @@ matches the snapshot:
         displayNameHtml: <b>default</b>
         enabled: true
         loginWithEmailAllowed: true
-        realm: default
+        realm: defaultt
         registrationAllowed: true
         registrationEmailAsUsername: true
         ssoSessionIdleTimeout: 8h
@@ -87,7 +87,7 @@ matches the snapshot with custom config:
         enabled: true
         name: ClientName
         realmIdRef:
-          name: default
+          name: defaultt
         standardFlowEnabled: true
         validRedirectUris:
           - http://localhost:8000/callback*
@@ -114,70 +114,10 @@ matches the snapshot with custom config:
           - groups
           - trusted-openmfp-audiences
         realmIdRef:
-          name: default
+          name: defaultt
       providerConfigRef:
         name: keycloak-provider-config
   3: |
-    apiVersion: oidc.keycloak.crossplane.io/v1alpha1
-    kind: IdentityProvider
-    metadata:
-      name: custom-provider
-    spec:
-      forProvider:
-        alias: custom-provider
-        authorizationUrl: https://custom-provider.com/oauth/authorize
-        clientId: custom-client-id
-        clientSecretSecretRef:
-          key: secret-key
-          name: custom-client-secret
-        defaultScopes: openid email profile
-        extraConfig:
-          CustomConfig: value
-        hideOnLoginPage: true
-        issuer: https://custom-provider.com
-        realmRef:
-          name: default
-        tokenUrl: https://custom-provider.com/oauth/token
-        trustEmail: true
-      providerConfigRef:
-        name: keycloak-provider-config
-  4: |
-    apiVersion: identityprovider.keycloak.crossplane.io/v1alpha1
-    kind: IdentityProviderMapper
-    metadata:
-      name: lastname
-    spec:
-      forProvider:
-        extraConfig:
-          Claim: last_name
-          UserAttribute: lastName
-          syncMode: INHERIT
-        identityProviderAlias: custom-provider
-        identityProviderMapper: oidc-user-attribute-idp-mapper
-        name: last_name
-        realmRef:
-          name: default
-      providerConfigRef:
-        name: keycloak-provider-config
-  5: |
-    apiVersion: identityprovider.keycloak.crossplane.io/v1alpha1
-    kind: IdentityProviderMapper
-    metadata:
-      name: firstname
-    spec:
-      forProvider:
-        extraConfig:
-          Claim: first_name
-          UserAttribute: firstName
-          syncMode: INHERIT
-        identityProviderAlias: custom-provider
-        identityProviderMapper: oidc-user-attribute-idp-mapper
-        name: first_name
-        realmRef:
-          name: default
-      providerConfigRef:
-        name: keycloak-provider-config
-  6: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -187,14 +127,14 @@ matches the snapshot with custom config:
         includeInTokenScope: true
         name: trusted-clientname-audiences
         realmIdRef:
-          name: default
+          name: defaultt
       providerConfigRef:
         name: keycloak-provider-config
-  7: |
+  4: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
-      name: default
+      name: defaultt
     spec:
       forProvider:
         accessTokenLifespan: 8h
@@ -204,7 +144,7 @@ matches the snapshot with custom config:
         displayNameHtml: <b>default</b>
         enabled: true
         loginWithEmailAllowed: true
-        realm: default
+        realm: defaultt
         registrationAllowed: true
         registrationEmailAsUsername: true
         ssoSessionIdleTimeout: 8h

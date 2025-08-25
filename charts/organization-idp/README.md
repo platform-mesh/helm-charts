@@ -11,19 +11,14 @@ A Helm chart to deploy organization identity provider in openmfp
 | crossplane.client.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
 | crossplane.client.validRedirectUris[1] | string | `"http://localhost:4300/callback*"` |  |
 | crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
-| crossplane.identityProviders | object | `{}` |  |
 | crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | crossplane.providerConfig.namespace | string | `"openmfp-system"` | client namespace |
-| crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"default","registrationAllowed":true}` | crossplane realm config |
+| crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"defaultt","registrationAllowed":true}` | crossplane realm config |
 | crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
 | crossplane.realm.displayName | string | `"default"` | realm display name |
-| crossplane.realm.name | string | `"default"` | realm name |
+| crossplane.realm.name | string | `"defaultt"` | realm name |
 | crossplane.realm.registrationAllowed | bool | `true` | realm registration allowed |
 | crossplane.trustedAudiences | list | `[]` |  |
-| externalSecrets.keycloakAdminRemoteRef | string | `""` | keycloak admin secret |
-| externalSecrets.postgres-adminRemoteRef | string | `""` | postgres admin secret |
-| keycloakConfig.admin | object | `{"username":{"value":"keycloak-admin"}}` | admin user configuration |
-| keycloakConfig.admin.username.value | string | `"keycloak-admin"` | username |
 | keycloakConfig.client | object | `{"name":"organizationIDP","targetSecret":{"name":"portal-client-secret-organization-idp","namespace":"openmfp-system"},"tokenLifespan":3600}` | client configuration |
 | keycloakConfig.client.name | string | `"organizationIDP"` | client name |
 | keycloakConfig.client.targetSecret | object | `{"name":"portal-client-secret-organization-idp","namespace":"openmfp-system"}` | target secret options |
@@ -71,19 +66,14 @@ A Helm chart to deploy organization identity provider in openmfp
 | crossplane.client.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
 | crossplane.client.validRedirectUris[1] | string | `"http://localhost:4300/callback*"` |  |
 | crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
-| crossplane.identityProviders | object | `{}` |  |
 | crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | crossplane.providerConfig.namespace | string | `"openmfp-system"` | client namespace |
-| crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"default","registrationAllowed":true}` | crossplane realm config |
+| crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"defaultt","registrationAllowed":true}` | crossplane realm config |
 | crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
 | crossplane.realm.displayName | string | `"default"` | realm display name |
-| crossplane.realm.name | string | `"default"` | realm name |
+| crossplane.realm.name | string | `"defaultt"` | realm name |
 | crossplane.realm.registrationAllowed | bool | `true` | realm registration allowed |
 | crossplane.trustedAudiences | list | `[]` |  |
-| externalSecrets.keycloakAdminRemoteRef | string | `""` | keycloak admin secret |
-| externalSecrets.postgres-adminRemoteRef | string | `""` | postgres admin secret |
-| keycloakConfig.admin | object | `{"username":{"value":"keycloak-admin"}}` | admin user configuration |
-| keycloakConfig.admin.username.value | string | `"keycloak-admin"` | username |
 | keycloakConfig.client | object | `{"name":"organizationIDP","targetSecret":{"name":"portal-client-secret-organization-idp","namespace":"openmfp-system"},"tokenLifespan":3600}` | client configuration |
 | keycloakConfig.client.name | string | `"organizationIDP"` | client name |
 | keycloakConfig.client.targetSecret | object | `{"name":"portal-client-secret-organization-idp","namespace":"openmfp-system"}` | target secret options |
