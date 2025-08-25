@@ -3,7 +3,7 @@ kind: ClusterRole
 metadata:
   name: contentconfigurations-reader
 rules:
-  - apiGroups: ["core.openmfp.io"]
+  - apiGroups: ["ui.platform-mesh.io"]
     resources: ["contentconfigurations"]
     verbs: ["get", "watch", "list"]
 

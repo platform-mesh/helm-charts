@@ -105,7 +105,7 @@ matches the snapshot:
       name: contentconfigurations-reader
     rules:
       - apiGroups:
-          - core.openmfp.io
+          - ui.platform-mesh.io
         resources:
           - contentconfigurations
         verbs:
@@ -252,7 +252,7 @@ matches the snapshot with istio disabled:
       name: contentconfigurations-reader
     rules:
       - apiGroups:
-          - core.openmfp.io
+          - ui.platform-mesh.io
         resources:
           - contentconfigurations
         verbs:
