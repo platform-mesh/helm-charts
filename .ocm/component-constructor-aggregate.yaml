@@ -153,3 +153,6 @@ components:
       - name: keycloak
         componentName: github.com/bitnami/keycloak
         version: {{ .KEYCLOAK_VERSION }}
+      - name: kubernetes-graphql-gateway
+        componentName: github.com/platform-mesh/kubernetes-graphql-gateway
+        version: {{ .KUBERNETES_GRAPHQL_GATEWAY_VERSION }}
