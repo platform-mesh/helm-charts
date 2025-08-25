@@ -7,7 +7,7 @@ ocm:
   componentName: platform-mesh
   repoName: platform-mesh
 componentVersion:
-  semver: 0.0.44
+  semver: 0.0.46
 iamWebhookCA: null
 services:
   istio-base:
