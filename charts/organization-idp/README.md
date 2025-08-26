@@ -13,10 +13,10 @@ A Helm chart to deploy organization identity provider in openmfp
 | crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
 | crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | crossplane.providerConfig.namespace | string | `"openmfp-system"` | client namespace |
-| crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"defaultt","registrationAllowed":true}` | crossplane realm config |
+| crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"default","registrationAllowed":true}` | crossplane realm config |
 | crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
 | crossplane.realm.displayName | string | `"default"` | realm display name |
-| crossplane.realm.name | string | `"defaultt"` | realm name |
+| crossplane.realm.name | string | `"default"` | realm name |
 | crossplane.realm.registrationAllowed | bool | `true` | realm registration allowed |
 | crossplane.trustedAudiences | list | `[]` |  |
 | keycloakConfig.client | object | `{"name":"organizationIDP","targetSecret":{"name":"portal-client-secret-organization-idp","namespace":"openmfp-system"},"tokenLifespan":3600}` | client configuration |
@@ -68,10 +68,10 @@ A Helm chart to deploy organization identity provider in openmfp
 | crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
 | crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | crossplane.providerConfig.namespace | string | `"openmfp-system"` | client namespace |
-| crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"defaultt","registrationAllowed":true}` | crossplane realm config |
+| crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"default","registrationAllowed":true}` | crossplane realm config |
 | crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
 | crossplane.realm.displayName | string | `"default"` | realm display name |
-| crossplane.realm.name | string | `"defaultt"` | realm name |
+| crossplane.realm.name | string | `"default"` | realm name |
 | crossplane.realm.registrationAllowed | bool | `true` | realm registration allowed |
 | crossplane.trustedAudiences | list | `[]` |  |
 | keycloakConfig.client | object | `{"name":"organizationIDP","targetSecret":{"name":"portal-client-secret-organization-idp","namespace":"openmfp-system"},"tokenLifespan":3600}` | client configuration |
