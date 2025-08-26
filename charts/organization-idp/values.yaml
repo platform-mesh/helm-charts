@@ -12,7 +12,7 @@ crossplane:
   # -- crossplane realm config
   realm:
     # -- realm name
-    name: defaultt
+    name: default
     # -- realm display name
     displayName: default
     # -- realm registration allowed

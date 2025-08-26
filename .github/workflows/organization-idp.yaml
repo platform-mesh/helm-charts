@@ -1,0 +1,34 @@
+name: Build Organization-idp
+on:
+  push:
+    paths:
+      - 'charts/organization-idp/**'
+      - '.github/workflows/organization-idp.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+  pull_request:
+    paths:
+      - 'charts/organization-idp/**'
+      - '.github/workflows/organization-idp.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: organization-idp-${{ github.ref }}
+      cancel-in-progress: true
+    uses: openmfp/gha/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: organization-idp
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
+  ocm:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: [pipeline]
+    uses: openmfp/gha/.github/workflows/job-ocm.yml@switch-oci-repo
+    secrets: inherit
+    with:
+      chartPath: charts/organization-idp
+      componentName: github.com/openmfp/organization-idp
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
