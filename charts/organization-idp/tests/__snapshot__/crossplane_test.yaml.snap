@@ -1,0 +1,152 @@
+matches the snapshot:
+  1: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: clientname
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: clientname
+        enabled: true
+        name: ClientName
+        realmIdRef:
+          name: default
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: portal-client-secret-organization-idp
+        namespace: openmfp-system
+  2: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: clientname-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: clientname
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+          - trusted-openmfp-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  3: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: trusted-clientname-audiences
+    spec:
+      forProvider:
+        includeInTokenScope: true
+        name: trusted-clientname-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  4: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        accessTokenLifespan: 8h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: default
+        displayNameHtml: <b>default</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: default
+        registrationAllowed: true
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 8h
+      providerConfigRef:
+        name: keycloak-provider-config
+matches the snapshot with custom config:
+  1: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: clientname
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: clientname
+        enabled: true
+        name: ClientName
+        realmIdRef:
+          name: default
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: portal-client-secret-organization-idp
+        namespace: openmfp-system
+  2: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: clientname-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: clientname
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+          - trusted-openmfp-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  3: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: trusted-clientname-audiences
+    spec:
+      forProvider:
+        includeInTokenScope: true
+        name: trusted-clientname-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  4: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        accessTokenLifespan: 8h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: default
+        displayNameHtml: <b>default</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: default
+        registrationAllowed: true
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 8h
+      providerConfigRef:
+        name: keycloak-provider-config
