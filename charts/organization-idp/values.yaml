@@ -48,4 +48,3 @@ keycloakConfig:
       namespace: openmfp-system
     # -- token lifespan
     tokenLifespan: 3600
-
