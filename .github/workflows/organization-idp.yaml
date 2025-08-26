@@ -34,5 +34,5 @@ jobs:
     secrets: inherit
     with:
       chartPath: charts/organization-idp
-      componentName: github.com/openmfp/organization-idp
+      componentName: github.com/platform-mesh/organization-idp
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
