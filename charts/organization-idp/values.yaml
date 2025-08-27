@@ -1,0 +1,50 @@
+crossplane:
+  # -- toggle to enable/disable crossplane
+  enabled: true
+
+  # # -- crossplane provider config
+  providerConfig:
+    # -- name of the client
+    name: keycloak-provider-config
+    # -- client namespace
+    namespace: openmfp-system
+
+  # -- crossplane realm config
+  realm:
+    # -- realm name
+    name: default
+    # -- realm display name
+    displayName: default
+    # -- realm registration allowed
+    registrationAllowed: true
+    # -- realm access token lifespan
+    accessTokenLifespan: 8h
+
+  client:
+    # -- name of the client
+    name: clientname
+    # -- valid redirect uris for the client
+    displayName: ClientName
+    validRedirectUris:
+      # -- keycloak callback url
+      - http://localhost:8000/callback*
+      - http://localhost:4300/callback*
+
+  trustedAudiences: []
+
+keycloakConfig:
+  # -- url of the keycloak server
+  url: http://openmfp-keycloak.openmfp-system.svc.cluster.local/keycloak
+
+  # -- client configuration
+  client:
+    # -- client name
+    name: organizationIDP
+    # -- target secret options
+    targetSecret:
+      # -- secret name
+      name: portal-client-secret-organization-idp
+      # -- secret namespace
+      namespace: openmfp-system
+    # -- token lifespan
+    tokenLifespan: 3600

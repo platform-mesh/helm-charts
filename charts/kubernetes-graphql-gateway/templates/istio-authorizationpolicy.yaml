@@ -1,0 +1,29 @@
+{{- if eq (include "common.istioEnabled" .) "true" -}}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "common.entity.name" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  action: ALLOW
+  rules:
+    - to:
+        - operation:
+            methods:
+              - GET
+            paths:
+              - "*/graphql"
+    - from:
+        - source:
+            requestPrincipals:
+              - "*"
+      to:
+        - operation:
+            methods:
+              - POST
+            paths:
+              - "*/graphql"
+  selector:
+    matchLabels:
+      app: {{ include "common.entity.name" . }}
+{{- end -}}

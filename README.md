@@ -1,3 +1,6 @@
+> [!WARNING]
+> The charts in this repository are under development and not ready for productive use. They are in an alpha stage. That means APIs and concepts may change on short notice including breaking changes or complete removal of apis.
+
 # charts
 Helm charts repo
 

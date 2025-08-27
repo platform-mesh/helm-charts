@@ -1,0 +1,33 @@
+{{- if eq (include "common.istioEnabled" .) "true" -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "common.entity.name" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  gateways:
+  - {{ .Release.Namespace }}/{{ .Values.istio.gateway.name }}
+  hosts:
+{{ .Values.virtualService.hosts | toYaml | nindent 2}}
+  http:
+  - corsPolicy:
+      allowOrigins:
+      - regex: ".*"
+      allowHeaders:
+      - Authorization
+      - Content-Type
+      - '*'
+      allowMethods:
+      - GET
+      - POST
+    match:
+    - uri:
+        prefix: {{ .Values.virtualService.pathPrefix }}
+    rewrite:
+      uri: /
+    route:
+    - destination:
+        host: {{ include "common.entity.name" . }}.{{ .Release.Namespace }}.svc.cluster.local
+        port:
+          number: {{ .Values.gateway.port }}
+{{- end -}}
