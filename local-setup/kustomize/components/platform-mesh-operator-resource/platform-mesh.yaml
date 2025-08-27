@@ -20,14 +20,25 @@ spec:
       values:
         service:
           clusterIP: 10.96.0.110
-          #        crossplane:
-          #          clients:
-          #            default:
-          #              validRedirectUris:
-          #                - "https://portal.dev.local:8443/callback*"
-          #                - "http://localhost:4300/callback*"
-          #        keycloakConfig:
-          #          url: http://keycloak.platform-mesh-system.svc.cluster.local/keycloak
+          # global:
+          #   imageRegistry: ghcr.io
+          #   imagePullSecrets:
+          #     - github
+          #   security:
+          #     allowInsecureImages: true
+          # image:
+          #   registry: ghcr.io
+          #   repository: platform-mesh/images/bitnami/keycloak
+          #   tag: 26.3.2-debian-12-r0
+          # postgresql:
+          #   global:
+          #     imageRegistry: ghcr.io
+          #     imagePullSecrets:
+          #       - github
+          #   image:
+          #     registry: ghcr.io
+          #     repository: platform-mesh/images/bitnami/postgresql
+          #     tag: 17.4.0-debian-12-r17
     crossplane:
       values:
         provider:
@@ -52,42 +63,47 @@ spec:
       enabled: false
     kcp-operator:
       enabled: true
-      #    kcp:
-      #      enabled: false
-      #      values:
-      #        istio:
-      #          hosts:
-      #            - kcp.api.portal.dev.local
-      #        kcp:
-      #          oidc:
-      #            caSecretName: domain-certificate-ca
-      #          externalHostname: kcp.api.portal.dev.local
-      #          certificates:
-      #            dnsNames:
-      #              - localhost
-      #              - kcp.api.portal.dev.local
-      #              - virtual-workspaces.platform-mesh-system
-      #          kcp:
-      #            hostAliases:
-      #              enabled: true
-      #              values:
-      #                - ip: "10.96.0.100"
-      #                  hostnames:
-      #                    - "kcp.api.portal.dev.local"
-      #          kcpFrontProxy:
-      #            hostAliases:
-      #              enabled: true
-      #              values:
-      #                - ip: "10.96.188.4"
-      #                  hostnames:
-      #                    - "portal.dev.local"
-      #            service:
-      #              clusterIP: "10.96.0.100"
-      #            monitoring:
-      #              serviceMonitor:
-      #                enabled: false
-      #        webhook:
-      #          server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
+      values:
+        image:
+          repository: ghcr.io/kcp-dev/kcp-operator
+          tag: "887d515"
+          pullPolicy: IfNotPresent
+          #    kcp:
+          #      enabled: false
+          #      values:
+          #        istio:
+          #          hosts:
+          #            - kcp.api.portal.dev.local
+          #        kcp:
+          #          oidc:
+          #            caSecretName: domain-certificate-ca
+          #          externalHostname: kcp.api.portal.dev.local
+          #          certificates:
+          #            dnsNames:
+          #              - localhost
+          #              - kcp.api.portal.dev.local
+          #              - virtual-workspaces.platform-mesh-system
+          #          kcp:
+          #            hostAliases:
+          #              enabled: true
+          #              values:
+          #                - ip: "10.96.0.100"
+          #                  hostnames:
+          #                    - "kcp.api.portal.dev.local"
+          #          kcpFrontProxy:
+          #            hostAliases:
+          #              enabled: true
+          #              values:
+          #                - ip: "10.96.188.4"
+          #                  hostnames:
+          #                    - "portal.dev.local"
+          #            service:
+          #              clusterIP: "10.96.0.100"
+          #            monitoring:
+          #              serviceMonitor:
+          #                enabled: false
+          #        webhook:
+          #          server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     marketplace-ui:
       enabled: false
       values:
@@ -155,7 +171,7 @@ spec:
     virtual-workspaces:
       values:
         deployment:
-          providerWorkspaceId: 2ujbct7rh0nxq7q8
-          providerMetadataVirtualWorkspacePath: /services/apiexport/2ujbct7rh0nxq7q8/core.platform-mesh.io
-          apiExportVirtualWorkspacePath: /services/apiexport/2ujbct7rh0nxq7q8/core.platform-mesh.io
-          serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:9443"
+          providerWorkspaceId: 6qtltz6r1ar7v254
+          providerMetadataVirtualWorkspacePath: /services/apiexport/6qtltz6r1ar7v254/core.platform-mesh.io
+          apiExportVirtualWorkspacePath: /services/apiexport/6qtltz6r1ar7v254/core.platform-mesh.io
+          serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"

@@ -39,6 +39,10 @@ if ! check_kind_cluster; then
     fi
 fi
 
+kind load docker-image ghcr.io/kcp-dev/kcp-operator:v0.1.0-fix --name platform-mesh
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.39.18-fix2 --name platform-mesh
+kind load docker-image ghcr.io/open-component-model/ocm-k8s-toolkit:latest --name platform-mesh
+
 mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt

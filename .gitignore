@@ -9,3 +9,4 @@ local-setup/webhook-config/*
 !local-setup/webhook-config/*.conf
 local-setup/e2e/test-results/.last-run.json
 local-setup/scripts/certs
+.vscode/

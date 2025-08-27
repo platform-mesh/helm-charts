@@ -21,3 +21,6 @@ spec:
     components:
       observability:
         enabled: false
+    image:
+      name: ghcr.io/platform-mesh/platform-mesh-operator
+      tag: v0.39.18-fix2
