@@ -24,7 +24,6 @@ A Helm chart containing reuse templates
 | defaults.health.readiness | object | `{"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10}` | readiness probe parameters |
 | defaults.health.startup | object | `{"failureThreshold":30,"path":"/readyz"}` | startup probe parameters |
 | defaults.imagePullPolicy | string | `"IfNotPresent"` | imagePullPolicy is the policy to use when pulling images for all charts |
-| defaults.imagePullSecret | string | `"github"` | imagePullSecret is the name of the secret that holds the docker registry credentials |
 | defaults.istio.enabled | bool | `true` | toggle to enable/disable istio |
 | defaults.istio.gateway.name | string | `"gateway"` | name of the gateway |
 | defaults.log.level | string | `"warn"` | default log level |
