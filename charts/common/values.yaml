@@ -11,7 +11,7 @@ defaults:
     enabled: false
 
   # -- imagePullSecret is the name of the secret that holds the docker registry credentials
-  imagePullSecret: "github"
+  # imagePullSecret: "github"
 
   # -- imagePullPolicy is the policy to use when pulling images for all charts
   imagePullPolicy: IfNotPresent
