@@ -169,9 +169,14 @@ spec:
     virtual-workspaces:
       values:
         deployment:
+          # providerWorkspaceId: 29rndsmsw8ubb6lx
+          # providerMetadataVirtualWorkspacePath: /services/apiexport/29rndsmsw8ubb6lx/core.platform-mesh.io
+          # apiExportVirtualWorkspacePath: /services/apiexport/29rndsmsw8ubb6lx/core.platform-mesh.io
+          serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
+          resourceSchemaName: "v250704-6d57f16.contentconfigurations.core.platform-mesh.io"
+          resourceSchemaWorkspace: "root:platform-mesh-system"
           providerWorkspaceId: 29rndsmsw8ubb6lx
           providerMetadataVirtualWorkspacePath: /services/apiexport/29rndsmsw8ubb6lx/core.platform-mesh.io
           apiExportVirtualWorkspacePath: /services/apiexport/29rndsmsw8ubb6lx/core.platform-mesh.io
-          serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
     kubernetes-graphql-gateway:
       enabled: true
