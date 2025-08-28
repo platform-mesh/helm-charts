@@ -166,12 +166,12 @@ spec:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-    kubernetes-graphql-gateway:
-      enabled: true
     virtual-workspaces:
       values:
         deployment:
-          providerWorkspaceId: 6qtltz6r1ar7v254
-          providerMetadataVirtualWorkspacePath: /services/apiexport/6qtltz6r1ar7v254/core.platform-mesh.io
-          apiExportVirtualWorkspacePath: /services/apiexport/6qtltz6r1ar7v254/core.platform-mesh.io
+          providerWorkspaceId: 29rndsmsw8ubb6lx
+          providerMetadataVirtualWorkspacePath: /services/apiexport/29rndsmsw8ubb6lx/core.platform-mesh.io
+          apiExportVirtualWorkspacePath: /services/apiexport/29rndsmsw8ubb6lx/core.platform-mesh.io
           serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
+    kubernetes-graphql-gateway:
+      enabled: true
