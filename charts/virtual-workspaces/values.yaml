@@ -1,8 +1,8 @@
 kubeconfigSecretName: account-operator-kubeconfig
 authenticationKubeconfigSecretName: portal-kubeconfig
-clientCASecretName: kcp-ca
-virtualWorkspaceSecretName: kcp-virtual-workspaces-cert
-requestHeaderClientCASecretName: kcp-requestheader-client-ca
+clientCASecretName: root-ca
+virtualWorkspaceSecretName: virtual-workspaces-cert
+requestHeaderClientCASecretName: root-requestheader-client-ca
 
 image:
   # -- The image repository

@@ -5,6 +5,7 @@ hostAliases:
     - ip: "10.96.188.4"
       hostnames:
         - "kcp.api.portal.dev.local"
+        - "portal.dev.local"
 
 crossplane:
   enabled: true
