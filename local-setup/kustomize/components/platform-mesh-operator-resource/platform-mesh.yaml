@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.64
+  chartVersion: 0.11.66
   values:
     istio-gateway:
       enabled: true
@@ -194,16 +194,17 @@ spec:
                 enabled: false
     virtual-workspaces:
       values:
+        virtualWorkspaceSecretName:
         deployment:
           # providerWorkspaceId: 29rndsmsw8ubb6lx
           # providerMetadataVirtualWorkspacePath: /services/apiexport/29rndsmsw8ubb6lx/core.platform-mesh.io
           # apiExportVirtualWorkspacePath: /services/apiexport/29rndsmsw8ubb6lx/core.platform-mesh.io
           serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
-          resourceSchemaName: "v250704-6d57f16.contentconfigurations.core.platform-mesh.io"
+          resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
           resourceSchemaWorkspace: "root:platform-mesh-system"
-          providerWorkspaceId: 1a8291o2cp3t4q02
-          providerMetadataVirtualWorkspacePath: /services/apiexport/1a8291o2cp3t4q02/core.platform-mesh.io
-          apiExportVirtualWorkspacePath: /services/apiexport/1a8291o2cp3t4q02/core.platform-mesh.io
+          providerWorkspaceId: 1knkcl068q3a2cez
+          providerMetadataVirtualWorkspacePath: /services/apiexport/1knkcl068q3a2cez/core.platform-mesh.io
+          apiExportVirtualWorkspacePath: /services/apiexport/1knkcl068q3a2cez/core.platform-mesh.io
     kubernetes-graphql-gateway:
       enabled: true
       values:
