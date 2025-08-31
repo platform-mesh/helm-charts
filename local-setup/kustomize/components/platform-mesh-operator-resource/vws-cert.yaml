@@ -1,3 +1,4 @@
+#TODO this should be part of the vws chart
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:

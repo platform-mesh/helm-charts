@@ -49,6 +49,8 @@ spec:
         hostAliases:
           enabled: true
         kcp:
+          webhook:
+            enabled: true
           frontProxy:
             clusterIP: "10.96.0.100"
         keycloak:
