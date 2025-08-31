@@ -245,7 +245,7 @@ A Helm chart for Kubernetes
 | services.virtual-workspaces.values.requestHeaderClientCASecretName | string | `"root-requestheader-client-ca"` |  |
 | services.virtual-workspaces.values.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
 | services.virtual-workspaces.values.service.port | int | `8443` |  |
-| services.virtual-workspaces.values.virtualWorkspaceSecretName | string | `"kcp-cluster-admin-client-cert"` |  |
+| services.virtual-workspaces.values.virtualWorkspaceSecretName | string | `"virtual-workspaces-cert"` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 
 ## Overriding Values

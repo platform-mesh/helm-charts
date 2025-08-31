@@ -494,7 +494,7 @@ services:
         namespace: default
     values:
       requestHeaderClientCASecretName: root-requestheader-client-ca
-      virtualWorkspaceSecretName: kcp-cluster-admin-client-cert
+      virtualWorkspaceSecretName: virtual-workspaces-cert
       clientCASecretName: root-front-proxy-client-ca
       resourceSchemaWorkspace: root:platform-mesh-system
       deployment:

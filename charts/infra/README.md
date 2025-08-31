@@ -81,7 +81,7 @@ A Helm chart for Kubernetes
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
 | kcp.webhook.caData | string | `""` |  |
-| kcp.webhook.enabled | bool | `false` |  |
+| kcp.webhook.enabled | bool | `true` |  |
 | kcp.webhook.server | string | `"https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz"` |  |
 | keycloak.crossplane.clients.default.name | string | `"Default"` | name of the client |
 | keycloak.crossplane.clients.default.validRedirectUris | list | `["http://localhost:8000/callback*","http://localhost:4300/callback*"]` | valid redirect uris for the client |
