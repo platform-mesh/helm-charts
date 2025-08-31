@@ -78,7 +78,7 @@ kcp:
       - kcp.api.portal.dev.local
 
   webhook:
-    enabled: false
+    enabled: true
     caData: ""
     server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     authorizationWebhookSecretName: kcp-webhook-secret

@@ -9,6 +9,11 @@ spec:
     # replace the hostname with the external DNS name for your kcp instance
     hostname: {{ .Values.kcp.external.hostname }}
     port: {{ .Values.kcp.external.port }}
+  {{- if (.Values.kcp.webhook).enabled }}
+  authorization:
+    webhook:
+      configSecretName: {{ .Values.kcp.webhook.authorizationWebhookSecretName }}
+  {{- end }}
   certificates:
     # this references the issuer created above
     issuerRef:
