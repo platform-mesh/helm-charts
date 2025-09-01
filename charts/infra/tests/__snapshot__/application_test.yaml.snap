@@ -185,6 +185,13 @@ match snapshots:
           group: cert-manager.io
           kind: Issuer
           name: selfsigned
+      deploymentTemplate:
+        metadata:
+          annotations:
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+        spec:
+          template:
+            spec: null
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
@@ -664,6 +671,9 @@ match snapshots w. hostAliases enabled:
           kind: Issuer
           name: selfsigned
       deploymentTemplate:
+        metadata:
+          annotations:
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
         spec:
           template:
             spec:

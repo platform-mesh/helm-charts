@@ -86,6 +86,7 @@ kcp:
     caData: ""
     server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     authorizationWebhookSecretName: kcp-webhook-secret
+    port: 9443
 
   rootShard:
     replicas: 1

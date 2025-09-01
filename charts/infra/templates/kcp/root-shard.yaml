@@ -44,13 +44,17 @@ spec:
       # this is the service URL to etcd. Replace if Helm chart was
       # installed under a different name or the namespace is not "default"
       - http://{{ .Values.kcp.etcd.service.name}}.{{ .Values.kcp.namespace}}.svc.cluster.local:{{.Values.kcp.etcd.service.port}}
-  {{- if .Values.hostAliases.enabled }}
-  {{- with .Values.hostAliases.entries }}
   deploymentTemplate:
+    metadata:
+      annotations:
+        # this excludes webhook traffic from the istio sidecar
+        traffic.sidecar.istio.io/excludeOutboundPorts: "{{ .Values.kcp.webhook.port }}"
     spec:
       template:
         spec:
+          {{- if .Values.hostAliases.enabled }}
+          {{- with .Values.hostAliases.entries }}
           hostAliases:
             {{ toYaml . | nindent 10 }}
-  {{- end }}
-  {{- end }}
+          {{- end }}
+          {{- end }}
