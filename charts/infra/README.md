@@ -10,6 +10,7 @@ A Helm chart for Kubernetes
 | externalSecrets.enabled | bool | `false` |  |
 | hostAliases.enabled | bool | `false` |  |
 | hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
+| hostAliases.entries[0].hostnames[1] | string | `"portal.dev.local"` |  |
 | hostAliases.entries[0].ip | string | `"10.96.188.4"` |  |
 | istio.enabled | bool | `true` |  |
 | istio.gateway.annotations | object | `{}` |  |

@@ -593,6 +593,7 @@ match snapshots w. hostAliases enabled:
               hostAliases:
                 - hostnames:
                     - kcp.api.portal.dev.local
+                    - portal.dev.local
                   ip: 10.96.188.4
       replicas: 1
       rootShard:
@@ -669,6 +670,7 @@ match snapshots w. hostAliases enabled:
               hostAliases:
                 - hostnames:
                     - kcp.api.portal.dev.local
+                    - portal.dev.local
                   ip: 10.96.188.4
       etcd:
         endpoints:
