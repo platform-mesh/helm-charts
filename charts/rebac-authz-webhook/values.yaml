@@ -80,3 +80,5 @@ istio:
 #         target:
 #           type: Utilization
 #           averageUtilization: 80
+certificates:
+  create: false
