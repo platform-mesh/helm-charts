@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.68
+  chartVersion: 0.11.70
   values:
     istio-gateway:
       enabled: true
@@ -70,44 +70,9 @@ spec:
       values:
         image:
           repository: ghcr.io/kcp-dev/kcp-operator
+          #TODO this is needed until the latest changes are released like https://github.com/kcp-dev/kcp-operator/pull/89 and https://github.com/kcp-dev/kcp-operator/pull/88
           tag: "main"
           pullPolicy: IfNotPresent
-          #    kcp:
-          #      enabled: false
-          #      values:
-          #        istio:
-          #          hosts:
-          #            - kcp.api.portal.dev.local
-          #        kcp:
-          #          oidc:
-          #            caSecretName: domain-certificate-ca
-          #          externalHostname: kcp.api.portal.dev.local
-          #          certificates:
-          #            dnsNames:
-          #              - localhost
-          #              - kcp.api.portal.dev.local
-          #              - virtual-workspaces.platform-mesh-system
-          #          kcp:
-          #            hostAliases:
-          #              enabled: true
-          #              values:
-          #                - ip: "10.96.0.100"
-          #                  hostnames:
-          #                    - "kcp.api.portal.dev.local"
-          #          kcpFrontProxy:
-          #            hostAliases:
-          #              enabled: true
-          #              values:
-          #                - ip: "10.96.188.4"
-          #                  hostnames:
-          #                    - "portal.dev.local"
-          #            service:
-          #              clusterIP: "10.96.0.100"
-          #            monitoring:
-          #              serviceMonitor:
-          #                enabled: false
-          #        webhook:
-          #          server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     marketplace-ui:
       enabled: false
       values:
@@ -203,9 +168,9 @@ spec:
           serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
           resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
           resourceSchemaWorkspace: "root:platform-mesh-system"
-          providerWorkspaceId: 1knkcl068q3a2cez
-          providerMetadataVirtualWorkspacePath: /services/apiexport/1knkcl068q3a2cez/core.platform-mesh.io
-          apiExportVirtualWorkspacePath: /services/apiexport/1knkcl068q3a2cez/core.platform-mesh.io
+          providerWorkspaceId: gjkphdcm5vwld9qe
+          providerMetadataVirtualWorkspacePath: /services/apiexport/gjkphdcm5vwld9qe/core.platform-mesh.io
+          apiExportVirtualWorkspacePath: /services/apiexport/gjkphdcm5vwld9qe/core.platform-mesh.io
     kubernetes-graphql-gateway:
       enabled: true
       values:
