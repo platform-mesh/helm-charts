@@ -179,6 +179,7 @@ operator match the snapshot:
           - cert-manager.io
         resources:
           - certificates
+          - issuers
         verbs:
           - get
           - list
