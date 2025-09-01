@@ -70,7 +70,7 @@ spec:
       values:
         image:
           repository: ghcr.io/kcp-dev/kcp-operator
-          tag: "887d515"
+          tag: "main"
           pullPolicy: IfNotPresent
           #    kcp:
           #      enabled: false
