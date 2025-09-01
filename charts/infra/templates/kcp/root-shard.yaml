@@ -5,6 +5,20 @@ metadata:
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   replicas: {{ .Values.kcp.rootShard.replicas }}
+  {{- if .Values.kcp.oidc.enabled }}
+  auth:
+    {{ with .Values.kcp.oidc }}
+    oidc:
+      enabled: true
+      issuerURL: {{ .issuerUrl }}
+      caFileRef:
+        name: {{ .caFileRef.name }}
+        key: {{ .caFileRef.key }}
+      clientID: {{ .clientID }}
+      groupsClaim: {{ .groupsClaim }}
+      usernameClaim: {{ .usernameClaim }}
+    {{- end }}
+  {{- end }}
   external:
     # replace the hostname with the external DNS name for your kcp instance
     hostname: {{ .Values.kcp.external.hostname }}

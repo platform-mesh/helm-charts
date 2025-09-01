@@ -5,17 +5,20 @@ metadata:
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   replicas: {{ .Values.kcp.frontProxy.replicas }}
+  {{- if .Values.kcp.oidc.enabled }}
   auth:
-    {{- if .Values.kcp.oidc.enabled }}
     {{ with .Values.kcp.oidc }}
     oidc:
       enabled: true
       issuerURL: {{ .issuerUrl }}
+      caFileRef:
+        name: {{ .caFileRef.name }}
+        key: {{ .caFileRef.key }}
       clientID: {{ .clientID }}
       groupsClaim: {{ .groupsClaim }}
       usernameClaim: {{ .usernameClaim }}
     {{- end }}
-    {{- end }}
+  {{- end }}
 
   additionalPathMappings:
 {{ toYaml .Values.kcp.frontProxy.additionalPathMappings | indent 4 }}

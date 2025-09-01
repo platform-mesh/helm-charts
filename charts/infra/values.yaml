@@ -73,6 +73,9 @@ kcp:
     clientID: default
     groupsClaim: groups
     usernameClaim: email
+    caFileRef:
+      name: domain-certificate-ca
+      key: ca.crt
 
   istio:
     hosts:
