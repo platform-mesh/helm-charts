@@ -73,6 +73,8 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.replicas | int | `1` |  |
 | kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
+| kcp.oidc.caFileRef.key | string | `"ca.crt"` |  |
+| kcp.oidc.caFileRef.name | string | `"domain-certificate-ca"` |  |
 | kcp.oidc.clientID | string | `"default"` |  |
 | kcp.oidc.enabled | bool | `true` |  |
 | kcp.oidc.groupsClaim | string | `"groups"` |  |
