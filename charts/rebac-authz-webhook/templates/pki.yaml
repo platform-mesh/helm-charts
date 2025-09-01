@@ -1,4 +1,5 @@
 {{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "certManager.enabled")) "true" -}}
+{{- if .Values.certificates.create -}}
 {{- if .Values.certManager.createCA }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
@@ -49,4 +50,5 @@ spec:
     name: {{ include "common.entity.name" . }}-issuer
   dnsNames: {{ .Values.istio.dnsNames | toYaml | nindent 4 }}
   ipAddresses: {{ .Values.certManager.ipAddresses | toYaml | nindent 4 }}
+{{- end -}}
 {{- end -}}
