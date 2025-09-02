@@ -15,11 +15,10 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 |-----|------|---------|-------------|
 | authenticationKubeconfigSecretName | string | `"portal-kubeconfig"` |  |
 | clientCASecretName | string | `"kcp-ca"` |  |
-| deployment.apiExportVirtualWorkspacePath | string | `""` |  |
 | deployment.contentForLabel | string | `""` |  |
 | deployment.entityLabel | string | `""` |  |
-| deployment.providerMetadataVirtualWorkspacePath | string | `""` |  |
 | deployment.providerWorkspaceId | string | `""` |  |
+| deployment.resourceSchemaExportName | string | `""` |  |
 | deployment.resourceSchemaName | string | `""` |  |
 | deployment.resourceSchemaWorkspace | string | `""` |  |
 | deployment.serverUrl | string | `"https://kcp-front-proxy.platform-mesh-system:8443"` |  |
