@@ -38,7 +38,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: account-operator
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         crds:
           enabled: false
@@ -73,7 +73,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: crossplane
       targetNamespace: crossplane-system
-      timeout: 5m
+      timeout: 15m
       values:
         provider:
           packages:
@@ -96,7 +96,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: etcd-druid
       targetNamespace: etcd-druid-system
-      timeout: 5m
+      timeout: 15m
       values: {}
   5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -115,7 +115,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: extension-manager-operator
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         crds:
           enabled: false
@@ -145,7 +145,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: iam-service
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         gateway:
           name: gateway
@@ -172,7 +172,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: iam-ui
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         istio:
           virtualService:
@@ -197,7 +197,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: infra
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         istio:
           main:
@@ -243,7 +243,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: istio-base
       targetNamespace: istio-system
-      timeout: 5m
+      timeout: 15m
       values: null
   10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -265,7 +265,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: istio-gateway
       targetNamespace: istio-system
-      timeout: 5m
+      timeout: 15m
       values:
         service:
           ports:
@@ -296,7 +296,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: istio-istiod
       targetNamespace: istio-system
-      timeout: 5m
+      timeout: 15m
       values:
         meshConfig:
           defaultConfig:
@@ -335,7 +335,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: kcp-operator
       targetNamespace: kcp-operator
-      timeout: 5m
+      timeout: 15m
       values: null
   13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -354,7 +354,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: keycloak
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         auth:
           adminUser: keycloak-admin
@@ -395,7 +395,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: kubernetes-graphql-gateway
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         kubeConfig:
           enabled: true
@@ -451,7 +451,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: openfga
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         autoscaling:
           enabled: false
@@ -510,7 +510,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: rebac-authz-webhook
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         certManager:
           createCA: true
@@ -540,7 +540,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: security-operator
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         crds:
           enabled: false
@@ -571,7 +571,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
-      timeout: 5m
+      timeout: 15m
       values:
         clientCASecretName: root-front-proxy-client-ca
         deployment:
