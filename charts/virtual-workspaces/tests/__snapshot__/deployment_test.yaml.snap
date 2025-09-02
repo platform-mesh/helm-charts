@@ -32,7 +32,11 @@ virtual-workspaces match the snapshot:
                 - --requestheader-group-headers=X-Remote-Group
                 - --requestheader-extra-headers-prefix=X-Remote-Extra-
                 - --secure-port=8443
+                - --entity-label=ui.platform-mesh.io/entity
+                - --content-for-label=ui.platform-mesh.io/content-for
                 - --server-url=https://kcp-front-proxy.platform-mesh-system:8443
+                - --resource-schema-workspace=root:platform-mesh-system
+                - --resource-apiexport-endpointslice-name=core.platform-mesh.io
               image: ghcr.io/platform-mesh/virtual-workspaces:0.0.0
               imagePullPolicy: IfNotPresent
               name: virtual-workspaces
