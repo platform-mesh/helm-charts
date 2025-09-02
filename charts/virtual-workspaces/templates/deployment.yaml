@@ -64,11 +64,8 @@ spec:
           {{- with .Values.deployment.resourceSchemaWorkspace }}
           - --resource-schema-workspace={{ . }}
           {{- end }}
-          {{- with .Values.deployment.providerMetadataVirtualWorkspacePath }}
-          - --provider-metadata-virtual-workspace-path={{ . }}
-          {{- end }}
-          {{- with .Values.deployment.apiExportVirtualWorkspacePath }}
-          - --apiexport-virtual-workspace-path={{ . }}
+          {{- with .Values.deployment.resourceSchemaExportName }}
+          - --resource-apiexport-endpointslice-name={{ . }}
           {{- end }}
         volumeMounts:
           {{- include "common.extraVolumeMounts" . | nindent 8 }}
