@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.74
+  chartVersion: 0.11.75
   values:
     istio-gateway:
       enabled: true
@@ -166,9 +166,9 @@ spec:
           serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
           resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
           resourceSchemaWorkspace: "root:platform-mesh-system"
-          providerWorkspaceId: 25qr66v5qo0bev1m
-          providerMetadataVirtualWorkspacePath: /services/apiexport/25qr66v5qo0bev1m/core.platform-mesh.io
-          apiExportVirtualWorkspacePath: /services/apiexport/25qr66v5qo0bev1m/core.platform-mesh.io
+#          providerWorkspaceId: 25qr66v5qo0bev1m
+#          providerMetadataVirtualWorkspacePath: /services/apiexport/25qr66v5qo0bev1m/core.platform-mesh.io
+#          apiExportVirtualWorkspacePath: /services/apiexport/25qr66v5qo0bev1m/core.platform-mesh.io
     kubernetes-graphql-gateway:
       enabled: true
       values:
