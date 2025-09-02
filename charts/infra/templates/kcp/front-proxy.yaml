@@ -8,6 +8,8 @@ spec:
   {{- if .Values.kcp.oidc.enabled }}
   auth:
     {{ with .Values.kcp.oidc }}
+    serviceAccount:
+      enabled: true
     oidc:
       enabled: true
       issuerURL: {{ .issuerUrl }}
