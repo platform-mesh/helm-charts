@@ -45,12 +45,12 @@ spec:
       # installed under a different name or the namespace is not "default"
       - http://{{ .Values.kcp.etcd.service.name}}.{{ .Values.kcp.namespace}}.svc.cluster.local:{{.Values.kcp.etcd.service.port}}
   deploymentTemplate:
-    metadata:
-      annotations:
-        # this excludes webhook traffic from the istio sidecar
-        traffic.sidecar.istio.io/excludeOutboundPorts: "{{ .Values.kcp.webhook.port }}"
     spec:
       template:
+        metadata:
+          annotations:
+            # this excludes webhook traffic from the istio sidecar
+            traffic.sidecar.istio.io/excludeOutboundPorts: "{{ .Values.kcp.webhook.port }}"
         spec:
           {{- if .Values.hostAliases.enabled }}
           {{- with .Values.hostAliases.entries }}
