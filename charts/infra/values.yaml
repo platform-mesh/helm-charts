@@ -75,7 +75,7 @@ kcp:
     usernameClaim: email
     caFileRef:
       name: domain-certificate-ca
-      key: ca.crt
+      key: tls.crt
 
   istio:
     hosts:

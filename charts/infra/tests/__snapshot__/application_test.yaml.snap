@@ -111,7 +111,7 @@ match snapshots:
       auth:
         oidc:
           caFileRef:
-            key: ca.crt
+            key: tls.crt
             name: domain-certificate-ca
           clientID: default
           enabled: true
@@ -169,7 +169,7 @@ match snapshots:
       auth:
         oidc:
           caFileRef:
-            key: ca.crt
+            key: tls.crt
             name: domain-certificate-ca
           clientID: default
           enabled: true
@@ -569,7 +569,7 @@ match snapshots w. hostAliases enabled:
       auth:
         oidc:
           caFileRef:
-            key: ca.crt
+            key: tls.crt
             name: domain-certificate-ca
           clientID: default
           enabled: true
@@ -637,7 +637,7 @@ match snapshots w. hostAliases enabled:
       auth:
         oidc:
           caFileRef:
-            key: ca.crt
+            key: tls.crt
             name: domain-certificate-ca
           clientID: default
           enabled: true
