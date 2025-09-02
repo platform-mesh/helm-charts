@@ -2,8 +2,8 @@ apiVersion: v2
 name: virtual-workspaces
 description: A Helm chart to deploy platform-mesh virtual-workspaces
 type: application
-version: 0.1.0
-appVersion: "v0.5.21"
+version: 0.1.1
+appVersion: "v0.6.0"
 dependencies:
   - name: common
     version: 0.5.5
