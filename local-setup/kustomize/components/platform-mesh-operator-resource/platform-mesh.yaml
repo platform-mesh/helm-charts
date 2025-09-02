@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.11.79
+  chartVersion: 0.11.81
   values:
     istio-gateway:
       enabled: true
@@ -172,9 +172,9 @@ spec:
           #          providerMetadataVirtualWorkspacePath: /services/apiexport/25qr66v5qo0bev1m/core.platform-mesh.io
           #          apiExportVirtualWorkspacePath: /services/apiexport/25qr66v5qo0bev1m/core.platform-mesh.io
 
-          providerWorkspaceId: bvnnlqipwu5jd0z4
-          providerMetadataVirtualWorkspacePath: /services/apiexport/bvnnlqipwu5jd0z4/core.platform-mesh.io
-          apiExportVirtualWorkspacePath: /services/apiexport/bvnnlqipwu5jd0z4/core.platform-mesh.io
+          providerWorkspaceId: 1ysaxdnjd7v50xln
+          providerMetadataVirtualWorkspacePath: /services/apiexport/1ysaxdnjd7v50xln/core.platform-mesh.io
+          apiExportVirtualWorkspacePath: /services/apiexport/1ysaxdnjd7v50xln/core.platform-mesh.io
     kubernetes-graphql-gateway:
       enabled: true
       values:
