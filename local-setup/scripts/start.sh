@@ -176,13 +176,6 @@ kubectl rollout status deployment kubernetes-graphql-gateway -n platform-mesh-sy
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
-export KUBECONFIG=$PWD/.secret/kcp/admin.kubeconfig
-CORE_EXPORT_ID=$(kubectl get apiexport core.platform-mesh.io --server='https://kcp.api.portal.dev.local:8443/clusters/root:platform-mesh-system' -ojson | jq -r '.metadata.annotations["kcp.io/cluster"]')
-yq -i ".spec.values.virtual-workspaces.values.deployment.providerWorkspaceId = \"$CORE_EXPORT_ID\"" $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml
-yq -i ".spec.values.virtual-workspaces.values.deployment.providerMetadataVirtualWorkspacePath = \"/services/apiexport/$CORE_EXPORT_ID/core.platform-mesh.io\"" $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml
-yq -i ".spec.values.virtual-workspaces.values.deployment.apiExportVirtualWorkspacePath = \"/services/apiexport/$CORE_EXPORT_ID/core.platform-mesh.io\"" $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml
-unset KUBECONFIG
-
 echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1       portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
 show_wsl_hosts_guidance
 echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
