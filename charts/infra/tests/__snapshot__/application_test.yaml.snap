@@ -200,25 +200,6 @@ match snapshots:
         port: 8443
       replicas: 1
   8: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: kcp-webhook-secret
-    stringData:
-      kubeconfig: |-
-        apiVersion: v1
-        kind: Config
-        clusters:
-        - name: webhook
-          cluster:
-              server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-        current-context: webhook
-        contexts:
-        - name: webhook
-          context:
-            cluster: webhook
-    type: Opaque
-  9: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -240,7 +221,7 @@ match snapshots:
       writeConnectionSecretToRef:
         name: portal-client-secret-default
         namespace: platform-mesh-system
-  10: |
+  9: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
@@ -260,7 +241,7 @@ match snapshots:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  11: |
+  10: |
     apiVersion: defaults.keycloak.crossplane.io/v1alpha1
     kind: DefaultGroups
     metadata:
@@ -273,7 +254,7 @@ match snapshots:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  12: |
+  11: |
     apiVersion: group.keycloak.crossplane.io/v1alpha1
     kind: Group
     metadata:
@@ -285,7 +266,7 @@ match snapshots:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  13: |
+  12: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -299,7 +280,7 @@ match snapshots:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  14: |
+  13: |
     apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
     kind: GroupMembershipProtocolMapper
     metadata:
@@ -314,7 +295,7 @@ match snapshots:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  15: |
+  14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -327,7 +308,7 @@ match snapshots:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  16: |
+  15: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -340,7 +321,7 @@ match snapshots:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  17: |
+  16: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -355,7 +336,7 @@ match snapshots:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  18: |
+  17: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -375,7 +356,7 @@ match snapshots:
         ssoSessionIdleTimeout: 8h
       providerConfigRef:
         name: keycloak-provider-config
-  19: |
+  18: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -399,7 +380,7 @@ match snapshots:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  20: |
+  19: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -451,7 +432,7 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  21: |
+  20: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -462,7 +443,7 @@ match snapshots:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  22: |
+  21: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -690,25 +671,6 @@ match snapshots w. hostAliases enabled:
         port: 8443
       replicas: 1
   8: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: kcp-webhook-secret
-    stringData:
-      kubeconfig: |-
-        apiVersion: v1
-        kind: Config
-        clusters:
-        - name: webhook
-          cluster:
-              server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-        current-context: webhook
-        contexts:
-        - name: webhook
-          context:
-            cluster: webhook
-    type: Opaque
-  9: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -730,7 +692,7 @@ match snapshots w. hostAliases enabled:
       writeConnectionSecretToRef:
         name: portal-client-secret-default
         namespace: platform-mesh-system
-  10: |
+  9: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
@@ -750,7 +712,7 @@ match snapshots w. hostAliases enabled:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  11: |
+  10: |
     apiVersion: defaults.keycloak.crossplane.io/v1alpha1
     kind: DefaultGroups
     metadata:
@@ -763,7 +725,7 @@ match snapshots w. hostAliases enabled:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  12: |
+  11: |
     apiVersion: group.keycloak.crossplane.io/v1alpha1
     kind: Group
     metadata:
@@ -775,7 +737,7 @@ match snapshots w. hostAliases enabled:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  13: |
+  12: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -789,7 +751,7 @@ match snapshots w. hostAliases enabled:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  14: |
+  13: |
     apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
     kind: GroupMembershipProtocolMapper
     metadata:
@@ -804,7 +766,7 @@ match snapshots w. hostAliases enabled:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  15: |
+  14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -817,7 +779,7 @@ match snapshots w. hostAliases enabled:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  16: |
+  15: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -830,7 +792,7 @@ match snapshots w. hostAliases enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  17: |
+  16: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -845,7 +807,7 @@ match snapshots w. hostAliases enabled:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  18: |
+  17: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -865,7 +827,7 @@ match snapshots w. hostAliases enabled:
         ssoSessionIdleTimeout: 8h
       providerConfigRef:
         name: keycloak-provider-config
-  19: |
+  18: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -889,7 +851,7 @@ match snapshots w. hostAliases enabled:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  20: |
+  19: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -941,7 +903,7 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  21: |
+  20: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -952,7 +914,7 @@ match snapshots w. hostAliases enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  22: |
+  21: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
