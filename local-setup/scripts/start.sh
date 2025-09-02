@@ -42,9 +42,6 @@ fi
 #TODO this is needed until https://github.com/platform-mesh/platform-mesh-operator/pull/2 is merged
 kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.39.18-fix2 --name platform-mesh
 
-#TODO this is needed until https://github.com/kcp-dev/kcp-operator/pull/89 is merged
-kind load docker-image ghcr.io/kcp-dev/kcp-operator:main --name platform-mesh
-
 #TODO this should be removed when the latest portal version uses the pm apis
 kind load docker-image ghcr.io/platform-mesh/portal:v0.7.5 --name platform-mesh
 
