@@ -118,6 +118,8 @@ match snapshots:
           groupsClaim: groups
           issuerURL: https://portal.dev.local:8443/keycloak/realms/default
           usernameClaim: email
+        serviceAccount:
+          enabled: true
       replicas: 1
       rootShard:
         ref:
@@ -574,6 +576,8 @@ match snapshots w. hostAliases enabled:
           groupsClaim: groups
           issuerURL: https://portal.dev.local:8443/keycloak/realms/default
           usernameClaim: email
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
