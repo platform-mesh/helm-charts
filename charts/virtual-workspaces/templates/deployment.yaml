@@ -55,9 +55,6 @@ spec:
           {{- with .Values.deployment.serverUrl }}
           - --server-url={{ . }}
           {{- end }}
-          {{- with .Values.deployment.providerWorkspaceId }}
-          - --provider-workspace-id={{ . }}
-          {{- end }}
           {{- with .Values.deployment.resourceSchemaName }}
           - --resource-schema-name={{ . }}
           {{- end }}

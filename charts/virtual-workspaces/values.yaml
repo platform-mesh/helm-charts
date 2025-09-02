@@ -11,13 +11,12 @@ image:
   #  tag: latest
 
 deployment:
-  entityLabel: ""
-  contentForLabel: ""
-  serverUrl: "https://kcp-front-proxy.platform-mesh-system:8443"
-  providerWorkspaceId: ""
+  entityLabel: ui.platform-mesh.io/entity
+  contentForLabel: ui.platform-mesh.io/content-for
+  serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
   resourceSchemaName: ""
-  resourceSchemaWorkspace: ""
-  resourceSchemaExportName: ""
+  resourceSchemaWorkspace: root:platform-mesh-system
+  resourceSchemaExportName: core.platform-mesh.io
 
 service:
   port: 8443
