@@ -186,11 +186,11 @@ match snapshots:
           kind: Issuer
           name: selfsigned
       deploymentTemplate:
-        metadata:
-          annotations:
-            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
         spec:
           template:
+            metadata:
+              annotations:
+                traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
             spec: null
       etcd:
         endpoints:
@@ -652,11 +652,11 @@ match snapshots w. hostAliases enabled:
           kind: Issuer
           name: selfsigned
       deploymentTemplate:
-        metadata:
-          annotations:
-            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
         spec:
           template:
+            metadata:
+              annotations:
+                traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
             spec:
               hostAliases:
                 - hostnames:
