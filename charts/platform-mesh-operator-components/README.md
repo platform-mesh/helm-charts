@@ -10,8 +10,11 @@ A Helm chart for Kubernetes
 | componentVersion.semver | string | `"0.0.66"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
-| ocm.componentName | string | `"platform-mesh"` |  |
-| ocm.repoName | string | `"platform-mesh"` |  |
+| ocm.component.create | bool | `true` |  |
+| ocm.component.name | string | `"platform-mesh"` |  |
+| ocm.referencePath | list | `[]` |  |
+| ocm.repo.create | bool | `true` |  |
+| ocm.repo.name | string | `"platform-mesh"` |  |
 | port | int | `443` |  |
 | protocol | string | `"https"` |  |
 | services.account-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
