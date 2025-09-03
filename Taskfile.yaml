@@ -25,6 +25,12 @@ tasks:
     internal: true
     cmds:
       - test -s {{.LOCAL_BIN}}/helm-docs || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install github.com/norwoodj/helm-docs/cmd/helm-docs@v1.14.2
+  setup:mkcert:
+    internal: true
+    cmds:
+      - test -s {{.LOCAL_BIN}}/mkcert || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install filippo.io/mkcert@latest
+      - export PATH=$(pwd)/{{.LOCAL_BIN}}:$PATH
+
   setup:ocm:
     internal: true
     cmds:
@@ -82,9 +88,30 @@ tasks:
     cmds:
       - "rm oci/* || true"
       - task: helmpackage
-  local-setup:
+  local-setup:iterate:
     cmds:
-      - "./local-setup/scripts/start.sh"
+      - ./local-setup/scripts/start.sh
+  local-setup:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - |
+        read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+        kind delete cluster --name platform-mesh
+        ./local-setup/scripts/start.sh
+
+  local-setup-cached:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+      - kind delete cluster --name platform-mesh
+      - ./local-setup/scripts/start.sh --cached
+
+  local-setup-cached:iterate:
+    cmds:
+      - ./local-setup/scripts/start.sh --cached
+
   bump-component-versions:
     deps: [setup:ocm]
     cmds:

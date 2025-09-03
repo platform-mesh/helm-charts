@@ -1,0 +1,26 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: platform-mesh-operator
+  namespace: default
+spec:
+  interval: 10m
+  timeout: 10m
+  chartRef:
+    kind: OCIRepository
+    name: platform-mesh-operator
+  releaseName: platform-mesh-operator
+  dependsOn:
+    - name: kyverno
+      namespace: default
+  targetNamespace: platform-mesh-system
+  values:
+    extraArgs:
+    - --no-json=true
+    imagePullSecret: github
+    components:
+      observability:
+        enabled: false
+    image:
+      name: ghcr.io/platform-mesh/platform-mesh-operator
+      tag: v0.39.18-fix2
