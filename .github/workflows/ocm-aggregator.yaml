@@ -70,6 +70,7 @@ jobs:
           echo INFRA_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/infra --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo REBAC_AUTHZ_WEBHOOK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/rebac-authz-webhook --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo PORTAL_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/portal --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo PLATFORM_MESH_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # echo IAM_SERVICE_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-service --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # echo IAM_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # echo INFRA_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/infra --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
@@ -98,6 +99,7 @@ jobs:
             SECURITY_OPERATOR_VERSION=${{ env.SECURITY_OPERATOR_VERSION }} \
             REBAC_AUTHZ_WEBHOOK_VERSION=${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }} \
             PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
+            PLATFORM_MESH_OPERATOR_VERSION=${{ env.PLATFORM_MESH_OPERATOR_VERSION }} \
             VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
             ISTIO_VERSION=1.27.0 \
             CROSSPLANE_VERSION=1.9.2 \
