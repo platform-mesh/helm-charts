@@ -19,18 +19,21 @@ metadata:
     {{- end }}
 spec:
   componentRef:
-    name: {{ $values.ocm.componentName }}
+    name: {{ $values.ocm.component.name }}
   resource:
     byReference:
       resource:
         name: chart
       referencePath:
+        {{- with $values.ocm.referencePath }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         - name: {{ $service}}
   interval: 1m
   ocmConfig:
     - kind: Repository
       apiVersion: delivery.ocm.software/v1alpha1
-      name: {{ $values.ocm.repoName }}
+      name: {{ $values.ocm.repo.name }}
       namespace: {{ $release.Namespace }}
 ---
 {{ end -}}

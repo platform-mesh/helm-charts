@@ -10,7 +10,7 @@ metadata:
     component: "etcd-druid"
 spec:
   componentRef:
-    name: {{ .Values.ocm.componentName }}
+    name: {{ .Values.ocm.component.name }}
   resource:
     byReference:
       resource:

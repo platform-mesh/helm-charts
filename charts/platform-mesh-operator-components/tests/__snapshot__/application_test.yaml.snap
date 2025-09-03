@@ -631,6 +631,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: account-operator
           resource:
             name: chart
@@ -654,6 +655,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: crossplane
           resource:
             name: chart
@@ -677,6 +679,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: etcd-druid
           resource:
             name: chart
@@ -700,6 +703,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: extension-manager-operator
           resource:
             name: chart
@@ -723,6 +727,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: iam-service
           resource:
             name: chart
@@ -746,6 +751,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: iam-ui
           resource:
             name: chart
@@ -769,6 +775,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: infra
           resource:
             name: chart
@@ -792,6 +799,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: istio-base
           resource:
             name: chart
@@ -815,6 +823,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: istio-gateway
           resource:
             name: chart
@@ -838,6 +847,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: istio-istiod
           resource:
             name: chart
@@ -861,6 +871,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: kcp-operator
           resource:
             name: chart
@@ -884,6 +895,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: keycloak
           resource:
             name: chart
@@ -907,6 +919,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: kubernetes-graphql-gateway
           resource:
             name: chart
@@ -930,6 +943,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: openfga
           resource:
             name: chart
@@ -953,6 +967,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: rebac-authz-webhook
           resource:
             name: chart
@@ -976,6 +991,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: security-operator
           resource:
             name: chart
@@ -999,6 +1015,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: virtual-workspaces
           resource:
             name: chart

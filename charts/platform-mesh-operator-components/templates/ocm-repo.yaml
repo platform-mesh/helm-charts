@@ -1,7 +1,8 @@
+{{- if .Values.ocm.repo.create }}
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Repository
 metadata:
-  name: {{ .Values.ocm.repoName }}
+  name: {{ .Values.ocm.repo.name }}
 spec:
   repositorySpec:
     baseUrl: ghcr.io/platform-mesh
@@ -10,3 +11,4 @@ spec:
   ocmConfig:
     - kind: Secret
       name: {{ .Values.ociPullSecret }}
+{{- end }}
