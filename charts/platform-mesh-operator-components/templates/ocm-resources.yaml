@@ -1,4 +1,5 @@
 {{ $values := .Values }}
+{{ $release := .Release }}
 {{- range $service, $config := .Values.services }}
 {{- if $config.enabled }}
 apiVersion: delivery.ocm.software/v1alpha1
@@ -27,8 +28,10 @@ spec:
         - name: {{ $service}}
   interval: 1m
   ocmConfig:
-    - kind: Secret
-      name: {{ $values.ociPullSecret }}
+    - kind: Repository
+      apiVersion: delivery.ocm.software/v1alpha1
+      name: {{ $values.ocm.repoName }}
+      namespace: {{ $release.Namespace }}
 ---
 {{ end -}}
 {{ end -}}

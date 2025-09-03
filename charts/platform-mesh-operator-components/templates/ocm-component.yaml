@@ -9,5 +9,7 @@ spec:
   semver: {{ .Values.componentVersion.semver }}
   interval: 1m
   ocmConfig:
-    - kind: Secret
-      name: {{ .Values.ociPullSecret }}
+    - kind: Repository
+      apiVersion: delivery.ocm.software/v1alpha1
+      name: {{ .Values.ocm.repoName }}
+      namespace: {{ .Release.Namespace }}

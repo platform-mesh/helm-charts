@@ -591,8 +591,10 @@ it should render the application manifests:
       component: github.com/platform-mesh/platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       repositoryRef:
         name: platform-mesh
       semver: 0.0.0
@@ -622,8 +624,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -643,8 +647,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -664,8 +670,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -685,8 +693,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -706,8 +716,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -727,8 +739,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -748,8 +762,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -769,8 +785,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -790,8 +808,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -811,8 +831,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -832,8 +854,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -853,8 +877,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -874,8 +900,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -895,8 +923,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -916,8 +946,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -937,8 +969,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
@@ -958,8 +992,10 @@ it should render the application manifests:
         name: platform-mesh
       interval: 1m
       ocmConfig:
-        - kind: Secret
-          name: ocm-oci-github-pull
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:
