@@ -23,4 +23,3 @@ spec:
         enabled: false
     image:
       name: ghcr.io/platform-mesh/platform-mesh-operator
-      tag: v0.1.0
