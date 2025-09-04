@@ -165,6 +165,33 @@ operator match the snapshot:
                             type: object
                           type: array
                       type: object
+                    ocm:
+                      properties:
+                        component:
+                          properties:
+                            create:
+                              default: true
+                              type: boolean
+                            name:
+                              default: platform-mesh
+                              type: string
+                          type: object
+                        referencePath:
+                          items:
+                            type: string
+                          type: array
+                        repo:
+                          properties:
+                            create:
+                              default: true
+                              type: boolean
+                            name:
+                              default: platform-mesh
+                              type: string
+                          type: object
+                      required:
+                        - referencePath
+                      type: object
                     values:
                       x-kubernetes-preserve-unknown-fields: true
                   type: object
