@@ -1,0 +1,149 @@
+components:
+  - name: github.com/crossplane/crossplane
+    version: {{ .CROSSPLANE_VERSION }}
+    provider:
+      name: crossplane
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .CROSSPLANE_VERSION }}
+        access:
+          type: helm
+          helmChart: crossplane:{{ .CROSSPLANE_VERSION }}
+          helmRepository: https://charts.crossplane.io/stable
+  - name: github.com/istio/istio/base
+    version: {{ .ISTIO_VERSION }}
+    provider:
+      name: istio
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .ISTIO_VERSION }}
+        access:
+          type: helm
+          helmChart: base:{{ .ISTIO_VERSION }}
+          helmRepository: https://istio-release.storage.googleapis.com/charts
+  - name: github.com/istio/istio/istiod
+    version: {{ .ISTIO_VERSION }}
+    provider:
+      name: istio
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .ISTIO_VERSION }}
+        access:
+          type: helm
+          helmChart: istiod:{{ .ISTIO_VERSION }}
+          helmRepository: https://istio-release.storage.googleapis.com/charts
+  - name: github.com/openfga/openfga
+    version: {{ .OPENFGA_VERSION }}
+    provider:
+      name: openfga
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .OPENFGA_VERSION }}
+        access:
+          type: helm
+          helmChart: openfga:{{ .OPENFGA_VERSION }}
+          helmRepository: https://openfga.github.io/helm-charts
+  - name: github.com/istio/istio/gateway
+    version: {{ .ISTIO_VERSION }}
+    provider:
+      name: istio
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .ISTIO_VERSION }}
+        access:
+          type: helm
+          helmChart: gateway:{{ .ISTIO_VERSION }}
+          helmRepository: https://istio-release.storage.googleapis.com/charts
+  - name: github.com/kcp-dev/kcp-operator
+    version: {{ .KCP_OPERATOR_VERSION }}
+    provider:
+      name: kcp
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .KCP_OPERATOR_VERSION }}
+        access:
+          type: helm
+          helmChart: kcp-operator:{{ .KCP_OPERATOR_VERSION }}
+          helmRepository: https://kcp-dev.github.io/helm-charts
+  - name: github.com/gardener/etcd-druid
+    version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
+    provider:
+      name: gardener
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .GARDENER_ETCD_DRUID_CHART_VERSION }}
+        access:
+          type: github
+          repoUrl: https://github.com/gardener/etcd-druid
+          ref: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
+          commit: 58fa963fc3583daf2e5488a708d198fa38f4413d
+      - name: image
+        type: ociImage
+        relation: external
+        version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
+        access:
+          type: ociArtifact
+          imageReference: "europe-docker.pkg.dev/gardener-project/public/gardener/etcd-druid:{{ .GARDENER_ETCD_DRUID_SOURCE_REF }}"
+  - name: github.com/platform-mesh/platform-mesh
+    version: {{ .VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    componentReferences:
+      - name: account-operator
+        componentName: github.com/platform-mesh/account-operator
+        version: {{ .ACCOUNT_OPERATOR_VERSION }}
+      - name: crossplane
+        componentName: github.com/crossplane/crossplane
+        version: {{ .CROSSPLANE_VERSION }}
+      - name: etcd-druid
+        componentName: github.com/gardener/etcd-druid
+        version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
+      - name: extension-manager-operator
+        componentName: github.com/platform-mesh/extension-manager-operator
+        version: {{ .EXTENSION_MANAGER_OPERATOR_VERSION }}
+      - name: infra
+        componentName: github.com/platform-mesh/infra
+        version: {{ .INFRA_VERSION }}
+      - name: istio-base
+        componentName: github.com/istio/istio/base
+        version: {{ .ISTIO_VERSION }}
+      - name: istio-istiod
+        componentName: github.com/istio/istio/istiod
+        version: {{ .ISTIO_VERSION }}
+      - name: istio-gateway
+        componentName: github.com/istio/istio/gateway
+        version: {{ .ISTIO_VERSION }}
+      - name: keycloak
+        componentName: github.com/platform-mesh/keycloak-test
+        version: {{ .KEYCLOAK_VERSION }}
+      - name: kcp-operator
+        componentName: github.com/kcp-dev/kcp-operator
+        version: {{ .KCP_OPERATOR_VERSION }}
+      - name: kubernetes-graphql-gateway
+        componentName: github.com/platform-mesh/kubernetes-graphql-gateway
+        version: {{ .KUBERNETES_GRAPHQL_GATEWAY_VERSION }}
+      - name: rebac-authz-webhook
+        componentName: github.com/platform-mesh/rebac-authz-webhook
+        version: {{ .REBAC_AUTHZ_WEBHOOK_VERSION }}
+      - name: security-operator
+        componentName: github.com/platform-mesh/security-operator
+        version: {{ .SECURITY_OPERATOR_VERSION }}
+      - name: openfga
+        componentName: github.com/openfga/openfga
+        version: {{ .OPENFGA_VERSION }}
+      - name: platform-mesh-operator
+        componentName: github.com/platform-mesh/platform-mesh-operator
+        version: {{ .PLATFORM_MESH_OPERATOR_VERSION }}
+      - name: portal
+        componentName: github.com/platform-mesh/portal
+        version: {{ .PORTAL_VERSION }}
+      - name: virtual-workspaces
+        componentName: github.com/platform-mesh/virtual-workspaces
+        version: {{ .VIRTUAL_WORKSPACES_VERSION }}
