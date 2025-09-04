@@ -2,13 +2,13 @@ apiVersion: v2
 name: platform-mesh-operator
 description: A Helm chart to automate bootstrapping of new environment
 type: application
-version: 0.4.1
+version: 0.5.0
 appVersion: "v0.1.1"
 dependencies:
   - name: common
     version: 0.5.5
     repository: oci://ghcr.io/platform-mesh/helm-charts
   - name: platform-mesh-operator-crds
-    version: 0.1.10
+    version: 0.2.0
     repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: components.crds.enabled
