@@ -91,7 +91,6 @@ services:
       subroutines:
         fga:
           grpcAddr: openfga:8081
-
   crossplane:
     helmRepo: true
     enabled: true
@@ -100,7 +99,6 @@ services:
       provider:
         packages:
           - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2
-
   etcd-druid:
     enabled: true
     gitRepo: true
