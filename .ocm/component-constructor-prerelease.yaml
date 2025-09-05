@@ -1,0 +1,19 @@
+components:
+  - name: {{ .COMPONENT_NAME }}
+    version: {{ .CHART_VERSION }}
+    provider:
+      name: The Open Micro Frontend Platform Team
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .CHART_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference:  "{{ .CHART_LOCATION }}"
+      - name: image
+        type: ociImage
+        relation: external
+        version: {{ .APP_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "{{ .IMAGE_NAME }}:{{ .APP_VERSION }}"
