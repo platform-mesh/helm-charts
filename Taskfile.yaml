@@ -404,6 +404,7 @@ tasks:
             val=$(./bin/ocm get componentversions --latest "$component" --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
             echo "Using REMOTE component version for $short -> $val"
             ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$val http://oci-registry-docker-registry.registry.svc.cluster.local:5000/platform-mesh
+            ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$val directory::.ocm/transport.ctf
           fi
           export "$env_var"="$val"
         }
@@ -453,5 +454,90 @@ tasks:
 
         echo
         echo "Built component version $COMPONENT_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
+
+      - task: ocm:transfer:dir-to-local-oci
+
+  ocm:build:platform-mesh-private:
+    # deps: 
+    #   - task: ocm:build:custom-local-charts
+    cmds:
+      - |
+        # Build comma-separated list of local component names from CUSTOM_LOCAL_COMPONENTS_CHART_PATHS
+        CUSTOM_LOCAL_COMPONENTS="$(printf '%s' "{{ range .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}{{ range $k,$v := . }}{{$k}},{{ end }}{{ end }}" | sed 's/,$//')"
+
+        # Build space-separated key:version pairs from COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS
+        FIXED_VERSION_PAIRS="{{ range .COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS }}{{ range $k,$v := . }}{{$k}}:{{$v}} {{ end }}{{ end }}"
+
+        is_local() {
+          echo ",$CUSTOM_LOCAL_COMPONENTS," | grep -q ",$1,"
+        }
+
+        get_component_version() {
+          short="$1"
+          component="$2"
+          chart="$3"
+          env_var="$4"
+
+          # 1. Fixed override?
+          for pair in $FIXED_VERSION_PAIRS; do
+            name="${pair%%:*}"
+            ver="${pair#*:}"
+            if [ "$short" = "$name" ] && [ -n "$ver" ] && [ "$ver" != "$name" ]; then
+              echo "Using FIXED override version for $short -> $ver"
+              export "$env_var"="$ver"
+              ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver http://oci-registry-docker-registry.registry.svc.cluster.local:5000/platform-mesh
+
+              PLATFORMMESH_FILE="local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml"
+              if [ -f "$PLATFORMMESH_FILE" ]; then
+                echo "Updating $PLATFORMMESH_FILE: .spec.values.\"$short\".version = $ver"
+                yq -i ".spec.values.\"$short\".version = \"$ver\"" "$PLATFORMMESH_FILE"
+              else
+                echo "WARN: $PLATFORMMESH_FILE not found; skipping version update for $COMPONENT"
+              fi
+
+              return 0
+            fi
+          done
+
+          # 2. Local chart?
+          if is_local "$short" && [ -n "$chart" ] && [ -f "$chart/Chart.yaml" ]; then
+            val=$(grep '^version:' "$chart/Chart.yaml" | sed 's/^version: //')
+            echo "Using LOCAL chart version for $short -> $val"
+          else
+            # 3. Remote latest
+            val=$(./bin/ocm get componentversions --latest "$component" --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
+            echo "Using REMOTE component version for $short -> $val"
+            ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$val http://oci-registry-docker-registry.registry.svc.cluster.local:5000/platform-mesh
+            ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$val directory::.ocm/transport.ctf
+          fi
+          export "$env_var"="$val"
+        }
+
+        # Retrieve versions (add chart path only for those that can be local)
+        get_component_version iam-service github.com/platform-mesh/iam-service charts/iam-service IAM_SERVICE_VERSION
+        get_component_version iam-ui github.com/platform-mesh/iam-ui charts/iam-ui IAM_UI_VERSION
+        get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui charts/marketplace-ui MARKETPLACE_UI_VERSION
+        # Add more mappings as needed
+
+        echo "--- getting component versions ---"
+        PLATFORMMESH_PRIVATE_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/platform-mesh-private --repo http://oci-registry-docker-registry.registry.svc.cluster.local:5000/platform-mesh -o json | jq -r '.items[0].component.version')
+        PLATFORMMESH_PRIVATE_VERSION=${PLATFORMMESH_PRIVATE_VERSION:-'{{ .COMPONENT_VERSION }}'}
+        IFS='.' read -r major minor patch <<< "$PLATFORMMESH_PRIVATE_VERSION"
+        patch=$((patch + 1))
+        export COMPONENT_VERSION="$major.$minor.$patch"
+
+        ocm_ctf=.ocm/transport.ctf
+        mkdir -p "$(dirname "$ocm_ctf")"
+
+        env | grep _VERSION | sort
+
+        ./bin/ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-platform-mesh-private.yaml -- \
+        VERSION=$COMPONENT_VERSION \
+        IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION \
+        IAM_UI_VERSION=$IAM_UI_VERSION \
+        MARKETPLACE_UI_VERSION=$MARKETPLACE_UI_VERSION
+
+        echo
+        echo "Built private component version $COMPONENT_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
 
       - task: ocm:transfer:dir-to-local-oci
