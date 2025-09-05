@@ -13,9 +13,10 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION: 0.28.0
-  COMPONENT_VERSION: "0.0.0"
+  COMPONENT_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
+    - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 0.64.11
 
@@ -243,30 +244,33 @@ tasks:
           fi
         fi
 
-  ocm:patch:componentversion:
-    desc: "Patch ComponentVersion spec.repository.url and spec.version.semver (override with PATCH_REPO_URL / PATCH_SEMVER)"
+  ocm:patch:component:
+    desc: "Patch Component spec.repository.url and spec.version.semver (override with PATCH_REPO_URL / PATCH_SEMVER)"
     vars:
       COMPONENT_VERSION_NAME: platform-mesh
       COMPONENT_VERSION_NAMESPACE: default
-      PATCH_SEMVER: '{{ coalesce .PATCH_SEMVER .COMPONENT_VERSION }}'
       PATCH_REPO_URL: http://oci-registry-docker-registry.registry.svc.cluster.local:5000/platform-mesh
     env:
       COMPONENT_VERSION_NAME: '{{.COMPONENT_VERSION_NAME}}'
       COMPONENT_VERSION_NAMESPACE: '{{.COMPONENT_VERSION_NAMESPACE}}'
-      PATCH_SEMVER: '{{.PATCH_SEMVER}}'
       PATCH_REPO_URL: '{{.PATCH_REPO_URL}}'
     cmds:
       - |
         set -e
-        if [ -z "${PATCH_SEMVER}" ] || [ "${PATCH_SEMVER}" = "0.0.0" ]; then
-          echo "Deriving PATCH_SEMVER from latest ComponentVersion resources tree..."
-          PATCH_SEMVER=$(./bin/ocm get componentversions github.com/platform-mesh/platform-mesh --latest --repo ${PATCH_REPO_URL} -o json | jq -r '.items[0].component.version')
-        fi
+        echo "Deriving PATCH_SEMVER from latest ComponentVersion resources tree..."
+        PATCH_SEMVER=$(./bin/ocm get componentversions github.com/platform-mesh/platform-mesh --latest --repo ${PATCH_REPO_URL} -o json | jq -r '.items[0].component.version')
         : "${PATCH_SEMVER:?PATCH_SEMVER required}"
+        echo "Version: ${PATCH_SEMVER}"
         echo "Patching ComponentVersion ${COMPONENT_VERSION_NAME} in namespace ${COMPONENT_VERSION_NAMESPACE}"
         echo "  -> repository.url = ${PATCH_REPO_URL}"
         echo "  -> version.semver  = ${PATCH_SEMVER}"
-        kubectl -n "${COMPONENT_VERSION_NAMESPACE}" patch componentversions.delivery.ocm.software "${COMPONENT_VERSION_NAME}" --type=merge -p "{\"spec\":{\"repository\":{\"url\":\"${PATCH_REPO_URL}\"},\"version\":{\"semver\":\"${PATCH_SEMVER}\"}}}"
+        kubectl -n "${COMPONENT_VERSION_NAMESPACE}" patch component.delivery.ocm.software "${COMPONENT_VERSION_NAME}" --type=merge -p "{\"spec\":{\"semver\":\"${PATCH_SEMVER}\"}}"
+
+
+        # patch repository
+        kubectl  patch repository.delivery.ocm.software "${COMPONENT_VERSION_NAME}" --type=merge -p "{\"spec\":{\"repositorySpec\":{\"baseUrl\":\"${PATCH_REPO_URL}\"}}}"
+
+
         echo "Patch applied."
   
   ocm:build:custom-local-charts:
@@ -350,8 +354,8 @@ tasks:
         echo "Completed building custom local charts."
 
   ocm:build:platform-mesh:
-    deps: 
-      - task: ocm:build:custom-local-charts
+    # deps: 
+    #   - task: ocm:build:custom-local-charts
     cmds:
       - |
         # Build comma-separated list of local component names from CUSTOM_LOCAL_COMPONENTS_CHART_PATHS
@@ -418,7 +422,7 @@ tasks:
 
         echo "--- getting component versions ---"
         PLATFORMMESH_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo http://oci-registry-docker-registry.registry.svc.cluster.local:5000/platform-mesh -o json | jq -r '.items[0].component.version')
-        PLATFORMMESH_VERSION=${PLATFORMMESH_VERSION:-0.0.0}
+        PLATFORMMESH_VERSION=${PLATFORMMESH_VERSION:-'{{ .COMPONENT_VERSION }}'}
         IFS='.' read -r major minor patch <<< "$PLATFORMMESH_VERSION"
         patch=$((patch + 1))
         export COMPONENT_VERSION="$major.$minor.$patch"
