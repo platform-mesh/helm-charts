@@ -12,6 +12,7 @@ A Helm chart for Kubernetes
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.component.create | bool | `true` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
+| ocm.interval | string | `"3m"` |  |
 | ocm.referencePath | list | `[]` |  |
 | ocm.repo.create | bool | `true` |  |
 | ocm.repo.name | string | `"platform-mesh"` |  |
