@@ -29,7 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: {{ $service}}
-  interval: 1m
+  interval: {{ $values.ocm.interval }}
   ocmConfig:
     - kind: Repository
       apiVersion: delivery.ocm.software/v1alpha1

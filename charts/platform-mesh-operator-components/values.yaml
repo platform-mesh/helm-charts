@@ -4,6 +4,7 @@ protocol: https
 port: 443
 ociPullSecret: ocm-oci-github-pull
 ocm:
+  interval: 3m
   referencePath: []
   component:
     create: true
