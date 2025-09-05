@@ -9,6 +9,6 @@ dependencies:
     version: 0.5.5
     repository: oci://ghcr.io/platform-mesh/helm-charts
   - name: platform-mesh-operator-crds
-    version: 0.2.0
+    version: 0.2.1
     repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: components.crds.enabled
