@@ -18,6 +18,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: etcd-druid
           resource:
             name: image
