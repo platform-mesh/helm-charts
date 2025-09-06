@@ -100,7 +100,7 @@ spec:
             secretName: {{ .Values.clientCASecretName }}
         - name: vws-cert
           secret:
-            secretName: {{ .Values.virtualWorkspaceSecretName }}
+            secretName: {{ .Values.cert.secretName }}
         - name: requestheader-client-ca
           secret:
             secretName: {{ .Values.requestHeaderClientCASecretName }}
