@@ -5,11 +5,11 @@ metadata:
 spec:
   dnsNames:
     - frontproxy-front-proxy
-    - frontproxy-front-proxy.platform-mesh-system
-    - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+    - frontproxy-front-proxy.{{.Release.Namespace}}
+    - frontproxy-front-proxy.{{.Release.Namespace}}.svc.cluster.local
     - virtual-workspaces
-    - virtual-workspaces.platform-mesh-system
-    - virtual-workspaces.platform-mesh-system.svc.cluster.local
+    - virtual-workspaces.{{.Release.Namespace}}
+    - virtual-workspaces.{{.Release.Namespace}}.svc.cluster.local
     {{ .Values.cert.extraDnsNames | toYaml | nindent 4 }}
   duration: {{ .Values.cert.duration }}
   issuerRef:

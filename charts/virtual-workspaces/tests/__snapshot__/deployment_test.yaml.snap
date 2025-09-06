@@ -7,11 +7,11 @@ virtual-workspaces match the snapshot:
     spec:
       dnsNames:
         - frontproxy-front-proxy
-        - frontproxy-front-proxy.platform-mesh-system
-        - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+        - frontproxy-front-proxy.NAMESPACE
+        - frontproxy-front-proxy.NAMESPACE.svc.cluster.local
         - virtual-workspaces
-        - virtual-workspaces.platform-mesh-system
-        - virtual-workspaces.platform-mesh-system.svc.cluster.local
+        - virtual-workspaces.NAMESPACE
+        - virtual-workspaces.NAMESPACE.svc.cluster.local
         - my.example.com
         - my.example2.com
       duration: 8760h0m0s
