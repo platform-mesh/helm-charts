@@ -125,11 +125,6 @@ A Helm chart for Kubernetes
 | keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
 | keycloak.service.name | string | `"keycloak"` | service name |
 | keycloak.service.port | int | `80` | service port |
-| openfga.datastore.auth.password | string | `"postgres"` |  |
-| openfga.datastore.auth.username | string | `"postgres"` |  |
-| openfga.datastore.databaseService | string | `"openfga-openfga-postgres"` |  |
-| openfga.datastore.secret.create | bool | `false` |  |
-| openfga.datastore.secret.name | string | `"openfga-db"` |  |
 | openfga.rbac.requestPrincipals | list | `[]` |  |
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa"` |  |

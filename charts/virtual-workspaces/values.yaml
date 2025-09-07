@@ -1,8 +1,8 @@
 kubeconfigSecretName: account-operator-kubeconfig
 authenticationKubeconfigSecretName: portal-kubeconfig
-clientCASecretName: kcp-ca
+clientCASecretName: root-front-proxy-client-ca
 virtualWorkspaceSecretName: virtual-workspaces-cert
-requestHeaderClientCASecretName: kcp-requestheader-client-ca
+requestHeaderClientCASecretName: root-requestheader-client-ca
 
 image:
   # -- The image repository
@@ -13,8 +13,8 @@ image:
 deployment:
   entityLabel: ui.platform-mesh.io/entity
   contentForLabel: ui.platform-mesh.io/content-for
-  serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
-  resourceSchemaName: ""
+  serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
+  resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
   resourceSchemaWorkspace: root:platform-mesh-system
   resourceSchemaExportName: core.platform-mesh.io
 

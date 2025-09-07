@@ -1,4 +1,3 @@
-
 hostAliases:
   enabled: false
   entries:
@@ -109,26 +108,18 @@ kcp:
 
 openfga:
   rbac:
-    requestPrincipals: [ ]
+    requestPrincipals: []
     writePrincipals:
       - cluster.local/ns/platform-mesh-system/sa/iam-service
       - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
       - cluster.local/ns/platform-mesh-system/sa/security-operator
       - cluster.local/ns/platform-mesh-system/sa/account-operator
-  datastore:
-    databaseService: openfga-openfga-postgres
-    secret:
-      create: false
-      name: openfga-db
-    auth:
-      username: postgres
-      password: postgres
 
 keycloak:
   istio:
     virtualservice:
       # -- istio virtual service hosts
-      hosts: [ "*" ]
+      hosts: ["*"]
     https:
       port: 8443
   # -- service configuration
