@@ -296,7 +296,7 @@ services:
       extraEnvVars:
         - name: JAVA_OPTS_APPEND
           value: |-
-            -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
+            -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
         - name: KC_PROXY_HEADERS
           value: xforwarded
         - name: KC_HOSTNAME_STRICT
@@ -498,13 +498,3 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
-    values:
-      requestHeaderClientCASecretName: root-requestheader-client-ca
-      virtualWorkspaceSecretName: virtual-workspaces-cert
-      clientCASecretName: root-front-proxy-client-ca
-      resourceSchemaWorkspace: root:platform-mesh-system
-      deployment:
-        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:8443"
-        entityLabel: "ui.platform-mesh.io/entity"
-      service:
-        port: 8443

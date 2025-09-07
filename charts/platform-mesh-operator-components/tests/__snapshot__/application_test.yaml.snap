@@ -365,7 +365,7 @@ it should render the application manifests:
           passwordSecretKey: secret
         extraEnvVars:
           - name: JAVA_OPTS_APPEND
-            value: -Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local
+            value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
           - name: KC_PROXY_HEADERS
             value: xforwarded
           - name: KC_HOSTNAME_STRICT
@@ -575,16 +575,7 @@ it should render the application manifests:
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
       timeout: 15m
-      values:
-        clientCASecretName: root-front-proxy-client-ca
-        deployment:
-          entityLabel: ui.platform-mesh.io/entity
-          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443
-        requestHeaderClientCASecretName: root-requestheader-client-ca
-        resourceSchemaWorkspace: root:platform-mesh-system
-        service:
-          port: 8443
-        virtualWorkspaceSecretName: virtual-workspaces-cert
+      values: null
   19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Component
