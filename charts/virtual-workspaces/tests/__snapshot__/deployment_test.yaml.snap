@@ -61,7 +61,8 @@ virtual-workspaces match the snapshot:
                 - --secure-port=8443
                 - --entity-label=ui.platform-mesh.io/entity
                 - --content-for-label=ui.platform-mesh.io/content-for
-                - --server-url=https://kcp-front-proxy.platform-mesh-system:8443
+                - --server-url=https://frontproxy-front-proxy.platform-mesh-system:6443
+                - --resource-schema-name=v250704-6d57f16.contentconfigurations.ui.platform-mesh.io
                 - --resource-schema-workspace=root:platform-mesh-system
                 - --resource-apiexport-endpointslice-name=core.platform-mesh.io
               image: ghcr.io/platform-mesh/virtual-workspaces:0.0.0
@@ -110,13 +111,13 @@ virtual-workspaces match the snapshot:
                 secretName: portal-kubeconfig
             - name: client-ca-secret
               secret:
-                secretName: kcp-ca
+                secretName: root-front-proxy-client-ca
             - name: vws-cert
               secret:
                 secretName: virtual-workspaces-cert
             - name: requestheader-client-ca
               secret:
-                secretName: kcp-requestheader-client-ca
+                secretName: root-requestheader-client-ca
   3: |
     apiVersion: v1
     imagePullSecrets:
