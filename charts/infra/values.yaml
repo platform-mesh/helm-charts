@@ -115,14 +115,6 @@ openfga:
       - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
       - cluster.local/ns/platform-mesh-system/sa/security-operator
       - cluster.local/ns/platform-mesh-system/sa/account-operator
-  datastore:
-    databaseService: openfga-openfga-postgres
-    secret:
-      create: false
-      name: openfga-db
-    auth:
-      username: postgres
-      password: postgres
 
 keycloak:
   istio:
