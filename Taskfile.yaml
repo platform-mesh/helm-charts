@@ -457,7 +457,7 @@ tasks:
 
       - task: ocm:transfer:dir-to-local-oci
 
-  ocm:build:platform-mesh-private:
+  ocm:build:platform-mesh-priv:
     # deps: 
     #   - task: ocm:build:custom-local-charts
     cmds:
@@ -520,7 +520,7 @@ tasks:
         # Add more mappings as needed
 
         echo "--- getting component versions ---"
-        PLATFORMMESH_PRIVATE_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/platform-mesh-private --repo http://oci-registry-docker-registry.registry.svc.cluster.local:5000/platform-mesh -o json | jq -r '.items[0].component.version')
+        PLATFORMMESH_PRIVATE_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/platform-mesh-priv --repo http://oci-registry-docker-registry.registry.svc.cluster.local:5000/platform-mesh -o json | jq -r '.items[0].component.version')
         PLATFORMMESH_PRIVATE_VERSION=${PLATFORMMESH_PRIVATE_VERSION:-'{{ .COMPONENT_VERSION }}'}
         IFS='.' read -r major minor patch <<< "$PLATFORMMESH_PRIVATE_VERSION"
         patch=$((patch + 1))
@@ -531,7 +531,7 @@ tasks:
 
         env | grep _VERSION | sort
 
-        ./bin/ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-platform-mesh-private.yaml -- \
+        ./bin/ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-platform-mesh-priv.yaml -- \
         VERSION=$COMPONENT_VERSION \
         IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION \
         IAM_UI_VERSION=$IAM_UI_VERSION \

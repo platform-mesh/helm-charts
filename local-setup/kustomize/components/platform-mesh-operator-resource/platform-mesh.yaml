@@ -4,10 +4,17 @@ metadata:
   name: platform-mesh
   namespace: platform-mesh-system
 spec:
+  ocm:
+    repo: 
+      name: platform-mesh
+    component:
+      name: platform-mesh
+    # referencePath:
+    #   - 
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.12.0
+  chartVersion: 0.14.1
   values:
     istio-gateway:
       enabled: true
@@ -20,25 +27,6 @@ spec:
       values:
         service:
           clusterIP: 10.96.0.110
-          # global:
-          #   imageRegistry: ghcr.io
-          #   imagePullSecrets:
-          #     - github
-          #   security:
-          #     allowInsecureImages: true
-          # image:
-          #   registry: ghcr.io
-          #   repository: platform-mesh/images/bitnami/keycloak
-          #   tag: 26.3.2-debian-12-r0
-          # postgresql:
-          #   global:
-          #     imageRegistry: ghcr.io
-          #     imagePullSecrets:
-          #       - github
-          #   image:
-          #     registry: ghcr.io
-          #     repository: platform-mesh/images/bitnami/postgresql
-          #     tag: 17.4.0-debian-12-r17
     crossplane:
       values:
         provider:

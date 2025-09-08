@@ -1,5 +1,5 @@
 components:
-  - name: github.com/platform-mesh/platform-mesh-private
+  - name: github.com/platform-mesh/platform-mesh-priv
     version: {{ .VERSION }}
     provider:
       name: The Platform Mesh Team
