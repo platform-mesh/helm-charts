@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Test the resource manifests
+release:
+  name: operator-components
+  namespace: default
+# values: 
+#   - ../test-values.yaml
+tests:
+- it: override referencePath
+  template: ocm-resources.yaml
+  documentSelector:
+    path: metadata.name
+    value: virtual-workspaces
+  set:
+    componentVersion:
+      semver: 0.0.0
+    ocm:
+      interval: 3m
+      referencePath:
+       - name: platform-mesh
+      component:
+        create: true
+        name: platform-mesh
+      repo:
+        create: true
+        name: platform-mesh
+    services:
+      virtual-workspaces:
+        enabled: true
+        dependsOn:
+          - name: istio-istiod
+            namespace: default
+        referencePath:
+          - name: test
+  asserts:
+    - equal:
+        path: spec.resource.byReference.referencePath[0].name
+        value: test
+    - lengthEqual:
+        path: spec.resource.byReference.referencePath
+        count: 1
+
+
+- it: default referencePath
+  template: ocm-resources.yaml
+  documentSelector:
+    path: metadata.name
+    value: tracing
+  set:
+    componentVersion:
+      semver: 0.0.0
+    ocm:
+      interval: 3m
+      referencePath:
+       - name: platform-mesh
+      component:
+        create: true
+        name: platform-mesh
+      repo:
+        create: true
+        name: platform-mesh
+    services:
+      tracing:
+        enabled: true
+  asserts:
+    - equal:
+        path: spec.resource.byReference.referencePath[0].name
+        value: platform-mesh
+    - equal:
+        path: spec.resource.byReference.referencePath[1].name
+        value: tracing
+    - lengthEqual:
+        path: spec.resource.byReference.referencePath
+        count: 2
