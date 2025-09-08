@@ -13,6 +13,13 @@ spec:
       key: config
 {{- if not .Values.externalSecrets.enabled }}
 ---
+{{- $keycloakAdminSecret := (lookup "v1" "Secret" "platform-mesh-system" "keycloak-admin") }}
+{{- $pass := "" }}
+{{- if and $keycloakAdminSecret (hasKey $keycloakAdminSecret.data "secret") }}
+  {{- $pass = (index $keycloakAdminSecret.data "secret") | b64dec }}
+{{- else }}
+  {{- $pass = "aesaeXaefu0x" }}
+{{- end }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -23,7 +30,7 @@ stringData:
     {
       "client_id":"admin-cli",
       "username": "{{ .Values.keycloak.keycloakConfig.admin.username.value }}",
-      "password": "admin",
+      "password": "{{ $pass }}",
       "url": "{{ .Values.keycloak.keycloakConfig.url }}",
       "realm": "master"
     }

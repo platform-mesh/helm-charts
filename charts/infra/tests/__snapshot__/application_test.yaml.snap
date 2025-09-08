@@ -334,7 +334,7 @@ match snapshots:
         {
           "client_id":"admin-cli",
           "username": "keycloak-admin",
-          "password": "admin",
+          "password": "aesaeXaefu0x",
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
@@ -807,7 +807,7 @@ match snapshots w. hostAliases enabled:
         {
           "client_id":"admin-cli",
           "username": "keycloak-admin",
-          "password": "admin",
+          "password": "aesaeXaefu0x",
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
