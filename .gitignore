@@ -13,3 +13,4 @@ local-setup/scripts/certs
 *.log
 *.pid
 .ocm/transport.ctf/
+ocm/.ocm/transport.ctf/
