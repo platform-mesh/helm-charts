@@ -10,16 +10,21 @@ metadata:
     component: "etcd-druid"
 spec:
   componentRef:
-    name: {{ .Values.ocm.componentName }}
+    name: {{ .Values.ocm.component.name }}
   resource:
     byReference:
       resource:
         name: image
       referencePath:
-        - name: "etcd-druid"
+        {{- with .Values.ocm.referencePath }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: etcd-druid
   interval: 1m
   ocmConfig:
-    - kind: Secret
-      name: {{ .Values.ociPullSecret }}
+    - kind: Repository
+      apiVersion: delivery.ocm.software/v1alpha1
+      name: {{ .Values.ocm.repo.name }}
+      namespace: {{ .Release.Namespace }}
 ---
 {{ end -}}

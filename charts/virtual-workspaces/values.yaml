@@ -1,8 +1,8 @@
 kubeconfigSecretName: account-operator-kubeconfig
 authenticationKubeconfigSecretName: portal-kubeconfig
-clientCASecretName: kcp-ca
-virtualWorkspaceSecretName: kcp-virtual-workspaces-cert
-requestHeaderClientCASecretName: kcp-requestheader-client-ca
+clientCASecretName: root-front-proxy-client-ca
+virtualWorkspaceSecretName: virtual-workspaces-cert
+requestHeaderClientCASecretName: root-requestheader-client-ca
 
 image:
   # -- The image repository
@@ -13,14 +13,33 @@ image:
 deployment:
   entityLabel: ui.platform-mesh.io/entity
   contentForLabel: ui.platform-mesh.io/content-for
-  serverUrl: https://kcp-front-proxy.platform-mesh-system:8443
-  resourceSchemaName: ""
+  serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
+  resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
   resourceSchemaWorkspace: root:platform-mesh-system
   resourceSchemaExportName: core.platform-mesh.io
 
 service:
   port: 8443
 
+cert:
+  # -- Secret name to store the certificate
+  secretName: virtual-workspaces-cert
+  # -- Extra DNS names for the certificate
+  extraDnsNames: [kcp.api.portal.dev.local]
+  # -- Certificate duration
+  duration: 8760h0m0s
+  # -- Certificate renew before
+  renewBefore: 168h0m0s
+  issuer:
+    # -- Issuer reference
+    kind: Issuer
+    # -- Issuer name
+    name: root-server-ca
+  key:
+    # -- Key algorithm (e.g. RSA or ECDSA)
+    algorithm: RSA
+    # -- Key size (e.g. 2048, 3072, 4096 for RSA or 256, 384, 521 for ECDSA)
+    size: 4096
 # Horizontal Pod Autoscaler configuration
 # hpa:
 #   enabled: true

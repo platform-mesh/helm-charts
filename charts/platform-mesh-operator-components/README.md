@@ -7,11 +7,15 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.66"` |  |
+| componentVersion.semver | string | `"0.0.74"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
-| ocm.componentName | string | `"platform-mesh"` |  |
-| ocm.repoName | string | `"platform-mesh"` |  |
+| ocm.component.create | bool | `true` |  |
+| ocm.component.name | string | `"platform-mesh"` |  |
+| ocm.interval | string | `"3m"` |  |
+| ocm.referencePath | list | `[]` |  |
+| ocm.repo.create | bool | `true` |  |
+| ocm.repo.name | string | `"platform-mesh"` |  |
 | port | int | `443` |  |
 | protocol | string | `"https"` |  |
 | services.account-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
@@ -28,7 +32,7 @@ A Helm chart for Kubernetes
 | services.crossplane.enabled | bool | `true` |  |
 | services.crossplane.helmRepo | bool | `true` |  |
 | services.crossplane.targetNamespace | string | `"crossplane-system"` |  |
-| services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.8.0"` |  |
+| services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2"` |  |
 | services.etcd-druid.enabled | bool | `true` |  |
 | services.etcd-druid.gitRepo | bool | `true` |  |
 | services.etcd-druid.path | string | `"charts"` |  |
@@ -119,7 +123,7 @@ A Helm chart for Kubernetes
 | services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
 | services.keycloak.values.auth.existingSecret | string | `"keycloak-admin"` | keycloak admin secret |
 | services.keycloak.values.auth.passwordSecretKey | string | `"secret"` | keycloak admin secret key |
-| services.keycloak.values.extraEnvVars | list | `[{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=openmfp-keycloak-headless.openmfp-system.svc.cluster.local"},{"name":"KC_PROXY_HEADERS","value":"xforwarded"},{"name":"KC_HOSTNAME_STRICT","value":"false"}]` | keycloak environment variables (raw) For Arm64 arch (especially Apple M4), add -XX:UseSVE=0 to JAVA_OPTS_APPEND |
+| services.keycloak.values.extraEnvVars | list | `[{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"},{"name":"KC_PROXY_HEADERS","value":"xforwarded"},{"name":"KC_HOSTNAME_STRICT","value":"false"}]` | keycloak environment variables (raw) For Arm64 arch (especially Apple M4), add -XX:UseSVE=0 to JAVA_OPTS_APPEND |
 | services.keycloak.values.httpRelativePath | string | `"/keycloak/"` | keycloak http relative path |
 | services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
 | services.keycloak.values.postgresql.auth | object | `{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"}` | authorization configuration |
@@ -239,13 +243,6 @@ A Helm chart for Kubernetes
 | services.virtual-workspaces.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.virtual-workspaces.dependsOn[0].namespace | string | `"default"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
-| services.virtual-workspaces.values.clientCASecretName | string | `"root-front-proxy-client-ca"` |  |
-| services.virtual-workspaces.values.deployment.entityLabel | string | `"ui.platform-mesh.io/entity"` |  |
-| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443"` |  |
-| services.virtual-workspaces.values.requestHeaderClientCASecretName | string | `"root-requestheader-client-ca"` |  |
-| services.virtual-workspaces.values.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
-| services.virtual-workspaces.values.service.port | int | `8443` |  |
-| services.virtual-workspaces.values.virtualWorkspaceSecretName | string | `"virtual-workspaces-cert"` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 
 ## Overriding Values

@@ -8,5 +8,8 @@ tests:
   set:
     componentVersion:
       semver: 0.0.0
+    ocm:
+      referencePath:
+        - name: test
   asserts:
   - matchSnapshot: {}

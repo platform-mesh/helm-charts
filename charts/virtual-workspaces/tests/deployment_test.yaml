@@ -5,7 +5,11 @@ release:
   name: virtual-workspaces
 tests:
   - it: virtual-workspaces match the snapshot
-    set: {}
+    set:
+      cert:
+        extraDnsNames:
+          - my.example.com
+          - my.example2.com
     asserts:
       - matchSnapshot: {}
   
