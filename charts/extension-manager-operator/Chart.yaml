@@ -2,8 +2,8 @@ apiVersion: v2
 name: extension-manager-operator
 description: A Helm chart for extension-manager-operator which manages resources like ContentConfigurations and exposes REST `/validate` endpoint
 type: application
-version: 0.30.114
-appVersion: "v0.0.22"
+version: 0.30.115
+appVersion: "v0.0.23"
 dependencies:
   - name: extension-manager-operator-crds
     version: 0.2.1
