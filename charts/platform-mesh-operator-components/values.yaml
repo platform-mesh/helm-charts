@@ -13,7 +13,7 @@ ocm:
     create: true
     name: platform-mesh
 componentVersion:
-  semver: 0.0.107
+  semver: 0.0.108
 iamWebhookCA: null
 services:
   istio-base:
