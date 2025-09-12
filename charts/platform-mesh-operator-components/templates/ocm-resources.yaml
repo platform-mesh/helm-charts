@@ -18,6 +18,7 @@ metadata:
     repo: oci
     {{- end }}
 spec:
+  skipVerify: {{ $values.ocm.skipVerify }}
   componentRef:
     {{- if (($config.ocm).component).name }}
     name: {{ $config.ocm.component.name }}

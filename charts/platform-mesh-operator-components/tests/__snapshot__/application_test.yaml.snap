@@ -629,6 +629,7 @@ it should render the application manifests:
             - name: account-operator
           resource:
             name: chart
+      skipVerify: true
   22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -653,6 +654,7 @@ it should render the application manifests:
             - name: crossplane
           resource:
             name: chart
+      skipVerify: true
   23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -677,6 +679,7 @@ it should render the application manifests:
             - name: etcd-druid
           resource:
             name: chart
+      skipVerify: true
   24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -701,6 +704,7 @@ it should render the application manifests:
             - name: extension-manager-operator
           resource:
             name: chart
+      skipVerify: true
   25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -725,6 +729,7 @@ it should render the application manifests:
             - name: iam-service
           resource:
             name: chart
+      skipVerify: true
   26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -749,6 +754,7 @@ it should render the application manifests:
             - name: iam-ui
           resource:
             name: chart
+      skipVerify: true
   27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -773,6 +779,7 @@ it should render the application manifests:
             - name: infra
           resource:
             name: chart
+      skipVerify: true
   28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -797,6 +804,7 @@ it should render the application manifests:
             - name: istio-base
           resource:
             name: chart
+      skipVerify: true
   29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -821,6 +829,7 @@ it should render the application manifests:
             - name: istio-gateway
           resource:
             name: chart
+      skipVerify: true
   30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -845,6 +854,7 @@ it should render the application manifests:
             - name: istio-istiod
           resource:
             name: chart
+      skipVerify: true
   31: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -869,6 +879,7 @@ it should render the application manifests:
             - name: kcp-operator
           resource:
             name: chart
+      skipVerify: true
   32: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -893,6 +904,7 @@ it should render the application manifests:
             - name: keycloak
           resource:
             name: chart
+      skipVerify: true
   33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -917,6 +929,7 @@ it should render the application manifests:
             - name: kubernetes-graphql-gateway
           resource:
             name: chart
+      skipVerify: true
   34: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -941,6 +954,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: chart
+      skipVerify: true
   35: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -965,6 +979,7 @@ it should render the application manifests:
             - name: rebac-authz-webhook
           resource:
             name: chart
+      skipVerify: true
   36: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -989,6 +1004,7 @@ it should render the application manifests:
             - name: security-operator
           resource:
             name: chart
+      skipVerify: true
   37: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
@@ -1013,3 +1029,4 @@ it should render the application manifests:
             - name: virtual-workspaces
           resource:
             name: chart
+      skipVerify: true
