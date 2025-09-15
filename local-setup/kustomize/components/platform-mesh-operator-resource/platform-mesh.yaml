@@ -85,18 +85,6 @@ spec:
       referencePath:
         # - name: platform-mesh-priv
         - name: iam-service
-      values:
-        image:
-          name: ghcr.io/platform-mesh/iam-service
-          tag: v0.2.4-pr
-        health:
-          # readiness:
-          #   path: /app-health/iam-service/readyz
-          # startup:
-          #   path: /app-health/iam-service/startupz
-          liveliness:
-            path: /app-health/iam-service/livez
-      version: 0.5.11
     security-operator:
       values:
         hostAliases:
@@ -190,6 +178,3 @@ spec:
                   #   name: marketplace
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
-      version: 0.20.56
-    account-operator:
-      version: 0.9.18

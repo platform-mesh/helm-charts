@@ -62,7 +62,7 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Install Cert-Manager ${COL_RES}"
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml
 kubectl wait --namespace cert-manager \
   --for=condition=available deployment \
-  --timeout=120s cert-manager-webhook
+  --timeout=240s cert-manager-webhook
 kubectl wait --namespace cert-manager \
   --for=condition=available deployment \
   --timeout=120s cert-manager
