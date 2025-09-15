@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.74"` |  |
+| componentVersion.semver | string | `"0.0.151"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.component.create | bool | `true` |  |
@@ -16,6 +16,7 @@ A Helm chart for Kubernetes
 | ocm.referencePath | list | `[]` |  |
 | ocm.repo.create | bool | `true` |  |
 | ocm.repo.name | string | `"platform-mesh"` |  |
+| ocm.skipVerify | bool | `true` |  |
 | port | int | `443` |  |
 | protocol | string | `"https"` |  |
 | services.account-operator.dependsOn[0].name | string | `"istio-istiod"` |  |

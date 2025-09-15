@@ -32,6 +32,11 @@ tests:
             namespace: default
         referencePath:
           - name: test
+        ocm:
+          component:
+            name: comp-vw
+          repo:
+            name: repo-vw
   asserts:
     - equal:
         path: spec.resource.byReference.referencePath[0].name
@@ -39,6 +44,12 @@ tests:
     - lengthEqual:
         path: spec.resource.byReference.referencePath
         count: 1
+    - equal:
+        path: spec.componentRef.name
+        value: comp-vw
+    - equal:
+        path: spec.ocmConfig[0].name
+        value: repo-vw
 
 
 - it: default referencePath
@@ -72,3 +83,9 @@ tests:
     - lengthEqual:
         path: spec.resource.byReference.referencePath
         count: 2
+    - equal:
+        path: spec.componentRef.name
+        value: platform-mesh
+    - equal:
+        path: spec.ocmConfig[0].name
+        value: platform-mesh

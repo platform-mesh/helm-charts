@@ -4,6 +4,7 @@ protocol: https
 port: 443
 ociPullSecret: ocm-oci-github-pull
 ocm:
+  skipVerify: true
   interval: 3m
   referencePath: []
   component:
@@ -13,7 +14,7 @@ ocm:
     create: true
     name: platform-mesh
 componentVersion:
-  semver: 0.0.74
+  semver: 0.0.151
 iamWebhookCA: null
 services:
   istio-base:
