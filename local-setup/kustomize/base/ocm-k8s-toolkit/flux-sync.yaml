@@ -28,7 +28,26 @@ spec:
           path: /spec/template/spec/containers/0/args
           value:
             - --health-probe-bind-address=:8081
-            - --resource-controller-concurrency=20
+            - --resource-controller-concurrency=21
+            - --zap-log-level=4
+        - op: add
+          path: /spec/template/spec/volumes/-
+          value:
+            name: custom-ca
+            configMap:
+              name: ocm-custom-ca
+        - op: add
+          path: /spec/template/spec/containers/0/volumeMounts/-
+          value:
+            name: custom-ca
+            mountPath: /etc/ocm/ca
+            readOnly: true
+        - op: add
+          path: /spec/template/spec/containers/0/env
+          value:
+            - name: SSL_CERT_FILE
+              value: /etc/ocm/ca/registry-ca.pem
+
       target:
         kind: Deployment
         name: controller-manager

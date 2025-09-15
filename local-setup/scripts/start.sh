@@ -40,7 +40,7 @@ if ! check_kind_cluster; then
 fi
 
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local"
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 
@@ -85,6 +85,11 @@ kubectl -n observability create secret generic slack-webhook-secret --from-liter
 kubectl create secret docker-registry github -n platform-mesh-system --docker-server=ghcr.io --docker-username=$ghUser --docker-password=$ghToken --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl create secret generic domain-certificate -n istio-system \
+  --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
+  --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
+  --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
+  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
+kubectl create secret generic domain-certificate -n default \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
   --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
   --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \

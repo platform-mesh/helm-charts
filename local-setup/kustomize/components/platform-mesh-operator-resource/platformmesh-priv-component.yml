@@ -1,0 +1,23 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Component
+metadata:
+  name: platform-mesh-priv
+  namespace: default
+spec:
+  component: github.com/platform-mesh/platform-mesh-priv
+  downgradePolicy: Deny
+  interval: 1m0s
+  ocmConfig:
+  - apiVersion: delivery.ocm.software/v1alpha1
+    kind: Repository
+    name: platform-mesh-priv
+    namespace: default
+    policy: Propagate
+  repositoryRef:
+    name: platform-mesh-priv
+  semver: 1.0.1
+  # verify:
+  # # - name: oci-registry-docker-registry.registry.svc.cluster.local
+  #   - publicKey: b2NpLXJlZ2lzdHJ5LWRvY2tlci1yZWdpc3RyeS5yZWdpc3RyeS5zdmMuY2x1c3Rlci5sb2NhbA==
+  #     secretRef:
+  #       name: signing-keys

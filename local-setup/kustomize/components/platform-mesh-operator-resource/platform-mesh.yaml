@@ -5,16 +5,16 @@ metadata:
   namespace: platform-mesh-system
 spec:
   ocm:
-    repo: 
+    repo:
       name: platform-mesh
     component:
       name: platform-mesh
-    # referencePath:
-    #   - 
+      # referencePath:
+      #   - 
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.14.1
+  chartVersion: 0.14.6
   values:
     istio-gateway:
       enabled: true
@@ -76,7 +76,27 @@ spec:
             hosts:
               - "portal.dev.local"
     iam-service:
-      enabled: false
+      enabled: true
+      ocm:
+        repo:
+          name: platform-mesh-priv
+        component:
+          name: platform-mesh-priv
+      referencePath:
+        # - name: platform-mesh-priv
+        - name: iam-service
+      values:
+        image:
+          name: ghcr.io/platform-mesh/iam-service
+          tag: v0.2.4-pr
+        health:
+          # readiness:
+          #   path: /app-health/iam-service/readyz
+          # startup:
+          #   path: /app-health/iam-service/startupz
+          liveliness:
+            path: /app-health/iam-service/livez
+      version: 0.5.11
     security-operator:
       values:
         hostAliases:
@@ -170,3 +190,6 @@ spec:
                   #   name: marketplace
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
+      version: 0.20.56
+    account-operator:
+      version: 0.9.18
