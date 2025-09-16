@@ -76,7 +76,14 @@ spec:
             hosts:
               - "portal.dev.local"
     iam-service:
-      enabled: false
+      enabled: true
+      ocm:
+        repo:
+          name: platform-mesh-priv
+        component:
+          name: platform-mesh-priv
+      referencePath:
+        - name: iam-service
     security-operator:
       values:
         hostAliases:
@@ -158,6 +165,14 @@ spec:
           resourceSchemaWorkspace: "root:platform-mesh-system"
     kubernetes-graphql-gateway:
       enabled: true
+      ocm:
+        repo:
+          name: platform-mesh-priv
+        component:
+          name: platform-mesh-priv
+      referencePath:
+        # - name: platform-mesh-priv
+        - name: kubernetes-graphql-gateway
       values:
         listener:
           virtualWorkspacesConfig:

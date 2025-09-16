@@ -13,7 +13,7 @@ components:
           imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
       - name: image
         type: ociImage
-        # relation: external
+        relation: external
         version: {{ .APP_VERSION }}
         access:
           type: ociArtifact

@@ -3,3 +3,7 @@ kind: Kustomization
 
 resources:
   - ocm-k8s-toolkit-patch.yaml
+  - platformmesh-priv-repository.yml
+  - platformmesh-priv-component.yml
+  - platform-mesh-resource-patch.yaml
+

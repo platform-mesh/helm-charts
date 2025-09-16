@@ -16,8 +16,3 @@ spec:
   repositoryRef:
     name: platform-mesh-priv
   semver: 1.0.1
-  # verify:
-  # # - name: oci-registry-docker-registry.registry.svc.cluster.local
-  #   - publicKey: b2NpLXJlZ2lzdHJ5LWRvY2tlci1yZWdpc3RyeS5yZWdpc3RyeS5zdmMuY2x1c3Rlci5sb2NhbA==
-  #     secretRef:
-  #       name: signing-keys
