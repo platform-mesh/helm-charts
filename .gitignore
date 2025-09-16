@@ -17,3 +17,4 @@ ocm/.ocm/transport.ctf/
 *.tgz
 registry-ca.pem
 .ocm/.ocmconfig
+local-setup/rootCA.pem

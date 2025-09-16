@@ -16,7 +16,6 @@ vars:
   COMPONENT_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - iam-service: ../helm-charts-priv/charts/iam-service
-    - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 0.64.11
 
@@ -258,14 +257,11 @@ tasks:
         COMPONENT_VERSION_NAMESPACE="{{.COMPONENT_VERSION_NAMESPACE}}"
         PATCH_REPO_URL="{{.PATCH_REPO_URL}}"
         INCLUSTER_PATCH_REPO_URL="{{.INCLUSTER_PATCH_REPO_URL}}"
-        echo "Deriving PATCH_SEMVER from latest ComponentVersion resources tree..."
-        PATCH_SEMVER=$(./bin/ocm get componentversions github.com/platform-mesh/$COMPONENT_VERSION_NAME --latest --repo ${PATCH_REPO_URL} -o json | jq -r '.items[0].component.version')
-        : "${PATCH_SEMVER:?PATCH_SEMVER required}"
-        echo "Version: ${PATCH_SEMVER}"
+        echo "Version: {{ .COMPONENT_VERSION }}"
         echo "Patching ComponentVersion $COMPONENT_VERSION_NAME in namespace $COMPONENT_VERSION_NAMESPACE"
         echo "  -> repository.url = ${INCLUSTER_PATCH_REPO_URL}"
-        echo "  -> version.semver  = ${PATCH_SEMVER}"
-        kubectl -n "$COMPONENT_VERSION_NAMESPACE" patch component.delivery.ocm.software "$COMPONENT_VERSION_NAME" --type=merge -p "{\"spec\":{\"semver\":\"${PATCH_SEMVER}\"}}"
+        echo "  -> version.semver  = {{ .COMPONENT_VERSION }}"
+        kubectl -n "$COMPONENT_VERSION_NAMESPACE" patch component.delivery.ocm.software "$COMPONENT_VERSION_NAME" --type=merge -p "{\"spec\":{\"semver\":\"{{ .COMPONENT_VERSION }}\"}}"
 
 
         # patch repository
@@ -366,10 +362,10 @@ tasks:
         echo "Completed building custom local charts."
       - task: ocm:transfer:dir-to-local-oci
 
-  apply-ocm-patch:
+  ocm:configure:tls:
     desc: Apply ocm-k8s-toolkit patch to support oci registry with self-signed certs
     cmds:
-      - local-setup/scripts/ocmPrerelease.sh
+      - local-setup/scripts/configureOcmTls.sh
 
   ocm:build:platform-mesh:
     deps: 
@@ -433,12 +429,7 @@ tasks:
         get_component_version virtual-workspaces github.com/bitnami/keycloak ../helm-charts/keycloak/ KEYCLOAK_VERSION
         # Add more mappings as needed
 
-        echo "--- getting component versions ---"
-        PLATFORMMESH_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo https://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh -o json | jq -r '.items[0].component.version')
-        PLATFORMMESH_VERSION=${PLATFORMMESH_VERSION:-'{{ .COMPONENT_VERSION }}'}
-        IFS='.' read -r major minor patch <<< "$PLATFORMMESH_VERSION"
-        patch=$((patch + 1))
-        export COMPONENT_VERSION="$major.$minor.$patch"
+        PLATFORMMESH_VERSION={{ .COMPONENT_VERSION }}
 
         ocm_ctf=.ocm/transport.ctf
         mkdir -p "$(dirname "$ocm_ctf")"
@@ -446,7 +437,7 @@ tasks:
         env | grep _VERSION | sort
 
         kubectl exec -ti ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-platform-mesh.yaml -- \
-        VERSION=$COMPONENT_VERSION \
+        VERSION=$PLATFORMMESH_VERSION \
         ISTIO_VERSION=1.25.0 \
         CROSSPLANE_VERSION=1.9.2 \
         ACCOUNT_OPERATOR_VERSION=$ACCOUNT_OPERATOR_VERSION \
@@ -477,6 +468,11 @@ tasks:
       - task: ocm:build:custom-local-charts
     cmds:
       - kubectl cp .ocm/component-constructor-platform-mesh-priv.yaml -n default ocm-transfer-pod:.ocm/component-constructor-platform-mesh-priv.yaml
+      - |
+        echo {{ .COMPONENT_VERSION }}
+
+        yq -i '.spec.semver = "{{ .COMPONENT_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/platformmesh-priv-component.yml
+        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease && sleep 5
       - |
         # set -x
         # Build comma-separated list of local component names from CUSTOM_LOCAL_COMPONENTS_CHART_PATHS
@@ -528,11 +524,7 @@ tasks:
         # Add more mappings as needed
 
         echo "--- getting component versions ---"
-        PLATFORMMESH_PRIVATE_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/platform-mesh-priv --repo oci://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh -o json | jq -r '.items[0].component.version')
-        PLATFORMMESH_PRIVATE_VERSION=${PLATFORMMESH_PRIVATE_VERSION:-'{{ .COMPONENT_VERSION }}'}
-        IFS='.' read -r major minor patch <<< "$PLATFORMMESH_PRIVATE_VERSION"
-        patch=$((patch + 1))
-        export COMPONENT_VERSION="$major.$minor.$patch"
+        PLATFORMMESH_PRIVATE_VERSION={{ .COMPONENT_VERSION }}
 
         ocm_ctf=.ocm/transport.ctf
         mkdir -p "$(dirname "$ocm_ctf")"
@@ -541,7 +533,7 @@ tasks:
 
         set -x
         kubectl exec -it ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-platform-mesh-priv.yaml -- \
-        VERSION=$COMPONENT_VERSION \
+        VERSION=$PLATFORMMESH_PRIVATE_VERSION \
         IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION \
         IAM_UI_VERSION=$IAM_UI_VERSION \
         MARKETPLACE_UI_VERSION=$MARKETPLACE_UI_VERSION
@@ -549,43 +541,27 @@ tasks:
         echo
         echo "Built private component version $COMPONENT_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
 
-      - task: ocm:transfer:dir-to-local-oci
       - task: ocm:patch:component
         vars: { COMPONENT_VERSION_NAME: 'platform-mesh-priv', COMPONENT_VERSION_NAMESPACE: 'default' }
+      - task: ocm:configure:tls
+      - task: ocm:transfer:dir-to-local-oci
 
-  ocm:build:showroom:
+  ocm:deploy:transfer-pod:
     cmds:
-      - kubectl cp .ocm/component-constructor-showroom.yaml -n default ocm-transfer-pod:.ocm/component-constructor-showroom.yaml
       - |
-         echo "ocm:build:showroom:"
-         set -ex
-         export PLATFORM_MESH_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
-         export APEIRO_PORTAL_VERSION=$(./bin/ocm get componentversions --latest github.tools.sap/apeirora/apeiro-portal --repo apeiro-showroom.common.repositories.cloud.sap -o json | jq -r '.items[0].component.version')
-         export IAM_SERVICE_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/iam-service --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
-         export IAM_UI_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
-         export MARKETPLACE_UI_VERSION=$(./bin/ocm get componentversions --latest github.com/platform-mesh/marketplace-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
-         SR_VERSION=$(./bin/ocm get componentversions --latest github.tools.sap/apeiro/showroom --repo apeiro-showroom.common.repositories.cloud.sap -o json | jq -r '.items[0].component.version')
-         SR_VERSION=${SR_VERSION:-0.0.0}
-         IFS='.' read -r major minor patch <<< "$SR_VERSION"
-         patch=$((patch + 1))
-         export VERSION="$major.$minor.$patch"
+        set -e
+        echo "Transferring OCM transport archive to local registry from a pod..."
+        kubectl run ocm-transfer-pod --image=ghcr.io/akafazov/devbox:latest -- sleep infinity || true
+        kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
 
-         ocm_ctf=ocm/.ocm/transport.ctf
-         mkdir -p "$(dirname "$ocm_ctf")"
-         kubectl exec -ti ocm-transfer-pod -- ocm add components -c --templater=go --file "$ocm_ctf" .ocm/component-constructor-showroom.yaml -- \
-            VERSION=$VERSION \
-            APEIRO_PORTAL_VERSION=$APEIRO_PORTAL_VERSION \
-            PLATFORM_MESH_VERSION=$PLATFORM_MESH_VERSION \
-            IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION \
-            IAM_UI_VERSION=$IAM_UI_VERSION \
-            MARKETPLACE_UI_VERSION=$MARKETPLACE_UI_VERSION
-         
-         kubectl exec -ti ocm-transfer-pod -- ocm transfer ctf --overwrite $ocm_ctf "oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh" 1>/dev/null
+        kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm/transport.ctf
 
-  ocm:transfer:dir-to-local-oci:
-    deps:
-      - task: ocm:registry:port-forward
-    cmds:
+        # configure RootCA truststore on the pod
+        kubectl exec -ti ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
+        kubectl cp registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
+        kubectl exec -ti ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
+        kubectl exec -ti ocm-transfer-pod -- sudo update-ca-certificates
+
       - |
         cat <<EOF > .ocm/.ocmconfig
         type: generic.config.ocm.software/v1
@@ -605,18 +581,10 @@ tasks:
         EOF
         kubectl cp .ocm/.ocmconfig -n default ocm-transfer-pod:.
               
+
+  ocm:transfer:dir-to-local-oci:
+    deps:
+      - task: ocm:registry:port-forward
+    cmds:
       - |
-        set -e
-        echo "Transferring OCM transport archive to local registry from a pod..."
-        kubectl run ocm-transfer-pod --image=ghcr.io/akafazov/devbox:latest -- sleep infinity || true
-        kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
-
-        kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm/transport.ctf
-
-        # configure RootCA truststore on the pod
-        kubectl exec -ti ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
-        kubectl cp registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
-        kubectl exec -ti ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
-        kubectl exec -ti ocm-transfer-pod -- sudo update-ca-certificates
-
         kubectl exec -it ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
