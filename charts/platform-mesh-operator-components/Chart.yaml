@@ -2,5 +2,5 @@ apiVersion: v2
 name: platform-mesh-operator-components
 description: A Helm chart for Kubernetes
 type: application
-version: 0.14.100
+version: 0.14.101
 appVersion: "1.0.0"
