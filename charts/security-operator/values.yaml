@@ -57,6 +57,7 @@ coreModule: |-
 
       define get: member or get from parent
       define update: member or update from parent
+      define patch: member or patch from parent
       define delete: owner or delete from parent
 
       define create_core_platform-mesh_io_accounts: member
@@ -93,6 +94,7 @@ coreModule: |-
 
       define get: get from parent
       define update: update from parent
+      define patch: patch from parent
       define delete: delete from parent
 
       # org and account specific
@@ -109,6 +111,7 @@ coreModule: |-
 
       define get: get from parent
       define update: update from parent
+      define patch: patch from parent
       define delete: delete from parent
 
       # org and account specific
@@ -124,5 +127,6 @@ coreModule: |-
 
         define get: member from parent
         define update: member from parent
+        define patch: member from parent
         define delete: owner from parent
         define watch: member from parent
