@@ -7,7 +7,7 @@ crossplane:
     # -- name of the client
     name: keycloak-provider-config
     # -- client namespace
-    namespace: openmfp-system
+    namespace: platform-mesh-system
 
   # -- crossplane realm config
   realm:
@@ -45,6 +45,6 @@ keycloakConfig:
       # -- secret name
       name: portal-client-secret-organization-idp
       # -- secret namespace
-      namespace: openmfp-system
+      namespace: platform-mesh-system
     # -- token lifespan
     tokenLifespan: 3600
