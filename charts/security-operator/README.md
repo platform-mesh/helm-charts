@@ -19,6 +19,7 @@ A Helm chart for security-operator
 | hostAliases.items[0].hostnames[0] | string | `"kcp.dev.local"` |  |
 | hostAliases.items[0].ip | string | `"10.96.0.100"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/security-operator"` |  |
+| initializer.baseDomain | string | `""` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |
