@@ -72,9 +72,11 @@ task e2e-test
 To test local charts, run the local-setup script and make modifications to the chars while bumping the version in Chart.yaml. The follow the steps:
 
 Steps:
-- edit Taskfile.yaml and configure `COMPONENT_VERSION`, `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS` and `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS` parameters as needed
+- edit Taskfile.yaml and configure `COMPONENT_VERSION`, `COMPONENT_PRIV_VERSION`, `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS` and `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS` parameters as needed
 - enable the changed components in local-setup/kustomize/overlays/ocm-prerelease/platform-mesh-resource-patch.yaml
-- run `task ocm:deploy-oci-registry`
-- run `task ocm:deploy:transfer-pod`
-- run `task ocm:build:platform-mesh-priv` or `task ocm:build:platform-mesh` depending upon if the changed charts are part of the private or public components
+- run `task ocm:deploy`
+- run `task ocm:build:component`
 - repeat last step when doing changes to the charts
+
+Cleanup:
+- run `task ocm:cleanup`

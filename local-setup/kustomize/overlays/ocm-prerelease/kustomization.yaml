@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
   - ocm-k8s-toolkit-patch.yaml
-  - platformmesh-priv-repository.yml
-  - platformmesh-priv-component.yml
+  - prerelease-repository.yml
+  - prerelease-component.yml
   - platform-mesh-resource-patch.yaml
-
+  - vs-registry.yaml

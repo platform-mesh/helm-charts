@@ -24,7 +24,17 @@ spec:
           type: None
     keycloak:
       enabled: true
+      ocm:
+        repo:
+          name: prerelease
+        component:
+          name: prerelease
       values:
+        global:
+          imagePullSecrets:
+            - name: github
+          security:
+            allowInsecureImages: true
         service:
           clusterIP: 10.96.0.110
     crossplane:
@@ -34,6 +44,29 @@ spec:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2
     infra:
       values:
+        istio:
+          main:
+            gateway:
+              hosts:
+              - portal.dev.local
+              - '*.portal.dev.local'
+              name: https
+              port: "8443"
+              protocol: HTTPS
+              tls:
+                credentialName: domain-certificate
+                minProtocolVersion: TLSV1_2
+                mode: SIMPLE
+          passThrough:
+            gateway:
+              enabled: true
+              hosts:
+              - kcp.api.portal.dev.local
+              - registry.portal.dev.local
+              name: pass-https
+              port: "8443"
+              protocol: HTTPS
+
         hostAliases:
           enabled: true
         kcp:
@@ -79,9 +112,9 @@ spec:
       enabled: true
       ocm:
         repo:
-          name: platform-mesh-priv
+          name: prerelease
         component:
-          name: platform-mesh-priv
+          name: prerelease
       referencePath:
         - name: iam-service
     security-operator:
@@ -164,14 +197,13 @@ spec:
           resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
           resourceSchemaWorkspace: "root:platform-mesh-system"
     kubernetes-graphql-gateway:
-      enabled: true
+      enabled: false
       ocm:
         repo:
-          name: platform-mesh-priv
+          name: prerelease
         component:
-          name: platform-mesh-priv
+          name: prerelease
       referencePath:
-        # - name: platform-mesh-priv
         - name: kubernetes-graphql-gateway
       values:
         listener:
@@ -185,3 +217,25 @@ spec:
                   #   name: marketplace
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
+    istio:
+      main:
+        gateway:
+          hosts:
+          - portal.dev.local
+          - '*.portal.dev.local'
+          name: https
+          port: "8443"
+          protocol: HTTPS
+          tls:
+            credentialName: domain-certificate
+            minProtocolVersion: TLSV1_2
+            mode: SIMPLE
+      passThrough:
+        gateway:
+          enabled: true
+          hosts:
+          - kcp.api.portal.dev.local
+          - registry.portal.dev.local
+          name: pass-https
+          port: "8443"
+          protocol: HTTPS

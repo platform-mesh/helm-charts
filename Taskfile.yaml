@@ -13,11 +13,11 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION: 0.29.0
-  COMPONENT_VERSION: "1.0.0"
+  COMPONENT_PRERELEASE_VERSION: "1.0.2"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - iam-service: ../helm-charts-priv/charts/iam-service
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
-    # - keycloak: 0.64.11
+    # - keycloak: 24.8.1
 
 tasks:
   ## Setup
@@ -129,13 +129,15 @@ tasks:
         echo "Bumping component version to $COMPONENT_VERSION"
         yq -i '.componentVersion.semver = "'$COMPONENT_VERSION'"' charts/platform-mesh-operator-components/values.yaml
 
-  ocm:deploy-oci-registry:
+  ocm:deploy:ociregistry:
+    internal: true
     cmds:
       - |
+        # docs: https://github.com/twuni/docker-registry.helm
         helm repo add twuni https://helm.twun.io
         helm repo update
         kubectl create ns registry || true
-        helm upgrade --install oci-registry twuni/docker-registry -n registry --set service.port=443 --set tlsSecretName=domain-certificate
+        helm upgrade --install oci-registry twuni/docker-registry -n registry --set service.port=443 --set tlsSecretName=domain-certificate --set image.repository=ghcr.io/distribution/distribution --set image.tag=3.0.0 --set ingress.enabled=false
 
         kubectl create secret generic domain-certificate -n registry \
           --from-file=tls.crt=./local-setup/scripts/certs/cert.crt \
@@ -148,84 +150,11 @@ tasks:
           --timeout=120s oci-registry-docker-registry
 
       - task: ocm:prime:tls
-      - task: ocm:registry:port-forward
 
   ocm:check:dns:
     cmds:
       - |
-        grep -q "oci-registry-docker-registry.registry.svc.cluster.local" /etc/hosts || echo "127.0.0.1 oci-registry-docker-registry.registry.svc.cluster.local" | sudo tee -a /etc/hosts
-
-  ocm:registry:port-forward:
-    desc: Start (or reuse) local 9443 -> registry svc port-forward
-    deps:
-      - task: ocm:check:dns
-    cmds:
-      - |
-        set -e
-        NS=registry
-        CTX=kind-platform-mesh
-        SVC=oci-registry-docker-registry
-        LPORT=9443
-        RPORT=443
-        PIDFILE="{{.TASKFILE_DIR}}/ocm-reg-pf.pid"
-        LOG="{{.TASKFILE_DIR}}/ocm-reg-pf.log"
-
-        if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-          echo "Port-forward already running (pid $(cat "$PIDFILE"))"
-          exit 0
-        fi
-
-        # If something already listens, optionally treat as success or at least capture PID.
-        if lsof -i :"$LPORT" -sTCP:LISTEN >/dev/null 2>&1; then
-          echo "Port $LPORT already in use; reusing existing listener."
-          PF_PID=$(lsof -i :"$LPORT" -sTCP:LISTEN -t 2>/dev/null | head -n1 || true)
-          if [ -n "$PF_PID" ]; then echo "$PF_PID" > "$PIDFILE"; fi
-          exit 0
-        fi
-
-        echo "Starting port-forward $LPORT -> $SVC:$RPORT"
-        # Detach into a new session so Task doesn't kill it when the dependency ends.
-        nohup setsid kubectl --context "$CTX" -n "$NS" port-forward svc/"$SVC" "$LPORT:$RPORT" >"$LOG" 2>&1 &
-
-        PF_PID=""
-        for i in $(seq 1 40); do
-          sleep 0.25
-          if [ -z "$PF_PID" ]; then
-            PF_PID=$(lsof -i :"$LPORT" -sTCP:LISTEN -t 2>/dev/null | head -n1 || true)
-            if [ -n "$PF_PID" ]; then
-              echo "$PF_PID" > "$PIDFILE"
-              echo "Started kubectl (pid $PF_PID)"
-            fi
-          fi
-          if lsof -i :"$LPORT" -sTCP:LISTEN >/dev/null 2>&1; then
-            echo "Port-forward established (pid ${PF_PID:-unknown})"
-            exit 0
-          fi
-          if [ -n "$PF_PID" ] && ! kill -0 "$PF_PID" 2>/dev/null; then
-            echo "kubectl exited early; log tail:"
-            sed -e 's/^/  /' "$LOG" | tail -n 40
-            rm -f "$PIDFILE"
-            exit 1
-          fi
-        done
-
-        echo "Timed out waiting for port-forward; last log lines:"
-        tail -n 40 "$LOG"
-        exit 1
-
-  ocm:registry:port-forward:stop:
-    desc: Stop the registry port-forward
-    cmds:
-      - |
-        PIDFILE=./ocm-reg-pf.pid
-        if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-          kill "$(cat "$PIDFILE")" && echo "Stopped port-forward (pid $(cat $PIDFILE))"
-        else
-          echo "No running port-forward."
-        fi
-        rm -f "$PIDFILE"
-
-
+        grep -q "registry.portal.dev.local" /etc/hosts || echo "127.0.0.1 registry.portal.dev.local" | sudo -n tee -a /etc/hosts
 
   ocm:prime:tls:
     cmds:
@@ -246,36 +175,27 @@ tasks:
 
   ocm:patch:component:
     desc: "Patch Component spec.repository.url and spec.version.semver (override with PATCH_REPO_URL / PATCH_SEMVER)"
-    vars:
-      COMPONENT_VERSION_NAME: '{{ .COMPONENT_VERSION_NAME | default "platform-mesh" }}'
-      COMPONENT_VERSION_NAMESPACE: '{{ .COMPONENT_VERSION_NAMESPACE | default "default" }}'
-      PATCH_REPO_URL: '{{ .PATCH_REPO_URL | default "oci://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh" }}'
-      INCLUSTER_PATCH_REPO_URL: '{{ .INCLUSTER_PATCH_REPO_URL | default "oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh" }}'
     cmds:
       - |
-        COMPONENT_VERSION_NAME="{{.COMPONENT_VERSION_NAME}}"
-        COMPONENT_VERSION_NAMESPACE="{{.COMPONENT_VERSION_NAMESPACE}}"
-        PATCH_REPO_URL="{{.PATCH_REPO_URL}}"
-        INCLUSTER_PATCH_REPO_URL="{{.INCLUSTER_PATCH_REPO_URL}}"
-        echo "Version: {{ .COMPONENT_VERSION }}"
+        COMPONENT_VERSION_NAME="prerelease"
+        COMPONENT_VERSION_NAMESPACE="default"
+        PATCH_REPO_URL="oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh"
+        INCLUSTER_PATCH_REPO_URL="oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh"
+
         echo "Patching ComponentVersion $COMPONENT_VERSION_NAME in namespace $COMPONENT_VERSION_NAMESPACE"
         echo "  -> repository.url = ${INCLUSTER_PATCH_REPO_URL}"
-        echo "  -> version.semver  = {{ .COMPONENT_VERSION }}"
-        kubectl -n "$COMPONENT_VERSION_NAMESPACE" patch component.delivery.ocm.software "$COMPONENT_VERSION_NAME" --type=merge -p "{\"spec\":{\"semver\":\"{{ .COMPONENT_VERSION }}\"}}"
-
+        echo "  -> version.semver  = {{ .COMPONENT_PRERELEASE_VERSION }}"
+        kubectl -n "$COMPONENT_VERSION_NAMESPACE" patch component.delivery.ocm.software "$COMPONENT_VERSION_NAME" --type=merge -p "{\"spec\":{\"semver\":\"{{ .COMPONENT_PRERELEASE_VERSION }}\"}}"
 
         # patch repository
         kubectl  patch repository.delivery.ocm.software "$COMPONENT_VERSION_NAME" --type=merge -p "{\"spec\":{\"repositorySpec\":{\"baseUrl\":\"${INCLUSTER_PATCH_REPO_URL}\"}}}"
-
-
         echo "Patch applied."
-  
+
   ocm:build:custom-local-charts:
     deps:
       - task: setup:ocm
-      - task: ocm:registry:port-forward
     cmds:
-      - kubectl cp .ocm/component-constructor-prerelease.yaml -n default ocm-transfer-pod:.ocm/component-constructor-prerelease.yaml
+      - kubectl cp .ocm/component-constructor.yaml -n default ocm-transfer-pod:.ocm/component-constructor.yaml
       - |
         set -e
         echo "Building custom local charts from {{ .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}"
@@ -288,36 +208,33 @@ tasks:
           echo "Processing $CHART_DIR"
           comp="$(echo "$comp" | xargs)"
           
-          # Try to get the value of $comp from .ocm/component-constructor-platform-mesh.yaml componentReferences
-          COMPONENT_NAME=$(yq -r ".components[] | select(.name == \"github.com/platform-mesh/platform-mesh\") | .componentReferences[] | select(.name == \"$comp\") | .componentName" .ocm/component-constructor-platform-mesh.yaml 2>/dev/null || true)
-          if [ -z "$COMPONENT_NAME" ]; then
-            COMPONENT_NAME=$(yq -r ".components[] | select(.name == \"github.com/platform-mesh/platform-mesh-priv\") | .componentReferences[] | select(.name == \"$comp\") | .componentName" .ocm/component-constructor-platform-mesh-priv.yaml 2>/dev/null || true)
-          fi
-
-          comp=$COMPONENT_NAME
-          echo ".ocm/component-constructor-platform-mesh.yaml name for $COMPONENT_NAME"
+          # Try to get the value of $comp from .ocm/component-constructor-prerelease.yaml componentReferences
+          COMPONENT_NAME=$(yq -r ".components[] | select(.name == \"github.com/platform-mesh/prerelease\") | .componentReferences[] | select(.name == \"$comp\") | .componentName" .ocm/component-constructor-prerelease.yaml 2>/dev/null || true)
+          echo "COMPONENT_NAME from component-constructor-prerelease.yaml: '$COMPONENT_NAME'"
 
           CHART_DIR="$(echo "$CHART_DIR" | xargs)"
-          [ -z "$comp" ] && continue
+          [ -z "$COMPONENT_NAME" ] && continue
 
-          echo "Component: $comp (chart dir: $CHART_DIR)"
+          echo "Component: $COMPONENT_NAME (chart dir: $CHART_DIR)"
 
           CHART_VERSION=$(grep '^version:' "$CHART_DIR/Chart.yaml" | sed 's/^version: //')
-            : "${CHART_VERSION:?Failed to read version for $comp}"
+            : "${CHART_VERSION:?Failed to read version for $COMPONENT_NAME}"
           APP_VERSION=$(yq -r '.appVersion // ""' "$CHART_DIR/Chart.yaml" 2>/dev/null || true)
 
           out="$(helm package "$CHART_DIR")"
           TARBALL="$(echo "$out" | awk -F': ' '/saved it to:/ {print $2}')"
           if [ ! -f "$TARBALL" ]; then
-            echo "Failed to package $comp"
+            echo "Failed to package $COMPONENT_NAME"
             exit 1
           fi
 
-          helm push "$TARBALL" oci://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh
+          echo "Pushing $TARBALL to local oci registry..."
+          kubectl cp $TARBALL -n default ocm-transfer-pod:.
+          kubectl exec -ti ocm-transfer-pod -- helm push $(basename $TARBALL) oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
           echo "Pushed $TARBALL to local oci registry"
 
           IMAGE_NAME=$(yq '.image["name"] // ""' "$CHART_DIR/values.yaml")
-          COMPONENT_NAME="$comp"
+          COMPONENT_NAME="$COMPONENT_NAME"
           CHART_REPO="$COMPONENT_NAME"
           CLEAN_CHART_REPO="${CHART_REPO#./}"
           LOCAL_CHART_PATH="$CLEAN_CHART_REPO"
@@ -344,7 +261,7 @@ tasks:
           CHART_REAL_NAME=$(grep '^name:' "$CHART_DIR/Chart.yaml" | awk '{print $2}')
           CHART_LOCATION="oci://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh/${CHART_REAL_NAME}:$CHART_VERSION"
           
-          kubectl exec -ti ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-prerelease.yaml -- \
+          kubectl exec -ti ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor.yaml -- \
           VERSION=$VERSION \
           APP_VERSION=$APP_VERSION \
           IMAGE_NAME=$IMAGE_NAME \
@@ -355,7 +272,7 @@ tasks:
           CHART_OCI_PATH=$CHART_OCI_PATH \
           LOCAL_CHART_PATH=$LOCAL_CHART_PATH
 
-          echo "Done: $comp"
+          echo "Done: $COMPONENT_NAME"
           echo
         done
 
@@ -363,115 +280,20 @@ tasks:
       - task: ocm:transfer:dir-to-local-oci
 
   ocm:configure:tls:
+    internal: true
     desc: Apply ocm-k8s-toolkit patch to support oci registry with self-signed certs
     cmds:
       - local-setup/scripts/configureOcmTls.sh
 
-  ocm:build:platform-mesh:
+  ocm:build:component:
     deps: 
       - task: ocm:build:custom-local-charts
     cmds:
-      - kubectl cp .ocm/component-constructor-platform-mesh.yaml -n default ocm-transfer-pod:.ocm/component-constructor-platform-mesh.yaml
+      - kubectl cp .ocm/component-constructor-prerelease.yaml -n default ocm-transfer-pod:.ocm/component-constructor-prerelease.yaml
       - |
-        # Build comma-separated list of local component names from CUSTOM_LOCAL_COMPONENTS_CHART_PATHS
-        CUSTOM_LOCAL_COMPONENTS="$(printf '%s' "{{ range .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}{{ range $k,$v := . }}{{$k}},{{ end }}{{ end }}" | sed 's/,$//')"
+        echo {{ .COMPONENT_PRERELEASE_VERSION }}
 
-        # Build space-separated key:version pairs from COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS
-        FIXED_VERSION_PAIRS="{{ range .COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS }}{{ range $k,$v := . }}{{$k}}:{{$v}} {{ end }}{{ end }}"
-
-        is_local() {
-          echo ",$CUSTOM_LOCAL_COMPONENTS," | grep -q ",$1,"
-        }
-
-        get_component_version() {
-          short="$1"
-          component="$2"
-          chart="$3"
-          env_var="$4"
-
-          # 1. Fixed override?
-          for pair in $FIXED_VERSION_PAIRS; do
-            name="${pair%%:*}"
-            ver="${pair#*:}"
-            if [ "$short" = "$name" ] && [ -n "$ver" ] && [ "$ver" != "$name" ]; then
-              echo "Using FIXED override version for $short -> $ver"
-              export "$env_var"="$ver"
-              kubectl exec -ti ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
-
-              return 0
-            fi
-          done
-
-          # 2. Local chart?
-          if is_local "$short" && [ -n "$chart" ] && [ -f "$chart/Chart.yaml" ]; then
-            val=$(grep '^version:' "$chart/Chart.yaml" | sed 's/^version: //')
-            echo "Using LOCAL chart version for $short -> $val"
-          else
-            # 3. Remote latest
-            val=$(./bin/ocm get componentversions --latest "$component" --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
-            echo "Using REMOTE component version for $short -> $val"
-            ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$val https://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh
-            ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$val directory::.ocm/transport.ctf
-          fi
-          export "$env_var"="$val"
-        }
-
-        # Retrieve versions (add chart path only for those that can be local)
-        get_component_version account-operator github.com/platform-mesh/account-operator charts/account-operator ACCOUNT_OPERATOR_VERSION
-        get_component_version security-operator github.com/platform-mesh/security-operator charts/security-operator SECURITY_OPERATOR_VERSION
-        get_component_version extension-manager-operator github.com/platform-mesh/extension-manager-operator charts/extension-manager-operator EXTENSION_MANAGER_OPERATOR_VERSION
-        get_component_version infra github.com/platform-mesh/infra charts/infra INFRA_VERSION
-        get_component_version rebac-authz-webhook github.com/platform-mesh/rebac-authz-webhook charts/rebac-authz-webhook REBAC_AUTHZ_WEBHOOK_VERSION
-        get_component_version portal github.com/platform-mesh/portal ../helm-charts/charts/portal/ PORTAL_VERSION
-        get_component_version platform-mesh-operator github.com/platform-mesh/platform-mesh-operator charts/platform-mesh-operator/ PLATFORM_MESH_OPERATOR_VERSION
-        get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
-        get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
-        get_component_version virtual-workspaces github.com/bitnami/keycloak ../helm-charts/keycloak/ KEYCLOAK_VERSION
-        # Add more mappings as needed
-
-        PLATFORMMESH_VERSION={{ .COMPONENT_VERSION }}
-
-        ocm_ctf=.ocm/transport.ctf
-        mkdir -p "$(dirname "$ocm_ctf")"
-
-        env | grep _VERSION | sort
-
-        kubectl exec -ti ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-platform-mesh.yaml -- \
-        VERSION=$PLATFORMMESH_VERSION \
-        ISTIO_VERSION=1.25.0 \
-        CROSSPLANE_VERSION=1.9.2 \
-        ACCOUNT_OPERATOR_VERSION=$ACCOUNT_OPERATOR_VERSION \
-        PLATFORM_MESH_OPERATOR_VERSION=$PLATFORM_MESH_OPERATOR_VERSION \
-        EXTENSION_MANAGER_OPERATOR_VERSION=$EXTENSION_MANAGER_OPERATOR_VERSION \
-        SECURITY_OPERATOR_VERSION=$SECURITY_OPERATOR_VERSION \
-        REBAC_AUTHZ_WEBHOOK_VERSION=$REBAC_AUTHZ_WEBHOOK_VERSION \
-        INFRA_VERSION=$INFRA_VERSION \
-        KUBERNETES_GRAPHQL_GATEWAY_VERSION=$KUBERNETES_GRAPHQL_GATEWAY_VERSION \
-        PORTAL_VERSION=$PORTAL_VERSION \
-        OPENFGA_VERSION=0.2.38 \
-        KCP_OPERATOR_VERSION=0.1.1 \
-        GARDENER_ETCD_DRUID_SOURCE_REF=v0.31.0 \
-        GARDENER_ETCD_DRUID_CHART_VERSION=0.1.0 \
-        KEYCLOAK_VERSION=$KEYCLOAK_VERSION \
-        VIRTUAL_WORKSPACES_VERSION=$VIRTUAL_WORKSPACES_VERSION
-
-        echo
-        echo "Built component version $COMPONENT_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
-
-      - task: ocm:transfer:dir-to-local-oci
-      - task: ocm:patch:component
-        vars: { COMPONENT_VERSION_NAME: 'platform-mesh', COMPONENT_VERSION_NAMESPACE: 'default' }
-
-  ocm:build:platform-mesh-priv:
-    deps: 
-      - task: ocm:registry:port-forward
-      - task: ocm:build:custom-local-charts
-    cmds:
-      - kubectl cp .ocm/component-constructor-platform-mesh-priv.yaml -n default ocm-transfer-pod:.ocm/component-constructor-platform-mesh-priv.yaml
-      - |
-        echo {{ .COMPONENT_VERSION }}
-
-        yq -i '.spec.semver = "{{ .COMPONENT_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/platformmesh-priv-component.yml
+        yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
         kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease && sleep 5
       - |
         # set -x
@@ -488,7 +310,7 @@ tasks:
         get_component_version() {
           short="$1"
           component="$2"
-          chart="$3"
+          chartDir="$3"
           env_var="$4"
 
           # 1. Fixed override?
@@ -498,21 +320,31 @@ tasks:
             if [ "$short" = "$name" ] && [ -n "$ver" ] && [ "$ver" != "$name" ]; then
               echo "Using FIXED override version for $short -> $ver"
               export "$env_var"="$ver"
-              ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh
+              kubectl exec -ti ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
               return 0
             fi
           done
 
-          # 2. Local chart?
-          if is_local "$short" && [ -n "$chart" ] && [ -f "$chart/Chart.yaml" ]; then
-            val=$(grep '^version:' "$chart/Chart.yaml" | sed 's/^version: //')
-            echo "Using LOCAL chart version for $short -> $val"
+          # 2. Local chartDir?
+          if is_local "$short" && [ -n "$chartDir" ] && [ -f "$chartDir/Chart.yaml" ]; then
+            val=$(grep '^version:' "$chartDir/Chart.yaml" | sed 's/^version: //')
+            echo "Using LOCAL chartDir version for $short -> $val"
           else
             # 3. Remote latest
-            val=$(./bin/ocm get componentversions --latest "$component" --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
+            repo="ghcr.io/platform-mesh"
+            val=$(kubectl exec -ti ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
+            if [ -z "$val" ] || [ "$val" = "null" ]; then
+              repo="ghcr.io/platform-mesh/images"
+              echo "Primary repo lookup failed for $component, trying fallback repo $repo"
+              val=$(kubectl exec -ti ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
+            fi
+            if [ -z "$val" ] || [ "$val" = "null" ]; then
+              echo "Failed to resolve remote version for $component" >&2
+              exit 1
+            fi
             echo "Using REMOTE component version for $short -> $val"
-            ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$val oci://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh
-            ./bin/ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$val .ocm/transport.ctf
+            kubectl exec -ti ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update $repo//$component:$val oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+            kubectl exec -ti ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update $repo//$component:$val .ocm/transport.ctf
           fi
           export "$env_var"="$val"
         }
@@ -521,32 +353,52 @@ tasks:
         get_component_version iam-service github.com/platform-mesh/iam-service ../helm-charts-priv/charts/iam-service IAM_SERVICE_VERSION
         get_component_version iam-ui github.com/platform-mesh/iam-ui ../helm-charts-priv/charts/iam-ui IAM_UI_VERSION
         get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui ../helm-charts-priv/charts/marketplace-ui MARKETPLACE_UI_VERSION
+        get_component_version account-operator github.com/platform-mesh/account-operator charts/account-operator ACCOUNT_OPERATOR_VERSION
+        get_component_version security-operator github.com/platform-mesh/security-operator charts/security-operator SECURITY_OPERATOR_VERSION
+        get_component_version extension-manager-operator github.com/platform-mesh/extension-manager-operator charts/extension-manager-operator EXTENSION_MANAGER_OPERATOR_VERSION
+        get_component_version infra github.com/platform-mesh/infra charts/infra INFRA_VERSION
+        get_component_version rebac-authz-webhook github.com/platform-mesh/rebac-authz-webhook charts/rebac-authz-webhook REBAC_AUTHZ_WEBHOOK_VERSION
+        get_component_version portal github.com/platform-mesh/portal ../helm-charts/charts/portal/ PORTAL_VERSION
+        get_component_version platform-mesh-operator github.com/platform-mesh/platform-mesh-operator charts/platform-mesh-operator/ PLATFORM_MESH_OPERATOR_VERSION
+        get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
+        get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
+        get_component_version keycloak github.com/platform-mesh/keycloak ../helm-charts/keycloak/ KEYCLOAK_VERSION
         # Add more mappings as needed
 
-        echo "--- getting component versions ---"
-        PLATFORMMESH_PRIVATE_VERSION={{ .COMPONENT_VERSION }}
-
-        ocm_ctf=.ocm/transport.ctf
-        mkdir -p "$(dirname "$ocm_ctf")"
-
-        env | grep _VERSION | sort
+        echo "--- finished getting component versions ---"
 
         set -x
-        kubectl exec -it ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-platform-mesh-priv.yaml -- \
-        VERSION=$PLATFORMMESH_PRIVATE_VERSION \
+        kubectl exec -it ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-prerelease.yaml -- \
+        VERSION={{ .COMPONENT_PRERELEASE_VERSION }} \
+        ISTIO_VERSION=1.25.0 \
+        CROSSPLANE_VERSION=1.9.2 \
+        ACCOUNT_OPERATOR_VERSION=$ACCOUNT_OPERATOR_VERSION \
+        PLATFORM_MESH_OPERATOR_VERSION=$PLATFORM_MESH_OPERATOR_VERSION \
+        EXTENSION_MANAGER_OPERATOR_VERSION=$EXTENSION_MANAGER_OPERATOR_VERSION \
+        SECURITY_OPERATOR_VERSION=$SECURITY_OPERATOR_VERSION \
+        REBAC_AUTHZ_WEBHOOK_VERSION=$REBAC_AUTHZ_WEBHOOK_VERSION \
+        INFRA_VERSION=$INFRA_VERSION \
+        KUBERNETES_GRAPHQL_GATEWAY_VERSION=$KUBERNETES_GRAPHQL_GATEWAY_VERSION \
+        PORTAL_VERSION=$PORTAL_VERSION \
+        OPENFGA_VERSION=0.2.38 \
+        KCP_OPERATOR_VERSION=0.1.1 \
+        GARDENER_ETCD_DRUID_SOURCE_REF=v0.31.0 \
+        GARDENER_ETCD_DRUID_CHART_VERSION=0.1.0 \
+        KEYCLOAK_VERSION=$KEYCLOAK_VERSION \
+        VIRTUAL_WORKSPACES_VERSION=$VIRTUAL_WORKSPACES_VERSION \
         IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION \
         IAM_UI_VERSION=$IAM_UI_VERSION \
         MARKETPLACE_UI_VERSION=$MARKETPLACE_UI_VERSION
 
         echo
-        echo "Built private component version $COMPONENT_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
+        echo "Built prerelease component version {{ .COMPONENT_PRERELEASE_VERSION }} (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
 
       - task: ocm:patch:component
-        vars: { COMPONENT_VERSION_NAME: 'platform-mesh-priv', COMPONENT_VERSION_NAMESPACE: 'default' }
-      - task: ocm:configure:tls
       - task: ocm:transfer:dir-to-local-oci
+      - task: ocm:kustomize:apply
 
   ocm:deploy:transfer-pod:
+    internal: true
     cmds:
       - |
         set -e
@@ -583,8 +435,32 @@ tasks:
               
 
   ocm:transfer:dir-to-local-oci:
-    deps:
-      - task: ocm:registry:port-forward
     cmds:
       - |
         kubectl exec -it ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+
+  ocm:deploy:
+    cmds:
+      - task: ocm:check:dns
+      - |
+        ocm_ctf=.ocm/transport.ctf
+        mkdir -p "$(dirname "$ocm_ctf")"
+      - task: ocm:deploy:ociregistry
+      - task: ocm:deploy:transfer-pod
+      - task: ocm:kustomize:apply
+      - task: ocm:configure:tls
+      - task: ocm:kustomize:apply
+      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
+
+  ocm:kustomize:apply:
+    cmds:
+      - |
+        echo "Applying kustomize overlay to deploy platform-mesh"
+        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
+        echo "Applied kustomize overlay"
+
+  ocm:cleanup:
+    cmds:
+      - |
+        rm -rf .ocm/transport.ctf
+        rm registry-ca.pem
