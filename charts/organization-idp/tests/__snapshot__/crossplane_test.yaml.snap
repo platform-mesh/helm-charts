@@ -20,7 +20,7 @@ matches the snapshot:
         name: keycloak-provider-config
       writeConnectionSecretToRef:
         name: portal-client-secret-organization-idp
-        namespace: openmfp-system
+        namespace: platform-mesh-system
   2: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
@@ -96,7 +96,7 @@ matches the snapshot with custom config:
         name: keycloak-provider-config
       writeConnectionSecretToRef:
         name: portal-client-secret-organization-idp
-        namespace: openmfp-system
+        namespace: platform-mesh-system
   2: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
