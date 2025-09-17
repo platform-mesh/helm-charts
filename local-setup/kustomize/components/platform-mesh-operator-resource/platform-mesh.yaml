@@ -25,6 +25,17 @@ spec:
     keycloak:
       enabled: true
       values:
+        postgresql:
+          enabled: true
+          image:
+            pullSecrets:
+              - github
+        image:
+          pullSecrets:
+            - name: github
+        global:
+          security:
+            allowInsecureImages: true
         service:
           clusterIP: 10.96.0.110
     crossplane:

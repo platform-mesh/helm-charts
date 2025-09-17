@@ -30,9 +30,15 @@ spec:
         component:
           name: prerelease
       values:
-        global:
-          imagePullSecrets:
+        postgresql:
+          enabled: true
+          image:
+            pullSecrets:
+              - github
+        image:
+          pullSecrets:
             - name: github
+        global:
           security:
             allowInsecureImages: true
         service:
