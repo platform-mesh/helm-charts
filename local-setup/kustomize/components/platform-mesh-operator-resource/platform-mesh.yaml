@@ -125,6 +125,7 @@ spec:
         virtualService:
           hosts:
             - "portal.dev.local"
+            - "*.portal.dev.local"
         trust:
           default:
             tokenUrl: https://portal.dev.local:8443/keycloak/realms/default/protocol/openid-connect/token
