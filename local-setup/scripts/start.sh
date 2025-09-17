@@ -40,7 +40,7 @@ if ! check_kind_cluster; then
 fi
 
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 

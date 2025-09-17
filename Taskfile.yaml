@@ -13,9 +13,9 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION: 0.29.0
-  COMPONENT_PRERELEASE_VERSION: "1.0.2"
-  CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
-    - iam-service: ../helm-charts-priv/charts/iam-service
+  COMPONENT_PRERELEASE_VERSION: "1.0.0"
+  CUSTOM_LOCAL_COMPONENTS_CHART_PATHS: []
+    # - iam-service: ../helm-charts-priv/charts/iam-service
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
 
@@ -450,7 +450,6 @@ tasks:
       - task: ocm:kustomize:apply
       - task: ocm:configure:tls
       - task: ocm:kustomize:apply
-      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
   ocm:kustomize:apply:
     cmds:
@@ -458,6 +457,7 @@ tasks:
         echo "Applying kustomize overlay to deploy platform-mesh"
         kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
         echo "Applied kustomize overlay"
+      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
   ocm:cleanup:
     cmds:

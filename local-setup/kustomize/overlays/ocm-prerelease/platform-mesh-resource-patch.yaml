@@ -14,7 +14,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.14.6
+  chartVersion: 0.14.115
   values:
     istio-gateway:
       enabled: true
@@ -123,6 +123,31 @@ spec:
           name: prerelease
       referencePath:
         - name: iam-service
+      values:
+        iamData:
+          tenantConfigurations:
+            - tenantId: 2rhmp9ahui4x9udh/default
+              issuer: https://portal.dev.local:8443/keycloak/realms/default
+              audience: default
+        postgresql:
+          primary:
+            resources:
+              limits:
+                ephemeral-storage: 2Gi
+                memory: 192Mi
+              requests:
+                cpu: 100m
+                ephemeral-storage: 50Mi
+                memory: 128Mi
+        tenantConfigurations:
+          configs:
+          - audience: default
+            issuer: https://auth.dev.local:8443
+            tenantid: default
+        trust:
+          default:
+            trustedIssuer: https://portal.dev.local:8443/keycloak/realms/default
+
     security-operator:
       values:
         hostAliases:
@@ -138,7 +163,7 @@ spec:
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
             value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-            value: "https://portal.dev.local:8443/iam/query"
+            value: "http://iam-service.platform-mesh-system.svc.cluster.local:8080/iam/query"
           - name: OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
             value: '{"account":{"contextProperty":"entityId"}}'
           - name: NODE_EXTRA_CA_CERTS
@@ -159,6 +184,7 @@ spec:
                 - "portal.dev.local"
         virtualService:
           hosts:
+            - "*.portal.dev.local"
             - "portal.dev.local"
         trust:
           default:
@@ -172,7 +198,7 @@ spec:
             #     # -- token url (if discoveryEndpoint is not specified)
             #     tokenUrl: http://keycloak/keycloak/realms/platform-mesh/protocol/openid-connect/token
             #     # -- oidc client secret name
-            #     oidcClientSecretName: openmfp-client
+            oidcClientSecretName: portal-client-secret-default
             #     # -- login audience
             #     loginAudience: platform-mesh
             #     # -- secret key reference
@@ -203,14 +229,7 @@ spec:
           resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
           resourceSchemaWorkspace: "root:platform-mesh-system"
     kubernetes-graphql-gateway:
-      enabled: false
-      ocm:
-        repo:
-          name: prerelease
-        component:
-          name: prerelease
-      referencePath:
-        - name: kubernetes-graphql-gateway
+      enabled: true
       values:
         listener:
           virtualWorkspacesConfig:
@@ -223,6 +242,11 @@ spec:
                   #   name: marketplace
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https://portal.dev.local:8443/keycloak/realms/default
     istio:
       main:
         gateway:
