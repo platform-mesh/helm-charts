@@ -550,6 +550,7 @@ it should render the application manifests:
         fga:
           target: openfga.platform-mesh-system.svc.cluster.local:8081
         initializer:
+          baseDomain: example.com
           kubeconfigSecret: security-initializer-kubeconfig
         kubeconfigSecret: security-operator-kubeconfig
         log:
