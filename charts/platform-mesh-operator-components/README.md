@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.183"` |  |
+| componentVersion.semver | string | `"0.0.189"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.component.create | bool | `true` |  |
@@ -236,6 +236,7 @@ A Helm chart for Kubernetes
 | services.security-operator.enabled | bool | `true` |  |
 | services.security-operator.values.crds.enabled | bool | `false` |  |
 | services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
+| services.security-operator.values.initializer.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |
 | services.security-operator.values.kubeconfigSecret | string | `"security-operator-kubeconfig"` |  |
 | services.security-operator.values.log.level | string | `"debug"` |  |

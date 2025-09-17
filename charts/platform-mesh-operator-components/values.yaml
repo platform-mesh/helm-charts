@@ -14,7 +14,7 @@ ocm:
     create: true
     name: platform-mesh
 componentVersion:
-  semver: 0.0.183
+  semver: 0.0.189
 iamWebhookCA: null
 services:
   istio-base:
@@ -134,6 +134,7 @@ services:
         target: openfga.platform-mesh-system.svc.cluster.local:8081
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
+        baseDomain: "{{ .Values.baseDomain }}"
       kubeconfigSecret: security-operator-kubeconfig
       log:
         level: debug
