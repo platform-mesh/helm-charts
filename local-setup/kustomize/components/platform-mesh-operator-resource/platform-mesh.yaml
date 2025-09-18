@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.14.134
+  chartVersion: 0.15.0
   values:
     istio-gateway:
       enabled: true
@@ -18,20 +18,8 @@ spec:
     keycloak:
       enabled: true
       values:
-        global:
-          imagePullSecrets:
-            - name: github
-          security:
-            allowInsecureImages: true
         service:
           clusterIP: 10.96.0.110
-        postgresql:
-          image:
-            registry: ghcr.io/platform-mesh
-            repository: images/postgresql
-        image:
-          registry: ghcr.io/platform-mesh
-          repository: images/keycloak
     crossplane:
       values:
         provider:
