@@ -120,15 +120,3 @@ jobs:
 
       - name: Transfer to OCM REPO
         run: ./ocm transfer ctf --overwrite .ocm/transport.ctf "ghcr.io/platform-mesh"
-      - name: Generate a token
-        id: generate-token
-        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2
-        with:
-          app-id: "1415820"
-          private-key: ${{ secrets.PM_PUBLISHER_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: |
-            helm-charts
-      - run: gh workflow run platform-mesh-operator-components-update.yaml --repo "platform-mesh/helm-charts"
-        env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
