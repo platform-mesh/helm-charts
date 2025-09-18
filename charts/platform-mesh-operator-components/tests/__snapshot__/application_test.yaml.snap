@@ -486,6 +486,9 @@ it should render the application manifests:
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
+        global:
+          imagePullSecrets:
+            - name: github
         image:
           repository: openfga/openfga
           tag: ""

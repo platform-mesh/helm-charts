@@ -379,6 +379,9 @@ services:
       - name: istio-istiod
         namespace: default
     values:
+      global:
+        imagePullSecrets:
+          - name: github
       migrate:
         annotations:
           sidecar.istio.io/inject: "false"

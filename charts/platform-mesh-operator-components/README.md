@@ -190,6 +190,7 @@ A Helm chart for Kubernetes
 | services.openfga.values.datastore.migrations.image.tag | string | `"v2.0"` |  |
 | services.openfga.values.extraEnvVars[0].name | string | `"OPENFGA_EXPERIMENTALS"` |  |
 | services.openfga.values.extraEnvVars[0].value | string | `"enable-list-users"` |  |
+| services.openfga.values.global.imagePullSecrets[0].name | string | `"github"` |  |
 | services.openfga.values.image.repository | string | `"openfga/openfga"` |  |
 | services.openfga.values.image.tag | string | `""` |  |
 | services.openfga.values.log.level | string | `"info"` |  |
