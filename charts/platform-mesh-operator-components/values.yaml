@@ -416,6 +416,9 @@ services:
         ## @param postgresql.enabled enable the bitnami/postgresql subchart and deploy Postgres
         enabled: true
         nameOverride: postgres
+        image:
+          registry: ghcr.io/platform-mesh
+          repository: images/postgresql
       telemetry:
         trace:
           enabled: true

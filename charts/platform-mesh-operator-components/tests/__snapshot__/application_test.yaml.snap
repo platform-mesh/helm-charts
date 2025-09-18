@@ -501,6 +501,9 @@ it should render the application manifests:
           traffic.sidecar.istio.io/excludeInboundPorts: "2112"
         postgresql:
           enabled: true
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
           nameOverride: postgres
         replicaCount: 1
         telemetry:
