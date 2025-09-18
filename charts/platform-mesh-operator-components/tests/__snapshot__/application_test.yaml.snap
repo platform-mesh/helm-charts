@@ -370,7 +370,15 @@ it should render the application manifests:
             value: xforwarded
           - name: KC_HOSTNAME_STRICT
             value: "false"
+        global:
+          imagePullSecrets:
+            - name: github
+          security:
+            allowInsecureImages: true
         httpRelativePath: /keycloak/
+        image:
+          registry: ghcr.io/platform-mesh
+          repository: images/keycloak
         postgresql:
           auth:
             existingSecret: ""
@@ -378,6 +386,9 @@ it should render the application manifests:
               adminPasswordKey: password
               userPasswordKey: password
             username: keycloak
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none

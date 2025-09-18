@@ -284,6 +284,14 @@ services:
       - name: istio-istiod
         namespace: default
     values:
+      global:
+        imagePullSecrets:
+          - name: github
+        security:
+          allowInsecureImages: true
+      image:
+        registry: ghcr.io/platform-mesh
+        repository: images/keycloak
       auth:
         # -- keycloak admin user
         adminUser: keycloak-admin
@@ -305,6 +313,9 @@ services:
           value: "false"
       # -- configuration for the postgresql sub-chart
       postgresql:
+        image:
+          registry: ghcr.io/platform-mesh
+          repository: images/postgresql
         primary:
           # -- primary postgresql resources preset
           resourcesPreset: none
