@@ -406,7 +406,8 @@ tasks:
         kubectl run ocm-transfer-pod --image=ghcr.io/akafazov/devbox:latest -- sleep infinity || true
         kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
 
-        kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm/transport.ctf
+        kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm
+        ocm create ctf --type directory .ocm/transport.ctf
 
         # configure RootCA truststore on the pod
         kubectl exec -ti ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
@@ -436,8 +437,8 @@ tasks:
 
   ocm:transfer:dir-to-local-oci:
     cmds:
-      - |
-        kubectl exec -it ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+      - cmd: kubectl exec -it ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+        ignore_error: true
 
   ocm:deploy:
     cmds:
@@ -464,3 +465,4 @@ tasks:
       - |
         rm -rf .ocm/transport.ctf
         rm registry-ca.pem
+      - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true
