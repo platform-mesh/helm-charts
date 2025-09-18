@@ -8,6 +8,6 @@ spec:
   url: oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-operator
   ref:
     # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator
-    semver: 0.5.15
+    semver: 0.5.17
   secretRef:
     name: github
