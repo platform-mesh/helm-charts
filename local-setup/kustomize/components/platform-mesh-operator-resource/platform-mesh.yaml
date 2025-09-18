@@ -7,7 +7,7 @@ spec:
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
-  chartVersion: 0.14.111
+  chartVersion: 0.14.122
   values:
     istio-gateway:
       enabled: true
@@ -18,8 +18,24 @@ spec:
     keycloak:
       enabled: true
       values:
+        cache:
+          enabled: false
+        global:
+          imagePullSecrets:
+            - name: github
+          security:
+            allowInsecureImages: true
+        image:
+          registry: ghcr.io/platform-mesh
+          repository: images/keycloak
+          tag: 26.3.3-debian-12-r0
         service:
           clusterIP: 10.96.0.110
+        postgresql:
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
+            tag: 17.4.0-debian-12-r17
     crossplane:
       values:
         provider:
@@ -133,6 +149,10 @@ spec:
         datastore:
           uri: "postgres://postgres:password@openfga-postgres.platform-mesh-system.svc.cluster.local:5432/postgres?sslmode=disable"
         postgresql:
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
+            tag: 17.4.0-debian-12-r17
           auth:
             postgresPassword: password
             database: postgres
