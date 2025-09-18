@@ -38,3 +38,4 @@ jobs:
       chartPath: charts/platform-mesh-operator-components
       componentName: github.com/platform-mesh/platform-mesh-operator-components
       ocmRegistryUrl: ghcr.io/platform-mesh
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
