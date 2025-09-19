@@ -147,3 +147,6 @@ components:
       - name: virtual-workspaces
         componentName: github.com/platform-mesh/virtual-workspaces
         version: {{ .VIRTUAL_WORKSPACES_VERSION }}
+      - name: platform-mesh-operator-components
+        componentName: github.com/platform-mesh/platform-mesh-operator-components
+        version: {{ .PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}
