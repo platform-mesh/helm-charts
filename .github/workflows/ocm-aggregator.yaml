@@ -96,16 +96,16 @@ jobs:
           
           # Extract current dependency versions from the existing component (if it exists)
           if [ -f current_pm_component.yaml ] && [ -s current_pm_component.yaml ]; then
-            CURRENT_ACCOUNT_OPERATOR=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "account-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_SECURITY_OPERATOR=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "security-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_EXTENSION_MANAGER_OPERATOR=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "extension-manager-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_INFRA=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "infra") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_REBAC_AUTHZ_WEBHOOK=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "rebac-authz-webhook") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_PORTAL=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "portal") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_PLATFORM_MESH_OPERATOR=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "platform-mesh-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_KEYCLOAK=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "keycloak") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_KUBERNETES_GRAPHQL_GATEWAY=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "kubernetes-graphql-gateway") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_VIRTUAL_WORKSPACES=$(yq eval '.items[0].spec.componentReferences[] | select(.name == "virtual-workspaces") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_ACCOUNT_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "account-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_SECURITY_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "security-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_EXTENSION_MANAGER_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "extension-manager-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_INFRA=$(yq eval '.component.componentReferences[] | select(.name == "infra") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_REBAC_AUTHZ_WEBHOOK=$(yq eval '.component.componentReferences[] | select(.name == "rebac-authz-webhook") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PORTAL=$(yq eval '.component.componentReferences[] | select(.name == "portal") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PLATFORM_MESH_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "platform-mesh-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KEYCLOAK=$(yq eval '.component.componentReferences[] | select(.name == "keycloak") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KUBERNETES_GRAPHQL_GATEWAY=$(yq eval '.component.componentReferences[] | select(.name == "kubernetes-graphql-gateway") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_VIRTUAL_WORKSPACES=$(yq eval '.component.componentReferences[] | select(.name == "virtual-workspaces") | .version' current_pm_component.yaml 2>/dev/null || echo "")
           else
             # No existing component, so we need to create one
             echo "No existing platform-mesh component found, creating initial version"
