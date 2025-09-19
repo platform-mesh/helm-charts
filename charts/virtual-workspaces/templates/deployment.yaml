@@ -64,6 +64,12 @@ spec:
           {{- with .Values.deployment.resourceSchemaExportName }}
           - --resource-apiexport-endpointslice-name={{ . }}
           {{- end }}
+          {{- with .Values.deployment.mainEntityName }}
+          - --main-entity-name={{ . }}
+          {{- end }}
+          {{- with .Values.deployment.accountEntityName }}
+          - --account-entity-name={{ . }}
+          {{- end }}
         volumeMounts:
           {{- include "common.extraVolumeMounts" . | nindent 8 }}
         - name: external-api-server
