@@ -17,6 +17,8 @@ deployment:
   resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
   resourceSchemaWorkspace: root:platform-mesh-system
   resourceSchemaExportName: core.platform-mesh.io
+  mainEntityName: main
+  accountEntityName: core_platform-mesh_io_account
 
 service:
   port: 8443
