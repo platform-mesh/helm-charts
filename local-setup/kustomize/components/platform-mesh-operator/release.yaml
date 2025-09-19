@@ -4,22 +4,12 @@ metadata:
   name: platform-mesh-operator
   namespace: default
 spec:
-  interval: 10m
-  timeout: 10m
   chartRef:
     kind: OCIRepository
     name: platform-mesh-operator
-  releaseName: platform-mesh-operator
+    namespace: default
   dependsOn:
-    - name: kyverno
-      namespace: default
+  interval: 1m
+  releaseName: platform-mesh-operator
   targetNamespace: platform-mesh-system
-  values:
-    extraArgs:
-    - --no-json=true
-    imagePullSecret: github
-    components:
-      observability:
-        enabled: false
-    image:
-      name: ghcr.io/platform-mesh/platform-mesh-operator
+  timeout: 15m
