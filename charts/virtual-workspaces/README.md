@@ -23,8 +23,10 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | cert.renewBefore | string | `"168h0m0s"` | Certificate renew before |
 | cert.secretName | string | `"virtual-workspaces-cert"` | Secret name to store the certificate |
 | clientCASecretName | string | `"root-front-proxy-client-ca"` |  |
+| deployment.accountEntityName | string | `"core_platform-mesh_io_account"` |  |
 | deployment.contentForLabel | string | `"ui.platform-mesh.io/content-for"` |  |
 | deployment.entityLabel | string | `"ui.platform-mesh.io/entity"` |  |
+| deployment.mainEntityName | string | `"main"` |  |
 | deployment.resourceSchemaExportName | string | `"core.platform-mesh.io"` |  |
 | deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
 | deployment.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
