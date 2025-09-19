@@ -74,6 +74,7 @@ jobs:
           echo KEYCLOAK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/keycloak --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kubernetes-graphql-gateway --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo VIRTUAL_WORKSPACES_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/virtual-workspaces --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh-operator-components --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           
           PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
@@ -102,6 +103,8 @@ jobs:
             GARDENER_ETCD_DRUID_CHART_VERSION=0.1.0 \
             OPENFGA_VERSION=0.2.38 \
             KUBERNETES_GRAPHQL_GATEWAY_VERSION=${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }} \
-            KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION}}
+            KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION}} \
+            PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=${{ env.PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}
+          
       - name: Transfer to OCM REPO
         run: ./ocm transfer ctf --overwrite .ocm/transport.ctf "ghcr.io/platform-mesh"
