@@ -152,7 +152,16 @@ it should render the application manifests:
       values:
         gateway:
           name: gateway
+        global:
+          imagePullSecrets:
+            - name: github
+          security:
+            allowInsecureImages: true
         hostname: api.example.com
+        postgresql:
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
         trust:
           default:
             audience: default

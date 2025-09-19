@@ -166,12 +166,21 @@ services:
       - name: openfga
         namespace: default
     values:
+      global:
+        imagePullSecrets:
+          - name: github
+        security:
+          allowInsecureImages: true
       trust:
         default:
           trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
           jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
           audience: default
       hostname: "api.{{ .Values.baseDomain }}"
+      postgresql:
+        image:
+          registry: ghcr.io/platform-mesh
+          repository: images/postgresql
       gateway:
         name: gateway
   iam-ui:
@@ -222,62 +231,6 @@ services:
     helmRepo: true
     enabled: true
     targetNamespace: kcp-operator
-    #  kcp:
-    #    enabled: true
-    #    dependsOn:
-    #      - name: istio-istiod
-    #        namespace: default
-    #    values:
-    #      auth:
-    #        adminCert:
-    #          issuerRef: kcp-front-proxy-client-issuer
-    #      webhook:
-    #        enabled: true
-    #        server: https://iam-authorization-webhook.platform-mesh-system.svc.cluster.local:9443/authz
-    #        caData: "{{ .Values.iamWebhookCA }}"
-    #      istio:
-    #        hosts:
-    #          - "kcp.api.{{ .Values.baseDomain }}"
-    #        gateway:
-    #          create: false
-    #      kcp:
-    #        externalPort: "{{ .Values.port }}"
-    #        externalHostname: "kcp.api.{{ .Values.baseDomain }}"
-    #        kcp:
-    #          podAnnotations:
-    #            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
-    #          authorization:
-    #            webhook:
-    #              secretName: kcp-webhook-secret
-    #        oidc:
-    #          enabled: true
-    #          issuerUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
-    #          clientId: default
-    #          groupClaim: groups
-    #          usernameClaim: email
-    #        kcpFrontProxy:
-    #          additionalPathMappings:
-    #            - path: /services/contentconfigurations
-    #              backend: https://virtual-workspaces.platform-mesh-system:8443
-    #              backend_server_ca: /etc/kcp/tls/ca/tls.crt
-    #              proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-    #              proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-    #            - path: /services/marketplace
-    #              backend: https://virtual-workspaces.platform-mesh-system:8443
-    #              backend_server_ca: /etc/kcp/tls/ca/tls.crt
-    #              proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-    #              proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-    #          extraDNSNames:
-    #            - kcp-front-proxy.platform-mesh-system
-    #        certificates:
-    #          dnsNames:
-    #            - virtual-workspaces.platform-mesh-system
-    #            - kcp.platform-mesh-system
-    #            - localhost
-    #            - "kcp.{{ .Values.baseDomain }}"
-    #        monitoring:
-    #          serviceMonitor:
-    #            enabled: true
   keycloak:
     enabled: true
     dependsOn:
