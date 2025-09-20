@@ -1,0 +1,10 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Repository
+metadata:
+  name: prerelease
+  namespace: default
+spec:
+  interval: 1m0s
+  repositorySpec:
+    baseUrl: oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+    type: OCIRegistry

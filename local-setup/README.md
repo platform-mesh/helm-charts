@@ -58,7 +58,7 @@ this will package and push the helm charts to a local OCI registry and spin off 
 
 Once the process is completed you can access the environment using https://portal.dev.local
 
-# Optional Steps
+## Optional Steps
 
 - Keycloak client secret: It is possible to set a custom keycloak client secret by setting the `KEYCLOAK_SECRET` environment variable before running the boostrap script.
 
@@ -66,3 +66,16 @@ Once the process is completed you can access the environment using https://porta
 ```sh
 task e2e-test
 ```
+
+## Testing custom charts and OCM components locally
+
+To test local charts, run the local-setup script and make modifications to the chars while bumping the version in Chart.yaml. The follow the steps:
+
+Steps:
+- edit Taskfile.yaml and configure `COMPONENT_PRERELEASE_VERSION`, `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS` and `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS` parameters as needed
+- if adding new componentReferences, update [.ocm/component-constructor-prerelease.yaml](.ocm/component-constructor-prerelease.yaml)
+- enable the changed components in local-setup/kustomize/overlays/ocm-prerelease/platform-mesh-resource-patch.yaml
+- run `task ocm:deploy`
+- run `task ocm:build:component`
+- repeat last step when doing changes to the charts
+- run `task ocm:cleanup` for Cleanup when needed
