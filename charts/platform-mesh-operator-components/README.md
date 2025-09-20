@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.195"` |  |
+| componentVersion.semver | string | `"0.0.351"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.component.create | bool | `true` |  |
@@ -53,7 +53,11 @@ A Helm chart for Kubernetes
 | services.iam-service.dependsOn[1].namespace | string | `"default"` |  |
 | services.iam-service.enabled | bool | `true` |  |
 | services.iam-service.values.gateway.name | string | `"gateway"` |  |
+| services.iam-service.values.global.imagePullSecrets[0].name | string | `"github"` |  |
+| services.iam-service.values.global.security.allowInsecureImages | bool | `true` |  |
 | services.iam-service.values.hostname | string | `"api.{{ .Values.baseDomain }}"` |  |
+| services.iam-service.values.postgresql.image.registry | string | `"ghcr.io/platform-mesh"` |  |
+| services.iam-service.values.postgresql.image.repository | string | `"images/postgresql"` |  |
 | services.iam-service.values.trust.default.audience | string | `"default"` |  |
 | services.iam-service.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
 | services.iam-service.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
@@ -125,8 +129,12 @@ A Helm chart for Kubernetes
 | services.keycloak.values.auth.existingSecret | string | `"keycloak-admin"` | keycloak admin secret |
 | services.keycloak.values.auth.passwordSecretKey | string | `"secret"` | keycloak admin secret key |
 | services.keycloak.values.extraEnvVars | list | `[{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"},{"name":"KC_PROXY_HEADERS","value":"xforwarded"},{"name":"KC_HOSTNAME_STRICT","value":"false"}]` | keycloak environment variables (raw) For Arm64 arch (especially Apple M4), add -XX:UseSVE=0 to JAVA_OPTS_APPEND |
+| services.keycloak.values.global.imagePullSecrets[0].name | string | `"github"` |  |
+| services.keycloak.values.global.security.allowInsecureImages | bool | `true` |  |
 | services.keycloak.values.httpRelativePath | string | `"/keycloak/"` | keycloak http relative path |
-| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
+| services.keycloak.values.image.registry | string | `"ghcr.io/platform-mesh"` |  |
+| services.keycloak.values.image.repository | string | `"images/keycloak"` |  |
+| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"image":{"registry":"ghcr.io/platform-mesh","repository":"images/postgresql"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
 | services.keycloak.values.postgresql.auth | object | `{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"}` | authorization configuration |
 | services.keycloak.values.postgresql.auth.existingSecret | string | `""` | existing secret name |
 | services.keycloak.values.postgresql.auth.secretKeys.adminPasswordKey | string | `"password"` | admin password key |
@@ -186,12 +194,15 @@ A Helm chart for Kubernetes
 | services.openfga.values.datastore.migrations.image.tag | string | `"v2.0"` |  |
 | services.openfga.values.extraEnvVars[0].name | string | `"OPENFGA_EXPERIMENTALS"` |  |
 | services.openfga.values.extraEnvVars[0].value | string | `"enable-list-users"` |  |
+| services.openfga.values.global.imagePullSecrets[0].name | string | `"github"` |  |
 | services.openfga.values.image.repository | string | `"openfga/openfga"` |  |
 | services.openfga.values.image.tag | string | `""` |  |
 | services.openfga.values.log.level | string | `"info"` |  |
 | services.openfga.values.migrate.annotations."sidecar.istio.io/inject" | string | `"false"` |  |
 | services.openfga.values.podAnnotations."traffic.sidecar.istio.io/excludeInboundPorts" | string | `"2112"` |  |
 | services.openfga.values.postgresql.enabled | bool | `true` |  |
+| services.openfga.values.postgresql.image.registry | string | `"ghcr.io/platform-mesh"` |  |
+| services.openfga.values.postgresql.image.repository | string | `"images/postgresql"` |  |
 | services.openfga.values.postgresql.nameOverride | string | `"postgres"` |  |
 | services.openfga.values.replicaCount | int | `1` |  |
 | services.openfga.values.telemetry.trace.enabled | bool | `true` |  |

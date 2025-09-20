@@ -119,6 +119,13 @@ tasks:
     cmds:
       - ./local-setup/scripts/start.sh --cached
 
+  local-setup-start-docker-registries:
+    cmds:
+      - docker run -d --name proxy-docker-hub --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://docker.io registry:2
+      - docker run -d --name proxy-quay --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://quay.io registry:2
+      - docker run -d --name proxy-ghcr --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io registry:2
+      - docker run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
+
   bump-component-versions:
     deps: [setup:ocm]
     cmds:

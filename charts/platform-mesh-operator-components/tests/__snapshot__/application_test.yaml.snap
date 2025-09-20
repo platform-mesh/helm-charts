@@ -152,7 +152,16 @@ it should render the application manifests:
       values:
         gateway:
           name: gateway
+        global:
+          imagePullSecrets:
+            - name: github
+          security:
+            allowInsecureImages: true
         hostname: api.example.com
+        postgresql:
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
         trust:
           default:
             audience: default
@@ -370,7 +379,15 @@ it should render the application manifests:
             value: xforwarded
           - name: KC_HOSTNAME_STRICT
             value: "false"
+        global:
+          imagePullSecrets:
+            - name: github
+          security:
+            allowInsecureImages: true
         httpRelativePath: /keycloak/
+        image:
+          registry: ghcr.io/platform-mesh
+          repository: images/keycloak
         postgresql:
           auth:
             existingSecret: ""
@@ -378,6 +395,9 @@ it should render the application manifests:
               adminPasswordKey: password
               userPasswordKey: password
             username: keycloak
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
@@ -475,6 +495,9 @@ it should render the application manifests:
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
+        global:
+          imagePullSecrets:
+            - name: github
         image:
           repository: openfga/openfga
           tag: ""
@@ -487,6 +510,9 @@ it should render the application manifests:
           traffic.sidecar.istio.io/excludeInboundPorts: "2112"
         postgresql:
           enabled: true
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
           nameOverride: postgres
         replicaCount: 1
         telemetry:

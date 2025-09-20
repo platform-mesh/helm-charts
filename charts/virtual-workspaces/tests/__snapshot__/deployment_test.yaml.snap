@@ -65,6 +65,8 @@ virtual-workspaces match the snapshot:
                 - --resource-schema-name=v250704-6d57f16.contentconfigurations.ui.platform-mesh.io
                 - --resource-schema-workspace=root:platform-mesh-system
                 - --resource-apiexport-endpointslice-name=core.platform-mesh.io
+                - --main-entity-name=main
+                - --account-entity-name=core_platform-mesh_io_account
               image: ghcr.io/platform-mesh/virtual-workspaces:0.0.0
               imagePullPolicy: IfNotPresent
               name: virtual-workspaces
