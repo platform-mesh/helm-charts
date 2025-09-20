@@ -65,40 +65,8 @@ spec:
                 - get
                 - list
                 - watch
-
+    cleanupController:
+      enabled: false
     reportsController:
-      rbac:
-        clusterRole:
-          extraResources:
-            - apiGroups:
-                - source.toolkit.fluxcd.io
-              resources:
-                - ocirepositories
-                - helmrepositories
-                - gitrepositories
-              verbs:
-                - create
-                - update
-                - patch
-                - get
-                - delete
-            - apiGroups:
-                - helm.toolkit.fluxcd.io
-              resources:
-                - helmreleases
-              verbs:
-                - create
-                - update
-                - patch
-                - get
-                - delete
-            - apiGroups:
-                - delivery.ocm.software
-              resources:
-                - resources
-                - resources/status
-              verbs:
-                - get
-                - list
-                - watch
+      enabled: false
 
