@@ -1,6 +1,8 @@
 name: Build Platform Mesh OCM Component
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
   push:
     branches:
       - main
