@@ -7,30 +7,6 @@ COL='\033[92m'
 RED='\033[91m'
 COL_RES='\033[0m'
 
-check_github_token() {
-    # Check for input argument GH_TOKEN and echo message in case not provided
-    if [ -z "${GH_TOKEN}" ]; then
-        echo "Please set the 'GH_TOKEN' environment variable with a GitHub token that has 'read:packages' scope."
-        exit 1
-    fi
-    # Set global variable that can be used by the main script
-    ghToken=$GH_TOKEN
-}
-
-check_github_user() {
-    if [ -z "${GH_USER}" ]; then
-        if ! command -v gh &> /dev/null; then
-            echo "gh CLI could not be found. Either install the gh cli or set the GH_USER environment variable with our GitHub username."
-            exit 1
-        else
-            ghUser=$(gh api user --jq '.login')
-        fi
-    else
-        ghUser=$GH_USER
-    fi
-    # Make ghUser available globally
-}
-
 check_kind_cluster() {
     # Check if kind cluster is already running
     if [ $(kind get clusters | grep -c platform-mesh) -gt 0 ]; then
@@ -169,16 +145,6 @@ run_environment_checks() {
     
     local checks_failed=0
     
-    # Check GitHub token
-    if ! check_github_token; then
-        checks_failed=$((checks_failed + 1))
-    fi
-    
-    # Check GitHub user
-    if ! check_github_user; then
-        checks_failed=$((checks_failed + 1))
-    fi
-    
     # Check container runtime dependency (Docker or Podman)
     if ! check_container_runtime_dependency; then
         checks_failed=$((checks_failed + 1))
@@ -213,8 +179,6 @@ run_environment_checks() {
 }
 
 # Export functions so they can be used by the main script
-export -f check_github_token
-export -f check_github_user
 export -f check_kind_cluster
 export -f check_kind_dependency
 export -f check_docker_dependency

@@ -2,5 +2,19 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>platform-mesh/.github:renovate-config"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "(^|/)local-setup/kustomize/components/ocm-component/component\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+versioning=(?<versioning>[^\\s]+)"
+      ],
+      "datasourceTemplate": "{{datasource}}",
+      "registryUrlTemplate": "{{registryUrl}}",
+      "depNameTemplate": "{{depName}}",
+      "versioningTemplate": "{{versioning}}"
+    }
   ]
 }
