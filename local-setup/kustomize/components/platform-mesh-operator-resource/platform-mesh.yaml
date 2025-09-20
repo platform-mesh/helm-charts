@@ -4,13 +4,6 @@ metadata:
   name: platform-mesh
   namespace: platform-mesh-system
 spec:
-  ocm:
-    repo:
-      name: platform-mesh
-    component:
-      name: platform-mesh
-      # referencePath:
-      #   - 
   exposure:
     port: 8443
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components

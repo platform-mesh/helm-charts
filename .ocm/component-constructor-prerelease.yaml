@@ -156,3 +156,6 @@ components:
       - name: marketplace-ui
         componentName: github.com/platform-mesh/marketplace-ui
         version: {{ .MARKETPLACE_UI_VERSION }}
+      - name: platform-mesh-operator-components
+        componentName: github.com/platform-mesh/platform-mesh-operator-components
+        version: {{ .PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}
