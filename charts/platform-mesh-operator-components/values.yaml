@@ -2,7 +2,6 @@ targetNamespace: platform-mesh-system
 baseDomain: example.com
 protocol: https
 port: 443
-ociPullSecret: ocm-oci-github-pull
 ocm:
   skipVerify: true
   interval: 3m
@@ -13,8 +12,6 @@ ocm:
   repo:
     create: true
     name: platform-mesh
-componentVersion:
-  semver: 0.0.351
 iamWebhookCA: null
 services:
   istio-base:
@@ -470,3 +467,5 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
+componentVersion:
+  semver: 0.0.369
