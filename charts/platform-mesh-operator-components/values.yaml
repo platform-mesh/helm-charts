@@ -468,4 +468,4 @@ services:
       - name: istio-istiod
         namespace: default
 componentVersion:
-  semver: 0.0.370
+  semver: 0.1.0-rc.1
