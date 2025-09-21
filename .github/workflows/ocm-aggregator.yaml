@@ -7,6 +7,23 @@ on:
         required: false
         default: false
         type: boolean
+      version_increment:
+        description: 'Version component to increment (only applies when force_version_upgrade is true)'
+        required: false
+        default: 'minor'
+        type: choice
+        options:
+          - minor
+          - major
+          - patch
+      release_type:
+        description: 'Type of release to create (only applies when force_version_upgrade is true)'
+        required: false
+        default: 'rc'
+        type: choice
+        options:
+          - rc
+          - full
   schedule:
     - cron: '*/15 * * * *'
   push:
@@ -97,8 +114,51 @@ jobs:
             BASE_VERSION=${PM_VERSION%-rc.*}
             NEXT_VERSION="$BASE_VERSION-rc.$NEW_RC_NUM"
           else
-            # Current version is not a release candidate, add -rc.1
-            NEXT_VERSION="$PM_VERSION-rc.1"
+            # Current version is not a release candidate
+            # Check if force upgrade is requested with specific version increment
+            if [ "${{ inputs.force_version_upgrade }}" = "true" ]; then
+              IFS='.' read -r major minor patch <<< "$PM_VERSION"
+              case "${{ inputs.version_increment }}" in
+                "major")
+                  major=$((major + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.0.0"
+                  else
+                    NEXT_VERSION="$major.0.0-rc.1"
+                  fi
+                  ;;
+                "minor")
+                  minor=$((minor + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.0"
+                  else
+                    NEXT_VERSION="$major.$minor.0-rc.1"
+                  fi
+                  ;;
+                "patch")
+                  patch=$((patch + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.$patch"
+                  else
+                    NEXT_VERSION="$major.$minor.$patch-rc.1"
+                  fi
+                  ;;
+                *)
+                  # Default to minor increment
+                  minor=$((minor + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.0"
+                  else
+                    NEXT_VERSION="$major.$minor.0-rc.1"
+                  fi
+                  ;;
+              esac
+            else
+              # Default behavior: increment minor version and add -rc.1
+              IFS='.' read -r major minor patch <<< "$PM_VERSION"
+              minor=$((minor + 1))
+              NEXT_VERSION="$major.$minor.0-rc.1"
+            fi
           fi
           echo NEXT_VERSION="$NEXT_VERSION" >> $GITHUB_ENV
 
