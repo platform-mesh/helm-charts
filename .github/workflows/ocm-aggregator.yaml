@@ -1,6 +1,12 @@
 name: Build Platform Mesh OCM Component
 on:
   workflow_dispatch:
+    inputs:
+      force_version_upgrade:
+        description: 'Force version upgrade even without dependency changes'
+        required: false
+        default: false
+        type: boolean
   schedule:
     - cron: '*/15 * * * *'
   push:
@@ -119,6 +125,16 @@ jobs:
           else
             # No existing component, so we need to create one
             echo "No existing platform-mesh component found, creating initial version"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_ENV
+            exit 0
+          fi
+          
+          # Check if force upgrade is requested
+          if [ "${{ inputs.force_version_upgrade }}" = "true" ]; then
+            echo "Force version upgrade requested, creating new version"
+            echo "Previous platform-mesh version: ${{ env.CURRENT_PM_VERSION }}"
+            echo "New platform-mesh version: ${{ env.NEXT_VERSION }}"
             echo "needs_update=true" >> $GITHUB_OUTPUT
             echo "VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_ENV
             exit 0
