@@ -157,11 +157,6 @@ tasks:
 
       - task: ocm:prime:tls
 
-  ocm:check:dns:
-    cmds:
-      - |
-        grep -q "registry.portal.dev.local" /etc/hosts || echo "127.0.0.1 registry.portal.dev.local" | sudo -n tee -a /etc/hosts
-
   ocm:prime:tls:
     cmds:
       - |
@@ -448,7 +443,6 @@ tasks:
 
   ocm:deploy:
     cmds:
-      - task: ocm:check:dns
       - |
         ocm_ctf=.ocm/transport.ctf
         mkdir -p "$(dirname "$ocm_ctf")"

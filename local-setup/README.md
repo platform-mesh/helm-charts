@@ -111,7 +111,7 @@ Once the setup completes successfully, you can access:
 Add the following entries to your `/etc/hosts` file:
 
 ```
-127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local registry.portal.dev.local
+127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local
 ```
 
 **WSL Users**: You may also need to add these entries to the Windows hosts file at:
