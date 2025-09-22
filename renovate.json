@@ -1,12 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
+    "mergeConfidence:all-badges",
     "local>platform-mesh/.github:renovate-config"
   ],
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": [
-        "(^|/)local-setup/kustomize/components/ocm-component/component\\.ya?ml$"
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/(^|/)local-setup/kustomize/components/ocm-component/component\\.ya?ml$/"
       ],
       "matchStrings": [
         "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>\\S+)\\s+depName=(?<depName>\\S+)\\s+versioning=(?<versioning>\\S+)"
