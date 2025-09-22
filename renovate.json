@@ -22,7 +22,7 @@
   "packageRules": [
     {
       "matchManagers": ["regex"],
-      "prerelease": true
+      "ignoreUnstable": true
     }
   ]
 }
