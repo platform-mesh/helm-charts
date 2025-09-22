@@ -14,7 +14,7 @@
         "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>\\S+)\\s+depName=(?<depName>\\S+)\\s+versioning=(?<versioning>\\S+)"
       ],
       "datasourceTemplate": "{{datasource}}",
-      "registryUrlTemplate": "{{registryUrl}}",
+      "registryUrlTemplate": "oci://{{registryUrl}}",
       "depNameTemplate": "{{depName}}",
       "versioningTemplate": "{{versioning}}"
     }
