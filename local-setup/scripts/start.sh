@@ -10,6 +10,7 @@ set -e
 
 COL='\033[92m'
 RED='\033[91m'
+YELLOW='\033[93m'
 COL_RES='\033[0m'
 
 KINDEST_VERSION="kindest/node:v1.33.1"
@@ -33,7 +34,7 @@ if ! check_kind_cluster; then
 
     if [ "$1" == "--cached" ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
     else
         kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
     fi
@@ -51,10 +52,6 @@ helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-comm
   --set notificationController.create=false \
   --set helmController.container.additionalArgs[0]="--concurrent=10" \
   --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
-kubectl create secret docker-registry github -n default --docker-server=ghcr.io --docker-username=$ghUser --docker-password=$ghToken --dry-run=client -o yaml | kubectl apply -f -
-kubectl create secret docker-registry ocm-oci-github-pull -n default --docker-server=ghcr.io --docker-username=$ghUser --docker-password=$ghToken --dry-run=client -o yaml | kubectl apply -f -
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
 
@@ -78,11 +75,9 @@ kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
-kubectl create secret docker-registry github -n platform-mesh-system --docker-server=ghcr.io --docker-username=$ghUser --docker-password=$ghToken --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
-kubectl create secret docker-registry github -n platform-mesh-system --docker-server=ghcr.io --docker-username=$ghUser --docker-password=$ghToken --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl create secret generic domain-certificate -n istio-system \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
@@ -109,26 +104,7 @@ kubectl wait --namespace default \
 
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
-ARCH=$(check_architecture)
-if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ Architecture check failed${COL_RES}"
-    exit 1
-fi
-
-case "$ARCH" in
-    arm64)
-        echo -e "${COL}[$(date '+%H:%M:%S')] Detected ARM64 architecture, using ARM64-specific resources${COL_RES}"
-        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-arm64
-        ;;
-    x86_64)
-        echo -e "${COL}[$(date '+%H:%M:%S')] Detected x86_64 architecture, using default resources${COL_RES}"
-        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
-        ;;
-    *)
-        echo -e "${RED}❌ Unexpected architecture response: $ARCH${COL_RES}"
-        exit 1
-        ;;
-esac
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 
 # wait for kind: PlatformMesh resource to become ready
 echo -e "$COL Waiting for kind: PlatformMesh resource to become ready $COL_RES"
@@ -173,14 +149,33 @@ kubectl rollout status deployment kubernetes-graphql-gateway -n platform-mesh-sy
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
-echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1       portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for default organization to be ready ${COL_RES}"
+kubectl wait  \
+  --server='https://kcp.api.portal.dev.local:8443/clusters/root:orgs' \
+  --kubeconfig=$SCRIPT_DIR/../../.secret/kcp/admin.kubeconfig \
+  --for=condition=WorkspaceInitialized workspaces \
+  --timeout=280s default
+
+kubectl wait \
+  --server='https://kcp.api.portal.dev.local:8443/clusters/root:orgs' \
+  --kubeconfig=$SCRIPT_DIR/../../.secret/kcp/admin.kubeconfig \
+  --for=condition=Ready accounts \
+  --timeout=280s default
+
+echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
 show_wsl_hosts_guidance
+
+echo -e "${YELLOW}⚠️  WARNING: You need to add a hosts entry for every organization that is onboarded!${COL_RES}"
+echo -e "${YELLOW}   Each organization will require its own subdomain entry in /etc/hosts${COL_RES}"
+echo -e "${YELLOW}   Example: 127.0.0.1 <organization-name>.portal.dev.local${COL_RES}"
+
 echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
 
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
-echo -e "${COL}You can access the portal at: https://portal.dev.local${COL_RES}:8443"
+echo -e "${COL}You can access the onboarding portal at: https://portal.dev.local:8443 or the default organization at: https://default.portal.dev.local:8443 ${COL_RES}"
+
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"
