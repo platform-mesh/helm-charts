@@ -2,11 +2,11 @@ apiVersion: v2
 name: account-operator
 description: A Helm chart to deploy platform-mesh Account-Operator
 type: application
-version: 0.9.26
+version: 0.9.27
 appVersion: "v0.3.1"
 dependencies:
   - name: account-operator-crds
-    version: 0.2.3
+    version: 0.2.4
     condition: crds.enabled
     repository: oci://ghcr.io/platform-mesh/helm-charts
   - name: common
