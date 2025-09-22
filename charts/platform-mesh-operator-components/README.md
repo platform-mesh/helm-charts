@@ -7,9 +7,8 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.0.359"` |  |
+| componentVersion.semver | string | `"0.1.0-rc.5"` |  |
 | iamWebhookCA | string | `nil` |  |
-| ociPullSecret | string | `"ocm-oci-github-pull"` |  |
 | ocm.component.create | bool | `true` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
 | ocm.interval | string | `"3m"` |  |

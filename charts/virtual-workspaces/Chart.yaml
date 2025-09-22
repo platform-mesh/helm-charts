@@ -2,9 +2,9 @@ apiVersion: v2
 name: virtual-workspaces
 description: A Helm chart to deploy platform-mesh virtual-workspaces
 type: application
-version: 0.2.2
+version: 0.2.3
 appVersion: "v0.6.2"
 dependencies:
   - name: common
-    version: 0.5.5
+    version: 0.5.6
     repository: oci://ghcr.io/platform-mesh/helm-charts
