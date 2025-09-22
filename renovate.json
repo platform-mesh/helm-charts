@@ -16,7 +16,7 @@
       "datasourceTemplate": "docker",
       "versioningTemplate": "semver",
       "depNameTemplate": "{{depName}}",
-      "registryUrlTemplate": "oci://{{registryUrl}}"
+      "registryUrlTemplate": "{{registryUrl}}"
     }
   ],
   "packageRules": [
