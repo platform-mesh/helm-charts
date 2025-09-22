@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | baseDomain | string | `"example.com"` |  |
-| componentVersion.semver | string | `"0.1.0-rc.5"` |  |
+| componentVersion.semver | string | `"0.1.0-rc.6"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ocm.component.create | bool | `true` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
