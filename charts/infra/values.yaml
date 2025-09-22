@@ -140,6 +140,20 @@ keycloak:
     # -- toggle to enable/disable crossplane
     enabled: true
 
+    operator:
+      enabled: true
+      realm:
+        name: operator
+        displayName: Operator
+        registrationAllowed: false
+        accessTokenLifespan: 1h
+      client:
+        name: operator
+        accessType: PUBLIC
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+
     # -- crossplane provider config
     providerConfig:
       # -- name of the client

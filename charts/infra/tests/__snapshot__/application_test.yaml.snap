@@ -311,6 +311,92 @@ match snapshots:
       providerConfigRef:
         name: keycloak-provider-config
   15: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: operator
+    spec:
+      forProvider:
+        accessType: PUBLIC
+        clientId: operator
+        enabled: true
+        name: operator
+        realmIdRef:
+          name: null
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+  16: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: operator-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: operator
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  17: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        name: groups
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientScopeIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  19: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: operator
+    spec:
+      forProvider:
+        accessTokenLifespan: 1h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: Operator
+        displayNameHtml: <b>Operator</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: operator
+        registrationAllowed: false
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 1h
+      providerConfigRef:
+        name: keycloak-provider-config
+  20: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -323,7 +409,7 @@ match snapshots:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  16: |
+  21: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -338,7 +424,7 @@ match snapshots:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  17: |
+  22: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -358,7 +444,7 @@ match snapshots:
         ssoSessionIdleTimeout: 8h
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  23: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -382,7 +468,7 @@ match snapshots:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  19: |
+  24: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -434,7 +520,7 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  20: |
+  25: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -445,7 +531,566 @@ match snapshots:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
+  26: |
+    apiVersion: security.istio.io/v1beta1
+    kind: RequestAuthentication
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      jwtRules: null
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: openfga
+match snapshots for operator realm:
+  1: |
+    apiVersion: networking.istio.io/v1
+    kind: Gateway
+    metadata:
+      name: gateway
+      namespace: platform-mesh-system
+    spec:
+      selector:
+        istio: gateway
+      servers:
+        - hosts:
+            - '*'
+          port:
+            name: http
+            number: 8000
+            protocol: HTTP
+  2: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: kcp-cluster-admin-client-cert
+      namespace: platform-mesh-system
+    spec:
+      commonName: cluster-admin
+      issuerRef:
+        name: root-front-proxy-client-ca
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      secretName: kcp-cluster-admin-client-cert
+      subject:
+        organizations:
+          - system:kcp:admin
+      usages:
+        - client auth
+  3: |
+    apiVersion: druid.gardener.cloud/v1alpha1
+    kind: Etcd
+    metadata:
+      labels:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      name: etcd-kcp
+      namespace: platform-mesh-system
+    spec:
+      annotations:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      backup:
+        compression:
+          enabled: false
+          policy: gzip
+        deltaSnapshotMemoryLimit: 1Gi
+        deltaSnapshotPeriod: 300s
+        fullSnapshotSchedule: 0 */24 * * *
+        garbageCollectionPeriod: 43200s
+        garbageCollectionPolicy: Exponential
+        leaderElection:
+          etcdConnectionTimeout: 5s
+          reelectionPeriod: 5s
+        port: 8080
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1Gi
+          requests:
+            cpu: 23m
+            memory: 128Mi
+      etcd:
+        clientPort: 2379
+        defragmentationSchedule: 0 */24 * * *
+        metrics: basic
+        quota: 8Gi
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        serverPort: 2380
+      labels:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      replicas: 1
+      sharedConfig:
+        autoCompactionMode: periodic
+        autoCompactionRetention: 30m
+  4: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        oidc:
+          caFileRef:
+            key: tls.crt
+            name: domain-certificate-ca
+          clientID: default
+          enabled: true
+          groupsClaim: groups
+          issuerURL: https://portal.dev.local:8443/keycloak/realms/default
+          usernameClaim: email
+        serviceAccount:
+          enabled: true
+      deploymentTemplate:
+        spec:
+          template:
+            spec:
+              hostAliases:
+                - hostnames:
+                    - kcp.api.portal.dev.local
+                    - portal.dev.local
+                  ip: 10.96.188.4
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          clusterIP: 10.0.0.1
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+  5: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  6: |
+    apiVersion: networking.istio.io/v1beta1
+    kind: VirtualService
+    metadata:
+      name: kcp
+      namespace: platform-mesh-system
+    spec:
+      gateways:
+        - platform-mesh-system/gateway
+      hosts:
+        - kcp.api.portal.dev.local
+      tls:
+        - match:
+            - sniHosts:
+                - kcp.api.portal.dev.local
+          route:
+            - destination:
+                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+  7: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: RootShard
+    metadata:
+      name: root
+      namespace: platform-mesh-system
+    spec:
+      auth:
+        oidc:
+          caFileRef:
+            key: tls.crt
+            name: domain-certificate-ca
+          clientID: default
+          enabled: true
+          groupsClaim: groups
+          issuerURL: https://portal.dev.local:8443/keycloak/realms/default
+          usernameClaim: email
+      authorization:
+        webhook:
+          configSecretName: kcp-webhook-secret
+      cache:
+        embedded:
+          enabled: true
+      certificates:
+        issuerRef:
+          group: cert-manager.io
+          kind: Issuer
+          name: selfsigned
+      deploymentTemplate:
+        spec:
+          template:
+            metadata:
+              annotations:
+                traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+            spec:
+              hostAliases:
+                - hostnames:
+                    - kcp.api.portal.dev.local
+                    - portal.dev.local
+                  ip: 10.96.188.4
+      etcd:
+        endpoints:
+          - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
+      replicas: 1
+  8: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: default
+        enabled: true
+        name: Default
+        realmIdRef:
+          name: default
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: portal-client-secret-default
+        namespace: platform-mesh-system
+  9: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: default-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: default
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+          - trusted-platform-mesh-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  10: |
+    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
+    kind: DefaultGroups
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        groupIdsRefs:
+          - name: portal
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  11: |
+    apiVersion: group.keycloak.crossplane.io/v1alpha1
+    kind: Group
+    metadata:
+      name: portal
+    spec:
+      forProvider:
+        name: portal
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  12: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        includeInTokenScope: true
+        name: groups
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  13: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  14: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: trusted-platform-mesh-audiences
+    spec:
+      forProvider:
+        includeInTokenScope: true
+        name: trusted-platform-mesh-audiences
+        realmIdRef:
+          name: default
+      providerConfigRef:
+        name: keycloak-provider-config
+  15: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: operator
+    spec:
+      forProvider:
+        accessType: PUBLIC
+        clientId: operator
+        enabled: true
+        name: operator
+        realmIdRef:
+          name: null
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+  16: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: operator-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: operator
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  17: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        name: groups
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientScopeIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  19: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: operator
+    spec:
+      forProvider:
+        accessTokenLifespan: 1h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: Operator
+        displayNameHtml: <b>Operator</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: operator
+        registrationAllowed: false
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 1h
+      providerConfigRef:
+        name: keycloak-provider-config
+  20: |
+    apiVersion: keycloak.crossplane.io/v1beta1
+    kind: ProviderConfig
+    metadata:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+    spec:
+      credentials:
+        secretRef:
+          key: config
+          name: keycloak-provider-config
+          namespace: platform-mesh-system
+        source: Secret
   21: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+    stringData:
+      config: |-
+        {
+          "client_id":"admin-cli",
+          "username": "keycloak-admin",
+          "password": "aesaeXaefu0x",
+          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
+          "realm": "master"
+        }
+  22: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        accessTokenLifespan: 8h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: default
+        displayNameHtml: <b>default</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: default
+        registrationAllowed: true
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 8h
+      providerConfigRef:
+        name: keycloak-provider-config
+  23: |
+    apiVersion: networking.istio.io/v1beta1
+    kind: VirtualService
+    metadata:
+      name: keycloak
+    spec:
+      gateways:
+        - platform-mesh-system/gateway
+      hosts:
+        - '*'
+      http:
+        - headers:
+            request:
+              set:
+                x-forwarded-port: "8443"
+                x-forwarded-proto: https
+          match:
+            - uri:
+                prefix: /keycloak
+          route:
+            - destination:
+                host: keycloak.platform-mesh-system.svc.cluster.local
+                port:
+                  number: 80
+  24: |
+    apiVersion: security.istio.io/v1beta1
+    kind: AuthorizationPolicy
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      action: ALLOW
+      rules:
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/platform-mesh-system/sa/iam-service
+                  - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
+                  - cluster.local/ns/platform-mesh-system/sa/security-operator
+                  - cluster.local/ns/platform-mesh-system/sa/account-operator
+          to:
+            - operation:
+                methods:
+                  - POST
+                  - GET
+                  - PUT
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/platform-mesh-system/*
+          to:
+            - operation:
+                methods:
+                  - GET
+                paths:
+                  - /stores*
+            - operation:
+                methods:
+                  - POST
+                paths:
+                  - /stores/{*}/read
+                  - /stores/{*}/write
+                  - /stores/{*}/check
+                  - /stores/{*}/batch-check
+                  - /stores/{*}/expand
+                  - /stores/{*}/list-objects
+                  - /stores/{*}/streamed-list-objects
+                  - /openfga.v1.OpenFGAService/Read*
+                  - /openfga.v1.OpenFGAService/Check*
+                  - /openfga.v1.OpenFGAService/BatchCheck*
+                  - /openfga.v1.OpenFGAService/Expand*
+                  - /openfga.v1.OpenFGAService/List*
+                  - /openfga.v1.OpenFGAService/StreamedList*
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: openfga
+  25: |
+    apiVersion: networking.istio.io/v1alpha3
+    kind: DestinationRule
+    metadata:
+      name: openfga
+      namespace: platform-mesh-system
+    spec:
+      host: openfga.platform-mesh-system.svc.cluster.local
+      trafficPolicy:
+        tls:
+          mode: ISTIO_MUTUAL
+  26: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -784,6 +1429,92 @@ match snapshots w. hostAliases enabled:
       providerConfigRef:
         name: keycloak-provider-config
   15: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: operator
+    spec:
+      forProvider:
+        accessType: PUBLIC
+        clientId: operator
+        enabled: true
+        name: operator
+        realmIdRef:
+          name: null
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+  16: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: operator-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: operator
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  17: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        name: groups
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientScopeIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  19: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: operator
+    spec:
+      forProvider:
+        accessTokenLifespan: 1h
+        attributes:
+          organizationsEnabled: "true"
+        displayName: Operator
+        displayNameHtml: <b>Operator</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        realm: operator
+        registrationAllowed: false
+        registrationEmailAsUsername: true
+        ssoSessionIdleTimeout: 1h
+      providerConfigRef:
+        name: keycloak-provider-config
+  20: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -796,7 +1527,7 @@ match snapshots w. hostAliases enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  16: |
+  21: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -811,7 +1542,7 @@ match snapshots w. hostAliases enabled:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  17: |
+  22: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -831,7 +1562,7 @@ match snapshots w. hostAliases enabled:
         ssoSessionIdleTimeout: 8h
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  23: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -855,7 +1586,7 @@ match snapshots w. hostAliases enabled:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  19: |
+  24: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -907,7 +1638,7 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  20: |
+  25: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -918,7 +1649,7 @@ match snapshots w. hostAliases enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  21: |
+  26: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:

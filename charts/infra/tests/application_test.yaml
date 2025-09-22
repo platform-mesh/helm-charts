@@ -16,3 +16,12 @@ tests:
       enabled: true
   asserts:
     - matchSnapshot: {}
+- it: match snapshots for operator realm
+  set:
+    kcp:
+      frontProxy:
+        clusterIP: "10.0.0.1"
+    hostAliases:
+      enabled: true
+  asserts:
+    - matchSnapshot: {}

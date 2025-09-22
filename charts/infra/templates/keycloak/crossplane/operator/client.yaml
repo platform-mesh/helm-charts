@@ -1,0 +1,80 @@
+{{- if eq (include "common.getNestedValue" (dict "Values" .Values "key" "crossplane.enabled")) "true" -}}
+{{- if .Values.keycloak.crossplane.operator.enabled -}}
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: {{ .Values.keycloak.crossplane.operator.client.name }}
+spec:
+  forProvider:
+    enabled: true
+    accessType: {{ default "CONFIDENTIAL" .Values.keycloak.crossplane.operator.client.accessType }}
+    clientId: {{ .Values.keycloak.crossplane.operator.client.name }}
+    standardFlowEnabled: true
+    name: {{ .Values.keycloak.crossplane.operator.client.name }}
+    realmIdRef:
+      name: {{ .Values.keycloak.crossplane.operator.name }}
+    validRedirectUris: {{ toYaml .Values.keycloak.crossplane.operator.client.validRedirectUris | nindent 6 }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+{{- if ne .Values.keycloak.crossplane.operator.client.accessType "PUBLIC" }}
+  writeConnectionSecretToRef:
+    name: {{ .Values.keycloak.crossplane.operator.client.targetSecret.name }}
+    namespace: {{ .Values.keycloak.crossplane.operator.client.targetSecret.namespace }}
+{{- end }}
+
+---
+
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientDefaultScopes
+metadata:
+  name: {{ .Values.keycloak.crossplane.operator.client.name }}-default-scopes
+spec:
+  forProvider:
+    clientIdRef:
+      name: {{ .Values.keycloak.crossplane.operator.client.name }}
+    defaultScopes:
+    - profile
+    - email
+    - basic
+    - acr
+    - groups
+    realmIdRef:
+      name: {{ .Values.keycloak.crossplane.operator.realm.name }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+
+---
+
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientScope
+metadata:
+  name: groups-client-scope
+spec:
+  forProvider:
+    description: When requested, this scope will map a user's group memberships to
+      a claim
+    name: groups
+    realmIdRef:
+      name: {{ .Values.keycloak.crossplane.operator.realm.name }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+
+---
+
+apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+kind: GroupMembershipProtocolMapper
+metadata:
+  name: group-membership-mapper
+spec:
+  forProvider:
+    claimName: groups
+    clientScopeIdRef:
+      name: groups-client-scope
+    name: group-membership-mapper
+    realmIdRef:
+      name: {{ .Values.keycloak.crossplane.operator.realm.name }}
+  providerConfigRef:
+    name: {{ .Values.keycloak.crossplane.providerConfig.name }}
+
+{{- end -}}
+{{- end -}}

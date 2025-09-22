@@ -92,6 +92,15 @@ A Helm chart for Kubernetes
 | keycloak.crossplane.clients.default.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
 | keycloak.crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
 | keycloak.crossplane.identityProviders | object | `{}` |  |
+| keycloak.crossplane.operator.client.accessType | string | `"PUBLIC"` |  |
+| keycloak.crossplane.operator.client.name | string | `"operator"` |  |
+| keycloak.crossplane.operator.client.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` |  |
+| keycloak.crossplane.operator.client.validRedirectUris[1] | string | `"http://localhost:4300/callback*"` |  |
+| keycloak.crossplane.operator.enabled | bool | `true` |  |
+| keycloak.crossplane.operator.realm.accessTokenLifespan | string | `"1h"` |  |
+| keycloak.crossplane.operator.realm.displayName | string | `"Operator"` |  |
+| keycloak.crossplane.operator.realm.name | string | `"operator"` |  |
+| keycloak.crossplane.operator.realm.registrationAllowed | bool | `false` |  |
 | keycloak.crossplane.providerConfig | object | `{"name":"keycloak-provider-config","namespace":"platform-mesh-system"}` | crossplane provider config |
 | keycloak.crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | keycloak.crossplane.providerConfig.namespace | string | `"platform-mesh-system"` | client namespace |
