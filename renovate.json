@@ -17,17 +17,6 @@
       "registryUrlTemplate": "{{registryUrl}}",
       "depNameTemplate": "{{depName}}",
       "versioningTemplate": "{{versioning}}"
-    },
-    {
-      "customType": "regex",
-      "fileMatch": [
-        "(^|/)local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh\\.yaml$"
-      ],
-      "matchStrings": [
-        "- (?<depName>xpkg\\.upbound\\.io/crossplane-contrib/provider-keycloak):v(?<currentValue>.*)"
-      ],
-      "datasourceTemplate": "github-releases",
-      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
