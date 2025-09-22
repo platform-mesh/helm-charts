@@ -7,8 +7,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$"
+      "managerFilePatterns": [
+        "/(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$/"
       ],
       "matchStrings": [
         "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
@@ -20,7 +20,9 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["regex"],
+      "matchManagers": [
+        "custom.regex"
+      ],
       "ignoreUnstable": false
     }
   ]
