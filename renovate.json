@@ -7,16 +7,27 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$/"
+      "fileMatch": [
+        "(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$"
       ],
       "matchStrings": [
-        "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>\\S+?)\\s+depName=(?<depName>\\S+)\\s+versioning=(?<versioning>\\S+)"
+        "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+versioning=(?<versioning>\\S+)"
       ],
-      "datasourceTemplate": "{{datasource}}",
+      "datasourceTemplate": "oci",
       "registryUrlTemplate": "{{registryUrl}}",
       "depNameTemplate": "{{depName}}",
       "versioningTemplate": "{{versioning}}"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "(^|/)local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh\\.yaml$"
+      ],
+      "matchStrings": [
+        "- (?<depName>xpkg\\.upbound\\.io/crossplane-contrib/provider-keycloak):v(?<currentValue>.*)"
+      ],
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
