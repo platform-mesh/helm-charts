@@ -127,8 +127,6 @@ matches the snapshot:
         namespace: NAMESPACE
   4: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: portal
@@ -274,8 +272,6 @@ matches the snapshot with istio disabled:
         namespace: NAMESPACE
   4: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: portal
