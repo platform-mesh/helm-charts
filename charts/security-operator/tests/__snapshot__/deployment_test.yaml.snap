@@ -241,8 +241,6 @@ operator match the snapshot:
             - hostnames:
                 - kcp.dev.local
               ip: 10.96.0.100
-          imagePullSecrets:
-            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -447,8 +445,6 @@ operator match the snapshot:
               name: core-module
   7: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: RELEASE-NAME-security-operator
@@ -702,8 +698,6 @@ operator match the snapshot w. sentry:
             - hostnames:
                 - kcp.dev.local
               ip: 10.96.0.100
-          imagePullSecrets:
-            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -941,8 +935,6 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-sentry
   8: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: RELEASE-NAME-security-operator

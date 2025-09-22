@@ -96,8 +96,6 @@ virtual-workspaces match the snapshot:
                   name: vws-cert
                 - mountPath: /requestheader-client-ca
                   name: requestheader-client-ca
-          imagePullSecrets:
-            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -122,8 +120,6 @@ virtual-workspaces match the snapshot:
                 secretName: root-requestheader-client-ca
   3: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: virtual-workspaces
