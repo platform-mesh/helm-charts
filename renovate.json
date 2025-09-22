@@ -11,10 +11,10 @@
         "/(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$/"
       ],
       "matchStrings": [
-        "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>\\S+)\\s+depName=(?<depName>\\S+)\\s+versioning=(?<versioning>\\S+)"
+        "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>\\S+?)\\s+depName=(?<depName>\\S+)\\s+versioning=(?<versioning>\\S+)"
       ],
       "datasourceTemplate": "{{datasource}}",
-      "registryUrlTemplate": "oci://{{registryUrl}}",
+      "registryUrlTemplate": "{{registryUrl}}",
       "depNameTemplate": "{{depName}}",
       "versioningTemplate": "{{versioning}}"
     }
