@@ -13,10 +13,8 @@
       "matchStrings": [
         "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+versioning=(?<versioning>\\S+)"
       ],
-      "datasourceTemplate": "oci",
-      "registryUrlTemplate": "{{registryUrl}}",
-      "depNameTemplate": "{{depName}}",
-      "versioningTemplate": "{{versioning}}"
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [
