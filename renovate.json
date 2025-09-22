@@ -13,9 +13,8 @@
       "matchStrings": [
         "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
-      "registryUrlTemplate": "ghcr.io",
       "versioningTemplate": "semver",
-      "depNameTemplate": "platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
+      "depNameTemplate": "ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
       "datasourceTemplate": "docker"
     }
   ],
