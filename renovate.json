@@ -7,11 +7,11 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$/"
+      "fileMatch": [
+        "(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$"
       ],
       "matchStrings": [
-        "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+        "semver:\\s*(?<currentValue>[\\d\\.]+(-[\\w\\.-]+)?)"
       ],
       "versioningTemplate": "semver",
       "depNameTemplate": "ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
@@ -20,9 +20,7 @@
   ],
   "packageRules": [
     {
-      "matchManagers": [
-        "custom.regex"
-      ],
+      "matchManagers": ["regex"],
       "ignoreUnstable": false
     }
   ]
