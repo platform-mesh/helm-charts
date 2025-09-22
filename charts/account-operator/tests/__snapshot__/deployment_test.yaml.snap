@@ -114,8 +114,6 @@ deployment with tracing:
                 - mountPath: /certs
                   name: cert
                   readOnly: true
-          imagePullSecrets:
-            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -133,11 +131,11 @@ operator match the snapshot:
     kind: APIExport
     metadata:
       creationTimestamp: null
-      name: core.platform-mesh.org
+      name: core.platform-mesh.io
     spec:
       latestResourceSchemas:
-        - v250516-0b27c30.accountinfos.core.platform-mesh.org
-        - v250305-70de32b.accounts.core.platform-mesh.org
+        - v250516-0b27c30.accountinfos.core.platform-mesh.io
+        - v250305-70de32b.accounts.core.platform-mesh.io
       permissionClaims:
         - all: true
           resource: namespaces
@@ -154,19 +152,19 @@ operator match the snapshot:
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIExportEndpointSlice
     metadata:
-      name: core.platform-mesh.org
+      name: core.platform-mesh.io
     spec:
       export:
-        name: core.platform-mesh.org
+        name: core.platform-mesh.io
         path: root:platform-mesh-system
   3: |
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250516-0b27c30.accountinfos.core.platform-mesh.org
+      name: v250516-0b27c30.accountinfos.core.platform-mesh.io
     spec:
-      group: core.platform-mesh.org
+      group: core.platform-mesh.io
       names:
         kind: AccountInfo
         listKind: AccountInfoList
@@ -302,9 +300,9 @@ operator match the snapshot:
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250305-70de32b.accounts.core.platform-mesh.org
+      name: v250305-70de32b.accounts.core.platform-mesh.io
     spec:
-      group: core.platform-mesh.org
+      group: core.platform-mesh.io
       names:
         kind: Account
         listKind: AccountList
@@ -678,8 +676,6 @@ operator match the snapshot:
             - hostnames:
                 - kcp.dev.local
               ip: 10.96.0.100
-          imagePullSecrets:
-            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -693,8 +689,6 @@ operator match the snapshot:
                 secretName: account-operator-webhook-server-cert
   8: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: account-operator
@@ -736,11 +730,11 @@ operator match the snapshot (with kubeconfigSecret):
     kind: APIExport
     metadata:
       creationTimestamp: null
-      name: core.platform-mesh.org
+      name: core.platform-mesh.io
     spec:
       latestResourceSchemas:
-        - v250516-0b27c30.accountinfos.core.platform-mesh.org
-        - v250305-70de32b.accounts.core.platform-mesh.org
+        - v250516-0b27c30.accountinfos.core.platform-mesh.io
+        - v250305-70de32b.accounts.core.platform-mesh.io
       permissionClaims:
         - all: true
           resource: namespaces
@@ -757,19 +751,19 @@ operator match the snapshot (with kubeconfigSecret):
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIExportEndpointSlice
     metadata:
-      name: core.platform-mesh.org
+      name: core.platform-mesh.io
     spec:
       export:
-        name: core.platform-mesh.org
+        name: core.platform-mesh.io
         path: root:platform-mesh-system
   3: |
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250516-0b27c30.accountinfos.core.platform-mesh.org
+      name: v250516-0b27c30.accountinfos.core.platform-mesh.io
     spec:
-      group: core.platform-mesh.org
+      group: core.platform-mesh.io
       names:
         kind: AccountInfo
         listKind: AccountInfoList
@@ -905,9 +899,9 @@ operator match the snapshot (with kubeconfigSecret):
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250305-70de32b.accounts.core.platform-mesh.org
+      name: v250305-70de32b.accounts.core.platform-mesh.io
     spec:
-      group: core.platform-mesh.org
+      group: core.platform-mesh.io
       names:
         kind: Account
         listKind: AccountList
@@ -1280,8 +1274,6 @@ operator match the snapshot (with kubeconfigSecret):
                 - mountPath: /certs
                   name: cert
                   readOnly: true
-          imagePullSecrets:
-            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -1298,8 +1290,6 @@ operator match the snapshot (with kubeconfigSecret):
                 secretName: account-operator-webhook-server-cert
   8: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: account-operator
@@ -1341,11 +1331,11 @@ operator match the snapshot with webhook enabled:
     kind: APIExport
     metadata:
       creationTimestamp: null
-      name: core.platform-mesh.org
+      name: core.platform-mesh.io
     spec:
       latestResourceSchemas:
-        - v250516-0b27c30.accountinfos.core.platform-mesh.org
-        - v250305-70de32b.accounts.core.platform-mesh.org
+        - v250516-0b27c30.accountinfos.core.platform-mesh.io
+        - v250305-70de32b.accounts.core.platform-mesh.io
       permissionClaims:
         - all: true
           resource: namespaces
@@ -1362,19 +1352,19 @@ operator match the snapshot with webhook enabled:
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIExportEndpointSlice
     metadata:
-      name: core.platform-mesh.org
+      name: core.platform-mesh.io
     spec:
       export:
-        name: core.platform-mesh.org
+        name: core.platform-mesh.io
         path: root:platform-mesh-system
   3: |
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250516-0b27c30.accountinfos.core.platform-mesh.org
+      name: v250516-0b27c30.accountinfos.core.platform-mesh.io
     spec:
-      group: core.platform-mesh.org
+      group: core.platform-mesh.io
       names:
         kind: AccountInfo
         listKind: AccountInfoList
@@ -1510,9 +1500,9 @@ operator match the snapshot with webhook enabled:
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250305-70de32b.accounts.core.platform-mesh.org
+      name: v250305-70de32b.accounts.core.platform-mesh.io
     spec:
-      group: core.platform-mesh.org
+      group: core.platform-mesh.io
       names:
         kind: Account
         listKind: AccountList
@@ -1882,8 +1872,6 @@ operator match the snapshot with webhook enabled:
                 - mountPath: /certs
                   name: cert
                   readOnly: true
-          imagePullSecrets:
-            - name: github
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -1897,8 +1885,6 @@ operator match the snapshot with webhook enabled:
                 secretName: account-operator-webhook-server-cert
   8: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: account-operator

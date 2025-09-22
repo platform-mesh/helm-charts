@@ -121,7 +121,6 @@ tasks:
 
   local-setup-start-docker-registries:
     cmds:
-      - docker run -d --name proxy-docker-hub --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://docker.io registry:2
       - docker run -d --name proxy-quay --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://quay.io registry:2
       - docker run -d --name proxy-ghcr --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io registry:2
       - docker run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
@@ -473,3 +472,8 @@ tasks:
         rm -rf .ocm/transport.ctf
         rm registry-ca.pem
       - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true
+  bump-local-setup-component-version:
+    cmds:
+      - |
+        LATEST_VERSION=$(ocm get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
+        yq -i '.spec.semver = "'$LATEST_VERSION'"' local-setup/kustomize/components/ocm-component/component.yaml

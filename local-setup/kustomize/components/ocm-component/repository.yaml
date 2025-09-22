@@ -7,6 +7,3 @@ spec:
     baseUrl: ghcr.io/platform-mesh
     type: OCIRegistry
   interval: 1m
-  ocmConfig:
-    - kind: Secret
-      name: github
