@@ -18,5 +18,11 @@
       "depNameTemplate": "{{depName}}",
       "versioningTemplate": "{{versioning}}"
     }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["regex"],
+      "prerelease": true
+    }
   ]
 }
