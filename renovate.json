@@ -11,12 +11,12 @@
         "(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$"
       ],
       "matchStrings": [
-        "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+versioning=(?<versioning>\\S+)"
+        "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
-      "datasourceTemplate": "{{datasource}}",
+      "registryUrlTemplate": "ghcr.io",
       "versioningTemplate": "semver",
-      "depNameTemplate": "{{depName}}",
-      "registryUrlTemplate": "{{registryUrl}}"
+      "depNameTemplate": "platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
+      "datasourceTemplate": "docker"
     }
   ],
   "packageRules": [

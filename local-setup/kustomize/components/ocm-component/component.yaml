@@ -6,7 +6,7 @@ spec:
   repositoryRef:
     name: platform-mesh
   component: github.com/platform-mesh/platform-mesh
-  semver: 0.0.369 # renovate: datasource=docker registryUrl=ghcr.io depName=platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh versioning=semver
+  semver: 0.0.369
   interval: 1m
   ocmConfig:
     - kind: Repository
