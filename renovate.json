@@ -21,7 +21,7 @@
   "packageRules": [
     {
       "matchManagers": ["regex"],
-      "ignoreUnstable": true
+      "ignoreUnstable": false
     }
   ]
 }
