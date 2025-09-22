@@ -14,7 +14,9 @@
         "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+versioning=(?<versioning>\\S+)"
       ],
       "datasourceTemplate": "docker",
-      "versioningTemplate": "semver"
+      "versioningTemplate": "semver",
+      "depNameTemplate": "{{depName}}",
+      "registryUrlTemplate": "{{registryUrl}}"
     }
   ],
   "packageRules": [
