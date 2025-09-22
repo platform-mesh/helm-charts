@@ -8,7 +8,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
-        "/(^|/)local-setup/kustomize/components/ocm-component/component\\.ya?ml$/"
+        "/(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$/"
       ],
       "matchStrings": [
         "semver:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)\\s+#\\s*renovate:\\s*datasource=(?<datasource>\\w+)\\s+registryUrl=(?<registryUrl>\\S+)\\s+depName=(?<depName>\\S+)\\s+versioning=(?<versioning>\\S+)"
