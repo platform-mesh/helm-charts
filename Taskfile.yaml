@@ -380,12 +380,11 @@ tasks:
       - |
         set -e
         echo "Transferring OCM transport archive to local registry from a pod..."
+        kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
         kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/images/ocmbuilder:pr-4 -- sleep infinity || true
         kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
-
         kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm
-        ocm create ctf --type directory .ocm/transport.ctf
-
+        
         # configure RootCA truststore on the pod
         kubectl exec -ti ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
         kubectl cp registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
@@ -399,9 +398,6 @@ tasks:
 
   ocm:deploy:
     cmds:
-      - |
-        ocm_ctf=.ocm/transport.ctf
-        mkdir -p "$(dirname "$ocm_ctf")"
       - task: ocm:deploy:ociregistry
       - task: ocm:deploy:transfer-pod
       - task: ocm:kustomize:apply
@@ -414,12 +410,12 @@ tasks:
         echo "Applying kustomize overlay to deploy platform-mesh"
         kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
         echo "Applied kustomize overlay"
+        kubectl rollout status deployment/ocm-k8s-toolkit-controller-manager -n ocm-system --timeout=180s
       - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
   ocm:cleanup:
     cmds:
       - |
-        rm -rf .ocm/transport.ctf
         rm registry-ca.pem
       - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true
   bump-local-setup-component-version:

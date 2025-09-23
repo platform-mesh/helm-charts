@@ -29,6 +29,10 @@ run_environment_checks
 
 # Check if kind cluster is already running, if not create it
 if ! check_kind_cluster; then
+    if [ -d "$SCRIPT_DIR/certs" ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Clearning existing certs directory ${COL_RES}"
+        rm -rf $SCRIPT_DIR/certs
+    fi
     echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
     $SCRIPT_DIR/../scripts/gen-certs.sh
 

@@ -7,3 +7,4 @@ resources:
   - prerelease-component.yml
   - platform-mesh-resource-patch.yaml
   - vs-registry.yaml
+
