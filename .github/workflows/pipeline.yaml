@@ -3,10 +3,10 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'local-setup/**'
-      - '!**'
-      - 'local-setup/**'
+    # paths:
+    #   - 'local-setup/**'
+    #   - '!**'
+    #   - 'local-setup/**'
 
 concurrency:
   group: localsetup-${{ github.event.pull_request.number }}
