@@ -1,0 +1,12 @@
+name: lint
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: lint
+        id: lint
+        run: |
+          echo "No-op"

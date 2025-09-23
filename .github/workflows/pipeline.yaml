@@ -27,9 +27,4 @@ jobs:
   #         echo "No-op"
 
   testChart:
-    runs-on: ubuntu-latest
-    steps:
-      - name: lint
-        id: lint
-        run: |
-          echo "No-op"
+    uses: ./.github/workflows/noop-lint.yml
