@@ -165,24 +165,6 @@ tasks:
           --for=condition=available deployment \
           --timeout=120s oci-registry-docker-registry
 
-  ocm:patch:component:
-    desc: "Patch Component spec.repository.url and spec.version.semver (override with PATCH_REPO_URL / PATCH_SEMVER)"
-    cmds:
-      - |
-        COMPONENT_VERSION_NAME="prerelease"
-        COMPONENT_VERSION_NAMESPACE="default"
-        PATCH_REPO_URL="oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh"
-        INCLUSTER_PATCH_REPO_URL="oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh"
-
-        echo "Patching ComponentVersion $COMPONENT_VERSION_NAME in namespace $COMPONENT_VERSION_NAMESPACE"
-        echo "  -> repository.url = ${INCLUSTER_PATCH_REPO_URL}"
-        echo "  -> version.semver  = {{ .COMPONENT_PRERELEASE_VERSION }}"
-        kubectl -n "$COMPONENT_VERSION_NAMESPACE" patch component.delivery.ocm.software "$COMPONENT_VERSION_NAME" --type=merge -p "{\"spec\":{\"semver\":\"{{ .COMPONENT_PRERELEASE_VERSION }}\"}}"
-
-        # patch repository
-        kubectl  patch repository.delivery.ocm.software "$COMPONENT_VERSION_NAME" --type=merge -p "{\"spec\":{\"repositorySpec\":{\"baseUrl\":\"${INCLUSTER_PATCH_REPO_URL}\"}}}"
-        echo "Patch applied."
-
   ocm:build:custom-local-charts:
     deps:
       - task: setup:ocm
@@ -390,7 +372,6 @@ tasks:
         echo
         echo "Built prerelease component version {{ .COMPONENT_PRERELEASE_VERSION }} (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
 
-      - task: ocm:patch:component
       - task: ocm:transfer:dir-to-local-oci
 
   ocm:deploy:transfer-pod:
