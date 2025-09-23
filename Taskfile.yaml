@@ -155,25 +155,6 @@ tasks:
           --for=condition=available deployment \
           --timeout=120s oci-registry-docker-registry
 
-      - task: ocm:prime:tls
-
-  ocm:prime:tls:
-    cmds:
-      - |
-        if [ -e 'local-setup/rootCA.pem' ]; then
-          echo "Root CA already exists, skipping download."
-        else
-          kubectl get secret domain-certificate -n registry -o jsonpath="{.data['tls\.crt']}" | base64 -d > local-setup/rootCA.pem
-          echo 'installing root certificate into local trust store...'
-          CAROOT=local-setup ./bin/mkcert -install
-          rootCAPath="./local-setup/rootCA.pem"
-
-          if [ -e '/etc/ssl/certs/ca-certificates.crt' ]; then
-            echo "updating root certificate"
-            sudo cat "${rootCAPath}" | sudo tee -a /etc/ssl/certs/ca-certificates.crt || echo "failed to append to ca-certificates. Ignoring the failure"
-          fi
-        fi
-
   ocm:patch:component:
     desc: "Patch Component spec.repository.url and spec.version.semver (override with PATCH_REPO_URL / PATCH_SEMVER)"
     cmds:
@@ -257,7 +238,6 @@ tasks:
           echo ""
 
           set -x
-          export OCMCONFIG=~/.ocmconfig
           echo "Adding component: $COMPONENT_NAME version $VERSION"
           CHART_REAL_NAME=$(grep '^name:' "$CHART_DIR/Chart.yaml" | awk '{print $2}')
           CHART_LOCATION="oci://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh/${CHART_REAL_NAME}:$CHART_VERSION"
@@ -351,9 +331,6 @@ tasks:
         }
 
         # Retrieve versions (add chart path only for those that can be local)
-        get_component_version iam-service github.com/platform-mesh/iam-service ../helm-charts-priv/charts/iam-service IAM_SERVICE_VERSION
-        get_component_version iam-ui github.com/platform-mesh/iam-ui ../helm-charts-priv/charts/iam-ui IAM_UI_VERSION
-        get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui ../helm-charts-priv/charts/marketplace-ui MARKETPLACE_UI_VERSION
         get_component_version account-operator github.com/platform-mesh/account-operator charts/account-operator ACCOUNT_OPERATOR_VERSION
         get_component_version security-operator github.com/platform-mesh/security-operator charts/security-operator SECURITY_OPERATOR_VERSION
         get_component_version extension-manager-operator github.com/platform-mesh/extension-manager-operator charts/extension-manager-operator EXTENSION_MANAGER_OPERATOR_VERSION
@@ -364,6 +341,7 @@ tasks:
         get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
         get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
         get_component_version keycloak github.com/platform-mesh/keycloak ../helm-charts/keycloak/ KEYCLOAK_VERSION
+        get_component_version platform-mesh-operator-components github.com/platform-mesh/platform-mesh-operator-components charts/platform-mesh-operator-components PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
         # Add more mappings as needed
 
         echo "--- finished getting component versions ---"
@@ -387,9 +365,7 @@ tasks:
         GARDENER_ETCD_DRUID_CHART_VERSION=0.1.0 \
         KEYCLOAK_VERSION=$KEYCLOAK_VERSION \
         VIRTUAL_WORKSPACES_VERSION=$VIRTUAL_WORKSPACES_VERSION \
-        IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION \
-        IAM_UI_VERSION=$IAM_UI_VERSION \
-        MARKETPLACE_UI_VERSION=$MARKETPLACE_UI_VERSION
+        PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
 
         echo
         echo "Built prerelease component version {{ .COMPONENT_PRERELEASE_VERSION }} (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
@@ -404,7 +380,7 @@ tasks:
       - |
         set -e
         echo "Transferring OCM transport archive to local registry from a pod..."
-        kubectl run ocm-transfer-pod --image=ghcr.io/akafazov/devbox:latest -- sleep infinity || true
+        kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/images/ocmbuilder:pr-4 -- sleep infinity || true
         kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
 
         kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm
@@ -415,26 +391,6 @@ tasks:
         kubectl cp registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
         kubectl exec -ti ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
         kubectl exec -ti ocm-transfer-pod -- sudo update-ca-certificates
-
-      - |
-        cat <<EOF > .ocm/.ocmconfig
-        type: generic.config.ocm.software/v1
-        configurations:
-          - type: credentials.config.ocm.software
-            consumers:
-              - identity:
-                  type: OCIRegistry
-                  scheme: https
-                  hostname: ghcr.io
-                  pathprefix: platform-mesh
-                credentials:
-                  - type: Credentials
-                    properties:
-                      username: github
-                      password: $GH_TOKEN
-        EOF
-        kubectl cp .ocm/.ocmconfig -n default ocm-transfer-pod:.
-              
 
   ocm:transfer:dir-to-local-oci:
     cmds:

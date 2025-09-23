@@ -16,6 +16,8 @@ spec:
   # renovate: datasource=docker registryUrl=https://ghcr.io depName=ghcr.io/platform-mesh/helm-charts/platform-mesh-operator-components
   chartVersion: 0.14.121
   values:
+    account-operator:
+      enabled: true
     istio-gateway:
       enabled: true
       targetNamespace: istio-system
@@ -24,11 +26,6 @@ spec:
           type: None
     keycloak:
       enabled: true
-      ocm:
-        repo:
-          name: prerelease
-        component:
-          name: prerelease
       values:
         postgresql:
           enabled: true
@@ -100,53 +97,6 @@ spec:
           #TODO this is needed until the latest changes are released like https://github.com/kcp-dev/kcp-operator/pull/89 and https://github.com/kcp-dev/kcp-operator/pull/88
           tag: "main"
           pullPolicy: IfNotPresent
-    marketplace-ui:
-      enabled: false
-      values:
-        istio:
-          virtualService:
-            hosts:
-              - "portal.dev.local"
-    iam-ui:
-      enabled: false
-      values:
-        istio:
-          virtualService:
-            hosts:
-              - "portal.dev.local"
-    iam-service:
-      enabled: true
-      ocm:
-        repo:
-          name: prerelease
-        component:
-          name: prerelease
-      referencePath:
-        - name: iam-service
-      values:
-        iamData:
-          tenantConfigurations:
-            - tenantId: 2rhmp9ahui4x9udh/default
-              issuer: https://portal.dev.local:8443/keycloak/realms/default
-              audience: default
-        postgresql:
-          primary:
-            resources:
-              limits:
-                ephemeral-storage: 2Gi
-                memory: 192Mi
-              requests:
-                cpu: 100m
-                ephemeral-storage: 50Mi
-                memory: 128Mi
-        tenantConfigurations:
-          configs:
-          - audience: default
-            issuer: https://auth.dev.local:8443
-            tenantid: default
-        trust:
-          default:
-            trustedIssuer: https://portal.dev.local:8443/keycloak/realms/default
 
     security-operator:
       values:

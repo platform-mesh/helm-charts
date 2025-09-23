@@ -94,6 +94,16 @@ Steps:
 - if adding new componentReferences, update [.ocm/component-constructor-prerelease.yaml](.ocm/component-constructor-prerelease.yaml)
 - enable the changed components in local-setup/kustomize/overlays/ocm-prerelease/platform-mesh-resource-patch.yaml
 - run `task ocm:deploy`
+- enable configuration for the changed charts in [platform-mesh-resource-patch.yaml](local-setup/kustomize/overlays/ocm-prerelease/platform-mesh-resource-patch.yaml) by configuring, e.g.:
+```yaml
+    account-operator:
+      enabled: true
+      ocm:
+        repo:
+          name: prerelease
+        component:
+          name: prerelease
+```
 - run `task ocm:build:component`
 - repeat last step when doing changes to the charts
 - run `task ocm:cleanup` for Cleanup when needed
