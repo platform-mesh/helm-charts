@@ -10,3 +10,11 @@ local-setup/webhook-config/*
 local-setup/e2e/test-results/.last-run.json
 local-setup/scripts/certs
 .vscode/
+*.log
+*.pid
+.ocm/transport.ctf/
+ocm/.ocm/transport.ctf/
+*.tgz
+registry-ca.pem
+.ocm/.ocmconfig
+local-setup/rootCA.pem

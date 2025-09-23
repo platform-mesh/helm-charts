@@ -155,41 +155,6 @@ services:
       certManager:
         enabled: true
         createCA: true
-  iam-service:
-    enabled: true
-    dependsOn:
-      - name: istio-istiod
-        namespace: default
-      - name: openfga
-        namespace: default
-    values:
-      global:
-        imagePullSecrets:
-          - name: github
-        security:
-          allowInsecureImages: true
-      trust:
-        default:
-          trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
-          jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-          audience: default
-      hostname: "api.{{ .Values.baseDomain }}"
-      postgresql:
-        image:
-          registry: ghcr.io/platform-mesh
-          repository: images/postgresql
-      gateway:
-        name: gateway
-  iam-ui:
-    enabled: true
-    dependsOn:
-      - name: istio-istiod
-        namespace: default
-    values:
-      istio:
-        virtualService:
-          hosts:
-            - "{{ .Values.baseDomain }}"
   infra:
     enabled: true
     dependsOn:
@@ -390,16 +355,6 @@ services:
         #          - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
         #          - cluster.local/ns/platform-mesh-system/sa/security-operator
         #          - cluster.local/ns/platform-mesh-system/sa/account-operator
-  marketplace-ui:
-    enabled: false
-    dependsOn:
-      - name: istio-istiod
-        namespace: default
-    values:
-      istio:
-        virtualService:
-          hosts:
-            - "{{ .Values.baseDomain }}"
   portal:
     enabled: false
     dependsOn:

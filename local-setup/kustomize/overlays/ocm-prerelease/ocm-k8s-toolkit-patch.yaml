@@ -1,0 +1,36 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: ocm-k8s-toolkit
+  namespace: default
+spec:
+  interval: 1m
+  targetNamespace: ocm-system
+  sourceRef:
+    kind: GitRepository
+    name: ocm-k8s-toolkit
+  path: ./kubernetes/controller/config/default
+  prune: true
+  patches:
+    - patch: |
+        - op: add
+          path: /spec/template/spec/volumes/-
+          value:
+            name: custom-ca
+            configMap:
+              name: ocm-custom-ca
+        - op: add
+          path: /spec/template/spec/containers/0/volumeMounts/-
+          value:
+            name: custom-ca
+            mountPath: /etc/ocm/ca
+            readOnly: true
+        - op: add
+          path: /spec/template/spec/containers/0/env
+          value:
+            - name: SSL_CERT_FILE
+              value: /etc/ocm/ca/registry-ca.pem
+
+      target:
+        kind: Deployment
+        name: controller-manager

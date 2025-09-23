@@ -67,23 +67,25 @@ You can also iterate on an existing cluster (faster, preserves cluster state):
 task local-setup:iterate
 ```
 
-
 ### 2. Alternative, Bootstrap Local Environment with image caching
 
-One time activities to start local image registries:
+#### One time activities to start local image registries:
 ```sh
 task local-setup-start-docker-registries
 ```
 
-Setup script to bootstrap the environment with locally cached images (faster initial setup):
+#### Setup script to bootstrap the environment with locally cached images (faster initial setup):
 ```sh
 task local-setup-cached
 ```
 
-Iterate on existing cluster (faster, preserves cluster)
+#### Iterate on existing cluster (faster, preserves cluster)
 ```sh
 task local-setup-cached:iterate
 ```
+
+#### Developer information
+See [README-developers](./README-developers.md) for more detailed information related to chart developers.
 
 ### 3. Access the Platform
 
