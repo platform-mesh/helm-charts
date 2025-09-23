@@ -26,71 +26,16 @@ jobs:
 
     steps:
 
-      # Step 1: Checkout the code
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-
-      # Step 2: Install github cli
       - name: Install the gh cli
         uses: ksivamuthu/actions-setup-gh-cli@c78dbed4be2f8d6133a14a9a597ee12fd4ed5c93 # v3
         with:
           version: 2.24.3
-
-      # Step 3: Run start.sh
-      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
-        name: Run start.sh
-        id: run_start_sh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_USER: ${{ github.repository_owner }}
-          DEBUG: true
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.44.1
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run local-setup
         run: |
           task local-setup
-        continue-on-error: true
-
-      - if: steps.changed-files.outputs.localsetup_any_changed == 'true' && steps.run_start_sh.outcome == 'failure'
-        name: Debug
-        run: |
-          set -x
-          docker ps
-          curl -s -i http://localhost:8000/ || true
-          
-          kubectl get helmreleases -A
-          kubectl get deployments -A
-          kubectl get pods -A -o wide
-
-      # Step 4: Prepare the NodeJS/playwright environment
-      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
-        name: Cache node modules
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
-        with:
-          path: ~/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      # Step 5: Install NodeJS and dependencies
-      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
-        name: Node ${{ matrix.node-version }}
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: 'local-setup/e2e'
-
-      # Step 6: Install npm dependencies
-      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
-        name: Clean install of npm dependencies
-        run: |
-          cd local-setup/e2e
-          npm ci
-          npx playwright install 
-
-      # Step 7: Run the end-to-end tests
-      - if: steps.changed-files.outputs.localsetup_any_changed == 'true'
-        name: End2End tests
-        run: |
-          cd local-setup/e2e/
-          npx playwright test
-      - if: steps.changed-files.outputs.localsetup_any_changed == 'false'
-        name: No-op
-        run: echo "No changes detected, skipping job."
