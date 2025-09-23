@@ -11,6 +11,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkHelmDocs
+        id: checkHelmDocs
+        run: |
+          echo "No-op"
+
   kind-localsetup:
     if: github.event.pull_request.changed_files > 0
     runs-on: ubuntu-latest-large
