@@ -25,7 +25,7 @@ jobs:
   pipeline:
     needs: checkdiff
     if: ${{ needs.checkdiff.outputs.helmcharts == 'false' }}
-    uses: openmfp/gha/.github/workflows/pipeline-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
     with:
       chartFolder: charts
       chartName: common
