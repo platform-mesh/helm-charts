@@ -1,8 +1,13 @@
 name: pipeline
 on:
-  pull_request:
-    branches:
-      - main
+  push:
+    paths:
+      - 'local-setup/**'
+      - '!**'
+      - 'local-setup/**'
+  # pull_request:
+  #   branches:
+  #     - main
     # paths:
     #   - 'local-setup/**'
     #   - '!**'
