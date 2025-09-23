@@ -5,6 +5,8 @@ resources:
   - ocm-k8s-toolkit-patch.yaml
   - prerelease-repository.yml
   - prerelease-component.yml
-  - platform-mesh-resource-patch.yaml
   - vs-registry.yaml
+  - ../../components/platform-mesh-operator-resource/
 
+patchesStrategicMerge:
+  - platform-mesh-resource-patch.yaml

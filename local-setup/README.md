@@ -90,22 +90,12 @@ To test local charts, run the local-setup script and make modifications to the c
 
 Steps:
 
-- edit Taskfile.yaml and configure `COMPONENT_PRERELEASE_VERSION`, `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS` and `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS` parameters as needed
-- if adding new componentReferences, update [.ocm/component-constructor-prerelease.yaml](.ocm/component-constructor-prerelease.yaml)
-- enable the changed components in local-setup/kustomize/overlays/ocm-prerelease/platform-mesh-resource-patch.yaml
+- (optional) edit Taskfile.yaml and configure `COMPONENT_PRERELEASE_VERSION`, `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS` and `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS` parameters as needed
+- (optional) if adding new componentReferences, update [.ocm/component-constructor-prerelease.yaml](.ocm/component-constructor-prerelease.yaml)
 - run `task ocm:deploy`
-- enable configuration for the changed charts in [platform-mesh-resource-patch.yaml](local-setup/kustomize/overlays/ocm-prerelease/platform-mesh-resource-patch.yaml) by configuring, e.g.:
-```yaml
-    account-operator:
-      enabled: true
-      ocm:
-        repo:
-          name: prerelease
-        component:
-          name: prerelease
-```
 - run `task ocm:build:component`
-- repeat last step when doing changes to the charts
+- run `task ocm:kustomize:apply` to apply component to the cluster
+- repeat last 2 steps when doing changes to the charts
 - run `task ocm:cleanup` for Cleanup when needed
 
 ### 3. Access the Platform

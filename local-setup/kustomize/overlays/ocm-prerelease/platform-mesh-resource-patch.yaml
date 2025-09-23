@@ -6,6 +6,6 @@ metadata:
 spec:
   ocm:
     repo:
-      name: prelease
+      name: prerelease
     component:
-      name: prelease
+      name: prerelease
