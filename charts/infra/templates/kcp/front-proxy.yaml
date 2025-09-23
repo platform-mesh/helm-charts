@@ -21,7 +21,10 @@ spec:
       usernameClaim: {{ .usernameClaim }}
     {{- end }}
   {{- end }}
-
+  {{ with .Values.kcp.image.tag }}
+  image:
+    tag: {{ .}}
+  {{- end }}
   additionalPathMappings:
 {{ toYaml .Values.kcp.frontProxy.additionalPathMappings | indent 4 }}
   rootShard:
