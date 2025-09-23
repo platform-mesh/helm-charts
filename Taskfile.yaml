@@ -417,8 +417,14 @@ tasks:
       - |
         rm registry-ca.pem
       - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true
+
   bump-local-setup-component-version:
     cmds:
       - |
         LATEST_VERSION=$(ocm get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
         yq -i '.spec.semver = "'$LATEST_VERSION'"' local-setup/kustomize/components/ocm-component/component.yaml
+
+  ocm:build-apply:iterate:
+    cmds:
+      - task: ocm:build:component
+      - task: ocm:kustomize:apply

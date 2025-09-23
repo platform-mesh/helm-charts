@@ -84,19 +84,8 @@ task local-setup-cached
 task local-setup-cached:iterate
 ```
 
-#### Bootstrap with locally built OCM components (circumvents deployment of released components)
-
-To test local charts, run the local-setup script and make modifications to the chars while bumping the version in Chart.yaml. The follow the steps:
-
-Steps:
-
-- (optional) edit Taskfile.yaml and configure `COMPONENT_PRERELEASE_VERSION`, `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS` and `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS` parameters as needed
-- (optional) if adding new componentReferences, update [.ocm/component-constructor-prerelease.yaml](.ocm/component-constructor-prerelease.yaml)
-- run `task ocm:deploy`
-- run `task ocm:build:component`
-- run `task ocm:kustomize:apply` to apply component to the cluster
-- repeat last 2 steps when doing changes to the charts
-- run `task ocm:cleanup` for Cleanup when needed
+#### Developer information
+See [README-developers](./README-developers.md) for more detailed information related to chart developers.
 
 ### 3. Access the Platform
 
