@@ -133,67 +133,6 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: iam-service
-      namespace: default
-    spec:
-      chartRef:
-        kind: OCIRepository
-        name: iam-service
-        namespace: default
-      dependsOn:
-        - name: istio-istiod
-          namespace: default
-        - name: openfga
-          namespace: default
-      interval: 1m
-      releaseName: iam-service
-      targetNamespace: platform-mesh-system
-      timeout: 15m
-      values:
-        gateway:
-          name: gateway
-        global:
-          imagePullSecrets:
-            - name: github
-          security:
-            allowInsecureImages: true
-        hostname: api.example.com
-        postgresql:
-          image:
-            registry: ghcr.io/platform-mesh
-            repository: images/postgresql
-        trust:
-          default:
-            audience: default
-            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://example.com:443/keycloak/realms/default
-  7: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: iam-ui
-      namespace: default
-    spec:
-      chartRef:
-        kind: OCIRepository
-        name: iam-ui
-        namespace: default
-      dependsOn:
-        - name: istio-istiod
-          namespace: default
-      interval: 1m
-      releaseName: iam-ui
-      targetNamespace: platform-mesh-system
-      timeout: 15m
-      values:
-        istio:
-          virtualService:
-            hosts:
-              - example.com
-  8: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: infra
       namespace: default
     spec:
@@ -237,7 +176,7 @@ it should render the application manifests:
             virtualservice:
               hosts:
                 - example.com
-  9: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -257,7 +196,7 @@ it should render the application manifests:
       targetNamespace: istio-system
       timeout: 15m
       values: null
-  10: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -288,7 +227,7 @@ it should render the application manifests:
               nodePort: 32000
               port: 15021
           type: NodePort
-  11: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -329,7 +268,7 @@ it should render the application manifests:
               - providers:
                   - name: otel-tracing
                 randomSamplingPercentage: 100
-  12: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -349,7 +288,7 @@ it should render the application manifests:
       targetNamespace: kcp-operator
       timeout: 15m
       values: null
-  13: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -401,7 +340,7 @@ it should render the application manifests:
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
-  14: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -454,7 +393,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  15: |
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -522,7 +461,7 @@ it should render the application manifests:
               endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  16: |
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -552,7 +491,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  17: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -584,7 +523,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  18: |
+  16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -603,7 +542,7 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 15m
       values: null
-  19: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -628,7 +567,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  20: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -653,7 +592,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  21: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -678,7 +617,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  22: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -703,57 +642,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  23: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: oci
-      name: iam-service
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: iam-service
-          resource:
-            name: chart
-      skipVerify: true
-  24: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: oci
-      name: iam-ui
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: iam-ui
-          resource:
-            name: chart
-      skipVerify: true
-  25: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -778,7 +667,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  26: |
+  22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -803,7 +692,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  27: |
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -828,7 +717,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  28: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -853,7 +742,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  29: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -878,7 +767,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  30: |
+  26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -903,7 +792,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  31: |
+  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -928,7 +817,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  32: |
+  28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -953,7 +842,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  33: |
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -978,7 +867,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  34: |
+  30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1003,7 +892,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  35: |
+  31: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
