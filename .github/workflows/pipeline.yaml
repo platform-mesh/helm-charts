@@ -1,0 +1,35 @@
+name: pipeline
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'local-setup/**'
+      - '!**'
+      - 'local-setup/**'
+
+concurrency:
+  group: localsetup-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: lint
+        id: lint
+        run: |
+          echo "No-op"
+      - name: unittest
+        id: lint
+        run: |
+          echo "No-op"
+
+  checkHelmDocs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: docs
+        id: docs
+        run: |
+          echo "No-op"
