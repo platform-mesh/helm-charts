@@ -2,8 +2,6 @@ name: platform-mesh-operator-components Bump Versions
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '*/15 * * * *'
 
 concurrency:
   group: platform-mesh-operator-components-update-${{ github.ref }}
