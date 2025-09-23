@@ -14,22 +14,22 @@ concurrency:
 
 jobs:
 
-  pipeline:
+  # pipeline:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: lint
+  #       id: lint
+  #       run: |
+  #         echo "No-op"
+  #     - name: unittest
+  #       id: unittest
+  #       run: |
+  #         echo "No-op"
+
+  testChart:
     runs-on: ubuntu-latest
     steps:
       - name: lint
         id: lint
-        run: |
-          echo "No-op"
-      - name: unittest
-        id: unittest
-        run: |
-          echo "No-op"
-
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: docs
-        id: docs
         run: |
           echo "No-op"
