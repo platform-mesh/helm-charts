@@ -46,24 +46,6 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `true` |  |
-| services.iam-service.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.iam-service.dependsOn[0].namespace | string | `"default"` |  |
-| services.iam-service.dependsOn[1].name | string | `"openfga"` |  |
-| services.iam-service.dependsOn[1].namespace | string | `"default"` |  |
-| services.iam-service.enabled | bool | `true` |  |
-| services.iam-service.values.gateway.name | string | `"gateway"` |  |
-| services.iam-service.values.global.imagePullSecrets[0].name | string | `"github"` |  |
-| services.iam-service.values.global.security.allowInsecureImages | bool | `true` |  |
-| services.iam-service.values.hostname | string | `"api.{{ .Values.baseDomain }}"` |  |
-| services.iam-service.values.postgresql.image.registry | string | `"ghcr.io/platform-mesh"` |  |
-| services.iam-service.values.postgresql.image.repository | string | `"images/postgresql"` |  |
-| services.iam-service.values.trust.default.audience | string | `"default"` |  |
-| services.iam-service.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
-| services.iam-service.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
-| services.iam-ui.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.iam-ui.dependsOn[0].namespace | string | `"default"` |  |
-| services.iam-ui.enabled | bool | `true` |  |
-| services.iam-ui.values.istio.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |
@@ -164,10 +146,6 @@ A Helm chart for Kubernetes
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowOrigins[0].regex | string | `".*"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].name | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.pathPrefix | string | `"/api/kubernetes-graphql-gateway/"` |  |
-| services.marketplace-ui.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.marketplace-ui.dependsOn[0].namespace | string | `"default"` |  |
-| services.marketplace-ui.enabled | bool | `false` |  |
-| services.marketplace-ui.values.istio.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.observability.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.observability.dependsOn[0].namespace | string | `"default"` |  |
 | services.observability.enabled | bool | `false` |  |
