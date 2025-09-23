@@ -182,6 +182,7 @@ jobs:
             CURRENT_KEYCLOAK=$(yq eval '.component.componentReferences[] | select(.name == "keycloak") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_KUBERNETES_GRAPHQL_GATEWAY=$(yq eval '.component.componentReferences[] | select(.name == "kubernetes-graphql-gateway") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_VIRTUAL_WORKSPACES=$(yq eval '.component.componentReferences[] | select(.name == "virtual-workspaces") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PLATFORM_MESH_OPERATOR_COMPONENTS=$(yq eval '.component.componentReferences[] | select(.name == "platform-mesh-operator-components") | .version' current_pm_component.yaml 2>/dev/null || echo "")
           else
             # No existing component, so we need to create one
             echo "No existing platform-mesh component found, creating initial version"
@@ -250,6 +251,11 @@ jobs:
           
           if [ "$CURRENT_VIRTUAL_WORKSPACES" != "${{ env.VIRTUAL_WORKSPACES_VERSION }}" ]; then
             echo "Virtual workspaces: $CURRENT_VIRTUAL_WORKSPACES -> ${{ env.VIRTUAL_WORKSPACES_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+          
+          if [ "$CURRENT_PLATFORM_MESH_OPERATOR_COMPONENTS" != "${{ env.PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}" ]; then
+            echo "Platform mesh operator components: $CURRENT_PLATFORM_MESH_OPERATOR_COMPONENTS -> ${{ env.PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}"
             NEEDS_UPDATE=true
           fi
           
