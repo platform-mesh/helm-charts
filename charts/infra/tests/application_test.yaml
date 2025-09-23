@@ -16,3 +16,10 @@ tests:
       enabled: true
   asserts:
     - matchSnapshot: {}
+- it: match snapshots w. kcp version
+  set:
+    kcp:
+      image:
+        tag: "v0.1.0"
+  asserts:
+    - matchSnapshot: {}

@@ -72,6 +72,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.name | string | `"frontproxy"` |  |
 | kcp.frontProxy.port | int | `8443` |  |
 | kcp.frontProxy.replicas | int | `1` |  |
+| kcp.image.tag | string | `"v0.28.1"` |  |
 | kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.caFileRef.key | string | `"tls.crt"` |  |

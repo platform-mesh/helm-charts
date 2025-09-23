@@ -44,6 +44,10 @@ spec:
       # this is the service URL to etcd. Replace if Helm chart was
       # installed under a different name or the namespace is not "default"
       - http://{{ .Values.kcp.etcd.service.name}}.{{ .Values.kcp.namespace}}.svc.cluster.local:{{.Values.kcp.etcd.service.port}}
+  {{ with .Values.kcp.image.tag }}
+  image:
+    tag: {{ . }}
+  {{- end }}
   deploymentTemplate:
     spec:
       template:

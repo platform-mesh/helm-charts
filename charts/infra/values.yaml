@@ -13,6 +13,8 @@ externalSecrets:
   enabled: false
 
 kcp:
+  image:
+    tag: ""
   namespace: platform-mesh-system
   external:
     hostname: kcp.api.portal.dev.local
