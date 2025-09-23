@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "No-op"
 
-  checkHelmDocs:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: docs
