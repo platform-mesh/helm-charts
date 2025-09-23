@@ -171,6 +171,9 @@ it should render the application manifests:
               name: pass-https
               port: "443"
               protocol: HTTPS
+        kcp:
+          image:
+            tag: v0.28.0
         keycloak:
           istio:
             virtualservice:

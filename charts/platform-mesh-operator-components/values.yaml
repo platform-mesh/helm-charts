@@ -163,6 +163,10 @@ services:
       - name: kcp-operator
         namespace: default
     values:
+      kcp:
+        image:
+          # FIXME: this is a temporary fix until we have support for the latest version
+          tag: v0.28.0
       istio:
         main:
           gateway:
