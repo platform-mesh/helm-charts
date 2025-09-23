@@ -1,9 +1,9 @@
 name: pipeline
-on:
-  push:
-    paths:
-      - 'local-setup/**'
-      - '.github/workflows/pipeline.yaml'
+# on:
+#   push:
+#     paths:
+#       - 'local-setup/**'
+#       - '.github/workflows/pipeline.yaml'
   # pull_request:
   #   branches:
   #     - main
