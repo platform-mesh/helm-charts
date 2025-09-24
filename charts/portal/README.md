@@ -10,6 +10,11 @@ Helm Chart for the Platform Mesh Portal
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| auth.defaultIDP.baseDomain | string | `""` |  |
+| auth.defaultIDP.clientId | string | `""` |  |
+| auth.defaultIDP.clientSecretKey | string | `""` |  |
+| auth.defaultIDP.clientSecretName | string | `""` |  |
+| auth.defaultIDP.discoveryUrl | string | `""` |  |
 | baseDomains[0] | string | `"localhost"` | base domains for VirtualService |
 | cookieDomain | string | `"localhost"` | cookie domain |
 | deployment.hostAliases | list | `[]` |  |
@@ -17,7 +22,6 @@ Helm Chart for the Platform Mesh Portal
 | environment | string | `"local"` | environment |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
-| health | object | `{"liveness":{"path":"/rest/health"},"port":8080,"readiness":{"path":"/rest/health"},"startup":{"path":"/rest/health"}}` | A way to provide additional experimental environment variables extraEnvVars:  - name: DEMO_PORTAL_CONTEXT_CRD_GATEWAY_API_URL    value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql  - name: DEMO_PORTAL_CONTEXT_IAM_SERVICE_API_URL    value: https://portal.dev.local:8443/iam/query  - name: DEMO_PORTAL_CONTEXT_IAM_ENTITY_CONFIG    value: >-      {"account":{"contextProperty":"entityId"}} trust:  demo:    # -- base domains    baseDomains: "localhost"    # -- discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required    discoveryEndpoint: ""    # -- auth domain (if discoveryEndpoint is not specified)    authDomain: http://localhost:8000/keycloak/realms/platform-mesh/protocol/openid-connect/auth    # -- token url (if discoveryEndpoint is not specified)    tokenUrl: http://keycloak/keycloak/realms/platform-mesh/protocol/openid-connect/token    # -- oidc client secret name    oidcClientSecretName: platform-mesh-client    # -- login audience    loginAudience: platform-mesh    # -- secret key reference    secretKeyRef: attribute.client_secret    # -- ContentConfiguration validator api url    contentConfigurationValidatorApiUrl: http://extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate |
 | health.liveness.path | string | `"/rest/health"` | path used for the liveness probe |
 | health.port | int | `8080` | health port to be used by probes |
 | health.readiness.path | string | `"/rest/health"` | path used for the readiness probe |
