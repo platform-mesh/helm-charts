@@ -38,4 +38,4 @@ jobs:
       chartPath: charts/platform-mesh-operator-crds
       componentName: github.com/platform-mesh/platform-mesh-operator-crds
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
-      ocmRegistryUrl: ghcr.io/openmfp/ocm
+      ocmRegistryUrl: ghcr.io/platform-mesh
