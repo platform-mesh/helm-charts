@@ -36,13 +36,17 @@ cookieDomain: "localhost"
 # -- allows the configuration of a kubeconfig secret for external api servers
 kubeconfigSecret: ""
 
-
 auth:
   defaultIDP:
+    # -- discovery url used for the idp
     discoveryUrl: ""
+    # -- name of the client secret, secret
     clientSecretName: ""
+    # -- client secret key in the secret
     clientSecretKey: ""
+    # -- client id
     clientId: ""
+    # -- baseDomain used by the portal
     baseDomain: ""
 health:
   # -- health port to be used by probes

@@ -10,11 +10,11 @@ Helm Chart for the Platform Mesh Portal
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| auth.defaultIDP.baseDomain | string | `""` |  |
-| auth.defaultIDP.clientId | string | `""` |  |
-| auth.defaultIDP.clientSecretKey | string | `""` |  |
-| auth.defaultIDP.clientSecretName | string | `""` |  |
-| auth.defaultIDP.discoveryUrl | string | `""` |  |
+| auth.defaultIDP.baseDomain | string | `""` | baseDomain used by the portal |
+| auth.defaultIDP.clientId | string | `""` | client id |
+| auth.defaultIDP.clientSecretKey | string | `""` | client secret key in the secret |
+| auth.defaultIDP.clientSecretName | string | `""` | name of the client secret, secret |
+| auth.defaultIDP.discoveryUrl | string | `""` | discovery url used for the idp |
 | baseDomains[0] | string | `"localhost"` | base domains for VirtualService |
 | cookieDomain | string | `"localhost"` | cookie domain |
 | deployment.hostAliases | list | `[]` |  |
