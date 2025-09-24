@@ -166,7 +166,7 @@ services:
       kcp:
         image:
           # FIXME: this is a temporary fix until we have support for the latest version
-          tag: v0.28.0
+          tag: d976f348f045efad301f23c67edaee2e07ce9fca
       istio:
         main:
           gateway:
