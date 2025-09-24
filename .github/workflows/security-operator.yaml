@@ -33,14 +33,3 @@ jobs:
     with:
       chartPath: charts/security-operator
       componentName: github.com/platform-mesh/security-operator
-      ocmRegistryUrl: ghcr.io/platform-mesh
-
-  ocmOpenMFP:
-    if: ${{ github.ref == 'refs/heads/main' }}
-    needs: [pipeline]
-    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
-    secrets: inherit
-    with:
-      chartPath: charts/security-operator
-      componentName: github.com/platform-mesh/security-operator
-      ocmRegistryUrl: ghcr.io/openmfp/ocm
