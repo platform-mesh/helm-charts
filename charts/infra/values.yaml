@@ -152,18 +152,18 @@ keycloak:
     # -- crossplane realm config
     realm:
       # -- realm name
-      name: default
+      name: welcome
       # -- realm display name
-      displayName: default
+      displayName: welcome
       # -- realm registration allowed
       registrationAllowed: true
       # -- realm access token lifespan
       accessTokenLifespan: 8h
 
     clients:
-      default:
+      welcome:
         # -- name of the client
-        name: Default
+        name: Welcome
         # -- valid redirect uris for the client
         validRedirectUris:
           # -- keycloak callback url
@@ -188,11 +188,11 @@ keycloak:
     # -- client configuration
     client:
       # -- client name
-      name: default
+      name: welcome
       # -- target secret options
       targetSecret:
         # -- secret name
-        name: portal-client-secret-default
+        name: portal-client-secret-welcome
         # -- secret namespace
         namespace: platform-mesh-system
       # -- token lifespan
