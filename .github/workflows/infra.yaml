@@ -38,4 +38,3 @@ jobs:
       chartPath: charts/infra
       componentName: github.com/platform-mesh/infra
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
-      ocmRegistryUrl: ghcr.io/platform-mesh
