@@ -5,8 +5,8 @@ on:
   pull_request:
     branches:
       - main
-    # paths:
-    #   - 'local-setup/kustomize/components/ocm-component/component.yaml'
+    paths:
+      - 'local-setup/kustomize/components/ocm-component/component.yaml'
 concurrency:
   group: localsetup-${{ github.event.pull_request.number }}
   cancel-in-progress: false
