@@ -14,7 +14,7 @@ local-setup/scripts/certs
 *.pid
 .ocm/transport.ctf/
 ocm/.ocm/transport.ctf/
-*.tgz
+./*.tgz
 registry-ca.pem
 .ocm/.ocmconfig
 local-setup/rootCA.pem
