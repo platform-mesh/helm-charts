@@ -205,15 +205,15 @@ match snapshots:
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
-      name: default
+      name: welcome
     spec:
       forProvider:
         accessType: CONFIDENTIAL
-        clientId: default
+        clientId: welcome
         enabled: true
-        name: Default
+        name: Welcome
         realmIdRef:
-          name: default
+          name: welcome
         standardFlowEnabled: true
         validRedirectUris:
           - http://localhost:8000/callback*
@@ -221,17 +221,17 @@ match snapshots:
       providerConfigRef:
         name: keycloak-provider-config
       writeConnectionSecretToRef:
-        name: portal-client-secret-default
+        name: portal-client-secret-welcome
         namespace: platform-mesh-system
   9: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
-      name: default-default-scopes
+      name: welcome-default-scopes
     spec:
       forProvider:
         clientIdRef:
-          name: default
+          name: welcome
         defaultScopes:
           - profile
           - email
@@ -240,7 +240,7 @@ match snapshots:
           - groups
           - trusted-platform-mesh-audiences
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   10: |
@@ -253,7 +253,7 @@ match snapshots:
         groupIdsRefs:
           - name: portal
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   11: |
@@ -265,7 +265,7 @@ match snapshots:
       forProvider:
         name: portal
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   12: |
@@ -279,7 +279,7 @@ match snapshots:
         includeInTokenScope: true
         name: groups
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   13: |
@@ -294,7 +294,7 @@ match snapshots:
           name: groups-client-scope
         name: group-membership-mapper
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   14: |
@@ -307,7 +307,7 @@ match snapshots:
         includeInTokenScope: true
         name: trusted-platform-mesh-audiences
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   15: |
@@ -342,17 +342,17 @@ match snapshots:
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
-      name: default
+      name: welcome
     spec:
       forProvider:
         accessTokenLifespan: 8h
         attributes:
           organizationsEnabled: "true"
-        displayName: default
-        displayNameHtml: <b>default</b>
+        displayName: welcome
+        displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
-        realm: default
+        realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
         ssoSessionIdleTimeout: 8h
@@ -678,15 +678,15 @@ match snapshots w. hostAliases enabled:
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
-      name: default
+      name: welcome
     spec:
       forProvider:
         accessType: CONFIDENTIAL
-        clientId: default
+        clientId: welcome
         enabled: true
-        name: Default
+        name: Welcome
         realmIdRef:
-          name: default
+          name: welcome
         standardFlowEnabled: true
         validRedirectUris:
           - http://localhost:8000/callback*
@@ -694,17 +694,17 @@ match snapshots w. hostAliases enabled:
       providerConfigRef:
         name: keycloak-provider-config
       writeConnectionSecretToRef:
-        name: portal-client-secret-default
+        name: portal-client-secret-welcome
         namespace: platform-mesh-system
   9: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
-      name: default-default-scopes
+      name: welcome-default-scopes
     spec:
       forProvider:
         clientIdRef:
-          name: default
+          name: welcome
         defaultScopes:
           - profile
           - email
@@ -713,7 +713,7 @@ match snapshots w. hostAliases enabled:
           - groups
           - trusted-platform-mesh-audiences
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   10: |
@@ -726,7 +726,7 @@ match snapshots w. hostAliases enabled:
         groupIdsRefs:
           - name: portal
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   11: |
@@ -738,7 +738,7 @@ match snapshots w. hostAliases enabled:
       forProvider:
         name: portal
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   12: |
@@ -752,7 +752,7 @@ match snapshots w. hostAliases enabled:
         includeInTokenScope: true
         name: groups
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   13: |
@@ -767,7 +767,7 @@ match snapshots w. hostAliases enabled:
           name: groups-client-scope
         name: group-membership-mapper
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   14: |
@@ -780,7 +780,7 @@ match snapshots w. hostAliases enabled:
         includeInTokenScope: true
         name: trusted-platform-mesh-audiences
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   15: |
@@ -815,17 +815,17 @@ match snapshots w. hostAliases enabled:
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
-      name: default
+      name: welcome
     spec:
       forProvider:
         accessTokenLifespan: 8h
         attributes:
           organizationsEnabled: "true"
-        displayName: default
-        displayNameHtml: <b>default</b>
+        displayName: welcome
+        displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
-        realm: default
+        realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
         ssoSessionIdleTimeout: 8h
@@ -1140,15 +1140,15 @@ match snapshots w. kcp version:
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
-      name: default
+      name: welcome
     spec:
       forProvider:
         accessType: CONFIDENTIAL
-        clientId: default
+        clientId: welcome
         enabled: true
-        name: Default
+        name: Welcome
         realmIdRef:
-          name: default
+          name: welcome
         standardFlowEnabled: true
         validRedirectUris:
           - http://localhost:8000/callback*
@@ -1156,17 +1156,17 @@ match snapshots w. kcp version:
       providerConfigRef:
         name: keycloak-provider-config
       writeConnectionSecretToRef:
-        name: portal-client-secret-default
+        name: portal-client-secret-welcome
         namespace: platform-mesh-system
   9: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
-      name: default-default-scopes
+      name: welcome-default-scopes
     spec:
       forProvider:
         clientIdRef:
-          name: default
+          name: welcome
         defaultScopes:
           - profile
           - email
@@ -1175,7 +1175,7 @@ match snapshots w. kcp version:
           - groups
           - trusted-platform-mesh-audiences
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   10: |
@@ -1188,7 +1188,7 @@ match snapshots w. kcp version:
         groupIdsRefs:
           - name: portal
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   11: |
@@ -1200,7 +1200,7 @@ match snapshots w. kcp version:
       forProvider:
         name: portal
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   12: |
@@ -1214,7 +1214,7 @@ match snapshots w. kcp version:
         includeInTokenScope: true
         name: groups
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   13: |
@@ -1229,7 +1229,7 @@ match snapshots w. kcp version:
           name: groups-client-scope
         name: group-membership-mapper
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   14: |
@@ -1242,7 +1242,7 @@ match snapshots w. kcp version:
         includeInTokenScope: true
         name: trusted-platform-mesh-audiences
         realmIdRef:
-          name: default
+          name: welcome
       providerConfigRef:
         name: keycloak-provider-config
   15: |
@@ -1277,17 +1277,17 @@ match snapshots w. kcp version:
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
-      name: default
+      name: welcome
     spec:
       forProvider:
         accessTokenLifespan: 8h
         attributes:
           organizationsEnabled: "true"
-        displayName: default
-        displayNameHtml: <b>default</b>
+        displayName: welcome
+        displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
-        realm: default
+        realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
         ssoSessionIdleTimeout: 8h
