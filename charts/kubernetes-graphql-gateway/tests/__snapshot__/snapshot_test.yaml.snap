@@ -31,7 +31,7 @@ match the Snapshot:
                 - --tracing-enabled=true
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
-                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
               env:
                 - name: OPENAPI_DEFINITIONS_PATH
                   value: /app/definitions
@@ -152,8 +152,6 @@ match the Snapshot:
               volumeMounts:
                 - mountPath: /app/definitions
                   name: definitions-volume
-          imagePullSecrets:
-            - name: github
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
             - emptyDir:
