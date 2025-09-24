@@ -35,5 +35,4 @@ jobs:
     with:
       chartPath: charts/kubernetes-graphql-gateway
       componentName: github.com/platform-mesh/kubernetes-graphql-gateway
-      ocmRegistryUrl: ghcr.io/platform-mesh
 
