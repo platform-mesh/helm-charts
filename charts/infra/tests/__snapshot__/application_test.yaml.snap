@@ -108,18 +108,6 @@ match snapshots:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        oidc:
-          caFileRef:
-            key: tls.crt
-            name: domain-certificate-ca
-          clientID: default
-          enabled: true
-          groupsClaim: groups
-          issuerURL: https://portal.dev.local:8443/keycloak/realms/default
-          usernameClaim: email
-        serviceAccount:
-          enabled: true
       replicas: 1
       rootShard:
         ref:
@@ -166,16 +154,6 @@ match snapshots:
       name: root
       namespace: platform-mesh-system
     spec:
-      auth:
-        oidc:
-          caFileRef:
-            key: tls.crt
-            name: domain-certificate-ca
-          clientID: default
-          enabled: true
-          groupsClaim: groups
-          issuerURL: https://portal.dev.local:8443/keycloak/realms/default
-          usernameClaim: email
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -566,18 +544,6 @@ match snapshots w. hostAliases enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        oidc:
-          caFileRef:
-            key: tls.crt
-            name: domain-certificate-ca
-          clientID: default
-          enabled: true
-          groupsClaim: groups
-          issuerURL: https://portal.dev.local:8443/keycloak/realms/default
-          usernameClaim: email
-        serviceAccount:
-          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -634,16 +600,6 @@ match snapshots w. hostAliases enabled:
       name: root
       namespace: platform-mesh-system
     spec:
-      auth:
-        oidc:
-          caFileRef:
-            key: tls.crt
-            name: domain-certificate-ca
-          clientID: default
-          enabled: true
-          groupsClaim: groups
-          issuerURL: https://portal.dev.local:8443/keycloak/realms/default
-          usernameClaim: email
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -1039,18 +995,6 @@ match snapshots w. kcp version:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        oidc:
-          caFileRef:
-            key: tls.crt
-            name: domain-certificate-ca
-          clientID: default
-          enabled: true
-          groupsClaim: groups
-          issuerURL: https://portal.dev.local:8443/keycloak/realms/default
-          usernameClaim: email
-        serviceAccount:
-          enabled: true
       image:
         tag: v0.1.0
       replicas: 1
@@ -1099,16 +1043,6 @@ match snapshots w. kcp version:
       name: root
       namespace: platform-mesh-system
     spec:
-      auth:
-        oidc:
-          caFileRef:
-            key: tls.crt
-            name: domain-certificate-ca
-          clientID: default
-          enabled: true
-          groupsClaim: groups
-          issuerURL: https://portal.dev.local:8443/keycloak/realms/default
-          usernameClaim: email
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
