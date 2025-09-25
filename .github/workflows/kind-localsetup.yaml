@@ -5,8 +5,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'local-setup/kustomize/components/ocm-component/component.yaml'
 
 concurrency:
   group: localsetup-${{ github.event.pull_request.number }}
@@ -19,32 +17,27 @@ jobs:
     runs-on: ubuntu-latest-large
 
     steps:
+      - run: echo "${{ github.event.pull_request.changed_files }}"
 
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Install the gh cli
-        uses: ksivamuthu/actions-setup-gh-cli@c78dbed4be2f8d6133a14a9a597ee12fd4ed5c93 # v3
-        with:
-          version: 2.24.3
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.44.1
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: etc hosts update
-        run: |
-          echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local" | sudo tee -a /etc/hosts
-      - name: Run local-setup
-        run: |
-          task local-setup
-      - name: OCM deploy
-        run: task ocm:deploy
-      - name: OCM build components
-        run: task ocm:build:component
-      - name: OCM apply kustomize
-        run: task ocm:kustomize:apply
-      - name: Check/wait for all components to be ready
-        run: |
-          sleep 10
-          kubectl wait --for=condition=ready --timeout=10m component --all -A
-          kubectl wait --for=condition=ready --timeout=10m resource --all -A
-          kubectl wait --for=condition=ready --timeout=10m hr --all -A
+      # - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      # - name: Install the gh cli
+      #   uses: ksivamuthu/actions-setup-gh-cli@c78dbed4be2f8d6133a14a9a597ee12fd4ed5c93 # v3
+      #   with:
+      #     version: 2.24.3
+      # - name: Install Task
+      #   uses: arduino/setup-task@v2
+      #   with:
+      #     version: 3.44.1
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: etc hosts update
+      #   run: |
+      #     echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local" | sudo tee -a /etc/hosts
+      # - name: Run local-setup
+      #   run: |
+      #     task local-setup
+      # - name: Check/wait for all components to be ready
+      #   run: |
+      #     sleep 10
+      #     kubectl wait --for=condition=ready --timeout=10m component --all -A
+      #     kubectl wait --for=condition=ready --timeout=10m resource --all -A
+      #     kubectl wait --for=condition=ready --timeout=10m hr --all -A
