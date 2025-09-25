@@ -69,9 +69,9 @@ kcp:
     replicas: 1
 
   oidc:
-    enabled: true
-    issuerUrl: "https://portal.dev.local:8443/keycloak/realms/default"
-    clientID: default
+    enabled: false
+    issuerUrl: ""
+    clientID: ""
     groupsClaim: groups
     usernameClaim: email
     caFileRef:
