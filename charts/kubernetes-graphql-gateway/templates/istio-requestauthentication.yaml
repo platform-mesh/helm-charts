@@ -1,4 +1,5 @@
 {{- if eq (include "common.istioEnabled" .) "true" -}}
+{{- if .Values.istio.requestAuthentication.create }}
 apiVersion: security.istio.io/v1beta1
 kind: RequestAuthentication
 metadata:
@@ -37,3 +38,4 @@ spec:
       forwardOriginalToken: true
 {{- end }}
 {{- end -}}
+{{- end }}

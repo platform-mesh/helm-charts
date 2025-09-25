@@ -59,6 +59,12 @@ sentry:
 
 istio:
   enabled: true
+  # -- ALlows the creation of a RequestAuthentication resource, by default disabled
+  requestAuthentication:
+    create: false
+  # -- ALlows the creation of a AuthorizationPolicy resource, by default disabled
+  authorizationPolicy:
+    create: false
   gateway:
     name: gateway
 
