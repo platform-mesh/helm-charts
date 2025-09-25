@@ -1,0 +1,15 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: kustomization-cc
+  namespace: platform-mesh-system
+spec:
+  interval: 10m0s
+  path: ./contentconfigurations
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: cc-repository
+  kubeConfig:
+    secretRef:
+      name: contentconfiguration-kubeconfig

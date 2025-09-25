@@ -1,0 +1,11 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+name: cc-repository
+namespace: platform-mesh-system
+data:
+  spec:
+    interval: 1m
+    ref:
+      commit: abcd
+    timeout: 60s
+    url: https://github.com/platform-mesh/helm-charts

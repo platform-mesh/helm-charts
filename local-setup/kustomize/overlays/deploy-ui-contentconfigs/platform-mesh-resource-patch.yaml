@@ -1,0 +1,12 @@
+apiVersion: core.platform-mesh.io/v1alpha1
+kind: PlatformMesh
+metadata:
+  name: platform-mesh
+  namespace: platform-mesh-system
+spec:
+  kcp:
+    extraProviderConnections:
+    - endpointSliceName: core.platform-mesh.io
+      path: root:platform-mesh-system
+      secret: contentconfiguration-kubeconfig
+      external: false
