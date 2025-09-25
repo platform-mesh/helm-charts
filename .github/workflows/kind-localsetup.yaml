@@ -17,27 +17,46 @@ jobs:
     runs-on: ubuntu-latest-large
 
     steps:
-      - run: echo "${{ github.event.pull_request.changed_files }}"
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 0
 
-      # - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      # - name: Install the gh cli
-      #   uses: ksivamuthu/actions-setup-gh-cli@c78dbed4be2f8d6133a14a9a597ee12fd4ed5c93 # v3
-      #   with:
-      #     version: 2.24.3
-      # - name: Install Task
-      #   uses: arduino/setup-task@v2
-      #   with:
-      #     version: 3.44.1
-      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
-      # - name: etc hosts update
-      #   run: |
-      #     echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local" | sudo tee -a /etc/hosts
-      # - name: Run local-setup
-      #   run: |
-      #     task local-setup
-      # - name: Check/wait for all components to be ready
-      #   run: |
-      #     sleep 10
-      #     kubectl wait --for=condition=ready --timeout=10m component --all -A
-      #     kubectl wait --for=condition=ready --timeout=10m resource --all -A
-      #     kubectl wait --for=condition=ready --timeout=10m hr --all -A
+      - name: Did local-setup change?
+        id: local_setup
+        run: |
+          if git diff --quiet origin/${{ github.base_ref }} -- local-setup; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip when unchanged
+        if: steps.local_setup.outputs.changed == 'false'
+        run: echo "local-setup unchanged"
+
+      - name: Install the gh cli
+        if: steps.local_setup.outputs.changed == 'true'
+        uses: ksivamuthu/actions-setup-gh-cli@c78dbed4be2f8d6133a14a9a597ee12fd4ed5c93 # v3
+        with:
+          version: 2.24.3
+      - name: Install Task
+        if: steps.local_setup.outputs.changed == 'true'
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.44.1
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: etc hosts update
+        if: steps.local_setup.outputs.changed == 'true'
+        run: |
+          echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local" | sudo tee -a /etc/hosts
+      - name: Run local-setup
+        if: steps.local_setup.outputs.changed == 'true'
+        run: |
+          task local-setup
+      - name: Check/wait for all components to be ready
+        if: steps.local_setup.outputs.changed == 'true'
+        run: |
+          sleep 10
+          kubectl wait --for=condition=ready --timeout=10m component --all -A
+          kubectl wait --for=condition=ready --timeout=10m resource --all -A
+          kubectl wait --for=condition=ready --timeout=10m hr --all -A
