@@ -149,6 +149,7 @@ tasks:
     internal: true
     cmds:
       - |
+        kind export kubeconfig -n platform-mesh
         # docs: https://github.com/twuni/docker-registry.helm
         helm repo add twuni https://helm.twun.io
         helm repo update
@@ -169,6 +170,7 @@ tasks:
     deps:
       - task: setup:ocm
     cmds:
+      - kind export kubeconfig -n platform-mesh
       - kubectl cp .ocm/component-constructor.yaml -n default ocm-transfer-pod:.ocm/component-constructor.yaml
       - kubectl cp .ocm/component-constructor-chart-only.yaml -n default ocm-transfer-pod:.ocm/component-constructor-chart-only.yaml
       - |
@@ -277,6 +279,7 @@ tasks:
     deps: 
       - task: ocm:build:custom-local-charts
     cmds:
+      - kind export kubeconfig -n platform-mesh
       - kubectl cp .ocm/component-constructor-prerelease.yaml -n default ocm-transfer-pod:.ocm/component-constructor-prerelease.yaml
       - |
         # set -x
@@ -404,6 +407,7 @@ tasks:
 
   ocm:kustomize:apply:
     cmds:
+      - kind export kubeconfig -n platform-mesh
       - |
         echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
         yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
@@ -414,6 +418,7 @@ tasks:
 
   ocm:cleanup:
     cmds:
+      - kind export kubeconfig -n platform-mesh
       - |
         rm registry-ca.pem
       - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true

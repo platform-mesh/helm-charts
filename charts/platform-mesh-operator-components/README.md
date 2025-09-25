@@ -189,27 +189,19 @@ A Helm chart for Kubernetes
 | services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.portal.dependsOn[0].namespace | string | `"default"` |  |
 | services.portal.enabled | bool | `false` |  |
-| services.portal.values.baseDomains[0] | string | `"{{ .Values.baseDomain }}"` |  |
+| services.portal.values.auth.defaultIDP.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
+| services.portal.values.auth.defaultIDP.clientId | string | `"welcome"` |  |
+| services.portal.values.auth.defaultIDP.clientSecretKey | string | `"attribute.client_secret"` |  |
+| services.portal.values.auth.defaultIDP.clientSecretName | string | `"portal-client-secret-welcome"` |  |
+| services.portal.values.auth.defaultIDP.discoveryUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.environment | string | `"kind"` |  |
 | services.portal.values.extraEnvVars[0].name | string | `"DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
 | services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
-| services.portal.values.extraEnvVars[1].name | string | `"DEFAULT_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
-| services.portal.values.extraEnvVars[1].value | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/iam/query"` |  |
-| services.portal.values.extraEnvVars[2].name | string | `"DEFAULT_PORTAL_CONTEXT_IAM_ENTITY_CONFIG"` |  |
-| services.portal.values.extraEnvVars[2].value | string | `"{\"account\":{\"contextProperty\":\"entityId\"}}"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
 | services.portal.values.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
-| services.portal.values.trust.default.authDomain | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default/protocol/openid-connect/auth"` | auth domain (if discoveryEndpoint is not specified) |
-| services.portal.values.trust.default.baseDomains | string | `"portal.dev.local"` | base domains |
-| services.portal.values.trust.default.contentConfigurationValidatorApiUrl | string | `"http://extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate"` | ContentConfiguration validator api url |
-| services.portal.values.trust.default.discoveryEndpoint | string | `""` | discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required |
-| services.portal.values.trust.default.loginAudience | string | `"default"` | login audience |
-| services.portal.values.trust.default.oidcClientSecretName | string | `"default-client"` | oidc client secret name |
-| services.portal.values.trust.default.secretKeyRef | string | `"attribute.client_secret"` | secret key reference |
-| services.portal.values.trust.default.tokenUrl | string | `"http://keycloak/keycloak/realms/default/protocol/openid-connect/token"` | token url (if discoveryEndpoint is not specified) |
 | services.portal.values.virtualService.hosts | bool | `false` |  |
 | services.rebac-authz-webhook.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.rebac-authz-webhook.dependsOn[0].namespace | string | `"default"` |  |

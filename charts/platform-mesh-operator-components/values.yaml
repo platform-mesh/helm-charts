@@ -371,37 +371,19 @@ services:
       http:
         protocol: https
       frontendPort: '{{ .Values.port }}'
-      trust:
-        default:
-          # -- base domains
-          baseDomains: "portal.dev.local"
-          # -- discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required
-          discoveryEndpoint: ""
-          # -- auth domain (if discoveryEndpoint is not specified)
-          authDomain: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default/protocol/openid-connect/auth"
-          # -- token url (if discoveryEndpoint is not specified)
-          tokenUrl: http://keycloak/keycloak/realms/default/protocol/openid-connect/token
-          # -- oidc client secret name
-          oidcClientSecretName: default-client
-          # -- login audience
-          loginAudience: default
-          # -- secret key reference
-          secretKeyRef: attribute.client_secret
-          # -- ContentConfiguration validator api url
-          contentConfigurationValidatorApiUrl: http://extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate
+      auth:
+        defaultIDP:
+          discoveryUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"
+          clientSecretName: "portal-client-secret-welcome"
+          clientSecretKey: "attribute.client_secret"
+          clientId: "welcome"
+          baseDomain: "{{ .Values.baseDomain }}"
       virtualService:
         hosts: false
-      baseDomains:
-        - "{{ .Values.baseDomain }}"
       cookieDomain: "{{ .Values.baseDomain }}"
       extraEnvVars:
         - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
           value: https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
-        - name: DEFAULT_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-          value: https://{{ .Values.baseDomain }}:{{ .Values.port }}/iam/query
-        - name: DEFAULT_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
-          value: >-
-            {"account":{"contextProperty":"entityId"}}
   observability:
     enabled: false
     targetNamespace: observability
