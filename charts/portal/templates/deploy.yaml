@@ -19,35 +19,19 @@ spec:
         env:
         - name: HTTP_PROTOCOL
           value: {{ .Values.http.protocol }}
-      {{- range $key, $idp := .Values.trust }}
-        - name: OIDC_CLIENT_ID_{{ $key | upper | replace "-" "_" }}
-          value: "{{ $idp.loginAudience | default $idp.audience }}"
-        - name: OIDC_CLIENT_SECRET_{{ $key | upper | replace "-" "_" }}
+        {{- with .Values.auth.defaultIDP }}
+        - name: DISCOVERY_ENDPOINT_DEFAULT
+          value: {{ .discoveryUrl }}
+        - name: OIDC_CLIENT_ID_DEFAULT
+          value: {{ .clientId }}
+        - name: OIDC_CLIENT_SECRET_DEFAULT
           valueFrom:
             secretKeyRef:
-              name: portal-client-secret-{{ $idp.secretKey | default $key }}
-              key: {{ $idp.secretKeyRef | default "secret" }}
-      {{ if not (eq $idp.discoveryEndpoint "") }}
-        - name: DISCOVERY_ENDPOINT_{{ $key | upper | replace "-" "_" }}
-          value: {{ $idp.discoveryEndpoint }}
-      {{- else }}
-        - name: TOKEN_URL_{{ $key | upper | replace "-" "_" }}
-          value: {{ $idp.tokenUrl | default $idp.trustedIssuer }}
-        - name: AUTH_SERVER_URL_{{ $key | upper | replace "-" "_" }}
-          value: {{ $idp.authDomain | default $idp.trustedIssuer }}
-      {{- end }}
-        - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
-          value: {{ $idp.contentConfigurationValidatorApiUrl }}
-      {{- if $idp.baseDomains }}
-        - name: BASE_DOMAINS_{{ $key | upper | replace "-" "_" }}
-          value: {{ $idp.baseDomains }}
-      {{- end }}
-      {{- end }}
-      {{- if .Values.trust }}
-        - name: IDP_NAMES
-          {{- $keys := keys .Values.trust | sortAlpha }}
-          value: "{{ join "," $keys  }}"
-      {{- end }}
+              name: {{ .clientSecretName }}
+              key: {{ .clientSecretKey }}
+        - name: BASE_DOMAINS_DEFAULT
+          value: {{ .baseDomain }}
+        {{- end }}
         {{- if .Values.developmentLandcsape }}
         - name: DEVELOPMENT_INSTANCE
           value: "{{ .Values.developmentLandcsape }}"

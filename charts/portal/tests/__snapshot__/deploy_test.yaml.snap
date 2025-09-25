@@ -26,21 +26,17 @@ matches the snapshot:
             - env:
                 - name: HTTP_PROTOCOL
                   value: http
-                - name: OIDC_CLIENT_ID_PORTAL
-                  value: "12345"
-                - name: OIDC_CLIENT_SECRET_PORTAL
+                - name: DISCOVERY_ENDPOINT_DEFAULT
+                  value: null
+                - name: OIDC_CLIENT_ID_DEFAULT
+                  value: null
+                - name: OIDC_CLIENT_SECRET_DEFAULT
                   valueFrom:
                     secretKeyRef:
-                      key: secret
-                      name: portal-client-secret-portal
-                - name: DISCOVERY_ENDPOINT_PORTAL
-                  value: https://auth.example.com/.well-known/openid-configuration
-                - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
+                      key: null
+                      name: null
+                - name: BASE_DOMAINS_DEFAULT
                   value: null
-                - name: BASE_DOMAINS_PORTAL
-                  value: portal.example.com,portal2.example.com
-                - name: IDP_NAMES
-                  value: portal
                 - name: DEVELOPMENT_INSTANCE
                   value: "true"
                 - name: FEATURE_TOGGLES
@@ -126,6 +122,17 @@ test hosAliases:
             - env:
                 - name: HTTP_PROTOCOL
                   value: http
+                - name: DISCOVERY_ENDPOINT_DEFAULT
+                  value: null
+                - name: OIDC_CLIENT_ID_DEFAULT
+                  value: null
+                - name: OIDC_CLIENT_SECRET_DEFAULT
+                  valueFrom:
+                    secretKeyRef:
+                      key: null
+                      name: null
+                - name: BASE_DOMAINS_DEFAULT
+                  value: null
                 - name: DEVELOPMENT_INSTANCE
                   value: "true"
                 - name: FEATURE_TOGGLES

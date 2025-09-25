@@ -88,18 +88,18 @@ A Helm chart for Kubernetes
 | kcp.webhook.enabled | bool | `true` |  |
 | kcp.webhook.port | int | `9443` |  |
 | kcp.webhook.server | string | `"https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz"` |  |
-| keycloak.crossplane.clients.default.name | string | `"Default"` | name of the client |
-| keycloak.crossplane.clients.default.validRedirectUris | list | `["http://localhost:8000/callback*","http://localhost:4300/callback*"]` | valid redirect uris for the client |
-| keycloak.crossplane.clients.default.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
+| keycloak.crossplane.clients.welcome.name | string | `"Welcome"` | name of the client |
+| keycloak.crossplane.clients.welcome.validRedirectUris | list | `["http://localhost:8000/callback*","http://localhost:4300/callback*"]` | valid redirect uris for the client |
+| keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
 | keycloak.crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
 | keycloak.crossplane.identityProviders | object | `{}` |  |
 | keycloak.crossplane.providerConfig | object | `{"name":"keycloak-provider-config","namespace":"platform-mesh-system"}` | crossplane provider config |
 | keycloak.crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | keycloak.crossplane.providerConfig.namespace | string | `"platform-mesh-system"` | client namespace |
-| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"default","name":"default","registrationAllowed":true}` | crossplane realm config |
+| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"welcome","name":"welcome","registrationAllowed":true}` | crossplane realm config |
 | keycloak.crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
-| keycloak.crossplane.realm.displayName | string | `"default"` | realm display name |
-| keycloak.crossplane.realm.name | string | `"default"` | realm name |
+| keycloak.crossplane.realm.displayName | string | `"welcome"` | realm display name |
+| keycloak.crossplane.realm.name | string | `"welcome"` | realm name |
 | keycloak.crossplane.realm.registrationAllowed | bool | `true` | realm registration allowed |
 | keycloak.crossplane.trustedAudiences | list | `[]` |  |
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
@@ -112,10 +112,10 @@ A Helm chart for Kubernetes
 | keycloak.keycloakConfig.admin.password.valueFrom.secretKeyRef.key | string | `"secret"` | key of the password in the secret |
 | keycloak.keycloakConfig.admin.password.valueFrom.secretKeyRef.name | string | `"keycloak-admin"` | name of the secret containing the password |
 | keycloak.keycloakConfig.admin.username.value | string | `"keycloak-admin"` | username |
-| keycloak.keycloakConfig.client | object | `{"name":"default","targetSecret":{"name":"portal-client-secret-default","namespace":"platform-mesh-system"},"tokenLifespan":3600}` | client configuration |
-| keycloak.keycloakConfig.client.name | string | `"default"` | client name |
-| keycloak.keycloakConfig.client.targetSecret | object | `{"name":"portal-client-secret-default","namespace":"platform-mesh-system"}` | target secret options |
-| keycloak.keycloakConfig.client.targetSecret.name | string | `"portal-client-secret-default"` | secret name |
+| keycloak.keycloakConfig.client | object | `{"name":"welcome","targetSecret":{"name":"portal-client-secret-welcome","namespace":"platform-mesh-system"},"tokenLifespan":3600}` | client configuration |
+| keycloak.keycloakConfig.client.name | string | `"welcome"` | client name |
+| keycloak.keycloakConfig.client.targetSecret | object | `{"name":"portal-client-secret-welcome","namespace":"platform-mesh-system"}` | target secret options |
+| keycloak.keycloakConfig.client.targetSecret.name | string | `"portal-client-secret-welcome"` | secret name |
 | keycloak.keycloakConfig.client.targetSecret.namespace | string | `"platform-mesh-system"` | secret namespace |
 | keycloak.keycloakConfig.client.tokenLifespan | int | `3600` | token lifespan |
 | keycloak.keycloakConfig.realm | object | `{"name":"master"}` | realm configuration |

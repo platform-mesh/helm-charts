@@ -36,35 +36,18 @@ cookieDomain: "localhost"
 # -- allows the configuration of a kubeconfig secret for external api servers
 kubeconfigSecret: ""
 
-# -- A way to provide additional experimental environment variables
-# extraEnvVars:
-#  - name: DEMO_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-#    value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
-#  - name: DEMO_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-#    value: https://portal.dev.local:8443/iam/query
-#  - name: DEMO_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
-#    value: >-
-#      {"account":{"contextProperty":"entityId"}}
-
-# trust:
-#  demo:
-#    # -- base domains
-#    baseDomains: "localhost"
-#    # -- discovery endpoint. If specified (different than ""), authDomain and tokenUrl are not required
-#    discoveryEndpoint: ""
-#    # -- auth domain (if discoveryEndpoint is not specified)
-#    authDomain: http://localhost:8000/keycloak/realms/platform-mesh/protocol/openid-connect/auth
-#    # -- token url (if discoveryEndpoint is not specified)
-#    tokenUrl: http://keycloak/keycloak/realms/platform-mesh/protocol/openid-connect/token
-#    # -- oidc client secret name
-#    oidcClientSecretName: platform-mesh-client
-#    # -- login audience
-#    loginAudience: platform-mesh
-#    # -- secret key reference
-#    secretKeyRef: attribute.client_secret
-#    # -- ContentConfiguration validator api url
-#    contentConfigurationValidatorApiUrl: http://extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate
-
+auth:
+  defaultIDP:
+    # -- discovery url used for the idp
+    discoveryUrl: ""
+    # -- name of the client secret, secret
+    clientSecretName: ""
+    # -- client secret key in the secret
+    clientSecretKey: ""
+    # -- client id
+    clientId: ""
+    # -- baseDomain used by the portal
+    baseDomain: ""
 health:
   # -- health port to be used by probes
   port: 8080
