@@ -13,3 +13,4 @@ spec:
   kubeConfig:
     secretRef:
       name: contentconfiguration-kubeconfig
+      key: kubeconfig
