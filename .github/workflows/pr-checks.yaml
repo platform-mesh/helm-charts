@@ -1,0 +1,23 @@
+name: PR Checks workflow
+permissions:
+  contents: read
+  packages: read
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: localsetup-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  pipeline:
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: common
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
