@@ -70,13 +70,13 @@ kcp:
 
   oidc:
     enabled: false
-#    issuerUrl: ""
-#    clientID: default
-#    groupsClaim: groups
-#    usernameClaim: email
-#    caFileRef:
-#      name: domain-certificate-ca
-#      key: tls.crt
+    issuerUrl: ""
+    clientID: ""
+    groupsClaim: groups
+    usernameClaim: email
+    caFileRef:
+      name: domain-certificate-ca
+      key: tls.crt
 
   istio:
     hosts:

@@ -77,10 +77,10 @@ A Helm chart for Kubernetes
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.caFileRef.key | string | `"tls.crt"` |  |
 | kcp.oidc.caFileRef.name | string | `"domain-certificate-ca"` |  |
-| kcp.oidc.clientID | string | `"default"` |  |
-| kcp.oidc.enabled | bool | `true` |  |
+| kcp.oidc.clientID | string | `""` |  |
+| kcp.oidc.enabled | bool | `false` |  |
 | kcp.oidc.groupsClaim | string | `"groups"` |  |
-| kcp.oidc.issuerUrl | string | `"https://portal.dev.local:8443/keycloak/realms/default"` |  |
+| kcp.oidc.issuerUrl | string | `""` |  |
 | kcp.oidc.usernameClaim | string | `"email"` |  |
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
