@@ -41,7 +41,7 @@ spec:
         keycloak:
           crossplane:
             clients:
-              default:
+              welcome:
                 validRedirectUris:
                   - "http://localhost:8000/callback*"
                   - "http://localhost:4300/callback*"
@@ -58,22 +58,6 @@ spec:
           #TODO this is needed until the latest changes are released like https://github.com/kcp-dev/kcp-operator/pull/89 and https://github.com/kcp-dev/kcp-operator/pull/88
           tag: "main"
           pullPolicy: IfNotPresent
-    marketplace-ui:
-      enabled: false
-      values:
-        istio:
-          virtualService:
-            hosts:
-              - "portal.dev.local"
-    iam-ui:
-      enabled: false
-      values:
-        istio:
-          virtualService:
-            hosts:
-              - "portal.dev.local"
-    iam-service:
-      enabled: false
     security-operator:
       values:
         hostAliases:
@@ -88,10 +72,6 @@ spec:
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
             value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
-          - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-            value: "https://portal.dev.local:8443/iam/query"
-          - name: OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
-            value: '{"account":{"contextProperty":"entityId"}}'
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
@@ -108,14 +88,10 @@ spec:
             - ip: "10.96.188.4"
               hostnames:
                 - "portal.dev.local"
-                - "default.portal.dev.local"
         virtualService:
           hosts:
             - "portal.dev.local"
             - "*.portal.dev.local"
-        trust:
-          default:
-            tokenUrl: https://portal.dev.local:8443/keycloak/realms/default/protocol/openid-connect/token
     openfga:
       enabled: true
       values:
