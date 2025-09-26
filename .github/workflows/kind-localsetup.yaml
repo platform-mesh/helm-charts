@@ -38,6 +38,10 @@ jobs:
 
     steps:
 
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+        with:
+          fetch-depth: 0
+
       - name: Skip when unchanged
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'false'
         run: echo "local-setup unchanged"
