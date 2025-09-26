@@ -134,6 +134,7 @@ operator match the snapshot:
           - ""
         resources:
           - secrets
+          - configmaps
         verbs:
           - get
           - list
@@ -215,13 +216,6 @@ operator match the snapshot:
           - realms/finalizers
         verbs:
           - update
-      - apiGroups: []
-        resources:
-          - configmaps
-        verbs:
-          - get
-          - patch
-          - create
   2: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding

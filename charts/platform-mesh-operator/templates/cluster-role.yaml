@@ -40,6 +40,7 @@ rules:
 - apiGroups: [""]
   resources: 
   - secrets
+  - configmaps
   verbs: 
   - get
   - list
@@ -107,10 +108,3 @@ rules:
   - realms/finalizers
   verbs:
   - update
-- apiGroups: []
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - patch
-  - create
