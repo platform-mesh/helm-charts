@@ -93,3 +93,10 @@ rules:
 - apiGroups: ["source.toolkit.fluxcd.io"]
   resources: ["ocirepositories", "helmreleases"]
   verbs: ["get", "list", "create", "update", "patch", "delete", "watch"]
+- apiGroups: ["keycloak.crossplane.io"]
+  resources:
+    - realms
+  verbs:
+    - get
+    - list
+    - watch
