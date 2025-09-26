@@ -15,5 +15,7 @@ spec:
   timeout: 15m
   values:
     extraArgs: [
-      "--patch-oidc-controller-enabled"
+      "--patch-oidc-controller-enabled",
+      "--subroutines-patch-oidc-domain-ca-lookup",
+      "--subroutines-patch-oidc-basedomain=portal.dev.local:8443"
     ]
