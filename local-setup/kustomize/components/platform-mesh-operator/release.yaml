@@ -13,3 +13,7 @@ spec:
   releaseName: platform-mesh-operator
   targetNamespace: platform-mesh-system
   timeout: 15m
+  values:
+    extraArgs: [
+      "--patch-oidc-controller-enabled"
+    ]
