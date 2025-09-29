@@ -13,6 +13,27 @@ spec:
   mutateExistingOnPolicyUpdate: true
   background: true
   rules:
+    - name: scale-down-operator
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+              names:
+                - kcp-operator
+              namespaces:
+                - kcp-operator
+      mutate:
+        targets:
+          - apiVersion: apps/v1
+            kind: Deployment
+            name: kcp-operator
+            namespace: kcp-operator
+        patchesJson6902: |-
+          - op: replace
+            path: /spec/replicas
+            value: 0
+
     - name: ensure-workspace-authentication-feature-gate
       match:
         any:
