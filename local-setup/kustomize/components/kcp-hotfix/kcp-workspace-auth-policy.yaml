@@ -54,18 +54,4 @@ spec:
           - op: add
             path: /spec/template/spec/containers/0/args/-
             value: --feature-gates=WorkspaceAuthentication=true
-          - op: add
-            path: /spec/template/spec/containers/0/args/-
-            value: --authentication-config=/etc/platform-mesh/oidc-config/config.yaml
-          - op: add
-            path: /spec/template/spec/volumes/-
-            value:
-              name: oidc-config
-              configMap:
-                name: oidc-authentication-config
-          - op: add
-            path: /spec/template/spec/containers/0/volumeMounts/-
-            value:
-              name: oidc-config
-              mountPath: /etc/platform-mesh/oidc-config
-              readOnly: true
+          
