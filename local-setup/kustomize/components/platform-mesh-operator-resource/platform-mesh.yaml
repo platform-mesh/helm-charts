@@ -60,6 +60,8 @@ spec:
           pullPolicy: IfNotPresent
     security-operator:
       values:
+        extraArgs:
+          - --domain-ca-lookup
         hostAliases:
           enabled: true
           items:
