@@ -1,0 +1,4 @@
+# The Custom Resource Definitions (CRDs) configuration
+## @param crds.enabled Enable or disable the CRDs
+crds:
+  enabled: true

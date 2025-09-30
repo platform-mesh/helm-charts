@@ -1,0 +1,9 @@
+dependencies:
+- name: common
+  repository: oci://ghcr.io/platform-mesh/helm-charts
+  version: 0.5.6
+- name: keycloak-crds
+  repository: file://../keycloak-crds
+  version: 0.0.1
+digest: sha256:7da54163796558d52599e5a1789264ca49d185f389d364215903e6066fc2d830
+generated: "2025-09-29T17:04:37.822498258+03:00"

@@ -13,7 +13,7 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION: 0.29.0
-  COMPONENT_PRERELEASE_VERSION: "1.0.0"
+  COMPONENT_PRERELEASE_VERSION: "1.0.1"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
     - security-operator: charts/security-operator
@@ -26,6 +26,7 @@ vars:
     - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
     - virtual-workspaces: charts/virtual-workspaces
     - platform-mesh-operator-components: charts/platform-mesh-operator-components
+    - keycloak: charts/keycloak
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
 
@@ -345,7 +346,7 @@ tasks:
         get_component_version platform-mesh-operator github.com/platform-mesh/platform-mesh-operator charts/platform-mesh-operator/ PLATFORM_MESH_OPERATOR_VERSION
         get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
         get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
-        get_component_version keycloak github.com/platform-mesh/keycloak ../helm-charts/keycloak/ KEYCLOAK_VERSION
+        get_component_version keycloak github.com/platform-mesh/keycloak charts/keycloak/ KEYCLOAK_VERSION
         get_component_version platform-mesh-operator-components github.com/platform-mesh/platform-mesh-operator-components charts/platform-mesh-operator-components PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
         # Add more mappings as needed
 

@@ -22,8 +22,10 @@ spec:
     keycloak:
       enabled: true
       values:
-        service:
-          clusterIP: 10.96.0.110
+        crds:
+          enabled: false
+      #   service:
+      #     clusterIP: 10.96.0.110
     crossplane:
       values:
         provider:
@@ -38,14 +40,14 @@ spec:
             enabled: true
           frontProxy:
             clusterIP: "10.96.0.100"
-        keycloak:
-          crossplane:
-            clients:
-              default:
-                validRedirectUris:
-                  - "http://localhost:8000/callback*"
-                  - "http://localhost:4300/callback*"
-                  - "https://*"
+        # keycloak:
+        #   crossplane:
+        #     clients:
+        #       default:
+        #         validRedirectUris:
+        #           - "http://localhost:8000/callback*"
+        #           - "http://localhost:4300/callback*"
+        #           - "https://*"
     observability:
       enabled: false
     kcp-operator:
