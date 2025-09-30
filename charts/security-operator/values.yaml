@@ -28,9 +28,13 @@ initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
   baseDomain: ""
+  extraArgs: []
 
+generator:
+  extraArgs: []
 fga:
   target: openfga.platform-mesh-system.svc.cluster.local:8081
+  extraArgs: []
 
 hostAliases:
   enabled: true

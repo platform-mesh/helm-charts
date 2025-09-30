@@ -14,12 +14,15 @@ A Helm chart for security-operator
 | deployment.resources.requests.memory | string | `"128Mi"` |  |
 | deployment.revisionHistoryLimit | int | `3` |  |
 | environment | string | `"local"` | environment indicator, used for logging and observability |
+| fga.extraArgs | list | `[]` |  |
 | fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
+| generator.extraArgs | list | `[]` |  |
 | hostAliases.enabled | bool | `true` |  |
 | hostAliases.items[0].hostnames[0] | string | `"kcp.dev.local"` |  |
 | hostAliases.items[0].ip | string | `"10.96.0.100"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/security-operator"` |  |
 | initializer.baseDomain | string | `""` |  |
+| initializer.extraArgs | list | `[]` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |
