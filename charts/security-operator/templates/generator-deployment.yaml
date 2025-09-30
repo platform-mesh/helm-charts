@@ -24,7 +24,10 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - model-generator
-        {{- include "common.commonOperatorArgs" . | indent 8 }}
+          {{- with .Values.generator.extraArgs }}
+          {{ toYaml . }}
+          {{- end }}
+          {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
           - name: FGA_TARGET

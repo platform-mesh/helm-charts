@@ -28,7 +28,10 @@ spec:
           {{- with .Values.initializer.baseDomain }}
           - --base-domain={{ . }}
           {{- end -}}
-        {{- include "common.commonOperatorArgs" . | indent 8 }}
+          {{- with .Values.initializer.extraArgs }}
+          {{ toYaml . }}
+          {{- end }}
+          {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
           - name: FGA_TARGET
