@@ -21,6 +21,7 @@ operator match the snapshot:
           - ""
         resources:
           - events
+          - secrets
         verbs:
           - '*'
       - apiGroups:
@@ -473,6 +474,7 @@ operator match the snapshot w. sentry:
           - ""
         resources:
           - events
+          - secrets
         verbs:
           - '*'
       - apiGroups:
