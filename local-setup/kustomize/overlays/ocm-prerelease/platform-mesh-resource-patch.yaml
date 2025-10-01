@@ -9,3 +9,14 @@ spec:
       name: prerelease
     component:
       name: prerelease
+  values:
+    kcp-operator:
+      enabled: false
+    kcp:
+      enabled: true
+    infra:
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+        - name: kcp
+          namespace: default
