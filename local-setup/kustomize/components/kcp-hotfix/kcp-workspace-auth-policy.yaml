@@ -34,7 +34,7 @@ spec:
             path: /spec/replicas
             value: 0
 
-    - name: ensure-workspace-authentication-feature-gate
+    - name: ensure-workspace-authentication-feature-gate-root
       match:
         any:
           - resources:
@@ -49,6 +49,26 @@ spec:
           - apiVersion: apps/v1
             kind: Deployment
             name: root-kcp
+            namespace: platform-mesh-system
+        patchesJson6902: |-
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --feature-gates=WorkspaceAuthentication=true
+    - name: ensure-workspace-authentication-feature-gate-frontproxy
+      match:
+        any:
+          - resources:
+              kinds:
+                - Deployment
+              names:
+                - frontproxy-front-proxy
+              namespaces:
+                - platform-mesh-system
+      mutate:
+        targets:
+          - apiVersion: apps/v1
+            kind: Deployment
+            name: frontproxy-front-proxy
             namespace: platform-mesh-system
         patchesJson6902: |-
           - op: add

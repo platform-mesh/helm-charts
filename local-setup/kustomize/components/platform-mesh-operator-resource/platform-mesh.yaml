@@ -61,6 +61,7 @@ spec:
     security-operator:
       values:
         initializer:
+          baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
           extraArgs:
             - --domain-ca-lookup
         hostAliases:
@@ -72,13 +73,6 @@ spec:
     portal:
       enabled: true
       values:
-        auth:
-          defaultIDP:
-            discoveryUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default/.well-known/openid-configuration"
-            clientSecretName: "portal-client-secret-default"
-            clientSecretKey: "attribute.client_secret"
-            clientId: "default"
-            baseDomain: "{{ .Values.baseDomain }}"
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
             value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
