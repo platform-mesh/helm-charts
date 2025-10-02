@@ -10,13 +10,12 @@ spec:
     component:
       name: prerelease
   values:
-    kcp-operator:
+    keycloak:
       enabled: false
-    kcp:
+    keycloak-new:
       enabled: true
     infra:
-      dependsOn:
-        - name: istio-istiod
-          namespace: default
-        - name: kcp
-          namespace: default
+      values:
+        keycloak:
+          keycloakConfig:
+            url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak

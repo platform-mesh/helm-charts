@@ -59,25 +59,18 @@ components:
           type: helm
           helmChart: gateway:{{ .ISTIO_VERSION }}
           helmRepository: https://istio-release.storage.googleapis.com/charts
-  - name: github.com/kcp-dev/kcp
-    version: {{ .KCP_VERSION }}
+  - name: github.com/kcp-dev/kcp-operator
+    version: {{ .KCP_OPERATOR_VERSION }}
     provider:
       name: kcp
     resources:
       - name: chart
         type: helmChart
-        version: {{ .KCP_OPERATOR_CHART_VERSION }}
+        version: {{ .KCP_OPERATOR_VERSION }}
         access:
           type: helm
-          helmChart: kcp-operator:{{ .KCP_OPERATOR_CHART_VERSION }}
+          helmChart: kcp-operator:{{ .KCP_OPERATOR_VERSION }}
           helmRepository: https://kcp-dev.github.io/helm-charts
-      - name: image
-        type: ociImage
-        relation: external
-        version: {{ .KCP_OPERATOR_IMAGE_VERSION }}
-        access:
-          type: ociArtifact
-          imageReference: "ghcr.io/kcp-dev/kcp-operator:{{ .KCP_OPERATOR_IMAGE_VERSION }}"
   - name: github.com/gardener/etcd-druid
     version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
     provider:
@@ -127,12 +120,12 @@ components:
       - name: istio-gateway
         componentName: github.com/istio/istio/gateway
         version: {{ .ISTIO_VERSION }}
-      - name: keycloak
-        componentName: github.com/platform-mesh/keycloak
+      - name: keycloak-new
+        componentName: github.com/platform-mesh/keycloak-new
         version: {{ .KEYCLOAK_VERSION }}
-      - name: kcp
-        componentName: github.com/kcp-dev/kcp
-        version: {{ .KCP_VERSION }}
+      - name: kcp-operator
+        componentName: github.com/kcp-dev/kcp-operator
+        version: {{ .KCP_OPERATOR_VERSION }}
       - name: kubernetes-graphql-gateway
         componentName: github.com/platform-mesh/kubernetes-graphql-gateway
         version: {{ .KUBERNETES_GRAPHQL_GATEWAY_VERSION }}
