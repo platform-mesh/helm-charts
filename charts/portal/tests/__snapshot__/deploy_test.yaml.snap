@@ -26,15 +26,10 @@ matches the snapshot:
             - env:
                 - name: HTTP_PROTOCOL
                   value: http
-                - name: DISCOVERY_ENDPOINT_DEFAULT
+                - name: DISCOVERY_ENDPOINT
                   value: null
                 - name: OIDC_CLIENT_ID_DEFAULT
                   value: null
-                - name: OIDC_CLIENT_SECRET_DEFAULT
-                  valueFrom:
-                    secretKeyRef:
-                      key: null
-                      name: null
                 - name: BASE_DOMAINS_DEFAULT
                   value: null
                 - name: DEVELOPMENT_INSTANCE
@@ -65,6 +60,10 @@ matches the snapshot:
                   value: https://portal.dev.local:8443/iam/query
                 - name: DEMO_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
                   value: '{"account":{"contextProperty":"entityId"}}'
+                - name: KUBECONFIG
+                  value: /kubeconfig/kubeconfig
+                - name: KUBECONFIG_KCP
+                  value: /kcp-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/portal:12345
               imagePullPolicy: IfNotPresent
               name: portal
@@ -86,14 +85,24 @@ matches the snapshot:
                 runAsNonRoot: true
                 seccompProfile:
                   type: RuntimeDefault
-              volumeMounts: null
+              volumeMounts:
+                - mountPath: /kubeconfig
+                  name: kubeconfig
+                - mountPath: /kcp-kubeconfig
+                  name: kcp-kubeconfig
           securityContext:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
           serviceAccountName: portal
           terminationGracePeriodSeconds: 10
-          volumes: null
+          volumes:
+            - name: kubeconfig
+              secret:
+                secretName: my-kubeconfig-secret
+            - name: kcp-kubeconfig
+              secret:
+                secretName: my-kcp-kubeconfig-secret
 test hosAliases:
   1: |
     apiVersion: apps/v1
@@ -122,15 +131,10 @@ test hosAliases:
             - env:
                 - name: HTTP_PROTOCOL
                   value: http
-                - name: DISCOVERY_ENDPOINT_DEFAULT
+                - name: DISCOVERY_ENDPOINT
                   value: null
                 - name: OIDC_CLIENT_ID_DEFAULT
                   value: null
-                - name: OIDC_CLIENT_SECRET_DEFAULT
-                  valueFrom:
-                    secretKeyRef:
-                      key: null
-                      name: null
                 - name: BASE_DOMAINS_DEFAULT
                   value: null
                 - name: DEVELOPMENT_INSTANCE

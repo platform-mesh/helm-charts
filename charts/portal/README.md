@@ -10,11 +10,9 @@ Helm Chart for the Platform Mesh Portal
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| auth.defaultIDP.baseDomain | string | `""` | baseDomain used by the portal |
-| auth.defaultIDP.clientId | string | `""` | client id |
-| auth.defaultIDP.clientSecretKey | string | `""` | client secret key in the secret |
-| auth.defaultIDP.clientSecretName | string | `""` | name of the client secret, secret |
-| auth.defaultIDP.discoveryUrl | string | `""` | discovery url used for the idp |
+| auth.default.baseDomain | string | `""` | baseDomain used by the portal |
+| auth.default.clientId | string | `""` | client id |
+| auth.default.discoveryUrl | string | `""` | discovery url used for the idp |
 | baseDomains[0] | string | `"localhost"` | base domains for VirtualService |
 | cookieDomain | string | `"localhost"` | cookie domain |
 | deployment.hostAliases | list | `[]` |  |
@@ -30,6 +28,7 @@ Helm Chart for the Platform Mesh Portal
 | image.name | string | `"ghcr.io/platform-mesh/portal"` |  |
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | importContent | bool | `false` | import content toggle |
+| kcp.kubeconfigSecret | string | `""` |  |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
 | validWebcomponentUrls | string | `".?"` |  |
 | virtualService.hosts | list | `["*"]` | virtual service hosts |
