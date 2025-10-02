@@ -120,9 +120,12 @@ components:
       - name: istio-gateway
         componentName: github.com/istio/istio/gateway
         version: {{ .ISTIO_VERSION }}
-      - name: keycloak
-        componentName: github.com/platform-mesh/keycloak
+      - name: keycloak-new
+        componentName: github.com/platform-mesh/keycloak-new
         version: {{ .KEYCLOAK_VERSION }}
+      - name: keycloak-crds
+        componentName: github.com/platform-mesh/keycloak-crds
+        version: {{ .KEYCLOAK_CRDS_VERSION }}
       - name: kcp-operator
         componentName: github.com/kcp-dev/kcp-operator
         version: {{ .KCP_OPERATOR_VERSION }}

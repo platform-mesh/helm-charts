@@ -1,0 +1,100 @@
+# This deployment is handled by the new Keycloak Operator
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+  name: keycloak
+  namespace: {{ .Release.Namespace }}
+spec:
+  instances: 1
+  db:
+    vendor: postgres
+    host: postgres-db
+    usernameSecret:
+      name: keycloak-db-secret
+      key: username
+    passwordSecret:
+      name: keycloak-db-secret
+      key: password
+  http:
+    tlsSecret: domain-certificate
+    httpEnabled: true
+  bootstrapAdmin:
+    user:
+      secret: bootstrap-keycloak-admin
+  hostname:
+    hostname: portal.dev.local
+  additionalOptions:
+    - name: http-relative-path
+      value: /keycloak
+    - name: proxy-headers
+      value: xforwarded
+    - name: hostname-strict
+      value: "false"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: example-kc-initial-admin
+  namespace: {{ .Release.Namespace }}
+data:
+  username: a2V5Y2xvYWstYWRtaW4K # keycloak-admin
+  password: YWRtaW4= # admin
+type: kubernetes.io/basic-auth
+---
+  # PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgresql-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: postgresql-db-service
+  selector:
+    matchLabels:
+      app: postgresql-db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgresql-db
+    spec:
+      containers:
+        - name: postgresql-db
+          image: postgres:latest
+          env:
+            - name: POSTGRES_PASSWORD
+              value: testpassword
+            - name: PGDATA
+              value: /data/pgdata
+            - name: POSTGRES_DB
+              value: keycloak
+          volumeMounts:
+            - mountPath: /data
+              name: empty
+      volumes:
+        - name: empty
+          emptyDir: {}
+---
+# PostgreSQL StatefulSet Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: postgresql-db
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-db-secret
+  namespace: {{ .Release.Namespace }}
+data:
+  username: cG9zdGdyZXM= # postgres
+  password: dGVzdHBhc3N3b3Jk # testpassword
+type: Opaque
