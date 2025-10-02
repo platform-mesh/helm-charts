@@ -25,7 +25,7 @@ on:
           - rc
           - full
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 * * * *'
   push:
     branches:
       - main
