@@ -105,27 +105,28 @@ matches the snapshot:
                 secretName: my-kcp-kubeconfig-secret
   2: |
     apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRole
+    kind: Role
     metadata:
-      name: contentconfigurations-reader
+      name: portal-role
+      namespace: NAMESPACE
     rules:
       - apiGroups:
-          - core.openmfp.io
+          - ""
         resources:
-          - contentconfigurations
+          - secrets
         verbs:
           - get
           - watch
           - list
   3: |
     apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRoleBinding
+    kind: RoleBinding
     metadata:
-      name: read-contentconfigurations-global
+      name: portal
     roleRef:
       apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: contentconfigurations-reader
+      kind: Role
+      name: portal-role
     subjects:
       - kind: ServiceAccount
         name: portal
@@ -255,27 +256,28 @@ matches the snapshot with istio disabled:
                 secretName: my-kcp-kubeconfig-secret
   2: |
     apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRole
+    kind: Role
     metadata:
-      name: contentconfigurations-reader
+      name: portal-role
+      namespace: NAMESPACE
     rules:
       - apiGroups:
-          - core.openmfp.io
+          - ""
         resources:
-          - contentconfigurations
+          - secrets
         verbs:
           - get
           - watch
           - list
   3: |
     apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRoleBinding
+    kind: RoleBinding
     metadata:
-      name: read-contentconfigurations-global
+      name: portal
     roleRef:
       apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: contentconfigurations-reader
+      kind: Role
+      name: portal-role
     subjects:
       - kind: ServiceAccount
         name: portal
