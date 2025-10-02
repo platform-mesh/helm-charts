@@ -72,3 +72,43 @@ jobs:
           kubectl wait --for=condition=ready --timeout=10m component --all -A
           kubectl wait --for=condition=ready --timeout=10m resource --all -A
           kubectl wait --for=condition=ready --timeout=10m hr --all -A
+
+      # Step 7: Prepare the NodeJS/playwright environment
+      - name: Cache node modules
+        if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Step 8: Install NodeJS and dependencies
+      - name: Node ${{ matrix.node-version }}
+        if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'local-setup/e2e'
+
+      # Step 9: Install npm dependencies
+      - name: Clean install of npm dependencies
+        if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd local-setup/e2e
+          npm install
+          npm ci
+          npx playwright install 
+
+      # Step 10: Run the end-to-end tests
+      - name: End2End tests
+        if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -ki https://portal.dev.local:8443
+          cd local-setup/e2e/
+          npx playwright test

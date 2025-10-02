@@ -21,6 +21,7 @@ operator match the snapshot:
           - ""
         resources:
           - events
+          - secrets
         verbs:
           - '*'
       - apiGroups:
@@ -366,6 +367,7 @@ operator match the snapshot:
             - args:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
+                - --test=myval
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -472,6 +474,7 @@ operator match the snapshot w. sentry:
           - ""
         resources:
           - events
+          - secrets
         verbs:
           - '*'
       - apiGroups:

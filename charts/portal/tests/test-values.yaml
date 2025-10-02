@@ -13,6 +13,10 @@ trust:
     loginAudience: "12345"
     oidcClientSecretName: portal
 
+kubeconfigSecret: "my-kubeconfig-secret"
+kcp:
+  kubeconfigSecret: "my-kcp-kubeconfig-secret"
+
 extraEnvVars:
   - name: TEST_TEST
     value: test test

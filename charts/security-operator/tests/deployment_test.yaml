@@ -7,6 +7,8 @@ tests:
     set:
       kubeconfigSecret: kcp-kubeconfig
       initializer:
+        extraArgs:
+          - --test=myval
         kubeconfigSecret: kcp-initializer-kubeconfig
     asserts:
       - matchSnapshot: {}

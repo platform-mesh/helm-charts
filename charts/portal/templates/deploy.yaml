@@ -19,16 +19,11 @@ spec:
         env:
         - name: HTTP_PROTOCOL
           value: {{ .Values.http.protocol }}
-        {{- with .Values.auth.defaultIDP }}
-        - name: DISCOVERY_ENDPOINT_DEFAULT
+        {{- with .Values.auth.default }}
+        - name: DISCOVERY_ENDPOINT
           value: {{ .discoveryUrl }}
         - name: OIDC_CLIENT_ID_DEFAULT
           value: {{ .clientId }}
-        - name: OIDC_CLIENT_SECRET_DEFAULT
-          valueFrom:
-            secretKeyRef:
-              name: {{ .clientSecretName }}
-              key: {{ .clientSecretKey }}
         - name: BASE_DOMAINS_DEFAULT
           value: {{ .baseDomain }}
         {{- end }}
@@ -70,15 +65,23 @@ spec:
         {{ end }}
         {{- if .Values.kubeconfigSecret }}
         - name: KUBECONFIG
-          value: /api-kubeconfig/kubeconfig
+          value: /kubeconfig/kubeconfig
+        {{- end }}
+        {{- if .Values.kcp.kubeconfigSecret }}
+        - name: KUBECONFIG_KCP
+          value: /kcp-kubeconfig/kubeconfig
         {{- end }}
         ports:
           {{- include "common.ports" . | nindent 10 }}
         volumeMounts:
         {{- include "common.extraVolumeMounts" . | nindent 8 }}
-        {{- if .Values.kubeconfigSecret }}
-        - name: kcp-api-server
-          mountPath: /api-kubeconfig
+        {{- with .Values.kubeconfigSecret }}
+        - name: kubeconfig
+          mountPath: /kubeconfig
+        {{- end }}
+        {{- with .Values.kubeconfigSecret }}
+        - name: kcp-kubeconfig
+          mountPath: /kcp-kubeconfig
         {{- end }}
       {{- if .Values.deployment.hostAliases }}
       hostAliases:
@@ -92,8 +95,13 @@ spec:
       {{- end }}
       volumes:
       {{- include "common.extraVolumes" . | nindent 8 }}
-        {{- if .Values.kubeconfigSecret }}
-        - name: kcp-api-server
+        {{- with .Values.kubeconfigSecret }}
+        - name: kubeconfig
           secret:
-            secretName: {{ .Values.kubeconfigSecret }}
+            secretName: {{ . }}
+        {{- end }}
+        {{- with .Values.kcp.kubeconfigSecret }}
+        - name: kcp-kubeconfig
+          secret:
+            secretName: {{ . }}
         {{- end }}
