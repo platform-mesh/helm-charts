@@ -189,11 +189,11 @@ A Helm chart for Kubernetes
 | services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.portal.dependsOn[0].namespace | string | `"default"` |  |
 | services.portal.enabled | bool | `false` |  |
-| services.portal.values.auth.defaultIDP.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
-| services.portal.values.auth.defaultIDP.clientId | string | `"welcome"` |  |
-| services.portal.values.auth.defaultIDP.clientSecretKey | string | `"attribute.client_secret"` |  |
-| services.portal.values.auth.defaultIDP.clientSecretName | string | `"portal-client-secret-welcome"` |  |
-| services.portal.values.auth.defaultIDP.discoveryUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"` |  |
+| services.portal.values.auth.default.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
+| services.portal.values.auth.default.clientId | string | `"welcome"` |  |
+| services.portal.values.auth.default.clientSecretKey | string | `"attribute.client_secret"` |  |
+| services.portal.values.auth.default.clientSecretName | string | `"portal-client-secret-welcome"` |  |
+| services.portal.values.auth.default.discoveryUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.environment | string | `"kind"` |  |
