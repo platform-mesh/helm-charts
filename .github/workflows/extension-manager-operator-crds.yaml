@@ -25,14 +25,7 @@ jobs:
       chartName: extension-manager-operator-crds
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
     secrets: inherit
 
-  ocm:
-    if: ${{ github.ref == 'refs/heads/main' }}
-    needs: [pipeline]
-    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
-    secrets: inherit
-    with:
-      chartPath: charts/extension-manager-operator-crds
-      componentName: github.com/platform-mesh/extension-manager-operator-crds
-      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+

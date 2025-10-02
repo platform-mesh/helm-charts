@@ -365,7 +365,8 @@ services:
       - name: istio-istiod
         namespace: default
     values:
-      kubeconfigSecret: portal-kubeconfig
+      kcp:
+        kubeconfigSecret: portal-kubeconfig
       crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
       environment: kind
       http:
