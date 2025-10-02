@@ -13,7 +13,7 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION: 0.29.0
-  COMPONENT_PRERELEASE_VERSION: "1.0.11"
+  COMPONENT_PRERELEASE_VERSION: "1.0.13"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
     - security-operator: charts/security-operator
@@ -27,6 +27,7 @@ vars:
     - virtual-workspaces: charts/virtual-workspaces
     - platform-mesh-operator-components: charts/platform-mesh-operator-components
     - keycloak-new: charts/keycloak-new
+    - keycloak-crds: charts/keycloak-crds
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS:
     - portal: 0.0.53
 
@@ -350,6 +351,7 @@ tasks:
         get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
         get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
         get_component_version keycloak-new github.com/platform-mesh/keycloak-new charts/keycloak-new/ KEYCLOAK_VERSION
+        get_component_version keycloak-crds github.com/platform-mesh/keycloak-crds charts/keycloak-crds/ KEYCLOAK_CRDS_VERSION
         get_component_version platform-mesh-operator-components github.com/platform-mesh/platform-mesh-operator-components charts/platform-mesh-operator-components PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
         # Add more mappings as needed
 
@@ -375,6 +377,7 @@ tasks:
         GARDENER_ETCD_DRUID_SOURCE_REF=v0.31.0 \
         GARDENER_ETCD_DRUID_CHART_VERSION=0.1.0 \
         KEYCLOAK_VERSION=$KEYCLOAK_VERSION \
+        KEYCLOAK_CRDS_VERSION=$KEYCLOAK_CRDS_VERSION \
         VIRTUAL_WORKSPACES_VERSION=$VIRTUAL_WORKSPACES_VERSION \
         PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
 

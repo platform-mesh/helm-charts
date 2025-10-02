@@ -6,16 +6,74 @@ metadata:
 spec:
   ocm:
     repo:
-      name: prerelease
+      # name: prerelease
+      name: platform-mesh
     component:
-      name: prerelease
+      # name: prerelease
+      create: false
+      name: platform-mesh-rc.19
   values:
     keycloak:
-      enabled: false
-    keycloak-new:
       enabled: true
-    infra:
+    keycloak-new:
+      enabled: false
       values:
-        keycloak:
-          keycloakConfig:
-            url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
+        crds:
+          enabled: false
+    keycloak-crds:
+      enabled: false
+    infra:
+      # values:
+      #   keycloak:
+      #     keycloakConfig:
+      #       url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
+
+    # portal:
+      # values:
+      #   baseDomains:
+      #   - portal.dev.local
+      #   cookieDomain: portal.dev.local
+      #   crdGatewayApiUrl: https://${org-subdomain}portal.dev.local/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+      #   deployment:
+      #     hostAliases:
+      #     - hostnames:
+      #       - portal.dev.local
+      #       - default.portal.dev.local
+      #       ip: 10.96.188.4
+      #   environment: kind
+      #   extraEnvVars:
+      #   - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+      #     value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+      #   - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+      #     value: https://portal.dev.local:8443/iam/query
+      #   - name: OPENMFP_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
+      #     value: '{"account":{"contextProperty":"entityId"}}'
+      #   - name: NODE_EXTRA_CA_CERTS
+      #     value: /etc/ssl/certs/domain-ca.crt
+      #   extraVolumeMounts:
+      #   - mountPath: /etc/ssl/certs/domain-ca.crt
+      #     name: domain-ca
+      #     readOnly: true
+      #     subPath: tls.crt
+      #   extraVolumes:
+      #   - name: domain-ca
+      #     secret:
+      #       secretName: domain-certificate-ca
+      #   frontendPort: "8443"
+      #   http:
+      #     protocol: https
+      #   kubeconfigSecret: portal-kubeconfig
+      #   trust:
+      #     default:
+      #       authDomain: https://portal.dev.local:8443/keycloak/realms/default/protocol/openid-connect/auth
+      #       baseDomains: portal.dev.local
+      #       contentConfigurationValidatorApiUrl: http://extension-manager-operator-server.platform-mesh-system.svc.cluster.local:8088/validate
+      #       discoveryEndpoint: ""
+      #       loginAudience: default
+      #       oidcClientSecretName: default-client
+      #       secretKeyRef: attribute.client_secret
+      #       tokenUrl: https://portal.dev.local:8443/keycloak/realms/default/protocol/openid-connect/token
+      #   virtualService:
+      #     hosts:
+      #     - portal.dev.local
+      #     - '*.portal.dev.local'
