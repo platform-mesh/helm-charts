@@ -79,7 +79,7 @@ spec:
         - name: kubeconfig
           mountPath: /kubeconfig
         {{- end }}
-        {{- with .Values.kubeconfigSecret }}
+        {{- with .Values.kcp.kubeconfigSecret }}
         - name: kcp-kubeconfig
           mountPath: /kcp-kubeconfig
         {{- end }}
