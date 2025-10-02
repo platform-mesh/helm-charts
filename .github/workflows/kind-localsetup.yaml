@@ -96,7 +96,7 @@ jobs:
       - name: Clean install of npm dependencies
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.AKAFAZOV_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd local-setup/e2e
           npm install
@@ -107,7 +107,7 @@ jobs:
       - name: End2End tests
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.AKAFAZOV_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           curl -ki https://portal.dev.local:8443
           cd local-setup/e2e/
