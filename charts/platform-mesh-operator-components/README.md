@@ -189,11 +189,11 @@ A Helm chart for Kubernetes
 | services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.portal.dependsOn[0].namespace | string | `"default"` |  |
 | services.portal.enabled | bool | `false` |  |
-| services.portal.values.auth.default.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
-| services.portal.values.auth.default.clientId | string | `"welcome"` |  |
-| services.portal.values.auth.default.clientSecretKey | string | `"attribute.client_secret"` |  |
-| services.portal.values.auth.default.clientSecretName | string | `"portal-client-secret-welcome"` |  |
-| services.portal.values.auth.default.discoveryUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/${org-name}/.well-known/openid-configuration"` |  |
+| services.portal.values.auth.defaultIDP.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
+| services.portal.values.auth.defaultIDP.clientId | string | `"welcome"` |  |
+| services.portal.values.auth.defaultIDP.clientSecretKey | string | `"attribute.client_secret"` |  |
+| services.portal.values.auth.defaultIDP.clientSecretName | string | `"portal-client-secret-welcome"` |  |
+| services.portal.values.auth.defaultIDP.discoveryUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.environment | string | `"kind"` |  |
@@ -201,7 +201,7 @@ A Helm chart for Kubernetes
 | services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
-| services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
+| services.portal.values.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
 | services.portal.values.virtualService.hosts | bool | `false` |  |
 | services.rebac-authz-webhook.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.rebac-authz-webhook.dependsOn[0].namespace | string | `"default"` |  |
