@@ -74,6 +74,8 @@ spec:
           value: "{{ .Values.gateway.usernameClaim }}"
         - name: GATEWAY_SHOULD_IMPERSONATE
           value: "{{ .Values.gateway.shouldImpersonate }}"
+        - name: GATEWAY_INTROSPECTION_AUTHENTICATION
+          value: "{{ .Values.gateway.introspectionAuthentication }}"
         {{- if (.Values.cors).enabled }}
         - name: GATEWAY_CORS_ENABLED
           value: "{{ .Values.cors.enabled }}"
