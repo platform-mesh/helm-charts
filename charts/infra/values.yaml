@@ -121,7 +121,7 @@ mailpit:
   enabled: false
   image:
     tag: v1.27.9
-  
+
   istio:
     virtualservice:
       # -- istio virtual service hosts
@@ -129,7 +129,6 @@ mailpit:
   domain:
     # -- path prefix
     pathPrefix: "/mailpit"
-
 
 keycloak:
   istio:
@@ -254,7 +253,6 @@ istio:
   #      port: 8000
   #      name: pass-https
   #      protocol: HTTPS
-
 
   gateway:
     annotations: {}
