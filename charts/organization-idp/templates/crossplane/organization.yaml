@@ -1,0 +1,19 @@
+{{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "crossplane.enabled")) "true" -}}
+apiVersion: organization.keycloak.crossplane.io/v1alpha1
+kind: Organization
+metadata:
+  name: {{ .Values.crossplane.realm.name }}
+spec:
+  forProvider:
+    name: {{ .Values.crossplane.realm.name }}
+    alias: {{ .Values.crossplane.realm.name }}
+    realmIdRef:
+      name: {{ .Values.crossplane.realm.name }}
+    {{- with (.Values.crossplane.organization).domain }}
+    domain:
+      - name: {{ . }}
+        verified: true
+    {{- end }}
+  providerConfigRef:
+    name: {{ .Values.crossplane.providerConfig.name }}
+{{- end -}}
