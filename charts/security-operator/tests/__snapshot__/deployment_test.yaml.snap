@@ -368,6 +368,7 @@ operator match the snapshot:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
                 - --test=myval
+                - --test2=myval
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090

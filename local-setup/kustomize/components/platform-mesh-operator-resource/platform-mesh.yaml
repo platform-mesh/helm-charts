@@ -31,6 +31,8 @@ spec:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
     infra:
       values:
+        mailpit:
+          enabled: true
         hostAliases:
           enabled: true
         kcp:
@@ -63,6 +65,9 @@ spec:
         initializer:
           baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
           extraArgs:
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.dev.local
             - --domain-ca-lookup
         hostAliases:
           enabled: true

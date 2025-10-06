@@ -27,9 +27,9 @@ spec:
           - --core-module-path=/data/coreModule.fga
           {{- with .Values.initializer.baseDomain }}
           - --base-domain={{ . }}
-          {{- end -}}
+          {{- end }}
           {{- with .Values.initializer.extraArgs }}
-          {{ toYaml . }}
+          {{ toYaml . | nindent 10}}
           {{- end }}
           {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
