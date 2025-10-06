@@ -31,6 +31,8 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+  pipeline:
+
 
   kind-localsetup:
     needs: checkout-and-detect-changes
