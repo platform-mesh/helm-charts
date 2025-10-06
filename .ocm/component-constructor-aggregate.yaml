@@ -127,6 +127,9 @@ components:
       - name: extension-manager-operator
         componentName: github.com/platform-mesh/extension-manager-operator
         version: {{ .EXTENSION_MANAGER_OPERATOR_VERSION }}
+      - name: example-httpbin-operator
+        componentName: github.com/platform-mesh/example-httpbin-operator
+        version: {{ .EXAMPLE_HTTPBIN_OPERATOR_VERSION }}
       - name: infra
         componentName: github.com/platform-mesh/infra
         version: {{ .INFRA_VERSION }}
