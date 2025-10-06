@@ -1,0 +1,21 @@
+{{- if .Values.mailpit.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailpit
+  labels:
+    app: mailpit
+spec:
+  selector:
+    app: mailpit
+  ports:
+    - name: ui
+      port: 8025
+      targetPort: ui
+      protocol: TCP
+    - name: smtp
+      port: 1025
+      targetPort: smtp
+      protocol: TCP
+      appProtocol: tcp
+{{- end -}}

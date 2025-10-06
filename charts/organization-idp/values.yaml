@@ -16,9 +16,11 @@ crossplane:
     # -- realm display name
     displayName: default
     # -- realm registration allowed
-    registrationAllowed: true
+    registrationAllowed: false
     # -- realm access token lifespan
     accessTokenLifespan: 8h
+
+    smptServer: {}
 
   client:
     # -- name of the client

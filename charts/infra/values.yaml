@@ -117,6 +117,19 @@ openfga:
       - cluster.local/ns/platform-mesh-system/sa/security-operator
       - cluster.local/ns/platform-mesh-system/sa/account-operator
 
+mailpit:
+  enabled: false
+  image:
+    tag: v1.27.9
+
+  istio:
+    virtualservice:
+      # -- istio virtual service hosts
+      hosts: ["*"]
+  domain:
+    # -- path prefix
+    pathPrefix: "/mailpit"
+
 keycloak:
   istio:
     virtualservice:
@@ -240,7 +253,6 @@ istio:
   #      port: 8000
   #      name: pass-https
   #      protocol: HTTPS
-
 
   gateway:
     annotations: {}
