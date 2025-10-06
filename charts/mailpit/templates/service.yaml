@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "common.entity.name" . }}
+  labels:
+    {{- include "common.labelMatcher" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "common.labelMatcher" . | indent 4 }}
+  ports:
+    - name: ui
+      port: 8025
+      targetPort: ui
+      protocol: TCP
+    - name: smtp
+      port: 1025
+      targetPort: smtp
+      protocol: TCP
+      appProtocol: tcp

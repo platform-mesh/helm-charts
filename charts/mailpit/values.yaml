@@ -1,0 +1,13 @@
+istio:
+  enabled: true
+  gateway:
+    name: gateway
+
+hosts:
+  - portal.dev.local
+
+image:
+  name: axllent/mailpit
+
+domain:
+  pathPrefix: "/mailpit"
