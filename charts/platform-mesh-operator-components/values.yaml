@@ -99,6 +99,8 @@ services:
         packages:
           - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2
   etcd-druid:
+    imageResource:
+      enabled: true
     enabled: true
     gitRepo: true
     path: charts
@@ -194,6 +196,11 @@ services:
             hosts:
               - "{{ .Values.baseDomain }}"
   kcp:
+    imageResource:
+      enabled: true
+      labels:
+        infra: "true"
+        component: infra
     enabled: true
     helmRepo: true
     targetNamespace: kcp-operator

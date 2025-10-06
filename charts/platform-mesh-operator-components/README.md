@@ -35,6 +35,7 @@ A Helm chart for Kubernetes
 | services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v1.9.2"` |  |
 | services.etcd-druid.enabled | bool | `true` |  |
 | services.etcd-druid.gitRepo | bool | `true` |  |
+| services.etcd-druid.imageResource.enabled | bool | `true` |  |
 | services.etcd-druid.path | string | `"charts"` |  |
 | services.etcd-druid.targetNamespace | string | `"etcd-druid-system"` |  |
 | services.etcd-druid.values | object | `{}` |  |
@@ -106,6 +107,9 @@ A Helm chart for Kubernetes
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
 | services.kcp.enabled | bool | `true` |  |
 | services.kcp.helmRepo | bool | `true` |  |
+| services.kcp.imageResource.enabled | bool | `true` |  |
+| services.kcp.imageResource.labels.component | string | `"infra"` |  |
+| services.kcp.imageResource.labels.infra | string | `"true"` |  |
 | services.kcp.targetNamespace | string | `"kcp-operator"` |  |
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |

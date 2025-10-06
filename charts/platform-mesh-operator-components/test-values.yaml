@@ -1,0 +1,16 @@
+targetNamespace: platform-mesh-system
+baseDomain: example.com
+protocol: https
+port: 443
+ocm:
+  skipVerify: true
+  interval: 3m
+  referencePath: []
+  component:
+    create: true
+    name: platform-mesh
+  repo:
+    create: true
+    name: platform-mesh
+iamWebhookCA: null
+services: {}

@@ -3,8 +3,8 @@ suite: Test the resource manifests
 release:
   name: operator-components
   namespace: default
-# values: 
-#   - ../test-values.yaml
+values:
+  - ../test-values.yaml
 tests:
 - it: override referencePath
   template: ocm-resources.yaml
@@ -53,7 +53,8 @@ tests:
 
 
 - it: default referencePath
-  template: ocm-resources.yaml
+  templates: 
+    - ocm-resources.yaml
   documentSelector:
     path: metadata.name
     value: tracing
@@ -89,3 +90,8 @@ tests:
     - equal:
         path: spec.ocmConfig[0].name
         value: platform-mesh
+
+- it: image enabled resource
+  template: ocm-image-resources.yaml
+  asserts:
+    - matchSnapshot: {}
