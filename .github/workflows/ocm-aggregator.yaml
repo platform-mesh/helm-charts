@@ -100,12 +100,12 @@ jobs:
           echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kubernetes-graphql-gateway --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo VIRTUAL_WORKSPACES_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/virtual-workspaces --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh-operator-components --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          
+          echo EXAMPLE_HTTPBIN_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/example-httpbin-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # Get current platform-mesh version
           PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
           echo CURRENT_PM_VERSION="$PM_VERSION" >> $GITHUB_ENV
-          
+
           # Calculate next version for potential use with release candidate logic
           if [[ "$PM_VERSION" =~ -rc\.([0-9]+)$ ]]; then
             # Current version is already a release candidate, increment the rc number
@@ -166,10 +166,10 @@ jobs:
         id: version_check
         run: |
           set -e
-          
+
           # Get the latest platform-mesh component descriptor to compare dependencies
           ./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o yaml > current_pm_component.yaml || echo "No existing platform-mesh component found"
-          
+
           # Extract current dependency versions from the existing component (if it exists)
           if [ -f current_pm_component.yaml ] && [ -s current_pm_component.yaml ]; then
             CURRENT_ACCOUNT_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "account-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
@@ -190,7 +190,7 @@ jobs:
             echo "VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_ENV
             exit 0
           fi
-          
+
           # Check if force upgrade is requested
           if [ "${{ inputs.force_version_upgrade }}" = "true" ]; then
             echo "Force version upgrade requested, creating new version"
@@ -200,65 +200,65 @@ jobs:
             echo "VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_ENV
             exit 0
           fi
-          
+
           # Compare versions to detect changes
           NEEDS_UPDATE=false
-          
+
           if [ "$CURRENT_ACCOUNT_OPERATOR" != "${{ env.ACCOUNT_OPERATOR_VERSION }}" ]; then
             echo "Account operator: $CURRENT_ACCOUNT_OPERATOR -> ${{ env.ACCOUNT_OPERATOR_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_SECURITY_OPERATOR" != "${{ env.SECURITY_OPERATOR_VERSION }}" ]; then
             echo "Security operator: $CURRENT_SECURITY_OPERATOR -> ${{ env.SECURITY_OPERATOR_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_EXTENSION_MANAGER_OPERATOR" != "${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }}" ]; then
             echo "Extension manager operator: $CURRENT_EXTENSION_MANAGER_OPERATOR -> ${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_INFRA" != "${{ env.INFRA_VERSION }}" ]; then
             echo "Infra: $CURRENT_INFRA -> ${{ env.INFRA_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_REBAC_AUTHZ_WEBHOOK" != "${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }}" ]; then
             echo "Rebac authz webhook: $CURRENT_REBAC_AUTHZ_WEBHOOK -> ${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_PORTAL" != "${{ env.PORTAL_VERSION }}" ]; then
             echo "Portal: $CURRENT_PORTAL -> ${{ env.PORTAL_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_PLATFORM_MESH_OPERATOR" != "${{ env.PLATFORM_MESH_OPERATOR_VERSION }}" ]; then
             echo "Platform mesh operator: $CURRENT_PLATFORM_MESH_OPERATOR -> ${{ env.PLATFORM_MESH_OPERATOR_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_KEYCLOAK" != "${{ env.KEYCLOAK_VERSION }}" ]; then
             echo "Keycloak: $CURRENT_KEYCLOAK -> ${{ env.KEYCLOAK_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_KUBERNETES_GRAPHQL_GATEWAY" != "${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }}" ]; then
             echo "Kubernetes GraphQL gateway: $CURRENT_KUBERNETES_GRAPHQL_GATEWAY -> ${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_VIRTUAL_WORKSPACES" != "${{ env.VIRTUAL_WORKSPACES_VERSION }}" ]; then
             echo "Virtual workspaces: $CURRENT_VIRTUAL_WORKSPACES -> ${{ env.VIRTUAL_WORKSPACES_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$CURRENT_PLATFORM_MESH_OPERATOR_COMPONENTS" != "${{ env.PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}" ]; then
             echo "Platform mesh operator components: $CURRENT_PLATFORM_MESH_OPERATOR_COMPONENTS -> ${{ env.PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}"
             NEEDS_UPDATE=true
           fi
-          
+
           if [ "$NEEDS_UPDATE" = "true" ]; then
             echo "Component dependencies have changed, creating new version"
             echo "Previous platform-mesh version: ${{ env.CURRENT_PM_VERSION }}"
@@ -296,8 +296,9 @@ jobs:
             OPENFGA_VERSION=0.2.38 \
             KUBERNETES_GRAPHQL_GATEWAY_VERSION=${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }} \
             KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION}} \
-            PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=${{ env.PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}
-          
+            PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=${{ env.PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }} \
+            EXAMPLE_HTTPBIN_OPERATOR_VERSION=${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }}
+
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
         run: ./ocm transfer ctf --overwrite .ocm/transport.ctf "ghcr.io/platform-mesh"
