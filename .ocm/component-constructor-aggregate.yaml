@@ -71,6 +71,25 @@ components:
           type: helm
           helmChart: kcp-operator:{{ .KCP_OPERATOR_VERSION }}
           helmRepository: https://kcp-dev.github.io/helm-charts
+  - name: github.com/kcp-dev/kcp
+    version: {{ .KCP_VERSION }}
+    provider:
+      name: kcp
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .KCP_OPERATOR_VERSION }}
+        access:
+          type: helm
+          helmChart: kcp-operator:{{ .KCP_OPERATOR_VERSION }}
+          helmRepository: https://kcp-dev.github.io/helm-charts
+      - name: image
+        type: ociImage
+        relation: external
+        version: 0.0.0-{{ .KCP_IMAGE_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/kcp-dev/kcp:{{ .KCP_IMAGE_VERSION }}"
   - name: github.com/gardener/etcd-druid
     version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
     provider:
@@ -126,6 +145,9 @@ components:
       - name: kcp-operator
         componentName: github.com/kcp-dev/kcp-operator
         version: {{ .KCP_OPERATOR_VERSION }}
+      - name: kcp
+        componentName: github.com/kcp-dev/kcp
+        version: {{ .KCP_VERSION }}
       - name: kubernetes-graphql-gateway
         componentName: github.com/platform-mesh/kubernetes-graphql-gateway
         version: {{ .KUBERNETES_GRAPHQL_GATEWAY_VERSION }}
