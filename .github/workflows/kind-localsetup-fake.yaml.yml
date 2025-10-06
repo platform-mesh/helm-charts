@@ -1,0 +1,32 @@
+name: pipeline
+permissions:
+  contents: read
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'local-setup/**'
+
+jobs:
+  check-helm-docs:
+    name: checkHelmDocs / docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: nothing to do
+        run: |
+          echo "nothing to do"
+  testchart-lint:
+    name: testChart / lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: nothing to do
+        run: |
+          echo "nothing to do"
+  testchart-unittest:
+    name: testChart / unittest
+    runs-on: ubuntu-latest
+    steps:
+      - name: nothing to do
+        run: |
+          echo "nothing to do"
