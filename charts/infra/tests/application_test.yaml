@@ -23,3 +23,9 @@ tests:
         tag: "v0.1.0"
   asserts:
     - matchSnapshot: {}
+- it: match snapshots with mailpit enabled
+  set:
+    mailpit:
+      enabled: true
+  asserts:
+  - matchSnapshot: {}

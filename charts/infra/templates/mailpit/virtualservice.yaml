@@ -1,3 +1,4 @@
+{{- if .Values.mailpit.enabled -}}
 {{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "istio.enabled")) "true" -}}
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -5,7 +6,7 @@ metadata:
   name: mailpit
 spec:
   hosts:
-    {{ .Values.hosts | toYaml | nindent 4 }}
+    {{ .Values.mailpit.istio.virtualservice.hosts | toYaml | nindent 4 }}
   gateways:
     - {{ .Release.Namespace}}/{{ include "common.getKeyValue" (dict "Values" .Values "key" "istio.gateway.name") }}
   http:
@@ -14,9 +15,10 @@ spec:
           host: mailpit.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 8025
-      {{- if .Values.domain.pathPrefix }}
+      {{- if .Values.mailpit.domain.pathPrefix }}
       match:
         - uri:
-            prefix: {{ .Values.domain.pathPrefix }}
+            prefix: {{ .Values.mailpit.domain.pathPrefix }}
       {{ end }}
 {{- end }}
+{{- end -}}

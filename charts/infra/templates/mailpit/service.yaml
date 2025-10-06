@@ -1,12 +1,13 @@
+{{- if .Values.mailpit.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "common.entity.name" . }}
+  name: mailpit
   labels:
-    {{- include "common.labelMatcher" . | nindent 4 }}
+    app: mailpit
 spec:
   selector:
-    {{- include "common.labelMatcher" . | indent 4 }}
+    app: mailpit
   ports:
     - name: ui
       port: 8025
@@ -17,3 +18,4 @@ spec:
       targetPort: smtp
       protocol: TCP
       appProtocol: tcp
+{{- end -}}
