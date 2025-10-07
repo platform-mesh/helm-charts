@@ -96,7 +96,7 @@ A Helm chart for Kubernetes
 | keycloak.crossplane.providerConfig | object | `{"name":"keycloak-provider-config","namespace":"platform-mesh-system"}` | crossplane provider config |
 | keycloak.crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | keycloak.crossplane.providerConfig.namespace | string | `"platform-mesh-system"` | client namespace |
-| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"welcome","name":"welcome","registrationAllowed":true,"verifyEmail":true}` | crossplane realm config |
+| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"welcome","name":"welcome","registrationAllowed":true,"smtpServer":{"from":"noreply@portal.dev.local","host":"mailpit.platform-mesh-system.svc.cluster.local","port":1025},"verifyEmail":true}` | crossplane realm config |
 | keycloak.crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
 | keycloak.crossplane.realm.displayName | string | `"welcome"` | realm display name |
 | keycloak.crossplane.realm.name | string | `"welcome"` | realm name |
