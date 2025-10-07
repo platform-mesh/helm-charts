@@ -13,23 +13,54 @@ spec:
       name: platform-mesh
     referencePath: []
   values:
+    account-operator:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
     istio-gateway:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       enabled: true
       targetNamespace: istio-system
       values:
         service:
           type: None
     keycloak:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       enabled: true
       values:
         service:
           clusterIP: 10.96.0.110
     crossplane:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       values:
         provider:
           packages:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
     infra:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+        - name: kcp-operator
+          namespace: default
       values:
         mailpit:
           enabled: true
@@ -49,9 +80,21 @@ spec:
                   - "http://localhost:4300/callback*"
                   - "https://*"
     observability:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
+      enabled: false
+    kcp:
       enabled: false
     kcp-operator:
       enabled: true
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       values:
         crds:
           create: false
@@ -61,6 +104,11 @@ spec:
           tag: "main"
           pullPolicy: IfNotPresent
     security-operator:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       values:
         initializer:
           baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
@@ -76,6 +124,11 @@ spec:
               hostnames:
                 - kcp.api.portal.dev.local
     portal:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       enabled: true
       values:
         extraEnvVars:
@@ -102,6 +155,11 @@ spec:
             - "portal.dev.local"
             - "*.portal.dev.local"
     openfga:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       enabled: true
       values:
         datastore:
@@ -118,6 +176,11 @@ spec:
               tls:
                 enabled: false
     virtual-workspaces:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       values:
         virtualWorkspaceSecretName: virtual-workspaces-cert
         deployment:
@@ -125,6 +188,11 @@ spec:
           resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
           resourceSchemaWorkspace: "root:platform-mesh-system"
     kubernetes-graphql-gateway:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
       enabled: true
       values:
         listener:
@@ -138,3 +206,21 @@ spec:
                   #   name: marketplace
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
+    extension-manager-operator:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
+    rebac-authz-webhook:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
+    platform-mesh-operator:
+      ocm:
+        repo:
+          name: platform-mesh
+        component:
+          name: platform-mesh
