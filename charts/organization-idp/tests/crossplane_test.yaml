@@ -11,6 +11,16 @@ tests:
   - it: matches the snapshot
     asserts:
       - matchSnapshot: {}
+  - it: matches the snapshot with smtpConfig
+    asserts:
+      - matchSnapshot: {}
+    set:
+      crossplane:
+        realm:
+          smtpConfig:
+            host: smtp.example.com
+            port: "587"
+            from: "test"
   - it: matches the snapshot with custom config
     set:
       crossplane:

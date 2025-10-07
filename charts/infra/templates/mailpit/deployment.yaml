@@ -1,0 +1,29 @@
+{{- if .Values.mailpit.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailpit
+spec:
+  selector:
+    matchLabels:
+      app: mailpit
+  template:
+    metadata:
+      labels:
+        app: mailpit
+    spec:
+      containers:
+      - name: mailpit
+        image: axllent/mailpit:{{ .Values.mailpit.image.tag }}
+        args:
+          - --webroot={{ .Values.mailpit.domain.pathPrefix | default "/" }}
+          - --smtp-auth-accept-any
+          - --smtp-auth-allow-insecure
+        ports:
+        - name: ui
+          containerPort: 8025
+          protocol: TCP
+        - name: smtp
+          containerPort: 1025
+          protocol: TCP
+{{- end -}}

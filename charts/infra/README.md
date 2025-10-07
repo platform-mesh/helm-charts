@@ -126,6 +126,10 @@ A Helm chart for Kubernetes
 | keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
 | keycloak.service.name | string | `"keycloak"` | service name |
 | keycloak.service.port | int | `80` | service port |
+| mailpit.domain.pathPrefix | string | `"/mailpit"` | path prefix |
+| mailpit.enabled | bool | `false` |  |
+| mailpit.image.tag | string | `"v1.27.9"` |  |
+| mailpit.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
 | openfga.rbac.requestPrincipals | list | `[]` |  |
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa"` |  |

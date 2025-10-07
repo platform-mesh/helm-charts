@@ -9,6 +9,7 @@ tests:
       initializer:
         extraArgs:
           - --test=myval
+          - --test2=myval
         kubeconfigSecret: kcp-initializer-kubeconfig
     asserts:
       - matchSnapshot: {}

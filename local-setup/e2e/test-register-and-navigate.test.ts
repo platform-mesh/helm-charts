@@ -21,6 +21,6 @@ test.describe('Home Page', () => {
     ]);
 
     const title = await page.title();
-    expect(title).toBe('PlatformMesh Portal');
+    expect(title).toBe('Platform Mesh Portal');
   });
 });
