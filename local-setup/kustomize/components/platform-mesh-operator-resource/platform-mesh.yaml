@@ -62,6 +62,11 @@ spec:
           pullPolicy: IfNotPresent
     security-operator:
       values:
+        fga:
+          extraArgs:
+            - --invite-keycloak-base-url=https://portal.dev.local:8443/keycloak
+            - --invite-keycloak-password-file=/keycloak-credentials/secret
+        caSecret: domain-certificate-ca
         initializer:
           baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
           extraArgs:
@@ -75,6 +80,9 @@ spec:
             - ip: 10.96.0.100
               hostnames:
                 - kcp.api.portal.dev.local
+            - ip: "10.96.188.4"
+              hostnames:
+                - "portal.dev.local"
     portal:
       enabled: true
       values:
