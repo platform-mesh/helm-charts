@@ -1,30 +1,5 @@
 it should render the application manifests:
   1: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: image
-        component: etcd-druid
-        repo: oci
-      name: etcd-druid-image
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 1m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: etcd-druid
-          resource:
-            name: image
-  2: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -58,7 +33,7 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  3: |
+  2: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -81,7 +56,7 @@ it should render the application manifests:
         provider:
           packages:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-  4: |
+  3: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -101,7 +76,7 @@ it should render the application manifests:
       targetNamespace: etcd-druid-system
       timeout: 15m
       values: {}
-  5: |
+  4: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -129,7 +104,7 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: true
-  6: |
+  5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -143,7 +118,7 @@ it should render the application manifests:
       dependsOn:
         - name: istio-istiod
           namespace: default
-        - name: kcp-operator
+        - name: kcp
           namespace: default
       interval: 1m
       releaseName: infra
@@ -179,7 +154,7 @@ it should render the application manifests:
             virtualservice:
               hosts:
                 - example.com
-  7: |
+  6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -199,7 +174,7 @@ it should render the application manifests:
       targetNamespace: istio-system
       timeout: 15m
       values: null
-  8: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -230,7 +205,7 @@ it should render the application manifests:
               nodePort: 32000
               port: 15021
           type: NodePort
-  9: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -271,27 +246,27 @@ it should render the application manifests:
               - providers:
                   - name: otel-tracing
                 randomSamplingPercentage: 100
-  10: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: kcp-operator
+      name: kcp
       namespace: default
     spec:
       chart:
         spec:
-          chart: kcp-operator
+          chart: kcp
           reconcileStrategy: ChartVersion
           sourceRef:
             kind: HelmRepository
-            name: kcp-operator
+            name: kcp
       dependsOn: null
       interval: 1m
-      releaseName: kcp-operator
+      releaseName: kcp
       targetNamespace: kcp-operator
       timeout: 15m
       values: null
-  11: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -343,7 +318,7 @@ it should render the application manifests:
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
-  12: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -396,7 +371,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  13: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -464,7 +439,7 @@ it should render the application manifests:
               endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  14: |
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -494,7 +469,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  15: |
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -526,7 +501,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  16: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -545,7 +520,56 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 15m
       values: null
+  16: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: image
+        component: etcd-druid
+        repo: oci
+      name: etcd-druid-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: etcd-druid
+          resource:
+            name: image
   17: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        component: infra
+        infra: "true"
+      name: kcp-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: kcp
+          resource:
+            name: image
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -570,7 +594,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  18: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -595,7 +619,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  19: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -620,7 +644,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  20: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -645,7 +669,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  21: |
+  22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -670,7 +694,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  22: |
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -695,7 +719,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  23: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -720,7 +744,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  24: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -745,14 +769,14 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  25: |
+  26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
       labels:
         artifact: chart
         repo: helm
-      name: kcp-operator
+      name: kcp
     spec:
       componentRef:
         name: platform-mesh
@@ -766,11 +790,11 @@ it should render the application manifests:
         byReference:
           referencePath:
             - name: test
-            - name: kcp-operator
+            - name: kcp
           resource:
             name: chart
       skipVerify: true
-  26: |
+  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -795,7 +819,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  27: |
+  28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -820,7 +844,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  28: |
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -845,7 +869,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  29: |
+  30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -870,7 +894,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  30: |
+  31: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -895,7 +919,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  31: |
+  32: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
