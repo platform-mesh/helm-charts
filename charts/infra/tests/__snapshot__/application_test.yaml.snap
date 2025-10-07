@@ -336,7 +336,7 @@ match snapshots:
         smtpServer:
           - from: noreply@portal.dev.local
             host: mailpit.platform-mesh-system.svc.cluster.local
-            port: 1025
+            port: "1025"
         ssoSessionIdleTimeout: 8h
         verifyEmail: true
       providerConfigRef:
@@ -792,7 +792,7 @@ match snapshots w. hostAliases enabled:
         smtpServer:
           - from: noreply@portal.dev.local
             host: mailpit.platform-mesh-system.svc.cluster.local
-            port: 1025
+            port: "1025"
         ssoSessionIdleTimeout: 8h
         verifyEmail: true
       providerConfigRef:
@@ -1237,7 +1237,7 @@ match snapshots w. kcp version:
         smtpServer:
           - from: noreply@portal.dev.local
             host: mailpit.platform-mesh-system.svc.cluster.local
-            port: 1025
+            port: "1025"
         ssoSessionIdleTimeout: 8h
         verifyEmail: true
       providerConfigRef:
@@ -1678,7 +1678,7 @@ match snapshots with mailpit enabled:
         smtpServer:
           - from: noreply@portal.dev.local
             host: mailpit.platform-mesh-system.svc.cluster.local
-            port: 1025
+            port: "1025"
         ssoSessionIdleTimeout: 8h
         verifyEmail: true
       providerConfigRef:
