@@ -423,25 +423,7 @@ tasks:
         echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
         yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
 
-      - | # apply kustomize patch only for configured charts in CUSTOM_LOCAL_COMPONENTS_CHART_PATHS
-        patch_string=""
-        for pair in {{ range .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}"{{ range $k,$v := . }}{{$k}}:{{$v}}{{ end }}" {{ end }}; do
-          comp="${pair%%:*}"
-          patch_string+=$(cat <<EOF
-        - op: replace
-          path: /spec/values/$comp/ocm/repo/name
-          value: prerelease
-        - op: replace
-          path: /spec/values/$comp/ocm/component/name
-          value: prerelease
-        EOF
-          )
-          patch_string+=$'\n'
-        done
-
-        # Use yq to update the kustomization.yaml file
-        yq -i '.patches[0].patch = "'"$patch_string"'"' local-setup/kustomize/overlays/ocm-prerelease/kustomization.yaml
-
+      - |
         kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
         echo "Applied kustomize overlay"
       - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
