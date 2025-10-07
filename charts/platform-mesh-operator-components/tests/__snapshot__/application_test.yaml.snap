@@ -118,7 +118,7 @@ it should render the application manifests:
       dependsOn:
         - name: istio-istiod
           namespace: default
-        - name: kcp
+        - name: kcp-operator
           namespace: default
       interval: 1m
       releaseName: infra
@@ -250,19 +250,19 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: kcp
+      name: kcp-operator
       namespace: default
     spec:
       chart:
         spec:
-          chart: kcp
+          chart: kcp-operator
           reconcileStrategy: ChartVersion
           sourceRef:
             kind: HelmRepository
-            name: kcp
+            name: kcp-operator
       dependsOn: null
       interval: 1m
-      releaseName: kcp
+      releaseName: kcp-operator
       targetNamespace: kcp-operator
       timeout: 15m
       values: null
@@ -552,7 +552,7 @@ it should render the application manifests:
       labels:
         component: infra
         infra: "true"
-      name: kcp-image
+      name: kcp-operator-image
     spec:
       componentRef:
         name: platform-mesh
@@ -566,7 +566,7 @@ it should render the application manifests:
         byReference:
           referencePath:
             - name: test
-            - name: kcp
+            - name: kcp-operator
           resource:
             name: image
   18: |
@@ -776,7 +776,7 @@ it should render the application manifests:
       labels:
         artifact: chart
         repo: helm
-      name: kcp
+      name: kcp-operator
     spec:
       componentRef:
         name: platform-mesh
@@ -790,7 +790,7 @@ it should render the application manifests:
         byReference:
           referencePath:
             - name: test
-            - name: kcp
+            - name: kcp-operator
           resource:
             name: chart
       skipVerify: true

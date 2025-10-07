@@ -49,7 +49,7 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.values.tracing.enabled | bool | `true` |  |
 | services.infra.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
-| services.infra.dependsOn[1].name | string | `"kcp"` |  |
+| services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[1].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
@@ -102,15 +102,12 @@ A Helm chart for Kubernetes
 | services.istio-istiod.values.tracing.enabled | bool | `false` |  |
 | services.istio-istiod.values.tracing.telemetry.tracing[0].providers[0].name | string | `"otel-tracing"` |  |
 | services.istio-istiod.values.tracing.telemetry.tracing[0].randomSamplingPercentage | int | `100` |  |
-| services.kcp-operator.enabled | bool | `false` |  |
+| services.kcp-operator.enabled | bool | `true` |  |
 | services.kcp-operator.helmRepo | bool | `true` |  |
+| services.kcp-operator.imageResource.enabled | bool | `true` |  |
+| services.kcp-operator.imageResource.labels.component | string | `"infra"` |  |
+| services.kcp-operator.imageResource.labels.infra | string | `"true"` |  |
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
-| services.kcp.enabled | bool | `true` |  |
-| services.kcp.helmRepo | bool | `true` |  |
-| services.kcp.imageResource.enabled | bool | `true` |  |
-| services.kcp.imageResource.labels.component | string | `"infra"` |  |
-| services.kcp.imageResource.labels.infra | string | `"true"` |  |
-| services.kcp.targetNamespace | string | `"kcp-operator"` |  |
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
