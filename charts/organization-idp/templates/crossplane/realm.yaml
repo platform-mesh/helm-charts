@@ -16,6 +16,7 @@ spec:
     loginWithEmailAllowed: true
     registrationEmailAsUsername: true
     registrationAllowed: {{ .Values.crossplane.realm.registrationAllowed }}
+    verifyEmail: {{ .Values.crossplane.realm.verifyEmail }}
     {{- with .Values.crossplane.realm.smtpConfig }}
     smtpServer:
       {{ toYaml . | nindent 6 }}
