@@ -99,6 +99,8 @@ services:
         packages:
           - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
   etcd-druid:
+    imageResource:
+      enabled: true
     enabled: true
     gitRepo: true
     path: charts
@@ -160,7 +162,7 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
-      - name: kcp-operator
+      - name: kcp
         namespace: default
     values:
       kcp:
@@ -193,9 +195,18 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
-  kcp-operator:
-    helmRepo: true
+  kcp:
+    imageResource:
+      enabled: true
+      labels:
+        infra: "true"
+        component: infra
     enabled: true
+    helmRepo: true
+    targetNamespace: kcp-operator
+  kcp-operator:
+    enabled: false
+    helmRepo: true
     targetNamespace: kcp-operator
   keycloak:
     enabled: true
@@ -365,16 +376,15 @@ services:
       - name: istio-istiod
         namespace: default
     values:
-      kcp:
-        kubeconfigSecret: portal-kubeconfig
+      kubeconfigSecret: portal-kubeconfig
       crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
       environment: kind
       http:
         protocol: https
       frontendPort: '{{ .Values.port }}'
       auth:
-        default:
-          discoveryUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/${org-name}/.well-known/openid-configuration"
+        defaultIDP:
+          discoveryUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"
           clientSecretName: "portal-client-secret-welcome"
           clientSecretKey: "attribute.client_secret"
           clientId: "welcome"
