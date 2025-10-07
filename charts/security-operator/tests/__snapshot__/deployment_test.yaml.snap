@@ -257,7 +257,7 @@ operator match the snapshot:
                 secretName: kcp-kubeconfig
             - name: keycloak-credentials
               secret:
-                secretName: keycloak-provider-config
+                secretName: keycloak-admin
   5: |
     apiVersion: apps/v1
     kind: Deployment
@@ -720,7 +720,7 @@ operator match the snapshot w. sentry:
           volumes:
             - name: keycloak-credentials
               secret:
-                secretName: keycloak-provider-config
+                secretName: keycloak-admin
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig

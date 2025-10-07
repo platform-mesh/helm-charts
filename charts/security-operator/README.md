@@ -25,7 +25,7 @@ A Helm chart for security-operator
 | initializer.baseDomain | string | `""` |  |
 | initializer.extraArgs | list | `[]` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
-| keycloakSecret | string | `"keycloak-provider-config"` |  |
+| keycloakSecret | string | `"keycloak-admin"` |  |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |
 | region | string | `"local"` | region indicator, used for logging and observability |
