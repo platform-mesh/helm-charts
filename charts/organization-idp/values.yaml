@@ -16,7 +16,9 @@ crossplane:
     # -- realm display name
     displayName: default
     # -- realm registration allowed
-    registrationAllowed: false
+    registrationAllowed: true
+    # -- toggle to enable email verification
+    verifyEmail: true
     # -- realm access token lifespan
     accessTokenLifespan: 8h
 

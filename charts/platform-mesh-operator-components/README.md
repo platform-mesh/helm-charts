@@ -35,6 +35,7 @@ A Helm chart for Kubernetes
 | services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2"` |  |
 | services.etcd-druid.enabled | bool | `true` |  |
 | services.etcd-druid.gitRepo | bool | `true` |  |
+| services.etcd-druid.imageResource.enabled | bool | `true` |  |
 | services.etcd-druid.path | string | `"charts"` |  |
 | services.etcd-druid.targetNamespace | string | `"etcd-druid-system"` |  |
 | services.etcd-druid.values | object | `{}` |  |
@@ -48,7 +49,7 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.values.tracing.enabled | bool | `true` |  |
 | services.infra.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
-| services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |
+| services.infra.dependsOn[1].name | string | `"kcp"` |  |
 | services.infra.dependsOn[1].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
@@ -101,9 +102,15 @@ A Helm chart for Kubernetes
 | services.istio-istiod.values.tracing.enabled | bool | `false` |  |
 | services.istio-istiod.values.tracing.telemetry.tracing[0].providers[0].name | string | `"otel-tracing"` |  |
 | services.istio-istiod.values.tracing.telemetry.tracing[0].randomSamplingPercentage | int | `100` |  |
-| services.kcp-operator.enabled | bool | `true` |  |
+| services.kcp-operator.enabled | bool | `false` |  |
 | services.kcp-operator.helmRepo | bool | `true` |  |
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
+| services.kcp.enabled | bool | `true` |  |
+| services.kcp.helmRepo | bool | `true` |  |
+| services.kcp.imageResource.enabled | bool | `true` |  |
+| services.kcp.imageResource.labels.component | string | `"infra"` |  |
+| services.kcp.imageResource.labels.infra | string | `"true"` |  |
+| services.kcp.targetNamespace | string | `"kcp-operator"` |  |
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
@@ -189,11 +196,11 @@ A Helm chart for Kubernetes
 | services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.portal.dependsOn[0].namespace | string | `"default"` |  |
 | services.portal.enabled | bool | `false` |  |
-| services.portal.values.auth.default.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
-| services.portal.values.auth.default.clientId | string | `"welcome"` |  |
-| services.portal.values.auth.default.clientSecretKey | string | `"attribute.client_secret"` |  |
-| services.portal.values.auth.default.clientSecretName | string | `"portal-client-secret-welcome"` |  |
-| services.portal.values.auth.default.discoveryUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/${org-name}/.well-known/openid-configuration"` |  |
+| services.portal.values.auth.defaultIDP.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
+| services.portal.values.auth.defaultIDP.clientId | string | `"welcome"` |  |
+| services.portal.values.auth.defaultIDP.clientSecretKey | string | `"attribute.client_secret"` |  |
+| services.portal.values.auth.defaultIDP.clientSecretName | string | `"portal-client-secret-welcome"` |  |
+| services.portal.values.auth.defaultIDP.discoveryUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.environment | string | `"kind"` |  |
@@ -201,7 +208,7 @@ A Helm chart for Kubernetes
 | services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
-| services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
+| services.portal.values.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
 | services.portal.values.virtualService.hosts | bool | `false` |  |
 | services.rebac-authz-webhook.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.rebac-authz-webhook.dependsOn[0].namespace | string | `"default"` |  |
