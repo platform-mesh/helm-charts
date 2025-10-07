@@ -56,6 +56,7 @@ it should render the application manifests:
         provider:
           packages:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
+  3: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
