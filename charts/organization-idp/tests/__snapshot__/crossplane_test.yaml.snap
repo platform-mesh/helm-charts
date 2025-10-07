@@ -82,9 +82,10 @@ matches the snapshot:
         enabled: true
         loginWithEmailAllowed: true
         realm: default
-        registrationAllowed: false
+        registrationAllowed: true
         registrationEmailAsUsername: true
         ssoSessionIdleTimeout: 8h
+        verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
 matches the snapshot with custom config:
@@ -171,9 +172,10 @@ matches the snapshot with custom config:
         enabled: true
         loginWithEmailAllowed: true
         realm: default
-        registrationAllowed: false
+        registrationAllowed: true
         registrationEmailAsUsername: true
         ssoSessionIdleTimeout: 8h
+        verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
 matches the snapshot with smtpConfig:
@@ -260,12 +262,13 @@ matches the snapshot with smtpConfig:
         enabled: true
         loginWithEmailAllowed: true
         realm: default
-        registrationAllowed: false
+        registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
           from: test
           host: smtp.example.com
           port: "587"
         ssoSessionIdleTimeout: 8h
+        verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
