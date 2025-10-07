@@ -333,7 +333,12 @@ match snapshots:
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
+        smtpServer:
+          from: noreply@portal.dev.local
+          host: mailpit.platform-mesh-system.svc.cluster.local
+          port: 1025
         ssoSessionIdleTimeout: 8h
+        verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
   18: |
@@ -784,7 +789,12 @@ match snapshots w. hostAliases enabled:
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
+        smtpServer:
+          from: noreply@portal.dev.local
+          host: mailpit.platform-mesh-system.svc.cluster.local
+          port: 1025
         ssoSessionIdleTimeout: 8h
+        verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
   18: |
@@ -1224,7 +1234,12 @@ match snapshots w. kcp version:
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
+        smtpServer:
+          from: noreply@portal.dev.local
+          host: mailpit.platform-mesh-system.svc.cluster.local
+          port: 1025
         ssoSessionIdleTimeout: 8h
+        verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
   18: |
@@ -1660,7 +1675,12 @@ match snapshots with mailpit enabled:
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
+        smtpServer:
+          from: noreply@portal.dev.local
+          host: mailpit.platform-mesh-system.svc.cluster.local
+          port: 1025
         ssoSessionIdleTimeout: 8h
+        verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
   18: |
