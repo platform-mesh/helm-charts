@@ -16,6 +16,11 @@ spec:
     loginWithEmailAllowed: true
     registrationEmailAsUsername: true
     registrationAllowed: {{ .Values.keycloak.crossplane.realm.registrationAllowed }}
+    verifyEmail: {{ .Values.keycloak.crossplane.realm.verifyEmail | default false }}
+    {{- with .Values.keycloak.crossplane.realm.smtpServer }}
+    smtpServer:
+      {{ toYaml . | nindent 6 }}
+    {{- end }}
   providerConfigRef:
     name: {{ .Values.keycloak.crossplane.providerConfig.name }}
 {{- end -}}
