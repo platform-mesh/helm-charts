@@ -162,7 +162,7 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
-      - name: kcp
+      - name: kcp-operator
         namespace: default
     values:
       kcp:
@@ -195,17 +195,13 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
-  kcp:
+  kcp-operator:
     imageResource:
       enabled: true
       labels:
         infra: "true"
         component: infra
     enabled: true
-    helmRepo: true
-    targetNamespace: kcp-operator
-  kcp-operator:
-    enabled: false
     helmRepo: true
     targetNamespace: kcp-operator
   keycloak:

@@ -30,7 +30,7 @@ image enabled resource:
       labels:
         component: infra
         infra: "true"
-      name: kcp-image
+      name: kcp-operator-image
     spec:
       componentRef:
         name: platform-mesh
@@ -43,6 +43,6 @@ image enabled resource:
       resource:
         byReference:
           referencePath:
-            - name: kcp
+            - name: kcp-operator
           resource:
             name: image
