@@ -334,9 +334,9 @@ match snapshots:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          from: noreply@portal.dev.local
-          host: mailpit.platform-mesh-system.svc.cluster.local
-          port: 1025
+          - from: noreply@portal.dev.local
+            host: mailpit.platform-mesh-system.svc.cluster.local
+            port: 1025
         ssoSessionIdleTimeout: 8h
         verifyEmail: true
       providerConfigRef:
@@ -790,9 +790,9 @@ match snapshots w. hostAliases enabled:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          from: noreply@portal.dev.local
-          host: mailpit.platform-mesh-system.svc.cluster.local
-          port: 1025
+          - from: noreply@portal.dev.local
+            host: mailpit.platform-mesh-system.svc.cluster.local
+            port: 1025
         ssoSessionIdleTimeout: 8h
         verifyEmail: true
       providerConfigRef:
@@ -1235,9 +1235,9 @@ match snapshots w. kcp version:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          from: noreply@portal.dev.local
-          host: mailpit.platform-mesh-system.svc.cluster.local
-          port: 1025
+          - from: noreply@portal.dev.local
+            host: mailpit.platform-mesh-system.svc.cluster.local
+            port: 1025
         ssoSessionIdleTimeout: 8h
         verifyEmail: true
       providerConfigRef:
@@ -1676,9 +1676,9 @@ match snapshots with mailpit enabled:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          from: noreply@portal.dev.local
-          host: mailpit.platform-mesh-system.svc.cluster.local
-          port: 1025
+          - from: noreply@portal.dev.local
+            host: mailpit.platform-mesh-system.svc.cluster.local
+            port: 1025
         ssoSessionIdleTimeout: 8h
         verifyEmail: true
       providerConfigRef:
