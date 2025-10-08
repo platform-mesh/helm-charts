@@ -381,7 +381,7 @@ services:
       frontendPort: '{{ .Values.port }}'
       auth:
         default:
-          discoveryUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"
+          discoveryUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/${org-name}/.well-known/openid-configuration"
           clientSecretName: "portal-client-secret-welcome"
           clientSecretKey: "attribute.client_secret"
           clientId: "welcome"
