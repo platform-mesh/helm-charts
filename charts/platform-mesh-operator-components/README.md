@@ -205,7 +205,7 @@ A Helm chart for Kubernetes
 | services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
-| services.portal.values.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
+| services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
 | services.portal.values.virtualService.hosts | bool | `false` |  |
 | services.rebac-authz-webhook.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.rebac-authz-webhook.dependsOn[0].namespace | string | `"default"` |  |
