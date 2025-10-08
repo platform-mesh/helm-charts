@@ -332,8 +332,7 @@ tasks:
               exit 1
             fi
             echo "Using REMOTE component version for $short -> $val"
-            kubectl exec -ti ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update $repo//$component:$val oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
-            kubectl exec -ti ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update $repo//$component:$val .ocm/transport.ctf
+            kubectl exec -ti ocm-transfer-pod -- ocm transfer componentversion --copy-resources --overwrite $repo//$component:$val .ocm/transport.ctf
           fi
           export "$env_var"="$val"
         }
