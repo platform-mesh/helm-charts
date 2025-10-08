@@ -161,11 +161,6 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${CO
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for default organization to be ready ${COL_RES}"
-kubectl wait  \
-  --server='https://kcp.api.portal.dev.local:8443/clusters/root:orgs' \
-  --kubeconfig=$SCRIPT_DIR/../../.secret/kcp/admin.kubeconfig \
-  --for=condition=WorkspaceInitialized workspaces \
-  --timeout=280s default
 
 kubectl wait \
   --server='https://kcp.api.portal.dev.local:8443/clusters/root:orgs' \
