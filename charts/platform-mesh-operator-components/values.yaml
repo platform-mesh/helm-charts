@@ -380,7 +380,7 @@ services:
         protocol: https
       frontendPort: '{{ .Values.port }}'
       auth:
-        defaultIDP:
+        default:
           discoveryUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/welcome/.well-known/openid-configuration"
           clientSecretName: "portal-client-secret-welcome"
           clientSecretKey: "attribute.client_secret"
