@@ -1,12 +1,14 @@
 import test, { expect, Page } from '@playwright/test';
 
+const keycloakBaseUrl = 'https://portal.dev.local:8443/keycloak/';
+const portalBaseUrl = 'https://portal.dev.local:8443/';
 async function activateUserEmail(
   page: Page,
   adminUsername: string,
   adminPassword: string,
   userEmail: string
 ) {
-  await page.goto('https://portal.dev.local:8443/keycloak/');
+  await page.goto(keycloakBaseUrl);
   
   // Log in to Keycloak
   await page.fill('input[name="username"]', adminUsername);
@@ -14,7 +16,7 @@ async function activateUserEmail(
   await page.click('button[type="submit"]');
 
   // Navigate to the user management section
-  await page.goto('https://portal.dev.local:8443/keycloak/admin/master/console/#/welcome/users/');
+  await page.goto(`${keycloakBaseUrl}admin/master/console/#/welcome/users/`);
   
   // Search for the user by email
   await page.fill('input[placeholder="Search user"]', userEmail);
@@ -36,20 +38,20 @@ async function activateUserEmail(
   await page.click('text=Save');
 
   // Logout from Keycloak
-  await page.goto('https://portal.dev.local:8443/keycloak/realms/master/protocol/openid-connect/logout');
+  await page.goto(`${keycloakBaseUrl}realms/master/protocol/openid-connect/logout`);
   await page.waitForSelector('text=Logout', { state: 'visible' });
   await page.click('text=Logout');
 }
 
 test.describe('Home Page', () => {
   // Define user parameters
-  const userEmail = 'username13@sap.com';
+  const userEmail = 'username@sap.com';
   const userPassword = 'MyPass1234';
   const firstName = 'Firstname';
   const lastName = 'Lastname';
 
   test('Register and navigate to portal', async ({ page }) => {
-    await page.goto('https://portal.dev.local:8443/');
+    await page.goto(portalBaseUrl);
 
     // Interact with the page
     await page.click('text=Register');
@@ -71,10 +73,10 @@ test.describe('Home Page', () => {
     await activateUserEmail(page, 'keycloak-admin', 'admin', userEmail);
 
     // Navigate to the portal
-    await page.goto('https://portal.dev.local:8443/');
+    await page.goto(portalBaseUrl);
 
     // Wait for a specific element on the portal page to ensure it has loaded
-    await page.waitForSelector('text=Welcome', { state: 'visible' }); // Adjust this selector based on your portal's content
+    await page.waitForSelector('text=Welcome', { state: 'visible' });
 
     // Login to the portal
     await page.fill('input[name="username"]', userEmail);
@@ -82,7 +84,7 @@ test.describe('Home Page', () => {
     await page.click('button[type="submit"]');
 
     // Wait for a specific element that indicates successful login
-    await page.waitForSelector('text=Welcome to the Platform Mesh Portal!', { state: 'visible' }); // Adjust this selector based on your portal's content
+    await page.waitForSelector('text=Welcome to the Platform Mesh Portal!', { state: 'visible' });
 
     // await page.screenshot({ path: 'screenshot-after-signin.png' });
     

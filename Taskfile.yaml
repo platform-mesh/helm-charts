@@ -449,7 +449,6 @@ tasks:
     cmds:
       - |
           pushd local-setup/e2e
-          npm install
           npm ci
           npx playwright install
           npx playwright test
