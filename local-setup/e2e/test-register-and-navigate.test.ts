@@ -1,6 +1,11 @@
-import test, { expect } from '@playwright/test';
+import test, { expect, Page } from '@playwright/test';
 
-async function activateUserEmail(page, adminUsername, adminPassword, userEmail) {
+async function activateUserEmail(
+  page: Page,
+  adminUsername: string,
+  adminPassword: string,
+  userEmail: string
+) {
   await page.goto('https://portal.dev.local:8443/keycloak/');
   
   // Log in to Keycloak
