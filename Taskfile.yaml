@@ -13,7 +13,7 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION: 0.29.0
-  COMPONENT_PRERELEASE_VERSION: "1.0.0"
+  COMPONENT_PRERELEASE_VERSION: "1.0.2"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
     - security-operator: charts/security-operator
@@ -276,6 +276,8 @@ tasks:
       - local-setup/scripts/configureOcmTls.sh
 
   ocm:build:component:
+    aliases:
+      - ocm:build
     deps: 
       - task: ocm:build:custom-local-charts
     cmds:
@@ -351,6 +353,11 @@ tasks:
 
         echo "--- finished getting component versions ---"
 
+        # Push kcp-operator chart to local oci registry
+        helm pull kcp/kcp-operator --version 0.2.1
+        kubectl cp kcp-operator-0.2.1.tgz -n default ocm-transfer-pod:.
+        kubectl exec -ti ocm-transfer-pod -- helm push kcp-operator-0.2.1.tgz oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+
         set -x
         kubectl exec -it ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-prerelease.yaml -- \
         VERSION={{ .COMPONENT_PRERELEASE_VERSION }} \
@@ -365,7 +372,9 @@ tasks:
         KUBERNETES_GRAPHQL_GATEWAY_VERSION=$KUBERNETES_GRAPHQL_GATEWAY_VERSION \
         PORTAL_VERSION=$PORTAL_VERSION \
         OPENFGA_VERSION=0.2.38 \
-        KCP_OPERATOR_VERSION=0.1.1 \
+        KCP_OPERATOR_CHART_VERSION=0.2.1 \
+        KCP_OPERATOR_CHART_OCI_PATH=oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh/kcp-operator \
+        KCP_IMAGE_VERSION=d976f348 \
         GARDENER_ETCD_DRUID_SOURCE_REF=v0.31.0 \
         GARDENER_ETCD_DRUID_CHART_VERSION=0.1.0 \
         KEYCLOAK_VERSION=$KEYCLOAK_VERSION \
@@ -406,14 +415,17 @@ tasks:
       - task: ocm:configure:tls
 
   ocm:kustomize:apply:
+    aliases:
+      - ocm:apply
     cmds:
       - kind export kubeconfig -n platform-mesh
       - |
         echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
         yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
+
+      - |
         kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
         echo "Applied kustomize overlay"
-        kubectl rollout status deployment/ocm-k8s-toolkit-controller-manager -n ocm-system --timeout=180s
       - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
   ocm:cleanup:

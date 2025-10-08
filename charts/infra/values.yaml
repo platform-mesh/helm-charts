@@ -177,7 +177,7 @@ keycloak:
 
       smtpServer:
         - host: mailpit.platform-mesh-system.svc.cluster.local
-          port: 1025
+          port: "1025"
           from: noreply@portal.dev.local
 
     clients:

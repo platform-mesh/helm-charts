@@ -30,6 +30,11 @@ spec:
           packages:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
     infra:
+      dependsOn:
+        - name: istio-istiod
+          namespace: default
+        - name: kcp-operator
+          namespace: default
       values:
         mailpit:
           enabled: true
@@ -50,8 +55,15 @@ spec:
                   - "https://*"
     observability:
       enabled: false
+    kcp:
+      enabled: false
     kcp-operator:
       enabled: true
+      imageResource:
+        enabled: true
+        labels:
+          infra: "true"
+          component: infra
       values:
         crds:
           create: false
