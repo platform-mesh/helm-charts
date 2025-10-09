@@ -16,16 +16,16 @@ vars:
   COMPONENT_PRERELEASE_VERSION: "1.0.3"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
-    # - security-operator: charts/security-operator
-    # - extension-manager-operator: charts/extension-manager-operator
-    # - infra: charts/infra
-    # - rebac-authz-webhook: charts/rebac-authz-webhook
-    # - platform-mesh: charts/platform-mesh-operator
-    # - portal: charts/portal
-    # - platform-mesh-operator: charts/platform-mesh-operator
-    # - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
-    # - virtual-workspaces: charts/virtual-workspaces
-    # - platform-mesh-operator-components: charts/platform-mesh-operator-components
+    - security-operator: charts/security-operator
+    - extension-manager-operator: charts/extension-manager-operator
+    - infra: charts/infra
+    - rebac-authz-webhook: charts/rebac-authz-webhook
+    - platform-mesh: charts/platform-mesh-operator
+    - portal: charts/portal
+    - platform-mesh-operator: charts/platform-mesh-operator
+    - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
+    - virtual-workspaces: charts/virtual-workspaces
+    - platform-mesh-operator-components: charts/platform-mesh-operator-components
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
 
