@@ -19,6 +19,7 @@ gateway:
   graphiql: true
   logLevel: trace
   shouldImpersonate: true
+  introspectionAuthentication: true
   usernameClaim: email
   resources:
     limits:

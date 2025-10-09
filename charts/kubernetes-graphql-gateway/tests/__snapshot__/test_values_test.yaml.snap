@@ -53,6 +53,8 @@ match the Snapshot:
                   value: email
                 - name: GATEWAY_SHOULD_IMPERSONATE
                   value: "true"
+                - name: GATEWAY_INTROSPECTION_AUTHENTICATION
+                  value: "true"
               image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
