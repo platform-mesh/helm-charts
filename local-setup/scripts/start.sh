@@ -167,12 +167,12 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
 
-  if [ "$1" == "--minimal" ]; then
-    echo -e "$COL Scaling down to minimal resources $COL_RES"
-kubectl scale deployment/helm-controller --replicas=0 -n flux-system
-kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
-kubectl scale deployment/source-controller --replicas=0 -n flux-system
-  fi
+if [ "$1" == "--minimal" ]; then
+  echo -e "$COL Scaling down to minimal resources $COL_RES"
+  kubectl scale deployment/helm-controller --replicas=0 -n flux-system
+  kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
+  kubectl scale deployment/source-controller --replicas=0 -n flux-system
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
