@@ -1,48 +1,20 @@
 import test, { expect, Page } from '@playwright/test';
 
-const keycloakBaseUrl = 'https://portal.dev.local:8443/keycloak/';
 const portalBaseUrl = 'https://portal.dev.local:8443/';
-async function activateUserEmail(
+
+async function activateUserEmailViaMailpit(
   page: Page,
-  adminUsername: string,
-  adminPassword: string,
   userEmail: string
 ) {
-  await page.goto(keycloakBaseUrl);
-  
-  // Log in to Keycloak
-  await page.fill('input[name="username"]', adminUsername);
-  await page.fill('input[name="password"]', adminPassword);
-  await page.click('button[type="submit"]');
+  await page.goto(`${portalBaseUrl}mailpit/`);
 
-  // Navigate to the user management section
-  await page.goto(`${keycloakBaseUrl}admin/master/console/#/welcome/users/`);
-  
-  // Search for the user by email
-  await page.fill('input[placeholder="Search user"]', userEmail);
-  await page.click('button[type="submit"]');
+  await page.click(`text=To: ${userEmail}`)
 
-  // Click on the user to activate
-  await page.click(`text=${userEmail}`);
+  const emailFrame = page.frameLocator('#preview-html');
 
-  // Wait for the "Email verified" toggle to be visible
-  await page.waitForSelector('text=Email verified', { state: 'visible' });
+  await emailFrame.locator('text=Link to e-mail address verification').click();
 
-  // Click on the "Email verified" toggle
-  await page.click('text=Email verified');
-
-  // Wait for the Save button to be visible
-  await page.waitForSelector('text=Save', { state: 'visible' });
-
-  // Save the changes
-  await page.click('text=Save');
-
-  // Logout from Keycloak
-  await page.goto(`${keycloakBaseUrl}realms/master/protocol/openid-connect/logout`);
-  await page.waitForSelector('text=Logout', { state: 'visible' });
-  await page.click('text=Logout');
 }
-
 test.describe('Home Page', () => {
   // Define user parameters
   const userEmail = 'username@sap.com';
@@ -69,25 +41,18 @@ test.describe('Home Page', () => {
       page.click('input[value="Register"]')
     ]);
 
-    // Activate the user's email in Keycloak
-    await activateUserEmail(page, 'keycloak-admin', 'admin', userEmail);
+    // await page.screenshot({ path: 'screenshot-after-register.png' });
 
-    // Navigate to the portal
+    await activateUserEmailViaMailpit(page, userEmail);
+
     await page.goto(portalBaseUrl);
 
-    // Wait for a specific element on the portal page to ensure it has loaded
     await page.waitForSelector('text=Welcome', { state: 'visible' });
 
-    // Login to the portal
-    await page.fill('input[name="username"]', userEmail);
-    await page.fill('input[name="password"]', userPassword);
-    await page.click('button[type="submit"]');
+    await page.screenshot({ path: 'screenshot-login-screen.png' });
 
-    // Wait for a specific element that indicates successful login
     await page.waitForSelector('text=Welcome to the Platform Mesh Portal!', { state: 'visible' });
 
-    // await page.screenshot({ path: 'screenshot-after-signin.png' });
-    
     const title = await page.title();
     expect(title).toBe('Platform Mesh Portal');
   });
