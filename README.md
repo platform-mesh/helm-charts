@@ -41,6 +41,8 @@ All the released versions will be available through access to GitHub (as any oth
 ## Requirements
 
 The helm-charts requires a installation of [Taskfile](https://taskfile.dev/).
+[ct](https://github.com/helm/chart-testing) - chart testing CLI
+
 
 ## Contributing
 
