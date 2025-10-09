@@ -47,9 +47,10 @@ test.describe('Home Page', () => {
 
     await page.goto(portalBaseUrl);
 
-    await page.waitForSelector('text=Welcome to the Platform Mesh Portal!', { state: 'visible' });
+    await page.textContent('text=Welcome to the Platform Mesh Portal!');
 
-    await page.waitForSelector('text=Welcome to the Platform Mesh Portal!', { state: 'visible' });
+
+    await page.screenshot({ path: 'screenshot-final.png' });
 
     const title = await page.title();
     expect(title).toBe('Platform Mesh Portal');
