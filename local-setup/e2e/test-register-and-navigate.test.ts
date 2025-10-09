@@ -47,9 +47,7 @@ test.describe('Home Page', () => {
 
     await page.goto(portalBaseUrl);
 
-    await page.waitForSelector('text=Welcome', { state: 'visible' });
-
-    await page.screenshot({ path: 'screenshot-login-screen.png' });
+    await page.waitForSelector('text=Welcome to the Platform Mesh Portal!', { state: 'visible' });
 
     await page.waitForSelector('text=Welcome to the Platform Mesh Portal!', { state: 'visible' });
 
