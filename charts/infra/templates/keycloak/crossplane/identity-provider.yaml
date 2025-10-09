@@ -12,7 +12,7 @@ spec:
     authorizationUrl: {{ $val.authorizationUrl }}
     tokenUrl: {{ $val.tokenUrl }}
     issuer: {{ $val.issuer }}
-    clientId: {{ $val.clientId }}
+    clientIdSecretRef: {{ $val.clientIdSecretRef | toYaml | nindent 6 }}
     clientSecretSecretRef: {{ $val.clientSecretRef | toYaml | nindent 6 }}
     defaultScopes: openid email profile
     trustEmail: true
