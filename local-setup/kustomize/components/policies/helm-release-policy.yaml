@@ -63,6 +63,7 @@ spec:
                 matchLabels:
                   repo: oci
                   artifact: image
+                
       mutate:
         targets:
           - apiVersion: helm.toolkit.fluxcd.io/v2
@@ -74,3 +75,29 @@ spec:
             values:
               image:
                 tag: "{{request.object.status.resource.version}}"
+    - name: helm-release-mutate-infra-kcp-image
+      match:
+        any:
+        - resources:
+            kinds:
+            - delivery.ocm.software/v1alpha1/Resource/status
+            namespaces:
+            - default
+            selector:
+              matchLabels:
+                infra: "true"
+                component: infra
+      mutate:
+        patchStrategicMerge:
+          spec:
+            values:
+              kcp:
+                image:
+                  tag: "{{request.object.status.resource.version | replace(@, '0.0.0-','',`1`)}}"
+        targets:
+        - apiVersion: helm.toolkit.fluxcd.io/v2
+          kind: HelmRelease
+          name: '{{ request.object.metadata.labels.component }}'
+          namespace: '{{ request.object.metadata.namespace }}'
+      skipBackgroundRequests: true
+

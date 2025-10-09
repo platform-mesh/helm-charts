@@ -7,7 +7,7 @@ on:
       - main
 
 concurrency:
-  group: localsetup-${{ github.event.pull_request.number }}
+  group: localsetup-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -71,6 +71,7 @@ jobs:
           kubectl wait --for=condition=ready --timeout=10m component --all -A
           kubectl wait --for=condition=ready --timeout=10m resource --all -A
           kubectl wait --for=condition=ready --timeout=10m hr --all -A
+          kubectl wait --for=condition=Available --timeout=10m deployment --all -A
 
       # Step 7: Prepare the NodeJS/playwright environment
       - name: Cache node modules
