@@ -20,6 +20,14 @@ The helm-charts repository contains helm charts used for the deployment of platf
 - For running and building the account-operator, please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file in this repository.
 - To deploy the account-operator to kubernetes, please refer to the [helm-charts](https://github.com/platform-mesh/helm-charts) repository. 
 
+## Tasks
+
+Many of the developer workflow actions are automated via Taskfile. For example:
+- `task test` to test all helm charts
+- `task lint` to run linter for the charts
+- `task docs` to update the README's based on values.yaml
+
+
 ## Templating
 
 Chart documentation is generated automatically when running `task docs`.
