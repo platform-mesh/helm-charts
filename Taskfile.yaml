@@ -362,11 +362,6 @@ tasks:
 
         echo "--- finished getting component versions ---"
 
-        # Push kcp-operator chart to local oci registry
-        helm pull kcp/kcp-operator --version 0.2.1
-        kubectl cp kcp-operator-0.2.1.tgz -n default ocm-transfer-pod:.
-        kubectl exec -ti ocm-transfer-pod -- helm push kcp-operator-0.2.1.tgz oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
-
         set -x
         kubectl exec -it ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-prerelease.yaml -- \
         VERSION={{ .COMPONENT_PRERELEASE_VERSION }} \
