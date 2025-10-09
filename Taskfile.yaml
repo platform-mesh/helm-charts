@@ -117,6 +117,21 @@ tasks:
         kind delete cluster --name platform-mesh
         ./local-setup/scripts/start.sh
 
+  local-setup-minimal:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - |
+        read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+        kind delete cluster --name platform-mesh
+        ./local-setup/scripts/start.sh --minimal
+  local-setup-minimal:iterate:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - |
+        ./local-setup/scripts/start.sh --minimal
+
   local-setup-cached:
     deps:
       - task: setup:mkcert
