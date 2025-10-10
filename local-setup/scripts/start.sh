@@ -148,8 +148,6 @@ if [ "$1" == "--minimal" ]; then
   kubectl scale deployment/root-proxy --replicas=0 -n platform-mesh-system
   kubectl scale deployment/kcp-operator --replicas=0 -n kcp-operator
   kubectl scale deployment/etcd-druid --replicas=0 -n etcd-druid-system
-else
-  kubectl rollout restart deployment portal -n platform-mesh-system
 fi
 
 kubectl wait --namespace default \
