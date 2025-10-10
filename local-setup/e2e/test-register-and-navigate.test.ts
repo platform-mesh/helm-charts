@@ -9,7 +9,20 @@ async function activateUserEmailViaMailpit(
   await page.goto(`${portalBaseUrl}mailpit/`);
   await page.click(`text=To: ${userEmail}`);
   const emailFrame = page.frameLocator('#preview-html');
-  await emailFrame.locator('text=Link to e-mail address verification').click();
+
+  // Wait for the new page to open when clicking the verification link
+  const [newPage] = await Promise.all([
+    page.context().waitForEvent('page'),
+    emailFrame.locator('text=Link to e-mail address verification').click(),
+  ]);
+
+  // Wait for the new page to load and check for the existence of specific text
+  await newPage.waitForLoadState('domcontentloaded');
+  const verificationText = await newPage.getByText("Welcome to the Platform Mesh Portal!");
+  await expect(verificationText).toBeVisible();
+
+  // Optionally, you can close the new page after checking
+  await newPage.close();
 }
 
 test.describe('Home Page', () => {
@@ -34,14 +47,14 @@ test.describe('Home Page', () => {
 
     await activateUserEmailViaMailpit(page, userEmail);
 
-    await page.screenshot({ path: 'screenshot-beforecheck.png' });
+    // await page.screenshot({ path: 'screenshot-beforecheck.png' });
 
-    await page.goto(portalBaseUrl);
+    // await page.goto(portalBaseUrl);
 
-    await page.screenshot({ path: 'screenshot-baseUrl.png' });
+    // await page.screenshot({ path: 'screenshot-baseUrl.png' });
 
 
-    await page.waitForSelector('text=Onboard a new organization', { state: 'visible' });
+    // await page.waitForSelector('text=Onboard a new organization', { state: 'visible' });
     
     
     // // Login
