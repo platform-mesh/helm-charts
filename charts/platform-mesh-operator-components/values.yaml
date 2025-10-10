@@ -197,6 +197,7 @@ services:
               - "{{ .Values.baseDomain }}"
   kcp-operator:
     imageResource:
+      name: kcp-image
       enabled: true
       labels:
         infra: "true"
