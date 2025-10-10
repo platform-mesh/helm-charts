@@ -113,3 +113,12 @@ jobs:
           curl -ki https://portal.dev.local:8443
           cd local-setup/e2e/
           npx playwright test
+
+      - name: Upload Playwright artefacts
+        # if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            local-setup/e2e/test-results/
+            local-setup/e2e/*.png
