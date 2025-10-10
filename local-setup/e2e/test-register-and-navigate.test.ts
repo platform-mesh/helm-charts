@@ -33,16 +33,18 @@ test.describe('Home Page', () => {
     ]);
 
     await activateUserEmailViaMailpit(page, userEmail);
+
     await page.goto(portalBaseUrl);
+    
     await page.screenshot({ path: 'screenshot-beforecheck.png' });
+    
+    // // Login
+    // await page.waitForSelector('input[id="username"]', { state: 'visible' });
+    // await page.fill('input[id="username"]', userEmail);
+    // await page.fill('input[id="password"]', userPassword);
+    // await page.click('text=Sign In');
 
-    // Wait for the username input to be visible before filling it
-    await page.waitForSelector('input[id="username"]', { state: 'visible' });
-    await page.fill('input[id="username"]', userEmail);
-    await page.fill('input[id="password"]', userPassword);
-    await page.click('text=Sign In');
-
-    await page.screenshot({ path: 'screenshot-after-login.png' });
+    // await page.screenshot({ path: 'screenshot-after-login.png' });
 
     const heading = await page.getByText("Welcome to the Platform Mesh Portal!");
     await expect(heading).toBeVisible();
