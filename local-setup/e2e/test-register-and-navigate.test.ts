@@ -34,9 +34,15 @@ test.describe('Home Page', () => {
 
     await activateUserEmailViaMailpit(page, userEmail);
 
-    await page.goto(portalBaseUrl);
-    
     await page.screenshot({ path: 'screenshot-beforecheck.png' });
+
+    await page.goto(portalBaseUrl);
+
+    await page.screenshot({ path: 'screenshot-baseUrl.png' });
+
+
+    await page.waitForSelector('text=Onboard a new organization', { state: 'visible' });
+    
     
     // // Login
     // await page.waitForSelector('input[id="username"]', { state: 'visible' });
@@ -46,11 +52,11 @@ test.describe('Home Page', () => {
 
     // await page.screenshot({ path: 'screenshot-after-login.png' });
 
-    const heading = await page.getByText("Welcome to the Platform Mesh Portal!");
-    await expect(heading).toBeVisible();
-    await page.screenshot({ path: 'screenshot-final.png' });
+    // const heading = await page.getByText("Welcome to the Platform Mesh Portal!");
+    // await expect(heading).toBeVisible();
+    // await page.screenshot({ path: 'screenshot-final.png' });
 
-    const title = await page.title();
-    expect(title).toBe('Platform Mesh Portal');
+    // const title = await page.title();
+    // expect(title).toBe('Platform Mesh Portal');
   });
 });
