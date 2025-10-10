@@ -7,8 +7,8 @@ on:
       - main
 
 concurrency:
-  group: localsetup-${{ github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
 
@@ -101,7 +101,8 @@ jobs:
           cd local-setup/e2e
           npm install
           npm ci
-          npx playwright install 
+          npx playwright install
+          sleep 20
 
       # Step 10: Run the end-to-end tests
       - name: End2End tests
@@ -112,3 +113,12 @@ jobs:
           curl -ki https://portal.dev.local:8443
           cd local-setup/e2e/
           npx playwright test
+
+      - name: Upload Playwright artefacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-artifacts
+          path: |
+            local-setup/e2e/test-results/
+            local-setup/e2e/*.png

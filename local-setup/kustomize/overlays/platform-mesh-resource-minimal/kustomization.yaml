@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../components/platform-mesh-operator-resource
+
+patches:
+  - target:
+      kind: PlatformMesh
+      name: platform-mesh
+      namespace: platform-mesh-system
+    patch: |-
+      - op: replace
+        path: /spec/values/portal/enabled
+        value: false
+      - op: replace
+        path: /spec/values/openfga/values/postgresql/enabled
+        value: false
+      - op: replace
+        path: /spec/values/openfga/values/datastore/engine
+        value: memory

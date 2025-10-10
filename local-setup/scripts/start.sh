@@ -51,6 +51,7 @@ cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+  --version 2.16.4 \
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
   --set notificationController.create=false \
@@ -106,14 +107,20 @@ kubectl apply -k $SCRIPT_DIR/../kustomize/components/policies
 
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
-#
+
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=480s platform-mesh-operator
 
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
+if [ "$1" == "--minimal" ]; then
+echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
+else
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+fi
+
 
 # wait for kind: PlatformMesh resource to become ready
 echo -e "$COL Waiting for kind: PlatformMesh resource to become ready $COL_RES"
@@ -127,7 +134,23 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s keycloak
 kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
+
+
+
+if [ "$1" == "--minimal" ]; then
+  echo -e "$COL Scaling down to minimal resources $COL_RES"
+kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
+kubectl scale deployment/kyverno-admission-controller --replicas=0 -n kyverno-system
+kubectl scale deployment/kyverno-background-controller --replicas=0 -n kyverno-system
+kubectl scale deployment/cert-manager --replicas=0 -n cert-manager
+kubectl scale deployment/cert-manager-cainjector --replicas=0 -n cert-manager
+kubectl scale deployment/cert-manager-webhook --replicas=0 -n cert-manager
+kubectl scale deployment/root-proxy --replicas=0 -n platform-mesh-system
+kubectl scale deployment/kcp-operator --replicas=0 -n kcp-operator
+kubectl scale deployment/etcd-druid --replicas=0 -n etcd-druid-system
+else
 kubectl rollout restart deployment portal -n platform-mesh-system
+fi
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
@@ -135,12 +158,21 @@ kubectl wait --namespace default \
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s account-operator
+if [ "$1" != "--minimal" ]; then
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=480s portal
+fi
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
+
+  if [ "$1" == "--minimal" ]; then
+    echo -e "$COL Scaling down to minimal resources $COL_RES"
+kubectl scale deployment/helm-controller --replicas=0 -n flux-system
+kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
+kubectl scale deployment/source-controller --replicas=0 -n flux-system
+  fi
 
 # Restart deployments to ensure they pick up updates
 kubectl rollout restart deployment root-kcp -n platform-mesh-system
