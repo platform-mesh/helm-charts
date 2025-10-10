@@ -13,7 +13,7 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION: 0.29.0
-  COMPONENT_PRERELEASE_VERSION: "1.0.3"
+  COMPONENT_PRERELEASE_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
     - security-operator: charts/security-operator
@@ -116,6 +116,21 @@ tasks:
         read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
         kind delete cluster --name platform-mesh
         ./local-setup/scripts/start.sh
+
+  local-setup-minimal:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - |
+        read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+        kind delete cluster --name platform-mesh
+        ./local-setup/scripts/start.sh --minimal
+  local-setup-minimal:iterate:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - |
+        ./local-setup/scripts/start.sh --minimal
 
   local-setup-cached:
     deps:
@@ -425,7 +440,6 @@ tasks:
       - |
         echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
         yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
-
 
       - | # apply kustomize patch only for configured charts in CUSTOM_LOCAL_COMPONENTS_CHART_PATHS
         patch_string=""

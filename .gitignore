@@ -20,3 +20,4 @@ ocm/.ocm/transport.ctf/
 registry-ca.pem
 .ocm/.ocmconfig
 local-setup/rootCA.pem
+local-setup/e2e/node_modules/
