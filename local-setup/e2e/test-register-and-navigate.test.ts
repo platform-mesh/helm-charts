@@ -7,16 +7,12 @@ async function activateUserEmailViaMailpit(
   userEmail: string
 ) {
   await page.goto(`${portalBaseUrl}mailpit/`);
-
-  await page.click(`text=To: ${userEmail}`)
-
+  await page.click(`text=To: ${userEmail}`);
   const emailFrame = page.frameLocator('#preview-html');
-
   await emailFrame.locator('text=Link to e-mail address verification').click();
-
 }
+
 test.describe('Home Page', () => {
-  // Define user parameters
   const userEmail = 'username@sap.com';
   const userPassword = 'MyPass1234';
   const firstName = 'Firstname';
@@ -24,32 +20,32 @@ test.describe('Home Page', () => {
 
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
-
-    // Interact with the page
     await page.click('text=Register');
-
-    // Fill in registration form
     await page.fill('input[name="email"]', userEmail);
     await page.fill('input[id="password"]', userPassword);
     await page.fill('input[id="password-confirm"]', userPassword);
     await page.fill('input[id="firstName"]', firstName);
     await page.fill('input[id="lastName"]', lastName);
-
-    // Wait for navigation after clicking register
+    
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle' }),
       page.click('input[value="Register"]')
     ]);
 
-    // await page.screenshot({ path: 'screenshot-after-register.png' });
-
     await activateUserEmailViaMailpit(page, userEmail);
-
     await page.goto(portalBaseUrl);
+    await page.screenshot({ path: 'screenshot-beforecheck.png' });
 
-    await page.textContent('text=Welcome to the Platform Mesh Portal!');
+    // Wait for the username input to be visible before filling it
+    await page.waitForSelector('input[id="username"]', { state: 'visible' });
+    await page.fill('input[id="username"]', userEmail);
+    await page.fill('input[id="password"]', userPassword);
+    await page.click('text=Sign In');
 
+    await page.screenshot({ path: 'screenshot-after-login.png' });
 
+    const heading = await page.getByText("Welcome to the Platform Mesh Portal!");
+    await expect(heading).toBeVisible();
     await page.screenshot({ path: 'screenshot-final.png' });
 
     const title = await page.title();
