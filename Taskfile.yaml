@@ -460,3 +460,12 @@ tasks:
     cmds:
       - task: ocm:build:component
       - task: ocm:kustomize:apply
+
+  test:portal-e2e:
+    cmds:
+      - |
+          pushd local-setup/e2e
+          npm ci
+          npx playwright install
+          npx playwright test
+          popd
