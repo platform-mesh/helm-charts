@@ -16,26 +16,18 @@ A Helm chart for Kubernetes
 | healthProbeBindAddress | string | `":8081"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/rebac-authz-webhook"` |  |
 | image.tag | string | `""` |  |
-| imagePullSecrets | string | `"github"` |  |
 | istio.dnsNames | list | `[]` |  |
 | istio.exposed | bool | `false` |  |
-| kcp.kubeconfig.file | string | `"kubeconfig"` |  |
-| kcp.kubeconfig.path | string | `"/etc/kcp-kubeconfig"` |  |
 | kcp.kubeconfig.secret | string | `"rebac-authz-webhook-kubeconfig"` |  |
-| logLevel | string | `"INFO"` |  |
 | openfga.url | string | `"openfga:8081"` |  |
-| podLabels."networking.gardener.cloud/to-public-networks" | string | `"allowed"` |  |
 | service.annotations | object | `{}` |  |
 | service.clusterIP | string | `""` |  |
-| service.labels."networking.resources.gardener.cloud/to-openfga-tcp-grpc" | string | `"allowed"` |  |
 | service.metricsPort | int | `8080` |  |
 | service.port | int | `9443` |  |
 | service.type | string | `"ClusterIP"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.automount | bool | `true` |  |
 | serviceAccount.create | bool | `true` |  |
-| serviceMonitor.enabled | bool | `false` |  |
-| serviceMonitor.labels.prometheus | string | `"seed"` |  |
 
 ## Overriding Values
 
