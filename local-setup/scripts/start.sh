@@ -139,17 +139,15 @@ kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane
 
 if [ "$1" == "--minimal" ]; then
   echo -e "$COL Scaling down to minimal resources $COL_RES"
-kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
-kubectl scale deployment/kyverno-admission-controller --replicas=0 -n kyverno-system
-kubectl scale deployment/kyverno-background-controller --replicas=0 -n kyverno-system
-kubectl scale deployment/cert-manager --replicas=0 -n cert-manager
-kubectl scale deployment/cert-manager-cainjector --replicas=0 -n cert-manager
-kubectl scale deployment/cert-manager-webhook --replicas=0 -n cert-manager
-kubectl scale deployment/root-proxy --replicas=0 -n platform-mesh-system
-kubectl scale deployment/kcp-operator --replicas=0 -n kcp-operator
-kubectl scale deployment/etcd-druid --replicas=0 -n etcd-druid-system
-else
-kubectl rollout restart deployment portal -n platform-mesh-system
+  kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
+  kubectl scale deployment/kyverno-admission-controller --replicas=0 -n kyverno-system
+  kubectl scale deployment/kyverno-background-controller --replicas=0 -n kyverno-system
+  kubectl scale deployment/cert-manager --replicas=0 -n cert-manager
+  kubectl scale deployment/cert-manager-cainjector --replicas=0 -n cert-manager
+  kubectl scale deployment/cert-manager-webhook --replicas=0 -n cert-manager
+  kubectl scale deployment/root-proxy --replicas=0 -n platform-mesh-system
+  kubectl scale deployment/kcp-operator --replicas=0 -n kcp-operator
+  kubectl scale deployment/etcd-druid --replicas=0 -n etcd-druid-system
 fi
 
 kubectl wait --namespace default \
@@ -167,27 +165,12 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
 
-  if [ "$1" == "--minimal" ]; then
-    echo -e "$COL Scaling down to minimal resources $COL_RES"
-kubectl scale deployment/helm-controller --replicas=0 -n flux-system
-kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
-kubectl scale deployment/source-controller --replicas=0 -n flux-system
-  fi
-
-# Restart deployments to ensure they pick up updates
-kubectl rollout restart deployment root-kcp -n platform-mesh-system
-kubectl rollout restart deployment frontproxy-front-proxy -n platform-mesh-system
-kubectl rollout status deployment root-kcp -n platform-mesh-system
-kubectl rollout status deployment frontproxy-front-proxy -n platform-mesh-system
-
-kubectl rollout restart deployment rebac-authz-webhook -n platform-mesh-system
-kubectl rollout status deployment rebac-authz-webhook -n platform-mesh-system
-
-kubectl rollout status deployment virtual-workspaces -n platform-mesh-system
-kubectl rollout restart deployment virtual-workspaces -n platform-mesh-system
-
-kubectl rollout restart deployment kubernetes-graphql-gateway -n platform-mesh-system
-kubectl rollout status deployment kubernetes-graphql-gateway -n platform-mesh-system
+if [ "$1" == "--minimal" ]; then
+  echo -e "$COL Scaling down to minimal resources $COL_RES"
+  kubectl scale deployment/helm-controller --replicas=0 -n flux-system
+  kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
+  kubectl scale deployment/source-controller --replicas=0 -n flux-system
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
