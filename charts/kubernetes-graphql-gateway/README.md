@@ -28,6 +28,7 @@ kubeConfig:
 | gateway.graphiql | bool | `true` |  |
 | gateway.healthCheck.enabled | bool | `true` |  |
 | gateway.healthCheck.port | int | `3389` |  |
+| gateway.introspectionAuthentication | bool | `true` |  |
 | gateway.logLevel | string | `"trace"` |  |
 | gateway.metricsPort | int | `8081` |  |
 | gateway.port | int | `8080` |  |

@@ -107,6 +107,7 @@ A Helm chart for Kubernetes
 | services.kcp-operator.imageResource.enabled | bool | `true` |  |
 | services.kcp-operator.imageResource.labels.component | string | `"infra"` |  |
 | services.kcp-operator.imageResource.labels.infra | string | `"true"` |  |
+| services.kcp-operator.imageResource.name | string | `"kcp-image"` |  |
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
