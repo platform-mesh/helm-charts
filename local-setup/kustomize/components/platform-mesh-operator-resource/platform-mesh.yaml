@@ -52,8 +52,6 @@ spec:
         kcp:
           webhook:
             enabled: true
-          frontProxy:
-            clusterIP: "10.96.0.100"
         keycloak:
           crossplane:
             clients:
@@ -83,9 +81,15 @@ spec:
           pullPolicy: IfNotPresent
     security-operator:
       values:
-        fga:
-          extraArgs:
-            - --invite-keycloak-base-url=http://keycloak/keycloak
+        extraVolumeMounts:
+          - mountPath: /etc/ssl/certs/domain-ca.crt
+            name: domain-ca
+            readOnly: true
+            subPath: tls.crt
+        extraVolumes:
+          - name: domain-ca
+            secret:
+              secretName: domain-certificate-ca
         initializer:
           baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
           extraArgs:
@@ -96,8 +100,9 @@ spec:
         hostAliases:
           enabled: true
           items:
-            - ip: 10.96.0.100
+            - ip: 10.96.188.4
               hostnames:
+                - portal.dev.local
                 - kcp.api.portal.dev.local
     portal:
       enabled: true
