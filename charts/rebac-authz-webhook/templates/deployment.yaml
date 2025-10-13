@@ -54,6 +54,9 @@ spec:
           {{- if .Values.healthProbeBindAddress }}
           - "--health-probe-bind-address={{ .Values.healthProbeBindAddress }}"
           {{- end }}
+          {{- if .Values.v }}
+          - "--v={{ .Values.v }}"
+          {{- end }}
           {{- include "common.extraArgs" . | nindent 10 }}
         env:
           {{- with .Values.extraEnvs }}
