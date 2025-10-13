@@ -3,17 +3,14 @@ kind: Deployment
 metadata:
   name: {{ include "common.entity.name" . }}
   namespace: {{ .Release.Namespace }}
-  labels: {{ include "service.labels" . | nindent 4 }}
-
 spec:
   selector:
     matchLabels:
-      {{- include "service.selectorLabels" . | nindent 6 }}
+      {{- include "common.labelMatcher" . | indent 6 }}
   template:
     metadata:
-      labels: {{- include "common.tplvalues.render" ( dict "value" .Values.service.labels "context" $) | nindent 8 }}
-      {{ include "service.labels" . | nindent 8 }}
-      annotations:  {{- include "common.tplvalues.render" ( dict "value" .Values.service.annotations "context" $) | nindent 8 }}
+      labels:
+       {{- include "common.labelMatcher" . | indent 8 }}
     spec:
       serviceAccountName: {{ include "common.entity.name" . }}
       {{- include "common.imagePullSecret" . | indent 6 }}
@@ -21,12 +18,14 @@ spec:
       - name: certs
         secret:
           secretName: {{ include "common.entity.name" . }}-cert
+      {{- with .Values.kcp.kubeconfig.secret }}
       - name: kcp-kubeconfig
         secret:
-          secretName: {{ .Values.kcp.kubeconfig.secret }}
-        {{- with .Values.extraVolumes }}
-        {{- toYaml . | nindent 6 }}
-        {{- end }}
+          secretName: {{ . }}
+      {{- end }}
+      {{- with .Values.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
       - name: {{ .Chart.Name }}
         {{- include "common.operatorHealthAndReadyness" . | indent 8 }}
@@ -38,27 +37,27 @@ spec:
         volumeMounts:
           - name: certs
             mountPath: /config
+          {{- with .Values.kcp.kubeconfig.secret }}
           - name: kcp-kubeconfig
-            mountPath: {{ .Values.kcp.kubeconfig.path }}
+            mountPath: /etc/kcp-kubeconfig
             readOnly: true
+          {{- end }}
           {{- with .Values.extraVolumeMounts }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
         args:
           - "serve"
           - "--openfga-addr={{ .Values.openfga.url }}"
-          - --kcp-kubeconfig-path={{ .Values.kcp.kubeconfig.path }}/{{ .Values.kcp.kubeconfig.file }}
-          {{- if .Values.webhookAudience }}
-          - "--webhook-audience={{ .Values.webhookAudience }}"
-          {{- else }}
-          - "--webhook-audience={{ include "common.entity.name" . }}"
-          {{- end }}
-          {{- if .Values.logLevel }}
-          - "--log-level={{ .Values.logLevel }}"
+          {{- with .Values.kcp.kubeconfig.secret }}
+          - --kcp-kubeconfig-path=/etc/kcp-kubeconfig/kubeconfig
           {{- end }}
           {{- if .Values.healthProbeBindAddress }}
           - "--health-probe-bind-address={{ .Values.healthProbeBindAddress }}"
           {{- end }}
+          {{- if .Values.v }}
+          - "--v={{ .Values.v }}"
+          {{- end }}
+          {{- include "common.extraArgs" . | nindent 10 }}
         env:
           {{- with .Values.extraEnvs }}
           {{- toYaml . | nindent 10 }}
