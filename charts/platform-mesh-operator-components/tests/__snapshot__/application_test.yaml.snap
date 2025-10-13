@@ -492,7 +492,7 @@ it should render the application manifests:
           enabled: false
         fga:
           extraArgs:
-            - --invite-keycloak-base-url=https://:443/keycloak
+            - --invite-keycloak-base-url=https://example.com:443/keycloak
           target: openfga.platform-mesh-system.svc.cluster.local:8081
         initializer:
           baseDomain: example.com
