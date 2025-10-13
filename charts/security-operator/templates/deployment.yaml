@@ -25,6 +25,9 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - fga
+          {{- with .Values.keycloakSecret }}
+          - --invite-keycloak-password-file=/keycloak-credentials/secret
+          {{- end }}
           {{- with .Values.fga.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}

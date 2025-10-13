@@ -180,6 +180,7 @@ operator match the snapshot:
           containers:
             - args:
                 - fga
+                - --invite-keycloak-password-file=/keycloak-credentials/secret
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -640,6 +641,7 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - fga
+                - --invite-keycloak-password-file=/keycloak-credentials/secret
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
