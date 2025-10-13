@@ -24,6 +24,9 @@ logLevel: info
 # -- The kubeconfig secret for operator and generator
 kubeconfigSecret: ""
 
+keycloakSecret: "keycloak-admin"
+caSecret: ""
+
 initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
