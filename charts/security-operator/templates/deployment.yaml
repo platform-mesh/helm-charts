@@ -25,8 +25,11 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - fga
+          {{- with .Values.keycloakSecret }}
+          - --invite-keycloak-password-file=/keycloak-credentials/secret
+          {{- end }}
           {{- with .Values.fga.extraArgs }}
-          {{ toYaml . }}
+          {{ toYaml . | nindent 10}}
           {{- end }}
           {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
@@ -38,18 +41,39 @@ spec:
             value: /api-kubeconfig/kubeconfig
           {{- end }}
         volumeMounts:
-          {{- include "common.extraVolumeMounts" . | nindent 8 }}
           {{- if .Values.kubeconfigSecret }}
           - name: external-api-server
             mountPath: /api-kubeconfig
           {{- end }}
+          {{- if .Values.keycloakSecret }}
+          - name: keycloak-credentials
+            mountPath: /keycloak-credentials
+            readOnly: true
+          {{- end }}
+          {{- if .Values.caSecret }}
+          - name: domain-ca
+            mountPath: /etc/ssl/certs/domain-ca.crt
+            subPath: tls.crt
+            readOnly: true
+          {{- end }}
+          {{- include "common.extraVolumeMounts" . | nindent 10 }}
       volumes:
-        {{- include "common.extraVolumes" . | nindent 8 }}
         {{- if .Values.kubeconfigSecret }}
         - name: external-api-server
           secret:
             secretName: {{ .Values.kubeconfigSecret }}
         {{- end }}
+        {{- if .Values.keycloakSecret }}
+        - name: keycloak-credentials
+          secret:
+            secretName: {{ .Values.keycloakSecret }}
+        {{- end }}
+        {{- if .Values.caSecret }}
+        - name: domain-ca
+          secret:
+            secretName: {{ .Values.caSecret }}
+        {{- end }}
+        {{- include "common.extraVolumes" . | nindent 8 }}
       {{- if .Values.hostAliases.enabled }}
       hostAliases:
         {{- with .Values.hostAliases.items }}

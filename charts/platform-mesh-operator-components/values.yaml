@@ -131,6 +131,8 @@ services:
         enabled: false
       fga:
         target: openfga.platform-mesh-system.svc.cluster.local:8081
+        extraArgs:
+          - --invite-keycloak-base-url=https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
         baseDomain: "{{ .Values.baseDomain }}"

@@ -180,6 +180,7 @@ operator match the snapshot:
           containers:
             - args:
                 - fga
+                - --invite-keycloak-password-file=/keycloak-credentials/secret
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -238,6 +239,9 @@ operator match the snapshot:
               volumeMounts:
                 - mountPath: /api-kubeconfig
                   name: external-api-server
+                - mountPath: /keycloak-credentials
+                  name: keycloak-credentials
+                  readOnly: true
           hostAliases:
             - hostnames:
                 - kcp.dev.local
@@ -252,6 +256,9 @@ operator match the snapshot:
             - name: external-api-server
               secret:
                 secretName: kcp-kubeconfig
+            - name: keycloak-credentials
+              secret:
+                secretName: keycloak-admin
   5: |
     apiVersion: apps/v1
     kind: Deployment
@@ -634,6 +641,7 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - fga
+                - --invite-keycloak-password-file=/keycloak-credentials/secret
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -695,6 +703,9 @@ operator match the snapshot w. sentry:
                   port: 8090
                 periodSeconds: 10
               volumeMounts:
+                - mountPath: /keycloak-credentials
+                  name: keycloak-credentials
+                  readOnly: true
                 - mountPath: /etc/kcp-kubeconfig
                   name: kcp-kubeconfig
                   readOnly: true
@@ -709,6 +720,9 @@ operator match the snapshot w. sentry:
           serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
+            - name: keycloak-credentials
+              secret:
+                secretName: keycloak-admin
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig

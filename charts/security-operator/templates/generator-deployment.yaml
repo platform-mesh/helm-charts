@@ -25,7 +25,7 @@ spec:
         args:
           - model-generator
           {{- with .Values.generator.extraArgs }}
-          {{ toYaml . }}
+          {{- toYaml . | nindent 10 }}
           {{- end }}
           {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
@@ -37,7 +37,7 @@ spec:
             value: /api-kubeconfig/kubeconfig
           {{- end }}
         volumeMounts:
-          {{- include "common.extraVolumeMounts" . | nindent 8 }}
+          {{- include "common.extraVolumeMounts" . | nindent 10 }}
           {{- if .Values.kubeconfigSecret }}
           - name: external-api-server
             mountPath: /api-kubeconfig
