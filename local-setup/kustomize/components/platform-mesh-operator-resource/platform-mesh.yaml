@@ -83,6 +83,9 @@ spec:
           pullPolicy: IfNotPresent
     security-operator:
       values:
+        fga:
+          extraArgs:
+            - --invite-keycloak-base-url=http://keycloak/keycloak
         initializer:
           baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
           extraArgs:
