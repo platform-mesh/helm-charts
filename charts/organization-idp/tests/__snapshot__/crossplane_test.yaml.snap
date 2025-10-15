@@ -23,6 +23,25 @@ matches the snapshot:
         namespace: platform-mesh-system
   2: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: clientname-kubectl
+    spec:
+      forProvider:
+        accessType: PUBLIC
+        clientId: kubectl
+        enabled: true
+        name: ClientName
+        realmIdRef:
+          name: default
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000
+          - http://localhost:18000
+      providerConfigRef:
+        name: keycloak-provider-config
+  3: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
       name: clientname-default-scopes
@@ -35,13 +54,11 @@ matches the snapshot:
           - email
           - basic
           - acr
-          - groups
-          - trusted-openmfp-audiences
         realmIdRef:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  3: |
+  4: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -54,7 +71,7 @@ matches the snapshot:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  4: |
+  5: |
     apiVersion: organization.keycloak.crossplane.io/v1alpha1
     kind: Organization
     metadata:
@@ -67,7 +84,7 @@ matches the snapshot:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  5: |
+  6: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -113,6 +130,25 @@ matches the snapshot with custom config:
         namespace: platform-mesh-system
   2: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: clientname-kubectl
+    spec:
+      forProvider:
+        accessType: PUBLIC
+        clientId: kubectl
+        enabled: true
+        name: ClientName
+        realmIdRef:
+          name: default
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000
+          - http://localhost:18000
+      providerConfigRef:
+        name: keycloak-provider-config
+  3: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
       name: clientname-default-scopes
@@ -125,13 +161,11 @@ matches the snapshot with custom config:
           - email
           - basic
           - acr
-          - groups
-          - trusted-openmfp-audiences
         realmIdRef:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  3: |
+  4: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -144,7 +178,7 @@ matches the snapshot with custom config:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  4: |
+  5: |
     apiVersion: organization.keycloak.crossplane.io/v1alpha1
     kind: Organization
     metadata:
@@ -157,7 +191,7 @@ matches the snapshot with custom config:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  5: |
+  6: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -203,6 +237,25 @@ matches the snapshot with smtpConfig:
         namespace: platform-mesh-system
   2: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: clientname-kubectl
+    spec:
+      forProvider:
+        accessType: PUBLIC
+        clientId: kubectl
+        enabled: true
+        name: ClientName
+        realmIdRef:
+          name: default
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000
+          - http://localhost:18000
+      providerConfigRef:
+        name: keycloak-provider-config
+  3: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
       name: clientname-default-scopes
@@ -215,13 +268,11 @@ matches the snapshot with smtpConfig:
           - email
           - basic
           - acr
-          - groups
-          - trusted-openmfp-audiences
         realmIdRef:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  3: |
+  4: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -234,7 +285,7 @@ matches the snapshot with smtpConfig:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  4: |
+  5: |
     apiVersion: organization.keycloak.crossplane.io/v1alpha1
     kind: Organization
     metadata:
@@ -247,7 +298,7 @@ matches the snapshot with smtpConfig:
           name: default
       providerConfigRef:
         name: keycloak-provider-config
-  5: |
+  6: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
