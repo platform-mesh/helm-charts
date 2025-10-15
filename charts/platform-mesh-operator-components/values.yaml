@@ -220,7 +220,7 @@ services:
           allowInsecureImages: true
       image:
         registry: ghcr.io/platform-mesh
-        repository: images/keycloak
+        repository: upstream-images/keycloak
       auth:
         # -- keycloak admin user
         adminUser: keycloak-admin
@@ -244,7 +244,8 @@ services:
       postgresql:
         image:
           registry: ghcr.io/platform-mesh
-          repository: images/postgresql
+          repository: upstream-images/postgresql
+          tag: 17.6.0-debian-12-r4
         primary:
           # -- primary postgresql resources preset
           resourcesPreset: none
