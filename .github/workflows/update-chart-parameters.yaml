@@ -57,7 +57,7 @@ jobs:
             echo "Version bumped to $NEW_CHART_VERSION in $chart_file"
 
             git add "$chart_file"
-            git commit -m "Updating version to $NEW_CHART_VERSION and appVersion to ${{ inputs.appVersion }} in $chart_file" || echo "appVersion was already up to date"
+            git commit -m "Set $NEW_CHART_VERSION / ${{ inputs.appVersion }} in $chart_file" || echo "appVersion was already up to date"
           else
             echo "Chart.yaml file not found at $chart_file"
             exit 1
