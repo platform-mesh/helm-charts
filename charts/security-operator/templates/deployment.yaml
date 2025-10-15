@@ -37,7 +37,7 @@ spec:
           - name: FGA_TARGET
             value: {{ .Values.fga.target }}
           {{- if .Values.kubeconfigSecret }}
-          - name: KUBECONFIG
+          - name: KCP_KUBECONFIG
             value: /api-kubeconfig/kubeconfig
           {{- end }}
         volumeMounts:
