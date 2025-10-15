@@ -71,10 +71,6 @@ spec:
           spec:
             description: PlatformMeshSpec defines the desired state of PlatformMesh
             properties:
-              chartVersion:
-                type: string
-              componentVersion:
-                type: string
               exposure:
                 properties:
                   baseDomain:
@@ -84,6 +80,17 @@ spec:
                   protocol:
                     type: string
                 type: object
+              featureToggles:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    parameters:
+                      additionalProperties:
+                        type: string
+                      type: object
+                  type: object
+                type: array
               kcp:
                 properties:
                   extraDefaultAPIBindings:
@@ -132,6 +139,37 @@ spec:
                       - endpointSliceName
                       type: object
                     type: array
+                  extraWorkspaces:
+                    description: ExtraWorkspaces allows declaring additional workspaces
+                      that the operator will create.
+                    items:
+                      description: WorkspaceDeclaration defines a workspace to be
+                        created by the operator.
+                      properties:
+                        path:
+                          description: Path is the full logical path of the workspace
+                            to be created (e.g., "root:orgs:my-workspace").
+                          type: string
+                        type:
+                          description: Type defines the WorkspaceType for the new
+                            workspace.
+                          properties:
+                            name:
+                              description: Name is the name of the WorkspaceType.
+                              type: string
+                            path:
+                              description: Path is the logical cluster path where
+                                the WorkspaceType is defined.
+                              type: string
+                          required:
+                          - name
+                          - path
+                          type: object
+                      required:
+                      - path
+                      - type
+                      type: object
+                    type: array
                   initializerConnections:
                     items:
                       properties:
@@ -168,9 +206,6 @@ spec:
                 properties:
                   component:
                     properties:
-                      create:
-                        default: true
-                        type: boolean
                       name:
                         default: platform-mesh
                         type: string
@@ -186,9 +221,6 @@ spec:
                     type: array
                   repo:
                     properties:
-                      create:
-                        default: true
-                        type: boolean
                       name:
                         default: platform-mesh
                         type: string
