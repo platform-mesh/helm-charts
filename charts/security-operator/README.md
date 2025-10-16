@@ -16,6 +16,7 @@ A Helm chart for security-operator
 | deployment.revisionHistoryLimit | int | `3` |  |
 | environment | string | `"local"` | environment indicator, used for logging and observability |
 | fga.extraArgs | list | `[]` |  |
+| fga.inviteKeycloakBaseUrl | string | `""` |  |
 | fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | generator.extraArgs | list | `[]` |  |
 | hostAliases.enabled | bool | `true` |  |
