@@ -148,7 +148,7 @@ it should render the application manifests:
               protocol: HTTPS
         kcp:
           image:
-            tag: d976f348
+            tag: 8265c399b
         keycloak:
           istio:
             virtualservice:

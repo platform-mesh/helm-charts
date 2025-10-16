@@ -65,7 +65,7 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.name | string | `"pass-https"` |  |
 | services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
-| services.infra.values.kcp.image.tag | string | `"d976f348"` |  |
+| services.infra.values.kcp.image.tag | string | `"8265c399b"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.istio-base.chart | string | `"base"` |  |
 | services.istio-base.driftDetectionMode | string | `"disabled"` |  |
