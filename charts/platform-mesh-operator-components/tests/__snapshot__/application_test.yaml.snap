@@ -304,7 +304,7 @@ it should render the application manifests:
         httpRelativePath: /keycloak/
         image:
           registry: ghcr.io/platform-mesh
-          repository: images/keycloak
+          repository: upstream-images/keycloak
         postgresql:
           auth:
             existingSecret: ""
@@ -314,7 +314,8 @@ it should render the application manifests:
             username: keycloak
           image:
             registry: ghcr.io/platform-mesh
-            repository: images/postgresql
+            repository: upstream-images/postgresql
+            tag: 17.6.0-debian-12-r4
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
@@ -491,8 +492,7 @@ it should render the application manifests:
         crds:
           enabled: false
         fga:
-          extraArgs:
-            - --invite-keycloak-base-url=https://example.com:443/keycloak
+          inviteKeycloakBaseUrl: https://example.com:443/keycloak
           target: openfga.platform-mesh-system.svc.cluster.local:8081
         initializer:
           baseDomain: example.com

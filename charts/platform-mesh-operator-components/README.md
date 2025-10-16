@@ -120,8 +120,8 @@ A Helm chart for Kubernetes
 | services.keycloak.values.global.security.allowInsecureImages | bool | `true` |  |
 | services.keycloak.values.httpRelativePath | string | `"/keycloak/"` | keycloak http relative path |
 | services.keycloak.values.image.registry | string | `"ghcr.io/platform-mesh"` |  |
-| services.keycloak.values.image.repository | string | `"images/keycloak"` |  |
-| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"image":{"registry":"ghcr.io/platform-mesh","repository":"images/postgresql"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
+| services.keycloak.values.image.repository | string | `"upstream-images/keycloak"` |  |
+| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"image":{"registry":"ghcr.io/platform-mesh","repository":"upstream-images/postgresql","tag":"17.6.0-debian-12-r4"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
 | services.keycloak.values.postgresql.auth | object | `{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"}` | authorization configuration |
 | services.keycloak.values.postgresql.auth.existingSecret | string | `""` | existing secret name |
 | services.keycloak.values.postgresql.auth.secretKeys.adminPasswordKey | string | `"password"` | admin password key |
@@ -221,7 +221,7 @@ A Helm chart for Kubernetes
 | services.security-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.security-operator.enabled | bool | `true` |  |
 | services.security-operator.values.crds.enabled | bool | `false` |  |
-| services.security-operator.values.fga.extraArgs[0] | string | `"--invite-keycloak-base-url=https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak"` |  |
+| services.security-operator.values.fga.inviteKeycloakBaseUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak"` |  |
 | services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | services.security-operator.values.initializer.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |

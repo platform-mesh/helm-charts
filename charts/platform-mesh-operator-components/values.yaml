@@ -131,8 +131,7 @@ services:
         enabled: false
       fga:
         target: openfga.platform-mesh-system.svc.cluster.local:8081
-        extraArgs:
-          - --invite-keycloak-base-url=https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak
+        inviteKeycloakBaseUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak"
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
         baseDomain: "{{ .Values.baseDomain }}"
@@ -220,7 +219,7 @@ services:
           allowInsecureImages: true
       image:
         registry: ghcr.io/platform-mesh
-        repository: images/keycloak
+        repository: upstream-images/keycloak
       auth:
         # -- keycloak admin user
         adminUser: keycloak-admin
@@ -244,7 +243,8 @@ services:
       postgresql:
         image:
           registry: ghcr.io/platform-mesh
-          repository: images/postgresql
+          repository: upstream-images/postgresql
+          tag: 17.6.0-debian-12-r4
         primary:
           # -- primary postgresql resources preset
           resourcesPreset: none

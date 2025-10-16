@@ -37,6 +37,7 @@ generator:
   extraArgs: []
 fga:
   target: openfga.platform-mesh-system.svc.cluster.local:8081
+  inviteKeycloakBaseUrl: ""
   extraArgs: []
 
 hostAliases:

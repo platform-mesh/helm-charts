@@ -3,7 +3,7 @@ name: organization-idp
 description: A Helm chart to deploy organization identity provider in openmfp
 
 type: application
-version: 0.3.0
+version: 0.4.0
 appVersion: "1.0.0"
 
 dependencies:
