@@ -169,7 +169,7 @@ services:
       kcp:
         image:
           # FIXME: this is a temporary fix until we have support for the latest version
-          tag: d976f348
+          tag: 8265c399b
       istio:
         main:
           gateway:
