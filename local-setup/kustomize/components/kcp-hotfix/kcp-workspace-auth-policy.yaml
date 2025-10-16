@@ -44,6 +44,14 @@ spec:
                 - root-kcp
               namespaces:
                 - platform-mesh-system
+      preconditions:
+        all:
+          - key: "{{ request.object.spec.template.spec.containers[0].args[?contains(@, '--feature-gates=WorkspaceAuthentication=true')] | length(@) }}"
+            operator: Equals
+            value: 0
+          - key: "{{ request.object.spec.template.spec.containers[0].args[?contains(@, '--shard-virtual-workspace-url=')] | length(@) }}"
+            operator: Equals
+            value: 0
       mutate:
         targets:
           - apiVersion: apps/v1
@@ -54,6 +62,9 @@ spec:
           - op: add
             path: /spec/template/spec/containers/0/args/-
             value: --feature-gates=WorkspaceAuthentication=true
+          - op: add
+            path: /spec/template/spec/containers/0/args/-
+            value: --shard-virtual-workspace-url=https://kcp.api.portal.dev.local:8443
     - name: ensure-workspace-authentication-feature-gate-frontproxy
       match:
         any:
@@ -64,6 +75,11 @@ spec:
                 - frontproxy-front-proxy
               namespaces:
                 - platform-mesh-system
+      preconditions:
+        any:
+          - key: "{{ request.object.spec.template.spec.containers[0].args[?contains(@, '--feature-gates=WorkspaceAuthentication=true')] | length(@) }}"
+            operator: Equals
+            value: 0
       mutate:
         targets:
           - apiVersion: apps/v1
@@ -74,4 +90,3 @@ spec:
           - op: add
             path: /spec/template/spec/containers/0/args/-
             value: --feature-gates=WorkspaceAuthentication=true
-          
