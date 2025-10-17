@@ -108,6 +108,9 @@ match snapshots:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
       replicas: 1
       rootShard:
         ref:
@@ -558,6 +561,9 @@ match snapshots w. hostAliases enabled:
                     - kcp.api.portal.dev.local
                     - portal.dev.local
                   ip: 10.96.188.4
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
       replicas: 1
       rootShard:
         ref:
@@ -1005,6 +1011,9 @@ match snapshots w. kcp version:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
       image:
         tag: v0.1.0
       replicas: 1
@@ -1450,6 +1459,9 @@ match snapshots with mailpit enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
       replicas: 1
       rootShard:
         ref:
