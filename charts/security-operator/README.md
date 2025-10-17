@@ -19,9 +19,7 @@ A Helm chart for security-operator
 | fga.inviteKeycloakBaseUrl | string | `""` |  |
 | fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | generator.extraArgs | list | `[]` |  |
-| hostAliases.enabled | bool | `true` |  |
-| hostAliases.items[0].hostnames[0] | string | `"kcp.dev.local"` |  |
-| hostAliases.items[0].ip | string | `"10.96.0.100"` |  |
+| hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/security-operator"` |  |
 | initializer.baseDomain | string | `""` |  |
 | initializer.extraArgs | list | `[]` |  |

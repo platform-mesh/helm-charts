@@ -41,11 +41,7 @@ fga:
   extraArgs: []
 
 hostAliases:
-  enabled: true
-  items:
-    - ip: 10.96.0.100
-      hostnames:
-        - kcp.dev.local
+  enabled: false
 
 coreModule: |-
 
