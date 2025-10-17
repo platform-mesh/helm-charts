@@ -42,6 +42,7 @@ deployment with tracing:
                 - --tracing-config-service-name=platform-mesh-operator.NAMESPACE
                 - --tracing-config-service-version=0.0.0
                 - --tracing-config-collector-endpoint=test:4317
+                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -268,6 +269,7 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/platform-mesh-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
