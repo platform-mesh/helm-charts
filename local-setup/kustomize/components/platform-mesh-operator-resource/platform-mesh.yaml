@@ -12,6 +12,8 @@ spec:
     component:
       name: platform-mesh
     referencePath: []
+  featureToggles:
+   - name: "feature-enable-getting-started"
   values:
     istio-gateway:
       enabled: true
@@ -151,6 +153,8 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
+        image:
+          tag: v0.1.36
         listener:
           virtualWorkspacesConfig:
             content:
