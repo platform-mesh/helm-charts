@@ -12,6 +12,8 @@ spec:
     component:
       name: platform-mesh
     referencePath: []
+  featureToggles:
+   - name: "feature-enable-getting-started"
   values:
     istio-gateway:
       enabled: true
