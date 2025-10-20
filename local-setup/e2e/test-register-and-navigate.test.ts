@@ -49,12 +49,20 @@ test.describe('Home Page', () => {
 
     await newPage.screenshot({ path: 'screenshot-beforeswitch.png' });
 
-    await newPage.getByRole('button', { name: 'Switch' }).click();
+    // Click the button AND wait for the subsequent navigation to finish
+    await Promise.all([
+        newPage.waitForURL(
+          /https:\/\/(default\.)?portal\.dev\.local:8443\/.*/,
+          { timeout: 10000 }
+        ), // Wait for the URL to change
+        newPage.getByRole('button', { name: 'Switch' }).click() // Trigger the click
+    ]);
 
     await newPage.screenshot({ path: 'screenshot-afterswitch.png' });
 
+    // Now the page is fully loaded, try to find the text
     const loginText = await newPage.getByText("Sign in to your account");
-    await expect(loginText).toBeVisible();
+    await expect(loginText).toBeVisible({ timeout: 10000 }); // Give the expect a bit more time too
 
     await newPage.screenshot({ path: 'post-login.png' });
 
