@@ -112,7 +112,7 @@ jobs:
         run: |
           curl -ki https://portal.dev.local:8443
           cd local-setup/e2e/
-          npx playwright test
+          npx playwright test --debug
 
       - name: Upload Playwright artefacts
         if: always()
