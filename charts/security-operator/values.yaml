@@ -65,11 +65,11 @@ coreModule: |-
       define member: [role#assignee] or owner or member from parent
 
       define get: member
-      define update: owner
-      define patch: owner
+      define update: member
+      define patch: member
       define delete: owner
 
-      define create_core_platform-mesh_io_accounts: owner
+      define create_core_platform-mesh_io_accounts: member
       define list_core_platform-mesh_io_accounts: member
       define watch_core_platform-mesh_io_accounts: member
 
