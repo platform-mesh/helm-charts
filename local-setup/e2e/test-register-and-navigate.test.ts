@@ -68,7 +68,13 @@ test.describe('Home Page', () => {
     await newPage.fill('input[id="lastName"]', lastName);
 
     await newPage.locator('input[value="Register"]').click();
+
+    await newPage.screenshot({ path: 'register-2.png' });
+
     const newPage2 = await activateUserEmailViaMailpit(newPage, userEmail);
+
+    await newPage2.screenshot({ path: 'register-2-after.png' });
+
     const welcomeText = await newPage2.getByText("Welcome! Let's get started.");
     await expect(welcomeText).toBeVisible();
     await newPage2.getByText('Accounts').click();
