@@ -419,5 +419,3 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
-componentVersion:
-  semver: 0.1.0-rc.9

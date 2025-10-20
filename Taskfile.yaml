@@ -150,16 +150,6 @@ tasks:
       - docker run -d --name proxy-ghcr --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io registry:2
       - docker run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
 
-  bump-component-versions:
-    deps: [setup:ocm]
-    cmds:
-      - |
-        COMP_VERSION_JSON=$(bin/ocm get componentversions github.com/platform-mesh/platform-mesh --latest --repo ghcr.io/platform-mesh -o json)
-        SERVICES=$(echo ''$COMP_VERSION_JSON'' | jq -r '.items[0] | .component.componentReferences[] | .name')
-        COMPONENT_VERSION=$(echo ''$COMP_VERSION_JSON'' | jq -r '.items[0] | .component["version"]')
-        echo "Bumping component version to $COMPONENT_VERSION"
-        yq -i '.componentVersion.semver = "'$COMPONENT_VERSION'"' charts/platform-mesh-operator-components/values.yaml
-
   ocm:deploy:ociregistry:
     internal: true
     cmds:
