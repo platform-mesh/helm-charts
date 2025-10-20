@@ -59,28 +59,22 @@ coreModule: |-
 
   type core_platform-mesh_io_account
     relations
-
       define parent: [core_platform-mesh_io_account]
-      define owner: [role#assignee]
-      define member: [role#assignee] or owner
 
-      define get: member or get from parent
-      define update: member or update from parent
-      define patch: member or patch from parent
-      define delete: owner or delete from parent
+      define owner: [role#assignee] or owner from parent
+      define member: [role#assignee] or owner or member from parent
 
-      define create_core_platform-mesh_io_accounts: member
+      define get: member
+      define update: owner
+      define patch: owner
+      define delete: owner
+
+      define create_core_platform-mesh_io_accounts: owner
       define list_core_platform-mesh_io_accounts: member
       define watch_core_platform-mesh_io_accounts: member
 
-      define member_manage: owner or owner from parent
-
       # org and account specific
-      define watch: member or watch from parent
-
-      # org specific
-      define create: member or create from parent
-      define list: member or list from parent
+      define watch: member
 
       define create_core_namespaces: member
       define list_core_namespaces: member
@@ -106,17 +100,12 @@ coreModule: |-
       define member: member from parent
       define owner: owner from parent
 
-      define get: get from parent
-      define update: update from parent
-      define patch: patch from parent
-      define delete: delete from parent
+      define get: member
+      define watch: member
 
-      # org and account specific
-      define watch: watch from parent
-
-      # org specific
-      define create: create from parent
-      define list: list from parent
+      define update: member
+      define patch: member
+      define delete: member
 
       # IAM specific
       define manage_iam_roles: owner
@@ -125,37 +114,43 @@ coreModule: |-
 
   type core_platform-mesh_io_accountinfo
     relations
-
       define parent: [core_platform-mesh_io_account]
 
-      define get: get from parent
-      define update: update from parent
-      define patch: patch from parent
-      define delete: delete from parent
+      define member: member from parent
+      define owner: owner from parent
+      define admin: [role#assignee]
+
+      define get: member
+      define update: admin
+      define patch: admin
+      define delete: admin
 
       # org and account specific
-      define watch: watch from parent
+      define watch: member
 
       # org specific
-      define create: create from parent
-      define list: list from parent
+      define create: admin
+      define list: member
 
       # IAM specific
       define manage_iam_roles: owner
       define get_iam_roles: member
       define get_iam_users: member
 
-    type apis_kcp_io_apibinding
-      relations
-        define parent: [core_platform-mesh_io_account]
+  type apis_kcp_io_apibinding
+    relations
+      define parent: [core_platform-mesh_io_account]
 
-        define get: member from parent
-        define update: member from parent
-        define patch: member from parent
-        define delete: owner from parent
-        define watch: member from parent
+      define member: member from parent
+      define owner: owner from parent
 
-        # IAM specific
-        define manage_iam_roles: owner
-        define get_iam_roles: member
-        define get_iam_users: member
+      define get: member
+      define watch: member
+      define update: owner
+      define patch: owner
+      define delete: owner
+
+      # IAM specific
+      define manage_iam_roles: owner
+      define get_iam_roles: member
+      define get_iam_users: member
