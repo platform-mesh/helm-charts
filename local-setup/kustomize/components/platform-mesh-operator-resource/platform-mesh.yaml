@@ -153,8 +153,6 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
-        image:
-          tag: v0.1.36
         listener:
           virtualWorkspacesConfig:
             content:
