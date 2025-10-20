@@ -102,7 +102,9 @@ test.describe('Home Page', () => {
     await newPage2.getByRole('button', { name: 'Submit Emphasized' }).click();
 
     
-    await newPage2.getByText(testaccountName).click();
+    const accountElement = await newPage2.getByText(testaccountName);
+    await expect(accountElement).toBeVisible();
+    await accountElement.click();
     const download1Promise = newPage2.waitForEvent('download');
     await newPage2.getByRole('button', { name: 'Download kubeconfig Emphasized' }).click();
     const download1 = await download1Promise;
