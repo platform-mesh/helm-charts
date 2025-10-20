@@ -17,3 +17,6 @@ tracing:
   enabled: false
   collector:
     endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+
+extraArgs:
+  - --subroutines-feature-toggles-enabled=true

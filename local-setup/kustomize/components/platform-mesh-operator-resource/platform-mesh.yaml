@@ -92,6 +92,7 @@ spec:
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.dev.local
             - --domain-ca-lookup
+            - --idp-additional-redirect-urls="https://default.portal.dev.local:3000/callback*"
         hostAliases:
           enabled: true
           items:
