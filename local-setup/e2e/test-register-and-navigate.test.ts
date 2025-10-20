@@ -47,12 +47,16 @@ test.describe('Home Page', () => {
     const verificationText = await newPage.getByText("Welcome to the Platform Mesh Portal!");
     await expect(verificationText).toBeVisible();
 
+    await newPage.screenshot({ path: 'screenshot-beforeswitch.png' });
+
     await newPage.getByRole('button', { name: 'Switch' }).click();
+
+    await newPage.screenshot({ path: 'screenshot-afterswitch.png' });
 
     const loginText = await newPage.getByText("Sign in to your account");
     await expect(loginText).toBeVisible();
 
-    await newPage.screenshot({ path: 'post-login2.png' });
+    await newPage.screenshot({ path: 'post-login.png' });
 
     // Perform register
     await newPage.getByText('Register').click();
