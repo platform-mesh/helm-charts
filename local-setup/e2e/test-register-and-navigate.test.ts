@@ -1,7 +1,7 @@
 import test, { expect, Page } from '@playwright/test';
 
 const portalBaseUrl = 'https://portal.dev.local:8443/';
-const testaccountName = 'testaccount';
+const testaccountName = 'testaccount4';
 
 async function activateUserEmailViaMailpit(
   page: Page,
@@ -21,7 +21,7 @@ async function activateUserEmailViaMailpit(
 }
 
 test.describe('Home Page', () => {
-  const userEmail = 'username@sap.com';
+  const userEmail = 'username4@sap.com';
   const userPassword = 'MyPass1234';
   const firstName = 'Firstname';
   const lastName = 'Lastname';
@@ -55,14 +55,14 @@ test.describe('Home Page', () => {
           /https:\/\/(default\.)?portal\.dev\.local:8443\/.*/,
           { timeout: 10000 }
         ), // Wait for the URL to change
-        newPage.getByRole('button', { name: 'Switch' }).click() // Trigger the click
+        newPage.getByRole('button', { name: 'Switch' }).click()
     ]);
 
     await newPage.screenshot({ path: 'screenshot-afterswitch.png' });
 
     // Now the page is fully loaded, try to find the text
     const loginText = await newPage.getByText("Sign in to your account");
-    await expect(loginText).toBeVisible({ timeout: 10000 }); // Give the expect a bit more time too
+    await expect(loginText).toBeVisible({ timeout: 10000 });
 
     await newPage.screenshot({ path: 'post-login.png' });
 
