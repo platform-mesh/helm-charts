@@ -111,6 +111,11 @@ operator match the snapshot:
             define list__apis_kcp_io_apibindings: member
             define watch_apis_kcp_io_apibindings: member
 
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
         type core_namespace
           relations
             define parent: [core_platform-mesh_io_account]
@@ -130,6 +135,11 @@ operator match the snapshot:
             define create: create from parent
             define list: list from parent
 
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
         type core_platform-mesh_io_accountinfo
           relations
 
@@ -147,6 +157,11 @@ operator match the snapshot:
             define create: create from parent
             define list: list from parent
 
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
           type apis_kcp_io_apibinding
             relations
               define parent: [core_platform-mesh_io_account]
@@ -156,6 +171,11 @@ operator match the snapshot:
               define patch: member from parent
               define delete: owner from parent
               define watch: member from parent
+
+              # IAM specific
+              define manage_iam_roles: owner
+              define get_iam_roles: member
+              define get_iam_users: member
     kind: ConfigMap
     metadata:
       name: RELEASE-NAME-security-operator-core-module
@@ -572,6 +592,11 @@ operator match the snapshot w. sentry:
             define list__apis_kcp_io_apibindings: member
             define watch_apis_kcp_io_apibindings: member
 
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
         type core_namespace
           relations
             define parent: [core_platform-mesh_io_account]
@@ -591,6 +616,11 @@ operator match the snapshot w. sentry:
             define create: create from parent
             define list: list from parent
 
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
         type core_platform-mesh_io_accountinfo
           relations
 
@@ -608,6 +638,11 @@ operator match the snapshot w. sentry:
             define create: create from parent
             define list: list from parent
 
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
           type apis_kcp_io_apibinding
             relations
               define parent: [core_platform-mesh_io_account]
@@ -617,6 +652,11 @@ operator match the snapshot w. sentry:
               define patch: member from parent
               define delete: owner from parent
               define watch: member from parent
+
+              # IAM specific
+              define manage_iam_roles: owner
+              define get_iam_roles: member
+              define get_iam_users: member
     kind: ConfigMap
     metadata:
       name: RELEASE-NAME-security-operator-core-module
