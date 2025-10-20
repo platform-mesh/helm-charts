@@ -106,8 +106,10 @@ test.describe('Home Page', () => {
     await expect(accountElement).toBeVisible( { timeout: 10000 } );
     await accountElement.click();
     const download1Promise = newPage2.waitForEvent('download');
-    await newPage2.getByRole('button', { name: 'Download kubeconfig Emphasized' }).click();
-    const download1 = await download1Promise;
+    const downloadButton = await newPage2.getByRole('button', { name: 'Download kubeconfig Emphasized' });
+    await expect(downloadButton).toBeVisible( { timeout: 10000 } );
+    await downloadButton.click();
+    await expect(download1Promise).toBeDefined();
     await newPage2.getByTestId('luigi-topnav-title').click();
     await newPage2.getByTestId('accounts_accounts').click();
     
