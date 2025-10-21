@@ -1,7 +1,7 @@
 import test, { expect, Page } from '@playwright/test';
 
 const portalBaseUrl = 'https://portal.dev.local:8443/';
-const testaccountName = 'testaccount';
+const testAccountName = 'testaccount';
 
 async function activateUserEmailViaMailpit(
   page: Page,
