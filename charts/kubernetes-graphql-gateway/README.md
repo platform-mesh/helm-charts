@@ -55,7 +55,7 @@ kubeConfig:
 | istio.requestAuthentication | object | `{"create":false}` | ALlows the creation of a RequestAuthentication resource, by default disabled |
 | kcp.enabled | bool | `true` |  |
 | kubeConfig.createSecret | bool | `false` |  |
-| kubeConfig.enabled | bool | `false` |  |
+| kubeConfig.enabled | bool | `false` | Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated. |
 | kubeConfig.secretName | string | `"kcp-root-kubeconfig"` |  |
 | listener.apiExportName | string | `"kcp.io"` |  |
 | listener.healthCheck.enabled | bool | `true` |  |
