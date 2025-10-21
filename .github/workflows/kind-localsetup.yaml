@@ -59,7 +59,7 @@ jobs:
       - name: etc hosts update
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
-          echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local" | sudo tee -a /etc/hosts
+          echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local default.portal.dev.local" | sudo tee -a /etc/hosts
       - name: Run local-setup
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
@@ -98,21 +98,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cd local-setup/e2e
-          npm install
-          npm ci
-          npx playwright install
-          sleep 20
-
-      # Step 10: Run the end-to-end tests
-      - name: End2End tests
-        if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          curl -ki https://portal.dev.local:8443
-          cd local-setup/e2e/
-          npx playwright test
+          task test:portal-e2e
 
       - name: Upload Playwright artefacts
         if: always()
