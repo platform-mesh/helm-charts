@@ -28,6 +28,13 @@ vars:
     - platform-mesh-operator-components: charts/platform-mesh-operator-components
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
+  CMD_SED:
+    sh: |
+      if [ "$(uname)" = "Darwin" ]; then
+        echo "sed -i ''"
+      else
+        echo "sed -i"
+      fi
 
 tasks:
   ## Setup
@@ -491,10 +498,10 @@ tasks:
         curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml -H "Authorization: token $GH_TOKEN"
         
         # replace component name
-        sed -i "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
+        {{ .CMD_SED }} "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
         
         # remove private 'example-httpbin-operator' component
-        sed -i '/      - name: example-httpbin-operator/{N;N;d;}' .ocm/component-constructor-prerelease.yaml        
+        {{ .CMD_SED }} '/      - name: example-httpbin-operator/{N;N;d;}' .ocm/component-constructor-prerelease.yaml
 
   test:portal-e2e:
     cmds:
