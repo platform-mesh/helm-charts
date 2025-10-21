@@ -1,8 +1,8 @@
 import test, { expect, Page } from '@playwright/test';
 
 const portalBaseUrl = 'https://portal.dev.local:8443/';
-const testAccountName = 'testaccount2';
-const userEmail = 'username2@sap.com';
+const testAccountName = 'testaccount3';
+const userEmail = 'username3@sap.com';
 const userPassword = 'MyPass1234';
 const firstName = 'Firstname';
 const lastName = 'Lastname';
@@ -99,11 +99,11 @@ test.describe('Home Page', () => {
     await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
     await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
     await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').press('Shift+Home');
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').fill(testaccountName);
+    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').fill(testAccountName);
     await newPage2.getByRole('button', { name: 'Submit Emphasized' }).click();
 
     
-    const accountElement = await newPage2.getByText(testaccountName);
+    const accountElement = await newPage2.getByText(testAccountName);
     await expect(accountElement).toBeVisible( { timeout: 10000 } );
     await accountElement.click();
     const download1Promise = newPage2.waitForEvent('download');
@@ -116,7 +116,7 @@ test.describe('Home Page', () => {
     
     await newPage2.pause();
 
-    const accountText = await newPage2.getByText(testaccountName);
+    const accountText = await newPage2.getByText(testAccountName);
     await expect(accountText).toBeVisible( { timeout: 10000 } );
 
   });
