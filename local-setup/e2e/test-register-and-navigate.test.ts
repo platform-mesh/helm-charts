@@ -1,7 +1,11 @@
 import test, { expect, Page } from '@playwright/test';
 
 const portalBaseUrl = 'https://portal.dev.local:8443/';
-const testAccountName = 'testaccount';
+const testAccountName = 'testaccount2';
+const userEmail = 'username2@sap.com';
+const userPassword = 'MyPass1234';
+const firstName = 'Firstname';
+const lastName = 'Lastname';
 
 async function activateUserEmailViaMailpit(
   page: Page,
@@ -20,26 +24,31 @@ async function activateUserEmailViaMailpit(
   return newPage;
 }
 
+async function registerNewUser(
+  page: Page): Promise<Page> {
+
+  await page.click('text=Register');
+  await page.fill('input[name="email"]', userEmail);
+  await page.fill('input[id="password"]', userPassword);
+  await page.fill('input[id="password-confirm"]', userPassword);
+  await page.fill('input[id="firstName"]', firstName);
+  await page.fill('input[id="lastName"]', lastName);
+
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'networkidle' }),
+    page.click('input[value="Register"]')
+  ]);
+
+  return page;
+}
+
 test.describe('Home Page', () => {
-  const userEmail = 'username@sap.com';
-  const userPassword = 'MyPass1234';
-  const firstName = 'Firstname';
-  const lastName = 'Lastname';
 
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
-    await page.click('text=Register');
-    await page.fill('input[name="email"]', userEmail);
-    await page.fill('input[id="password"]', userPassword);
-    await page.fill('input[id="password-confirm"]', userPassword);
-    await page.fill('input[id="firstName"]', firstName);
-    await page.fill('input[id="lastName"]', lastName);
-    
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle' }),
-      page.click('input[value="Register"]')
-    ]);
 
+    page = await registerNewUser(page);
+    
     const newPage = await activateUserEmailViaMailpit(page, userEmail);
 
     // Wait for the new page to load and check for the existence of specific text
@@ -69,15 +78,7 @@ test.describe('Home Page', () => {
     // Perform register
     await newPage.getByText('Register').click();
 
-    await newPage.fill('input[id="email"]', userEmail);
-    await newPage.fill('input[id="password"]', userPassword);
-    await newPage.fill('input[id="password-confirm"]', userPassword);
-    await newPage.fill('input[id="firstName"]', firstName);
-    await newPage.fill('input[id="lastName"]', lastName);
-
-    await newPage.locator('input[value="Register"]').click();
-
-    await newPage.screenshot({ path: 'register-2.png' });
+    await registerNewUser(newPage);
 
     const newPage2 = await activateUserEmailViaMailpit(newPage, userEmail);
 
