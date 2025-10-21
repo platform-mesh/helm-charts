@@ -97,8 +97,8 @@ coreModule: |-
     relations
       define parent: [core_platform-mesh_io_account]
 
-      define member: member from parent
-      define owner: owner from parent
+      define owner: [role#assignee] or owner from parent
+      define member: [role#assignee] or owner or member from parent
 
       define get: member
       define watch: member
