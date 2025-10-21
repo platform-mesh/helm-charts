@@ -15,17 +15,17 @@ vars:
   OCM_VERSION: 0.29.0
   COMPONENT_PRERELEASE_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
-    - account-operator: charts/account-operator
-    - security-operator: charts/security-operator
-    - extension-manager-operator: charts/extension-manager-operator
-    - infra: charts/infra
-    - rebac-authz-webhook: charts/rebac-authz-webhook
-    - platform-mesh: charts/platform-mesh-operator
-    - portal: charts/portal
-    - platform-mesh-operator: charts/platform-mesh-operator
+    # - account-operator: charts/account-operator
+    # - security-operator: charts/security-operator
+    # - extension-manager-operator: charts/extension-manager-operator
+    # - infra: charts/infra
+    # - rebac-authz-webhook: charts/rebac-authz-webhook
+    # - platform-mesh: charts/platform-mesh-operator
+    # - portal: charts/portal
+    # - platform-mesh-operator: charts/platform-mesh-operator
     - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
-    - virtual-workspaces: charts/virtual-workspaces
-    - platform-mesh-operator-components: charts/platform-mesh-operator-components
+    # - virtual-workspaces: charts/virtual-workspaces
+    # - platform-mesh-operator-components: charts/platform-mesh-operator-components
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
 
@@ -365,13 +365,13 @@ tasks:
         get_component_version keycloak github.com/platform-mesh/keycloak ../helm-charts/keycloak/ KEYCLOAK_VERSION
         get_component_version platform-mesh-operator-components github.com/platform-mesh/platform-mesh-operator-components charts/platform-mesh-operator-components PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
 
-        export CROSSPLANE_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/crossplane/crossplane --latest -o json|jq '.items[0].element["version"]' -r)
-        export ISTIO_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/istio/istio/base --latest -o json|jq '.items[0].element["version"]' -r)
-        export OPENFGA_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/openfga/openfga --latest -o json|jq '.items[0].element["version"]' -r)
-        export KCP_OPERATOR_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/kcp-dev/kcp-operator --latest -o json|jq '.items[0].element["version"]' -r)
-        export KCP_IMAGE_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/kcp-dev/kcp-operator --latest -o json | jq -r '.items[] | select(.element.type == "ociImage") | .element.version' | sed 's/^0\.0\.0-//')
-        export GARDENER_ETCD_DRUID_SOURCE_REF=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/gardener/etcd-druid --latest -o json| jq -r '.items[] | select(.element.type == "ociImage") | .element.version')
-        export GARDENER_ETCD_DRUID_CHART_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/gardener/etcd-druid --latest -o json| jq -r '.items[] | select(.element.type == "helmChart") | .element.version')
+        export CROSSPLANE_VERSION=$(kubectl exec -ti ocm-transfer-pod -- ocm get componentversions --latest github.com/crossplane/crossplane --repo oci://ghcr.io/platform-mesh -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || echo "")
+        export ISTIO_VERSION=$(kubectl exec -ti ocm-transfer-pod -- ocm get componentversions --latest github.com/istio/istio/base --repo oci://ghcr.io/platform-mesh -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || echo "")
+        export OPENFGA_VERSION=$(kubectl exec -ti ocm-transfer-pod -- ocm get componentversions --latest github.com/openfga/openfga --repo oci://ghcr.io/platform-mesh -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || echo "")
+        export KCP_OPERATOR_VERSION=$(kubectl exec -ti ocm-transfer-pod -- ocm get componentversions --latest github.com/kcp-dev/kcp-operator --repo oci://ghcr.io/platform-mesh -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || echo "")
+        export KCP_IMAGE_VERSION=$(kubectl exec -ti ocm-transfer-pod -- ocm get resources github.com/kcp-dev/kcp-operator --repo oci://ghcr.io/platform-mesh -o json 2>/dev/null | jq -r '.items[] | select(.element.type == "ociImage") | .element.version' 2>/dev/null | sed 's/^0\.0\.0-//' || echo "")
+        export GARDENER_ETCD_DRUID_SOURCE_REF=$(kubectl exec -ti ocm-transfer-pod -- ocm get resources github.com/gardener/etcd-druid --repo oci://ghcr.io/platform-mesh -o json 2>/dev/null | jq -r '.items[] | select(.element.type == "ociImage") | .element.version' 2>/dev/null || echo "")
+        export GARDENER_ETCD_DRUID_CHART_VERSION=$(kubectl exec -ti ocm-transfer-pod -- ocm get resources github.com/gardener/etcd-druid --repo oci://ghcr.io/platform-mesh -o json 2>/dev/null | jq -r '.items[] | select(.element.type == "helmChart") | .element.version' 2>/dev/null || echo "")
         
         # Add more mappings as needed
 
@@ -501,10 +501,18 @@ tasks:
         curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml -H "Authorization: token $GH_TOKEN"
         
         # replace component name
-        sed -i "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
+        sed -i '' "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
         
         # remove private 'example-httpbin-operator' component
-        sed -i '/      - name: example-httpbin-operator/{N;N;d;}' .ocm/component-constructor-prerelease.yaml        
+        sed -i '' '/      - name: example-httpbin-operator/{N;N;d;}' .ocm/component-constructor-prerelease.yaml
+        
+        # fix helmChart values with colons - add quotes to prevent YAML parse errors
+        sed -i '' 's/helmChart: crossplane:\(.*\)/helmChart: "crossplane:\1"/g' .ocm/component-constructor-prerelease.yaml
+        sed -i '' 's/helmChart: base:\(.*\)/helmChart: "base:\1"/g' .ocm/component-constructor-prerelease.yaml
+        sed -i '' 's/helmChart: istiod:\(.*\)/helmChart: "istiod:\1"/g' .ocm/component-constructor-prerelease.yaml
+        sed -i '' 's/helmChart: openfga:\(.*\)/helmChart: "openfga:\1"/g' .ocm/component-constructor-prerelease.yaml
+        sed -i '' 's/helmChart: gateway:\(.*\)/helmChart: "gateway:\1"/g' .ocm/component-constructor-prerelease.yaml
+        sed -i '' 's/helmChart: kcp-operator:\(.*\)/helmChart: "kcp-operator:\1"/g' .ocm/component-constructor-prerelease.yaml        
 
   test:portal-e2e:
     cmds:
