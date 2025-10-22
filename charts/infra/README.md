@@ -69,6 +69,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
 | kcp.frontProxy.clusterIP | string | `""` |  |
+| kcp.frontProxy.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | kcp.frontProxy.name | string | `"frontproxy"` |  |
 | kcp.frontProxy.port | int | `8443` |  |
 | kcp.frontProxy.replicas | int | `1` |  |
@@ -82,6 +83,7 @@ A Helm chart for Kubernetes
 | kcp.oidc.groupsClaim | string | `"groups"` |  |
 | kcp.oidc.issuerUrl | string | `""` |  |
 | kcp.oidc.usernameClaim | string | `"email"` |  |
+| kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
 | kcp.webhook.caData | string | `""` |  |

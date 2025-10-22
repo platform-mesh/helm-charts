@@ -91,6 +91,8 @@ kcp:
 
   rootShard:
     replicas: 1
+    extraArgs:
+    - --feature-gates=WorkspaceAuthentication=true
   frontProxy:
     replicas: 1
     name: frontproxy
@@ -107,6 +109,8 @@ kcp:
         backend_server_ca: /etc/kcp/tls/ca/tls.crt
         proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
         proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+    extraArgs:
+    - --feature-gates=WorkspaceAuthentication=true
 
 openfga:
   rbac:
