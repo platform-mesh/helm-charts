@@ -160,3 +160,6 @@ components:
       - name: platform-mesh-operator-components
         componentName: github.com/platform-mesh/platform-mesh-operator-components
         version: {{ .PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION }}
+      - name: iam-service
+        componentName: github.com/platform-mesh/iam-service
+        version: {{ .IAM_SERVICE_VERSION }}
