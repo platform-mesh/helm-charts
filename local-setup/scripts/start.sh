@@ -128,8 +128,6 @@ kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=580s platform-mesh
 
-kubectl apply -k $SCRIPT_DIR/../kustomize/components/kcp-hotfix
-
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s keycloak
