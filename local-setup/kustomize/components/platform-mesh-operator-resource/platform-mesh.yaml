@@ -166,3 +166,12 @@ spec:
                   #   name: marketplace
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
+    iam-service:
+      enabled: false
+      values:
+        hostAliases:
+          enabled: true
+        caSecret: domain-certificate-ca
+        istio:
+          hosts:
+            - "*.{{ .Values.baseDomain }}"

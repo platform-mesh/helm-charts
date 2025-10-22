@@ -31,7 +31,7 @@ run_environment_checks
 if ! check_kind_cluster; then
     if [ -d "$SCRIPT_DIR/certs" ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Clearning existing certs directory ${COL_RES}"
-        rm -rf $SCRIPT_DIR/certs
+        rm -rf "$SCRIPT_DIR/certs"
     fi
     echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
     $SCRIPT_DIR/../scripts/gen-certs.sh
@@ -123,7 +123,7 @@ fi
 
 
 # wait for kind: PlatformMesh resource to become ready
-echo -e "$COL Waiting for kind: PlatformMesh resource to become ready $COL_RES"
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready $COL_RES"
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=580s platform-mesh
@@ -136,7 +136,7 @@ kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane
 
 
 if [ "$1" == "--minimal" ]; then
-  echo -e "$COL Scaling down to minimal resources $COL_RES"
+  echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
   kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
   kubectl scale deployment/kyverno-admission-controller --replicas=0 -n kyverno-system
   kubectl scale deployment/kyverno-background-controller --replicas=0 -n kyverno-system
@@ -164,7 +164,7 @@ kubectl wait --namespace default \
   --timeout=280s security-operator
 
 if [ "$1" == "--minimal" ]; then
-  echo -e "$COL Scaling down to minimal resources $COL_RES"
+  echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
   kubectl scale deployment/helm-controller --replicas=0 -n flux-system
   kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
   kubectl scale deployment/source-controller --replicas=0 -n flux-system
