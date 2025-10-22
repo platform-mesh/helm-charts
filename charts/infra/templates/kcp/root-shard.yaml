@@ -62,3 +62,5 @@ spec:
             {{ toYaml . | nindent 10 }}
           {{- end }}
           {{- end }}
+  extraArgs:
+{{ toYaml .Values.kcp.rootShard.extraArgs | indent 4 }}
