@@ -111,6 +111,8 @@ match snapshots:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
       rootShard:
         ref:
@@ -181,6 +183,8 @@ match snapshots:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
@@ -564,6 +568,8 @@ match snapshots w. hostAliases enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
       rootShard:
         ref:
@@ -640,6 +646,8 @@ match snapshots w. hostAliases enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
@@ -1014,6 +1022,8 @@ match snapshots w. kcp version:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       image:
         tag: v0.1.0
       replicas: 1
@@ -1086,6 +1096,8 @@ match snapshots w. kcp version:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       image:
         tag: v0.1.0
       replicas: 1
@@ -1462,6 +1474,8 @@ match snapshots with mailpit enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
       rootShard:
         ref:
@@ -1532,6 +1546,8 @@ match snapshots with mailpit enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
