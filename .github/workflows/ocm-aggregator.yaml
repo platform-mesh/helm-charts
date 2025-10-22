@@ -185,6 +185,7 @@ jobs:
             CURRENT_VIRTUAL_WORKSPACES=$(yq eval '.component.componentReferences[] | select(.name == "virtual-workspaces") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_PLATFORM_MESH_OPERATOR_COMPONENTS=$(yq eval '.component.componentReferences[] | select(.name == "platform-mesh-operator-components") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_EXAMPLE_HTTPBIN_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "example-httpbin-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_IAM_SERVICE=$(yq eval '.component.componentReferences[] | select(.name == "iam-service") | .version' current_pm_component.yaml 2>/dev/null || echo "")
           else
             # No existing component, so we need to create one
             echo "No existing platform-mesh component found, creating initial version"
@@ -263,6 +264,11 @@ jobs:
 
           if [ "$CURRENT_EXAMPLE_HTTPBIN_OPERATOR" != "${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }}" ]; then
             echo "Example HTTPBin operator: $CURRENT_EXAMPLE_HTTPBIN_OPERATOR -> ${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_IAM_SERVICE" != "${{ env.IAM_SERVICE_VERSION }}" ]; then
+            echo "IAM service: $CURRENT_IAM_SERVICE -> ${{ env.IAM_SERVICE_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
