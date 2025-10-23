@@ -133,7 +133,7 @@ services:
         inviteKeycloakBaseUrl: "https://{{ .Values.baseDomainPort }}/keycloak"
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
-        baseDomain: "{{ .Values.baseDomain }}"
+        baseDomain: "{{ .Values.baseDomainPort }}"
       kubeconfigSecret: security-operator-kubeconfig
       log:
         level: debug
@@ -165,10 +165,22 @@ services:
       - name: kcp-operator
         namespace: default
     values:
+      hostAliases:
+        enabled: true
+      mailpit:
+        enabled: true
       kcp:
         image:
           # FIXME: this is a temporary fix until we have support for the latest version
           tag: 8265c399b
+        rootShard:
+          extraArgs:
+            - --feature-gates=WorkspaceAuthentication=true
+            - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}
+        webhook:
+          enabled: true
+        frontProxy:
+          clusterIP: "10.96.0.100"
       istio:
         main:
           gateway:
@@ -195,16 +207,31 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
+        crossplane:
+          clients:
+            welcome:
+              validRedirectUris:
+                - "http://localhost:8000/callback*"
+                - "http://localhost:4300/callback*"
+                - "https://*"
   kcp-operator:
     imageResource:
-      name: kcp-image
       enabled: true
+      name: kcp-image
       labels:
         infra: "true"
         component: infra
     enabled: true
     helmRepo: true
     targetNamespace: kcp-operator
+    values:
+      crds:
+        create: true
+      image:
+        repository: ghcr.io/kcp-dev/kcp-operator
+        #TODO this is needed until the latest changes are released like https://github.com/kcp-dev/kcp-operator/pull/89 and https://github.com/kcp-dev/kcp-operator/pull/88
+        tag: "main"
+        pullPolicy: IfNotPresent
   keycloak:
     enabled: true
     dependsOn:
@@ -216,6 +243,17 @@ services:
           - name: github
         security:
           allowInsecureImages: true
+      service:
+        clusterIP: 10.96.0.110
+      resources:
+        limits:
+          cpu: "2"
+          ephemeral-storage: 2Gi
+          memory: 2Gi
+        requests:
+          cpu: 750m
+          ephemeral-storage: 50Mi
+          memory: 1Gi
       image:
         registry: ghcr.io/platform-mesh
         repository: upstream-images/keycloak
@@ -332,6 +370,7 @@ services:
         ttl: 10s
       datastore:
         engine: postgres
+        uri: "postgres://postgres:password@openfga-postgres.platform-mesh-system.svc.cluster.local:5432/postgres?sslmode=disable"
         maxOpenConns: 30
         applyMigrations: true
         migrationType: "initContainer"
@@ -347,6 +386,9 @@ services:
         image:
           registry: ghcr.io/platform-mesh
           repository: images/postgresql
+        auth:
+          postgresPassword: password
+          database: postgres
       telemetry:
         trace:
           enabled: true
@@ -375,7 +417,9 @@ services:
           clientId: "welcome"
           baseDomain: "{{ .Values.baseDomain }}"
       virtualService:
-        hosts: false
+        hosts:
+          - "portal.dev.local"
+          - "*.portal.dev.local"
       cookieDomain: "{{ .Values.baseDomain }}"
       extraEnvVars:
         - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
@@ -406,3 +450,9 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
+    values:
+      virtualWorkspaceSecretName: virtual-workspaces-cert
+      deployment:
+        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
+        resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
+        resourceSchemaWorkspace: "root:platform-mesh-system"

@@ -125,6 +125,8 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 15m
       values:
+        hostAliases:
+          enabled: true
         istio:
           main:
             gateway:
@@ -147,13 +149,30 @@ it should render the application manifests:
               port: "8443"
               protocol: HTTPS
         kcp:
+          frontProxy:
+            clusterIP: 10.96.0.100
           image:
             tag: 8265c399b
+          rootShard:
+            extraArgs:
+              - --feature-gates=WorkspaceAuthentication=true
+              - --shard-virtual-workspace-url=https://kcp.api.example.com:8443
+          webhook:
+            enabled: true
         keycloak:
+          crossplane:
+            clients:
+              welcome:
+                validRedirectUris:
+                  - http://localhost:8000/callback*
+                  - http://localhost:4300/callback*
+                  - https://*
           istio:
             virtualservice:
               hosts:
                 - example.com
+        mailpit:
+          enabled: true
   6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -265,7 +284,13 @@ it should render the application manifests:
       releaseName: kcp-operator
       targetNamespace: kcp-operator
       timeout: 15m
-      values: null
+      values:
+        crds:
+          create: true
+        image:
+          pullPolicy: IfNotPresent
+          repository: ghcr.io/kcp-dev/kcp-operator
+          tag: main
   10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -319,6 +344,17 @@ it should render the application manifests:
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 2Gi
+            memory: 2Gi
+          requests:
+            cpu: 750m
+            ephemeral-storage: 50Mi
+            memory: 1Gi
+        service:
+          clusterIP: 10.96.0.110
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -410,6 +446,7 @@ it should render the application manifests:
               pullPolicy: Always
               repository: groundnuty/k8s-wait-for
               tag: v2.0
+          uri: postgres://postgres:password@openfga-postgres.platform-mesh-system.svc.cluster.local:5432/postgres?sslmode=disable
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
@@ -427,6 +464,9 @@ it should render the application manifests:
         podAnnotations:
           traffic.sidecar.istio.io/excludeInboundPorts: "2112"
         postgresql:
+          auth:
+            database: postgres
+            postgresPassword: password
           enabled: true
           image:
             registry: ghcr.io/platform-mesh
@@ -495,7 +535,7 @@ it should render the application manifests:
           inviteKeycloakBaseUrl: https://example.com:8443/keycloak
           target: openfga.platform-mesh-system.svc.cluster.local:8081
         initializer:
-          baseDomain: example.com
+          baseDomain: example.com:8443
           kubeconfigSecret: security-initializer-kubeconfig
         kubeconfigSecret: security-operator-kubeconfig
         log:
@@ -521,7 +561,12 @@ it should render the application manifests:
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
       timeout: 15m
-      values: null
+      values:
+        deployment:
+          resourceSchemaName: v250704-6d57f16.contentconfigurations.ui.platform-mesh.io
+          resourceSchemaWorkspace: root:platform-mesh-system
+          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
+        virtualWorkspaceSecretName: virtual-workspaces-cert
   16: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
