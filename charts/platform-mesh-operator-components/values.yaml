@@ -408,8 +408,8 @@ services:
           baseDomain: "{{ .Values.baseDomain }}"
       virtualService:
         hosts:
-          - "portal.dev.local"
-          - "*.portal.dev.local"
+          - "{{ .Values.baseDomain }}"
+          - "*.{{ .Values.baseDomain }}"
       cookieDomain: "{{ .Values.baseDomain }}"
       extraEnvVars:
         - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
