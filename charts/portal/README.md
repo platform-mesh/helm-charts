@@ -31,6 +31,10 @@ Helm Chart for the Platform Mesh Portal
 | kcp.kubeconfigSecret | string | `""` |  |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
 | validWebcomponentUrls | string | `".?"` |  |
+| validation.path | string | `"/validate"` |  |
+| validation.port | int | `8088` |  |
+| validation.protocol | string | `"http"` |  |
+| validation.service | string | `"extension-manager-operator-server"` |  |
 | virtualService.hosts | list | `["*"]` | virtual service hosts |
 
 ## Overriding Values
