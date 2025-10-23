@@ -247,10 +247,6 @@ operator match the snapshot:
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
                   readOnly: true
-          hostAliases:
-            - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -343,10 +339,6 @@ operator match the snapshot:
               volumeMounts:
                 - mountPath: /api-kubeconfig
                   name: external-api-server
-          hostAliases:
-            - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -441,10 +433,6 @@ operator match the snapshot:
                   name: external-api-server
                 - mountPath: /data
                   name: core-module
-          hostAliases:
-            - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -719,10 +707,6 @@ operator match the snapshot w. sentry:
                 - mountPath: /etc/kcp-kubeconfig
                   name: kcp-kubeconfig
                   readOnly: true
-          hostAliases:
-            - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -821,10 +805,6 @@ operator match the snapshot w. sentry:
                 - mountPath: /etc/kcp-kubeconfig
                   name: kcp-kubeconfig
                   readOnly: true
-          hostAliases:
-            - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -923,10 +903,6 @@ operator match the snapshot w. sentry:
                   readOnly: true
                 - mountPath: /data
                   name: core-module
-          hostAliases:
-            - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
           securityContext:
             runAsNonRoot: true
             seccompProfile:
