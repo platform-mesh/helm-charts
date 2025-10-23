@@ -52,6 +52,10 @@ spec:
         hostAliases:
           enabled: true
         kcp:
+          rootShard:
+            extraArgs:
+              - --feature-gates=WorkspaceAuthentication=true
+              - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}
           webhook:
             enabled: true
           frontProxy:
@@ -166,3 +170,12 @@ spec:
                   #   name: marketplace
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
+    iam-service:
+      enabled: false
+      values:
+        hostAliases:
+          enabled: true
+        caSecret: domain-certificate-ca
+        istio:
+          hosts:
+            - "*.{{ .Values.baseDomain }}"
