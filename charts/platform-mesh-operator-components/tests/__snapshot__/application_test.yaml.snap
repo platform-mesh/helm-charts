@@ -132,7 +132,7 @@ it should render the application manifests:
                 - example.com
                 - '*.example.com'
               name: https
-              port: "443"
+              port: "8443"
               protocol: HTTPS
               tls:
                 credentialName: domain-certificate
@@ -144,7 +144,7 @@ it should render the application manifests:
               hosts:
                 - kcp.api.example.com
               name: pass-https
-              port: "443"
+              port: "8443"
               protocol: HTTPS
         kcp:
           image:
@@ -356,7 +356,7 @@ it should render the application manifests:
           default:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https:///keycloak/realms/default
+            trustedIssuer: https://example.com:8443/keycloak/realms/default
         virtualService:
           hosts:
             - example.com
@@ -492,7 +492,7 @@ it should render the application manifests:
         crds:
           enabled: false
         fga:
-          inviteKeycloakBaseUrl: https:///keycloak
+          inviteKeycloakBaseUrl: https://example.com:8443/keycloak
           target: openfga.platform-mesh-system.svc.cluster.local:8081
         initializer:
           baseDomain: example.com

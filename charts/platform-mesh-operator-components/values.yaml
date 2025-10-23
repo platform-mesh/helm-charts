@@ -1,5 +1,4 @@
 targetNamespace: platform-mesh-system
-baseDomain: example.com
 protocol: https
 port: 443
 ocm:
