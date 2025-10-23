@@ -205,9 +205,7 @@ services:
           clients:
             welcome:
               validRedirectUris:
-                - "http://localhost:8000/callback*"
-                - "http://localhost:4300/callback*"
-                - "https://*"
+                - "https://{{ .Values.baseDomainPort }}/callback*"
   kcp-operator:
     imageResource:
       name: kcp-image
