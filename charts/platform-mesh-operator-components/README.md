@@ -142,7 +142,7 @@ A Helm chart for Kubernetes
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.audience | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
-| services.kubernetes-graphql-gateway.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"` |  |
+| services.kubernetes-graphql-gateway.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomainPort }}/keycloak/realms/default"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowHeaders[0] | string | `"*"` |  |
@@ -197,12 +197,14 @@ A Helm chart for Kubernetes
 | services.portal.values.auth.default.clientId | string | `"welcome"` |  |
 | services.portal.values.auth.default.clientSecretKey | string | `"attribute.client_secret"` |  |
 | services.portal.values.auth.default.clientSecretName | string | `"portal-client-secret-welcome"` |  |
-| services.portal.values.auth.default.discoveryUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/${org-name}/.well-known/openid-configuration"` |  |
+| services.portal.values.auth.default.discoveryUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak/realms/${org-name}/.well-known/openid-configuration"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.environment | string | `"kind"` |  |
 | services.portal.values.extraEnvVars[0].name | string | `"DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
-| services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
+| services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
+| services.portal.values.extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
+| services.portal.values.extraEnvVars[1].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
 | services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
@@ -220,7 +222,7 @@ A Helm chart for Kubernetes
 | services.security-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.security-operator.enabled | bool | `true` |  |
 | services.security-operator.values.crds.enabled | bool | `false` |  |
-| services.security-operator.values.fga.inviteKeycloakBaseUrl | string | `"https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak"` |  |
+| services.security-operator.values.fga.inviteKeycloakBaseUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak"` |  |
 | services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | services.security-operator.values.initializer.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |

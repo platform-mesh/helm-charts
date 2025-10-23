@@ -356,7 +356,7 @@ it should render the application manifests:
           default:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://example.com:443/keycloak/realms/default
+            trustedIssuer: https:///keycloak/realms/default
         virtualService:
           hosts:
             - example.com
@@ -492,7 +492,7 @@ it should render the application manifests:
         crds:
           enabled: false
         fga:
-          inviteKeycloakBaseUrl: https://example.com:443/keycloak
+          inviteKeycloakBaseUrl: https:///keycloak
           target: openfga.platform-mesh-system.svc.cluster.local:8081
         initializer:
           baseDomain: example.com
