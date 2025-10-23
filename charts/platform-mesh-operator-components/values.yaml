@@ -133,7 +133,7 @@ services:
         inviteKeycloakBaseUrl: "https://{{ .Values.baseDomainPort }}/keycloak"
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
-        baseDomain: "{{ .Values.baseDomain }}"
+        baseDomain: "{{ .Values.baseDomainPort }}"
       kubeconfigSecret: security-operator-kubeconfig
       log:
         level: debug
@@ -169,6 +169,12 @@ services:
         image:
           # FIXME: this is a temporary fix until we have support for the latest version
           tag: 8265c399b
+        rootShard:
+          extraArgs:
+            - --feature-gates=WorkspaceAuthentication=true
+            - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}
+        webhook:
+          enabled: true
       istio:
         main:
           gateway:
@@ -195,6 +201,11 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
+        crossplane:
+          clients:
+            welcome:
+              validRedirectUris:
+                - "https://{{ .Values.baseDomainPort }}/callback*"
   kcp-operator:
     imageResource:
       name: kcp-image
@@ -205,6 +216,9 @@ services:
     enabled: true
     helmRepo: true
     targetNamespace: kcp-operator
+    values:
+      image:
+        tag: "v0.3.0"
   keycloak:
     enabled: true
     dependsOn:
@@ -216,6 +230,15 @@ services:
           - name: github
         security:
           allowInsecureImages: true
+      resources:
+        limits:
+          cpu: "2"
+          ephemeral-storage: 2Gi
+          memory: 2Gi
+        requests:
+          cpu: 750m
+          ephemeral-storage: 50Mi
+          memory: 1Gi
       image:
         registry: ghcr.io/platform-mesh
         repository: upstream-images/keycloak
@@ -375,7 +398,9 @@ services:
           clientId: "welcome"
           baseDomain: "{{ .Values.baseDomain }}"
       virtualService:
-        hosts: false
+        hosts:
+          - "{{ .Values.baseDomain }}"
+          - "*.{{ .Values.baseDomain }}"
       cookieDomain: "{{ .Values.baseDomain }}"
       extraEnvVars:
         - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL

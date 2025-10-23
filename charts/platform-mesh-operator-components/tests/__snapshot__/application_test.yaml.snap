@@ -149,7 +149,18 @@ it should render the application manifests:
         kcp:
           image:
             tag: 8265c399b
+          rootShard:
+            extraArgs:
+              - --feature-gates=WorkspaceAuthentication=true
+              - --shard-virtual-workspace-url=https://kcp.api.example.com:8443
+          webhook:
+            enabled: true
         keycloak:
+          crossplane:
+            clients:
+              welcome:
+                validRedirectUris:
+                  - https://example.com:8443/callback*
           istio:
             virtualservice:
               hosts:
@@ -265,7 +276,9 @@ it should render the application manifests:
       releaseName: kcp-operator
       targetNamespace: kcp-operator
       timeout: 15m
-      values: null
+      values:
+        image:
+          tag: v0.3.0
   10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -319,6 +332,15 @@ it should render the application manifests:
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 2Gi
+            memory: 2Gi
+          requests:
+            cpu: 750m
+            ephemeral-storage: 50Mi
+            memory: 1Gi
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -495,7 +517,7 @@ it should render the application manifests:
           inviteKeycloakBaseUrl: https://example.com:8443/keycloak
           target: openfga.platform-mesh-system.svc.cluster.local:8081
         initializer:
-          baseDomain: example.com
+          baseDomain: example.com:8443
           kubeconfigSecret: security-initializer-kubeconfig
         kubeconfigSecret: security-operator-kubeconfig
         log:

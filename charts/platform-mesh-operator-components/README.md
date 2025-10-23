@@ -64,6 +64,10 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
 | services.infra.values.kcp.image.tag | string | `"8265c399b"` |  |
+| services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
+| services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}"` |  |
+| services.infra.values.kcp.webhook.enabled | bool | `true` |  |
+| services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"https://{{ .Values.baseDomainPort }}/callback*"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.istio-base.chart | string | `"base"` |  |
 | services.istio-base.driftDetectionMode | string | `"disabled"` |  |
@@ -107,6 +111,7 @@ A Helm chart for Kubernetes
 | services.kcp-operator.imageResource.labels.infra | string | `"true"` |  |
 | services.kcp-operator.imageResource.name | string | `"kcp-image"` |  |
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
+| services.kcp-operator.values.image.tag | string | `"v0.3.0"` |  |
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
@@ -127,6 +132,12 @@ A Helm chart for Kubernetes
 | services.keycloak.values.postgresql.auth.username | string | `"keycloak"` | postgresql username |
 | services.keycloak.values.postgresql.nameOverride | string | `"postgresql-keycloak"` | postgresql name override |
 | services.keycloak.values.postgresql.primary.resourcesPreset | string | `"none"` | primary postgresql resources preset |
+| services.keycloak.values.resources.limits.cpu | string | `"2"` |  |
+| services.keycloak.values.resources.limits.ephemeral-storage | string | `"2Gi"` |  |
+| services.keycloak.values.resources.limits.memory | string | `"2Gi"` |  |
+| services.keycloak.values.resources.requests.cpu | string | `"750m"` |  |
+| services.keycloak.values.resources.requests.ephemeral-storage | string | `"50Mi"` |  |
+| services.keycloak.values.resources.requests.memory | string | `"1Gi"` |  |
 | services.kubernetes-graphql-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.kubernetes-graphql-gateway.dependsOn[0].namespace | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.enabled | bool | `true` |  |
@@ -207,7 +218,8 @@ A Helm chart for Kubernetes
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
 | services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
-| services.portal.values.virtualService.hosts | bool | `false` |  |
+| services.portal.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
+| services.portal.values.virtualService.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.rebac-authz-webhook.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.rebac-authz-webhook.dependsOn[0].namespace | string | `"default"` |  |
 | services.rebac-authz-webhook.enabled | bool | `true` |  |
@@ -223,7 +235,7 @@ A Helm chart for Kubernetes
 | services.security-operator.values.crds.enabled | bool | `false` |  |
 | services.security-operator.values.fga.inviteKeycloakBaseUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak"` |  |
 | services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
-| services.security-operator.values.initializer.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
+| services.security-operator.values.initializer.baseDomain | string | `"{{ .Values.baseDomainPort }}"` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |
 | services.security-operator.values.kubeconfigSecret | string | `"security-operator-kubeconfig"` |  |
 | services.security-operator.values.log.level | string | `"debug"` |  |
