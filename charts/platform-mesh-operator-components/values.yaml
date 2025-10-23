@@ -217,12 +217,8 @@ services:
     helmRepo: true
     targetNamespace: kcp-operator
     values:
-      crds:
-        create: true
       image:
-        repository: ghcr.io/kcp-dev/kcp-operator
-        # TODO this is needed until the latest changes are released like https://github.com/kcp-dev/kcp-operator/pull/89 and https://github.com/kcp-dev/kcp-operator/pull/88
-        tag: "main"
+        tag: "v0.3.0"
         pullPolicy: IfNotPresent
   keycloak:
     enabled: true
@@ -360,7 +356,6 @@ services:
         ttl: 10s
       datastore:
         engine: postgres
-        uri: "postgres://postgres:password@openfga-postgres.platform-mesh-system.svc.cluster.local:5432/postgres?sslmode=disable"
         maxOpenConns: 30
         applyMigrations: true
         migrationType: "initContainer"
@@ -376,9 +371,6 @@ services:
         image:
           registry: ghcr.io/platform-mesh
           repository: images/postgresql
-        auth:
-          postgresPassword: password
-          database: postgres
       telemetry:
         trace:
           enabled: true
@@ -440,9 +432,3 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
-    values:
-      virtualWorkspaceSecretName: virtual-workspaces-cert
-      deployment:
-        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
-        resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
-        resourceSchemaWorkspace: "root:platform-mesh-system"
