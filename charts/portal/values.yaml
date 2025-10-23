@@ -61,3 +61,9 @@ health:
 
 deployment:
   hostAliases: []
+
+validation:
+  port: 8088
+  path: /validate
+  service: "extension-manager-operator-server"
+  protocol: "http"

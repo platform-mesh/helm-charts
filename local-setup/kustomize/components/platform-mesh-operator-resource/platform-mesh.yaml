@@ -12,6 +12,8 @@ spec:
     component:
       name: platform-mesh
     referencePath: []
+  featureToggles:
+   - name: "feature-enable-getting-started"
   values:
     istio-gateway:
       enabled: true
@@ -50,6 +52,10 @@ spec:
         hostAliases:
           enabled: true
         kcp:
+          rootShard:
+            extraArgs:
+              - --feature-gates=WorkspaceAuthentication=true
+              - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}
           webhook:
             enabled: true
           frontProxy:
@@ -75,7 +81,7 @@ spec:
           component: infra
       values:
         crds:
-          create: false
+          create: true
         image:
           repository: ghcr.io/kcp-dev/kcp-operator
           #TODO this is needed until the latest changes are released like https://github.com/kcp-dev/kcp-operator/pull/89 and https://github.com/kcp-dev/kcp-operator/pull/88
@@ -92,6 +98,7 @@ spec:
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.dev.local
             - --domain-ca-lookup
+            - --idp-additional-redirect-urls="https://default.portal.dev.local:3000/callback*"
         hostAliases:
           enabled: true
           items:
@@ -150,6 +157,8 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
+        image:
+          tag: v0.1.36
         listener:
           virtualWorkspacesConfig:
             content:
@@ -161,3 +170,12 @@ spec:
                   #   name: marketplace
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
+    iam-service:
+      enabled: false
+      values:
+        hostAliases:
+          enabled: true
+        caSecret: domain-certificate-ca
+        istio:
+          hosts:
+            - "*.{{ .Values.baseDomain }}"
