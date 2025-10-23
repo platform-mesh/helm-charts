@@ -65,11 +65,9 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
 | services.infra.values.kcp.image.tag | string | `"8265c399b"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
-| services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}"` |  |
+| services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
-| services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` |  |
-| services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[1] | string | `"http://localhost:4300/callback*"` |  |
-| services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[2] | string | `"https://*"` |  |
+| services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"https://{{ .Values.baseDomainPort }}/callback*"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.istio-base.chart | string | `"base"` |  |
 | services.istio-base.driftDetectionMode | string | `"disabled"` |  |
@@ -113,10 +111,8 @@ A Helm chart for Kubernetes
 | services.kcp-operator.imageResource.labels.infra | string | `"true"` |  |
 | services.kcp-operator.imageResource.name | string | `"kcp-image"` |  |
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
-| services.kcp-operator.values.crds.create | bool | `true` |  |
 | services.kcp-operator.values.image.pullPolicy | string | `"IfNotPresent"` |  |
-| services.kcp-operator.values.image.repository | string | `"ghcr.io/kcp-dev/kcp-operator"` |  |
-| services.kcp-operator.values.image.tag | string | `"main"` |  |
+| services.kcp-operator.values.image.tag | string | `"v0.3.0"` |  |
 | services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
@@ -189,7 +185,6 @@ A Helm chart for Kubernetes
 | services.openfga.values.datastore.migrations.image.pullPolicy | string | `"Always"` |  |
 | services.openfga.values.datastore.migrations.image.repository | string | `"groundnuty/k8s-wait-for"` |  |
 | services.openfga.values.datastore.migrations.image.tag | string | `"v2.0"` |  |
-| services.openfga.values.datastore.uri | string | `"postgres://postgres:password@openfga-postgres.platform-mesh-system.svc.cluster.local:5432/postgres?sslmode=disable"` |  |
 | services.openfga.values.extraEnvVars[0].name | string | `"OPENFGA_EXPERIMENTALS"` |  |
 | services.openfga.values.extraEnvVars[0].value | string | `"enable-list-users"` |  |
 | services.openfga.values.global.imagePullSecrets[0].name | string | `"github"` |  |
@@ -198,8 +193,6 @@ A Helm chart for Kubernetes
 | services.openfga.values.log.level | string | `"info"` |  |
 | services.openfga.values.migrate.annotations."sidecar.istio.io/inject" | string | `"false"` |  |
 | services.openfga.values.podAnnotations."traffic.sidecar.istio.io/excludeInboundPorts" | string | `"2112"` |  |
-| services.openfga.values.postgresql.auth.database | string | `"postgres"` |  |
-| services.openfga.values.postgresql.auth.postgresPassword | string | `"password"` |  |
 | services.openfga.values.postgresql.enabled | bool | `true` |  |
 | services.openfga.values.postgresql.image.registry | string | `"ghcr.io/platform-mesh"` |  |
 | services.openfga.values.postgresql.image.repository | string | `"images/postgresql"` |  |
@@ -226,8 +219,8 @@ A Helm chart for Kubernetes
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
 | services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
-| services.portal.values.virtualService.hosts[0] | string | `"portal.dev.local"` |  |
-| services.portal.values.virtualService.hosts[1] | string | `"*.portal.dev.local"` |  |
+| services.portal.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
+| services.portal.values.virtualService.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.rebac-authz-webhook.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.rebac-authz-webhook.dependsOn[0].namespace | string | `"default"` |  |
 | services.rebac-authz-webhook.enabled | bool | `true` |  |
@@ -252,10 +245,6 @@ A Helm chart for Kubernetes
 | services.virtual-workspaces.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.virtual-workspaces.dependsOn[0].namespace | string | `"default"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
-| services.virtual-workspaces.values.deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
-| services.virtual-workspaces.values.deployment.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
-| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443"` |  |
-| services.virtual-workspaces.values.virtualWorkspaceSecretName | string | `"virtual-workspaces-cert"` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 
 ## Overriding Values
