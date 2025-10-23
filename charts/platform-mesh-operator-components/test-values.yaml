@@ -1,7 +1,8 @@
 targetNamespace: platform-mesh-system
 baseDomain: example.com
+baseDomainPort: example.com:8443
 protocol: https
-port: 443
+port: 8443
 ocm:
   skipVerify: true
   interval: 3m

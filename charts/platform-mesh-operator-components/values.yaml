@@ -1,5 +1,4 @@
 targetNamespace: platform-mesh-system
-baseDomain: example.com
 protocol: https
 port: 443
 ocm:
@@ -131,7 +130,7 @@ services:
         enabled: false
       fga:
         target: openfga.platform-mesh-system.svc.cluster.local:8081
-        inviteKeycloakBaseUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak"
+        inviteKeycloakBaseUrl: "https://{{ .Values.baseDomainPort }}/keycloak"
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
         baseDomain: "{{ .Values.baseDomain }}"
@@ -269,7 +268,7 @@ services:
     values:
       trust:
         default:
-          trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
+          trustedIssuer: "https://{{ .Values.baseDomainPort }}/keycloak/realms/default"
           jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
           audience: default
       kubeConfig:
@@ -355,20 +354,6 @@ services:
             endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
             tls:
               enabled: false
-              # sampleRatio:
-        #    values:
-        #      databaseService: openfga-openfga-postgres
-        #      trust:
-        #        default:
-        #          trustedIssuer: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/default"
-        #          jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-        #          audience: default
-        #      rbac:
-        #        writePrincipals:
-        #          - cluster.local/ns/platform-mesh-system/sa/iam-service
-        #          - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
-        #          - cluster.local/ns/platform-mesh-system/sa/security-operator
-        #          - cluster.local/ns/platform-mesh-system/sa/account-operator
   portal:
     enabled: false
     dependsOn:
@@ -384,7 +369,7 @@ services:
       frontendPort: '{{ .Values.port }}'
       auth:
         default:
-          discoveryUrl: "https://{{ .Values.baseDomain }}:{{ .Values.port }}/keycloak/realms/${org-name}/.well-known/openid-configuration"
+          discoveryUrl: "https://{{ .Values.baseDomainPort }}/keycloak/realms/${org-name}/.well-known/openid-configuration"
           clientSecretName: "portal-client-secret-welcome"
           clientSecretKey: "attribute.client_secret"
           clientId: "welcome"
@@ -394,7 +379,9 @@ services:
       cookieDomain: "{{ .Values.baseDomain }}"
       extraEnvVars:
         - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-          value: https://${org-subdomain}{{ .Values.baseDomain }}:{{ .Values.port }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+        - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+          value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"
   observability:
     enabled: false
     targetNamespace: observability
