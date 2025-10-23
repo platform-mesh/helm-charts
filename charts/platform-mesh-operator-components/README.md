@@ -50,7 +50,6 @@ A Helm chart for Kubernetes
 | services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[1].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
-| services.infra.values.hostAliases.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.name | string | `"https"` |  |
@@ -64,7 +63,6 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.name | string | `"pass-https"` |  |
 | services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
-| services.infra.values.kcp.frontProxy.clusterIP | string | `"10.96.0.100"` |  |
 | services.infra.values.kcp.image.tag | string | `"8265c399b"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}"` |  |
@@ -73,7 +71,6 @@ A Helm chart for Kubernetes
 | services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[1] | string | `"http://localhost:4300/callback*"` |  |
 | services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[2] | string | `"https://*"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.infra.values.mailpit.enabled | bool | `true` |  |
 | services.istio-base.chart | string | `"base"` |  |
 | services.istio-base.driftDetectionMode | string | `"disabled"` |  |
 | services.istio-base.enabled | bool | `true` |  |
@@ -146,7 +143,6 @@ A Helm chart for Kubernetes
 | services.keycloak.values.resources.requests.cpu | string | `"750m"` |  |
 | services.keycloak.values.resources.requests.ephemeral-storage | string | `"50Mi"` |  |
 | services.keycloak.values.resources.requests.memory | string | `"1Gi"` |  |
-| services.keycloak.values.service.clusterIP | string | `"10.96.0.110"` |  |
 | services.kubernetes-graphql-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.kubernetes-graphql-gateway.dependsOn[0].namespace | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.enabled | bool | `true` |  |

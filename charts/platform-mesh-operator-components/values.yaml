@@ -165,10 +165,6 @@ services:
       - name: kcp-operator
         namespace: default
     values:
-      hostAliases:
-        enabled: true
-      mailpit:
-        enabled: true
       kcp:
         image:
           # FIXME: this is a temporary fix until we have support for the latest version
@@ -179,8 +175,6 @@ services:
             - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}
         webhook:
           enabled: true
-        frontProxy:
-          clusterIP: "10.96.0.100"
       istio:
         main:
           gateway:
@@ -216,8 +210,8 @@ services:
                 - "https://*"
   kcp-operator:
     imageResource:
-      enabled: true
       name: kcp-image
+      enabled: true
       labels:
         infra: "true"
         component: infra
@@ -243,8 +237,6 @@ services:
           - name: github
         security:
           allowInsecureImages: true
-      service:
-        clusterIP: 10.96.0.110
       resources:
         limits:
           cpu: "2"

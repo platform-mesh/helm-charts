@@ -125,8 +125,6 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 15m
       values:
-        hostAliases:
-          enabled: true
         istio:
           main:
             gateway:
@@ -149,8 +147,6 @@ it should render the application manifests:
               port: "8443"
               protocol: HTTPS
         kcp:
-          frontProxy:
-            clusterIP: 10.96.0.100
           image:
             tag: 8265c399b
           rootShard:
@@ -171,8 +167,6 @@ it should render the application manifests:
             virtualservice:
               hosts:
                 - example.com
-        mailpit:
-          enabled: true
   6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -353,8 +347,6 @@ it should render the application manifests:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-        service:
-          clusterIP: 10.96.0.110
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
