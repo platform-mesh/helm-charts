@@ -35,6 +35,8 @@ spec:
         - name: FEATURE_TOGGLES
           value: "{{ .Values.featureToggles }}"
         {{- end }}
+        - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
+          value: "{{ .Values.validation.protocol }}://{{ .Values.validation.service }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.validation.port }}{{ .Values.validation.path }}"
         - name: PORT
           value: "{{ include "common.getKeyValue" (dict "Values" .Values "key" "port") }}"
         - name: REGION

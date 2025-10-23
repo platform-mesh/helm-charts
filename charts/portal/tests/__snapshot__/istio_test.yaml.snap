@@ -36,6 +36,8 @@ matches the snapshot:
                   value: "true"
                 - name: FEATURE_TOGGLES
                   value: enableSessionAutoRefresh=true
+                - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
+                  value: http://extension-manager-operator-server.NAMESPACE.svc.cluster.local:8088/validate
                 - name: PORT
                   value: "8080"
                 - name: REGION
@@ -187,6 +189,8 @@ matches the snapshot with istio disabled:
                   value: "true"
                 - name: FEATURE_TOGGLES
                   value: enableSessionAutoRefresh=true
+                - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
+                  value: http://extension-manager-operator-server.NAMESPACE.svc.cluster.local:8088/validate
                 - name: PORT
                   value: "8080"
                 - name: REGION
