@@ -172,7 +172,7 @@ services:
         rootShard:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
-            - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}
+            - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}
         webhook:
           enabled: true
       istio:
