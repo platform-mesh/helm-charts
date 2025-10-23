@@ -219,7 +219,6 @@ services:
     values:
       image:
         tag: "v0.3.0"
-        pullPolicy: IfNotPresent
   keycloak:
     enabled: true
     dependsOn:
