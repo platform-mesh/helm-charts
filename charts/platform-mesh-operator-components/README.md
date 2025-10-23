@@ -6,7 +6,6 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| baseDomain | string | `"example.com"` |  |
 | iamWebhookCA | string | `nil` |  |
 | ocm.component.create | bool | `true` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
