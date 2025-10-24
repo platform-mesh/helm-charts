@@ -7,8 +7,7 @@ spec:
   forProvider:
     accessTokenLifespan: {{ .Values.crossplane.realm.accessTokenLifespan }}
     ssoSessionIdleTimeout: {{ .Values.crossplane.realm.accessTokenLifespan }}
-    attributes:
-      organizationsEnabled: "true"
+    organizationsEnabled: true
     displayName: {{ .Values.crossplane.realm.displayName }}
     displayNameHtml: <b>{{ .Values.crossplane.realm.displayName }}</b>
     enabled: true

@@ -393,12 +393,11 @@ match snapshots:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: welcome
         displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -447,7 +446,6 @@ match snapshots:
             - source:
                 principals:
                   - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
                   - cluster.local/ns/platform-mesh-system/sa/security-operator
                   - cluster.local/ns/platform-mesh-system/sa/account-operator
           to:
@@ -497,17 +495,6 @@ match snapshots:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  25: |
-    apiVersion: security.istio.io/v1beta1
-    kind: RequestAuthentication
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      jwtRules: null
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
 match snapshots w. hostAliases enabled:
   1: |
     apiVersion: networking.istio.io/v1
@@ -918,12 +905,11 @@ match snapshots w. hostAliases enabled:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: welcome
         displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -972,7 +958,6 @@ match snapshots w. hostAliases enabled:
             - source:
                 principals:
                   - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
                   - cluster.local/ns/platform-mesh-system/sa/security-operator
                   - cluster.local/ns/platform-mesh-system/sa/account-operator
           to:
@@ -1022,17 +1007,6 @@ match snapshots w. hostAliases enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  25: |
-    apiVersion: security.istio.io/v1beta1
-    kind: RequestAuthentication
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      jwtRules: null
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
 match snapshots w. kcp version:
   1: |
     apiVersion: networking.istio.io/v1
@@ -1432,12 +1406,11 @@ match snapshots w. kcp version:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: welcome
         displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -1486,7 +1459,6 @@ match snapshots w. kcp version:
             - source:
                 principals:
                   - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
                   - cluster.local/ns/platform-mesh-system/sa/security-operator
                   - cluster.local/ns/platform-mesh-system/sa/account-operator
           to:
@@ -1536,17 +1508,6 @@ match snapshots w. kcp version:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  25: |
-    apiVersion: security.istio.io/v1beta1
-    kind: RequestAuthentication
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      jwtRules: null
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
 match snapshots with mailpit enabled:
   1: |
     apiVersion: networking.istio.io/v1
@@ -1942,12 +1903,11 @@ match snapshots with mailpit enabled:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: welcome
         displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -2063,7 +2023,6 @@ match snapshots with mailpit enabled:
             - source:
                 principals:
                   - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
                   - cluster.local/ns/platform-mesh-system/sa/security-operator
                   - cluster.local/ns/platform-mesh-system/sa/account-operator
           to:
@@ -2113,14 +2072,3 @@ match snapshots with mailpit enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  28: |
-    apiVersion: security.istio.io/v1beta1
-    kind: RequestAuthentication
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      jwtRules: null
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga

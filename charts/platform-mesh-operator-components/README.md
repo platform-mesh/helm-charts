@@ -45,6 +45,10 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `true` |  |
+| services.iam-service.dependsOn[0].name | string | `"istio-istiod"` |  |
+| services.iam-service.dependsOn[0].namespace | string | `"default"` |  |
+| services.iam-service.enabled | bool | `false` |  |
+| services.iam-service.values.istio.hosts[0] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.infra.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |

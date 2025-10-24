@@ -436,3 +436,12 @@ services:
     dependsOn:
       - name: keycloak
         namespace: default
+  iam-service:
+    enabled: false
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      istio:
+        hosts:
+          - "*.{{ .Values.baseDomain }}"
