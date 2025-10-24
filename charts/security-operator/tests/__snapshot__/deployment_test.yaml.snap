@@ -275,7 +275,7 @@ operator match the snapshot:
               env:
                 - name: FGA_TARGET
                   value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KUBECONFIG
+                - name: KCP_KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
@@ -367,7 +367,7 @@ operator match the snapshot:
               env:
                 - name: FGA_TARGET
                   value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KUBECONFIG
+                - name: KCP_KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
