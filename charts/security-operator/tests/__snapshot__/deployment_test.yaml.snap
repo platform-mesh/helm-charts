@@ -110,25 +110,6 @@ operator match the snapshot:
             define get_iam_roles: member
             define get_iam_users: member
 
-        type core_namespace
-          relations
-            define parent: [core_platform-mesh_io_account]
-
-            define owner: [role#assignee] or owner from parent
-            define member: [role#assignee] or owner or member from parent
-
-            define get: member
-            define watch: member
-
-            define update: member
-            define patch: member
-            define delete: member
-
-            # IAM specific
-            define manage_iam_roles: owner
-            define get_iam_roles: member
-            define get_iam_users: member
-
         type core_platform-mesh_io_accountinfo
           relations
             define parent: [core_platform-mesh_io_account]
@@ -558,25 +539,6 @@ operator match the snapshot w. sentry:
             define create_apis_kcp_io_apibindings: owner
             define list__apis_kcp_io_apibindings: member
             define watch_apis_kcp_io_apibindings: member
-
-            # IAM specific
-            define manage_iam_roles: owner
-            define get_iam_roles: member
-            define get_iam_users: member
-
-        type core_namespace
-          relations
-            define parent: [core_platform-mesh_io_account]
-
-            define owner: [role#assignee] or owner from parent
-            define member: [role#assignee] or owner or member from parent
-
-            define get: member
-            define watch: member
-
-            define update: member
-            define patch: member
-            define delete: member
 
             # IAM specific
             define manage_iam_roles: owner
