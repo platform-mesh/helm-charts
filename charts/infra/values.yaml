@@ -184,6 +184,9 @@ keycloak:
           port: "1025"
           from: noreply@portal.dev.local
 
+    managementClients:
+      - name: iam
+      - name: security-operator
     clients:
       welcome:
         # -- name of the client

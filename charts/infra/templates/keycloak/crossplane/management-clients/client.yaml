@@ -1,0 +1,33 @@
+{{- range $key, $val := .Values.keycloak.crossplane.managementClients }}
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: {{ $val.name }}
+spec:
+  forProvider:
+    enabled: true
+    accessType: "CONFIDENTIAL"
+    clientId: {{ $val.name }}
+    serviceAccountsEnabled: true
+    name: {{ $val.name }}
+    realmId: master
+  providerConfigRef:
+    name: {{ $.Values.keycloak.crossplane.providerConfig.name }}
+  writeConnectionSecretToRef:
+    name: {{ $val.name }}-client-secret
+    namespace: {{ $.Values.keycloak.keycloakConfig.client.targetSecret.namespace }}
+---
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientServiceAccountRealmRole
+metadata:
+  name: {{ $val.name }}
+spec:
+  forProvider:
+    realmId: master
+    role: admin
+    serviceAccountUserClientIdRef:
+      name: {{ $val.name }}
+  providerConfigRef:
+    name: {{ $.Values.keycloak.crossplane.providerConfig.name }}
+---
+{{- end -}}
