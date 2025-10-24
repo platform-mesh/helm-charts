@@ -433,6 +433,7 @@ services:
         namespace: default
   organization-idp:
     enabled: true
+    skipHelmRelease: true
     dependsOn:
       - name: keycloak
         namespace: default
