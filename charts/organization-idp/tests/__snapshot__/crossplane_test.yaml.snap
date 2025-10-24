@@ -92,12 +92,11 @@ matches the snapshot:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: default
         displayNameHtml: <b>default</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: default
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -199,12 +198,11 @@ matches the snapshot with custom config:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: default
         displayNameHtml: <b>default</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: default
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -306,12 +304,11 @@ matches the snapshot with smtpConfig:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: default
         displayNameHtml: <b>default</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: default
         registrationAllowed: true
         registrationEmailAsUsername: true

@@ -393,12 +393,11 @@ match snapshots:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: welcome
         displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -906,12 +905,11 @@ match snapshots w. hostAliases enabled:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: welcome
         displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -1408,12 +1406,11 @@ match snapshots w. kcp version:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: welcome
         displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
@@ -1906,12 +1903,11 @@ match snapshots with mailpit enabled:
     spec:
       forProvider:
         accessTokenLifespan: 8h
-        attributes:
-          organizationsEnabled: "true"
         displayName: welcome
         displayNameHtml: <b>welcome</b>
         enabled: true
         loginWithEmailAllowed: true
+        organizationsEnabled: true
         realm: welcome
         registrationAllowed: true
         registrationEmailAsUsername: true
