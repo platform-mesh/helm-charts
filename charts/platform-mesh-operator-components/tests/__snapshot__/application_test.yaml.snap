@@ -900,6 +900,31 @@ it should render the application manifests:
       labels:
         artifact: chart
         repo: oci
+      name: organization-idp
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: organization-idp
+          resource:
+            name: chart
+      skipVerify: true
+  31: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
       name: rebac-authz-webhook
     spec:
       componentRef:
@@ -918,7 +943,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  31: |
+  32: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -943,7 +968,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  32: |
+  33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

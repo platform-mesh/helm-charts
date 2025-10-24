@@ -431,6 +431,12 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
+  organization-idp:
+    enabled: true
+    skipHelmRelease: true
+    dependsOn:
+      - name: keycloak
+        namespace: default
   iam-service:
     enabled: false
     dependsOn:
