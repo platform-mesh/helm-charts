@@ -173,14 +173,6 @@ fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for default organization to be ready ${COL_RES}"
-
-kubectl wait \
-  --server='https://kcp.api.portal.dev.local:8443/clusters/root:orgs' \
-  --kubeconfig=$SCRIPT_DIR/../../.secret/kcp/admin.kubeconfig \
-  --for=condition=Ready accounts \
-  --timeout=280s default
-
 echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
 show_wsl_hosts_guidance
 
