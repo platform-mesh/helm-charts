@@ -431,3 +431,12 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
+  iam-service:
+    enabled: false
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      istio:
+        hosts:
+          - "*.{{ .Values.baseDomain }}"
