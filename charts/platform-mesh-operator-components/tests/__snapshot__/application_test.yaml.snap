@@ -132,7 +132,7 @@ it should render the application manifests:
                 - example.com
                 - '*.example.com'
               name: https
-              port: "443"
+              port: "8443"
               protocol: HTTPS
               tls:
                 credentialName: domain-certificate
@@ -144,12 +144,23 @@ it should render the application manifests:
               hosts:
                 - kcp.api.example.com
               name: pass-https
-              port: "443"
+              port: "8443"
               protocol: HTTPS
         kcp:
           image:
-            tag: d976f348
+            tag: 8265c399b
+          rootShard:
+            extraArgs:
+              - --feature-gates=WorkspaceAuthentication=true
+              - --shard-virtual-workspace-url=https://kcp.api.example.com:8443
+          webhook:
+            enabled: true
         keycloak:
+          crossplane:
+            clients:
+              welcome:
+                validRedirectUris:
+                  - https://example.com:8443/callback*
           istio:
             virtualservice:
               hosts:
@@ -265,7 +276,9 @@ it should render the application manifests:
       releaseName: kcp-operator
       targetNamespace: kcp-operator
       timeout: 15m
-      values: null
+      values:
+        image:
+          tag: v0.3.0
   10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -319,6 +332,15 @@ it should render the application manifests:
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 2Gi
+            memory: 2Gi
+          requests:
+            cpu: 750m
+            ephemeral-storage: 50Mi
+            memory: 1Gi
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -356,7 +378,7 @@ it should render the application manifests:
           default:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            trustedIssuer: https://example.com:443/keycloak/realms/default
+            trustedIssuer: https://example.com:8443/keycloak/realms/default
         virtualService:
           hosts:
             - example.com
@@ -492,11 +514,10 @@ it should render the application manifests:
         crds:
           enabled: false
         fga:
-          extraArgs:
-            - --invite-keycloak-base-url=https://example.com:443/keycloak
+          inviteKeycloakBaseUrl: https://example.com:8443/keycloak
           target: openfga.platform-mesh-system.svc.cluster.local:8081
         initializer:
-          baseDomain: example.com
+          baseDomain: example.com:8443
           kubeconfigSecret: security-initializer-kubeconfig
         kubeconfigSecret: security-operator-kubeconfig
         log:

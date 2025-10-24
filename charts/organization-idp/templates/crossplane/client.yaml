@@ -24,6 +24,27 @@ spec:
 ---
 
 apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: {{ .Values.crossplane.client.name }}-kubectl
+spec:
+  forProvider:
+    enabled: true
+    clientId: kubectl
+    standardFlowEnabled: true
+    name: {{ .Values.crossplane.client.displayName }}
+    accessType: "PUBLIC"
+    realmIdRef:
+      name: {{ .Values.crossplane.realm.name }}
+    validRedirectUris:
+    - http://localhost:8000
+    - http://localhost:18000
+  providerConfigRef:
+    name: {{ .Values.crossplane.providerConfig.name }}
+
+---
+
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
 kind: ClientDefaultScopes
 metadata:
   name: {{ .Values.crossplane.client.name}}-default-scopes
@@ -36,8 +57,6 @@ spec:
     - email
     - basic
     - acr
-    - groups
-    - trusted-openmfp-audiences
     realmIdRef:
       name: {{ $.Values.crossplane.realm.name }}
   providerConfigRef:

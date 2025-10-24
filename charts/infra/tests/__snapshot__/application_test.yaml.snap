@@ -108,6 +108,11 @@ match snapshots:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
       rootShard:
         ref:
@@ -178,6 +183,8 @@ match snapshots:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
@@ -277,6 +284,68 @@ match snapshots:
         name: keycloak-provider-config
   14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: iam
+        enabled: true
+        name: iam
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: iam-client-secret
+        namespace: platform-mesh-system
+  15: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: iam
+      providerConfigRef:
+        name: keycloak-provider-config
+  16: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: security-operator
+        enabled: true
+        name: security-operator
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: security-operator-client-secret
+        namespace: platform-mesh-system
+  17: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: security-operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
       name: trusted-platform-mesh-audiences
@@ -288,7 +357,7 @@ match snapshots:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  15: |
+  19: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -301,7 +370,7 @@ match snapshots:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  16: |
+  20: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -316,7 +385,7 @@ match snapshots:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  17: |
+  21: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -341,7 +410,7 @@ match snapshots:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  22: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -365,7 +434,7 @@ match snapshots:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  19: |
+  23: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -417,7 +486,7 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  20: |
+  24: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -428,7 +497,7 @@ match snapshots:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  21: |
+  25: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -558,6 +627,11 @@ match snapshots w. hostAliases enabled:
                     - kcp.api.portal.dev.local
                     - portal.dev.local
                   ip: 10.96.188.4
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
       rootShard:
         ref:
@@ -634,6 +708,8 @@ match snapshots w. hostAliases enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
@@ -733,6 +809,68 @@ match snapshots w. hostAliases enabled:
         name: keycloak-provider-config
   14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: iam
+        enabled: true
+        name: iam
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: iam-client-secret
+        namespace: platform-mesh-system
+  15: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: iam
+      providerConfigRef:
+        name: keycloak-provider-config
+  16: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: security-operator
+        enabled: true
+        name: security-operator
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: security-operator-client-secret
+        namespace: platform-mesh-system
+  17: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: security-operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
       name: trusted-platform-mesh-audiences
@@ -744,7 +882,7 @@ match snapshots w. hostAliases enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  15: |
+  19: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -757,7 +895,7 @@ match snapshots w. hostAliases enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  16: |
+  20: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -772,7 +910,7 @@ match snapshots w. hostAliases enabled:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  17: |
+  21: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -797,7 +935,7 @@ match snapshots w. hostAliases enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  22: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -821,7 +959,7 @@ match snapshots w. hostAliases enabled:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  19: |
+  23: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -873,7 +1011,7 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  20: |
+  24: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -884,7 +1022,7 @@ match snapshots w. hostAliases enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  21: |
+  25: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -1005,6 +1143,11 @@ match snapshots w. kcp version:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       image:
         tag: v0.1.0
       replicas: 1
@@ -1077,6 +1220,8 @@ match snapshots w. kcp version:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       image:
         tag: v0.1.0
       replicas: 1
@@ -1178,6 +1323,68 @@ match snapshots w. kcp version:
         name: keycloak-provider-config
   14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: iam
+        enabled: true
+        name: iam
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: iam-client-secret
+        namespace: platform-mesh-system
+  15: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: iam
+      providerConfigRef:
+        name: keycloak-provider-config
+  16: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: security-operator
+        enabled: true
+        name: security-operator
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: security-operator-client-secret
+        namespace: platform-mesh-system
+  17: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: security-operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
       name: trusted-platform-mesh-audiences
@@ -1189,7 +1396,7 @@ match snapshots w. kcp version:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  15: |
+  19: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -1202,7 +1409,7 @@ match snapshots w. kcp version:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  16: |
+  20: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -1217,7 +1424,7 @@ match snapshots w. kcp version:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  17: |
+  21: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -1242,7 +1449,7 @@ match snapshots w. kcp version:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  22: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -1266,7 +1473,7 @@ match snapshots w. kcp version:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  19: |
+  23: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -1318,7 +1525,7 @@ match snapshots w. kcp version:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  20: |
+  24: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -1329,7 +1536,7 @@ match snapshots w. kcp version:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  21: |
+  25: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:
@@ -1450,6 +1657,11 @@ match snapshots with mailpit enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
       rootShard:
         ref:
@@ -1520,6 +1732,8 @@ match snapshots with mailpit enabled:
       external:
         hostname: kcp.api.portal.dev.local
         port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
@@ -1619,6 +1833,68 @@ match snapshots with mailpit enabled:
         name: keycloak-provider-config
   14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: iam
+        enabled: true
+        name: iam
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: iam-client-secret
+        namespace: platform-mesh-system
+  15: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: iam
+      providerConfigRef:
+        name: keycloak-provider-config
+  16: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: security-operator
+        enabled: true
+        name: security-operator
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: security-operator-client-secret
+        namespace: platform-mesh-system
+  17: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: security-operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  18: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
       name: trusted-platform-mesh-audiences
@@ -1630,7 +1906,7 @@ match snapshots with mailpit enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  15: |
+  19: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -1643,7 +1919,7 @@ match snapshots with mailpit enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  16: |
+  20: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -1658,7 +1934,7 @@ match snapshots with mailpit enabled:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  17: |
+  21: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -1683,7 +1959,7 @@ match snapshots with mailpit enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  22: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -1707,7 +1983,7 @@ match snapshots with mailpit enabled:
                 host: keycloak.platform-mesh-system.svc.cluster.local
                 port:
                   number: 80
-  19: |
+  23: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -1735,7 +2011,7 @@ match snapshots with mailpit enabled:
                 - containerPort: 1025
                   name: smtp
                   protocol: TCP
-  20: |
+  24: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -1755,7 +2031,7 @@ match snapshots with mailpit enabled:
           targetPort: smtp
       selector:
         app: mailpit
-  21: |
+  25: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -1774,7 +2050,7 @@ match snapshots with mailpit enabled:
                 host: mailpit.platform-mesh-system.svc.cluster.local
                 port:
                   number: 8025
-  22: |
+  26: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -1826,7 +2102,7 @@ match snapshots with mailpit enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  23: |
+  27: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -1837,7 +2113,7 @@ match snapshots with mailpit enabled:
       trafficPolicy:
         tls:
           mode: ISTIO_MUTUAL
-  24: |
+  28: |
     apiVersion: security.istio.io/v1beta1
     kind: RequestAuthentication
     metadata:

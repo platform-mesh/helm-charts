@@ -28,6 +28,13 @@ vars:
     - platform-mesh-operator-components: charts/platform-mesh-operator-components
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
+  CMD_SED:
+    sh: |
+      if [ "$(uname)" = "Darwin" ]; then
+        echo "sed -i ''"
+      else
+        echo "sed -i"
+      fi
 
 tasks:
   ## Setup
@@ -149,16 +156,6 @@ tasks:
       - docker run -d --name proxy-quay --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://quay.io registry:2
       - docker run -d --name proxy-ghcr --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io registry:2
       - docker run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
-
-  bump-component-versions:
-    deps: [setup:ocm]
-    cmds:
-      - |
-        COMP_VERSION_JSON=$(bin/ocm get componentversions github.com/platform-mesh/platform-mesh --latest --repo ghcr.io/platform-mesh -o json)
-        SERVICES=$(echo ''$COMP_VERSION_JSON'' | jq -r '.items[0] | .component.componentReferences[] | .name')
-        COMPONENT_VERSION=$(echo ''$COMP_VERSION_JSON'' | jq -r '.items[0] | .component["version"]')
-        echo "Bumping component version to $COMPONENT_VERSION"
-        yq -i '.componentVersion.semver = "'$COMPONENT_VERSION'"' charts/platform-mesh-operator-components/values.yaml
 
   ocm:deploy:ociregistry:
     internal: true
@@ -300,6 +297,7 @@ tasks:
       - kind export kubeconfig -n platform-mesh
       - kubectl cp .ocm/component-constructor-prerelease.yaml -n default ocm-transfer-pod:.ocm/component-constructor-prerelease.yaml
       - |
+        export DOCKER_CONFIG="$(pwd)"
         # set -x
         # Build comma-separated list of local component names from CUSTOM_LOCAL_COMPONENTS_CHART_PATHS
         CUSTOM_LOCAL_COMPONENTS="$(printf '%s' "{{ range .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}{{ range $k,$v := . }}{{$k}},{{ end }}{{ end }}" | sed 's/,$//')"
@@ -365,14 +363,14 @@ tasks:
         get_component_version keycloak github.com/platform-mesh/keycloak ../helm-charts/keycloak/ KEYCLOAK_VERSION
         get_component_version platform-mesh-operator-components github.com/platform-mesh/platform-mesh-operator-components charts/platform-mesh-operator-components PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
 
-        export CROSSPLANE_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/crossplane/crossplane --latest -o json|jq '.items[0].element["version"]' -r)
-        export ISTIO_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/istio/istio/base --latest -o json|jq '.items[0].element["version"]' -r)
-        export OPENFGA_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/openfga/openfga --latest -o json|jq '.items[0].element["version"]' -r)
-        export KCP_OPERATOR_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/kcp-dev/kcp-operator --latest -o json|jq '.items[0].element["version"]' -r)
-        export KCP_IMAGE_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/kcp-dev/kcp-operator --latest -o json | jq -r '.items[] | select(.element.type == "ociImage") | .element.version' | sed 's/^0\.0\.0-//')
-        export GARDENER_ETCD_DRUID_SOURCE_REF=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/gardener/etcd-druid --latest -o json| jq -r '.items[] | select(.element.type == "ociImage") | .element.version')
-        export GARDENER_ETCD_DRUID_CHART_VERSION=$(ocm get resources oci://ghcr.io/platform-mesh//github.com/gardener/etcd-druid --latest -o json| jq -r '.items[] | select(.element.type == "helmChart") | .element.version')
-        
+        export CROSSPLANE_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/crossplane/crossplane --latest -o json|jq '.items[0].element["version"]' -r)
+        export ISTIO_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/istio/istio/base --latest -o json|jq '.items[0].element["version"]' -r)
+        export OPENFGA_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/openfga/openfga --latest -o json|jq '.items[0].element["version"]' -r)
+        export KCP_OPERATOR_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/kcp-dev/kcp-operator --latest -o json|jq '.items[0].element["version"]' -r)
+        export KCP_IMAGE_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/kcp-dev/kcp-operator --latest -o json | jq -r '.items[] | select(.element.type == "ociImage") | .element.version' | sed 's/^0\.0\.0-//')
+        export GARDENER_ETCD_DRUID_SOURCE_REF=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/gardener/etcd-druid --latest -o json| jq -r '.items[] | select(.element.type == "ociImage") | .element.version')
+        export GARDENER_ETCD_DRUID_CHART_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/gardener/etcd-druid --latest -o json| jq -r '.items[] | select(.element.type == "helmChart") | .element.version')
+        export EXAMPLE_HTTPBIN_OPERATOR_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/platform-mesh/example-httpbin-operator --latest -o json| jq -r '.items[] | select(.element.type == "helmChart") | .element.version')
         # Add more mappings as needed
 
         echo "--- finished getting component versions ---"
@@ -397,7 +395,8 @@ tasks:
         PORTAL_VERSION=$PORTAL_VERSION \
         KEYCLOAK_VERSION=$KEYCLOAK_VERSION \
         VIRTUAL_WORKSPACES_VERSION=$VIRTUAL_WORKSPACES_VERSION \
-        PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
+        PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION \
+        EXAMPLE_HTTPBIN_OPERATOR_VERSION=$EXAMPLE_HTTPBIN_OPERATOR_VERSION
 
         echo
         echo "Built prerelease component version {{ .COMPONENT_PRERELEASE_VERSION }} (local overrides: $CUSTOM_LOCAL_COMPONENTS)"
@@ -487,7 +486,7 @@ tasks:
   bump-local-setup-component-version:
     cmds:
       - |
-        LATEST_VERSION=$(ocm get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
+        LATEST_VERSION=$({{ .LOCAL_BIN }}/ocm get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
         yq -i '.spec.semver = "'$LATEST_VERSION'"' local-setup/kustomize/components/ocm-component/component.yaml
 
   ocm:build-apply:iterate:
@@ -501,10 +500,7 @@ tasks:
         curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml -H "Authorization: token $GH_TOKEN"
         
         # replace component name
-        sed -i "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
-        
-        # remove private 'example-httpbin-operator' component
-        sed -i '/      - name: example-httpbin-operator/{N;N;d;}' .ocm/component-constructor-prerelease.yaml        
+        {{ .CMD_SED }} "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
 
   test:portal-e2e:
     cmds:

@@ -3,4 +3,3 @@ kind: Kustomization
 resources:
   - resource.yaml
   - release.yaml
-  - kcp-operator-crds.yaml
