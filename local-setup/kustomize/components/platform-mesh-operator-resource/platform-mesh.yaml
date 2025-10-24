@@ -176,6 +176,3 @@ spec:
         hostAliases:
           enabled: true
         caSecret: domain-certificate-ca
-        istio:
-          hosts:
-            - "*.{{ .Values.baseDomain }}"
