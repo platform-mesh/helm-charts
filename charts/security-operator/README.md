@@ -22,7 +22,7 @@ A Helm chart for security-operator
 | hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/security-operator"` |  |
 | initializer.baseDomain | string | `""` |  |
-| initializer.extraArgs | list | `[]` |  |
+| initializer.extraArgs[0] | string | `"--oci-repository-version=0.4.0"` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
 | keycloakSecret | string | `"keycloak-admin"` |  |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |

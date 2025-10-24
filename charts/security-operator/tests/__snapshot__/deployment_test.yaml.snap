@@ -837,6 +837,7 @@ operator match the snapshot w. sentry:
             - args:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
+                - --oci-repository-version=0.4.0
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
