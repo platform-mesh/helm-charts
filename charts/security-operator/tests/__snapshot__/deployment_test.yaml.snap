@@ -93,10 +93,6 @@ operator match the snapshot:
             # org and account specific
             define watch: member
 
-            define create_core_namespaces: member
-            define list_core_namespaces: member
-            define watch_core_namespaces: member
-
             define create_core_platform-mesh_io_accountinfos: member
             define list_core_platform-mesh_io_accountinfos: member
             define watch_core_platform-mesh_io_accountinfos: member
@@ -527,10 +523,6 @@ operator match the snapshot w. sentry:
 
             # org and account specific
             define watch: member
-
-            define create_core_namespaces: member
-            define list_core_namespaces: member
-            define watch_core_namespaces: member
 
             define create_core_platform-mesh_io_accountinfos: member
             define list_core_platform-mesh_io_accountinfos: member
