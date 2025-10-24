@@ -431,3 +431,8 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
+  organization-idp:
+    enabled: false
+    dependsOn:
+      - name: keycloak
+        namespace: default

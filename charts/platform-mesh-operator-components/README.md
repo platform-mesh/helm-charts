@@ -200,6 +200,9 @@ A Helm chart for Kubernetes
 | services.openfga.values.telemetry.trace.enabled | bool | `true` |  |
 | services.openfga.values.telemetry.trace.otlp.endpoint | string | `"observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317"` |  |
 | services.openfga.values.telemetry.trace.otlp.tls.enabled | bool | `false` |  |
+| services.organization-idp.dependsOn[0].name | string | `"keycloak"` |  |
+| services.organization-idp.dependsOn[0].namespace | string | `"default"` |  |
+| services.organization-idp.enabled | bool | `false` |  |
 | services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.portal.dependsOn[0].namespace | string | `"default"` |  |
 | services.portal.enabled | bool | `false` |  |
