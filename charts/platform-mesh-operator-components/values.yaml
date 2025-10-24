@@ -432,7 +432,7 @@ services:
       - name: istio-istiod
         namespace: default
   organization-idp:
-    enabled: false
+    enabled: true
     dependsOn:
       - name: keycloak
         namespace: default
