@@ -95,6 +95,8 @@ A Helm chart for Kubernetes
 | keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
 | keycloak.crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
 | keycloak.crossplane.identityProviders | object | `{}` |  |
+| keycloak.crossplane.managementClients[0].name | string | `"iam"` |  |
+| keycloak.crossplane.managementClients[1].name | string | `"security-operator"` |  |
 | keycloak.crossplane.providerConfig | object | `{"name":"keycloak-provider-config","namespace":"platform-mesh-system"}` | crossplane provider config |
 | keycloak.crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | keycloak.crossplane.providerConfig.namespace | string | `"platform-mesh-system"` | client namespace |
