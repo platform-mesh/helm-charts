@@ -72,10 +72,6 @@ coreModule: |-
       # org and account specific
       define watch: member
 
-      define create_core_namespaces: member
-      define list_core_namespaces: member
-      define watch_core_namespaces: member
-
       define create_core_platform-mesh_io_accountinfos: member
       define list_core_platform-mesh_io_accountinfos: member
       define watch_core_platform-mesh_io_accountinfos: member
