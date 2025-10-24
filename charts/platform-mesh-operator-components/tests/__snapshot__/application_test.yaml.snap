@@ -466,6 +466,25 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: organization-idp
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: organization-idp
+        namespace: default
+      dependsOn:
+        - name: keycloak
+          namespace: default
+      interval: 1m
+      releaseName: organization-idp
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values: null
+  14: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: rebac-authz-webhook
       namespace: default
     spec:
@@ -492,7 +511,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  14: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -525,7 +544,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  15: |
+  16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -544,7 +563,7 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 15m
       values: null
-  16: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -569,7 +588,7 @@ it should render the application manifests:
             - name: etcd-druid
           resource:
             name: image
-  17: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -593,7 +612,7 @@ it should render the application manifests:
             - name: kcp-operator
           resource:
             name: image
-  18: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -618,7 +637,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  19: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -643,7 +662,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  20: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -668,7 +687,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  21: |
+  22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -693,7 +712,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  22: |
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -718,7 +737,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  23: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -743,7 +762,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  24: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -768,7 +787,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  25: |
+  26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -793,7 +812,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  26: |
+  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -818,7 +837,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  27: |
+  28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -843,7 +862,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  28: |
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -868,7 +887,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  29: |
+  30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -893,7 +912,32 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  30: |
+  31: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: organization-idp
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: organization-idp
+          resource:
+            name: chart
+      skipVerify: true
+  32: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -918,7 +962,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  31: |
+  33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -943,7 +987,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  32: |
+  34: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
