@@ -114,10 +114,8 @@ kcp:
 
 openfga:
   rbac:
-    requestPrincipals: []
     writePrincipals:
       - cluster.local/ns/platform-mesh-system/sa/iam-service
-      - cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa
       - cluster.local/ns/platform-mesh-system/sa/security-operator
       - cluster.local/ns/platform-mesh-system/sa/account-operator
 

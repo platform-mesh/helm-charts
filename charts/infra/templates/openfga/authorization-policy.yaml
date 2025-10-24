@@ -14,11 +14,6 @@ spec:
     - source:
         principals:
           {{ .Values.openfga.rbac.writePrincipals | toYaml | nindent 10 }}
-    {{- with .Values.openfga.rbac.requestPrincipals }}
-    - source:
-        requestPrincipals:
-          {{ . | toYaml | nindent 10 }}
-    {{- end }}
     to:
     - operation:
         methods: ["POST", "GET", "PUT"]
@@ -26,13 +21,6 @@ spec:
     - source:
         principals:
           - cluster.local/ns/{{ .Release.Namespace }}/*
-    {{- with .Values.openfga.allowedRequestPrincipals }}
-    - source:
-        requestPrincipals:
-          {{- range . }}
-          - {{ . }}
-          {{- end }}
-    {{- end }}
     to:
       # rest api
       - operation:
@@ -42,7 +30,6 @@ spec:
           methods: ["POST"]
           paths: [
             "/stores/{*}/read",
-            # Temporarily allow write access to all stores
             "/stores/{*}/write",
             "/stores/{*}/check",
             "/stores/{*}/batch-check",
