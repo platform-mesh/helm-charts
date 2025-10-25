@@ -58,12 +58,13 @@ test.describe('Home Page', () => {
 
     await newPage.screenshot({ path: 'screenshot-beforeswitch.png' });
 
-    // Click the button AND wait for the subsequent navigation to finish
+    await newPage.pause();  // for debugging
+    // onboard 'default' organization and switch to it
+    await newPage.getByRole('textbox', { name: 'Onboard a new organization' }).fill('default');
+    await newPage.getByRole('button', { name: 'Onboard Emphasized' }).click();
     await Promise.all([
-        newPage.waitForURL(
-          /https:\/\/(default\.)?portal\.dev\.local:8443\/.*/,
-          { timeout: 10000 }
-        ), // Wait for the URL to change
+        // wait for button 'Switch' to be visible and clickable
+        newPage.waitForSelector('button:has-text("Switch")', { state: 'visible', timeout: 100000 }),
         newPage.getByRole('button', { name: 'Switch' }).click()
     ]);
 
