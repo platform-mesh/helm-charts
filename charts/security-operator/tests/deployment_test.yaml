@@ -6,6 +6,7 @@ tests:
   - it: operator match the snapshot
     set:
       kubeconfigSecret: kcp-kubeconfig
+      caSecret: ca-secret
       initializer:
         extraArgs:
           - --test=myval

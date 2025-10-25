@@ -46,6 +46,12 @@ spec:
           - name: external-api-server
             mountPath: /api-kubeconfig
           {{- end }}
+          {{- if .Values.caSecret }}
+          - name: domain-ca
+            mountPath: /etc/ssl/certs/domain-ca.crt
+            subPath: tls.crt
+            readOnly: true
+          {{- end }}
           - name: core-module
             mountPath: /data
       volumes:
@@ -54,6 +60,11 @@ spec:
         - name: external-api-server
           secret:
             secretName: {{ .Values.initializer.kubeconfigSecret }}
+        {{- end }}
+        {{- if .Values.caSecret }}
+        - name: domain-ca
+          secret:
+            secretName: {{ .Values.caSecret }}
         {{- end }}
         - name: core-module
           configMap:

@@ -224,6 +224,10 @@ operator match the snapshot:
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
                   readOnly: true
+                - mountPath: /etc/ssl/certs/domain-ca.crt
+                  name: domain-ca
+                  readOnly: true
+                  subPath: tls.crt
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -237,6 +241,9 @@ operator match the snapshot:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
+            - name: domain-ca
+              secret:
+                secretName: ca-secret
   5: |
     apiVersion: apps/v1
     kind: Deployment
@@ -408,6 +415,10 @@ operator match the snapshot:
               volumeMounts:
                 - mountPath: /api-kubeconfig
                   name: external-api-server
+                - mountPath: /etc/ssl/certs/domain-ca.crt
+                  name: domain-ca
+                  readOnly: true
+                  subPath: tls.crt
                 - mountPath: /data
                   name: core-module
           securityContext:
@@ -420,6 +431,9 @@ operator match the snapshot:
             - name: external-api-server
               secret:
                 secretName: kcp-initializer-kubeconfig
+            - name: domain-ca
+              secret:
+                secretName: ca-secret
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
