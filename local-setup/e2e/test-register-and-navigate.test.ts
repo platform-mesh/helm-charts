@@ -1,11 +1,12 @@
 import test, { expect, Page } from '@playwright/test';
 
 const portalBaseUrl = 'https://portal.dev.local:8443/';
-const testAccountName = 'testaccount3';
-const userEmail = 'username3@sap.com';
+const testAccountName = 'testaccount1';
+const userEmail = 'username@sap.com';
 const userPassword = 'MyPass1234';
 const firstName = 'Firstname';
 const lastName = 'Lastname';
+const newOrgName = 'default';
 
 async function activateUserEmailViaMailpit(
   page: Page,
@@ -60,64 +61,63 @@ test.describe('Home Page', () => {
 
     await newPage.pause();  // for debugging
     // onboard 'default' organization and switch to it
-    await newPage.getByRole('textbox', { name: 'Onboard a new organization' }).fill('default');
+    await newPage.getByRole('textbox', { name: 'Onboard a new organization' }).fill(newOrgName);
     await newPage.getByRole('button', { name: 'Onboard Emphasized' }).click();
-    await Promise.all([
-        // wait for button 'Switch' to be visible and clickable
-        newPage.waitForSelector('button:has-text("Switch")', { state: 'visible', timeout: 100000 }),
-        newPage.getByRole('button', { name: 'Switch' }).click()
-    ]);
 
-    await newPage.screenshot({ path: 'screenshot-afterswitch.png' });
+    await page.getByRole('link', { name: 'keycloak@portal.dev.local a' }).click();
+    const page2Promise = page.waitForEvent('popup');
+    await page.locator('#preview-html').contentFrame().getByRole('link', { name: 'Link to account update' }).click();
+    const page2 = await page2Promise;
+    await page2.getByRole('link', { name: '» Click here to proceed' }).click();
+    await page2.getByRole('textbox', { name: 'New Password' }).fill(userPassword);
+    await page2.getByRole('textbox', { name: 'Confirm password' }).click();
+    await page2.getByRole('textbox', { name: 'Confirm password' }).fill(userPassword);
+    await page2.getByRole('button', { name: 'Submit' }).click();
+    await page2.getByRole('textbox', { name: 'First name' }).click();
+    await page2.getByRole('textbox', { name: 'First name' }).fill(firstName);
+    await page2.getByRole('textbox', { name: 'Last name' }).click();
+    await page2.getByRole('textbox', { name: 'Last name' }).fill(lastName);
+    await page2.getByRole('button', { name: 'Submit' }).click();
+    await page2.getByRole('link', { name: '« Back to Application' }).click();
+    await page2.getByRole('textbox', { name: 'Email' }).fill(userEmail);
+    await page2.getByRole('textbox', { name: 'Password' }).click();
+    await page2.getByRole('textbox', { name: 'Password' }).fill(userPassword);
+    await page2.getByRole('button', { name: 'Sign In' }).click();
 
-    // Now the page is fully loaded, try to find the text
-    const loginText = await newPage.getByText("Sign in to your account");
-    await expect(loginText).toBeVisible({ timeout: 10000 });
 
-    await newPage.screenshot({ path: 'post-login.png' });
 
-    // Perform register
-    await newPage.getByText('Register').click();
-
-    await registerNewUser(newPage);
-
-    const newPage2 = await activateUserEmailViaMailpit(newPage, userEmail);
-
-    await newPage2.screenshot({ path: 'register-2-after.png' });
-
-    const welcomeText = await newPage2.getByText("Welcome! Let's get started.");
+    const welcomeText = await page2.getByText("Welcome! Let's get started.");
     await expect(welcomeText).toBeVisible();
-    await newPage2.getByText('Accounts').click();
+    await page2.getByText('Accounts').click();
     
     // click on "Create" button
-    await newPage2.getByRole('button', { name: 'Create' }).click();
+    await page2.getByRole('button', { name: 'Create' }).click();
 
-    // await newPage2.pause();
+    // await page2.pause();
 
-    await newPage2.locator('.ui5-select-icon > .ui5-icon-root').click();
-    await newPage2.locator('#ui5wc_10-content > .ui5-li-text-wrapper').click();
-    await newPage2.locator('#inner').nth(1).click();
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').press('Shift+Home');
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').fill(testAccountName);
-    await newPage2.getByRole('button', { name: 'Submit Emphasized' }).click();
+    await page2.locator('.ui5-select-icon > .ui5-icon-root').click();
+    await page2.locator('#ui5wc_10-content > .ui5-li-text-wrapper').click();
+    await page2.locator('#inner').nth(1).click();
+    await page2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
+    await page2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
+    await page2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').press('Shift+Home');
+    await page2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').fill(testAccountName);
+    await page2.getByRole('button', { name: 'Submit Emphasized' }).click();
 
-    
-    const accountElement = await newPage2.getByText(testAccountName);
+    const accountElement = await page2.getByText(testAccountName);
     await expect(accountElement).toBeVisible( { timeout: 10000 } );
     await accountElement.click();
-    const download1Promise = newPage2.waitForEvent('download');
-    const downloadButton = await newPage2.getByRole('button', { name: 'Download kubeconfig Emphasized' });
+    const download1Promise = page2.waitForEvent('download');
+    const downloadButton = await page2.getByRole('button', { name: 'Download kubeconfig Emphasized' });
     await expect(downloadButton).toBeVisible( { timeout: 10000 } );
     await downloadButton.click();
     await expect(download1Promise).toBeDefined();
-    await newPage2.getByTestId('luigi-topnav-title').click();
-    await newPage2.getByTestId('accounts_accounts').click();
-    
-    await newPage2.pause();
+    await page2.getByTestId('luigi-topnav-title').click();
+    await page2.getByTestId('accounts_accounts').click();
 
-    const accountText = await newPage2.getByText(testAccountName);
+    await page2.pause();
+
+    const accountText = await page2.getByText(testAccountName);
     await expect(accountText).toBeVisible( { timeout: 10000 } );
 
   });
