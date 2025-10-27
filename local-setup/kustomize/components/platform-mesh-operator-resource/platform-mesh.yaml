@@ -89,8 +89,6 @@ spec:
           pullPolicy: IfNotPresent
     security-operator:
       values:
-        fga:
-          inviteKeycloakBaseUrl: http://keycloak/keycloak
         initializer:
           baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
           extraArgs:
@@ -99,12 +97,14 @@ spec:
             - --idp-from-address=keycloak@portal.dev.local
             - --domain-ca-lookup
             - --idp-additional-redirect-urls="https://default.portal.dev.local:3000/callback*"
+        caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
           items:
-            - ip: 10.96.0.100
+            - ip: 10.96.188.4
               hostnames:
                 - kcp.api.portal.dev.local
+                - portal.dev.local
     portal:
       enabled: true
       values:

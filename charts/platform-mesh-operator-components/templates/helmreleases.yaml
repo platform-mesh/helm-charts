@@ -1,6 +1,6 @@
 {{ $values := .Values }}
 {{- range $service, $config := .Values.services }}
-{{- if and $config.enabled -}}
+{{- if and $config.enabled (not $config.skipHelmRelease) -}}
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
