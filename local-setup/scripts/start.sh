@@ -148,6 +148,7 @@ if [ "$1" == "--minimal" ]; then
   kubectl scale deployment/etcd-druid --replicas=0 -n etcd-druid-system
 fi
 
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s rebac-authz-webhook
@@ -185,7 +186,7 @@ echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pw
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
-echo -e "${COL}You can access the onboarding portal at: https://portal.dev.local:8443 ${COL_RES}"
+echo -e "${COL}You can access the onboarding portal at: https://portal.dev.local:8443 , any send emails can be received here: https://portal.dev.local:8443/mailpit ${COL_RES}"
 
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
