@@ -7,8 +7,7 @@ spec:
   forProvider:
     accessTokenLifespan: {{ .Values.keycloak.crossplane.realm.accessTokenLifespan }}
     ssoSessionIdleTimeout: {{ .Values.keycloak.crossplane.realm.accessTokenLifespan }}
-    attributes:
-      organizationsEnabled: "true"
+    organizationsEnabled: true
     displayName: {{ .Values.keycloak.crossplane.realm.displayName }}
     displayNameHtml: <b>{{ .Values.keycloak.crossplane.realm.displayName }}</b>
     enabled: true

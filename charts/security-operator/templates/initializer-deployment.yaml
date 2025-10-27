@@ -25,7 +25,7 @@ spec:
         args:
           - initializer
           - --core-module-path=/data/coreModule.fga
-          {{- with .Values.initializer.baseDomain }}
+          {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
           {{- with .Values.initializer.extraArgs }}
@@ -37,7 +37,7 @@ spec:
           - name: FGA_TARGET
             value: {{ .Values.fga.target }}
           {{- if .Values.initializer.kubeconfigSecret }}
-          - name: KUBECONFIG
+          - name: KCP_KUBECONFIG
             value: /api-kubeconfig/kubeconfig
           {{- end }}
         volumeMounts:

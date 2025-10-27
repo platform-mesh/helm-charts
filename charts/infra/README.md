@@ -135,11 +135,9 @@ A Helm chart for Kubernetes
 | mailpit.enabled | bool | `false` |  |
 | mailpit.image.tag | string | `"v1.27.9"` |  |
 | mailpit.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
-| openfga.rbac.requestPrincipals | list | `[]` |  |
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
-| openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service-dataloader-sa"` |  |
-| openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
-| openfga.rbac.writePrincipals[3] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
+| openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
+| openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
 
 ## Overriding Values
 

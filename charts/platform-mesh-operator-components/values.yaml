@@ -133,7 +133,7 @@ services:
         inviteKeycloakBaseUrl: "https://{{ .Values.baseDomainPort }}/keycloak"
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
-        baseDomain: "{{ .Values.baseDomainPort }}"
+      baseDomain: "{{ .Values.baseDomainPort }}"
       kubeconfigSecret: security-operator-kubeconfig
       log:
         level: debug
@@ -431,3 +431,18 @@ services:
     dependsOn:
       - name: istio-istiod
         namespace: default
+  organization-idp:
+    enabled: true
+    skipHelmRelease: true
+    dependsOn:
+      - name: keycloak
+        namespace: default
+  iam-service:
+    enabled: false
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      istio:
+        hosts:
+          - "*.{{ .Values.baseDomain }}"

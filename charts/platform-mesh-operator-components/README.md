@@ -45,6 +45,10 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `true` |  |
+| services.iam-service.dependsOn[0].name | string | `"istio-istiod"` |  |
+| services.iam-service.dependsOn[0].namespace | string | `"default"` |  |
+| services.iam-service.enabled | bool | `false` |  |
+| services.iam-service.values.istio.hosts[0] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.infra.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |
@@ -200,6 +204,10 @@ A Helm chart for Kubernetes
 | services.openfga.values.telemetry.trace.enabled | bool | `true` |  |
 | services.openfga.values.telemetry.trace.otlp.endpoint | string | `"observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317"` |  |
 | services.openfga.values.telemetry.trace.otlp.tls.enabled | bool | `false` |  |
+| services.organization-idp.dependsOn[0].name | string | `"keycloak"` |  |
+| services.organization-idp.dependsOn[0].namespace | string | `"default"` |  |
+| services.organization-idp.enabled | bool | `true` |  |
+| services.organization-idp.skipHelmRelease | bool | `true` |  |
 | services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.portal.dependsOn[0].namespace | string | `"default"` |  |
 | services.portal.enabled | bool | `false` |  |
@@ -232,10 +240,10 @@ A Helm chart for Kubernetes
 | services.security-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.security-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.security-operator.enabled | bool | `true` |  |
+| services.security-operator.values.baseDomain | string | `"{{ .Values.baseDomainPort }}"` |  |
 | services.security-operator.values.crds.enabled | bool | `false` |  |
 | services.security-operator.values.fga.inviteKeycloakBaseUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak"` |  |
 | services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
-| services.security-operator.values.initializer.baseDomain | string | `"{{ .Values.baseDomainPort }}"` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |
 | services.security-operator.values.kubeconfigSecret | string | `"security-operator-kubeconfig"` |  |
 | services.security-operator.values.log.level | string | `"debug"` |  |
