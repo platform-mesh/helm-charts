@@ -90,21 +90,22 @@ spec:
     security-operator:
       values:
         fga:
-          inviteKeycloakBaseUrl: http://keycloak/keycloak
+          inviteKeycloakBaseUrl: https://portal.dev.local:8443/keycloak
         initializer:
-          baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.dev.local
             - --domain-ca-lookup
             - --idp-additional-redirect-urls="https://default.portal.dev.local:3000/callback*"
+        caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
           items:
-            - ip: 10.96.0.100
+            - ip: 10.96.188.4
               hostnames:
                 - kcp.api.portal.dev.local
+                - portal.dev.local
     portal:
       enabled: true
       values:

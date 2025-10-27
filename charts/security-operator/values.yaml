@@ -27,10 +27,11 @@ kubeconfigSecret: ""
 keycloakSecret: "keycloak-admin"
 caSecret: ""
 
+baseDomain: ""
+
 initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
-  baseDomain: ""
   extraArgs: []
 
 generator:
