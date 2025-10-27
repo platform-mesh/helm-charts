@@ -176,3 +176,7 @@ spec:
         hostAliases:
           enabled: true
         caSecret: domain-certificate-ca
+    extension-manager-operator:
+      values:
+        istio:
+          enabled: true
