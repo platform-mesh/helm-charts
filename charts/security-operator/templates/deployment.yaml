@@ -31,6 +31,9 @@ spec:
           {{- with .Values.fga.inviteKeycloakBaseUrl }}
           - --invite-keycloak-base-url={{ . }}
           {{- end }}
+          {{- with .Values.baseDomain }}
+          - --base-domain={{ . }}
+          {{- end }}
           {{- with .Values.fga.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}

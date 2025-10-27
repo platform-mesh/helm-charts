@@ -133,7 +133,7 @@ services:
         inviteKeycloakBaseUrl: "https://{{ .Values.baseDomainPort }}/keycloak"
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
-        baseDomain: "{{ .Values.baseDomainPort }}"
+      baseDomain: "{{ .Values.baseDomainPort }}"
       kubeconfigSecret: security-operator-kubeconfig
       log:
         level: debug
