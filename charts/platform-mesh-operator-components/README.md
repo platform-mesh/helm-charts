@@ -240,10 +240,10 @@ A Helm chart for Kubernetes
 | services.security-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.security-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.security-operator.enabled | bool | `true` |  |
+| services.security-operator.values.baseDomain | string | `"{{ .Values.baseDomainPort }}"` |  |
 | services.security-operator.values.crds.enabled | bool | `false` |  |
 | services.security-operator.values.fga.inviteKeycloakBaseUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak"` |  |
 | services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
-| services.security-operator.values.initializer.baseDomain | string | `"{{ .Values.baseDomainPort }}"` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |
 | services.security-operator.values.kubeconfigSecret | string | `"security-operator-kubeconfig"` |  |
 | services.security-operator.values.log.level | string | `"debug"` |  |
