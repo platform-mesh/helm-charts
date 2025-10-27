@@ -89,8 +89,8 @@ spec:
           pullPolicy: IfNotPresent
     security-operator:
       values:
+        baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
         initializer:
-          baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
