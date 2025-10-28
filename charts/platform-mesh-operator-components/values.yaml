@@ -75,7 +75,7 @@ services:
         namespace: default
     values:
       tracing:
-        enabled: true
+        enabled: false
         collector:
           host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
       kubeconfigSecret: account-operator-kubeconfig
@@ -111,13 +111,15 @@ services:
       - name: istio-istiod
         namespace: default
     values:
+      istio:
+        enabled: true
       crds:
         enabled: false
       kcp:
         enabled: true
         kubeconfigSecret: extension-manager-operator-kubeconfig
       tracing:
-        enabled: true
+        enabled: false
         collector:
           host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
   security-operator:
@@ -289,6 +291,8 @@ services:
       - name: istio-istiod
         namespace: default
     values:
+      tracing:
+        enabled: false
       trust:
         default:
           trustedIssuer: "https://{{ .Values.baseDomainPort }}/keycloak/realms/default"
@@ -419,7 +423,7 @@ services:
           virtualService:
             hosts: ["grafana.{{ .Values.baseDomain }}"]
         tracing:
-          enabled: true
+          enabled: false
       opentelemetry-collector:
         service:
           type: ClusterIP
