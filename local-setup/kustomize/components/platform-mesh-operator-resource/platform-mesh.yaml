@@ -15,6 +15,10 @@ spec:
   featureToggles:
    - name: "feature-enable-getting-started"
   values:
+    account-operator:
+      values:
+        log:
+          noJson: true
     istio-gateway:
       enabled: true
       targetNamespace: istio-system
