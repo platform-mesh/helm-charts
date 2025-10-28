@@ -4,4 +4,4 @@ description: A Helm chart containing reuse templates
 
 type: library
 
-version: 0.5.6
+version: 0.6.0

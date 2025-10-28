@@ -70,6 +70,8 @@ tests:
       - matchSnapshot: {}
   - it: test tracing
     set:
+      log:
+        noJson: true
       tracing:
         enabled: true
         collector:
