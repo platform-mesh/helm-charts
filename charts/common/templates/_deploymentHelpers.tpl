@@ -79,7 +79,7 @@ resources:
 - --log-level={{ include "common.getKeyValue" (dict "Values" .Values "key" "log.level") }}
 {{- $noJson := include "common.getKeyValue" (dict "Values" .Values "key" "log.noJson") }}
 {{- if eq $noJson "true" }}
-- --no-json={{ include "common.getKeyValue" (dict "Values" .Values "key" "log.noJson") }}
+- --no-json
 {{- end }}
 - --region={{ include "common.getKeyValue" (dict "Values" .Values "key" "region") }}
 - --environment={{ include "common.getKeyValue" (dict "Values" .Values "key" "environment") }}

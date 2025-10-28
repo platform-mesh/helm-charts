@@ -730,7 +730,7 @@ test tracing:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --no-json=true
+                - --no-json
                 - --region=local
                 - --environment=local
                 - --image-tag=0.1.0
