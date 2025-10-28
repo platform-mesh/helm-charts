@@ -17,8 +17,6 @@ spec:
   values:
     account-operator:
       values:
-        tracing:
-          enabled: false
         log:
           level: debug
           noJson: true
@@ -158,6 +156,9 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
+        log:
+          level: debug
+          noJson: true
         image:
           tag: v0.1.36
         listener:
@@ -179,10 +180,6 @@ spec:
         caSecret: domain-certificate-ca
     extension-manager-operator:
       values:
-        tracing:
-          enabled: false
         log:
           level: debug
           noJson: true
-        istio:
-          enabled: true
