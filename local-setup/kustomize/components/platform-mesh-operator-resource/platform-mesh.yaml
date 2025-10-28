@@ -88,6 +88,9 @@ spec:
           pullPolicy: IfNotPresent
     security-operator:
       values:
+        log:
+          level: debug
+          noJson: true
         baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
         initializer:
           extraArgs:
