@@ -17,7 +17,10 @@ spec:
   values:
     account-operator:
       values:
+        tracing:
+          enabled: false
         log:
+          level: debug
           noJson: true
     keycloak:
       enabled: true
@@ -176,5 +179,10 @@ spec:
         caSecret: domain-certificate-ca
     extension-manager-operator:
       values:
+        tracing:
+          enabled: false
+        log:
+          level: debug
+          noJson: true
         istio:
           enabled: true
