@@ -15,6 +15,11 @@ spec:
   featureToggles:
    - name: "feature-enable-getting-started"
   values:
+    account-operator:
+      values:
+        log:
+          level: debug
+          noJson: true
     istio-gateway:
       enabled: true
       targetNamespace: istio-system
@@ -89,6 +94,9 @@ spec:
           pullPolicy: IfNotPresent
     security-operator:
       values:
+        log:
+          level: debug
+          noJson: true
         baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
         initializer:
           extraArgs:
@@ -157,6 +165,9 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
+        log:
+          level: debug
+          noJson: true
         image:
           tag: v0.1.36
         listener:
@@ -178,5 +189,6 @@ spec:
         caSecret: domain-certificate-ca
     extension-manager-operator:
       values:
-        istio:
-          enabled: true
+        log:
+          level: debug
+          noJson: true
