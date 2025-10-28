@@ -2,13 +2,13 @@ apiVersion: v2
 name: extension-manager-operator
 description: A Helm chart for extension-manager-operator which manages resources like ContentConfigurations and exposes REST `/validate` endpoint
 type: application
-version: 0.30.164
-appVersion: "v0.2.3"
+version: 0.30.168
+appVersion: "v0.2.6"
 dependencies:
   - name: extension-manager-operator-crds
     version: 0.2.1
     condition: crds.enabled
     repository: oci://ghcr.io/platform-mesh/helm-charts
   - name: common
-    version: 0.5.6
+    version: 0.6.0
     repository: oci://ghcr.io/platform-mesh/helm-charts

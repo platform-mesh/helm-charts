@@ -32,7 +32,7 @@ it should render the application manifests:
         tracing:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
-          enabled: true
+          enabled: false
   2: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -97,13 +97,15 @@ it should render the application manifests:
       values:
         crds:
           enabled: false
+        istio:
+          enabled: true
         kcp:
           enabled: true
           kubeconfigSecret: extension-manager-operator-kubeconfig
         tracing:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
-          enabled: true
+          enabled: false
   5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -374,6 +376,8 @@ it should render the application manifests:
                   name: marketplace
                   url: https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace
             enabled: true
+        tracing:
+          enabled: false
         trust:
           default:
             audience: default

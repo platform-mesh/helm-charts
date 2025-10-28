@@ -26,7 +26,7 @@ A Helm chart for Kubernetes
 | services.account-operator.values.log.level | string | `"debug"` |  |
 | services.account-operator.values.subroutines.fga.grpcAddr | string | `"openfga:8081"` |  |
 | services.account-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
-| services.account-operator.values.tracing.enabled | bool | `true` |  |
+| services.account-operator.values.tracing.enabled | bool | `false` |  |
 | services.crossplane.enabled | bool | `true` |  |
 | services.crossplane.helmRepo | bool | `true` |  |
 | services.crossplane.targetNamespace | string | `"crossplane-system"` |  |
@@ -41,10 +41,11 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
+| services.extension-manager-operator.values.istio.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
-| services.extension-manager-operator.values.tracing.enabled | bool | `true` |  |
+| services.extension-manager-operator.values.tracing.enabled | bool | `false` |  |
 | services.iam-service.dependsOn[0].name | string | `"istio-istiod"` |  |
 | services.iam-service.dependsOn[0].namespace | string | `"default"` |  |
 | services.iam-service.enabled | bool | `false` |  |
@@ -154,6 +155,7 @@ A Helm chart for Kubernetes
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].name | string | `"marketplace"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.enabled | bool | `true` |  |
+| services.kubernetes-graphql-gateway.values.tracing.enabled | bool | `false` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.audience | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomainPort }}/keycloak/realms/default"` |  |
@@ -170,7 +172,7 @@ A Helm chart for Kubernetes
 | services.observability.enabled | bool | `false` |  |
 | services.observability.targetNamespace | string | `"observability"` |  |
 | services.observability.values.istio.grafana.virtualService.hosts[0] | string | `"grafana.{{ .Values.baseDomain }}"` |  |
-| services.observability.values.istio.tracing.enabled | bool | `true` |  |
+| services.observability.values.istio.tracing.enabled | bool | `false` |  |
 | services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
 | services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
 | services.openfga.dependsOn[0].name | string | `"istio-istiod"` |  |
