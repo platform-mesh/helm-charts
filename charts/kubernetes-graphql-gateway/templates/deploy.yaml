@@ -1,3 +1,4 @@
+{{- $noJson := include "common.getKeyValue" (dict "Values" .Values "key" "log.noJson") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -51,7 +52,12 @@ spec:
         - gateway
         - --metrics-bind-address=:{{ .Values.gateway.metricsPort }}
         - --health-probe-bind-address=:{{ .Values.gateway.healthCheck.port }}
+        - --log-level={{ include "common.getKeyValue" (dict "Values" .Values "key" "log.level") }}
+        {{- if eq $noJson "true" }}
+        - --no-json
+        {{- end }}
         {{- include "common.collectorArgs" . | nindent 8 }}
+
         ports:
         - name: metrics
           containerPort: {{ .Values.gateway.metricsPort }}
@@ -121,6 +127,10 @@ spec:
         - listener
         - --metrics-bind-address=:{{ .Values.listener.metricsPort }}
         - --health-probe-bind-address=:{{ .Values.listener.healthCheck.port }}
+        - --log-level={{ include "common.getKeyValue" (dict "Values" .Values "key" "log.level") }}
+        {{- if eq $noJson "true" }}
+        - --no-json
+        {{- end }}
         ports:
           - name: metrics
             containerPort: {{ .Values.listener.metricsPort }}

@@ -28,6 +28,7 @@ match the Snapshot:
                 - gateway
                 - --metrics-bind-address=:8081
                 - --health-probe-bind-address=:3389
+                - --log-level=warn
                 - --tracing-enabled=true
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
@@ -100,6 +101,7 @@ match the Snapshot:
                 - listener
                 - --metrics-bind-address=:8091
                 - --health-probe-bind-address=:3390
+                - --log-level=warn
               env:
                 - name: OPENAPI_DEFINITIONS_PATH
                   value: /app/definitions
