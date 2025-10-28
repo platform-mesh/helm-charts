@@ -10,3 +10,8 @@ tests:
 - it: match the Snapshot
   asserts:
   - matchSnapshot: {}
+- it: match the Snapshot with crds
+  set:
+    crds.enabled: true
+  asserts:
+  - matchSnapshot: {}
