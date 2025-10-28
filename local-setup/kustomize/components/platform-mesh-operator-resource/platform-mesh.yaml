@@ -15,6 +15,10 @@ spec:
   featureToggles:
    - name: "feature-enable-getting-started"
   values:
+    account-operator:
+      values:
+        log:
+          noJson: true
     keycloak:
       enabled: true
       values:
@@ -36,20 +40,11 @@ spec:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
     infra:
       dependsOn:
+        - name: istio-istiod
+          namespace: default
         - name: kcp-operator
           namespace: default
       values:
-        cors:
-          enabled: true
-          accessControlAllowOriginList:
-          - "http://localhost:4200"
-          - "http://localhost:4300"
-          - "http://*.localhost:4200"
-          - "http://*.localhost:4300"
-          - "https://portal.dev.local:8443"
-          - "https://*.portal.dev.local:8443"
-        gatewayApi:
-          enabled: true
         mailpit:
           enabled: true
         hostAliases:
@@ -71,6 +66,8 @@ spec:
                   - "http://localhost:8000/callback*"
                   - "http://localhost:4300/callback*"
                   - "https://*"
+    observability:
+      enabled: false
     kcp:
       enabled: false
     kcp-operator:
@@ -101,21 +98,17 @@ spec:
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
+          items:
+            - ip: 10.96.188.4
+              hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
     portal:
       enabled: true
       values:
-        gatewayApi:
-          enabled: true
-          httpRoute:
-            parentRefs:
-            - name: k8sapi-gateway
-              sectionName: websecure
-              kind: Gateway
         extraEnvVars:
-          - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-            value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-            value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+            value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
@@ -127,8 +120,15 @@ spec:
             mountPath: /etc/ssl/certs/domain-ca.crt
             subPath: tls.crt
             readOnly: true
-        hostAliases:
-          enabled: true
+        deployment:
+          hostAliases:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "portal.dev.local"
+        virtualService:
+          hosts:
+            - "portal.dev.local"
+            - "*.portal.dev.local"
     openfga:
       enabled: true
       values:
@@ -155,10 +155,8 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
-        cors:
-          enabled: true
-        gatewayApi:
-          enabled: true
+        image:
+          tag: v0.1.36
         listener:
           virtualWorkspacesConfig:
             content:
@@ -166,33 +164,17 @@ spec:
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: contentconfigurations
                   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
-                - kubeconfig: /app/kubeconfig/kubeconfig
-                  name: marketplace
-                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
+                  # - kubeconfig: /app/kubeconfig/kubeconfig
+                  #   name: marketplace
+                  #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
     iam-service:
       enabled: false
       values:
-        cors:
-          enabled: true
         hostAliases:
           enabled: true
         caSecret: domain-certificate-ca
-        gatewayApi:
-          enabled: true
-        istio:
-          enabled: false
-    iam-ui:
-      enabled: false
+    extension-manager-operator:
       values:
-        gatewayApi:
-          enabled: true
         istio:
-          enabled: false
-    marketplace-ui:
-      enabled: false
-      values:
-        gatewayApi:
           enabled: true
-        istio:
-          enabled: false
