@@ -2,5 +2,8 @@ dependencies:
 - name: common
   repository: oci://ghcr.io/platform-mesh/helm-charts
   version: 0.6.0
-digest: sha256:13e421efdc5ce2e0eb96fe71a65d949e1be74dc4a632377bd2053c0f946f804d
-generated: "2025-10-28T07:23:20.530067124Z"
+- name: kubernetes-graphql-gateway-crds
+  repository: oci://ghcr.io/platform-mesh/helm-charts
+  version: 0.0.1
+digest: sha256:19419e4f9bc3ede44eafea9e3011e95305ad6637719f5966c633b4af2c6c0e90
+generated: "2025-10-28T18:05:13.691578+01:00"

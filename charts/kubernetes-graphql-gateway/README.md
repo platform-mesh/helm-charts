@@ -18,6 +18,7 @@ kubeConfig:
 | cors.allowedHeaders | string | `"*"` |  |
 | cors.allowedOrigins | string | `"*"` |  |
 | cors.enabled | bool | `false` |  |
+| crds.enabled | bool | `false` |  |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | deployment.replicas | int | `1` |  |
