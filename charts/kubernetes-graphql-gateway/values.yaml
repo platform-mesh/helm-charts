@@ -137,4 +137,3 @@ gwApi:
       set:
       - name: Host
         value: "portal.dev.local"
-
