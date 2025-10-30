@@ -122,3 +122,19 @@ health:
     path: "/readyz"
     failureThreshold: 30
     periodSeconds: 10
+
+# -- Gateway API configuration
+gwApi:
+  enabled: false
+  httpRoute:
+    hostnames:
+    - "portal.dev.local"
+    - "*.portal.dev.local"
+    parentRefs:
+    - name: k8sapi-gateway
+      sectionName: websecure
+    requestHeaderModifier:
+      set:
+      - name: Host
+        value: "portal.dev.local"
+

@@ -1,0 +1,30 @@
+suite: Test Kubernetes Gateway API
+values:
+- ../values.yaml
+- ../test_values.yaml
+release:
+  name: platform-mesh
+  namespace: platform-mesh-system
+chart:
+  appVersion: 1.0.0
+templates:
+  - gwapi-referencegrant.yaml
+  - gwapi-httproute.yaml
+  - istio-authorizationpolicy.yaml
+  - istio-destinationrule.yaml
+  - istio-peerauthentication.yaml
+  - istio-requestauthentication.yaml
+  - istio-virtualservice.yaml
+tests:
+  - it: enable Istio, disable Gateway API - match the Snapshot
+    set:
+      istio.enabled: true
+      gwApi.enabled: false
+    asserts:
+    - matchSnapshot: {}
+  - it: disable Istio, enable Gateway API - match the Snapshot
+    set:
+      istio.enabled: false
+      gwApi.enabled: true
+    asserts:
+      - matchSnapshot: {}
