@@ -123,9 +123,10 @@ health:
     failureThreshold: 30
     periodSeconds: 10
 
-# -- Gateway API configuration
 gatewayApi:
+  # -- toggle to enable the Gateway API
   enabled: false
+  # -- configuration for the HTTPRoute resource
   httpRoute:
     pathPrefix: /api/kubernetes-graphql-gateway/
     hostnames:
