@@ -272,3 +272,28 @@ istio:
     name: gateway
     selector:
       istio: gateway
+
+gatewayApi:
+  # -- Toggle to enable/disable Gateway API resources
+  enabled: false
+  # -- Name of the Gateway resource
+  name: k8sapi-gateway
+  # -- GatewayClass name
+  gatewayClassName: traefik
+  # -- HTTPS Terminate configuration
+  main:
+    gateway:
+      port: 8443
+      name: websecure
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        credentialName: domain-certificate
+  passThrough:
+    gateway:
+      # -- Toggle to enable/disable the passthrough gateway
+      enabled: true
+      hostname: kcp.api.portal.dev.local
+      port: 8443
+      name: https-passthrough
+      protocol: TLS
