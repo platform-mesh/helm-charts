@@ -29,3 +29,9 @@ tests:
       enabled: true
   asserts:
   - matchSnapshot: {}
+- it: Gateway API enabled
+  set:
+    gatewayApi:
+      enabled: true
+  asserts:
+    - matchSnapshot: {}

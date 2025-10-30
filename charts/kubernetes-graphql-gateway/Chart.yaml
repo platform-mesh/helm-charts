@@ -1,9 +1,13 @@
 apiVersion: v2
-version: 0.23.0
-appVersion: v0.2.1
+version: 0.25.0
+appVersion: v0.2.2
 name: kubernetes-graphql-gateway
 description: Basic helm chart that contains listener and gateway
 dependencies:
   - name: common
     version: 0.6.0
+    repository: oci://ghcr.io/platform-mesh/helm-charts
+  - name: kubernetes-graphql-gateway-crds
+    version: 0.0.1
+    condition: crds.enabled
     repository: oci://ghcr.io/platform-mesh/helm-charts

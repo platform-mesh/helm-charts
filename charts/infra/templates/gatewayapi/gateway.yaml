@@ -1,0 +1,45 @@
+{{- if .Values.gatewayApi.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ .Values.gatewayApi.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  gatewayClassName: {{ .Values.gatewayApi.gatewayClassName }}
+  listeners:
+  - name: {{ .Values.gatewayApi.main.gateway.name }}
+    port: {{ .Values.gatewayApi.main.gateway.port }}
+    protocol: {{ .Values.gatewayApi.main.gateway.protocol }}
+    allowedRoutes:
+      namespaces:
+        from: All
+      kinds:
+        - group: gateway.networking.k8s.io
+          kind: HTTPRoute
+    {{- with .Values.gatewayApi.main.gateway.tls }}
+    tls:
+      mode: {{ .mode | default "Terminate" }}
+      {{- if .credentialName }}
+      certificateRefs:
+        - group: ""
+          kind: Secret
+          name: {{ .credentialName }}
+      {{- end }}
+    {{- end }}
+  {{- if .Values.gatewayApi.passThrough.gateway.enabled }}
+  - name: {{ .Values.gatewayApi.passThrough.gateway.name }}
+    port: {{ .Values.gatewayApi.passThrough.gateway.port }}
+    protocol: {{ .Values.gatewayApi.passThrough.gateway.protocol }}
+    {{- with .Values.gatewayApi.passThrough.gateway.hostname }}
+    hostname: {{ . | quote }}
+    {{- end }}
+    allowedRoutes:
+      namespaces:
+        from: All
+      kinds:
+        - group: gateway.networking.k8s.io
+          kind: TLSRoute
+    tls:
+      mode: Passthrough
+  {{- end }}
+{{- end }}

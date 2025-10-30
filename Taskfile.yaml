@@ -372,6 +372,7 @@ tasks:
         export GARDENER_ETCD_DRUID_CHART_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/gardener/etcd-druid --latest -o json| jq -r '.items[] | select(.element.type == "helmChart") | .element.version')
         export EXAMPLE_HTTPBIN_OPERATOR_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/platform-mesh/example-httpbin-operator --latest -o json| jq -r '.items[] | select(.element.type == "helmChart") | .element.version')
         export IAM_SERVICE_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/platform-mesh/iam-service --latest -o json| jq -r '.items[] | select(.element.type == "helmChart") | .element.version')
+        export ORGANIZATION_IDP_VERSION=$({{ .LOCAL_BIN }}/ocm get resources oci://ghcr.io/platform-mesh//github.com/platform-mesh/organization-idp --latest -o json| jq -r '.items[] | select(.element.type == "helmChart") | .element.version')
         # Add more mappings as needed
 
         echo "--- finished getting component versions ---"
@@ -398,7 +399,8 @@ tasks:
         VIRTUAL_WORKSPACES_VERSION=$VIRTUAL_WORKSPACES_VERSION \
         PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION \
         EXAMPLE_HTTPBIN_OPERATOR_VERSION=$EXAMPLE_HTTPBIN_OPERATOR_VERSION \
-        IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION
+        IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION \
+        ORGANIZATION_IDP_VERSION=$ORGANIZATION_IDP_VERSION
 
         echo
         echo "Built prerelease component version {{ .COMPONENT_PRERELEASE_VERSION }} (local overrides: $CUSTOM_LOCAL_COMPONENTS)"

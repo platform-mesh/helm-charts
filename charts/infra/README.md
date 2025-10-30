@@ -8,6 +8,16 @@ A Helm chart for Kubernetes
 |-----|------|---------|-------------|
 | crossplane.enabled | bool | `true` |  |
 | externalSecrets.enabled | bool | `false` |  |
+| gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
+| gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
+| gatewayApi.main | object | `{"gateway":{"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","mode":"Terminate"}}}` | HTTPS Terminate configuration |
+| gatewayApi.main.gateway.tls.credentialName | string | `"domain-certificate"` | Name of the secret containing the TLS certificate |
+| gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
+| gatewayApi.passThrough.gateway.enabled | bool | `true` | Toggle to enable/disable the passthrough gateway |
+| gatewayApi.passThrough.gateway.hostname | string | `"kcp.api.portal.dev.local"` |  |
+| gatewayApi.passThrough.gateway.name | string | `"https-passthrough"` |  |
+| gatewayApi.passThrough.gateway.port | int | `8443` |  |
+| gatewayApi.passThrough.gateway.protocol | string | `"TLS"` |  |
 | hostAliases.enabled | bool | `false` |  |
 | hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
 | hostAliases.entries[0].hostnames[1] | string | `"portal.dev.local"` |  |

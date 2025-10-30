@@ -1,0 +1,27 @@
+name: Build kubernetes-graphql-gateway-crds Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/kubernetes-graphql-gateway-crds/**'
+      - '.github/workflows/kubernetes-graphql-gateway-crds.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+  pull_request:
+    paths:
+      - 'charts/kubernetes-graphql-gateway-crds/**'
+      - '.github/workflows/kubernetes-graphql-gateway-crds.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: kubernetes-graphql-gateway-crds-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: kubernetes-graphql-gateway-crds
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+    secrets: inherit
