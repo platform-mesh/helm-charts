@@ -122,3 +122,20 @@ health:
     path: "/readyz"
     failureThreshold: 30
     periodSeconds: 10
+
+gatewayApi:
+  # -- toggle to enable the Gateway API
+  enabled: false
+  # -- configuration for the HTTPRoute resource
+  httpRoute:
+    pathPrefix: /api/kubernetes-graphql-gateway/
+    hostnames:
+    - "portal.dev.local"
+    - "*.portal.dev.local"
+    parentRefs:
+    - name: k8sapi-gateway
+      sectionName: websecure
+    requestHeaderModifier:
+      set:
+      - name: Host
+        value: "portal.dev.local"

@@ -38,6 +38,8 @@ kubeConfig:
 | gateway.resources.requests.memory | string | `"1000Mi"` |  |
 | gateway.shouldImpersonate | bool | `true` |  |
 | gateway.usernameClaim | string | `"email"` |  |
+| gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
+| gatewayApi.httpRoute | object | `{"hostnames":["portal.dev.local","*.portal.dev.local"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"}],"pathPrefix":"/api/kubernetes-graphql-gateway/","requestHeaderModifier":{"set":[{"name":"Host","value":"portal.dev.local"}]}}` | configuration for the HTTPRoute resource |
 | health.liveness.failureThreshold | int | `1` |  |
 | health.liveness.path | string | `"/healthz"` |  |
 | health.liveness.periodSeconds | int | `10` |  |
