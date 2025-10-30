@@ -8,7 +8,7 @@ release:
 chart:
   appVersion: 1.0.0
 templates:
-  - gwapi-httproute.yaml
+  - gatewayApi-httproute.yaml
   - istio-authorizationpolicy.yaml
   - istio-destinationrule.yaml
   - istio-peerauthentication.yaml
@@ -18,12 +18,12 @@ tests:
   - it: enable Istio, disable Gateway API - match the Snapshot
     set:
       istio.enabled: true
-      gwApi.enabled: false
+      gatewayApi.enabled: false
     asserts:
     - matchSnapshot: {}
   - it: disable Istio, enable Gateway API - match the Snapshot
     set:
       istio.enabled: false
-      gwApi.enabled: true
+      gatewayApi.enabled: true
     asserts:
       - matchSnapshot: {}

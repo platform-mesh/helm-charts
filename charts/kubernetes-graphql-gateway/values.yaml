@@ -124,7 +124,7 @@ health:
     periodSeconds: 10
 
 # -- Gateway API configuration
-gwApi:
+gatewayApi:
   enabled: false
   httpRoute:
     pathPrefix: /api/kubernetes-graphql-gateway/

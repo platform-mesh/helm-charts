@@ -38,7 +38,7 @@ kubeConfig:
 | gateway.resources.requests.memory | string | `"1000Mi"` |  |
 | gateway.shouldImpersonate | bool | `true` |  |
 | gateway.usernameClaim | string | `"email"` |  |
-| gwApi | object | `{"enabled":false,"httpRoute":{"hostnames":["portal.dev.local","*.portal.dev.local"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"}],"pathPrefix":"/api/kubernetes-graphql-gateway/","requestHeaderModifier":{"set":[{"name":"Host","value":"portal.dev.local"}]}}}` | Gateway API configuration |
+| gatewayApi | object | `{"enabled":false,"httpRoute":{"hostnames":["portal.dev.local","*.portal.dev.local"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"}],"pathPrefix":"/api/kubernetes-graphql-gateway/","requestHeaderModifier":{"set":[{"name":"Host","value":"portal.dev.local"}]}}}` | Gateway API configuration |
 | health.liveness.failureThreshold | int | `1` |  |
 | health.liveness.path | string | `"/healthz"` |  |
 | health.liveness.periodSeconds | int | `10` |  |
