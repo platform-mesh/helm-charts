@@ -288,6 +288,7 @@ gatewayApi:
       protocol: HTTPS
       tls:
         mode: Terminate
+        # -- Name of the secret containing the TLS certificate
         credentialName: domain-certificate
   passThrough:
     gateway:

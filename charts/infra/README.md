@@ -11,6 +11,7 @@ A Helm chart for Kubernetes
 | gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
 | gatewayApi.main | object | `{"gateway":{"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","mode":"Terminate"}}}` | HTTPS Terminate configuration |
+| gatewayApi.main.gateway.tls.credentialName | string | `"domain-certificate"` | Name of the secret containing the TLS certificate |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | gatewayApi.passThrough.gateway.enabled | bool | `true` | Toggle to enable/disable the passthrough gateway |
 | gatewayApi.passThrough.gateway.hostname | string | `"kcp.api.portal.dev.local"` |  |
