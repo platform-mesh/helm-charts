@@ -127,6 +127,7 @@ health:
 gwApi:
   enabled: false
   httpRoute:
+    pathPrefix: /api/kubernetes-graphql-gateway/
     hostnames:
     - "portal.dev.local"
     - "*.portal.dev.local"

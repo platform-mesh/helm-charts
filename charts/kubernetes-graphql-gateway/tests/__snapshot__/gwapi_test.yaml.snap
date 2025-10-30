@@ -4,7 +4,7 @@ disable Istio, enable Gateway API - match the Snapshot:
     kind: HTTPRoute
     metadata:
       name: platform-mesh-kubernetes-graphql-gateway
-      namespace: default
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - portal.dev.local
@@ -14,7 +14,7 @@ disable Istio, enable Gateway API - match the Snapshot:
           sectionName: websecure
       rules:
         - backendRefs:
-            - name: kubernetes-graphql-gateway
+            - name: platform-mesh-kubernetes-graphql-gateway
               namespace: platform-mesh-system
               port: 8080
           filters:
@@ -32,21 +32,6 @@ disable Istio, enable Gateway API - match the Snapshot:
             - path:
                 type: PathPrefix
                 value: /api/kubernetes-graphql-gateway/
-  2: |
-    apiVersion: gateway.networking.k8s.io/v1beta1
-    kind: ReferenceGrant
-    metadata:
-      name: platform-mesh-kubernetes-graphql-gateway
-      namespace: platform-mesh-system
-    spec:
-      from:
-        - group: gateway.networking.k8s.io
-          kind: HTTPRoute
-          namespace: default
-      to:
-        - group: ""
-          kind: Service
-          name: platform-mesh-kubernetes-graphql-gateway
 enable Istio, disable Gateway API - match the Snapshot:
   1: |
     apiVersion: networking.istio.io/v1alpha3
