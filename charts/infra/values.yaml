@@ -133,6 +133,17 @@ mailpit:
     pathPrefix: "/mailpit"
 
 keycloak:
+  gatewayApi:
+    # -- hostnames for the Keycloak HTTPRoute
+    hostnames:
+      - portal.dev.local
+    pathPrefix: /keycloak
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+          - name: Host
+            value: portal.dev.local
   istio:
     virtualservice:
       # -- istio virtual service hosts
