@@ -460,6 +460,27 @@ Gateway API enabled:
                 type: PathPrefix
                 value: /keycloak
   23: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: mailpit
+    spec:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: websecure
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: mailpit
+              port: 8025
+          matches:
+            - path:
+                type: PathPrefix
+                value: /mailpit
+  24: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -510,7 +531,7 @@ Gateway API enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  24: |
+  25: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -957,6 +978,27 @@ match snapshots:
                 port:
                   number: 80
   23: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: mailpit
+    spec:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: websecure
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: mailpit
+              port: 8025
+          matches:
+            - path:
+                type: PathPrefix
+                value: /mailpit
+  24: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -1007,7 +1049,7 @@ match snapshots:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  24: |
+  25: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -1469,6 +1511,27 @@ match snapshots w. hostAliases enabled:
                 port:
                   number: 80
   23: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: mailpit
+    spec:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: websecure
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: mailpit
+              port: 8025
+          matches:
+            - path:
+                type: PathPrefix
+                value: /mailpit
+  24: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -1519,7 +1582,7 @@ match snapshots w. hostAliases enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  24: |
+  25: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -1970,6 +2033,27 @@ match snapshots w. kcp version:
                 port:
                   number: 80
   23: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: mailpit
+    spec:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: websecure
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: mailpit
+              port: 8025
+          matches:
+            - path:
+                type: PathPrefix
+                value: /mailpit
+  24: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -2020,7 +2104,7 @@ match snapshots w. kcp version:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  24: |
+  25: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -2495,6 +2579,27 @@ match snapshots with mailpit enabled:
                   name: smtp
                   protocol: TCP
   24: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: mailpit
+    spec:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: websecure
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: mailpit
+              port: 8025
+          matches:
+            - path:
+                type: PathPrefix
+                value: /mailpit
+  25: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -2514,7 +2619,7 @@ match snapshots with mailpit enabled:
           targetPort: smtp
       selector:
         app: mailpit
-  25: |
+  26: |
     apiVersion: networking.istio.io/v1beta1
     kind: VirtualService
     metadata:
@@ -2533,7 +2638,7 @@ match snapshots with mailpit enabled:
                 host: mailpit.platform-mesh-system.svc.cluster.local
                 port:
                   number: 8025
-  26: |
+  27: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -2584,7 +2689,7 @@ match snapshots with mailpit enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  27: |
+  28: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:

@@ -150,6 +150,8 @@ A Helm chart for Kubernetes
 | mailpit.enabled | bool | `false` |  |
 | mailpit.image.tag | string | `"v1.27.9"` |  |
 | mailpit.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
+| mailpit.smtp.port | int | `1025` |  |
+| mailpit.ui.port | int | `8025` |  |
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
 | openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
