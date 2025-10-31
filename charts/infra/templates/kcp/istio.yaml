@@ -1,4 +1,5 @@
 {{- if eq (include "common.istioEnabled" .) "true" -}}
+{{- if not .Values.gatewayApi.enabled }}
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -18,6 +19,4 @@ spec:
     - destination:
         host: {{.Values.kcp.frontProxy.name}}-front-proxy.{{ .Values.kcp.namespace }}.svc.cluster.local
 {{- end -}}
-
-
-
+{{- end -}}

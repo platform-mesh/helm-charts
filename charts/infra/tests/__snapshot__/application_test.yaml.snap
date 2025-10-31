@@ -155,24 +155,6 @@ Gateway API enabled:
     spec:
       selfSigned: {}
   6: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: kcp
-      namespace: platform-mesh-system
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - kcp.api.portal.dev.local
-      tls:
-        - match:
-            - sniHosts:
-                - kcp.api.portal.dev.local
-          route:
-            - destination:
-                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
-  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -206,6 +188,27 @@ Gateway API enabled:
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
+  7: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
+      name: kcp-front-proxy-tlsroute
+    spec:
+      hostnames:
+        - kcp.api.portal.dev.local
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: https-passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: frontproxy-front-proxy
+              port: 6443
+              weight: 1
+          name: https-passthrough
   8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client

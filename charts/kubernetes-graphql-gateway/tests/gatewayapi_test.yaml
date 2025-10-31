@@ -8,7 +8,7 @@ release:
 chart:
   appVersion: 1.0.0
 templates:
-  - gatewayApi-httproute.yaml
+  - httproute.yaml
   - istio-authorizationpolicy.yaml
   - istio-destinationrule.yaml
   - istio-peerauthentication.yaml
