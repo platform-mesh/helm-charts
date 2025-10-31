@@ -20,6 +20,14 @@ Helm Chart for the Platform Mesh Portal
 | environment | string | `"local"` | environment |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
+| gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
+| gatewayApi.httpRoute.hostnames[0] | string | `"portal.dev.local"` |  |
+| gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.dev.local"` |  |
+| gatewayApi.httpRoute.parentRefs[0].kind | string | `"Gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[0].namespace | string | `"default"` |  |
+| gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
+| gatewayApi.httpRoute.pathPrefix | string | `"/"` |  |
 | health.liveness.path | string | `"/rest/health"` | path used for the liveness probe |
 | health.port | int | `8080` | health port to be used by probes |
 | health.readiness.path | string | `"/rest/health"` | path used for the readiness probe |
