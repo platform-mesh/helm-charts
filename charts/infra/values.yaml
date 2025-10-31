@@ -124,6 +124,10 @@ mailpit:
   image:
     tag: v1.27.9
 
+  ui:
+    port: 8025
+  smtp:
+    port: 1025
   istio:
     virtualservice:
       # -- istio virtual service hosts
@@ -133,6 +137,18 @@ mailpit:
     pathPrefix: "/mailpit"
 
 keycloak:
+  gatewayApi:
+    # -- hostnames for the Keycloak HTTPRoute
+    hostnames:
+      - portal.dev.local
+    # -- path prefix for the Keycloak HTTPRoute
+    pathPrefix: /keycloak
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+          - name: Host
+            value: portal.dev.local
   istio:
     virtualservice:
       # -- istio virtual service hosts

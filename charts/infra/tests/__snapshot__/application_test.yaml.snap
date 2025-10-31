@@ -36,22 +36,6 @@ Gateway API enabled:
           tls:
             mode: Passthrough
   2: |
-    apiVersion: networking.istio.io/v1
-    kind: Gateway
-    metadata:
-      name: gateway
-      namespace: platform-mesh-system
-    spec:
-      selector:
-        istio: gateway
-      servers:
-        - hosts:
-            - '*'
-          port:
-            name: http
-            number: 8000
-            protocol: HTTP
-  3: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -70,7 +54,7 @@ Gateway API enabled:
           - system:kcp:admin
       usages:
         - client auth
-  4: |
+  3: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -126,7 +110,7 @@ Gateway API enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  5: |
+  4: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -162,7 +146,7 @@ Gateway API enabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  6: |
+  5: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -170,25 +154,7 @@ Gateway API enabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  7: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: kcp
-      namespace: platform-mesh-system
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - kcp.api.portal.dev.local
-      tls:
-        - match:
-            - sniHosts:
-                - kcp.api.portal.dev.local
-          route:
-            - destination:
-                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
-  8: |
+  6: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -222,7 +188,28 @@ Gateway API enabled:
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
-  9: |
+  7: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
+      name: kcp-front-proxy-tlsroute
+    spec:
+      hostnames:
+        - kcp.api.portal.dev.local
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: https-passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: frontproxy-front-proxy
+              port: 6443
+              weight: 1
+          name: https-passthrough
+  8: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -244,7 +231,7 @@ Gateway API enabled:
       writeConnectionSecretToRef:
         name: portal-client-secret-welcome
         namespace: platform-mesh-system
-  10: |
+  9: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
@@ -264,7 +251,7 @@ Gateway API enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  11: |
+  10: |
     apiVersion: defaults.keycloak.crossplane.io/v1alpha1
     kind: DefaultGroups
     metadata:
@@ -277,7 +264,7 @@ Gateway API enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  12: |
+  11: |
     apiVersion: group.keycloak.crossplane.io/v1alpha1
     kind: Group
     metadata:
@@ -289,7 +276,7 @@ Gateway API enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  13: |
+  12: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -303,7 +290,7 @@ Gateway API enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  14: |
+  13: |
     apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
     kind: GroupMembershipProtocolMapper
     metadata:
@@ -318,7 +305,7 @@ Gateway API enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  15: |
+  14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -336,7 +323,7 @@ Gateway API enabled:
       writeConnectionSecretToRef:
         name: iam-client-secret
         namespace: platform-mesh-system
-  16: |
+  15: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -349,7 +336,7 @@ Gateway API enabled:
           name: iam
       providerConfigRef:
         name: keycloak-provider-config
-  17: |
+  16: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -367,7 +354,7 @@ Gateway API enabled:
       writeConnectionSecretToRef:
         name: security-operator-client-secret
         namespace: platform-mesh-system
-  18: |
+  17: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -380,7 +367,7 @@ Gateway API enabled:
           name: security-operator
       providerConfigRef:
         name: keycloak-provider-config
-  19: |
+  18: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -393,7 +380,7 @@ Gateway API enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  20: |
+  19: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -406,7 +393,7 @@ Gateway API enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  21: |
+  20: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -421,7 +408,7 @@ Gateway API enabled:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  22: |
+  21: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -445,30 +432,57 @@ Gateway API enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  23: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
+  22: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
     metadata:
       name: keycloak
     spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - '*'
-      http:
-        - headers:
-            request:
-              set:
-                x-forwarded-port: "8443"
-                x-forwarded-proto: https
-          match:
-            - uri:
-                prefix: /keycloak
-          route:
-            - destination:
-                host: keycloak.platform-mesh-system.svc.cluster.local
-                port:
-                  number: 80
+      hostnames:
+        - portal.dev.local
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: websecure
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: keycloak
+              namespace: platform-mesh-system
+              port: 80
+          filters:
+            - requestHeaderModifier:
+                set:
+                  - name: Host
+                    value: portal.dev.local
+              type: RequestHeaderModifier
+          matches:
+            - path:
+                type: PathPrefix
+                value: /keycloak
+  23: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: mailpit
+    spec:
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: websecure
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: mailpit
+              port: 8025
+          matches:
+            - path:
+                type: PathPrefix
+                value: /mailpit
   24: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
