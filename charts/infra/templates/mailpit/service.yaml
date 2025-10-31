@@ -10,11 +10,11 @@ spec:
     app: mailpit
   ports:
     - name: ui
-      port: 8025
+      port: {{ .Values.mailpit.ui.port }}
       targetPort: ui
       protocol: TCP
     - name: smtp
-      port: 1025
+      port: {{ .Values.mailpit.smtp.port }}
       targetPort: smtp
       protocol: TCP
       appProtocol: tcp

@@ -120,6 +120,11 @@ A Helm chart for Kubernetes
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
+| keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].name | string | `"Host"` |  |
+| keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].value | string | `"portal.dev.local"` |  |
+| keycloak.gatewayApi.filters[0].type | string | `"RequestHeaderModifier"` |  |
+| keycloak.gatewayApi.hostnames | list | `["portal.dev.local"]` | hostnames for the Keycloak HTTPRoute |
+| keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
 | keycloak.istio.https.port | int | `8443` |  |
 | keycloak.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
 | keycloak.keycloakConfig.admin | object | `{"password":{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},"username":{"value":"keycloak-admin"}}` | admin user configuration |
@@ -145,6 +150,8 @@ A Helm chart for Kubernetes
 | mailpit.enabled | bool | `false` |  |
 | mailpit.image.tag | string | `"v1.27.9"` |  |
 | mailpit.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
+| mailpit.smtp.port | int | `1025` |  |
+| mailpit.ui.port | int | `8025` |  |
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
 | openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |

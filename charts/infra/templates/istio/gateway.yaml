@@ -1,4 +1,5 @@
 {{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "istio.enabled")) "true" -}}
+{{- if not .Values.gatewayApi.enabled }}
 apiVersion: {{ .Values.istio.networking.apiVersion }}
 kind: Gateway
 metadata:
@@ -35,3 +36,4 @@ spec:
         mode: PASSTHROUGH
     {{- end }}
 {{- end -}}
+{{- end }}
