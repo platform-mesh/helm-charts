@@ -4,7 +4,6 @@ disable Istio, enable Gateway API - match the Snapshot:
     kind: HTTPRoute
     metadata:
       name: platform-mesh-portal
-      namespace: platform-mesh-system
     spec:
       hostnames:
         - portal.dev.local

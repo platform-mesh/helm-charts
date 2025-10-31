@@ -71,7 +71,6 @@ validation:
 gatewayApi:
   # -- toggle to enable the Gateway API
   enabled: false
-  # -- configuration for the HTTPRoute resource
   httpRoute:
     pathPrefix: /
     hostnames:
@@ -82,7 +81,3 @@ gatewayApi:
       sectionName: websecure
       namespace: default
       kind: Gateway
-    requestHeaderModifier:
-      set:
-      - name: Host
-        value: "portal.dev.local"
