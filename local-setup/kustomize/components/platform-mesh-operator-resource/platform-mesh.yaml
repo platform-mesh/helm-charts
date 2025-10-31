@@ -166,12 +166,12 @@ spec:
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: contentconfigurations
                   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
-                  # - kubeconfig: /app/kubeconfig/kubeconfig
-                  #   name: marketplace
-                  #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: marketplace
+                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
     iam-service:
-      enabled: false
+      enabled: true
       values:
         hostAliases:
           enabled: true

@@ -1,0 +1,11 @@
+apiVersion: infra.provider.example.com/v1alpha1
+kind: Subnet
+metadata:
+  name: my-subnet
+spec:
+  vpcId: "my-vpc"
+  cidrBlock: "10.0.1.0/24"
+  availabilityZone: "us-east-1a"
+  mapPublicIpOnLaunch: true
+  tags:
+    "Name": "my-subnet"

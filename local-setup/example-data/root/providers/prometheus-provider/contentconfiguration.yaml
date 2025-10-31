@@ -1,0 +1,74 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  labels:
+    portal.openmfp.org/entity: account
+    ui.platform-mesh.io/content-for: monitoring.provider.example.com
+  name: monitoring.provider.example.com
+spec:
+  inlineConfiguration:
+    content: |-
+      {
+          "name": "httpbins",
+          "creationTimestamp": "2022-05-17T11:37:17Z",
+          "luigiConfigFragment": {
+              "data": {
+                  "nodes": [
+                      {
+                          "pathSegment": "monitoring_provider_example_com_prometheusinstances",
+                          "navigationContext": "monitoring_provider_example_com_prometheusinstances",
+                          "label": "Prometheus",
+                          "icon": "performance",
+                          "entityType": "main.account.core_namespace",
+                          "keepSelectedForChildren": true,
+                          "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                          "webcomponent": {
+                              "selfRegistered": true
+                          },
+                          "context": {
+                              "resourceDefinition": {
+                                  "group": "monitoring.provider.example.com",
+                                  "plural": "prometheusinstances",
+                                  "singular": "prometheusinstance",
+                                  "kind": "PrometheusInstance",
+                                  "scope": "Namespaced",
+                                  "namespace": null,
+                                  "ui": {
+                                      "logoUrl": "https://landscape.cncf.io/logos/4d6a2b87a6c9a01ed1b82cef5db978e273adb99fda44d47e5dae48f75207147c.svg",
+                                      "listView": {
+                                          "fields": [
+                                              {
+                                                  "label": "Name",
+                                                  "property": "metadata.name"
+                                              }
+                                          ]
+                                      },
+                                      "detailView": {},
+                                      "createView": {
+                                          "fields": [
+                                              {
+                                                  "label": "Name",
+                                                  "property": "metadata.name",
+                                                  "required": true
+                                              },
+                                              {
+                                                "label": "Cluster",
+                                                "property": "spec.clusterRef.name",
+                                                "dynamicValuesDefinition": {
+                                                    "operation": "infra_provider_example_com.Clusters",
+                                                    "gqlQuery": "{ infra_provider_example_com { Clusters { metadata { name } } } }",
+                                                    "key": "metadata.name",
+                                                    "value": "metadata.name"
+                                                }
+                                              }
+                                          ]
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  ]
+              }
+          }
+      }
+    contentType: json

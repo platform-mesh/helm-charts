@@ -1,0 +1,10 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIExport
+metadata:
+  annotations:
+  name: orchestrate.cloud.sap
+  labels:
+    ui.platform-mesh.io/content-for: orchestrate.cloud.sap
+spec:
+  latestResourceSchemas:
+    - ve9552117.httpbins.orchestrate.cloud.sap

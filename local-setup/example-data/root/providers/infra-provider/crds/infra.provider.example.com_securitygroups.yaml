@@ -1,0 +1,61 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: securitygroups.infra.provider.example.com
+spec:
+  group: infra.provider.example.com
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                description:
+                  type: string
+                vpcId:
+                  type: string
+                ingress:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fromPort:
+                        type: integer
+                      toPort:
+                        type: integer
+                      protocol:
+                        type: string
+                      cidrBlocks:
+                        type: array
+                        items:
+                          type: string
+                egress:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      fromPort:
+                        type: integer
+                      toPort:
+                        type: integer
+                      protocol:
+                        type: string
+                      cidrBlocks:
+                        type: array
+                        items:
+                          type: string
+                tags:
+                  type: object
+                  additionalProperties:
+                    type: string
+  scope: Namespaced
+  names:
+    plural: securitygroups
+    singular: securitygroup
+    kind: SecurityGroup
+    listKind: SecurityGroupList
