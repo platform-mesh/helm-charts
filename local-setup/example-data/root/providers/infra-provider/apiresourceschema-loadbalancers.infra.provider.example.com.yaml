@@ -1,0 +1,60 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIResourceSchema
+metadata:
+  creationTimestamp: null
+  name: v250808-f2437309.loadbalancers.infra.provider.example.com
+spec:
+  group: infra.provider.example.com
+  names:
+    kind: LoadBalancer
+    listKind: LoadBalancerList
+    plural: loadbalancers
+    singular: loadbalancer
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      properties:
+        spec:
+          properties:
+            listeners:
+              items:
+                properties:
+                  defaultActions:
+                    items:
+                      properties:
+                        targetGroupArn:
+                          type: string
+                        type:
+                          type: string
+                      type: object
+                    type: array
+                  port:
+                    type: integer
+                  protocol:
+                    type: string
+                type: object
+              type: array
+            securityGroups:
+              description: A list of security group IDs to associate with the load
+                balancer.
+              items:
+                type: string
+              type: array
+            subnets:
+              description: A list of subnet IDs to attach the load balancer to.
+              items:
+                type: string
+              type: array
+            tags:
+              additionalProperties:
+                type: string
+              type: object
+            type:
+              description: The type of load balancer (e.g., application, network).
+              type: string
+          type: object
+      type: object
+    served: true
+    storage: true
+    subresources: {}

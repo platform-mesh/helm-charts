@@ -1,0 +1,36 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIResourceSchema
+metadata:
+  creationTimestamp: null
+  name: v250808-f2437309.vpcs.infra.provider.example.com
+spec:
+  group: infra.provider.example.com
+  names:
+    kind: VPC
+    listKind: VPCList
+    plural: vpcs
+    singular: vpc
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      properties:
+        spec:
+          properties:
+            cidrBlock:
+              type: string
+            enableDnsHostnames:
+              type: boolean
+            enableDnsSupport:
+              type: boolean
+            region:
+              type: string
+            tags:
+              additionalProperties:
+                type: string
+              type: object
+          type: object
+      type: object
+    served: true
+    storage: true
+    subresources: {}

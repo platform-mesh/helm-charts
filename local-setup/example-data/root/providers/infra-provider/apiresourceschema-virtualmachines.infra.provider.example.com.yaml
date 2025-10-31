@@ -1,0 +1,44 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIResourceSchema
+metadata:
+  creationTimestamp: null
+  name: v250808-f2437309.virtualmachines.infra.provider.example.com
+spec:
+  group: infra.provider.example.com
+  names:
+    kind: VirtualMachine
+    listKind: VirtualMachineList
+    plural: virtualmachines
+    shortNames:
+    - vm
+    singular: virtualmachine
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      properties:
+        spec:
+          properties:
+            cpu:
+              type: string
+            imageId:
+              type: string
+            instanceType:
+              type: string
+            memory:
+              type: string
+            os:
+              type: string
+            storage:
+              type: string
+            tags:
+              additionalProperties:
+                type: string
+              type: object
+            userData:
+              type: string
+          type: object
+      type: object
+    served: true
+    storage: true
+    subresources: {}

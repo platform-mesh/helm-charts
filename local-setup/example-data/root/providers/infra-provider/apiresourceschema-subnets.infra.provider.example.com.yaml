@@ -1,0 +1,36 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIResourceSchema
+metadata:
+  creationTimestamp: null
+  name: v250808-f2437309.subnets.infra.provider.example.com
+spec:
+  group: infra.provider.example.com
+  names:
+    kind: Subnet
+    listKind: SubnetList
+    plural: subnets
+    singular: subnet
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      properties:
+        spec:
+          properties:
+            availabilityZone:
+              type: string
+            cidrBlock:
+              type: string
+            mapPublicIpOnLaunch:
+              type: boolean
+            tags:
+              additionalProperties:
+                type: string
+              type: object
+            vpcId:
+              type: string
+          type: object
+      type: object
+    served: true
+    storage: true
+    subresources: {}

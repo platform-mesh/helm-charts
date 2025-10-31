@@ -1,0 +1,11 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIExport
+metadata:
+  creationTimestamp: null
+  labels:
+    ui.platform-mesh.io/content-for: monitoring.provider.example.com
+  name: monitoring.provider.example.com
+spec:
+  latestResourceSchemas:
+  - v250819-2be80a1d.prometheusinstances.monitoring.provider.example.com
+status: {}

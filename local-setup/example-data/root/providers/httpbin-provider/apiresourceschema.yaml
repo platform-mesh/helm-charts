@@ -1,0 +1,68 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIResourceSchema
+metadata:
+  name: ve9552117.httpbins.orchestrate.cloud.sap
+spec:
+  group: orchestrate.cloud.sap
+  nameValidation: DNS1123Subdomain
+  names:
+    kind: HttpBin
+    listKind: HttpBinList
+    plural: httpbins
+    singular: httpbin
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      schema:
+        description: HttpBin is the Schema for the httpbins API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: HttpBinSpec defines the desired state of HttpBin
+            properties:
+              enableHTTPS:
+                default: false
+                description: |-
+                  EnableHTTPS determines if HTTPS should be enabled
+                  If true, service port will be 8443
+                  If false or not set, service port will be 443
+                type: boolean
+              foo:
+                description: Foo is an example field of HttpBin. Edit httpbin_types.go
+                  to remove/update
+                type: string
+            type: object
+          status:
+            description: HttpBinStatus defines the observed state of HttpBin
+            properties:
+              ready:
+                description: Ready indicates if the underlying HttpBinDeployment's deployment
+                  is ready
+                type: boolean
+              url:
+                description: |-
+                  URL is the HTTPS URL for accessing the httpbin service
+                  Format: https://HOST
+                type: string
+            type: object
+        type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
