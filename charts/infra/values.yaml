@@ -137,6 +137,7 @@ keycloak:
     # -- hostnames for the Keycloak HTTPRoute
     hostnames:
       - portal.dev.local
+    # -- path prefix for the Keycloak HTTPRoute
     pathPrefix: /keycloak
     filters:
     - type: RequestHeaderModifier

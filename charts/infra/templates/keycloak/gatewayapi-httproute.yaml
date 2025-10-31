@@ -28,6 +28,6 @@ spec:
       port: {{ .Values.keycloak.service.port }}
     {{- with .Values.keycloak.gatewayApi.filters }}
     filters:
-{{ toYaml . | nindent 6 }}
+{{ toYaml . | nindent 4 }}
     {{- end }}
 {{- end }}
