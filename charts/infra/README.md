@@ -124,7 +124,7 @@ A Helm chart for Kubernetes
 | keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].value | string | `"portal.dev.local"` |  |
 | keycloak.gatewayApi.filters[0].type | string | `"RequestHeaderModifier"` |  |
 | keycloak.gatewayApi.hostnames | list | `["portal.dev.local"]` | hostnames for the Keycloak HTTPRoute |
-| keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` |  |
+| keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
 | keycloak.istio.https.port | int | `8443` |  |
 | keycloak.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
 | keycloak.keycloakConfig.admin | object | `{"password":{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},"username":{"value":"keycloak-admin"}}` | admin user configuration |
