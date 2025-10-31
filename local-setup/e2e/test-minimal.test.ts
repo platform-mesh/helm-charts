@@ -49,7 +49,6 @@ function attachHeaderLogger(page: Page, label: string, onToken?: (t: string) => 
 }
 const registerUrl = 'https://portal.dev.local:8443/keycloak/realms/welcome/protocol/openid-connect/auth?client_id=security-admin-console&redirect_uri=https%3A%2F%2Fportal.dev.local%3A8443%2Fkeycloak%2Fadmin%2Fwelcome%2Fconsole%2F&state=de1c861f-d29f-4689-a4b0-8e308cd1e88d&response_mode=query&response_type=code&scope=openid&nonce=6ed3b955-231a-419c-b755-c95251aeb8d5&code_challenge=QP8xRP91gSuDSj6OLurI70dRUh1p2Dp7JPJ_5N2Uh4Q&code_challenge_method=S256';
 const portalBaseUrl = 'https://portal.dev.local:8443/';
-const testAccountName = 'minimaltestaccount';
 const userEmail = 'minimal@sap.com';
 const userPassword = 'MyPass1234';
 const firstName = 'Firstname';
@@ -82,8 +81,9 @@ async function registerNewUser(
   await page.fill('input[id="firstName"]', firstName);
   await page.fill('input[id="lastName"]', lastName);
 
+  // Avoid networkidle; SPAs may never go idle
   await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle' }),
+    page.waitForNavigation({ waitUntil: 'load' }),
     page.click('input[value="Register"]')
   ]);
 
@@ -95,17 +95,13 @@ test.describe('Home Page', () => {
   test('Register and get Bearer token', async ({ page }) => {
     let capturedIdTokenFromUrl: string | undefined;
 
-    // Attach logger before any navigation to capture the first load
     attachHeaderLogger(page, 'root', (t) => (capturedIdTokenFromUrl = t));
 
     await page.goto(registerUrl);
 
     page = await registerNewUser(page);
 
-    await page.pause();
-
     const newPage = await activateUserEmailViaMailpit(page, userEmail);
-    // Log headers for the verification/new page too
     attachHeaderLogger(newPage, 'verify', (t) => (capturedIdTokenFromUrl = t));
 
     await newPage.waitForLoadState('domcontentloaded');
@@ -114,7 +110,6 @@ test.describe('Home Page', () => {
     await newPage.getByTestId('options-toggle').click();
     await newPage.getByRole('menuitem', { name: 'Sign out' }).click();
 
-    // Intercept token endpoint after login to capture access/id/refresh tokens
     const tokenResponsePromise = newPage.waitForResponse(
       (r) =>
         r.request().method() === 'POST' &&
@@ -123,11 +118,10 @@ test.describe('Home Page', () => {
     );
 
     // login again
-    await newPage.getByRole('textbox', { name: 'Email' }).fill('minimal5@sap.com');
-    await newPage.getByRole('textbox', { name: 'Password' }).fill('MyPass1234');
+    await newPage.getByRole('textbox', { name: 'Email' }).fill(userEmail);
+    await newPage.getByRole('textbox', { name: 'Password' }).fill(userPassword);
     await newPage.getByRole('button', { name: 'Sign In' }).click();
 
-    // Await and read tokens from the token endpoint response
     const tokenResp = await tokenResponsePromise;
     const tokenJson = await tokenResp.json();
     const { access_token, id_token, refresh_token } = tokenJson || {};
@@ -136,15 +130,11 @@ test.describe('Home Page', () => {
       const decoded = decodeJwt(access_token);
       if (decoded) console.log('[token] access_token (decoded):', decoded);
     }
-    if (id_token) {
-      console.log('[token] id_token:', id_token);
-    }
-    if (refresh_token) {
-      console.log('[token] refresh_token:', refresh_token);
-    }
+    if (id_token) console.log('[token] id_token:', id_token);
+    if (refresh_token) console.log('[token] refresh_token:', refresh_token);
+    if (capturedIdTokenFromUrl) console.log('[url] id_token_hint captured from URL');
 
-    if (capturedIdTokenFromUrl) {
-      console.log('[url] id_token_hint captured from URL');
-    }
+    // Hard-finish the test so CI doesn’t linger on open connections
+    await newPage.context().close();
   });
 });
