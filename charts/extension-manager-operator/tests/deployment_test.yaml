@@ -5,6 +5,8 @@ templates:
   - service-account.yaml
   - cluster-role.yaml
   - cluster-rolebinding.yaml
+  - httproute.yaml
+  - virtual-service.yaml
 values:
   - ../test-values.yaml
 chart:
@@ -73,3 +75,12 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].startupProbe.httpGet.path
           value: /readyz
+  - it: enable Gateway API
+    set:
+      gatewayApi:
+        enabled: true
+      istio:
+        enabled: false
+      pathPrefix: /custom-validate
+    asserts:
+      - matchSnapshot: {}

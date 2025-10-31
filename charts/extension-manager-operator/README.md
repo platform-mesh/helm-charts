@@ -15,11 +15,15 @@ A Helm chart for extension-manager-operator which manages resources like Content
 |-----|------|---------|-------------|
 | commonAnnotations | object | `{}` |  |
 | crds.enabled | bool | `true` |  |
+| gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
+| gatewayApi.main | object | `{"gateway":{"name":"websecure","port":8443}}` | HTTPS Terminate configuration |
+| gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | image.name | string | `"ghcr.io/platform-mesh/extension-manager-operator"` |  |
 | istio.enabled | bool | `false` | enable Istio VirtualService |
 | kcp.enabled | bool | `false` | enable the kcp mode of the operator |
 | kcp.kubeconfigSecret | string | `""` | name the secret that holds the kubeconfig for the kcp mode |
 | kubeconfigSecret | string | `""` |  |
+| pathPrefix | string | `"/validate"` | Path prefix for routing rules in Gateway API and Istio VirtualService |
 | validationServer.host | string | `"*"` | host for the validation VirtualService |
 | validationServer.port | int | `8088` | port for the validation server |
 
