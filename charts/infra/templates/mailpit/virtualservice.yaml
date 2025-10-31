@@ -1,5 +1,6 @@
 {{- if .Values.mailpit.enabled -}}
 {{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "istio.enabled")) "true" -}}
+{{- if not .Values.gatewayApi.enabled }}
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -20,5 +21,6 @@ spec:
         - uri:
             prefix: {{ .Values.mailpit.domain.pathPrefix }}
       {{ end }}
+{{- end }}
 {{- end }}
 {{- end -}}
