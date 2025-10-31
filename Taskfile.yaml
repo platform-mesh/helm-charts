@@ -515,3 +515,13 @@ tasks:
           npx playwright install
           npx playwright test
           popd
+
+  test:minimal:
+    cmds:
+      - |
+          pushd local-setup/e2e
+          npm install
+          npm ci
+          npx playwright install
+          npx playwright test test-minimal.test.ts
+          popd
