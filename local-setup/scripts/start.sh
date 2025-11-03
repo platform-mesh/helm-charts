@@ -48,6 +48,17 @@ mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
+echo -e "${COL}[$(date '+%H:%M:%S')] Installing Traefik ${COL_RES}"
+helm upgrade --install --namespace=default \
+  --set="experimental.kubernetesGateway.enabled=true" \
+  --set="providers.kubernetesGateway.enabled=true" \
+  --set="providers.kubernetesGateway.experimentalChannel=true" \
+  --set="gatewayClass.enabled=true" \
+  --set="service.type=NodePort" \
+  --set="ports.websecure.nodePort=31000" \
+  --set="ports.websecure.exposedPort=8443" \
+  --set="gateway.enabled=false" \
+  traefik traefik/traefik
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
@@ -84,11 +95,6 @@ kubectl create secret generic keycloak-admin -n platform-mesh-system --from-lite
 kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
 
-kubectl create secret generic domain-certificate -n istio-system \
-  --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
-  --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
-  --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
-  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
 kubectl create secret generic domain-certificate -n default \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
   --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
@@ -102,8 +108,14 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=480s kyverno
 
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Kyverno policies ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/components/policies
+
+# Hook: run optional mid-setup command(s) before applying Platform Mesh base
+if [ -n "${START_MID_HOOK:-}" ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK}${COL_RES}"
+  eval "${START_MID_HOOK}"
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
@@ -119,6 +131,13 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
 else
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+fi
+
+sleep 1
+
+if [ -n "${START_MID_HOOK2:-}" ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK2}${COL_RES}"
+  eval "${START_MID_HOOK2}"
 fi
 
 

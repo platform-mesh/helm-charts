@@ -8,12 +8,12 @@ metadata:
   namespace: default
 spec:
   componentRef:
-    name: platform-mesh
+    name: prerelease
   interval: 3m0s
   ocmConfig:
   - apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
-    name: platform-mesh
+    name: prerelease
     namespace: default
     policy: Propagate
   resource:

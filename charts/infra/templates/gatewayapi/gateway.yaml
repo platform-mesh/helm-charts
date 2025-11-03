@@ -3,7 +3,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: {{ .Values.gatewayApi.name }}
-  namespace: {{ .Release.Namespace }}
+  namespace: default
 spec:
   gatewayClassName: {{ .Values.gatewayApi.gatewayClassName }}
   listeners:

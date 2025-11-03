@@ -135,6 +135,7 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
+      namespace: default
     requestHeaderModifier:
       set:
       - name: Host
