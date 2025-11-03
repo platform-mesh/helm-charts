@@ -2,7 +2,7 @@ apiVersion: ui.platform-mesh.io/v1alpha1
 kind: ContentConfiguration
 metadata:
   labels:
-    portal.openmfp.org/entity: account
+    ui.platform-mesh.io/entity: core_platform-mesh_io_account
     ui.platform-mesh.io/content-for: orchestrate.cloud.sap
   name: httpbin-ui
 spec:
@@ -19,12 +19,12 @@ spec:
                           "navigationContext": "orchestrate_cloud_sap_httpbins",
                           "label": "Http Bins",
                           "icon": "paint-bucket",
-                          "entityType": "main.account.core_namespace",
+                          "entityType": "main.core_platform-mesh_io_account.core_namespace",
                           "loadingIndicator": {
                               "enabled": false
                           },
                           "keepSelectedForChildren": true,
-                          "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                          "url": "/assets/platform-mesh-portal-ui-wc.js#generic-list-view",
                           "webcomponent": {
                               "selfRegistered": true
                           },
@@ -36,6 +36,10 @@ spec:
                                   "kind": "HttpBin",
                                   "scope": "Namespaced",
                                   "namespace": null,
+                                  "readyCondition": {
+                                    "jsonPathExpression": "status.ready",
+                                    "property": ["status.ready"]
+                                  },
                                   "ui": {
                                       "logoUrl": "https://www.kcp.io/icons/logo.svg",
                                       "listView": {
@@ -43,6 +47,14 @@ spec:
                                               {
                                                   "label": "Name",
                                                   "property": "metadata.name"
+                                              },
+                                              {
+                                                  "label": "Ready",
+                                                  "property": "status.ready"
+                                              },
+                                              {
+                                                  "label": "Link",
+                                                  "property": "status.url"
                                               }
                                           ]
                                       },
@@ -82,10 +94,10 @@ spec:
                           ]
                       },
                       {
-                        "entityType": "main.account.orchestrate_cloud_sap_httpbin",
+                        "entityType": "main.core_platform-mesh_io_account.core_namespace.orchestrate_cloud_sap_httpbin",
                         "pathSegment": "dashboard",
                         "label": "Dashboard",
-                        "url": "/assets/openmfp-portal-ui-wc.js#generic-detail-view",
+                        "url": "/assets/platform-mesh-portal-ui-wc.js#generic-detail-view",
                         "webcomponent": {
                           "selfRegistered": true
                         },
