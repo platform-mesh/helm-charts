@@ -101,6 +101,12 @@ kubectl create secret generic domain-certificate -n default \
   --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
   --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
 
+kubectl create secret generic domain-certificate -n platform-mesh-system \
+  --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
+  --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
+  --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
+  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
+
 kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
   --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
 
