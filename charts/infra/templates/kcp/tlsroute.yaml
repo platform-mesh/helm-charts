@@ -10,7 +10,6 @@ spec:
   - group: gateway.networking.k8s.io
     kind: Gateway
     name: {{ .Values.gatewayApi.name }}
-    namespace: default
     sectionName: {{ .Values.gatewayApi.passThrough.gateway.name }}
   rules:
   - backendRefs:
