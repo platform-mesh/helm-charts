@@ -5,6 +5,3 @@ metadata:
   name: orchestrate.cloud.sap
   labels:
     ui.platform-mesh.io/content-for: orchestrate.cloud.sap
-spec:
-  latestResourceSchemas:
-    - ve9552117.httpbins.orchestrate.cloud.sap

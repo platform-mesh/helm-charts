@@ -55,7 +55,7 @@ spec:
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}
+              - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:31000
           webhook:
             enabled: true
           frontProxy:
@@ -109,8 +109,10 @@ spec:
       enabled: true
       values:
         extraEnvVars:
+          - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+            value: https://{{ .Values.baseDomainPort }}/iam/query
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-            value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+            value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
@@ -126,11 +128,11 @@ spec:
           hostAliases:
             - ip: "10.96.188.4"
               hostnames:
-                - "portal.dev.local"
+                - "{{ .Values.baseDomain }}"
         virtualService:
           hosts:
-            - "portal.dev.local"
-            - "*.portal.dev.local"
+            - "{{ .Values.baseDomain }}"
+            - "*.{{ .Values.baseDomain }}"
     openfga:
       enabled: true
       values:
