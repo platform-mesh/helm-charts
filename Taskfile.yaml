@@ -378,9 +378,9 @@ tasks:
         echo "--- finished getting component versions ---"
 
         set -x
-        kubectl exec -it ocm-transfer-pod -- ocm transfer componentversion ghcr.io/platform-mesh//github.com/platform-mesh/organization-idp:$ORGANIZATION_IDP_VERSION .ocm/transport.ctf
+        kubectl exec ocm-transfer-pod -- ocm transfer componentversion ghcr.io/platform-mesh//github.com/platform-mesh/organization-idp:$ORGANIZATION_IDP_VERSION .ocm/transport.ctf
 
-        kubectl exec -it ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-prerelease.yaml -- \
+        kubectl exec ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-prerelease.yaml -- \
         VERSION={{ .COMPONENT_PRERELEASE_VERSION }} \
         ISTIO_VERSION=$ISTIO_VERSION \
         CROSSPLANE_VERSION=$CROSSPLANE_VERSION \
@@ -428,7 +428,7 @@ tasks:
 
   ocm:transfer:dir-to-local-oci:
     cmds:
-      - cmd: kubectl exec -it ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+      - cmd: kubectl exec ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
         ignore_error: true
 
   ocm:deploy:
