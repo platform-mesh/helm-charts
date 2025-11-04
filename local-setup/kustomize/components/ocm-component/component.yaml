@@ -7,7 +7,7 @@ spec:
   component: github.com/platform-mesh/prerelease
   downgradePolicy: Deny
   interval: 1m0s
-  semver: 1.0.2
+  semver: 1.0.0
   ocmConfig:
     - apiVersion: delivery.ocm.software/v1alpha1
       kind: Repository
