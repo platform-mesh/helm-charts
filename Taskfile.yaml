@@ -481,7 +481,7 @@ tasks:
   ocm:update:constructor:
     cmds:
       - |
-        curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml -H "Authorization: token $GH_TOKEN"
+        curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
         
         # replace component name
         {{ .CMD_SED }} "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
