@@ -24,6 +24,8 @@ A Helm chart for security-operator
 | image.name | string | `"ghcr.io/platform-mesh/security-operator"` |  |
 | initializer.extraArgs | list | `[]` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
+| keycloak.client.secret.key | string | `"attribute.client_secret"` |  |
+| keycloak.client.secret.name | string | `"security-operator-client-secret"` |  |
 | keycloakSecret | string | `"keycloak-admin"` |  |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |

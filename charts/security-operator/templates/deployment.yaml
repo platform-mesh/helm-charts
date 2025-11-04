@@ -46,6 +46,11 @@ spec:
           - name: KCP_KUBECONFIG
             value: /api-kubeconfig/kubeconfig
           {{- end }}
+          - name: INVITE_KEYCLOAK_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.keycloak.client.secret.name }}
+                key: {{ .Values.keycloak.client.secret.key }}
         volumeMounts:
           {{- if .Values.kubeconfigSecret }}
           - name: external-api-server
