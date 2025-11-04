@@ -25,9 +25,6 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - fga
-          {{- with .Values.keycloakSecret }}
-          - --invite-keycloak-password-file=/keycloak-credentials/secret
-          {{- end }}
           {{- with .Values.fga.inviteKeycloakBaseUrl }}
           - --invite-keycloak-base-url={{ . }}
           {{- end }}
