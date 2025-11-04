@@ -13,7 +13,7 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION: 0.29.0
-  COMPONENT_PRERELEASE_VERSION: "1.0.2"
+  COMPONENT_PRERELEASE_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
     - security-operator: charts/security-operator
@@ -514,7 +514,7 @@ tasks:
       START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     cmds:
       - |
-        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --cached
+        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh
 
   local-setup-prerelease:
     deps:
@@ -526,7 +526,7 @@ tasks:
       - |
         read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
         kind delete cluster --name platform-mesh
-        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --cached
+        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh
 
   patch-platformmesh-hostaliases:
     cmds:
