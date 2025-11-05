@@ -534,4 +534,3 @@ tasks:
         HOST_IP=$(kubectl get svc traefik -o json | jq -r '.spec.clusterIP') \
         yq -i '(.patches[] | select(has("patch")).patch) |= (from_yaml | with(.[]; .value = env(HOST_IP)) | to_yaml)' local-setup/kustomize/overlays/hostAliases/kustomization.yaml
         kubectl apply -k local-setup/kustomize/overlays/hostAliases
-        kubectl rollout restart deployment/platform-mesh-operator -n platform-mesh-system
