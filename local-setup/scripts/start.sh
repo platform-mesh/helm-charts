@@ -49,7 +49,8 @@ $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/ce
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 kind load docker-image ghcr.io/platform-mesh/kubernetes-graphql-gateway:v0.1.36 -n platform-mesh
- kind load docker-image  ghcr.io/platform-mesh/marketplace-ui:v0.5.1 -n platform-mesh
+kind load docker-image  ghcr.io/platform-mesh/marketplace-ui:v0.5.1 -n platform-mesh
+kind load docker-image  ghcr.io/platform-mesh/platform-mesh-operator:v0.19.1 -n platform-mesh
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
@@ -102,18 +103,20 @@ kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=480s kyverno
+  --timeout=480s kro
 
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/components/policies
+kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
+
+kubectl wait --namespace default \
+  --for=condition=Ready resourcegraphdefinition \
+  --timeout=480s platform-mesh-operator
 
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
 
 kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
+  --for=condition=InstanceSynced platformmeshoperator \
   --timeout=480s platform-mesh-operator
-
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
 if [ "$1" == "--minimal" ]; then
