@@ -50,7 +50,7 @@ cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 kind load docker-image ghcr.io/platform-mesh/kubernetes-graphql-gateway:v0.1.36 -n platform-mesh
 kind load docker-image  ghcr.io/platform-mesh/marketplace-ui:v0.5.1 -n platform-mesh
-kind load docker-image  ghcr.io/platform-mesh/platform-mesh-operator:v0.19.1 -n platform-mesh
+kind load docker-image  ghcr.io/platform-mesh/platform-mesh-operator:v0.19.2 -n platform-mesh
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \

@@ -6,6 +6,8 @@ spec:
   schema:
     apiVersion: v1alpha1
     kind: PlatformMeshOperator
+    spec:
+      resource: "object | required=true"
   resources:
     - id: resourceChart
       template:
@@ -23,12 +25,7 @@ spec:
               name: platform-mesh
               namespace: default
               policy: Propagate
-          resource:
-            byReference:
-              referencePath:
-                - name: platform-mesh-operator
-              resource:
-                name: chart
+          resource: ${schema.spec.resource}
           additionalStatusFields:
             registry: resource.access.imageReference.toOCI().registry
             repository: resource.access.imageReference.toOCI().repository
