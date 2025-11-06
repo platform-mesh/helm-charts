@@ -1,0 +1,66 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: platform-mesh-operator
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: PlatformMeshOperator
+  resources:
+    - id: resourceChart
+      template:
+        apiVersion: delivery.ocm.software/v1alpha1
+        kind: Resource
+        metadata:
+          name: platform-mesh-operator
+        spec:
+          componentRef:
+            name: platform-mesh
+          interval: 3m0s
+          ocmConfig:
+            - apiVersion: delivery.ocm.software/v1alpha1
+              kind: Repository
+              name: platform-mesh
+              namespace: default
+              policy: Propagate
+          resource:
+            byReference:
+              referencePath:
+                - name: platform-mesh-operator
+              resource:
+                name: chart
+          additionalStatusFields:
+            registry: resource.access.imageReference.toOCI().registry
+            repository: resource.access.imageReference.toOCI().repository
+            version: resource.version
+          skipVerify: true
+    - id: ocirepository
+      template:
+        apiVersion: source.toolkit.fluxcd.io/v1beta2
+        kind: OCIRepository
+        metadata:
+          name: platform-mesh-operator
+        spec:
+          interval: 1m0s
+          insecure: true
+          layerSelector:
+            mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+            operation: copy
+          url: oci://${resourceChart.status.additional.?registry}/${resourceChart.status.additional.?repository}
+          ref:
+            tag: ${resourceChart.status.additional.?version}
+    - id: helmrelease
+      template:
+        apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        metadata:
+          name: platform-mesh-operator
+        spec:
+          releaseName: platform-mesh-operator
+          targetNamespace: platform-mesh-system
+          interval: 1m
+          timeout: 5m
+          chartRef:
+            kind: OCIRepository
+            name: ${ocirepository.metadata.name}
+            namespace: default
