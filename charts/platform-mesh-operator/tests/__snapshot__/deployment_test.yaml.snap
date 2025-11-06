@@ -195,6 +195,7 @@ operator match the snapshot:
         resources:
           - ocirepositories
           - helmreleases
+          - helmrepositories
         verbs:
           - get
           - list
