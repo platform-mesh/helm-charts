@@ -7,6 +7,19 @@ COL='\033[92m'
 RED='\033[91m'
 COL_RES='\033[0m'
 
+check_local_cluster() {
+    # Check if local cluster is already running (non-kind cluster)
+    if kubectl cluster-info &> /dev/null; then
+        # Check if it's NOT a kind cluster
+        local context=$(kubectl config current-context)
+        if [[ ! "$context" =~ ^kind- ]]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Local cluster already running (context: $context), using existing ${COL_RES}"
+            return 0  # Return 0 to indicate non-kind cluster exists
+        fi
+    fi
+    return 1  # Return 1 to indicate no local cluster exists
+}
+
 check_kind_cluster() {
     # Check if kind cluster is already running
     if [ $(kind get clusters | grep -c platform-mesh) -gt 0 ]; then
@@ -144,18 +157,28 @@ run_environment_checks() {
     echo ""
     
     local checks_failed=0
+    local has_local_cluster=false
     
-    # Check container runtime dependency (Docker or Podman)
-    if ! check_container_runtime_dependency; then
-        checks_failed=$((checks_failed + 1))
+    # Check if local cluster exists first
+    if check_local_cluster; then
+        has_local_cluster=true
+        echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Local cluster detected, skipping kind and container runtime checks${COL_RES}"
     fi
     
-    # Check kind dependency
-    if ! check_kind_dependency; then
-        checks_failed=$((checks_failed + 1))
+    # Only check container runtime and kind if no local cluster exists
+    if [ "$has_local_cluster" = false ]; then
+        # Check container runtime dependency (Docker or Podman)
+        if ! check_container_runtime_dependency; then
+            checks_failed=$((checks_failed + 1))
+        fi
+        
+        # Check kind dependency
+        if ! check_kind_dependency; then
+            checks_failed=$((checks_failed + 1))
+        fi
     fi
     
-    # Check mkcert dependency
+    # Check mkcert dependency (always needed)
     if ! setup_mkcert_command; then
         checks_failed=$((checks_failed + 1))
     fi
@@ -179,6 +202,7 @@ run_environment_checks() {
 }
 
 # Export functions so they can be used by the main script
+export -f check_local_cluster
 export -f check_kind_cluster
 export -f check_kind_dependency
 export -f check_docker_dependency
