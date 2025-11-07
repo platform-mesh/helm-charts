@@ -49,20 +49,25 @@ check_wsl_compatibility
 # Run environment checks
 run_environment_checks
 
-# Check if kind cluster is already running, if not create it
-if ! check_kind_cluster; then
-    if [ -d "$SCRIPT_DIR/certs" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
-        rm -rf "$SCRIPT_DIR/certs"
-    fi
-    echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
-    $SCRIPT_DIR/../scripts/gen-certs.sh
+# Check if local cluster exists first, then check kind cluster
+if check_local_cluster; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Using existing local cluster, bypassing kind cluster creation ${COL_RES}"
+else
+    # Check if kind cluster is already running, if not create it
+    if ! check_kind_cluster; then
+        if [ -d "$SCRIPT_DIR/certs" ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
+            rm -rf "$SCRIPT_DIR/certs"
+        fi
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
+        $SCRIPT_DIR/../scripts/gen-certs.sh
 
-    if [ "$CACHED" = true ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
-    else
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        if [ "$CACHED" = true ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
+            kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
+        else
+            kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        fi
     fi
 fi
 
