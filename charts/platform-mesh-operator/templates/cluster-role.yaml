@@ -92,7 +92,7 @@ rules:
     - update
     - patch
 - apiGroups: ["source.toolkit.fluxcd.io"]
-  resources: ["ocirepositories", "helmreleases","helmrepositories"]
+  resources: ["ocirepositories", "helmreleases","helmrepositories","gitrepositories"]
   verbs: ["get", "list", "create", "update", "patch", "delete", "watch"]
 - apiGroups:
   - realm.keycloak.crossplane.io

@@ -48,6 +48,16 @@ mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
+<<<<<<< Updated upstream
+=======
+podman save ghcr.io/platform-mesh/kubernetes-graphql-gateway:v0.2.5 -o gateway
+podman save ghcr.io/platform-mesh/marketplace-ui:v0.5.1 -o marketplace
+podman save ghcr.io/platform-mesh/platform-mesh-operator:v0.19.4 -o operator
+
+kind load image-archive --name platform-mesh gateway
+kind load image-archive --name platform-mesh marketplace
+kind load image-archive --name platform-mesh operator
+>>>>>>> Stashed changes
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
