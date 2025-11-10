@@ -48,8 +48,6 @@ mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
-kind load docker-image ghcr.io/platform-mesh/kubernetes-graphql-gateway:v0.1.36 -n platform-mesh
-kind load docker-image  ghcr.io/platform-mesh/marketplace-ui:v0.5.1 -n platform-mesh
 kind load docker-image  ghcr.io/platform-mesh/platform-mesh-operator:v0.19.2 -n platform-mesh
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
