@@ -43,7 +43,7 @@ deployment with tracing:
                 - --tracing-config-service-version=0.0.0
                 - --tracing-config-collector-endpoint=test:4317
                 - --subroutines-feature-toggles-enabled=true
-                - --subroutines-deployment-enable-istio=false
+                - --subroutines-deployment-enable-istio=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -271,7 +271,7 @@ operator match the snapshot:
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
-                - --subroutines-deployment-enable-istio=false
+                - --subroutines-deployment-enable-istio=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent

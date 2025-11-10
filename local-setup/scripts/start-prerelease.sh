@@ -117,23 +117,20 @@ kubectl wait --namespace default \
 echo -e "${COL}[$(date '+%H:%M:%S')] Kyverno policies ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/components/policies
 
+echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+
 # Hook: run optional mid-setup command(s) before applying Platform Mesh base
 if [ -n "${START_MID_HOOK:-}" ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK}${COL_RES}"
   eval "${START_MID_HOOK}"
 fi
 
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/prerelease
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=480s platform-mesh-operator
-
-if [ -n "${START_MID_HOOK2:-}" ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK2}${COL_RES}"
-  eval "${START_MID_HOOK2}"
-fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
 if [ "$1" == "--minimal" ]; then
@@ -141,6 +138,11 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
 else
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+fi
+
+if [ -n "${START_MID_HOOK2:-}" ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK2}${COL_RES}"
+  eval "${START_MID_HOOK2}"
 fi
 
 # wait for kind: PlatformMesh resource to become ready

@@ -8,14 +8,25 @@ spec:
     port: 8443
   ocm:
     repo:
-      name: prerelease
+      name: platform-mesh
     component:
-      name: prerelease
+      name: platform-mesh
     referencePath: []
   featureToggles:
    - name: "feature-enable-getting-started"
   values:
+    istio-base:
+      enabled: false
+    istio-istiod:
+      enabled: false
+    istio-gateway:
+      enabled: false
+    account-operator:
+      dependsOn: []
+    rebac-authz-webhook:
+      dependsOn: []
     keycloak:
+      dependsOn: []
       enabled: true
       values:
         service:
@@ -70,6 +81,7 @@ spec:
                   - "http://localhost:4300/callback*"
                   - "https://*"
     observability:
+      dependsOn: []
       enabled: false
     kcp:
       enabled: false
@@ -89,6 +101,7 @@ spec:
           tag: "main"
           pullPolicy: IfNotPresent
     security-operator:
+      dependsOn: []
       values:
         baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
         initializer:
@@ -107,12 +120,18 @@ spec:
                 - kcp.api.portal.dev.local
                 - portal.dev.local
     portal:
+      dependsOn: []
       enabled: true
       values:
         istio:
           enabled: false
         gatewayApi:
           enabled: true
+          httpRoute:
+            parentRefs:
+            - name: k8sapi-gateway
+              sectionName: websecure
+              kind: Gateway
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
             value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
@@ -132,11 +151,8 @@ spec:
             - ip: "10.96.73.54"
               hostnames:
                 - "portal.dev.local"
-        virtualService:
-          hosts:
-            - "portal.dev.local"
-            - "*.portal.dev.local"
     openfga:
+      dependsOn: []
       enabled: true
       values:
         datastore:
@@ -153,6 +169,7 @@ spec:
               tls:
                 enabled: false
     virtual-workspaces:
+      dependsOn: []
       values:
         virtualWorkspaceSecretName: virtual-workspaces-cert
         deployment:
@@ -160,6 +177,7 @@ spec:
           resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
           resourceSchemaWorkspace: "root:platform-mesh-system"
     kubernetes-graphql-gateway:
+      dependsOn: []
       enabled: true
       values:
         istio:
@@ -180,12 +198,14 @@ spec:
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
     iam-service:
+      dependsOn: []
       enabled: false
       values:
         hostAliases:
           enabled: true
         caSecret: domain-certificate-ca
     extension-manager-operator:
+      dependsOn: []
       values:
         istio:
           enabled: false

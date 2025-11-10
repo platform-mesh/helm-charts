@@ -13,8 +13,66 @@ ocm:
     name: platform-mesh
 iamWebhookCA: null
 services:
+  istio-base:
+    helmRepo: true
+    enabled: true
+    targetNamespace: istio-system
+    driftDetectionMode: disabled
+    chart: base
+    install:
+      createNamespace: true
+  istio-istiod:
+    helmRepo: true
+    chart: istiod
+    enabled: true
+    targetNamespace: istio-system
+    driftDetectionMode: disabled
+    dependsOn:
+      - name: istio-base
+        namespace: default
+    values:
+      tracing:
+        enabled: false
+        telemetry:
+          tracing:
+            - providers:
+                - name: otel-tracing
+              randomSamplingPercentage: 100
+      meshConfig:
+        defaultConfig:
+          holdApplicationUntilProxyStarts: true
+          tracing:
+            provider:
+              name: otel-tracing
+        extensionProviders:
+          - name: otel-tracing
+            opentelemetry:
+              service: observability-opentelemetry-collector.observability.svc.cluster.local
+              port: 4317
+              protocol: grpc
+  istio-gateway:
+    helmRepo: true
+    enabled: true
+    chart: gateway
+    targetNamespace: istio-system
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
+    values:
+      service:
+        type: NodePort
+        ports:
+          - name: https
+            port: 8443
+            nodePort: 31000
+          - name: status-port
+            port: 15021
+            nodePort: 32000
   account-operator:
     enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       tracing:
         enabled: false
@@ -49,6 +107,9 @@ services:
     values: {}
   extension-manager-operator:
     enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       istio:
         enabled: true
@@ -63,6 +124,9 @@ services:
           host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
   security-operator:
     enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       crds:
         enabled: false
@@ -80,6 +144,9 @@ services:
         maxConcurrentReconciles: 1
   rebac-authz-webhook:
     enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       log:
         level: debug
@@ -95,6 +162,8 @@ services:
   infra:
     enabled: true
     dependsOn:
+      - name: istio-istiod
+        namespace: default
       - name: kcp-operator
         namespace: default
     values:
@@ -154,6 +223,9 @@ services:
         tag: "v0.3.0"
   keycloak:
     enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       global:
         imagePullSecrets:
@@ -215,6 +287,9 @@ services:
             adminPasswordKey: password
   kubernetes-graphql-gateway:
     enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       tracing:
         enabled: false
@@ -255,6 +330,9 @@ services:
   openfga:
     enabled: true
     helmRepo: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       global:
         imagePullSecrets:
@@ -305,6 +383,9 @@ services:
               enabled: false
   portal:
     enabled: false
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       kcp:
         kubeconfigSecret: portal-kubeconfig
@@ -333,6 +414,9 @@ services:
   observability:
     enabled: false
     targetNamespace: observability
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       istio:
         grafana:
@@ -348,6 +432,9 @@ services:
             enabled: true
   virtual-workspaces:
     enabled: true
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
   organization-idp:
     enabled: true
     skipHelmRelease: true
@@ -356,6 +443,9 @@ services:
         namespace: default
   iam-service:
     enabled: false
+    dependsOn:
+      - name: istio-istiod
+        namespace: default
     values:
       istio:
         hosts:

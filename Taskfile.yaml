@@ -110,34 +110,40 @@ tasks:
     cmds:
       - "rm oci/* || true"
       - task: helmpackage
+
   local-setup:iterate:
     deps:
       - task: setup:mkcert
+    env:
+      START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     cmds:
-      - ./local-setup/scripts/start.sh
+      - START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh
+
   local-setup:
-    deps:
-      - task: setup:mkcert
     cmds:
       - |
         read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
         kind delete cluster --name platform-mesh
-        ./local-setup/scripts/start.sh
+      - task: local-setup:iterate
 
   local-setup-minimal:
+    env:
+      START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     deps:
       - task: setup:mkcert
     cmds:
       - |
         read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
         kind delete cluster --name platform-mesh
-        ./local-setup/scripts/start.sh --minimal
+        START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --minimal
   local-setup-minimal:iterate:
+    env:
+      START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     deps:
       - task: setup:mkcert
     cmds:
       - |
-        ./local-setup/scripts/start.sh --minimal
+        START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --minimal
 
   local-setup-cached:
     deps:
@@ -145,11 +151,13 @@ tasks:
     cmds:
       - read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
       - kind delete cluster --name platform-mesh
-      - ./local-setup/scripts/start.sh --cached
+      - task: local-setup-cached:iterate
 
   local-setup-cached:iterate:
+    env:
+      START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     cmds:
-      - ./local-setup/scripts/start.sh --cached
+      - START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --cached
 
   local-setup-start-docker-registries:
     cmds:
@@ -163,7 +171,7 @@ tasks:
       - |
         kind export kubeconfig -n platform-mesh
         # docs: https://github.com/twuni/docker-registry.helm
-        helm repo add twuni https://helm.twun.io
+        helm repo add --force-update twuni https://twuni.github.io/docker-registry.helm
         helm repo update
         kubectl create ns registry || true
         helm upgrade --install oci-registry twuni/docker-registry -n registry --set service.port=443 --set tlsSecretName=domain-certificate --set image.repository=ghcr.io/distribution/distribution --set image.tag=3.0.0 --set ingress.enabled=false
@@ -456,7 +464,7 @@ tasks:
         yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/components/ocm-component/component.yaml
 
       - |
-        kubectl apply -k local-setup/kustomize/overlays/default
+        kubectl apply -k local-setup/kustomize/components/ocm-prerelease
         echo "Applied kustomize overlay"
       - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
@@ -514,7 +522,7 @@ tasks:
       START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     cmds:
       - |
-        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh
+        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start-prerelease.sh
 
   local-setup-prerelease:
     deps:
@@ -526,11 +534,12 @@ tasks:
       - |
         read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
         kind delete cluster --name platform-mesh
-        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh
+        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start-prerelease.sh
 
   patch-platformmesh-hostaliases:
     cmds:
       - |
         HOST_IP=$(kubectl get svc traefik -o json | jq -r '.spec.clusterIP') \
-        yq -i '(.patches[] | select(has("patch")).patch) |= (from_yaml | with(.[]; .value = env(HOST_IP)) | to_yaml)' local-setup/kustomize/overlays/hostAliases/kustomization.yaml
-        kubectl apply -k local-setup/kustomize/overlays/hostAliases
+        yq -i '(.patches[0] | select(has("patch")).patch) |= (from_yaml | with(.[]; .value = env(HOST_IP)) | to_yaml)' local-setup/kustomize/overlays/platform-mesh-resource/kustomization.yaml
+        HOST_IP=$(kubectl get svc traefik -o json | jq -r '.spec.clusterIP') \
+        yq -i '(.patches[0] | select(has("patch")).patch) |= (from_yaml | with(.[]; .value = env(HOST_IP)) | to_yaml)' local-setup/kustomize/overlays/prerelease/kustomization.yaml
