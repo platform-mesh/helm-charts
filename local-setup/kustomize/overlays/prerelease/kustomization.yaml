@@ -1,9 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../../components/platform-mesh-operator
-  - ../../components/ocm-prerelease
-  - ocm-k8s-toolkit-patch.yaml
+  - ../../components/ocm-prerelease-component
   - ../../components/platform-mesh-operator-resource
 # patch PlatformMesh to use prerelease component
 patches:
@@ -14,13 +12,13 @@ patches:
     patch: |-
       - op: replace
         path: /spec/values/infra/values/hostAliases/entries/0/ip
-        value: "10.96.57.97"
+        value: "10.96.165.217"
       - op: replace
         path: /spec/values/security-operator/values/hostAliases/items/0/ip
-        value: "10.96.57.97"
+        value: "10.96.165.217"
       - op: replace
         path: /spec/values/portal/values/deployment/hostAliases/0/ip
-        value: "10.96.57.97"
+        value: "10.96.165.217"
   - target:
       kind: PlatformMesh
       name: platform-mesh
@@ -31,15 +29,4 @@ patches:
         value: "prerelease"
       - op: replace
         path: /spec/ocm/component/name
-        value: "prerelease"
-  - target:
-      kind: Resource
-      name: platform-mesh-operator
-      namespace: default
-    patch: |-
-      - op: replace
-        path: /spec/componentRef/name
-        value: "prerelease"
-      - op: replace
-        path: /spec/ocmConfig/0/name
         value: "prerelease"

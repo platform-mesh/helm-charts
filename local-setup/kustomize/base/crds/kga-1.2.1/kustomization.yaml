@@ -7,7 +7,7 @@ resources:
 - experimental/gateway.networking.k8s.io_backendlbpolicies.yaml
 # - experimental/gateway.networking.k8s.io_grpcroutes.yaml
 - experimental/gateway.networking.k8s.io_tlsroutes.yaml
-- experimental/gateway.networking.k8s.io_backendtlspolicies.yaml
+# - experimental/gateway.networking.k8s.io_backendtlspolicies.yaml
 # - experimental/gateway.networking.k8s.io_httproutes.yaml
 - experimental/gateway.networking.k8s.io_udproutes.yaml
 # - experimental/gateway.networking.k8s.io_gatewayclasses.yaml

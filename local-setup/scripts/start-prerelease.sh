@@ -117,29 +117,30 @@ kubectl wait --namespace default \
 echo -e "${COL}[$(date '+%H:%M:%S')] Kyverno policies ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/components/policies
 
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
-
-# Hook: run optional mid-setup command(s) before applying Platform Mesh base
+# Align with start.sh: run mid hook 2 before applying PlatformMesh resource so patches take effect
+# Note: This hook typically patches hostAliases used by PlatformMesh resource overlays
 if [ -n "${START_MID_HOOK:-}" ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK}${COL_RES}"
   eval "${START_MID_HOOK}"
 fi
 
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/prerelease
+echo -e "${COL}[$(date '+%H:%M:%S')] Apply k8s-ocm-toolkit-patch ${COL_RES}"
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/k8s-ocm-toolkit-patch
+
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:kcp-gates --name platform-mesh
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-operator-prerelease
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=480s platform-mesh-operator
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
-if [ "$1" == "--minimal" ]; then
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
-else
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
-fi
+echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'prerelease' overlay ${COL_RES}"
+# Use prerelease default overlay to avoid installing platform-mesh repo/component
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/prerelease
 
+# Run prerelease OCM hook after the PlatformMesh resource exists so patches succeed
 if [ -n "${START_MID_HOOK2:-}" ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK2}${COL_RES}"
   eval "${START_MID_HOOK2}"
