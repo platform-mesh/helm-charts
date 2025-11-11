@@ -20,4 +20,3 @@ tracing:
 
 extraArgs:
   - --subroutines-feature-toggles-enabled=true
-  - --subroutines-deployment-enable-istio=false

@@ -79,4 +79,5 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
+      namespace: default
       kind: Gateway

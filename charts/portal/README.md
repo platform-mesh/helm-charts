@@ -25,6 +25,7 @@ Helm Chart for the Platform Mesh Portal
 | gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.dev.local"` |  |
 | gatewayApi.httpRoute.parentRefs[0].kind | string | `"Gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[0].namespace | string | `"default"` |  |
 | gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/"` |  |
 | health.liveness.path | string | `"/rest/health"` | path used for the liveness probe |
