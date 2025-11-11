@@ -1,15 +1,15 @@
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Component
 metadata:
-  name: platform-mesh
+  name: prerelease
 spec:
   repositoryRef:
-    name: platform-mesh
-  component: github.com/platform-mesh/platform-mesh
-  semver: 0.1.0-rc.475
+    name: prerelease
+  component: github.com/platform-mesh/prerelease
+  semver: 1.0.0
   interval: 1m
   ocmConfig:
     - kind: Repository
       apiVersion: delivery.ocm.software/v1alpha1
-      name: platform-mesh
+      name: prerelease
       namespace: default

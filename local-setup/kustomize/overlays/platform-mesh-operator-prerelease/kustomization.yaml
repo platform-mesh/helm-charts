@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../components/platform-mesh-operator
+
+patches:
+  - target:
+      kind: HelmRelease
+      name: platform-mesh-operator
+      namespace: default
+    patch: |-
+      - op: add
+        path: /spec/values/crds
+        value: {}
+      - op: add
+        path: /spec/values/crds/enabled
+        value: true
+      - op: add
+        path: /spec/values/image
+        value: {}
+      - op: add
+        path: /spec/values/image/tag
+        value: kcp-gates
+  - target:
+      kind: Resource
+      name:  platform-mesh-operator
+      namespace: default
+    patch: |-
+      - op: replace
+        path: /spec/componentRef/name
+        value: prerelease
+      - op: replace
+        path: /spec/ocmConfig/0/name
+        value: prerelease
