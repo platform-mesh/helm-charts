@@ -154,9 +154,6 @@ if [ "$PRERELEASE" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Apply k8s-ocm-toolkit-patch ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/k8s-ocm-toolkit-patch
 
-  echo -e "${COL}[$(date '+%H:%M:%S')] Loading platform-mesh-operator docker image ${COL_RES}"
-  kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:kcp-gates --name platform-mesh
-
   echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-operator-prerelease
 
