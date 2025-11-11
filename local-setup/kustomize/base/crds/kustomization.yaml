@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - druid.gardener.cloud_etcdcopybackupstasks.yaml
   - druid.gardener.cloud_etcds.yaml
-  - kga-1.2.1
+  - gateway-api-flux.yaml
