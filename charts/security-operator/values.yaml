@@ -29,12 +29,6 @@ caSecret: ""
 
 baseDomain: ""
 
-keycloak:
-  client:
-    secret:
-      name: security-operator-client-secret
-      key: attribute.client_secret
-
 initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
