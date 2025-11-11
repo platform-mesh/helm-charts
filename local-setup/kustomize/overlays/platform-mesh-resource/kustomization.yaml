@@ -10,10 +10,10 @@ patches:
     patch: |-
       - op: replace
         path: /spec/values/infra/values/hostAliases/entries/0/ip
-        value: "10.96.57.97"
+        value: "10.96.182.144"
       - op: replace
         path: /spec/values/security-operator/values/hostAliases/items/0/ip
-        value: "10.96.57.97"
+        value: "10.96.182.144"
       - op: replace
         path: /spec/values/portal/values/deployment/hostAliases/0/ip
-        value: "10.96.57.97"
+        value: "10.96.182.144"

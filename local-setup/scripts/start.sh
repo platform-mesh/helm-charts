@@ -17,6 +17,28 @@ KINDEST_VERSION="kindest/node:v1.33.1"
 
 SCRIPT_DIR=$(dirname "$0")
 
+# Parse command line arguments
+PRERELEASE=false
+MINIMAL=false
+CACHED=false
+
+for arg in "$@"; do
+  case $arg in
+    --prerelease)
+      PRERELEASE=true
+      ;;
+    --minimal)
+      MINIMAL=true
+      ;;
+    --cached)
+      CACHED=true
+      ;;
+    *)
+      # Unknown option, ignore or handle as needed
+      ;;
+  esac
+done
+
 # Source compatibility and environment checks
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
 source "$SCRIPT_DIR/check-environment.sh"
@@ -36,7 +58,7 @@ if ! check_kind_cluster; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
     $SCRIPT_DIR/../scripts/gen-certs.sh
 
-    if [ "$1" == "--cached" ]; then
+    if [ "$CACHED" = true ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
         kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
     else
@@ -89,7 +111,6 @@ kubectl wait --namespace flux-system \
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
-
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
@@ -127,24 +148,51 @@ if [ -n "${START_MID_HOOK:-}" ]; then
   eval "${START_MID_HOOK}"
 fi
 
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+if [ "$PRERELEASE" = true ]; then
+  # Prerelease mode flow
+  echo -e "${COL}[$(date '+%H:%M:%S')] Apply k8s-ocm-toolkit-patch ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/k8s-ocm-toolkit-patch
 
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=480s platform-mesh-operator
+  echo -e "${COL}[$(date '+%H:%M:%S')] Loading platform-mesh-operator docker image ${COL_RES}"
+  kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:kcp-gates --name platform-mesh
 
-if [ -n "${START_MID_HOOK2:-}" ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK2}${COL_RES}"
-  eval "${START_MID_HOOK2}"
-fi
+  echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-operator-prerelease
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
-if [ "$1" == "--minimal" ]; then
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=480s platform-mesh-operator
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'prerelease' overlay ${COL_RES}"
+  # Use prerelease default overlay to avoid installing platform-mesh repo/component
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/prerelease
+
+  # Run prerelease OCM hook after the PlatformMesh resource exists so patches succeed
+  if [ -n "${START_MID_HOOK2:-}" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK2}${COL_RES}"
+    eval "${START_MID_HOOK2}"
+  fi
 else
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+  # Default mode flow
+  echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=480s platform-mesh-operator
+
+  if [ -n "${START_MID_HOOK2:-}" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running mid hook: ${START_MID_HOOK2}${COL_RES}"
+    eval "${START_MID_HOOK2}"
+  fi
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
+  if [ "$MINIMAL" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
+  else
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+  fi
 fi
 
 # wait for kind: PlatformMesh resource to become ready
@@ -158,9 +206,7 @@ kubectl wait --namespace default \
   --timeout=280s keycloak
 kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
-
-
-if [ "$1" == "--minimal" ]; then
+if [ "$MINIMAL" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
   kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
   kubectl scale deployment/kyverno-admission-controller --replicas=0 -n kyverno-system
@@ -180,16 +226,16 @@ kubectl wait --namespace default \
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s account-operator
-if [ "$1" != "--minimal" ]; then
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=480s portal
+if [ "$MINIMAL" != true ]; then
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=480s portal
 fi
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
 
-if [ "$1" == "--minimal" ]; then
+if [ "$MINIMAL" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
   kubectl scale deployment/helm-controller --replicas=0 -n flux-system
   kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
@@ -212,7 +258,6 @@ echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}You can access the onboarding portal at: https://portal.dev.local:8443 , any send emails can be received here: https://portal.dev.local:8443/mailpit ${COL_RES}"
-
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"
