@@ -162,7 +162,6 @@ operator match the snapshot:
           containers:
             - args:
                 - fga
-                - --invite-keycloak-password-file=/keycloak-credentials/secret
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -178,6 +177,11 @@ operator match the snapshot:
                   value: openfga.platform-mesh-system.svc.cluster.local:8081
                 - name: KCP_KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
+                - name: INVITE_KEYCLOAK_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: attribute.client_secret
+                      name: security-operator-client-secret
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -593,7 +597,6 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - fga
-                - --invite-keycloak-password-file=/keycloak-credentials/secret
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -614,6 +617,11 @@ operator match the snapshot w. sentry:
                   value: test
                 - name: FGA_TARGET
                   value: openfga.platform-mesh-system.svc.cluster.local:8081
+                - name: INVITE_KEYCLOAK_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: attribute.client_secret
+                      name: security-operator-client-secret
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
