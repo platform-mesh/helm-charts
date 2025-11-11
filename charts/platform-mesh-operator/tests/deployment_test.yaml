@@ -56,21 +56,3 @@ tests:
     - equal:
         path: spec.template.spec.containers[0].args[1]
         value: "--leader-elect"
-- it: disable Istio
-  template: deployment.yaml
-  set:
-    istio:
-      enabled: false
-  asserts:
-    - equal:
-        path: spec.template.spec.containers[0].args[12]
-        value: "--subroutines-deployment-enable-istio=false"
-- it: enable Istio
-  template: deployment.yaml
-  set:
-    istio:
-      enabled: true
-  asserts:
-    - equal:
-        path: spec.template.spec.containers[0].args[12]
-        value: "--subroutines-deployment-enable-istio=true"
