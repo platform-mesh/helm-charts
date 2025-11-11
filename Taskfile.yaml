@@ -448,10 +448,18 @@ tasks:
         patch_string=""
         for pair in {{ range .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}"{{ range $k,$v := . }}{{$k}}:{{$v}}{{ end }}" {{ end }}; do
           comp="${pair%%:*}"
+
+          # check if /spec/values/$comp exists in local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml and add it if it doesn't
+          if ! yq -e ".spec.values[\"$comp\"]" local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml > /dev/null; then
           patch_string+=$(cat <<EOF
         - op: add
           path: /spec/values/$comp
           value: {}
+        EOF
+            )
+            patch_string+=$'\n'
+          fi
+          patch_string+=$(cat <<EOF
         - op: add
           path: /spec/values/$comp/ocm
           value: {}
