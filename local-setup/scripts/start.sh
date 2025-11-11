@@ -71,6 +71,7 @@ $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/ce
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing Traefik ${COL_RES}"
+helm repo add traefik https://traefik.github.io/charts
 helm upgrade --install --namespace=default \
   --set="experimental.kubernetesGateway.enabled=true" \
   --set="providers.kubernetesGateway.enabled=true" \
