@@ -30,4 +30,4 @@ spec:
         $patch: delete
       target:
         kind: CustomResourceDefinition
-        name: backendtlspolicies.policy.networking.k8s.io     # same exact name
+        name: backendtlspolicies.policy.networking.k8s.io
