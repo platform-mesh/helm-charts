@@ -52,7 +52,7 @@ run_environment_checks
 # Check if kind cluster is already running, if not create it
 if ! check_kind_cluster; then
     if [ -d "$SCRIPT_DIR/certs" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Clearning existing certs directory ${COL_RES}"
+        echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
         rm -rf "$SCRIPT_DIR/certs"
     fi
     echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
@@ -80,7 +80,7 @@ helm upgrade --install --namespace=default \
   --set="ports.websecure.nodePort=31000" \
   --set="ports.websecure.exposedPort=8443" \
   --set="gateway.enabled=false" \
-  traefik traefik/traefik
+  traefik traefik/traefik --version 37.3.0
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
@@ -117,7 +117,7 @@ kubectl create secret generic keycloak-admin -n platform-mesh-system --from-lite
 kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
 
-kubectl delete crds backendtlspolicies.gateway.networking.k8s.io
+kubectl delete crds backendtlspolicies.gateway.networking.k8s.io --ignore-not-found=true
 kubectl apply -k $SCRIPT_DIR/../kustomize/base/crds-extra
 
 kubectl create secret generic domain-certificate -n default \
@@ -196,7 +196,7 @@ else
 fi
 
 # wait for kind: PlatformMesh resource to become ready
-echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready $COL_RES"
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=580s platform-mesh
