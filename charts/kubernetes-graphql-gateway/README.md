@@ -56,7 +56,7 @@ kubeConfig:
 | image.name | string | `"ghcr.io/platform-mesh/kubernetes-graphql-gateway"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | istio.authorizationPolicy | object | `{"create":false}` | ALlows the creation of a AuthorizationPolicy resource, by default disabled |
-| istio.enabled | bool | `true` |  |
+| istio.enabled | bool | `false` |  |
 | istio.gateway.name | string | `"gateway"` |  |
 | istio.requestAuthentication | object | `{"create":false}` | ALlows the creation of a RequestAuthentication resource, by default disabled |
 | kcp.enabled | bool | `true` |  |
