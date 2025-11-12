@@ -79,10 +79,10 @@ match the Snapshot:
                 periodSeconds: 10
               resources:
                 limits:
-                  memory: 512Mi
+                  memory: 1600Mi
                 requests:
-                  cpu: 40m
-                  memory: 50Mi
+                  cpu: 300m
+                  memory: 800Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
@@ -138,10 +138,10 @@ match the Snapshot:
                 periodSeconds: 10
               resources:
                 limits:
-                  memory: 512Mi
+                  memory: 1600Mi
                 requests:
-                  cpu: 40m
-                  memory: 50Mi
+                  cpu: 300m
+                  memory: 800Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
