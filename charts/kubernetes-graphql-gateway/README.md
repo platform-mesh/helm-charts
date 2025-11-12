@@ -22,6 +22,9 @@ kubeConfig:
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | deployment.replicas | int | `1` |  |
+| deployment.resources.limits.memory | string | `"1600Mi"` |  |
+| deployment.resources.requests.cpu | string | `"300m"` |  |
+| deployment.resources.requests.memory | string | `"800Mi"` |  |
 | deployment.revisionHistoryLimit | int | `3` |  |
 | extraEnvs | list | `[]` |  |
 | extraVolumeMounts | list | `[]` |  |
@@ -72,9 +75,6 @@ kubeConfig:
 | listener.virtualWorkspacesConfig.content.virtualWorkspaces | list | `[]` |  |
 | listener.virtualWorkspacesConfig.enabled | bool | `false` |  |
 | listener.virtualWorkspacesConfig.path | string | `"/app/config/virtual-workspaces.yaml"` |  |
-| resources.limits.memory | string | `"1800Mi"` |  |
-| resources.requests.cpu | string | `"500m"` |  |
-| resources.requests.memory | string | `"1500Mi"` |  |
 | sentry.environment | string | `"dev"` |  |
 | tracing.enabled | bool | `true` |  |
 | virtualService.hosts[0] | string | `"*"` |  |
