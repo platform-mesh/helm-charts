@@ -59,10 +59,10 @@ deployment:
 
   resources:
     limits:
-      memory: 1800Mi
+      memory: 1600Mi
     requests:
-      cpu: 500m
-      memory: 1500Mi
+      cpu: 300m
+      memory: 800Mi
 
 
 sentry:
