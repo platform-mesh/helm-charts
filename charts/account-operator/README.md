@@ -19,6 +19,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 | deployment.specTemplate.annotations | object | `{}` | The annotations for the deployment |
 | deployment.specTemplate.labels | object | `{}` | The labels for the deployment |
 | image.name | string | `"ghcr.io/platform-mesh/account-operator"` | The image repository |
+| istio.enabled | bool | `false` |  |
 | kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The KCP configuration |
 | kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | KCP APIExportEndpointSliceName |
 | kcp.enabled | bool | `false` | Enable KCP |

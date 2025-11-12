@@ -92,3 +92,9 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].args[1]
           value: "--leader-elect"
+  - it: disable istio
+    set:
+      istio:
+        enabled: false
+    asserts:
+      - matchSnapshot: {}

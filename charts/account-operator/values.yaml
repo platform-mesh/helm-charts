@@ -74,3 +74,6 @@ deployment:
 
 operator:
   leaderElect: true
+
+istio:
+  enabled: false
