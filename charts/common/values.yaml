@@ -84,7 +84,7 @@ defaults:
 
   istio:
     # -- toggle to enable/disable istio
-    enabled: true
+    enabled: false
     gateway:
       # -- name of the gateway
       name: gateway
