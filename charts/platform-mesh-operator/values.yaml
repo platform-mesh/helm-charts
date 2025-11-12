@@ -20,3 +20,6 @@ tracing:
 
 extraArgs:
   - --subroutines-feature-toggles-enabled=true
+
+istio:
+  enabled: false

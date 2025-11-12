@@ -19,7 +19,7 @@ deployment with tracing:
       template:
         metadata:
           annotations:
-            sidecar.istio.io/inject: "true"
+            sidecar.istio.io/inject: "false"
           labels:
             app: platform-mesh-operator
             control-plane: controller-manager
@@ -252,7 +252,7 @@ operator match the snapshot:
       template:
         metadata:
           annotations:
-            sidecar.istio.io/inject: "true"
+            sidecar.istio.io/inject: "false"
           labels:
             app: platform-mesh-operator
             control-plane: controller-manager

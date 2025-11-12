@@ -81,3 +81,6 @@ gatewayApi:
       sectionName: websecure
       namespace: default
       kind: Gateway
+
+istio:
+  enabled: false
