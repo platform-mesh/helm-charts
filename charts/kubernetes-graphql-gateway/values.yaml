@@ -57,6 +57,13 @@ deployment:
   revisionHistoryLimit: 3
   replicas: 1
 
+  resources:
+    limits:
+      memory: 1600Mi
+    requests:
+      cpu: 300m
+      memory: 800Mi
+
 
 sentry:
   environment: dev
@@ -86,13 +93,6 @@ virtualService:
           - POST
         allowOrigins:
           - regex: .*
-
-resources:
-  limits:
-    memory: 1800Mi
-  requests:
-    cpu: 500m
-    memory: 1500Mi
 
 kubeConfig:
   createSecret: false
