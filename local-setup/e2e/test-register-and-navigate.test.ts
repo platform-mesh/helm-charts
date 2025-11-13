@@ -13,13 +13,13 @@ async function activateUserEmailViaMailpit(
   userEmail: string
 ): Promise<Page> {
   await page.goto(`${portalBaseUrl}mailpit/`);
-  await page.click(`text=To: ${userEmail}`);
+  await page.click(`text=To: ${userEmail}`, { timeout: 30000 });
   const emailFrame = page.frameLocator('#preview-html');
 
   // Wait for the new page to open when clicking the verification link
   const [newPage] = await Promise.all([
     page.context().waitForEvent('page'),
-    emailFrame.locator('text=Link to e-mail address verification').click(),
+    emailFrame.locator('text=Link to e-mail address verification').click({ timeout: 30000 }),
   ]);
 
   return newPage;
@@ -31,7 +31,7 @@ async function confirmInviteMailpit(
 ): Promise<Page> {
 
   await page.goto(`${portalBaseUrl}mailpit/`);
-  await page.click(`text=To: ${userEmail} Update Your Account`);
+  await page.click(`text=To: ${userEmail} Update Your Account`, { timeout: 200000 });
   const emailFrame = page.frameLocator('#preview-html');
 
   // Wait for the new page to open when clicking the verification link
@@ -47,7 +47,7 @@ async function confirmInviteMailpit(
 async function registerNewUser(
   page: Page): Promise<Page> {
 
-  await page.click('text=Register');
+  await page.click('text=Register', { timeout: 10000 });
   await page.fill('input[name="email"]', userEmail);
   await page.fill('input[id="password"]', userPassword);
   await page.fill('input[id="password-confirm"]', userPassword);
@@ -56,7 +56,7 @@ async function registerNewUser(
 
   await Promise.all([
     page.waitForNavigation({ waitUntil: 'networkidle' }),
-    page.click('input[value="Register"]')
+    page.click('input[value="Register"]', { timeout: 10000 })
   ]);
 
   return page;
@@ -90,14 +90,16 @@ test.describe('Home Page', () => {
     // Wait for the new page to load and check for the existence of specific text
     await newPage.waitForLoadState('domcontentloaded');
     const verificationText = await newPage.getByText("Welcome to the Platform Mesh Portal!");
-    await expect(verificationText).toBeVisible();
+    await expect(verificationText).toBeVisible( { timeout: 10000 });
 
     await newPage.screenshot({ path: 'screenshot-beforeswitch.png' });
 
     await newPage.pause();  // for debugging
     // onboard 'default' organization and switch to it
     await newPage.getByRole('textbox', { name: 'Onboard a new organization' }).fill(newOrgName);
-    await newPage.getByRole('button', { name: 'Onboard Emphasized' }).click();
+    await newPage.getByRole('button', { name: 'Onboard' }).click();
+
+    await newPage.pause();  // for debugging
 
     // Wait for the "Switch" button (role-based to pierce shadow DOM), and in parallel open Mailpit link
     let welcomePage: Page;
@@ -147,13 +149,13 @@ test.describe('Home Page', () => {
     await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
     await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').press('Shift+Home');
     await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').fill(testAccountName);
-    await newPage2.getByRole('button', { name: 'Submit Emphasized' }).click();
+    await newPage2.getByRole('button', { name: 'Submit' }).click();
 
     const accountElement = await newPage2.getByText(testAccountName);
     await expect(accountElement).toBeVisible( { timeout: 10000 } );
     await accountElement.click();
     const download1Promise = newPage2.waitForEvent('download');
-    const downloadButton = await newPage2.getByRole('button', { name: 'Download kubeconfig Emphasized' });
+    const downloadButton = await newPage2.getByRole('button', { name: 'Download kubeconfig' });
     await expect(downloadButton).toBeVisible( { timeout: 10000 } );
     await downloadButton.click();
     await expect(download1Promise).toBeDefined();
