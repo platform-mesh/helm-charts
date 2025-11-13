@@ -37,7 +37,6 @@ A Helm chart for Kubernetes
 | services.etcd-druid.values | object | `{}` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
-| services.extension-manager-operator.values.istio.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
