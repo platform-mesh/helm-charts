@@ -15,7 +15,9 @@ spec:
         {{- include "common.labelMatcher" . | indent 8 }}
         control-plane: controller-manager
       annotations:
+      {{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "istio.enabled")) "true" }}
         sidecar.istio.io/inject: "{{ (include "common.istioEnabled" .) }}"
+      {{- end -}}
       {{- if ((.Values.deployment).template).annotations }}
       {{ .Values.deployment.template.annotations | toYaml | nindent 8 }}
       {{- end }}
