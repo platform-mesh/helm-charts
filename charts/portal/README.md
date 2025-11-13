@@ -36,6 +36,7 @@ Helm Chart for the Platform Mesh Portal
 | image.name | string | `"ghcr.io/platform-mesh/portal"` |  |
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | importContent | bool | `false` | import content toggle |
+| istio.enabled | bool | `false` |  |
 | kcp.kubeconfigSecret | string | `""` |  |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
 | validWebcomponentUrls | string | `".?"` |  |

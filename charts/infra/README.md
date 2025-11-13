@@ -22,7 +22,7 @@ A Helm chart for Kubernetes
 | hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
 | hostAliases.entries[0].hostnames[1] | string | `"portal.dev.local"` |  |
 | hostAliases.entries[0].ip | string | `"10.96.188.4"` |  |
-| istio.enabled | bool | `true` |  |
+| istio.enabled | bool | `false` |  |
 | istio.gateway.annotations | object | `{}` |  |
 | istio.gateway.apiVersion | string | `"networking.istio.io/v1"` |  |
 | istio.gateway.name | string | `"gateway"` |  |

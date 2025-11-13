@@ -69,7 +69,7 @@ sentry:
   environment: dev
 
 istio:
-  enabled: true
+  enabled: false
   # -- ALlows the creation of a RequestAuthentication resource, by default disabled
   requestAuthentication:
     create: false

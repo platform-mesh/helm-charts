@@ -47,7 +47,7 @@ openfga:
   url: openfga:8081
 
 istio:
-  exposed: false
+  enabled: false
   dnsNames: []
 
 # Horizontal Pod Autoscaler configuration

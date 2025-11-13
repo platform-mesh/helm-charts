@@ -56,3 +56,11 @@ tests:
     - equal:
         path: spec.template.spec.containers[0].args[1]
         value: "--leader-elect"
+
+- it: enables istio sidecar injection
+  template: deployment.yaml
+  set:
+    istio:
+      enabled: true
+  asserts:
+    - matchSnapshot: {}

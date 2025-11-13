@@ -18,8 +18,7 @@ deployment with tracing:
         type: RollingUpdate
       template:
         metadata:
-          annotations:
-            sidecar.istio.io/inject: "true"
+          annotations: null
           labels:
             app: platform-mesh-operator
             control-plane: controller-manager
@@ -42,6 +41,93 @@ deployment with tracing:
                 - --tracing-config-service-name=platform-mesh-operator.NAMESPACE
                 - --tracing-config-service-version=0.0.0
                 - --tracing-config-collector-endpoint=test:4317
+                - --subroutines-feature-toggles-enabled=true
+              env: null
+              image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: platform-mesh-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: platform-mesh-operator
+          terminationGracePeriodSeconds: 10
+enables istio sidecar injection:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: platform-mesh-operator
+      namespace: NAMESPACE
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: platform-mesh-operator
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "true"
+          labels:
+            app: platform-mesh-operator
+            control-plane: controller-manager
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - operator
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=debug
+                - --region=local
+                - --environment=local
+                - --image-tag=0.0.0
+                - --image-name="ghcr.io/platform-mesh/platform-mesh-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -251,8 +337,7 @@ operator match the snapshot:
         type: RollingUpdate
       template:
         metadata:
-          annotations:
-            sidecar.istio.io/inject: "true"
+          annotations: null
           labels:
             app: platform-mesh-operator
             control-plane: controller-manager
