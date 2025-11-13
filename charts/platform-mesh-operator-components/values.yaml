@@ -50,8 +50,6 @@ services:
   extension-manager-operator:
     enabled: true
     values:
-      istio:
-        enabled: true
       crds:
         enabled: false
       kcp:
