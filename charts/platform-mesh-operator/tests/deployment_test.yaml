@@ -64,3 +64,10 @@ tests:
       enabled: true
   asserts:
     - matchSnapshot: {}
+- it: disables istio sidecar injection
+  template: deployment.yaml
+  set:
+    istio:
+      enabled: false
+  asserts:
+    - matchSnapshot: {}
