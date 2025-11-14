@@ -13,7 +13,8 @@ spec:
         {{- include "common.labelMatcher" . | indent 8 }}
     spec:
       {{- include "common.pod.securityContext" . | indent 6 }}
-      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" . }}
+      {{ include "common.hostAliases" . | indent 0 }}
       containers:
       - {{- include "common.podBasics" . | indent 8 }}
         {{- include "common.container.securityContext" . | indent 8 }}
