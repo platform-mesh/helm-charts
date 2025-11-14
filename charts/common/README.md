@@ -7,6 +7,7 @@ A Helm chart containing reuse templates
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | defaults.certManager.enabled | bool | `false` | toggle to enable/disable cert-manager |
+| defaults.deployment.hostAliases | list | `[]` | host aliases |
 | defaults.deployment.maxSurge | int | `5` | maxSurge |
 | defaults.deployment.maxUnavailable | int | `0` | maxUnavailable |
 | defaults.deployment.resources.limits | object | `{"cpu":"","memory":"512Mi"}` | cpu and memory limits for the deployment |
