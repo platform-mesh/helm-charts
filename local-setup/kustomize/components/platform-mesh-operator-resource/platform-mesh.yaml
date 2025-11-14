@@ -15,12 +15,6 @@ spec:
   featureToggles:
    - name: "feature-enable-getting-started"
   values:
-    istio-gateway:
-      enabled: true
-      targetNamespace: istio-system
-      values:
-        service:
-          type: None
     keycloak:
       enabled: true
       values:
@@ -42,15 +36,20 @@ spec:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
     infra:
       dependsOn:
-        - name: istio-istiod
-          namespace: default
         - name: kcp-operator
           namespace: default
       values:
+        gatewayApi:
+          enabled: true
         mailpit:
           enabled: true
         hostAliases:
           enabled: true
+          entries:
+            - ip: "10.96.73.54"
+              hostnames:
+                - "kcp.api.portal.dev.local"
+                - "portal.dev.local"
         kcp:
           rootShard:
             extraArgs:
@@ -68,8 +67,6 @@ spec:
                   - "http://localhost:8000/callback*"
                   - "http://localhost:4300/callback*"
                   - "https://*"
-    observability:
-      enabled: false
     kcp:
       enabled: false
     kcp-operator:
@@ -101,13 +98,20 @@ spec:
         hostAliases:
           enabled: true
           items:
-            - ip: 10.96.188.4
+            - ip: 10.96.73.54
               hostnames:
                 - kcp.api.portal.dev.local
                 - portal.dev.local
     portal:
       enabled: true
       values:
+        gatewayApi:
+          enabled: true
+          httpRoute:
+            parentRefs:
+            - name: k8sapi-gateway
+              sectionName: websecure
+              kind: Gateway
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
             value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
@@ -124,13 +128,9 @@ spec:
             readOnly: true
         deployment:
           hostAliases:
-            - ip: "10.96.188.4"
+            - ip: "10.96.73.54"
               hostnames:
                 - "portal.dev.local"
-        virtualService:
-          hosts:
-            - "portal.dev.local"
-            - "*.portal.dev.local"
     openfga:
       enabled: true
       values:
@@ -157,6 +157,8 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
+        gatewayApi:
+          enabled: true
         image:
           tag: v0.1.36
         listener:
@@ -176,7 +178,3 @@ spec:
         hostAliases:
           enabled: true
         caSecret: domain-certificate-ca
-    extension-manager-operator:
-      values:
-        istio:
-          enabled: true
