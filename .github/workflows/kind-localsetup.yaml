@@ -63,6 +63,7 @@ jobs:
       - name: Run local-setup
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
+          helm repo add traefik https://traefik.github.io/charts
           task local-setup
       - name: Check/wait for all components to be ready
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'

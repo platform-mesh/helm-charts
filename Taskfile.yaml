@@ -110,34 +110,40 @@ tasks:
     cmds:
       - "rm oci/* || true"
       - task: helmpackage
+
   local-setup:iterate:
     deps:
       - task: setup:mkcert
+    env:
+      START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     cmds:
-      - ./local-setup/scripts/start.sh
+      - START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh
+
   local-setup:
-    deps:
-      - task: setup:mkcert
     cmds:
       - |
         read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
         kind delete cluster --name platform-mesh
-        ./local-setup/scripts/start.sh
+      - task: local-setup:iterate
 
   local-setup-minimal:
+    env:
+      START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     deps:
       - task: setup:mkcert
     cmds:
       - |
         read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
         kind delete cluster --name platform-mesh
-        ./local-setup/scripts/start.sh --minimal
+        START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --minimal
   local-setup-minimal:iterate:
+    env:
+      START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     deps:
       - task: setup:mkcert
     cmds:
       - |
-        ./local-setup/scripts/start.sh --minimal
+        START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --minimal
 
   local-setup-cached:
     deps:
@@ -145,11 +151,13 @@ tasks:
     cmds:
       - read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
       - kind delete cluster --name platform-mesh
-      - ./local-setup/scripts/start.sh --cached
+      - task: local-setup-cached:iterate
 
   local-setup-cached:iterate:
+    env:
+      START_MID_HOOK2: "task patch-platformmesh-hostaliases"
     cmds:
-      - ./local-setup/scripts/start.sh --cached
+      - START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --cached
 
   local-setup-start-docker-registries:
     cmds:
@@ -158,12 +166,12 @@ tasks:
       - docker run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
 
   ocm:deploy:ociregistry:
-    internal: true
+    internal: false
     cmds:
       - |
         kind export kubeconfig -n platform-mesh
         # docs: https://github.com/twuni/docker-registry.helm
-        helm repo add twuni https://helm.twun.io
+        helm repo add --force-update twuni https://twuni.github.io/docker-registry.helm
         helm repo update
         kubectl create ns registry || true
         helm upgrade --install oci-registry twuni/docker-registry -n registry --set service.port=443 --set tlsSecretName=domain-certificate --set image.repository=ghcr.io/distribution/distribution --set image.tag=3.0.0 --set ingress.enabled=false
@@ -244,7 +252,7 @@ tasks:
           echo "LOCAL_CHART_PATH=$LOCAL_CHART_PATH"
           echo ""
 
-          set -x
+          # set -x
           echo "Adding component: $COMPONENT_NAME version $VERSION"
           CHART_REAL_NAME=$(grep '^name:' "$CHART_DIR/Chart.yaml" | awk '{print $2}')
           CHART_LOCATION="oci://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh/${CHART_REAL_NAME}:$CHART_VERSION"
@@ -282,7 +290,7 @@ tasks:
       - task: ocm:transfer:dir-to-local-oci
 
   ocm:configure:tls:
-    internal: true
+    internal: false
     desc: Apply ocm-k8s-toolkit patch to support oci registry with self-signed certs
     cmds:
       - local-setup/scripts/configureOcmTls.sh
@@ -377,8 +385,10 @@ tasks:
 
         echo "--- finished getting component versions ---"
 
-        set -x
-        kubectl exec -it ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-prerelease.yaml -- \
+        # set -x
+        kubectl exec ocm-transfer-pod -- ocm transfer componentversion ghcr.io/platform-mesh//github.com/platform-mesh/organization-idp:$ORGANIZATION_IDP_VERSION .ocm/transport.ctf
+
+        kubectl exec ocm-transfer-pod -- ocm add components --lookup 'oci-registry-docker-registry.registry.svc.cluster.local' -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-prerelease.yaml -- \
         VERSION={{ .COMPONENT_PRERELEASE_VERSION }} \
         ISTIO_VERSION=$ISTIO_VERSION \
         CROSSPLANE_VERSION=$CROSSPLANE_VERSION \
@@ -408,7 +418,7 @@ tasks:
       - task: ocm:transfer:dir-to-local-oci
 
   ocm:deploy:transfer-pod:
-    internal: true
+    internal: false
     cmds:
       - |
         set -e
@@ -426,65 +436,35 @@ tasks:
 
   ocm:transfer:dir-to-local-oci:
     cmds:
-      - cmd: kubectl exec -it ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+      - cmd: kubectl exec ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
         ignore_error: true
 
   ocm:deploy:
     cmds:
-      - task: ocm:deploy:ociregistry
-      - task: ocm:deploy:transfer-pod
-      - task: ocm:configure:tls
+      - |
+        set -e
+        kind export kubeconfig -n platform-mesh || true
 
-  ocm:kustomize:apply:
+        if kubectl get pod -n default ocm-transfer-pod >/dev/null 2>&1; then
+          echo "ocm-transfer-pod already exists, skipping deploy."
+          exit 0
+        fi
+
+        task ocm:deploy:ociregistry
+        task ocm:deploy:transfer-pod
+        task ocm:configure:tls
+
+  ocm:apply:
     aliases:
-      - ocm:apply
+      - ocm:kustomize:apply
     cmds:
       - kind export kubeconfig -n platform-mesh
       - |
         echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
-        yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
-
-      - | # apply kustomize patch only for configured charts in CUSTOM_LOCAL_COMPONENTS_CHART_PATHS
-        patch_string=""
-        for pair in {{ range .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}"{{ range $k,$v := . }}{{$k}}:{{$v}}{{ end }}" {{ end }}; do
-          comp="${pair%%:*}"
-
-          # check if /spec/values/$comp exists in local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml and add it if it doesn't
-          if ! yq -e ".spec.values[\"$comp\"]" local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml > /dev/null; then
-          patch_string+=$(cat <<EOF
-        - op: add
-          path: /spec/values/$comp
-          value: {}
-        EOF
-            )
-            patch_string+=$'\n'
-          fi
-          patch_string+=$(cat <<EOF
-        - op: add
-          path: /spec/values/$comp/ocm
-          value: {}
-        - op: add
-          path: /spec/values/$comp/ocm/repo
-          value: {}
-        - op: add
-          path: /spec/values/$comp/ocm/repo/name
-          value: prerelease
-        - op: add
-          path: /spec/values/$comp/ocm/component
-          value: {}
-        - op: add
-          path: /spec/values/$comp/ocm/component/name
-          value: prerelease
-        EOF
-          )
-          patch_string+=$'\n'
-        done
-
-        # Use yq to update the kustomization.yaml file
-        yq -i '.patches[0].patch = "'"$patch_string"'"' local-setup/kustomize/overlays/ocm-prerelease/kustomization.yaml
+        yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/components/ocm-prerelease-component/component.yaml
 
       - |
-        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
+        kubectl apply -k local-setup/kustomize/components/ocm-prerelease-component
         echo "Applied kustomize overlay"
       - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
@@ -509,7 +489,7 @@ tasks:
   ocm:update:constructor:
     cmds:
       - |
-        curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml -H "Authorization: token $GH_TOKEN"
+        curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
         
         # replace component name
         {{ .CMD_SED }} "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
@@ -521,7 +501,7 @@ tasks:
           npm install
           npm ci
           npx playwright install
-          npx playwright test
+          npx playwright test test-register-and-navigate.test.ts
           popd
 
   test:minimal:
@@ -533,3 +513,39 @@ tasks:
           npx playwright install
           npx playwright test test-minimal.test.ts
           popd
+
+  local-setup-prerelease:iterate:
+    deps:
+      - task: setup:mkcert
+    env:
+      START_MID_HOOK: "task ocm:build ocm:apply"
+      START_MID_HOOK2: "task patch-prerelease-hostaliases"
+    cmds:
+      - |
+        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --prerelease
+
+  local-setup-prerelease:
+    deps:
+      - task: setup:mkcert
+    env:
+      START_MID_HOOK: "task ocm:deploy ocm:build ocm:apply"
+      START_MID_HOOK2: "task patch-prerelease-hostaliases"
+    cmds:
+      - |
+        read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+        kind delete cluster --name platform-mesh
+        START_MID_HOOK=$START_MID_HOOK START_MID_HOOK2=$START_MID_HOOK2 ./local-setup/scripts/start.sh --prerelease
+
+  patch-platformmesh-hostaliases:
+    cmds:
+      - |
+        HOST_IP=$(kubectl get svc traefik -o json | jq -r '.spec.clusterIP') \
+        yq -i '(.patches[0] | select(has("patch")).patch) |= (from_yaml | with(.[]; .value = env(HOST_IP)) | to_yaml)' local-setup/kustomize/overlays/platform-mesh-resource/kustomization.yaml
+        kubectl apply -k local-setup/kustomize/overlays/platform-mesh-resource
+
+  patch-prerelease-hostaliases:
+    cmds:
+      - |
+        HOST_IP=$(kubectl get svc traefik -o json | jq -r '.spec.clusterIP') \
+        yq -i '(.patches[0] | select(has("patch")).patch) |= (from_yaml | with(.[]; .value = env(HOST_IP)) | to_yaml)' local-setup/kustomize/overlays/prerelease/kustomization.yaml
+        kubectl apply -k local-setup/kustomize/overlays/prerelease

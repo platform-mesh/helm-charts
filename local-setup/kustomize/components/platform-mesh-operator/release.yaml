@@ -13,4 +13,9 @@ spec:
   releaseName: platform-mesh-operator
   targetNamespace: platform-mesh-system
   timeout: 15m
-
+  values:
+    istio:
+      enabled: false
+    extraArgs:
+      - --subroutines-deployment-enable-istio=false
+      - --subroutines-feature-toggles-enabled=true

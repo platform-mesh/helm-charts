@@ -15,13 +15,18 @@ spec:
   featureToggles:
    - name: "feature-enable-getting-started"
   values:
+    istio-base:
+      enabled: false
+    istio-istiod:
+      enabled: false
     istio-gateway:
-      enabled: true
-      targetNamespace: istio-system
-      values:
-        service:
-          type: None
+      enabled: false
+    account-operator:
+      dependsOn: []
+    rebac-authz-webhook:
+      dependsOn: []
     keycloak:
+      dependsOn: []
       enabled: true
       values:
         service:
@@ -42,15 +47,22 @@ spec:
             - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
     infra:
       dependsOn:
-        - name: istio-istiod
-          namespace: default
         - name: kcp-operator
           namespace: default
       values:
+        gatewayApi:
+          enabled: true
+        istio:
+          enabled: false
         mailpit:
           enabled: true
         hostAliases:
           enabled: true
+          entries:
+            - ip: "10.96.73.54"
+              hostnames:
+                - "kcp.api.portal.dev.local"
+                - "portal.dev.local"
         kcp:
           rootShard:
             extraArgs:
@@ -69,6 +81,7 @@ spec:
                   - "http://localhost:4300/callback*"
                   - "https://*"
     observability:
+      dependsOn: []
       enabled: false
     kcp:
       enabled: false
@@ -88,6 +101,7 @@ spec:
           tag: "main"
           pullPolicy: IfNotPresent
     security-operator:
+      dependsOn: []
       values:
         baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
         initializer:
@@ -101,13 +115,23 @@ spec:
         hostAliases:
           enabled: true
           items:
-            - ip: 10.96.188.4
+            - ip: 10.96.73.54
               hostnames:
                 - kcp.api.portal.dev.local
                 - portal.dev.local
     portal:
+      dependsOn: []
       enabled: true
       values:
+        istio:
+          enabled: false
+        gatewayApi:
+          enabled: true
+          httpRoute:
+            parentRefs:
+            - name: k8sapi-gateway
+              sectionName: websecure
+              kind: Gateway
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
             value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
@@ -124,14 +148,11 @@ spec:
             readOnly: true
         deployment:
           hostAliases:
-            - ip: "10.96.188.4"
+            - ip: "10.96.73.54"
               hostnames:
                 - "portal.dev.local"
-        virtualService:
-          hosts:
-            - "portal.dev.local"
-            - "*.portal.dev.local"
     openfga:
+      dependsOn: []
       enabled: true
       values:
         datastore:
@@ -148,6 +169,7 @@ spec:
               tls:
                 enabled: false
     virtual-workspaces:
+      dependsOn: []
       values:
         virtualWorkspaceSecretName: virtual-workspaces-cert
         deployment:
@@ -155,8 +177,13 @@ spec:
           resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
           resourceSchemaWorkspace: "root:platform-mesh-system"
     kubernetes-graphql-gateway:
+      dependsOn: []
       enabled: true
       values:
+        istio:
+          enabled: false
+        gatewayApi:
+          enabled: true
         image:
           tag: v0.1.36
         listener:
@@ -171,12 +198,14 @@ spec:
                   #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
     iam-service:
+      dependsOn: []
       enabled: false
       values:
         hostAliases:
           enabled: true
         caSecret: domain-certificate-ca
     extension-manager-operator:
+      dependsOn: []
       values:
         istio:
-          enabled: true
+          enabled: false

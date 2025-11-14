@@ -1,0 +1,33 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gateway-api
+  namespace: default
+spec:
+  interval: 1m
+  url: https://github.com/kubernetes-sigs/gateway-api
+  ref:
+    tag: v1.2.1
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: gateway-api-crds
+  namespace: default
+spec:
+  interval: 1m
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: gateway-api
+  path: ./config/crd
+  patches:
+    - patch: |
+        apiVersion: apiextensions.k8s.io/v1
+        kind: CustomResourceDefinition
+        metadata:
+          name: backendtlspolicies.policy.networking.k8s.io  # replace with the exact standard CRD name
+        $patch: delete
+      target:
+        kind: CustomResourceDefinition
+        name: backendtlspolicies.policy.networking.k8s.io

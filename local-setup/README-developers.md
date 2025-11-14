@@ -12,8 +12,7 @@ To test local charts, run the local-setup script and make modifications to the c
 
 Steps:
 
+- run `task local-setup-prerelease` to create local-setup using locally built OCM component
 - (optional) edit Taskfile.yaml and configure `COMPONENT_PRERELEASE_VERSION`, `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS` and `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS` parameters as needed
-- (optional) if adding new componentReferences, update [.ocm/component-constructor-prerelease.yaml](.ocm/component-constructor-prerelease.yaml)
-- run `task ocm:deploy` to deploy the OCM infrastructure components. This needs to be called just once.
-- run `task ocm:build ocm:apply` to build and deploy the new OCM component with your changes
-- run `task ocm:cleanup` for Cleanup when needed
+- (optional) run `task ocm:build ocm:apply` to build and deploy the new OCM component with your changes
+- (optional) run `task ocm:cleanup` for Cleanup when needed
