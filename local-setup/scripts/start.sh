@@ -70,8 +70,29 @@ mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
+echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
+helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+  --version 2.16.4 \
+  --set imageAutomationController.create=false \
+  --set imageReflectionController.create=false \
+  --set notificationController.create=false \
+  --set helmController.container.additionalArgs[0]="--concurrent=10" \
+  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
+
+sleep 3
+
+kubectl apply -k $SCRIPT_DIR/../kustomize/base/gateway-api
+
+kubectl wait --namespace default \
+  --for=condition=Ready kustomization \
+  --timeout=240s gateway-api-experimental-crds
+
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing Traefik ${COL_RES}"
 helm repo add traefik https://traefik.github.io/charts
+
+helm upgrade --install --namespace=default \
+  traefik-crds traefik/traefik-crds --version 1.12.0
+
 helm upgrade --install --namespace=default \
   --set="experimental.kubernetesGateway.enabled=true" \
   --set="providers.kubernetesGateway.enabled=true" \
@@ -81,16 +102,8 @@ helm upgrade --install --namespace=default \
   --set="ports.websecure.nodePort=31000" \
   --set="ports.websecure.exposedPort=8443" \
   --set="gateway.enabled=false" \
+  --skip-crds \
   traefik traefik/traefik --version 37.3.0
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
-helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.16.4 \
-  --set imageAutomationController.create=false \
-  --set imageReflectionController.create=false \
-  --set notificationController.create=false \
-  --set helmController.container.additionalArgs[0]="--concurrent=10" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
 
@@ -111,10 +124,6 @@ kubectl wait --namespace flux-system \
 
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
-
-# delete standard backendtlspolicies CRD to enable experimental migration
-kubectl delete crds backendtlspolicies.gateway.networking.k8s.io --ignore-not-found=true
-kubectl apply -k $SCRIPT_DIR/../kustomize/base/crds-extra
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
