@@ -34,6 +34,8 @@ defaults:
     strategy: RollingUpdate
     # -- deployment revision history limit
     revisionHistoryLimit: 3
+    # -- host aliases
+    hostAliases: []
 
   service:
     type: ClusterIP
