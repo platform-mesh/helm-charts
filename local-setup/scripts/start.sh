@@ -49,20 +49,25 @@ check_wsl_compatibility
 # Run environment checks
 run_environment_checks
 
-# Check if kind cluster is already running, if not create it
-if ! check_kind_cluster; then
-    if [ -d "$SCRIPT_DIR/certs" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
-        rm -rf "$SCRIPT_DIR/certs"
-    fi
-    echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
-    $SCRIPT_DIR/../scripts/gen-certs.sh
+# Check if local cluster exists first, then check kind cluster
+if check_local_cluster; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Using existing local cluster, bypassing kind cluster creation ${COL_RES}"
+else
+    # Check if kind cluster is already running, if not create it
+    if ! check_kind_cluster; then
+        if [ -d "$SCRIPT_DIR/certs" ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
+            rm -rf "$SCRIPT_DIR/certs"
+        fi
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
+        $SCRIPT_DIR/../scripts/gen-certs.sh
 
-    if [ "$CACHED" = true ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
-    else
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        if [ "$CACHED" = true ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
+            kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
+        else
+            kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        fi
     fi
 fi
 
@@ -126,7 +131,7 @@ echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
-kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/certs/cert.key --cert $SCRIPT_DIR/certs/cert.crt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
