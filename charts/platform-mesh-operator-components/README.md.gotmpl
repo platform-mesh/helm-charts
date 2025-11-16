@@ -1,0 +1,14 @@
+## PlatformMesh resource configuration
+
+This chart, when created by the `platform-mesh-operator` can receive certain configuration parameters from the corresponding `PlatformMesh` resource. Those are:
+
+- iamWebhookCA
+- baseDomain
+- protocol
+- port
+- baseDomainPort
+- hostAliases
+
+Those can be used in replacement templates in values.yaml.
+
+For hostAliases, the value is replaced for individual services with the global configuration if configured as `hostAliases: null` in the service values. Alternatively, if the hostAliases are configured directly in the service values, those will be used instead.

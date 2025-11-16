@@ -12,6 +12,8 @@ ocm:
     create: true
     name: platform-mesh
 iamWebhookCA: null
+hostAliases: []
+
 services:
   account-operator:
     enabled: true
@@ -62,6 +64,7 @@ services:
   security-operator:
     enabled: true
     values:
+      hostAliases: null
       crds:
         enabled: false
       fga:
@@ -96,6 +99,7 @@ services:
       - name: kcp-operator
         namespace: default
     values:
+      hostAliases: null
       kcp:
         image:
           # FIXME: this is a temporary fix until we have support for the latest version
@@ -304,6 +308,8 @@ services:
   portal:
     enabled: false
     values:
+      deployment:
+        hostAliases: null
       kcp:
         kubeconfigSecret: portal-kubeconfig
       crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
@@ -346,6 +352,7 @@ services:
             enabled: true
   virtual-workspaces:
     enabled: true
+    values: {}
   organization-idp:
     enabled: true
     skipHelmRelease: true

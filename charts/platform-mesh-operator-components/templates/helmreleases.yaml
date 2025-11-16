@@ -38,7 +38,9 @@ spec:
     {{ $config.dependsOn | toYaml | nindent 4 }}
   timeout: 15m
   values:
-{{ tpl (toYaml $config.values) $ | indent 4 }}
+    {{- $finalValues := (default dict $config.values) | deepCopy -}}
+    {{- $_ := include "hostaliases.injectGlobalHostAliases" (dict "dict" $finalValues "root" $) -}}
+    {{- tpl ( toYaml $finalValues ) $ | nindent 4 }}
 ---
 {{ end -}}
 {{ end -}}

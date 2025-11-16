@@ -3,9 +3,23 @@
 A Helm chart for Kubernetes
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
-## Values
+## PlatformMesh resource configuration
+
+This chart, when created by the `platform-mesh-operator` can receive certain configuration parameters from the corresponding `PlatformMesh` resource. Those are:
+
+- iamWebhookCA
+- baseDomain
+- protocol
+- port
+- baseDomainPort
+- hostAliases
+
+Those can be used in replacement templates in values.yaml.
+
+For hostAliases, the value is replaced for individual services with the global configuration if configured as `hostAliases: null` in the service values. Alternatively, if the hostAliases are configured directly in the service values, those will be used instead.## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| hostAliases | list | `[]` |  |
 | iamWebhookCA | string | `nil` |  |
 | ocm.component.create | bool | `true` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
@@ -46,6 +60,7 @@ A Helm chart for Kubernetes
 | services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
+| services.infra.values.hostAliases | string | `nil` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.name | string | `"https"` |  |
@@ -166,6 +181,7 @@ A Helm chart for Kubernetes
 | services.portal.values.auth.default.discoveryUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak/realms/${org-name}/.well-known/openid-configuration"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
+| services.portal.values.deployment.hostAliases | string | `nil` |  |
 | services.portal.values.environment | string | `"kind"` |  |
 | services.portal.values.extraEnvVars[0].name | string | `"DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
 | services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
@@ -188,12 +204,14 @@ A Helm chart for Kubernetes
 | services.security-operator.values.crds.enabled | bool | `false` |  |
 | services.security-operator.values.fga.inviteKeycloakBaseUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak"` |  |
 | services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
+| services.security-operator.values.hostAliases | string | `nil` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |
 | services.security-operator.values.kubeconfigSecret | string | `"security-operator-kubeconfig"` |  |
 | services.security-operator.values.log.level | string | `"debug"` |  |
 | services.security-operator.values.operator.maxConcurrentReconciles | int | `1` |  |
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
+| services.virtual-workspaces.values | object | `{}` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 
 ## Overriding Values

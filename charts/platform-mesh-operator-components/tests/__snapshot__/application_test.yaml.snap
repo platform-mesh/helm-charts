@@ -119,6 +119,7 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 15m
       values:
+        hostAliases: []
         istio:
           main:
             gateway:
@@ -411,6 +412,7 @@ it should render the application manifests:
         fga:
           inviteKeycloakBaseUrl: https://example.com:8443/keycloak
           target: openfga.platform-mesh-system.svc.cluster.local:8081
+        hostAliases: []
         initializer:
           kubeconfigSecret: security-initializer-kubeconfig
         kubeconfigSecret: security-operator-kubeconfig
@@ -435,7 +437,7 @@ it should render the application manifests:
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
       timeout: 15m
-      values: null
+      values: {}
   13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
