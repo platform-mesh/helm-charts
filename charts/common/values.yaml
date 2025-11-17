@@ -116,3 +116,13 @@ defaults:
       kind: SecretStore
       # -- the default store name to be used in external secrets
       name: environment-store
+
+  hostAliases:
+    # -- toggle to enable/disable hostAliases configuration
+    enabled: false
+    # -- host aliases
+    entries:
+      - ip: "10.96.188.4"
+        hostnames:
+          - "kcp.api.portal.dev.local"
+          - "portal.dev.local"

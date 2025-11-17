@@ -84,3 +84,108 @@ tests:
         port: 8080
     asserts:
       - matchSnapshot: {}
+  - it: test host aliases
+    set:
+      hostAliases:
+        enabled: true
+        entries:
+          - ip: "127.0.0.1"
+            hostnames:
+              - "local.test"
+          - ip: "192.168.1.1"
+            hostnames:
+              - "my.test"
+    asserts:
+      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.hostAliases[0].ip
+          value: "127.0.0.1"
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[0]
+          value: "local.test"
+      - equal:
+          path: spec.template.spec.hostAliases[1].ip
+          value: "192.168.1.1"
+      - equal:
+          path: spec.template.spec.hostAliases[1].hostnames[0]
+          value: "my.test"
+  - it: test disabled hostAliases
+    set:
+      hostAliases.enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.hostAliases
+  - it: test hostAliases override
+    set:
+      global:
+        hostAliases:
+          enabled: false
+      hostAliasesOverride:
+        enabled: true
+        entries:
+          - ip: "127.0.0.1"
+            hostnames:
+              - "local.test"
+          - ip: "192.168.1.1"
+            hostnames:
+              - "my.test"
+    asserts:
+      - equal:
+          path: spec.template.spec.hostAliases[0].ip
+          value: "127.0.0.1"
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[0]
+          value: "local.test"
+      - equal:
+          path: spec.template.spec.hostAliases[1].ip
+          value: "192.168.1.1"
+      - equal:
+          path: spec.template.spec.hostAliases[1].hostnames[0]
+          value: "my.test"
+  - it: test hostAliases global
+    set:
+      global:
+        hostAliases:
+          enabled: true
+          entries:
+            - ip: "127.0.0.1"
+              hostnames:
+                - "local.test"
+            - ip: "192.168.1.1"
+              hostnames:
+                - "my.test"
+    asserts:
+      - equal:
+          path: spec.template.spec.hostAliases[0].ip
+          value: "127.0.0.1"
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[0]
+          value: "local.test"
+      - equal:
+          path: spec.template.spec.hostAliases[1].ip
+          value: "192.168.1.1"
+      - equal:
+          path: spec.template.spec.hostAliases[1].hostnames[0]
+          value: "my.test"
+  - it: test enable default hostAliases
+    #   defaults:
+    #     hostAliases:
+    #       enabled: false
+    #       entries:
+    #         - ip: "10.96.188.4"
+    #           hostnames:
+    #             - "kcp.api.portal.dev.local"
+    #             - "portal.dev.local"
+    set:
+      hostAliases:
+        enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.hostAliases[0].ip
+          value: "10.96.188.4"
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[0]
+          value: "kcp.api.portal.dev.local"
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[1]
+          value: "portal.dev.local"
