@@ -50,8 +50,10 @@ check_wsl_compatibility
 run_environment_checks
 
 # Check if local cluster exists first, then check kind cluster
+USE_LOCAL_CLUSTER=false
 if check_local_cluster; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Using existing local cluster, bypassing kind cluster creation ${COL_RES}"
+    USE_LOCAL_CLUSTER=true
 else
     # Check if kind cluster is already running, if not create it
     if ! check_kind_cluster; then
@@ -96,18 +98,36 @@ helm repo add traefik https://traefik.github.io/charts
 helm upgrade --install --namespace=default \
   traefik-crds traefik/traefik-crds --version 1.12.0
 
-helm upgrade --install --namespace=default \
-  --set="experimental.kubernetesGateway.enabled=true" \
-  --set="providers.kubernetesGateway.enabled=true" \
-  --set="providers.kubernetesGateway.experimentalChannel=true" \
-  --set="gatewayClass.enabled=true" \
-  --set="service.type=NodePort" \
-  --set="ports.websecure.nodePort=31000" \
-  --set="ports.websecure.exposedPort=8443" \
-  --set="gateway.enabled=false" \
-  --skip-crds \
-  --set="service.spec.clusterIP=10.96.188.4" \
-  traefik traefik/traefik --version 37.3.0
+# Set service type based on cluster type
+if [ "$USE_LOCAL_CLUSTER" = true ]; then
+  SERVICE_TYPE="LoadBalancer"
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using LoadBalancer service type for local cluster ${COL_RES}"
+  helm upgrade --install --namespace=default \
+    --set="experimental.kubernetesGateway.enabled=true" \
+    --set="providers.kubernetesGateway.enabled=true" \
+    --set="providers.kubernetesGateway.experimentalChannel=true" \
+    --set="gatewayClass.enabled=true" \
+    --set="service.type=${SERVICE_TYPE}" \
+    --set="ports.websecure.exposedPort=8443" \
+    --set="gateway.enabled=false" \
+    --skip-crds \
+    traefik traefik/traefik --version 37.3.0
+else
+  SERVICE_TYPE="NodePort"
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using NodePort service type for kind cluster ${COL_RES}"
+  helm upgrade --install --namespace=default \
+    --set="experimental.kubernetesGateway.enabled=true" \
+    --set="providers.kubernetesGateway.enabled=true" \
+    --set="providers.kubernetesGateway.experimentalChannel=true" \
+    --set="gatewayClass.enabled=true" \
+    --set="service.type=${SERVICE_TYPE}" \
+    --set="ports.websecure.exposedPort=8443" \
+    --set="ports.websecure.nodePort=31000" \
+    --set="gateway.enabled=false" \
+    --skip-crds \
+    --set="service.spec.clusterIP=10.96.188.4" \
+    traefik traefik/traefik --version 37.3.0
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
 
