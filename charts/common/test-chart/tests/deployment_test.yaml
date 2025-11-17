@@ -117,6 +117,9 @@ tests:
           path: spec.template.spec.hostAliases
   - it: test hostAliases override
     set:
+      global:
+        hostAliases:
+          enabled: false
       hostAliasesOverride:
         enabled: true
         entries:
