@@ -86,8 +86,9 @@ tests:
       - matchSnapshot: {}
   - it: test host aliases
     set:
-      deployment:
-        hostAliases:
+      hostAliases:
+        enabled: true
+        entries:
           - ip: "127.0.0.1"
             hostnames:
               - "local.test"
@@ -110,15 +111,15 @@ tests:
           value: "my.test"
   - it: test empty hostAliases doesn't render
     set:
-      deployment:
-        hostAliases: []
+      hostAliases: []
     asserts:
       - notExists:
           path: spec.template.spec.hostAliases
   - it: test hostAliases override
     set:
-      deployment:
-        hostAliasesOverride:
+      hostAliasesOverride:
+        enabled: true
+        entries:
           - ip: "127.0.0.1"
             hostnames:
               - "local.test"
@@ -141,8 +142,9 @@ tests:
   - it: test hostAliases global
     set:
       global:
-        deployment:
-          hostAliases:
+        hostAliases:
+          enabled: true
+          entries:
             - ip: "127.0.0.1"
               hostnames:
                 - "local.test"

@@ -7,7 +7,6 @@ A Helm chart containing reuse templates
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | defaults.certManager.enabled | bool | `false` | toggle to enable/disable cert-manager |
-| defaults.deployment.hostAliases | list | `[]` | host aliases |
 | defaults.deployment.maxSurge | int | `5` | maxSurge |
 | defaults.deployment.maxUnavailable | int | `0` | maxUnavailable |
 | defaults.deployment.resources.limits | object | `{"cpu":"","memory":"512Mi"}` | cpu and memory limits for the deployment |
@@ -24,6 +23,8 @@ A Helm chart containing reuse templates
 | defaults.health.port | int | `8090` | health port |
 | defaults.health.readiness | object | `{"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10}` | readiness probe parameters |
 | defaults.health.startup | object | `{"failureThreshold":30,"path":"/readyz"}` | startup probe parameters |
+| defaults.hostAliases.enabled | bool | `false` | toggle to enable/disable hostAliases configuration |
+| defaults.hostAliases.entries | list | `[]` | host aliases |
 | defaults.imagePullPolicy | string | `"IfNotPresent"` | imagePullPolicy is the policy to use when pulling images for all charts |
 | defaults.istio.enabled | bool | `false` | toggle to enable/disable istio |
 | defaults.istio.gateway.name | string | `"gateway"` | name of the gateway |

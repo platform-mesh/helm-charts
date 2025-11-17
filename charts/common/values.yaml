@@ -34,8 +34,6 @@ defaults:
     strategy: RollingUpdate
     # -- deployment revision history limit
     revisionHistoryLimit: 3
-    # -- host aliases
-    hostAliases: []
 
   service:
     type: ClusterIP
@@ -118,3 +116,9 @@ defaults:
       kind: SecretStore
       # -- the default store name to be used in external secrets
       name: environment-store
+
+  hostAliases:
+    # -- toggle to enable/disable hostAliases configuration
+    enabled: false
+    # -- host aliases
+    entries: []
