@@ -119,7 +119,7 @@ defaults:
 
   hostAliases:
     # -- toggle to enable/disable hostAliases configuration
-    enabled: true
+    enabled: false
     # -- host aliases
     entries:
       - ip: "10.96.188.4"

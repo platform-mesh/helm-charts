@@ -12,7 +12,7 @@ If the chosen one is empty or unset, render nothing.
 {{- $v := .Values -}}
 {{- $source := dict -}}
 {{- $aliases := list -}}
-{{- $aliasesEnabled := true -}}
+{{- $aliasesEnabled := false -}}
 {{- $defaultKey := "common.defaults.hostAliases" -}}
 
 {{- if and $v (hasKey $v "hostAliasesOverride") -}}
@@ -29,7 +29,7 @@ If the chosen one is empty or unset, render nothing.
   {{- if kindIs "slice" $source -}}
     {{- $aliases = $source -}}
   {{- else if and (kindIs "map" $source) (default true $source.enabled) -}}
-    {{- $aliases = $source.entries | default list -}}
+    {{- $aliases = $source.entries | default $v.common.defaults.hostAliases.entries -}}
     {{- $aliasesEnabled = $source.enabled -}}
   {{- end -}}
 {{- end -}}
