@@ -75,7 +75,7 @@ tests:
     services:
       newservice:
         enabled: true
-        values: | 
+        values: |
           hostAliases:
             - ip: 1.2.3.4
               hostnames:

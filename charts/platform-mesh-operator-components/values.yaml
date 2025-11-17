@@ -17,7 +17,7 @@ hostAliases: []
 services:
   account-operator:
     enabled: true
-    values: | 
+    values: |
       tracing:
         enabled: false
         collector:
@@ -37,7 +37,7 @@ services:
     helmRepo: true
     enabled: true
     targetNamespace: crossplane-system
-    values: | 
+    values: |
       provider:
         packages:
           - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
@@ -51,7 +51,7 @@ services:
     values: ""
   extension-manager-operator:
     enabled: true
-    values: | 
+    values: |
       crds:
         enabled: false
       kcp:
@@ -63,7 +63,7 @@ services:
           host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
   security-operator:
     enabled: true
-    values: | 
+    values: |
       hostAliases: {{- .Values.hostAliases | toYaml | nindent 2 }}
       crds:
         enabled: false
@@ -81,7 +81,7 @@ services:
         maxConcurrentReconciles: 1
   rebac-authz-webhook:
     enabled: true
-    values: | 
+    values: |
       log:
         level: debug
       openfga:
@@ -98,7 +98,7 @@ services:
     dependsOn:
       - name: kcp-operator
         namespace: default
-    values: | 
+    values: |
       hostAliases: {{- .Values.hostAliases | toYaml | nindent 2 }}
       kcp:
         image:
@@ -151,12 +151,12 @@ services:
     enabled: true
     helmRepo: true
     targetNamespace: kcp-operator
-    values: | 
+    values: |
       image:
         tag: "v0.3.0"
   keycloak:
     enabled: true
-    values: | 
+    values: |
       global:
         imagePullSecrets:
           - name: github
@@ -217,7 +217,7 @@ services:
             adminPasswordKey: password
   kubernetes-graphql-gateway:
     enabled: true
-    values: | 
+    values: |
       tracing:
         enabled: false
       trust:
@@ -257,7 +257,7 @@ services:
   openfga:
     enabled: true
     helmRepo: true
-    values: | 
+    values: |
       global:
         imagePullSecrets:
           - name: github
@@ -307,7 +307,7 @@ services:
               enabled: false
   portal:
     enabled: false
-    values: | 
+    values: |
       deployment:
         hostAliases: {{- .Values.hostAliases | toYaml | nindent 2 }}
       kcp:
@@ -337,7 +337,7 @@ services:
   observability:
     enabled: false
     targetNamespace: observability
-    values: | 
+    values: |
       istio:
         grafana:
           virtualService:
@@ -362,7 +362,7 @@ services:
     values: ""
   iam-service:
     enabled: false
-    values: | 
+    values: |
       istio:
         hosts:
           - "*.{{ .Values.baseDomain }}"
