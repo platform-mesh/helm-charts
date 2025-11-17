@@ -77,6 +77,11 @@ set cpu limits:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -160,6 +165,11 @@ test duplicate ports:
                   path: /readyz
                   port: 8080
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -250,6 +260,11 @@ test extras:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -344,6 +359,11 @@ test global region:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -523,6 +543,11 @@ test name override:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -614,6 +639,11 @@ test sentry enabled:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -700,6 +730,11 @@ test tag default:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -786,6 +821,11 @@ test tag override:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -877,6 +917,11 @@ test tracing:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+          hostAliases:
+            - hostnames:
+                - kcp.api.portal.dev.local
+                - portal.dev.local
+              ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
             seccompProfile:

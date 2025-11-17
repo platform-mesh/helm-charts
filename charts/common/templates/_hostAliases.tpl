@@ -12,6 +12,8 @@ If the chosen one is empty or unset, render nothing.
 {{- $v := .Values -}}
 {{- $source := dict -}}
 {{- $aliases := list -}}
+{{- $aliasesEnabled := true -}}
+{{- $defaultKey := "common.defaults.hostAliases" -}}
 
 {{- if and $v (hasKey $v "hostAliasesOverride") -}}
   {{- $source = index $v "hostAliasesOverride" -}}
@@ -19,8 +21,8 @@ If the chosen one is empty or unset, render nothing.
   {{- $source = index $v.global "hostAliases" -}}
 {{- else if and $v (hasKey $v "hostAliases") -}}
   {{- $source = index $v "hostAliases" -}}
-{{- else if and $v.defaults (hasKey $v.defaults "hostAliases") -}}
-  {{- $source = index $v.defaults "hostAliases" -}}
+{{- else if eq (include "common.hasNestedKey" (dict "Values" $v "key" $defaultKey)) "true" }}
+  {{- $source = index $v.common.defaults "hostAliases" -}}
 {{- end }}
 
 {{- if $source -}}
@@ -28,10 +30,11 @@ If the chosen one is empty or unset, render nothing.
     {{- $aliases = $source -}}
   {{- else if and (kindIs "map" $source) (default true $source.enabled) -}}
     {{- $aliases = $source.entries | default list -}}
+    {{- $aliasesEnabled = $source.enabled -}}
   {{- end -}}
 {{- end -}}
 
-{{- if and $aliases (gt (len $aliases) 0) -}}
+{{- if $aliasesEnabled -}}
 hostAliases:
 {{- toYaml $aliases | nindent 8 }}
 {{- end -}}

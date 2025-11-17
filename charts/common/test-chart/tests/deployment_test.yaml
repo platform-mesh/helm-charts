@@ -109,9 +109,9 @@ tests:
       - equal:
           path: spec.template.spec.hostAliases[1].hostnames[0]
           value: "my.test"
-  - it: test empty hostAliases doesn't render
+  - it: test disabled hostAliases
     set:
-      hostAliases: []
+      hostAliases.enabled: false
     asserts:
       - notExists:
           path: spec.template.spec.hostAliases
@@ -164,3 +164,23 @@ tests:
       - equal:
           path: spec.template.spec.hostAliases[1].hostnames[0]
           value: "my.test"
+  - it: test default hostAliases
+    # set:
+    #   defaults:
+    #     hostAliases:
+    #       enabled: true
+    #       entries:
+    #         - ip: "10.96.188.4"
+    #           hostnames:
+    #             - "kcp.api.portal.dev.local"
+    #             - "portal.dev.local"
+    asserts:
+      - equal:
+          path: spec.template.spec.hostAliases[0].ip
+          value: "10.96.188.4"
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[0]
+          value: "kcp.api.portal.dev.local"
+      - equal:
+          path: spec.template.spec.hostAliases[0].hostnames[1]
+          value: "portal.dev.local"
