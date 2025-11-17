@@ -38,7 +38,7 @@ spec:
     {{ $config.dependsOn | toYaml | nindent 4 }}
   timeout: 15m
   values:
-{{ tpl (toYaml $config.values) $ | indent 4 }}
+    {{- tpl $config.values $ | nindent 4 }}
 ---
 {{ end -}}
 {{ end -}}

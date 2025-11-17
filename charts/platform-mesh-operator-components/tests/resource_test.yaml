@@ -37,6 +37,7 @@ tests:
             name: comp-vw
           repo:
             name: repo-vw
+        values: ""
   asserts:
     - equal:
         path: spec.resource.byReference.referencePath[0].name
@@ -74,6 +75,7 @@ tests:
     services:
       tracing:
         enabled: true
+        values: ""
   asserts:
     - equal:
         path: spec.resource.byReference.referencePath[0].name

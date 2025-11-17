@@ -1,0 +1,93 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Test hostAliases replacement
+release:
+  name: operator-components
+  namespace: default
+values: []
+tests:
+- it: test hostAliases configuration
+  template: helmreleases.yaml
+  documentSelector:
+    path: metadata.name
+    value: security-operator
+  set:
+    hostAliases:
+    - hostnames:
+      - kcp.api.portal.dev.local
+      - portal.dev.local
+      ip: 10.96.188.4
+
+  asserts:
+    - equal:
+        path: spec.values.hostAliases
+        value:
+          - ip: 10.96.188.4
+            hostnames:
+              - kcp.api.portal.dev.local
+              - portal.dev.local
+    - equal:
+        path: spec.values.hostAliases[0].ip
+        value: "10.96.188.4"
+    - equal:
+        path: spec.values.hostAliases[0].hostnames[1]
+        value: portal.dev.local
+
+- it: test hostAliases portal configuration
+  template: helmreleases.yaml
+  documentSelector:
+    path: metadata.name
+    value: portal
+  set:
+    hostAliases:
+    - hostnames:
+      - kcp.api.portal.dev.local
+      - portal.dev.local
+      ip: 10.96.188.5
+    services:
+      portal:
+        enabled: true
+  asserts:
+    - equal:
+        path: spec.values.deployment.hostAliases
+        value:
+          - ip: 10.96.188.5
+            hostnames:
+              - kcp.api.portal.dev.local
+              - portal.dev.local
+    - equal:
+        path: spec.values.deployment.hostAliases[0].ip
+        value: "10.96.188.5"
+    - equal:
+        path: spec.values.deployment.hostAliases[0].hostnames[1]
+        value: portal.dev.local
+
+- it: test with non-global hostAliases
+  template: helmreleases.yaml
+  documentSelector:
+    path: metadata.name
+    value: newservice
+  set:
+    hostAliases:
+    - hostnames:
+      - kcp.api.portal.dev.local
+      - portal.dev.local
+      ip: 10.96.188.5
+    services:
+      newservice:
+        enabled: true
+        values: | 
+          hostAliases:
+            - ip: 1.2.3.4
+              hostnames:
+              - custom.local
+  asserts:
+    - equal:
+        path: spec.values.hostAliases
+        value:
+          - ip: 1.2.3.4
+            hostnames:
+            - custom.local
+    - equal:
+        path: spec.values.hostAliases[0].ip
+        value: "1.2.3.4"
+  
