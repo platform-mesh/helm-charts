@@ -17,8 +17,9 @@ tests:
     templates:
       - deploy.yaml
     set:
-      deployment:
-        hostAliases:
+      hostAliases:
+        enabled: true
+        entries:
           - ip: "10.0.0.1"
             hostnames:
               - "example.com"

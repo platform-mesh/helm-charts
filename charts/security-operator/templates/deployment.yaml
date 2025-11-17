@@ -17,6 +17,7 @@ spec:
       {{- include "common.imagePullSecret" . | indent 6 }}
       {{- include "common.pod.securityContext" . | indent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      {{ include "common.hostAliases" . | indent 0 }}
       containers:
       - {{- include "common.podBasics" . | indent 8 }}
         {{- include "common.container.securityContext" . | indent 8 }}
@@ -82,9 +83,3 @@ spec:
             secretName: {{ .Values.caSecret }}
         {{- end }}
         {{- include "common.extraVolumes" . | nindent 8 }}
-      {{- if .Values.hostAliases.enabled }}
-      hostAliases:
-        {{- with .Values.hostAliases.items }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-      {{- end }}

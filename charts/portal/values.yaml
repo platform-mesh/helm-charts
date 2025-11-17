@@ -59,8 +59,12 @@ health:
     # -- path used for the startup probe
     path: /rest/health
 
-deployment:
-  hostAliases: []
+# -- hostAliases configuration
+hostAliases:
+  # -- enable hostAliases
+  enabled: false
+  # -- hostAliases entries
+  entries: []
 
 validation:
   port: 8088
