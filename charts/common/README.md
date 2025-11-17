@@ -23,7 +23,7 @@ A Helm chart containing reuse templates
 | defaults.health.port | int | `8090` | health port |
 | defaults.health.readiness | object | `{"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10}` | readiness probe parameters |
 | defaults.health.startup | object | `{"failureThreshold":30,"path":"/readyz"}` | startup probe parameters |
-| defaults.hostAliases.enabled | bool | `true` | toggle to enable/disable hostAliases configuration |
+| defaults.hostAliases.enabled | bool | `false` | toggle to enable/disable hostAliases configuration |
 | defaults.hostAliases.entries | list | `[{"hostnames":["kcp.api.portal.dev.local","portal.dev.local"],"ip":"10.96.188.4"}]` | host aliases |
 | defaults.imagePullPolicy | string | `"IfNotPresent"` | imagePullPolicy is the policy to use when pulling images for all charts |
 | defaults.istio.enabled | bool | `false` | toggle to enable/disable istio |
