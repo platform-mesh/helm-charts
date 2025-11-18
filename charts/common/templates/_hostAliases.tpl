@@ -35,7 +35,36 @@ If the chosen one is empty or unset, render nothing.
 {{- end -}}
 
 {{- if $aliasesEnabled -}}
-hostAliases:
-{{- toYaml $aliases | nindent 8 }}
+{{ toYaml $aliases | nindent 2 }}
 {{- end -}}
+{{- end }}
+
+
+{{- define "common.hostAliasesEnabled" -}}
+{{- $v := .Values -}}
+{{- $source := dict -}}
+{{- $aliases := list -}}
+{{- $aliasesEnabled := false -}}
+{{- $defaultKey := "common.defaults.hostAliases" -}}
+
+{{- if and $v (hasKey $v "hostAliasesOverride") -}}
+  {{- $source = index $v "hostAliasesOverride" -}}
+{{- else if and $v.global (hasKey $v.global "hostAliases") -}}
+  {{- $source = index $v.global "hostAliases" -}}
+{{- else if and $v (hasKey $v "hostAliases") -}}
+  {{- $source = index $v "hostAliases" -}}
+{{- else if eq (include "common.hasNestedKey" (dict "Values" $v "key" $defaultKey)) "true" }}
+  {{- $source = index $v.common.defaults "hostAliases" -}}
+{{- end }}
+
+{{- if $source -}}
+  {{- if kindIs "slice" $source -}}
+    {{- $aliases = $source -}}
+  {{- else if and (kindIs "map" $source) (default true $source.enabled) -}}
+    {{- $aliases = $source.entries | default $v.common.defaults.hostAliases.entries -}}
+    {{- $aliasesEnabled = $source.enabled -}}
+  {{- end -}}
+{{- end -}}
+
+{{ toYaml $aliasesEnabled }}
 {{- end }}

@@ -3,10 +3,10 @@ name: organization-idp
 description: A Helm chart to deploy organization identity provider in openmfp
 
 type: application
-version: 0.4.4
+version: 0.4.5
 appVersion: "1.0.0"
 
 dependencies:
   - name: common
-    version: 0.8.0
+    version: 0.9.0
     repository: oci://ghcr.io/platform-mesh/helm-charts
