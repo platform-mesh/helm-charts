@@ -17,10 +17,7 @@ spec:
       {{- include "common.imagePullSecret" . | indent 6 }}
       {{- include "common.pod.securityContext" . | indent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
-      {{ if eq (include "common.hostAliasesEnabled" $) "true" -}}
-      hostAliases:
-      {{- include "common.hostAliases" $ | indent 6 -}}
-      {{- end }}
+      {{ include "common.hostAliases" $ | nindent 6 }}
       containers:
       - {{- include "common.podBasics" . | indent 8 }}
         {{- include "common.container.securityContext" . | indent 8 }}

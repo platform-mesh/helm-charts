@@ -13,6 +13,7 @@ spec:
     spec:
       {{- include "common.pod.securityContext" . | indent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      {{ include "common.hostAliases" $ | nindent 6 }}
       containers:
       - {{- include "common.podBasics" . | indent 8 }}
         {{- include "common.container.securityContext" . | indent 8 }}
@@ -85,10 +86,6 @@ spec:
         - name: kcp-kubeconfig
           mountPath: /kcp-kubeconfig
         {{- end }}
-      {{ if eq (include "common.hostAliasesEnabled" $) "true" -}}
-      hostAliases:
-      {{- include "common.hostAliases" $ | indent 6 -}}
-      {{- end }}
       volumes:
       {{- include "common.extraVolumes" . | nindent 8 }}
         {{- with .Values.kubeconfigSecret }}

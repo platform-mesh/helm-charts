@@ -55,8 +55,7 @@ spec:
       template:
         {{ if eq (include "common.hostAliasesEnabled" $) "true" -}}
         spec:
-          hostAliases:
-          {{- include "common.hostAliases" $ | indent 10 -}}
+          {{- include "common.hostAliases" $ | nindent 10 -}}
         {{ else -}}
         spec: {}
         {{- end }}
