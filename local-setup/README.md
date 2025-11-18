@@ -54,7 +54,7 @@ If you're using Windows Subsystem for Linux (WSL2):
 
 If you're using Podman on MacOS make sure to set the following env:
 ```sh
-KIND_EXPERIMENTAL_PROVIDER=podman
+KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 ```
 
 ## Quick Start
