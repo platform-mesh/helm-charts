@@ -45,11 +45,6 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-          entries:
-            - ip: "10.96.73.54"
-              hostnames:
-                - "kcp.api.portal.dev.local"
-                - "portal.dev.local"
         kcp:
           rootShard:
             extraArgs:
@@ -97,11 +92,6 @@ spec:
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
-          items:
-            - ip: 10.96.73.54
-              hostnames:
-                - kcp.api.portal.dev.local
-                - portal.dev.local
     portal:
       enabled: true
       values:
@@ -126,11 +116,8 @@ spec:
             mountPath: /etc/ssl/certs/domain-ca.crt
             subPath: tls.crt
             readOnly: true
-        deployment:
-          hostAliases:
-            - ip: "10.96.73.54"
-              hostnames:
-                - "portal.dev.local"
+        hostAliases:
+          enabled: true
     openfga:
       enabled: true
       values:
