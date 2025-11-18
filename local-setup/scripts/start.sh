@@ -103,6 +103,7 @@ helm upgrade --install --namespace=default \
   --set="ports.websecure.exposedPort=8443" \
   --set="gateway.enabled=false" \
   --skip-crds \
+  --set="service.spec.clusterIP=10.96.188.4" \
   traefik traefik/traefik --version 37.3.0
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
