@@ -54,8 +54,10 @@ spec:
     spec:
       template:
         spec:
+          {{ if eq (include "common.hostAliasesEnabled" $) "true" -}}
           hostAliases:
-            {{ toYaml . | nindent 12 }}
+          {{- include "common.hostAliases" $ | indent 10 -}}
+          {{- end }}
   {{- end }}
   {{- end }}
   extraArgs:

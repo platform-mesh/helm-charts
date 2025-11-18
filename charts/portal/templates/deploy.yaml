@@ -85,7 +85,10 @@ spec:
         - name: kcp-kubeconfig
           mountPath: /kcp-kubeconfig
         {{- end }}
-      {{ include "common.hostAliases" . | indent 0 }}
+        {{ if eq (include "common.hostAliasesEnabled" $) "true" -}}
+        hostAliases:
+        {{- include "common.hostAliases" $ | indent 8 -}}
+        {{- end }}
       volumes:
       {{- include "common.extraVolumes" . | nindent 8 }}
         {{- with .Values.kubeconfigSecret }}
