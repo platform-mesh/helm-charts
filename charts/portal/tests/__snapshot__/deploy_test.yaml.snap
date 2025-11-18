@@ -161,11 +161,6 @@ test hosAliases:
                   value: local
                 - name: VALID_WEBCOMPONENT_URLS
                   value: .?
-              hostAliases:
-                - hostnames:
-                    - example.com
-                    - test.example.com
-                  ip: 10.0.0.1
               image: ghcr.io/platform-mesh/portal:1.0.0
               imagePullPolicy: IfNotPresent
               name: portal
@@ -188,6 +183,11 @@ test hosAliases:
                 seccompProfile:
                   type: RuntimeDefault
               volumeMounts: null
+          hostAliases:
+            - hostnames:
+                - example.com
+                - test.example.com
+              ip: 10.0.0.1
           securityContext:
             runAsNonRoot: true
             seccompProfile:
