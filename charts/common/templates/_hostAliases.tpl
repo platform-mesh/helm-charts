@@ -35,7 +35,7 @@ If the chosen one is empty or unset, render nothing.
 {{- end -}}
 
 {{- if $aliasesEnabled -}}
-{{ toYaml $aliases | nindent 2 }}
+hostAliases: {{ toYaml $aliases | nindent 2 }}
 {{- end -}}
 {{- end }}
 
