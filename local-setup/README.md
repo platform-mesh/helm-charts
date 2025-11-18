@@ -50,6 +50,13 @@ If you're using Windows Subsystem for Linux (WSL2):
 - Docker Desktop with WSL2 integration enabled
 - Update WSL if needed: `wsl --update`
 
+### Podman Specific Requirements for MacOS
+
+If you're using Podman on MacOS make sure to set the following env:
+```sh
+KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
+```
+
 ## Quick Start
 
 ### 1. Bootstrap Local Environment
@@ -114,6 +121,7 @@ The `scripts/start.sh` script performs the following operations:
    - Checks for required dependencies (Docker/Podman, Kind, kubectl, etc.)
    - Validates WSL2 compatibility if applicable
    - Verifies system architecture support
+   - For Podman on macos: Verify that the KIND_EXPERIMENTAL_PROVIDER envs is set to `podman`
 
 2. **Cluster Management**
    - Creates Kind cluster named `platform-mesh` (if not exists)
