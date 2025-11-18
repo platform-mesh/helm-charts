@@ -36,7 +36,7 @@ A Helm chart for Kubernetes
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://.. | common | 0.9.0 |
+| file://.. | common | 0.10.0 |
 
 ## Values
 
