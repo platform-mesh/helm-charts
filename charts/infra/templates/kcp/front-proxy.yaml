@@ -54,8 +54,7 @@ spec:
     spec:
       template:
         spec:
-          hostAliases:
-            {{ toYaml . | nindent 12 }}
+          {{- include "common.hostAliases" $ | nindent 10 -}}
   {{- end }}
   {{- end }}
   extraArgs:

@@ -15,7 +15,6 @@ Helm Chart for the Platform Mesh Portal
 | auth.default.discoveryUrl | string | `""` | discovery url used for the idp |
 | baseDomains[0] | string | `"localhost"` | base domains for VirtualService |
 | cookieDomain | string | `"localhost"` | cookie domain |
-| deployment.hostAliases | list | `[]` |  |
 | developmentLandcsape | string | `"true"` | development landscape toggle |
 | environment | string | `"local"` | environment |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
@@ -32,6 +31,9 @@ Helm Chart for the Platform Mesh Portal
 | health.port | int | `8080` | health port to be used by probes |
 | health.readiness.path | string | `"/rest/health"` | path used for the readiness probe |
 | health.startup.path | string | `"/rest/health"` | path used for the startup probe |
+| hostAliases | object | `{"enabled":false,"entries":[]}` | hostAliases configuration |
+| hostAliases.enabled | bool | `false` | enable hostAliases |
+| hostAliases.entries | list | `[]` | hostAliases entries |
 | http.protocol | string | `"http"` | protocol |
 | image.name | string | `"ghcr.io/platform-mesh/portal"` |  |
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
