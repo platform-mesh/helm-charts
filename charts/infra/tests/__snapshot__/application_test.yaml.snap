@@ -178,7 +178,7 @@ Gateway API enabled:
             metadata:
               annotations:
                 traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
-            spec: {}
+            spec: null
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
@@ -627,7 +627,7 @@ Istio disabled:
             metadata:
               annotations:
                 traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
-            spec: {}
+            spec: null
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
@@ -1004,7 +1004,7 @@ match snapshots:
             metadata:
               annotations:
                 traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
-            spec: {}
+            spec: null
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
@@ -1775,7 +1775,7 @@ match snapshots w. kcp version:
             metadata:
               annotations:
                 traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
-            spec: {}
+            spec: null
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
@@ -2154,7 +2154,7 @@ match snapshots with mailpit enabled:
             metadata:
               annotations:
                 traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
-            spec: {}
+            spec: null
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379

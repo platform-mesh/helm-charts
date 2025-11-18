@@ -53,12 +53,8 @@ spec:
   deploymentTemplate:
     spec:
       template:
-        {{ if eq (include "common.hostAliasesEnabled" $) "true" -}}
         spec:
           {{- include "common.hostAliases" $ | nindent 10 -}}
-        {{ else -}}
-        spec: {}
-        {{- end }}
   {{- end }}
   {{- end }}
   extraArgs:
