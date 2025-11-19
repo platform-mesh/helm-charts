@@ -1,0 +1,22 @@
+{{- if .Values.cors.enabled }}
+{{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "gatewayApi.gatewayClassName")) "traefik" -}}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cors-header
+  namespace: platform-mesh-system
+spec:
+  headers:
+    accessControlAllowMethods:
+      - "GET"
+      - "OPTIONS"
+      - "POST"
+    accessControlAllowHeaders:
+      - "*"
+    accessControlAllowOriginList:
+{{- .Values.cors.accessControlAllowOriginList | toYaml | nindent 6 }}
+    accessControlAllowCredentials: true
+    accessControlMaxAge: 100
+    addVaryHeader: true
+{{- end -}}
+{{- end }}

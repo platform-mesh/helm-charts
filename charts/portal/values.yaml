@@ -85,6 +85,16 @@ gatewayApi:
       sectionName: websecure
       namespace: default
       kind: Gateway
+    corsFilters:
+    - extensionRef:
+        group: traefik.io
+        kind: Middleware
+        name: cors-header
+      type: ExtensionRef
 
 istio:
+  enabled: false
+
+cors:
+  # -- toggle to enable CORS configuration
   enabled: false

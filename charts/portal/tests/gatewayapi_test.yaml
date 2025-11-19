@@ -22,5 +22,6 @@ tests:
     set:
       istio.enabled: false
       gatewayApi.enabled: true
+      cors.enabled: true
     asserts:
       - matchSnapshot: {}

@@ -17,7 +17,7 @@ kubeConfig:
 |-----|------|---------|-------------|
 | cors.allowedHeaders | string | `"*"` |  |
 | cors.allowedOrigins | string | `"*"` |  |
-| cors.enabled | bool | `false` |  |
+| cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crds.enabled | bool | `false` |  |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
@@ -42,7 +42,7 @@ kubeConfig:
 | gateway.shouldImpersonate | bool | `true` |  |
 | gateway.usernameClaim | string | `"email"` |  |
 | gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
-| gatewayApi.httpRoute | object | `{"hostnames":["portal.dev.local","*.portal.dev.local"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"}],"pathPrefix":"/api/kubernetes-graphql-gateway/","requestHeaderModifier":{"set":[{"name":"Host","value":"portal.dev.local"}]}}` | configuration for the HTTPRoute resource |
+| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}},{"requestHeaderModifier":{"set":[{"name":"Host","value":"portal.dev.local"}]},"type":"RequestHeaderModifier"}],"hostnames":["portal.dev.local","*.portal.dev.local"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
 | health.liveness.failureThreshold | int | `1` |  |
 | health.liveness.path | string | `"/healthz"` |  |
 | health.liveness.periodSeconds | int | `10` |  |

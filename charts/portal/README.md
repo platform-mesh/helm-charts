@@ -15,11 +15,16 @@ Helm Chart for the Platform Mesh Portal
 | auth.default.discoveryUrl | string | `""` | discovery url used for the idp |
 | baseDomains[0] | string | `"localhost"` | base domains for VirtualService |
 | cookieDomain | string | `"localhost"` | cookie domain |
+| cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | developmentLandcsape | string | `"true"` | development landscape toggle |
 | environment | string | `"local"` | environment |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
+| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.httpRoute.hostnames[0] | string | `"portal.dev.local"` |  |
 | gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.dev.local"` |  |
 | gatewayApi.httpRoute.parentRefs[0].kind | string | `"Gateway"` |  |
