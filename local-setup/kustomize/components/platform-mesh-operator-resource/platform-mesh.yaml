@@ -39,6 +39,8 @@ spec:
         - name: kcp-operator
           namespace: default
       values:
+        cors:
+          enabled: true
         gatewayApi:
           enabled: true
         mailpit:
@@ -146,6 +148,8 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
+        cors:
+          enabled: true
         gatewayApi:
           enabled: true
         image:
