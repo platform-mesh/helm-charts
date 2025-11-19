@@ -333,4 +333,7 @@ cors:
   enabled: false
   # -- list of allowed origins
   accessControlAllowOriginList:
+    - "http://localhost:4200"
     - "http://localhost:4300"
+    - "http://*.localhost:4200"
+    - "http://*.localhost:4300"

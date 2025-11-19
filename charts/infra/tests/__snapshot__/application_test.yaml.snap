@@ -510,7 +510,10 @@ Gateway API enabled:
           - OPTIONS
           - POST
         accessControlAllowOriginList:
+          - http://localhost:4200
           - http://localhost:4300
+          - http://*.localhost:4200
+          - http://*.localhost:4300
         accessControlMaxAge: 100
         addVaryHeader: true
 Istio disabled:
