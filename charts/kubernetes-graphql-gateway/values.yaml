@@ -2,6 +2,7 @@ crds:
   enabled: false
 
 cors:
+  # -- list of allowed origins
   enabled: false
   allowedHeaders: "*"
   allowedOrigins: "*"
@@ -135,7 +136,20 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
-    requestHeaderModifier:
-      set:
-      - name: Host
-        value: "portal.dev.local"
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: Host
+          value: "portal.dev.local"
+    corsFilters:
+    - extensionRef:                                                                                                                                                                                                                      
+        group: traefik.io
+        kind: Middleware
+        name: cors-header
+      type: ExtensionRef

@@ -1,0 +1,30 @@
+suite: Test traefik manifests
+templates:
+  - traefik/cors-middleware.yaml
+release:
+  name: infra
+  namespace: platform-mesh-system
+tests:
+- it: match snapshots
+  set:
+    cors:
+      enabled: true
+    gatewayApi:
+      enabled: true
+  asserts:
+  - matchSnapshot: {}
+- it: accessControlAllowOriginList test
+  set:
+    cors:
+      enabled: true
+      accessControlAllowOriginList:
+        - "https://example.com"
+        - "http://localhost:3000"
+    gatewayApi:
+      enabled: true
+  asserts:
+  - equal:
+      path: spec.headers.accessControlAllowOriginList
+      value:
+        - "https://example.com"
+        - "http://localhost:3000"

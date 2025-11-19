@@ -19,4 +19,8 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.mailpit.domain.pathPrefix }}
+    {{- if .Values.cors.enabled }}
+    filters:
+    {{- toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 4 }}
+    {{- end }}
 {{- end }}
