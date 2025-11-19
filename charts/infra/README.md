@@ -6,7 +6,7 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cors.accessControlAllowOriginList | list | `["http://localhost:4200","http://localhost:4300","http://*.localhost:4200","http://*.localhost:4300"]` | list of allowed origins |
+| cors.accessControlAllowOriginList | list | `["http://localhost:4200","http://localhost:4300","http://*.localhost:4200","http://*.localhost:4300","https://portal.dev.local:8443"]` | list of allowed origins |
 | cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crossplane.enabled | bool | `true` |  |
 | externalSecrets.enabled | bool | `false` |  |
