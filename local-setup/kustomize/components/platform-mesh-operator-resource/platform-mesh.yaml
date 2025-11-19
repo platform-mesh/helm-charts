@@ -97,8 +97,6 @@ spec:
     portal:
       enabled: true
       values:
-        cors:
-          enabled: true
         gatewayApi:
           enabled: true
           httpRoute:
