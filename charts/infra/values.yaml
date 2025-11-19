@@ -322,7 +322,7 @@ gatewayApi:
             value: portal.dev.local
       type: RequestHeaderModifier
     corsFilters:
-    - extensionRef:                                                                                                                                                                                                                      
+    - extensionRef:
         group: traefik.io
         kind: Middleware
         name: cors-header

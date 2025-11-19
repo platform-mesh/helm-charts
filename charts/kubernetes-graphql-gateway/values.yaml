@@ -2,7 +2,7 @@ crds:
   enabled: false
 
 cors:
-  # -- list of allowed origins
+  # -- toggle to enable CORS configuration
   enabled: false
   allowedHeaders: "*"
   allowedOrigins: "*"
@@ -148,7 +148,7 @@ gatewayApi:
         - name: Host
           value: "portal.dev.local"
     corsFilters:
-    - extensionRef:                                                                                                                                                                                                                      
+    - extensionRef:
         group: traefik.io
         kind: Middleware
         name: cors-header

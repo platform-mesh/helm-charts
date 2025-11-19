@@ -86,7 +86,7 @@ gatewayApi:
       namespace: default
       kind: Gateway
     corsFilters:
-    - extensionRef:                                                                                                                                                                                                                      
+    - extensionRef:
         group: traefik.io
         kind: Middleware
         name: cors-header

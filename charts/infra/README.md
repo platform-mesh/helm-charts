@@ -6,10 +6,19 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| cors.accessControlAllowOriginList | list | `["http://localhost:4300"]` | list of allowed origins |
+| cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crossplane.enabled | bool | `true` |  |
 | externalSecrets.enabled | bool | `false` |  |
 | gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
+| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
+| gatewayApi.httpRoute.filters[0].requestHeaderModifier.set[0].name | string | `"Host"` |  |
+| gatewayApi.httpRoute.filters[0].requestHeaderModifier.set[0].value | string | `"portal.dev.local"` |  |
+| gatewayApi.httpRoute.filters[0].type | string | `"RequestHeaderModifier"` |  |
 | gatewayApi.main | object | `{"gateway":{"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","mode":"Terminate"}}}` | HTTPS Terminate configuration |
 | gatewayApi.main.gateway.tls.credentialName | string | `"domain-certificate"` | Name of the secret containing the TLS certificate |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
