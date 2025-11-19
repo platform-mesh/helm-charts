@@ -39,6 +39,14 @@ spec:
         - name: kcp-operator
           namespace: default
       values:
+        cors:
+          enabled: true
+          accessControlAllowOriginList:
+            - http://localhost:4200
+            - http://localhost:4300
+            - http://*.localhost:4200
+            - http://*.localhost:4300
+            - https://portal.dev.local:8443
         gatewayApi:
           enabled: true
         mailpit:
@@ -95,6 +103,8 @@ spec:
     portal:
       enabled: true
       values:
+        cors:
+          enabled: true
         gatewayApi:
           enabled: true
           httpRoute:
@@ -146,6 +156,10 @@ spec:
     kubernetes-graphql-gateway:
       enabled: true
       values:
+        cors:
+          enabled: true
+        gatewayApi:
+          enabled: true
         listener:
           virtualWorkspacesConfig:
             content:

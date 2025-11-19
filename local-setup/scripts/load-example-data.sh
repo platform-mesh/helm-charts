@@ -16,10 +16,11 @@ kubectl create secret docker-registry ghcr-pull-secret \
   --dry-run=client -o yaml | kubectl apply -f -
 
 helm upgrade -i marketplace-ui -n platform-mesh-system ../helm-charts-priv/charts/marketplace-ui \
-  --set imagePullSecret=ghcr-pull-secret
+  --set imagePullSecret=ghcr-pull-secret --set istio.enabled=false
 
-helm upgrade -i iam-ui -n platform-mesh-system ../helm-charts-priv/charts/iam-ui \
-  --set imagePullSecret=ghcr-pull-secret
+kubectl apply -f ./local-setup/example-data/yaml/marketplace-ui-route.yaml
+#helm upgrade -i iam-ui -n platform-mesh-system ../helm-charts-priv/charts/iam-ui \
+#  --set imagePullSecret=ghcr-pull-secret
 
 cp "$(pwd)/.secret/kcp/admin.kubeconfig" "$(pwd)/.secret/kcp/httpbin-operator.kubeconfig"
 kubectl --kubeconfig="$(pwd)/.secret/kcp/httpbin-operator.kubeconfig" config delete-context "kind-platform-mesh"

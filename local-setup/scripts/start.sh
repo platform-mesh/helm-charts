@@ -70,8 +70,6 @@ mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
-kind load docker-image  ghcr.io/platform-mesh/platform-mesh-operator:v0.19.2 -n platform-mesh
-
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
   --version 2.16.4 \
@@ -154,7 +152,7 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=480s kro
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Kyverno policies ${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Creating KRO RGD policies ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
 
 kubectl wait --namespace default \
@@ -165,8 +163,12 @@ echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
 
 kubectl wait --namespace default \
-  --for=condition=InstanceSynced platformmeshoperator \
+  --for=condition=Ready platformmeshoperator \
   --timeout=480s platform-mesh-operator
+
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=280s platform-mesh-operator
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
 if [ "$MINIMAL" = true ]; then
@@ -186,8 +188,8 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s keycloak
 kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
-if [ "$MINIMAL" = true ]; then
 
+if [ "$MINIMAL" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
   kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
   kubectl scale deployment/kyverno-admission-controller --replicas=0 -n kyverno-system
