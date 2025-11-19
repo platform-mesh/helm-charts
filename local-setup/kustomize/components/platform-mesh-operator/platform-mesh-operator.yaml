@@ -1,0 +1,11 @@
+apiVersion: kro.run/v1alpha1
+kind: PlatformMeshOperator
+metadata:
+  name: platform-mesh-operator
+spec:
+  resource:
+    byReference:
+      referencePath:
+        - name: platform-mesh-operator
+      resource:
+        name: chart

@@ -62,6 +62,8 @@ spec:
                   - "http://localhost:8000/callback*"
                   - "http://localhost:4300/callback*"
                   - "https://*"
+    observability:
+      enabled: false
     kcp:
       enabled: false
     kcp-operator:

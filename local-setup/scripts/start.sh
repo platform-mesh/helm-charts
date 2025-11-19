@@ -150,18 +150,19 @@ kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=480s kyverno
+  --timeout=480s kro
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Kyverno policies ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/components/policies
+kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
 
 echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
 
 kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
+  --for=condition=Ready resourcegraphdefinition \
   --timeout=480s platform-mesh-operator
 
+sleep 15
+kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
 if [ "$MINIMAL" = true ]; then
@@ -185,8 +186,6 @@ kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane
 if [ "$MINIMAL" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
   kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
-  kubectl scale deployment/kyverno-admission-controller --replicas=0 -n kyverno-system
-  kubectl scale deployment/kyverno-background-controller --replicas=0 -n kyverno-system
   kubectl scale deployment/cert-manager --replicas=0 -n cert-manager
   kubectl scale deployment/cert-manager-cainjector --replicas=0 -n cert-manager
   kubectl scale deployment/cert-manager-webhook --replicas=0 -n cert-manager
