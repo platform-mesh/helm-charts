@@ -163,7 +163,7 @@ tasks:
       - |
         kind export kubeconfig -n platform-mesh
         # docs: https://github.com/twuni/docker-registry.helm
-        helm repo add twuni https://helm.twun.io
+        helm repo add twuni https://twuni.github.io/docker-registry.helm || true
         helm repo update
         kubectl create ns registry || true
         helm upgrade --install oci-registry twuni/docker-registry -n registry --set service.port=443 --set tlsSecretName=domain-certificate --set image.repository=ghcr.io/distribution/distribution --set image.tag=3.0.0 --set ingress.enabled=false
