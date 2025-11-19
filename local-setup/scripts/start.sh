@@ -103,6 +103,7 @@ helm upgrade --install --namespace=default \
   --set="ports.websecure.exposedPort=8443" \
   --set="gateway.enabled=false" \
   --skip-crds \
+  --set="service.spec.clusterIP=10.96.188.4" \
   traefik traefik/traefik --version 37.3.0
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
@@ -167,9 +168,6 @@ if [ "$MINIMAL" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
 else
-  HOST_IP=$(kubectl get svc traefik -o json | jq -r '.spec.clusterIP') \
-  yq -i '(.patches[0] | select(has("patch")).patch) |= (from_yaml | with(.[]; .value = env(HOST_IP)) | to_yaml)' $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource/kustomization.yaml
-
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 fi
 

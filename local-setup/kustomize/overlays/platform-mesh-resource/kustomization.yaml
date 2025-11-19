@@ -2,18 +2,3 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../components/platform-mesh-operator-resource
-patches:
-  - target:
-      kind: PlatformMesh
-      name: platform-mesh
-      namespace: platform-mesh-system
-    patch: |-
-      - op: replace
-        path: /spec/values/infra/values/hostAliases/entries/0/ip
-        value: "1.1.1.1"
-      - op: replace
-        path: /spec/values/security-operator/values/hostAliases/items/0/ip
-        value: "1.1.1.1"
-      - op: replace
-        path: /spec/values/portal/values/deployment/hostAliases/0/ip
-        value: "1.1.1.1"
