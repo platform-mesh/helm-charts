@@ -16,6 +16,7 @@ spec:
     spec:
       {{- include "common.pod.securityContext" . | indent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      {{ include "common.hostAliases" $ | nindent 6 }}
       containers:
       - {{- include "common.podBasics" . | indent 8 }}
         {{- include "common.container.securityContext" . | indent 8 }}
@@ -49,9 +50,3 @@ spec:
           secret:
             secretName: {{ .Values.kubeconfigSecret }}
         {{- end }}
-      {{- if .Values.hostAliases.enabled }}
-      hostAliases:
-        {{- with .Values.hostAliases.items }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-      {{- end }}

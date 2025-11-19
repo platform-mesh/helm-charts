@@ -16,8 +16,6 @@ A Helm chart for Kubernetes
 | ocm.skipVerify | bool | `true` |  |
 | port | int | `443` |  |
 | protocol | string | `"https"` |  |
-| services.account-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.account-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.account-operator.enabled | bool | `true` |  |
 | services.account-operator.values.crds.enabled | bool | `false` |  |
 | services.account-operator.values.kcp.apiExportEndpointSliceName | string | `""` |  |
@@ -37,23 +35,16 @@ A Helm chart for Kubernetes
 | services.etcd-druid.path | string | `"charts"` |  |
 | services.etcd-druid.targetNamespace | string | `"etcd-druid-system"` |  |
 | services.etcd-druid.values | object | `{}` |  |
-| services.extension-manager-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.extension-manager-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
-| services.extension-manager-operator.values.istio.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `false` |  |
-| services.iam-service.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.iam-service.dependsOn[0].namespace | string | `"default"` |  |
 | services.iam-service.enabled | bool | `false` |  |
 | services.iam-service.values.istio.hosts[0] | string | `"*.{{ .Values.baseDomain }}"` |  |
-| services.infra.dependsOn[0].name | string | `"istio-istiod"` |  |
+| services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
-| services.infra.dependsOn[1].name | string | `"kcp-operator"` |  |
-| services.infra.dependsOn[1].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
@@ -74,41 +65,6 @@ A Helm chart for Kubernetes
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
 | services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"https://{{ .Values.baseDomainPort }}/callback*"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.istio-base.chart | string | `"base"` |  |
-| services.istio-base.driftDetectionMode | string | `"disabled"` |  |
-| services.istio-base.enabled | bool | `true` |  |
-| services.istio-base.helmRepo | bool | `true` |  |
-| services.istio-base.install.createNamespace | bool | `true` |  |
-| services.istio-base.targetNamespace | string | `"istio-system"` |  |
-| services.istio-gateway.chart | string | `"gateway"` |  |
-| services.istio-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.istio-gateway.dependsOn[0].namespace | string | `"default"` |  |
-| services.istio-gateway.enabled | bool | `true` |  |
-| services.istio-gateway.helmRepo | bool | `true` |  |
-| services.istio-gateway.targetNamespace | string | `"istio-system"` |  |
-| services.istio-gateway.values.service.ports[0].name | string | `"https"` |  |
-| services.istio-gateway.values.service.ports[0].nodePort | int | `31000` |  |
-| services.istio-gateway.values.service.ports[0].port | int | `8443` |  |
-| services.istio-gateway.values.service.ports[1].name | string | `"status-port"` |  |
-| services.istio-gateway.values.service.ports[1].nodePort | int | `32000` |  |
-| services.istio-gateway.values.service.ports[1].port | int | `15021` |  |
-| services.istio-gateway.values.service.type | string | `"NodePort"` |  |
-| services.istio-istiod.chart | string | `"istiod"` |  |
-| services.istio-istiod.dependsOn[0].name | string | `"istio-base"` |  |
-| services.istio-istiod.dependsOn[0].namespace | string | `"default"` |  |
-| services.istio-istiod.driftDetectionMode | string | `"disabled"` |  |
-| services.istio-istiod.enabled | bool | `true` |  |
-| services.istio-istiod.helmRepo | bool | `true` |  |
-| services.istio-istiod.targetNamespace | string | `"istio-system"` |  |
-| services.istio-istiod.values.meshConfig.defaultConfig.holdApplicationUntilProxyStarts | bool | `true` |  |
-| services.istio-istiod.values.meshConfig.defaultConfig.tracing.provider.name | string | `"otel-tracing"` |  |
-| services.istio-istiod.values.meshConfig.extensionProviders[0].name | string | `"otel-tracing"` |  |
-| services.istio-istiod.values.meshConfig.extensionProviders[0].opentelemetry.port | int | `4317` |  |
-| services.istio-istiod.values.meshConfig.extensionProviders[0].opentelemetry.protocol | string | `"grpc"` |  |
-| services.istio-istiod.values.meshConfig.extensionProviders[0].opentelemetry.service | string | `"observability-opentelemetry-collector.observability.svc.cluster.local"` |  |
-| services.istio-istiod.values.tracing.enabled | bool | `false` |  |
-| services.istio-istiod.values.tracing.telemetry.tracing[0].providers[0].name | string | `"otel-tracing"` |  |
-| services.istio-istiod.values.tracing.telemetry.tracing[0].randomSamplingPercentage | int | `100` |  |
 | services.kcp-operator.enabled | bool | `true` |  |
 | services.kcp-operator.helmRepo | bool | `true` |  |
 | services.kcp-operator.imageResource.enabled | bool | `true` |  |
@@ -117,8 +73,6 @@ A Helm chart for Kubernetes
 | services.kcp-operator.imageResource.name | string | `"kcp-image"` |  |
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
 | services.kcp-operator.values.image.tag | string | `"v0.3.0"` |  |
-| services.keycloak.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.keycloak.dependsOn[0].namespace | string | `"default"` |  |
 | services.keycloak.enabled | bool | `true` |  |
 | services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
 | services.keycloak.values.auth.existingSecret | string | `"keycloak-admin"` | keycloak admin secret |
@@ -143,8 +97,6 @@ A Helm chart for Kubernetes
 | services.keycloak.values.resources.requests.cpu | string | `"750m"` |  |
 | services.keycloak.values.resources.requests.ephemeral-storage | string | `"50Mi"` |  |
 | services.keycloak.values.resources.requests.memory | string | `"1Gi"` |  |
-| services.kubernetes-graphql-gateway.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.kubernetes-graphql-gateway.dependsOn[0].namespace | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.kubeConfig.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-grapqhl-gateway-kubeconfig"` |  |
@@ -167,16 +119,12 @@ A Helm chart for Kubernetes
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowOrigins[0].regex | string | `".*"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].name | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.pathPrefix | string | `"/api/kubernetes-graphql-gateway/"` |  |
-| services.observability.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.observability.dependsOn[0].namespace | string | `"default"` |  |
 | services.observability.enabled | bool | `false` |  |
 | services.observability.targetNamespace | string | `"observability"` |  |
 | services.observability.values.istio.grafana.virtualService.hosts[0] | string | `"grafana.{{ .Values.baseDomain }}"` |  |
 | services.observability.values.istio.tracing.enabled | bool | `false` |  |
 | services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
 | services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
-| services.openfga.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.openfga.dependsOn[0].namespace | string | `"default"` |  |
 | services.openfga.enabled | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |
@@ -210,8 +158,6 @@ A Helm chart for Kubernetes
 | services.organization-idp.dependsOn[0].namespace | string | `"default"` |  |
 | services.organization-idp.enabled | bool | `true` |  |
 | services.organization-idp.skipHelmRelease | bool | `true` |  |
-| services.portal.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.portal.dependsOn[0].namespace | string | `"default"` |  |
 | services.portal.enabled | bool | `false` |  |
 | services.portal.values.auth.default.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.auth.default.clientId | string | `"welcome"` |  |
@@ -230,8 +176,6 @@ A Helm chart for Kubernetes
 | services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
 | services.portal.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.virtualService.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
-| services.rebac-authz-webhook.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.rebac-authz-webhook.dependsOn[0].namespace | string | `"default"` |  |
 | services.rebac-authz-webhook.enabled | bool | `true` |  |
 | services.rebac-authz-webhook.values.certManager.createCA | bool | `true` |  |
 | services.rebac-authz-webhook.values.certManager.enabled | bool | `true` |  |
@@ -239,8 +183,6 @@ A Helm chart for Kubernetes
 | services.rebac-authz-webhook.values.istio.exposed | bool | `false` |  |
 | services.rebac-authz-webhook.values.log.level | string | `"debug"` |  |
 | services.rebac-authz-webhook.values.openfga.url | string | `"openfga:8081"` |  |
-| services.security-operator.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.security-operator.dependsOn[0].namespace | string | `"default"` |  |
 | services.security-operator.enabled | bool | `true` |  |
 | services.security-operator.values.baseDomain | string | `"{{ .Values.baseDomainPort }}"` |  |
 | services.security-operator.values.crds.enabled | bool | `false` |  |
@@ -251,8 +193,6 @@ A Helm chart for Kubernetes
 | services.security-operator.values.log.level | string | `"debug"` |  |
 | services.security-operator.values.operator.maxConcurrentReconciles | int | `1` |  |
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
-| services.virtual-workspaces.dependsOn[0].name | string | `"istio-istiod"` |  |
-| services.virtual-workspaces.dependsOn[0].namespace | string | `"default"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 

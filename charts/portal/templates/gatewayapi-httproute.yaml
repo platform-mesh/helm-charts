@@ -17,6 +17,10 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.gatewayApi.httpRoute.pathPrefix }}
+    {{- if .Values.cors.enabled }}
+    filters:
+    {{- toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 6 }}
+    {{- end }}
     backendRefs:
     - group: ""
       kind: Service

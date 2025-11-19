@@ -17,7 +17,7 @@ A Helm chart for Kubernetes
 | image.name | string | `"ghcr.io/platform-mesh/rebac-authz-webhook"` |  |
 | image.tag | string | `""` |  |
 | istio.dnsNames | list | `[]` |  |
-| istio.exposed | bool | `false` |  |
+| istio.enabled | bool | `false` |  |
 | kcp.kubeconfig.secret | string | `"rebac-authz-webhook-kubeconfig"` |  |
 | openfga.url | string | `"openfga:8081"` |  |
 | service.annotations | object | `{}` |  |

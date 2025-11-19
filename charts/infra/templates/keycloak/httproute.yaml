@@ -20,14 +20,16 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.keycloak.gatewayApi.pathPrefix }}
+    filters:
+    {{ toYaml .Values.gatewayApi.httpRoute.filters | nindent 6 }}
+    {{- if .Values.cors.enabled }}
+    {{- toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 6 }}
+    {{- end }}
     backendRefs:
     - group: ""
       kind: Service
       name: {{ .Values.keycloak.service.name }}
       namespace: {{ .Release.Namespace }}
       port: {{ .Values.keycloak.service.port }}
-    {{- with .Values.keycloak.gatewayApi.filters }}
-    filters:
-{{ toYaml . | nindent 4 }}
-    {{- end }}
+
 {{- end }}

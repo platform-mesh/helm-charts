@@ -15,12 +15,16 @@ Helm Chart for the Platform Mesh Portal
 | auth.default.discoveryUrl | string | `""` | discovery url used for the idp |
 | baseDomains[0] | string | `"localhost"` | base domains for VirtualService |
 | cookieDomain | string | `"localhost"` | cookie domain |
-| deployment.hostAliases | list | `[]` |  |
+| cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | developmentLandcsape | string | `"true"` | development landscape toggle |
 | environment | string | `"local"` | environment |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
+| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.httpRoute.hostnames[0] | string | `"portal.dev.local"` |  |
 | gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.dev.local"` |  |
 | gatewayApi.httpRoute.parentRefs[0].kind | string | `"Gateway"` |  |
@@ -32,10 +36,14 @@ Helm Chart for the Platform Mesh Portal
 | health.port | int | `8080` | health port to be used by probes |
 | health.readiness.path | string | `"/rest/health"` | path used for the readiness probe |
 | health.startup.path | string | `"/rest/health"` | path used for the startup probe |
+| hostAliases | object | `{"enabled":false,"entries":[]}` | hostAliases configuration |
+| hostAliases.enabled | bool | `false` | enable hostAliases |
+| hostAliases.entries | list | `[]` | hostAliases entries |
 | http.protocol | string | `"http"` | protocol |
 | image.name | string | `"ghcr.io/platform-mesh/portal"` |  |
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | importContent | bool | `false` | import content toggle |
+| istio.enabled | bool | `false` |  |
 | kcp.kubeconfigSecret | string | `""` |  |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
 | validWebcomponentUrls | string | `".?"` |  |

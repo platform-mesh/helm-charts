@@ -2,6 +2,7 @@ crds:
   enabled: false
 
 cors:
+  # -- toggle to enable CORS configuration
   enabled: false
   allowedHeaders: "*"
   allowedOrigins: "*"
@@ -57,12 +58,19 @@ deployment:
   revisionHistoryLimit: 3
   replicas: 1
 
+  resources:
+    limits:
+      memory: 1600Mi
+    requests:
+      cpu: 300m
+      memory: 800Mi
+
 
 sentry:
   environment: dev
 
 istio:
-  enabled: true
+  enabled: false
   # -- ALlows the creation of a RequestAuthentication resource, by default disabled
   requestAuthentication:
     create: false
@@ -86,13 +94,6 @@ virtualService:
           - POST
         allowOrigins:
           - regex: .*
-
-resources:
-  limits:
-    memory: 1800Mi
-  requests:
-    cpu: 500m
-    memory: 1500Mi
 
 kubeConfig:
   createSecret: false
@@ -135,7 +136,20 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
-    requestHeaderModifier:
-      set:
-      - name: Host
-        value: "portal.dev.local"
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: Host
+          value: "portal.dev.local"
+    corsFilters:
+    - extensionRef:
+        group: traefik.io
+        kind: Middleware
+        name: cors-header
+      type: ExtensionRef

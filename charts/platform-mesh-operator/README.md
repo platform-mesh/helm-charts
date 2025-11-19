@@ -10,6 +10,7 @@ A Helm chart to automate bootstrapping of new environment
 | deployment.replicas | int | `1` |  |
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/platform-mesh-operator"` |  |
+| istio.enabled | bool | `false` |  |
 | log.level | string | `"debug"` |  |
 | operator.leaderElect | bool | `true` |  |
 | tracing.collector.endpoint | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |

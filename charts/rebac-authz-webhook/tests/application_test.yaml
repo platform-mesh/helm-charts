@@ -41,7 +41,7 @@ tests:
     service:
       clusterIP: "10.96.86.219"
     istio:
-      exposed: true
+      enabled: true
       dnsNames:
       - webhook.portal.cc.showroom.apeirora.eu
   asserts:

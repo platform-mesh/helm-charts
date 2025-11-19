@@ -17,11 +17,14 @@ kubeConfig:
 |-----|------|---------|-------------|
 | cors.allowedHeaders | string | `"*"` |  |
 | cors.allowedOrigins | string | `"*"` |  |
-| cors.enabled | bool | `false` |  |
+| cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crds.enabled | bool | `false` |  |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | deployment.replicas | int | `1` |  |
+| deployment.resources.limits.memory | string | `"1600Mi"` |  |
+| deployment.resources.requests.cpu | string | `"300m"` |  |
+| deployment.resources.requests.memory | string | `"800Mi"` |  |
 | deployment.revisionHistoryLimit | int | `3` |  |
 | extraEnvs | list | `[]` |  |
 | extraVolumeMounts | list | `[]` |  |
@@ -39,7 +42,7 @@ kubeConfig:
 | gateway.shouldImpersonate | bool | `true` |  |
 | gateway.usernameClaim | string | `"email"` |  |
 | gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
-| gatewayApi.httpRoute | object | `{"hostnames":["portal.dev.local","*.portal.dev.local"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"}],"pathPrefix":"/api/kubernetes-graphql-gateway/","requestHeaderModifier":{"set":[{"name":"Host","value":"portal.dev.local"}]}}` | configuration for the HTTPRoute resource |
+| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}},{"requestHeaderModifier":{"set":[{"name":"Host","value":"portal.dev.local"}]},"type":"RequestHeaderModifier"}],"hostnames":["portal.dev.local","*.portal.dev.local"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
 | health.liveness.failureThreshold | int | `1` |  |
 | health.liveness.path | string | `"/healthz"` |  |
 | health.liveness.periodSeconds | int | `10` |  |
@@ -53,7 +56,7 @@ kubeConfig:
 | image.name | string | `"ghcr.io/platform-mesh/kubernetes-graphql-gateway"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | istio.authorizationPolicy | object | `{"create":false}` | ALlows the creation of a AuthorizationPolicy resource, by default disabled |
-| istio.enabled | bool | `true` |  |
+| istio.enabled | bool | `false` |  |
 | istio.gateway.name | string | `"gateway"` |  |
 | istio.requestAuthentication | object | `{"create":false}` | ALlows the creation of a RequestAuthentication resource, by default disabled |
 | kcp.enabled | bool | `true` |  |
@@ -72,9 +75,6 @@ kubeConfig:
 | listener.virtualWorkspacesConfig.content.virtualWorkspaces | list | `[]` |  |
 | listener.virtualWorkspacesConfig.enabled | bool | `false` |  |
 | listener.virtualWorkspacesConfig.path | string | `"/app/config/virtual-workspaces.yaml"` |  |
-| resources.limits.memory | string | `"1800Mi"` |  |
-| resources.requests.cpu | string | `"500m"` |  |
-| resources.requests.memory | string | `"1500Mi"` |  |
 | sentry.environment | string | `"dev"` |  |
 | tracing.enabled | bool | `true` |  |
 | virtualService.hosts[0] | string | `"*"` |  |

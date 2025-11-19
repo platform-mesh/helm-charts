@@ -261,7 +261,7 @@ istio:
       enabled: false
       # -- The list of hosts to be added to the service entry
       hosts: []
-  enabled: true
+  enabled: false
   main:
     gateway:
       hosts:
@@ -314,3 +314,26 @@ gatewayApi:
       port: 8443
       name: https-passthrough
       protocol: TLS
+  httpRoute:
+    filters:
+    - requestHeaderModifier:
+        set:
+          - name: Host
+            value: portal.dev.local
+      type: RequestHeaderModifier
+    corsFilters:
+    - extensionRef:
+        group: traefik.io
+        kind: Middleware
+        name: cors-header
+      type: ExtensionRef
+
+cors:
+  # -- toggle to enable CORS configuration
+  enabled: false
+  # -- list of allowed origins
+  accessControlAllowOriginList:
+    - "http://localhost:4200"
+    - "http://localhost:4300"
+    - "http://*.localhost:4200"
+    - "http://*.localhost:4300"

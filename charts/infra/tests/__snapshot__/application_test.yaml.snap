@@ -458,6 +458,11 @@ Gateway API enabled:
                   - name: Host
                     value: portal.dev.local
               type: RequestHeaderModifier
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
@@ -479,90 +484,40 @@ Gateway API enabled:
               kind: Service
               name: mailpit
               port: 8025
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
                 value: /mailpit
   24: |
-    apiVersion: security.istio.io/v1beta1
-    kind: AuthorizationPolicy
+    apiVersion: traefik.io/v1alpha1
+    kind: Middleware
     metadata:
-      name: openfga
+      name: cors-header
       namespace: platform-mesh-system
     spec:
-      action: ALLOW
-      rules:
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/security-operator
-                  - cluster.local/ns/platform-mesh-system/sa/account-operator
-          to:
-            - operation:
-                methods:
-                  - POST
-                  - GET
-                  - PUT
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/*
-          to:
-            - operation:
-                methods:
-                  - GET
-                paths:
-                  - /stores*
-            - operation:
-                methods:
-                  - POST
-                paths:
-                  - /stores/{*}/read
-                  - /stores/{*}/write
-                  - /stores/{*}/check
-                  - /stores/{*}/batch-check
-                  - /stores/{*}/expand
-                  - /stores/{*}/list-objects
-                  - /stores/{*}/streamed-list-objects
-                  - /openfga.v1.OpenFGAService/Read*
-                  - /openfga.v1.OpenFGAService/Check*
-                  - /openfga.v1.OpenFGAService/BatchCheck*
-                  - /openfga.v1.OpenFGAService/Expand*
-                  - /openfga.v1.OpenFGAService/List*
-                  - /openfga.v1.OpenFGAService/StreamedList*
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
-  25: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: DestinationRule
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      host: openfga.platform-mesh-system.svc.cluster.local
-      trafficPolicy:
-        tls:
-          mode: ISTIO_MUTUAL
-match snapshots:
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - '*'
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+        accessControlAllowOriginList:
+          - http://localhost:4200
+          - http://localhost:4300
+          - http://*.localhost:4200
+          - http://*.localhost:4300
+        accessControlMaxAge: 100
+        addVaryHeader: true
+Istio disabled:
   1: |
-    apiVersion: networking.istio.io/v1
-    kind: Gateway
-    metadata:
-      name: gateway
-      namespace: platform-mesh-system
-    spec:
-      selector:
-        istio: gateway
-      servers:
-        - hosts:
-            - '*'
-          port:
-            name: http
-            number: 8000
-            protocol: HTTP
-  2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -581,7 +536,7 @@ match snapshots:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  2: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -637,7 +592,7 @@ match snapshots:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  3: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -673,7 +628,7 @@ match snapshots:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -681,25 +636,7 @@ match snapshots:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: kcp
-      namespace: platform-mesh-system
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - kcp.api.portal.dev.local
-      tls:
-        - match:
-            - sniHosts:
-                - kcp.api.portal.dev.local
-          route:
-            - destination:
-                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
-  7: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -733,7 +670,7 @@ match snapshots:
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
-  8: |
+  6: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -755,7 +692,7 @@ match snapshots:
       writeConnectionSecretToRef:
         name: portal-client-secret-welcome
         namespace: platform-mesh-system
-  9: |
+  7: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
@@ -775,7 +712,7 @@ match snapshots:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  10: |
+  8: |
     apiVersion: defaults.keycloak.crossplane.io/v1alpha1
     kind: DefaultGroups
     metadata:
@@ -788,7 +725,7 @@ match snapshots:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  11: |
+  9: |
     apiVersion: group.keycloak.crossplane.io/v1alpha1
     kind: Group
     metadata:
@@ -800,7 +737,7 @@ match snapshots:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  12: |
+  10: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -814,7 +751,7 @@ match snapshots:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  13: |
+  11: |
     apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
     kind: GroupMembershipProtocolMapper
     metadata:
@@ -829,7 +766,7 @@ match snapshots:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  14: |
+  12: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -847,7 +784,7 @@ match snapshots:
       writeConnectionSecretToRef:
         name: iam-client-secret
         namespace: platform-mesh-system
-  15: |
+  13: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -860,7 +797,7 @@ match snapshots:
           name: iam
       providerConfigRef:
         name: keycloak-provider-config
-  16: |
+  14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -878,7 +815,7 @@ match snapshots:
       writeConnectionSecretToRef:
         name: security-operator-client-secret
         namespace: platform-mesh-system
-  17: |
+  15: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -891,7 +828,7 @@ match snapshots:
           name: security-operator
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  16: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -904,7 +841,7 @@ match snapshots:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  19: |
+  17: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -917,7 +854,7 @@ match snapshots:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
+  18: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -932,7 +869,7 @@ match snapshots:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  21: |
+  19: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -956,110 +893,8 @@ match snapshots:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: keycloak
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - '*'
-      http:
-        - headers:
-            request:
-              set:
-                x-forwarded-port: "8443"
-                x-forwarded-proto: https
-          match:
-            - uri:
-                prefix: /keycloak
-          route:
-            - destination:
-                host: keycloak.platform-mesh-system.svc.cluster.local
-                port:
-                  number: 80
-  23: |
-    apiVersion: security.istio.io/v1beta1
-    kind: AuthorizationPolicy
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      action: ALLOW
-      rules:
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/security-operator
-                  - cluster.local/ns/platform-mesh-system/sa/account-operator
-          to:
-            - operation:
-                methods:
-                  - POST
-                  - GET
-                  - PUT
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/*
-          to:
-            - operation:
-                methods:
-                  - GET
-                paths:
-                  - /stores*
-            - operation:
-                methods:
-                  - POST
-                paths:
-                  - /stores/{*}/read
-                  - /stores/{*}/write
-                  - /stores/{*}/check
-                  - /stores/{*}/batch-check
-                  - /stores/{*}/expand
-                  - /stores/{*}/list-objects
-                  - /stores/{*}/streamed-list-objects
-                  - /openfga.v1.OpenFGAService/Read*
-                  - /openfga.v1.OpenFGAService/Check*
-                  - /openfga.v1.OpenFGAService/BatchCheck*
-                  - /openfga.v1.OpenFGAService/Expand*
-                  - /openfga.v1.OpenFGAService/List*
-                  - /openfga.v1.OpenFGAService/StreamedList*
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
-  24: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: DestinationRule
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      host: openfga.platform-mesh-system.svc.cluster.local
-      trafficPolicy:
-        tls:
-          mode: ISTIO_MUTUAL
-match snapshots w. hostAliases enabled:
+match snapshots:
   1: |
-    apiVersion: networking.istio.io/v1
-    kind: Gateway
-    metadata:
-      name: gateway
-      namespace: platform-mesh-system
-    spec:
-      selector:
-        istio: gateway
-      servers:
-        - hosts:
-            - '*'
-          port:
-            name: http
-            number: 8000
-            protocol: HTTP
-  2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1078,7 +913,7 @@ match snapshots w. hostAliases enabled:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  2: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -1134,7 +969,384 @@ match snapshots w. hostAliases enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
+  3: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
   4: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  5: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: RootShard
+    metadata:
+      name: root
+      namespace: platform-mesh-system
+    spec:
+      authorization:
+        webhook:
+          configSecretName: kcp-webhook-secret
+      cache:
+        embedded:
+          enabled: true
+      certificates:
+        issuerRef:
+          group: cert-manager.io
+          kind: Issuer
+          name: selfsigned
+      deploymentTemplate:
+        spec:
+          template:
+            metadata:
+              annotations:
+                traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+            spec: null
+      etcd:
+        endpoints:
+          - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
+      external:
+        hostname: kcp.api.portal.dev.local
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+  6: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: welcome
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: welcome
+        enabled: true
+        name: Welcome
+        realmIdRef:
+          name: welcome
+        standardFlowEnabled: true
+        validRedirectUris:
+          - http://localhost:8000/callback*
+          - http://localhost:4300/callback*
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: portal-client-secret-welcome
+        namespace: platform-mesh-system
+  7: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientDefaultScopes
+    metadata:
+      name: welcome-default-scopes
+    spec:
+      forProvider:
+        clientIdRef:
+          name: welcome
+        defaultScopes:
+          - profile
+          - email
+          - basic
+          - acr
+          - groups
+          - trusted-platform-mesh-audiences
+        realmIdRef:
+          name: welcome
+      providerConfigRef:
+        name: keycloak-provider-config
+  8: |
+    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
+    kind: DefaultGroups
+    metadata:
+      name: default
+    spec:
+      forProvider:
+        groupIdsRefs:
+          - name: portal
+        realmIdRef:
+          name: welcome
+      providerConfigRef:
+        name: keycloak-provider-config
+  9: |
+    apiVersion: group.keycloak.crossplane.io/v1alpha1
+    kind: Group
+    metadata:
+      name: portal
+    spec:
+      forProvider:
+        name: portal
+        realmIdRef:
+          name: welcome
+      providerConfigRef:
+        name: keycloak-provider-config
+  10: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: groups-client-scope
+    spec:
+      forProvider:
+        description: When requested, this scope will map a user's group memberships to a claim
+        includeInTokenScope: true
+        name: groups
+        realmIdRef:
+          name: welcome
+      providerConfigRef:
+        name: keycloak-provider-config
+  11: |
+    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+    kind: GroupMembershipProtocolMapper
+    metadata:
+      name: group-membership-mapper
+    spec:
+      forProvider:
+        claimName: groups
+        clientIdRef:
+          name: groups-client-scope
+        name: group-membership-mapper
+        realmIdRef:
+          name: welcome
+      providerConfigRef:
+        name: keycloak-provider-config
+  12: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: iam
+        enabled: true
+        name: iam
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: iam-client-secret
+        namespace: platform-mesh-system
+  13: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: iam
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: iam
+      providerConfigRef:
+        name: keycloak-provider-config
+  14: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: Client
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        accessType: CONFIDENTIAL
+        clientId: security-operator
+        enabled: true
+        name: security-operator
+        realmId: master
+        serviceAccountsEnabled: true
+      providerConfigRef:
+        name: keycloak-provider-config
+      writeConnectionSecretToRef:
+        name: security-operator-client-secret
+        namespace: platform-mesh-system
+  15: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientServiceAccountRealmRole
+    metadata:
+      name: security-operator
+    spec:
+      forProvider:
+        realmId: master
+        role: admin
+        serviceAccountUserClientIdRef:
+          name: security-operator
+      providerConfigRef:
+        name: keycloak-provider-config
+  16: |
+    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+    kind: ClientScope
+    metadata:
+      name: trusted-platform-mesh-audiences
+    spec:
+      forProvider:
+        includeInTokenScope: true
+        name: trusted-platform-mesh-audiences
+        realmIdRef:
+          name: welcome
+      providerConfigRef:
+        name: keycloak-provider-config
+  17: |
+    apiVersion: keycloak.crossplane.io/v1beta1
+    kind: ProviderConfig
+    metadata:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+    spec:
+      credentials:
+        secretRef:
+          key: config
+          name: keycloak-provider-config
+          namespace: platform-mesh-system
+        source: Secret
+  18: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+    stringData:
+      config: |-
+        {
+          "client_id":"admin-cli",
+          "username": "keycloak-admin",
+          "password": "aesaeXaefu0x",
+          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
+          "realm": "master"
+        }
+  19: |
+    apiVersion: realm.keycloak.crossplane.io/v1alpha1
+    kind: Realm
+    metadata:
+      name: welcome
+    spec:
+      forProvider:
+        accessTokenLifespan: 8h
+        displayName: welcome
+        displayNameHtml: <b>welcome</b>
+        enabled: true
+        loginWithEmailAllowed: true
+        organizationsEnabled: true
+        realm: welcome
+        registrationAllowed: true
+        registrationEmailAsUsername: true
+        smtpServer:
+          - from: noreply@portal.dev.local
+            host: mailpit.platform-mesh-system.svc.cluster.local
+            port: "1025"
+        ssoSessionIdleTimeout: 8h
+        verifyEmail: true
+      providerConfigRef:
+        name: keycloak-provider-config
+match snapshots w. hostAliases enabled:
+  1: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: kcp-cluster-admin-client-cert
+      namespace: platform-mesh-system
+    spec:
+      commonName: cluster-admin
+      issuerRef:
+        name: root-front-proxy-client-ca
+      privateKey:
+        algorithm: RSA
+        size: 2048
+      secretName: kcp-cluster-admin-client-cert
+      subject:
+        organizations:
+          - system:kcp:admin
+      usages:
+        - client auth
+  2: |
+    apiVersion: druid.gardener.cloud/v1alpha1
+    kind: Etcd
+    metadata:
+      labels:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      name: etcd-kcp
+      namespace: platform-mesh-system
+    spec:
+      annotations:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      backup:
+        compression:
+          enabled: false
+          policy: gzip
+        deltaSnapshotMemoryLimit: 1Gi
+        deltaSnapshotPeriod: 300s
+        fullSnapshotSchedule: 0 */24 * * *
+        garbageCollectionPeriod: 43200s
+        garbageCollectionPolicy: Exponential
+        leaderElection:
+          etcdConnectionTimeout: 5s
+          reelectionPeriod: 5s
+        port: 8080
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1Gi
+          requests:
+            cpu: 23m
+            memory: 128Mi
+      etcd:
+        clientPort: 2379
+        defragmentationSchedule: 0 */24 * * *
+        metrics: basic
+        quota: 8Gi
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        serverPort: 2380
+      labels:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      replicas: 1
+      sharedConfig:
+        autoCompactionMode: periodic
+        autoCompactionRetention: 30m
+  3: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -1180,7 +1392,7 @@ match snapshots w. hostAliases enabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1188,25 +1400,7 @@ match snapshots w. hostAliases enabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: kcp
-      namespace: platform-mesh-system
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - kcp.api.portal.dev.local
-      tls:
-        - match:
-            - sniHosts:
-                - kcp.api.portal.dev.local
-          route:
-            - destination:
-                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
-  7: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -1245,7 +1439,7 @@ match snapshots w. hostAliases enabled:
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
-  8: |
+  6: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -1267,7 +1461,7 @@ match snapshots w. hostAliases enabled:
       writeConnectionSecretToRef:
         name: portal-client-secret-welcome
         namespace: platform-mesh-system
-  9: |
+  7: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
@@ -1287,7 +1481,7 @@ match snapshots w. hostAliases enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  10: |
+  8: |
     apiVersion: defaults.keycloak.crossplane.io/v1alpha1
     kind: DefaultGroups
     metadata:
@@ -1300,7 +1494,7 @@ match snapshots w. hostAliases enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  11: |
+  9: |
     apiVersion: group.keycloak.crossplane.io/v1alpha1
     kind: Group
     metadata:
@@ -1312,7 +1506,7 @@ match snapshots w. hostAliases enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  12: |
+  10: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -1326,7 +1520,7 @@ match snapshots w. hostAliases enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  13: |
+  11: |
     apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
     kind: GroupMembershipProtocolMapper
     metadata:
@@ -1341,7 +1535,7 @@ match snapshots w. hostAliases enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  14: |
+  12: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -1359,7 +1553,7 @@ match snapshots w. hostAliases enabled:
       writeConnectionSecretToRef:
         name: iam-client-secret
         namespace: platform-mesh-system
-  15: |
+  13: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -1372,7 +1566,7 @@ match snapshots w. hostAliases enabled:
           name: iam
       providerConfigRef:
         name: keycloak-provider-config
-  16: |
+  14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -1390,7 +1584,7 @@ match snapshots w. hostAliases enabled:
       writeConnectionSecretToRef:
         name: security-operator-client-secret
         namespace: platform-mesh-system
-  17: |
+  15: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -1403,7 +1597,7 @@ match snapshots w. hostAliases enabled:
           name: security-operator
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  16: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -1416,7 +1610,7 @@ match snapshots w. hostAliases enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  19: |
+  17: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -1429,7 +1623,7 @@ match snapshots w. hostAliases enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
+  18: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -1444,7 +1638,7 @@ match snapshots w. hostAliases enabled:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  21: |
+  19: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -1468,110 +1662,8 @@ match snapshots w. hostAliases enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: keycloak
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - '*'
-      http:
-        - headers:
-            request:
-              set:
-                x-forwarded-port: "8443"
-                x-forwarded-proto: https
-          match:
-            - uri:
-                prefix: /keycloak
-          route:
-            - destination:
-                host: keycloak.platform-mesh-system.svc.cluster.local
-                port:
-                  number: 80
-  23: |
-    apiVersion: security.istio.io/v1beta1
-    kind: AuthorizationPolicy
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      action: ALLOW
-      rules:
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/security-operator
-                  - cluster.local/ns/platform-mesh-system/sa/account-operator
-          to:
-            - operation:
-                methods:
-                  - POST
-                  - GET
-                  - PUT
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/*
-          to:
-            - operation:
-                methods:
-                  - GET
-                paths:
-                  - /stores*
-            - operation:
-                methods:
-                  - POST
-                paths:
-                  - /stores/{*}/read
-                  - /stores/{*}/write
-                  - /stores/{*}/check
-                  - /stores/{*}/batch-check
-                  - /stores/{*}/expand
-                  - /stores/{*}/list-objects
-                  - /stores/{*}/streamed-list-objects
-                  - /openfga.v1.OpenFGAService/Read*
-                  - /openfga.v1.OpenFGAService/Check*
-                  - /openfga.v1.OpenFGAService/BatchCheck*
-                  - /openfga.v1.OpenFGAService/Expand*
-                  - /openfga.v1.OpenFGAService/List*
-                  - /openfga.v1.OpenFGAService/StreamedList*
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
-  24: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: DestinationRule
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      host: openfga.platform-mesh-system.svc.cluster.local
-      trafficPolicy:
-        tls:
-          mode: ISTIO_MUTUAL
 match snapshots w. kcp version:
   1: |
-    apiVersion: networking.istio.io/v1
-    kind: Gateway
-    metadata:
-      name: gateway
-      namespace: platform-mesh-system
-    spec:
-      selector:
-        istio: gateway
-      servers:
-        - hosts:
-            - '*'
-          port:
-            name: http
-            number: 8000
-            protocol: HTTP
-  2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1590,7 +1682,7 @@ match snapshots w. kcp version:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  2: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -1646,7 +1738,7 @@ match snapshots w. kcp version:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  3: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -1684,7 +1776,7 @@ match snapshots w. kcp version:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1692,25 +1784,7 @@ match snapshots w. kcp version:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: kcp
-      namespace: platform-mesh-system
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - kcp.api.portal.dev.local
-      tls:
-        - match:
-            - sniHosts:
-                - kcp.api.portal.dev.local
-          route:
-            - destination:
-                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
-  7: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -1746,7 +1820,7 @@ match snapshots w. kcp version:
       image:
         tag: v0.1.0
       replicas: 1
-  8: |
+  6: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -1768,7 +1842,7 @@ match snapshots w. kcp version:
       writeConnectionSecretToRef:
         name: portal-client-secret-welcome
         namespace: platform-mesh-system
-  9: |
+  7: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
@@ -1788,7 +1862,7 @@ match snapshots w. kcp version:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  10: |
+  8: |
     apiVersion: defaults.keycloak.crossplane.io/v1alpha1
     kind: DefaultGroups
     metadata:
@@ -1801,7 +1875,7 @@ match snapshots w. kcp version:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  11: |
+  9: |
     apiVersion: group.keycloak.crossplane.io/v1alpha1
     kind: Group
     metadata:
@@ -1813,7 +1887,7 @@ match snapshots w. kcp version:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  12: |
+  10: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -1827,7 +1901,7 @@ match snapshots w. kcp version:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  13: |
+  11: |
     apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
     kind: GroupMembershipProtocolMapper
     metadata:
@@ -1842,7 +1916,7 @@ match snapshots w. kcp version:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  14: |
+  12: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -1860,7 +1934,7 @@ match snapshots w. kcp version:
       writeConnectionSecretToRef:
         name: iam-client-secret
         namespace: platform-mesh-system
-  15: |
+  13: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -1873,7 +1947,7 @@ match snapshots w. kcp version:
           name: iam
       providerConfigRef:
         name: keycloak-provider-config
-  16: |
+  14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -1891,7 +1965,7 @@ match snapshots w. kcp version:
       writeConnectionSecretToRef:
         name: security-operator-client-secret
         namespace: platform-mesh-system
-  17: |
+  15: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -1904,7 +1978,7 @@ match snapshots w. kcp version:
           name: security-operator
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  16: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -1917,7 +1991,7 @@ match snapshots w. kcp version:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  19: |
+  17: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -1930,7 +2004,7 @@ match snapshots w. kcp version:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
+  18: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -1945,7 +2019,7 @@ match snapshots w. kcp version:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  21: |
+  19: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -1969,110 +2043,8 @@ match snapshots w. kcp version:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: keycloak
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - '*'
-      http:
-        - headers:
-            request:
-              set:
-                x-forwarded-port: "8443"
-                x-forwarded-proto: https
-          match:
-            - uri:
-                prefix: /keycloak
-          route:
-            - destination:
-                host: keycloak.platform-mesh-system.svc.cluster.local
-                port:
-                  number: 80
-  23: |
-    apiVersion: security.istio.io/v1beta1
-    kind: AuthorizationPolicy
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      action: ALLOW
-      rules:
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/security-operator
-                  - cluster.local/ns/platform-mesh-system/sa/account-operator
-          to:
-            - operation:
-                methods:
-                  - POST
-                  - GET
-                  - PUT
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/*
-          to:
-            - operation:
-                methods:
-                  - GET
-                paths:
-                  - /stores*
-            - operation:
-                methods:
-                  - POST
-                paths:
-                  - /stores/{*}/read
-                  - /stores/{*}/write
-                  - /stores/{*}/check
-                  - /stores/{*}/batch-check
-                  - /stores/{*}/expand
-                  - /stores/{*}/list-objects
-                  - /stores/{*}/streamed-list-objects
-                  - /openfga.v1.OpenFGAService/Read*
-                  - /openfga.v1.OpenFGAService/Check*
-                  - /openfga.v1.OpenFGAService/BatchCheck*
-                  - /openfga.v1.OpenFGAService/Expand*
-                  - /openfga.v1.OpenFGAService/List*
-                  - /openfga.v1.OpenFGAService/StreamedList*
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
-  24: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: DestinationRule
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      host: openfga.platform-mesh-system.svc.cluster.local
-      trafficPolicy:
-        tls:
-          mode: ISTIO_MUTUAL
 match snapshots with mailpit enabled:
   1: |
-    apiVersion: networking.istio.io/v1
-    kind: Gateway
-    metadata:
-      name: gateway
-      namespace: platform-mesh-system
-    spec:
-      selector:
-        istio: gateway
-      servers:
-        - hosts:
-            - '*'
-          port:
-            name: http
-            number: 8000
-            protocol: HTTP
-  2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -2091,7 +2063,7 @@ match snapshots with mailpit enabled:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  2: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -2147,7 +2119,7 @@ match snapshots with mailpit enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  3: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -2183,7 +2155,7 @@ match snapshots with mailpit enabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  4: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -2191,25 +2163,7 @@ match snapshots with mailpit enabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: kcp
-      namespace: platform-mesh-system
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - kcp.api.portal.dev.local
-      tls:
-        - match:
-            - sniHosts:
-                - kcp.api.portal.dev.local
-          route:
-            - destination:
-                host: frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
-  7: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -2243,7 +2197,7 @@ match snapshots with mailpit enabled:
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
       replicas: 1
-  8: |
+  6: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -2265,7 +2219,7 @@ match snapshots with mailpit enabled:
       writeConnectionSecretToRef:
         name: portal-client-secret-welcome
         namespace: platform-mesh-system
-  9: |
+  7: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientDefaultScopes
     metadata:
@@ -2285,7 +2239,7 @@ match snapshots with mailpit enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  10: |
+  8: |
     apiVersion: defaults.keycloak.crossplane.io/v1alpha1
     kind: DefaultGroups
     metadata:
@@ -2298,7 +2252,7 @@ match snapshots with mailpit enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  11: |
+  9: |
     apiVersion: group.keycloak.crossplane.io/v1alpha1
     kind: Group
     metadata:
@@ -2310,7 +2264,7 @@ match snapshots with mailpit enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  12: |
+  10: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -2324,7 +2278,7 @@ match snapshots with mailpit enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  13: |
+  11: |
     apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
     kind: GroupMembershipProtocolMapper
     metadata:
@@ -2339,7 +2293,7 @@ match snapshots with mailpit enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  14: |
+  12: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -2357,7 +2311,7 @@ match snapshots with mailpit enabled:
       writeConnectionSecretToRef:
         name: iam-client-secret
         namespace: platform-mesh-system
-  15: |
+  13: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -2370,7 +2324,7 @@ match snapshots with mailpit enabled:
           name: iam
       providerConfigRef:
         name: keycloak-provider-config
-  16: |
+  14: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: Client
     metadata:
@@ -2388,7 +2342,7 @@ match snapshots with mailpit enabled:
       writeConnectionSecretToRef:
         name: security-operator-client-secret
         namespace: platform-mesh-system
-  17: |
+  15: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientServiceAccountRealmRole
     metadata:
@@ -2401,7 +2355,7 @@ match snapshots with mailpit enabled:
           name: security-operator
       providerConfigRef:
         name: keycloak-provider-config
-  18: |
+  16: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
     kind: ClientScope
     metadata:
@@ -2414,7 +2368,7 @@ match snapshots with mailpit enabled:
           name: welcome
       providerConfigRef:
         name: keycloak-provider-config
-  19: |
+  17: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -2427,7 +2381,7 @@ match snapshots with mailpit enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
+  18: |
     apiVersion: v1
     kind: Secret
     metadata:
@@ -2442,7 +2396,7 @@ match snapshots with mailpit enabled:
           "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
           "realm": "master"
         }
-  21: |
+  19: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -2466,31 +2420,7 @@ match snapshots with mailpit enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: keycloak
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - '*'
-      http:
-        - headers:
-            request:
-              set:
-                x-forwarded-port: "8443"
-                x-forwarded-proto: https
-          match:
-            - uri:
-                prefix: /keycloak
-          route:
-            - destination:
-                host: keycloak.platform-mesh-system.svc.cluster.local
-                port:
-                  number: 80
-  23: |
+  20: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -2518,7 +2448,7 @@ match snapshots with mailpit enabled:
                 - containerPort: 1025
                   name: smtp
                   protocol: TCP
-  24: |
+  21: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -2538,84 +2468,3 @@ match snapshots with mailpit enabled:
           targetPort: smtp
       selector:
         app: mailpit
-  25: |
-    apiVersion: networking.istio.io/v1beta1
-    kind: VirtualService
-    metadata:
-      name: mailpit
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - '*'
-      http:
-        - match:
-            - uri:
-                prefix: /mailpit
-          route:
-            - destination:
-                host: mailpit.platform-mesh-system.svc.cluster.local
-                port:
-                  number: 8025
-  26: |
-    apiVersion: security.istio.io/v1beta1
-    kind: AuthorizationPolicy
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      action: ALLOW
-      rules:
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/security-operator
-                  - cluster.local/ns/platform-mesh-system/sa/account-operator
-          to:
-            - operation:
-                methods:
-                  - POST
-                  - GET
-                  - PUT
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/*
-          to:
-            - operation:
-                methods:
-                  - GET
-                paths:
-                  - /stores*
-            - operation:
-                methods:
-                  - POST
-                paths:
-                  - /stores/{*}/read
-                  - /stores/{*}/write
-                  - /stores/{*}/check
-                  - /stores/{*}/batch-check
-                  - /stores/{*}/expand
-                  - /stores/{*}/list-objects
-                  - /stores/{*}/streamed-list-objects
-                  - /openfga.v1.OpenFGAService/Read*
-                  - /openfga.v1.OpenFGAService/Check*
-                  - /openfga.v1.OpenFGAService/BatchCheck*
-                  - /openfga.v1.OpenFGAService/Expand*
-                  - /openfga.v1.OpenFGAService/List*
-                  - /openfga.v1.OpenFGAService/StreamedList*
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
-  27: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: DestinationRule
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      host: openfga.platform-mesh-system.svc.cluster.local
-      trafficPolicy:
-        tls:
-          mode: ISTIO_MUTUAL

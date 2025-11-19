@@ -56,11 +56,6 @@ spec:
             # this excludes webhook traffic from the istio sidecar
             traffic.sidecar.istio.io/excludeOutboundPorts: "{{ .Values.kcp.webhook.port }}"
         spec:
-          {{- if .Values.hostAliases.enabled }}
-          {{- with .Values.hostAliases.entries }}
-          hostAliases:
-            {{ toYaml . | nindent 10 }}
-          {{- end }}
-          {{- end }}
+        {{ include "common.hostAliases" $ | nindent 10 }}
   extraArgs:
 {{ toYaml .Values.kcp.rootShard.extraArgs | indent 4 }}

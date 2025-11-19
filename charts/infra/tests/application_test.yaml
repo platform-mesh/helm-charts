@@ -33,5 +33,13 @@ tests:
   set:
     gatewayApi:
       enabled: true
+    cors:
+      enabled: true
+  asserts:
+    - matchSnapshot: {}
+- it: Istio disabled
+  set:
+    istio:
+      enabled: false
   asserts:
     - matchSnapshot: {}

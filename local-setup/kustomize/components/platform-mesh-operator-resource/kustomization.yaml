@@ -3,4 +3,3 @@ kind: Kustomization
 resources:
   - vws-cert.yaml
   - platform-mesh.yaml
-  - istio-gateway.yaml

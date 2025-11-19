@@ -17,6 +17,28 @@ KINDEST_VERSION="kindest/node:v1.33.1"
 
 SCRIPT_DIR=$(dirname "$0")
 
+# Parse command line arguments
+PRERELEASE=false
+MINIMAL=false
+CACHED=false
+
+for arg in "$@"; do
+  case $arg in
+    --prerelease)
+      PRERELEASE=true
+      ;;
+    --minimal)
+      MINIMAL=true
+      ;;
+    --cached)
+      CACHED=true
+      ;;
+    *)
+      # Unknown option, ignore or handle as needed
+      ;;
+  esac
+done
+
 # Source compatibility and environment checks
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
 source "$SCRIPT_DIR/check-environment.sh"
@@ -30,13 +52,13 @@ run_environment_checks
 # Check if kind cluster is already running, if not create it
 if ! check_kind_cluster; then
     if [ -d "$SCRIPT_DIR/certs" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Clearning existing certs directory ${COL_RES}"
+        echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
         rm -rf "$SCRIPT_DIR/certs"
     fi
     echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
     $SCRIPT_DIR/../scripts/gen-certs.sh
 
-    if [ "$1" == "--cached" ]; then
+    if [ "$CACHED" = true ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
         kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
     else
@@ -58,6 +80,33 @@ helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-comm
   --set notificationController.create=false \
   --set helmController.container.additionalArgs[0]="--concurrent=10" \
   --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
+
+sleep 3
+
+kubectl apply -k $SCRIPT_DIR/../kustomize/base/gateway-api
+
+kubectl wait --namespace default \
+  --for=condition=Ready kustomization \
+  --timeout=240s gateway-api-experimental-crds
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Installing Traefik ${COL_RES}"
+helm repo add traefik https://traefik.github.io/charts
+
+helm upgrade --install --namespace=default \
+  traefik-crds traefik/traefik-crds --version 1.12.0
+
+helm upgrade --install --namespace=default \
+  --set="experimental.kubernetesGateway.enabled=true" \
+  --set="providers.kubernetesGateway.enabled=true" \
+  --set="providers.kubernetesGateway.experimentalChannel=true" \
+  --set="gatewayClass.enabled=true" \
+  --set="service.type=NodePort" \
+  --set="ports.websecure.nodePort=31000" \
+  --set="ports.websecure.exposedPort=8443" \
+  --set="gateway.enabled=false" \
+  --skip-crds \
+  --set="service.spec.clusterIP=10.96.188.4" \
+  traefik traefik/traefik --version 37.3.0
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
 
@@ -85,12 +134,14 @@ kubectl create secret generic keycloak-admin -n platform-mesh-system --from-lite
 kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
 
-kubectl create secret generic domain-certificate -n istio-system \
+
+kubectl create secret generic domain-certificate -n default \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
   --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
   --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
   --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
-kubectl create secret generic domain-certificate -n default \
+
+kubectl create secret generic domain-certificate -n platform-mesh-system \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
   --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
   --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
@@ -103,6 +154,7 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=480s kro
 
+echo -e "${COL}[$(date '+%H:%M:%S')] Kyverno policies ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
 
 kubectl wait --namespace default \
@@ -117,16 +169,15 @@ kubectl wait --namespace default \
   --timeout=480s platform-mesh-operator
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
-if [ "$1" == "--minimal" ]; then
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
+if [ "$MINIMAL" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
 else
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 fi
 
-
 # wait for kind: PlatformMesh resource to become ready
-echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready $COL_RES"
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=580s platform-mesh
@@ -135,10 +186,8 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s keycloak
 kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
+if [ "$MINIMAL" = true ]; then
 
-
-
-if [ "$1" == "--minimal" ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
   kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
   kubectl scale deployment/kyverno-admission-controller --replicas=0 -n kyverno-system
@@ -158,16 +207,16 @@ kubectl wait --namespace default \
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s account-operator
-if [ "$1" != "--minimal" ]; then
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=480s portal
+if [ "$MINIMAL" != true ]; then
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=480s portal
 fi
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
 
-if [ "$1" == "--minimal" ]; then
+if [ "$MINIMAL" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
   kubectl scale deployment/helm-controller --replicas=0 -n flux-system
   kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
@@ -190,7 +239,6 @@ echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}You can access the onboarding portal at: https://portal.dev.local:8443 , any send emails can be received here: https://portal.dev.local:8443/mailpit ${COL_RES}"
-
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"
