@@ -163,6 +163,9 @@ components:
       - name: iam-service
         componentName: github.com/platform-mesh/iam-service
         version: {{ .IAM_SERVICE_VERSION }}
+      - name: iam-ui
+        componentName: github.com/platform-mesh/iam-ui
+        version: {{ .IAM_UI_VERSION }}
       - name: organization-idp
         componentName: github.com/platform-mesh/organization-idp
         version: {{ .ORGANIZATION_IDP_VERSION }}
