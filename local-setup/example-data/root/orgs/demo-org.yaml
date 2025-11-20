@@ -1,0 +1,7 @@
+apiVersion: core.platform-mesh.io/v1alpha1
+kind: Account
+metadata:
+  name: demo-org
+spec:
+  displayName: Demo Org
+  type: org

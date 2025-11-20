@@ -1,0 +1,18 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIExport
+metadata:
+  creationTimestamp: null
+  labels:
+    ui.platform-mesh.io/content-for: infra-provider
+  name: infra.provider.example.com
+spec:
+  latestResourceSchemas:
+  - v250808-f2437309.loadbalancers.infra.provider.example.com
+  - v250808-f2437309.securitygroups.infra.provider.example.com
+  - v250808-f2437309.sshkeypairs.infra.provider.example.com
+  - v250808-f2437309.subnets.infra.provider.example.com
+  - v250808-f2437309.virtualmachines.infra.provider.example.com
+  - v250808-f2437309.volumes.infra.provider.example.com
+  - v250808-f2437309.vpcs.infra.provider.example.com
+  - v250818-2be80a1d.clusters.infra.provider.example.com
+status: {}

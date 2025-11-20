@@ -1,0 +1,18 @@
+apiVersion: infra.provider.example.com/v1alpha1
+kind: LoadBalancer
+metadata:
+  name: my-load-balancer
+spec:
+  type: "application"
+  subnets:
+    - "my-subnet"
+  securityGroups:
+    - "my-security-group"
+  listeners:
+    - port: 80
+      protocol: "HTTP"
+      defaultActions:
+        - type: "forward"
+          targetGroupArn: "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/my-targets/73e2d6bc24d8a067"
+  tags:
+    "Name": "my-load-balancer"

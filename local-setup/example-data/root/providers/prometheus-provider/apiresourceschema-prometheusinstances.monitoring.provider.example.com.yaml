@@ -1,0 +1,45 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIResourceSchema
+metadata:
+  creationTimestamp: null
+  name: v250819-2be80a1d.prometheusinstances.monitoring.provider.example.com
+spec:
+  group: monitoring.provider.example.com
+  names:
+    kind: PrometheusInstance
+    listKind: PrometheusInstanceList
+    plural: prometheusinstances
+    singular: prometheusinstance
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      properties:
+        spec:
+          properties:
+            clusterRef:
+              description: Namespaced reference to a cluster resource.
+              properties:
+                name:
+                  description: Name of the referenced cluster.
+                  type: string
+                namespace:
+                  description: Namespace of the referenced cluster.
+                  type: string
+              type: object
+            config:
+              additionalProperties:
+                type: string
+              description: Arbitrary configuration key-value pairs for PrometheusInstance.
+              type: object
+            description:
+              description: Description of this PrometheusInstance.
+              type: string
+            enabled:
+              description: Whether this PrometheusInstance is enabled.
+              type: boolean
+          type: object
+      type: object
+    served: true
+    storage: true
+    subresources: {}

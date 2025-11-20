@@ -41,6 +41,13 @@ spec:
       values:
         cors:
           enabled: true
+          accessControlAllowOriginList:
+          - "http://localhost:4200"
+          - "http://localhost:4300"
+          - "http://*.localhost:4200"
+          - "http://*.localhost:4300"
+          - "https://portal.dev.local:8443"
+          - "https://default.portal.dev.local:8443"
         gatewayApi:
           enabled: true
         mailpit:
@@ -105,8 +112,10 @@ spec:
               sectionName: websecure
               kind: Gateway
         extraEnvVars:
+          - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+            value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-            value: "https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+            value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
@@ -166,6 +175,26 @@ spec:
     iam-service:
       enabled: false
       values:
+        cors:
+          enabled: true
         hostAliases:
           enabled: true
         caSecret: domain-certificate-ca
+        gatewayApi:
+          enabled: true
+        istio:
+          enabled: false
+    iam-ui:
+      enabled: false
+      values:
+        gatewayApi:
+          enabled: true
+        istio:
+          enabled: false
+    marketplace-ui:
+      enabled: false
+      values:
+        gatewayApi:
+          enabled: true
+        istio:
+          enabled: false

@@ -1,0 +1,330 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  name: infra-provider-content
+  labels:
+    portal.openmfp.org/entity: account
+    ui.platform-mesh.io/content-for: infra.provider.example.com
+spec:
+  inlineConfiguration:
+    contentType: json
+    content: |-
+      {
+        "name": "infraprovider",
+        "creationTimestamp": "2022-05-17T11:37:17Z",
+        "luigiConfigFragment": {
+          "data": {
+            "nodes": [
+              {
+                "pathSegment": "clusters",
+                "navigationContext": "infra_provider_example_clusters",
+                "label": "Clusters",
+                "icon": "database",
+                "entityType": "main.account.core_namespace",
+                "loadingIndicator": {
+                  "enabled": false
+                },
+                "category": {
+                  "id": "infra-provider",
+                  "label": "Infrastructure",
+                  "icon": "cloud",
+                  "collapsible": true
+                },
+                "keepSelectedForChildren": true,
+                "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                "webcomponent": {
+                  "selfRegistered": true
+                },
+                "context": {
+                  "resourceDefinition": {
+                    "group": "infra.provider.example.com",
+                    "plural": "clusters",
+                    "singular": "cluster",
+                    "kind": "Cluster",
+                    "scope": "Namespaced",
+                    "namespace": null,
+                    "ui": {
+                      "listView": {
+                        "fields": [
+                          {
+                            "label": "Name",
+                            "property": "metadata.name"
+                          },
+                          {
+                            "label": "Type",
+                            "property": "spec.type"
+                          },
+                          {
+                            "label": "Region",
+                            "property": "spec.region"
+                          },
+                          {
+                            "label": "Version",
+                            "property": "spec.version"
+                          }
+                        ]
+                      },
+                      "createView": {
+                        "fields": [
+                          {
+                            "label": "Name",
+                            "property": "metadata.name",
+                            "required": "true"
+                          },
+                          {
+                            "label": "Type",
+                            "property": "spec.type",
+                            "values": [
+                              "production",
+                              "experimental",
+                              "testing"
+                            ],
+                            "required": true
+                          },
+                          {
+                            "label": "Version",
+                            "property": "spec.version",
+                            "values": [
+                              "1.29.3",
+                              "1.28.7",
+                              "1.27.10",
+                              "1.26.13",
+                              "1.25.16"
+                            ],
+                            "required": true
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "pathSegment": "loadbalancers",
+                "navigationContext": "infra_provider_example_loadbalancers",
+                "label": "Load Balancers",
+                "icon": "share-2",
+                "entityType": "main.account.core_namespace",
+                "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                "webcomponent": {
+                  "selfRegistered": true
+                },
+                "category": "infra-provider",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "infra.provider.example.com",
+                    "plural": "loadbalancers",
+                    "singular": "loadbalancer",
+                    "kind": "LoadBalancer",
+                    "scope": "Namespaced",
+                    "ui": {
+                      "listView": {
+                        "fields": [
+                          {
+                            "label": "Type",
+                            "property": "spec.type"
+                          },
+                          {
+                            "label": "Subnets",
+                            "property": "spec.subnets"
+                          },
+                          {
+                            "label": "Security Groups",
+                            "property": "spec.securityGroups"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "pathSegment": "securitygroups",
+                "navigationContext": "infra_provider_example_securitygroups",
+                "label": "Security Groups",
+                "icon": "group",
+                "entityType": "main.account.core_namespace",
+                "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                "webcomponent": {
+                  "selfRegistered": true
+                },
+                "category": "infra-provider",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "infra.provider.example.com",
+                    "plural": "securitygroups",
+                    "singular": "securitygroup",
+                    "kind": "SecurityGroup",
+                    "scope": "Namespaced",
+                    "ui": {
+                      "listView": {
+                          "fields": [
+                              {
+                                  "label": "Name",
+                                  "property": "metadata.name"
+                              }
+                          ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "pathSegment": "sshkeypairs",
+                "navigationContext": "infra_provider_example_sshkeypairs",
+                "label": "SSH Key Pairs",
+                "icon": "primary-key",
+                "entityType": "main.account.core_namespace",
+                "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                "webcomponent": {
+                  "selfRegistered": true
+                },
+                "category": "infra-provider",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "infra.provider.example.com",
+                    "plural": "sshkeypairs",
+                    "singular": "sshkeypair",
+                    "kind": "SSHKeyPair",
+                    "scope": "Namespaced",
+                    "ui": {
+                      "listView": {
+                          "fields": [
+                              {
+                                  "label": "Name",
+                                  "property": "metadata.name"
+                              }
+                          ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "pathSegment": "subnets",
+                "navigationContext": "infra_provider_example_subnets",
+                "label": "Subnets",
+                "icon": "internet-browser",
+                "entityType": "main.account.core_namespace",
+                "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                "webcomponent": {
+                  "selfRegistered": true
+                },
+                "category": "infra-provider",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "infra.provider.example.com",
+                    "plural": "subnets",
+                    "singular": "subnet",
+                    "kind": "Subnet",
+                    "scope": "Namespaced",
+                    "ui": {
+                      "listView": {
+                          "fields": [
+                              {
+                                  "label": "Name",
+                                  "property": "metadata.name"
+                              }
+                          ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "pathSegment": "virtualmachines",
+                "navigationContext": "infra_provider_example_virtualmachines",
+                "label": "Virtual Machines",
+                "icon": "it-host",
+                "entityType": "main.account.core_namespace",
+                "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                "webcomponent": {
+                  "selfRegistered": true
+                },
+                "category": "infra-provider",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "infra.provider.example.com",
+                    "plural": "virtualmachines",
+                    "singular": "virtualmachine",
+                    "kind": "VirtualMachine",
+                    "scope": "Namespaced",
+                    "ui": {
+                      "listView": {
+                          "fields": [
+                              {
+                                  "label": "Name",
+                                  "property": "metadata.name"
+                              }
+                          ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "pathSegment": "volumes",
+                "navigationContext": "infra_provider_example_volumes",
+                "label": "Volumes",
+                "icon": "shelf",
+                "entityType": "main.account.core_namespace",
+                "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                "webcomponent": {
+                  "selfRegistered": true
+                },
+                "category": "infra-provider",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "infra.provider.example.com",
+                    "plural": "volumes",
+                    "singular": "volume",
+                    "kind": "Volume",
+                    "scope": "Namespaced",
+                    "ui": {
+                      "listView": {
+                          "fields": [
+                              {
+                                  "label": "Name",
+                                  "property": "metadata.name"
+                              }
+                          ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "pathSegment": "vpcs",
+                "navigationContext": "infra_provider_example_vpcs",
+                "label": "VPCs",
+                "icon": "locked",
+                "entityType": "main.account.core_namespace",
+                "url": "/assets/openmfp-portal-ui-wc.js#generic-list-view",
+                "webcomponent": {
+                  "selfRegistered": true
+                },
+                "category": "infra-provider",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "infra.provider.example.com",
+                    "plural": "vpcs",
+                    "singular": "vpc",
+                    "kind": "VPC",
+                    "scope": "Namespaced",
+                    "ui": {
+                      "listView": {
+                          "fields": [
+                              {
+                                  "label": "Name",
+                                  "property": "metadata.name"
+                              }
+                          ]
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
