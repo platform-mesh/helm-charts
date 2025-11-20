@@ -315,12 +315,6 @@ gatewayApi:
       name: https-passthrough
       protocol: TLS
   httpRoute:
-    filters:
-    - requestHeaderModifier:
-        set:
-          - name: Host
-            value: portal.dev.local
-      type: RequestHeaderModifier
     corsFilters:
     - extensionRef:
         group: traefik.io
