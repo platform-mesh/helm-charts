@@ -9,7 +9,6 @@ A Helm chart for Kubernetes
 | cors.accessControlAllowOriginList | list | `["http://localhost:4200","http://localhost:4300","http://*.localhost:4200","http://*.localhost:4300","https://portal.dev.local:8443"]` | list of allowed origins |
 | cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crossplane.enabled | bool | `true` |  |
-| exposure.hostnames | list | `["portal.dev.local","*.portal.dev.local"]` | hostnames to be used for exposure |
 | externalSecrets.enabled | bool | `false` |  |
 | gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
