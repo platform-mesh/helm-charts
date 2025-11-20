@@ -169,3 +169,6 @@ components:
       - name: organization-idp
         componentName: github.com/platform-mesh/organization-idp
         version: {{ .ORGANIZATION_IDP_VERSION }}
+      - name: marketplace-ui
+        componentName: github.com/platform-mesh/marketplace-ui
+        version: {{ .MARKETPLACE_UI_VERSION }}
