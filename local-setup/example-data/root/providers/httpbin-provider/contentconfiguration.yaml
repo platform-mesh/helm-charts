@@ -50,11 +50,17 @@ spec:
                                               },
                                               {
                                                   "label": "Ready",
-                                                  "property": "status.ready"
+                                                  "property": "status.ready",
+                                                  "uiSettings": {
+                                                    "displayAs": "boolIcon"
+                                                  }
                                               },
                                               {
                                                   "label": "Link",
-                                                  "property": "status.url"
+                                                  "property": "status.url",
+                                                  "uiSettings": {
+                                                    "displayAs": "link"
+                                                  }
                                               }
                                           ]
                                       },
