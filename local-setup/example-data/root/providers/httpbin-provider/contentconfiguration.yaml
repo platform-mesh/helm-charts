@@ -19,6 +19,7 @@ spec:
                           "navigationContext": "orchestrate_cloud_sap_httpbins",
                           "label": "Http Bins",
                           "icon": "paint-bucket",
+                          "order": 800,
                           "entityType": "main.core_platform-mesh_io_account.core_namespace",
                           "loadingIndicator": {
                               "enabled": false
