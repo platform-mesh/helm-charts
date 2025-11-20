@@ -47,7 +47,7 @@ spec:
           - "http://*.localhost:4200"
           - "http://*.localhost:4300"
           - "https://portal.dev.local:8443"
-          - "https://default.portal.dev.local:8443"
+          - "https://*.portal.dev.local:8443"
         gatewayApi:
           enabled: true
         mailpit:
@@ -159,8 +159,6 @@ spec:
           enabled: true
         gatewayApi:
           enabled: true
-        image:
-          tag: v0.1.36
         listener:
           virtualWorkspacesConfig:
             content:
@@ -168,9 +166,9 @@ spec:
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: contentconfigurations
                   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
-                  # - kubeconfig: /app/kubeconfig/kubeconfig
-                  #   name: marketplace
-                  #   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: marketplace
+                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
     iam-service:
       enabled: false
