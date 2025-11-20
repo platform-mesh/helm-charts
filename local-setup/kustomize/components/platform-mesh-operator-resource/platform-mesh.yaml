@@ -47,6 +47,7 @@ spec:
             - http://*.localhost:4200
             - http://*.localhost:4300
             - https://portal.dev.local:8443
+            - https://*.portal.dev.local:8443
         gatewayApi:
           enabled: true
         mailpit:
@@ -114,7 +115,7 @@ spec:
               kind: Gateway
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-            value: https://{{ .Values.baseDomainPort }}/iam/query
+            value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
             value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
           - name: NODE_EXTRA_CA_CERTS
@@ -174,6 +175,12 @@ spec:
     iam-service:
       enabled: true
       values:
+        gatewayApi:
+          enabled: true
+        cors:
+          enabled: true
+        istio:
+          enabled: false
         hostAliases:
           enabled: true
         caSecret: domain-certificate-ca

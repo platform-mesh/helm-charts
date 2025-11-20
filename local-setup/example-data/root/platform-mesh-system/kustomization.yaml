@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - contentconfiguration-account-marketplace.yaml
 #  - contentconfiguration-accounts-accounts.yaml
-#  - contentconfiguration-account-iam-ui.yaml
-#  - contentconfiguration-main-iam-ui.yaml
-#  - contentconfiguration-main-marketplace.yaml
+  - contentconfiguration-account-iam-ui.yaml
+  - contentconfiguration-main-iam-ui.yaml
+  - contentconfiguration-main-marketplace.yaml
+  - contentconfiguration-account-namespace-iam-ui.yaml

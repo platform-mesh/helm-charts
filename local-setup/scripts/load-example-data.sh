@@ -3,7 +3,7 @@
 
 # Deploy marketplace-ui
 unset KUBECONFIG
-kubectx kind-platform-mesh
+kubectl config use-context kind-platform-mesh
 
 # Get GitHub token and create image pull secret
 GH_TOKEN=$(gh auth token)
@@ -16,22 +16,18 @@ kubectl create secret docker-registry ghcr-pull-secret \
   --dry-run=client -o yaml | kubectl apply -f -
 
 helm upgrade -i marketplace-ui -n platform-mesh-system ../helm-charts-priv/charts/marketplace-ui \
-  --set imagePullSecret=ghcr-pull-secret --set istio.enabled=false
+  --set imagePullSecret=ghcr-pull-secret --set istio.enabled=false --set gatewayApi.enabled=true
 
-kubectl apply -f ./local-setup/example-data/yaml/marketplace-ui-route.yaml
-#helm upgrade -i iam-ui -n platform-mesh-system ../helm-charts-priv/charts/iam-ui \
-#  --set imagePullSecret=ghcr-pull-secret
+helm upgrade -i iam-ui -n platform-mesh-system ../helm-charts-priv/charts/iam-ui \
+  --set imagePullSecret=ghcr-pull-secret --set istio.enabled=false --set gatewayApi.enabled=true
 
 cp "$(pwd)/.secret/kcp/admin.kubeconfig" "$(pwd)/.secret/kcp/httpbin-operator.kubeconfig"
-kubectl --kubeconfig="$(pwd)/.secret/kcp/httpbin-operator.kubeconfig" config delete-context "kind-platform-mesh"
 kubectl --kubeconfig="$(pwd)/.secret/kcp/httpbin-operator.kubeconfig" config delete-context "workspace.kcp.io/previous"
-kubectl --kubeconfig="$(pwd)/.secret/kcp/httpbin-operator.kubeconfig" config delete-user "kind-platform-mesh"
 kubectl --kubeconfig="$(pwd)/.secret/kcp/httpbin-operator.kubeconfig" config set-cluster --embed-certs  workspace.kcp.io/current --server https://kcp.api.portal.dev.local:31000/clusters/root:providers:httpbin-provider --certificate-authority=$PWD/.secret/kcp/ca.crt
-kubectl --kubeconfig="$(pwd)/.secret/kcp/httpbin-operator.kubeconfig" config delete-cluster "kind-platform-mesh"
 kubectl --kubeconfig="$(pwd)/.secret/kcp/httpbin-operator.kubeconfig" config delete-cluster "workspace.kcp.io/previous"
 HTTP_BIN_OPERATOR="$(cat ./.secret/kcp/httpbin-operator.kubeconfig)"
 
-
+mkdir -p ../httpbin-operator/ocm/k8s/credentials
 echo "apiVersion: v1
 data:
   kubeconfig: $(echo $HTTP_BIN_OPERATOR | base64 | tr -d '\n')
