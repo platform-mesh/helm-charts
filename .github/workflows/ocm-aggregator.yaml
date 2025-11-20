@@ -103,6 +103,7 @@ jobs:
           echo EXAMPLE_HTTPBIN_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/example-httpbin-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo IAM_SERVICE_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-service --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo IAM_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo MARKETPLACE_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/marketplace-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo ORGANIZATION_IDP_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/organization-idp --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # Get current platform-mesh version
           PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
@@ -189,6 +190,7 @@ jobs:
             CURRENT_EXAMPLE_HTTPBIN_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "example-httpbin-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_IAM_SERVICE=$(yq eval '.component.componentReferences[] | select(.name == "iam-service") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_IAM_UI=$(yq eval '.component.componentReferences[] | select(.name == "iam-ui") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_MARKETPLACE_UI=$(yq eval '.component.componentReferences[] | select(.name == "marketplace-ui") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_ORGANIZATION_IDP=$(yq eval '.component.componentReferences[] | select(.name == "organization-idp") | .version' current_pm_component.yaml 2>/dev/null || echo "")
           else
             # No existing component, so we need to create one
@@ -281,6 +283,11 @@ jobs:
             NEEDS_UPDATE=true
           fi
 
+          if [ "$CURRENT_MARKETPLACE_UI" != "${{ env.MARKETPLACE_UI_VERSION }}" ]; then
+            echo "Marketplace UI: $CURRENT_MARKETPLACE_UI -> ${{ env.MARKETPLACE_UI_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
           if [ "$CURRENT_ORGANIZATION_IDP" != "${{ env.ORGANIZATION_IDP_VERSION }}" ]; then
             echo "Organization-idp component: $CURRENT_ORGANIZATION_IDP -> ${{ env.ORGANIZATION_IDP_VERSION }}"
             NEEDS_UPDATE=true
@@ -326,6 +333,7 @@ jobs:
             EXAMPLE_HTTPBIN_OPERATOR_VERSION=${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }} \
             IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \
             IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
+            MARKETPLACE_UI_VERSION=${{ env.MARKETPLACE_UI_VERSION }} \
             ORGANIZATION_IDP_VERSION=${{ env.ORGANIZATION_IDP_VERSION }}
 
       - name: Transfer to OCM REPO
