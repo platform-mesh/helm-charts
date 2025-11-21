@@ -1,0 +1,5 @@
+suite: operator
+tests:
+  - it: Experimental match snapshot
+    asserts:
+      - matchSnapshot: {}

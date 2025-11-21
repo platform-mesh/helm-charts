@@ -1,0 +1,28 @@
+# -- traefik chart - https://github.com/traefik/traefik-helm-chart
+traefik:
+
+  experimental:
+    kubernetesGateway:
+      enabled: true
+
+  providers:
+    kubernetesGateway:
+      kubernetesGateway:
+        enabled: true
+        experimentalChannel: true
+
+  gatewayClass:
+    enabled: true
+
+  service:
+    type: NodePort
+    spec:
+      clusterIP: 10.96.188.4
+
+  ports:
+    websecure:
+      nodePort: 31000
+      exposedPort: 8443
+
+  gateway:
+    enabled: false
