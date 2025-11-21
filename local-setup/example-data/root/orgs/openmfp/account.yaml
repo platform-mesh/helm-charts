@@ -1,7 +1,0 @@
-apiVersion: core.platform-mesh.io/v1alpha1
-kind: Account
-metadata:
-  name: my-project
-spec:
-  displayName: My Project Account
-  type: account

@@ -537,8 +537,3 @@ tasks:
           npx playwright install
           npx playwright test test-minimal.test.ts
           popd
-
-  local-setup:example-data:
-    cmds:
-      - |
-        local-setup/scripts/load-example-data.sh
