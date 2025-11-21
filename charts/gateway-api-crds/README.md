@@ -6,8 +6,6 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| experimental.enabled | bool | `true` |  |
-| standard.enabled | bool | `false` |  |
 
 ## Overriding Values
 
