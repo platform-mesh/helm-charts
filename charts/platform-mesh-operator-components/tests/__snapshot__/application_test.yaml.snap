@@ -178,9 +178,7 @@ it should render the application manifests:
       releaseName: kcp-operator
       targetNamespace: kcp-operator
       timeout: 15m
-      values:
-        image:
-          tag: v0.3.0
+      values: null
   7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease

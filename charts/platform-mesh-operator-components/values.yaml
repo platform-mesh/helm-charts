@@ -147,9 +147,6 @@ services:
     enabled: true
     helmRepo: true
     targetNamespace: kcp-operator
-    values:
-      image:
-        tag: "v0.3.0"
   keycloak:
     enabled: true
     values:
