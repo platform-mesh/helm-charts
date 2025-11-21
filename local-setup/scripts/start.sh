@@ -13,7 +13,7 @@ RED='\033[91m'
 YELLOW='\033[93m'
 COL_RES='\033[0m'
 
-KINDEST_VERSION="kindest/node:v1.33.1"
+KINDEST_VERSION="kindest/node:v1.34.0"
 
 SCRIPT_DIR=$(dirname "$0")
 
@@ -79,8 +79,6 @@ helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-comm
   --set helmController.container.additionalArgs[0]="--concurrent=10" \
   --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
 
-sleep 3
-
 kubectl apply -k $SCRIPT_DIR/../kustomize/base/gateway-api
 
 kubectl wait --namespace default \
@@ -110,6 +108,7 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Cert-Manager ${COL_RES}"
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml
+
 kubectl wait --namespace cert-manager \
   --for=condition=available deployment \
   --timeout=240s cert-manager-webhook
