@@ -43,3 +43,9 @@ tests:
       enabled: false
   asserts:
     - matchSnapshot: {}
+- it: Istio enabled
+  set:
+    istio:
+      enabled: true
+  asserts:
+    - matchSnapshot: {}

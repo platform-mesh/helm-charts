@@ -22,3 +22,34 @@ match snapshots:
           - https://portal.dev.local:8443
         accessControlMaxAge: 100
         addVaryHeader: true
+test HTTPRoutes:
+  1: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: keycloak
+    spec:
+      hostnames:
+        - portal.dev.local
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: websecure
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: keycloak
+              namespace: platform-mesh-system
+              port: 80
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
+          matches:
+            - path:
+                type: PathPrefix
+                value: /keycloak

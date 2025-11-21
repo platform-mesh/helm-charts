@@ -13,8 +13,12 @@ spec:
       - "POST"
     accessControlAllowHeaders:
       - "*"
+    {{- with .Values.cors.accessControlAllowOriginList }}
     accessControlAllowOriginList:
-{{- .Values.cors.accessControlAllowOriginList | toYaml | nindent 6 }}
+    {{- range . }}
+    - {{ . | quote }}
+    {{- end }}
+    {{- end }}
     accessControlAllowCredentials: true
     accessControlMaxAge: 100
     addVaryHeader: true
