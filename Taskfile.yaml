@@ -7,7 +7,7 @@ vars:
   CHANGED_CHARTS:
     sh: "git status --porcelain | grep '^ M charts/' | cut -d'/' -f2 | sort -u | sed 's|^|charts/|' | paste -sd ',' -"
   PACKAGED_CHARTS:
-    sh: "ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
+    sh: "mkdir -p oci/ && ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
   GOOS:
     sh: go env GOOS
   GOARCH:

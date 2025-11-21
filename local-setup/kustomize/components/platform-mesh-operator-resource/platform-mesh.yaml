@@ -80,14 +80,6 @@ spec:
         labels:
           infra: "true"
           component: infra
-      values:
-        crds:
-          create: true
-        image:
-          repository: ghcr.io/kcp-dev/kcp-operator
-          #TODO this is needed until the latest changes are released like https://github.com/kcp-dev/kcp-operator/pull/89 and https://github.com/kcp-dev/kcp-operator/pull/88
-          tag: "main"
-          pullPolicy: IfNotPresent
     security-operator:
       values:
         baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
