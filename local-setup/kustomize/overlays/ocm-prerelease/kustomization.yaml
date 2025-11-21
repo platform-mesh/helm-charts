@@ -11,6 +11,129 @@ patches:
       name: platform-mesh
     patch: |
       - op: add
+        path: /spec/values/account-operator/ocm
+        value: {}
+      - op: add
+        path: /spec/values/account-operator/ocm/repo
+        value: {}
+      - op: add
+        path: /spec/values/account-operator/ocm/repo/name
+        value: prerelease
+      - op: add
+        path: /spec/values/account-operator/ocm/component
+        value: {}
+      - op: add
+        path: /spec/values/account-operator/ocm/component/name
+        value: prerelease
+      - op: add
+        path: /spec/values/security-operator/ocm
+        value: {}
+      - op: add
+        path: /spec/values/security-operator/ocm/repo
+        value: {}
+      - op: add
+        path: /spec/values/security-operator/ocm/repo/name
+        value: prerelease
+      - op: add
+        path: /spec/values/security-operator/ocm/component
+        value: {}
+      - op: add
+        path: /spec/values/security-operator/ocm/component/name
+        value: prerelease
+      - op: add
+        path: /spec/values/extension-manager-operator/ocm
+        value: {}
+      - op: add
+        path: /spec/values/extension-manager-operator/ocm/repo
+        value: {}
+      - op: add
+        path: /spec/values/extension-manager-operator/ocm/repo/name
+        value: prerelease
+      - op: add
+        path: /spec/values/extension-manager-operator/ocm/component
+        value: {}
+      - op: add
+        path: /spec/values/extension-manager-operator/ocm/component/name
+        value: prerelease
+      - op: add
+        path: /spec/values/infra/ocm
+        value: {}
+      - op: add
+        path: /spec/values/infra/ocm/repo
+        value: {}
+      - op: add
+        path: /spec/values/infra/ocm/repo/name
+        value: prerelease
+      - op: add
+        path: /spec/values/infra/ocm/component
+        value: {}
+      - op: add
+        path: /spec/values/infra/ocm/component/name
+        value: prerelease
+      - op: add
+        path: /spec/values/rebac-authz-webhook/ocm
+        value: {}
+      - op: add
+        path: /spec/values/rebac-authz-webhook/ocm/repo
+        value: {}
+      - op: add
+        path: /spec/values/rebac-authz-webhook/ocm/repo/name
+        value: prerelease
+      - op: add
+        path: /spec/values/rebac-authz-webhook/ocm/component
+        value: {}
+      - op: add
+        path: /spec/values/rebac-authz-webhook/ocm/component/name
+        value: prerelease
+      - op: add
+        path: /spec/values/platform-mesh
+        value: {}
+      - op: add
+        path: /spec/values/platform-mesh/ocm
+        value: {}
+      - op: add
+        path: /spec/values/platform-mesh/ocm/repo
+        value: {}
+      - op: add
+        path: /spec/values/platform-mesh/ocm/repo/name
+        value: prerelease
+      - op: add
+        path: /spec/values/platform-mesh/ocm/component
+        value: {}
+      - op: add
+        path: /spec/values/platform-mesh/ocm/component/name
+        value: prerelease
+      - op: add
+        path: /spec/values/portal/ocm
+        value: {}
+      - op: add
+        path: /spec/values/portal/ocm/repo
+        value: {}
+      - op: add
+        path: /spec/values/portal/ocm/repo/name
+        value: prerelease
+      - op: add
+        path: /spec/values/portal/ocm/component
+        value: {}
+      - op: add
+        path: /spec/values/portal/ocm/component/name
+        value: prerelease
+      - op: add
+        path: /spec/values/kubernetes-graphql-gateway/ocm
+        value: {}
+      - op: add
+        path: /spec/values/kubernetes-graphql-gateway/ocm/repo
+        value: {}
+      - op: add
+        path: /spec/values/kubernetes-graphql-gateway/ocm/repo/name
+        value: prerelease
+      - op: add
+        path: /spec/values/kubernetes-graphql-gateway/ocm/component
+        value: {}
+      - op: add
+        path: /spec/values/kubernetes-graphql-gateway/ocm/component/name
+        value: prerelease
+      - op: add
         path: /spec/values/virtual-workspaces/ocm
         value: {}
       - op: add

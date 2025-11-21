@@ -15,6 +15,12 @@ spec:
   featureToggles:
    - name: "feature-enable-getting-started"
   values:
+    account-operator:
+      enabled: true
+    extension-manager-operator:
+      enabled: true
+    rebac-authz-webhook:
+      enabled: true
     keycloak:
       enabled: true
       values:
