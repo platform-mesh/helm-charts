@@ -72,7 +72,6 @@ A Helm chart for Kubernetes
 | services.kcp-operator.imageResource.labels.infra | string | `"true"` |  |
 | services.kcp-operator.imageResource.name | string | `"kcp-image"` |  |
 | services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
-| services.kcp-operator.values.image.tag | string | `"v0.3.0"` |  |
 | services.keycloak.enabled | bool | `true` |  |
 | services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
 | services.keycloak.values.auth.existingSecret | string | `"keycloak-admin"` | keycloak admin secret |
