@@ -10,18 +10,9 @@ patches:
       kind: PlatformMesh
       name: platform-mesh
     patch: |
-      - op: add
-        path: /spec/values/virtual-workspaces/ocm
-        value: {}
-      - op: add
-        path: /spec/values/virtual-workspaces/ocm/repo
-        value: {}
-      - op: add
-        path: /spec/values/virtual-workspaces/ocm/repo/name
+      - op: replace
+        path: /spec/ocm/repo/name
         value: prerelease
-      - op: add
-        path: /spec/values/virtual-workspaces/ocm/component
-        value: {}
-      - op: add
-        path: /spec/values/virtual-workspaces/ocm/component/name
+      - op: replace
+        path: /spec/ocm/component/name
         value: prerelease
