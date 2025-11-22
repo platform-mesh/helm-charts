@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Test infra components
+release:
+  name: infra-components
+  namespace: default
+values:
+  - ../values.yaml
+tests:
+- it: it should render the application manifests
+  asserts:
+  - matchSnapshot: {}

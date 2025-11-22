@@ -1,0 +1,24 @@
+{{ $values := .Values }}
+{{ $release := .Release }}
+{{- range $service, $config := .Values.services }}
+{{- if $config.enabled }}
+{{- if (($config).kustomizationResource).enabled }}
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: {{ $service }}
+spec:
+  install: {{ $config.kustomizationResource.install | toYaml | nindent 4 }}
+  force: false
+  interval: 1m
+  path: {{ $config.kustomizationResource.path }}
+  prune: true
+  {{- if $config.gitRepo }}
+  sourceRef:
+    kind: GitRepository
+    name: {{ $service }}
+  {{- end }}
+---
+{{ end -}}
+{{ end -}}
+{{ end -}}
