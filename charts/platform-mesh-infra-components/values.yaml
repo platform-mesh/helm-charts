@@ -25,9 +25,10 @@ services:
         crds: Skip
   traefik:
     enabled: true
-    gitRepo: true
+    helmRepo: true
     path: charts
     targetNamespace: default
+    resourceName: chart
     values:
       experimental:
         kubernetesGateway:
