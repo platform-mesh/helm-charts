@@ -62,4 +62,3 @@ certManager:
   values:
     crds:
       enabled: true
-
