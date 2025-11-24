@@ -6,7 +6,6 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| certManager.chart.name | string | `"cert-manager"` |  |
 | certManager.interval | string | `"1m"` |  |
 | certManager.name | string | `"cert-manager"` |  |
 | certManager.ocmResourceName | string | `"chart"` |  |
@@ -36,6 +35,12 @@ A Helm chart for Kubernetes
 | traefik.values.providers.kubernetesGateway.experimentalChannel | bool | `true` |  |
 | traefik.values.service.spec.clusterIP | string | `"10.96.188.4"` |  |
 | traefik.values.service.type | string | `"NodePort"` |  |
+| traefikCRDs.chart.name | string | `"traefik-crds"` |  |
+| traefikCRDs.interval | string | `"1m"` |  |
+| traefikCRDs.name | string | `"traefik-crds"` |  |
+| traefikCRDs.ocmComponentName | string | `"traefik"` |  |
+| traefikCRDs.ocmResourceName | string | `"crds"` |  |
+| traefikCRDs.targetNamespace | string | `"default"` |  |
 
 ## Overriding Values
 

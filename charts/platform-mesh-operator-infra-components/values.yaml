@@ -59,8 +59,6 @@ certManager:
   name: cert-manager
   ocmResourceName: chart
   interval: 1m
-  chart:
-    name: cert-manager
   values:
     crds:
       enabled: true
