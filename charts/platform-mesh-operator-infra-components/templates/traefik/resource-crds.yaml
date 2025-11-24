@@ -4,7 +4,7 @@ metadata:
   labels:
     artifact: chart
     repo: helm
-  name: {{ .Values.traefik.name }}
+  name: {{ .Values.traefikCRDs.name }}
 spec:
   componentRef:
     name: {{ .Values.ocm.component.name }}
@@ -20,7 +20,7 @@ spec:
       {{- range .Values.ocm.referencePath }}
         - name: {{ . }}
       {{- end }}
-        - name: {{ .Values.traefik.name }}
+        - name: {{ .Values.traefikCRDs.ocmComponentName }}
       resource:
-        name: {{ .Values.traefik.ocmResourceName }}
+        name: {{ .Values.traefikCRDs.ocmResourceName }}
   skipVerify: {{ .Values.ocm.skipVerify }}

@@ -10,7 +10,8 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: {{ .Values.traefik.name }}
-  dependsOn: null
+  dependsOn:
+    - name: {{ .Values.traefikCRDs.name }}
   interval: {{ .Values.traefik.interval }}
   releaseName: {{ .Values.traefik.name }}
   targetNamespace: {{ .Values.traefik.targetNamespace }}

@@ -83,6 +83,24 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: traefik-crds
+    spec:
+      chart:
+        spec:
+          chart: traefik-crds
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: traefik-crds
+      dependsOn: null
+      interval: 1m
+      releaseName: traefik-crds
+      targetNamespace: default
+      timeout: 15m
+  6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: traefik
     spec:
       chart:
@@ -92,7 +110,8 @@ it should render the application manifests:
           sourceRef:
             kind: HelmRepository
             name: traefik
-      dependsOn: null
+      dependsOn:
+        - name: traefik-crds
       interval: 1m
       releaseName: traefik
       targetNamespace: default
@@ -117,7 +136,31 @@ it should render the application manifests:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  6: |
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: traefik-crds
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: traefik
+          resource:
+            name: crds
+      skipVerify: true
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -129,6 +172,11 @@ it should render the application manifests:
       componentRef:
         name: platform-mesh
       interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:

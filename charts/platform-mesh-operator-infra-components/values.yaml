@@ -45,6 +45,15 @@ traefik:
     gateway:
       enabled: false
 
+traefikCRDs:
+  targetNamespace: default
+  name: traefik-crds
+  ocmComponentName: traefik
+  ocmResourceName: crds
+  interval: 1m
+  chart:
+    name: traefik-crds
+
 certManager:
   targetNamespace: default
   name: cert-manager
