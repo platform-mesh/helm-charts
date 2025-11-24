@@ -1,0 +1,50 @@
+ocm:
+  skipVerify: true
+  interval: 3m
+  referencePath: []
+  component:
+    name: platform-mesh
+  repo:
+    name: platform-mesh
+
+gatewayApi:
+  path: charts
+  targetNamespace: default
+  values: {}
+  name: gateway-api
+  ocmResourceName: crds
+
+  kustomization:
+    interval: 1m
+    path: ./config/crd/experimental
+    install:
+      crds: Skip
+
+traefik:
+  path: charts
+  targetNamespace: default
+  name: traefik
+  ocmResourceName: chart
+  interval: 1m
+  chart:
+    name: traefik
+  values:
+    experimental:
+      kubernetesGateway:
+        enabled: true
+    providers:
+      kubernetesGateway:
+        enabled: true
+        experimentalChannel: true
+    gatewayClass:
+      enabled: true
+    service:
+      type: NodePort
+      spec:
+        clusterIP: 10.96.188.4
+    ports:
+      websecure:
+        nodePort: 31000
+        exposedPort: 8443
+    gateway:
+      enabled: false

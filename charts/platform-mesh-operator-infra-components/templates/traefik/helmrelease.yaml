@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: {{ .Values.traefik.name }}
+spec:
+  chart:
+    spec:
+      chart: {{ .Values.traefik.chart.name }}
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.traefik.name }}
+  dependsOn: null
+  interval: {{ .Values.traefik.interval }}
+  releaseName: {{ .Values.traefik.name }}
+  targetNamespace: {{ .Values.traefik.targetNamespace }}
+  timeout: 15m
+  values:
+    {{- toYaml .Values.traefik.values | nindent 4 }}

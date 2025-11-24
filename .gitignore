@@ -3,6 +3,7 @@ bin/*
 .idea
 .secret
 .debug
+.claude
 oci/
 
 local-setup/webhook-config/*

@@ -1,0 +1,30 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  labels:
+    artifact: chart
+    repo: git
+  name: {{   .Values.gatewayApi.name }}
+spec:
+  {{- if .Values.ocm.component.create }}
+  componentRef:
+    name: {{ .Values.ocm.component.name }}
+  {{- end }}
+  interval: {{ .Values.ocm.interval }}
+  {{- if .Values.ocm.repo.create }}
+  ocmConfig:
+    - apiVersion: delivery.ocm.software/v1alpha1
+      kind: Repository
+      name: {{ .Values.ocm.repo.name }}
+      namespace: {{ .Release.Namespace }}
+  {{- end }}
+  resource:
+    byReference:
+      referencePath:
+      {{- range .Values.ocm.referencePath }}
+        - name: {{ . }}
+      {{- end }}
+        - name: {{   .Values.gatewayApi.name }}
+      resource:
+        name: {{   .Values.gatewayApi.ocmResourceName }}
+  skipVerify: {{ .Values.ocm.skipVerify }}
