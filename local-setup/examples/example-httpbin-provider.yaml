@@ -1,0 +1,96 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  labels:
+    artifact: chart
+    repo: oci
+  name: example-httpbin-provider
+  namespace: default
+spec:
+  componentRef:
+    name: platform-mesh
+  interval: 3m0s
+  ocmConfig:
+  - apiVersion: delivery.ocm.software/v1alpha1
+    kind: Repository
+    name: platform-mesh
+    namespace: default
+    policy: Propagate
+  resource:
+    byReference:
+      referencePath:
+      - name: example-httpbin-operator
+      resource:
+        name: oci-helm-chart-example-httpbin-operator
+  skipVerify: true
+---
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  labels:
+    artifact: chart
+    repo: helm
+  name: api-syncagent
+  namespace: default
+spec:
+  componentRef:
+    name: platform-mesh
+  interval: 3m0s
+  ocmConfig:
+    - apiVersion: delivery.ocm.software/v1alpha1
+      kind: Repository
+      name: platform-mesh
+      namespace: default
+      policy: Propagate
+  resource:
+    byReference:
+      referencePath:
+        - name: example-httpbin-operator
+        - name: api-syncagent
+      resource:
+        name: chart
+  skipVerify: true
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: example-httpbin-provider
+
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: example-httpbin-provider
+  namespace: default
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: example-httpbin-provider
+    namespace: default
+  interval: 1m
+  releaseName: example-httpbin-provider
+  targetNamespace: example-httpbin-provider
+  timeout: 15m
+
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: api-syncagent
+  namespace: default
+spec:
+  chart:
+    spec:
+      chart: api-syncagent
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: api-syncagent
+  interval: 1m
+  releaseName: api-syncagent
+  targetNamespace: example-httpbin-provider
+  timeout: 15m
+  values:
+    apiExportName: orchestrate.cloud.sap
+    agentName: kcp-api-syncagent
+    kcpKubeconfig: httpbin-kubeconfig
