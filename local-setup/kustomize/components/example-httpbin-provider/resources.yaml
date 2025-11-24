@@ -1,0 +1,53 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  labels:
+    artifact: chart
+    repo: oci
+  name: example-httpbin-provider
+  namespace: default
+spec:
+  componentRef:
+    name: platform-mesh
+  interval: 3m0s
+  ocmConfig:
+    - apiVersion: delivery.ocm.software/v1alpha1
+      kind: Repository
+      name: platform-mesh
+      namespace: default
+      policy: Propagate
+  resource:
+    byReference:
+      referencePath:
+        - name: example-httpbin-operator
+      resource:
+        name: oci-helm-chart-example-httpbin-operator
+  skipVerify: true
+
+---
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  labels:
+    artifact: chart
+    repo: helm
+  name: api-syncagent
+  namespace: default
+spec:
+  componentRef:
+    name: platform-mesh
+  interval: 3m0s
+  ocmConfig:
+    - apiVersion: delivery.ocm.software/v1alpha1
+      kind: Repository
+      name: platform-mesh
+      namespace: default
+      policy: Propagate
+  resource:
+    byReference:
+      referencePath:
+        - name: example-httpbin-operator
+        - name: api-syncagent
+      resource:
+        name: chart
+  skipVerify: true

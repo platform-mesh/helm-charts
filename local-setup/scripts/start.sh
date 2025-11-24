@@ -17,22 +17,25 @@ KINDEST_VERSION="kindest/node:v1.34.0"
 
 SCRIPT_DIR=$(dirname "$0")
 
-# Parse command line arguments
 PRERELEASE=false
 CACHED=false
+EXAMPLE_DATA=false
 
-for arg in "$@"; do
-  case $arg in
-    --prerelease)
-      PRERELEASE=true
-      ;;
-    --cached)
-      CACHED=true
-      ;;
-    *)
-      # Unknown option, ignore or handle as needed
-      ;;
+usage() {
+  echo "Usage: $0 [--prerelease] [--minimal] [--cached] [--example-data]"
+  exit 1
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --prerelease) PRERELEASE=true ;;
+    --cached) CACHED=true ;;
+    --example-data) EXAMPLE_DATA=true ;;
+    --help|-h) usage ;;
+    --*) echo "Unknown option: $1" >&2; usage ;;
+    *) echo "Ignoring positional arg: $1" ;;
   esac
+  shift
 done
 
 # Source compatibility and environment checks
@@ -155,6 +158,14 @@ kubectl wait --namespace default \
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
+
+if [ "$EXAMPLE_DATA" = true ]; then
+  export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
+  kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root"
+  kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers"
+  kubectl apply -k ./local-setup/example-data/root/providers/httpbin-provider --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers:httpbin-provider"
+  unset KUBECONFIG
+fi
 
 echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
 show_wsl_hosts_guidance
