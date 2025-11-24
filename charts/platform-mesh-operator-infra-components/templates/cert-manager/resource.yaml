@@ -3,7 +3,7 @@ kind: Resource
 metadata:
   labels:
     artifact: chart
-    repo: oci
+    repo: helm
   name: {{ .Values.certManager.name }}
 spec:
   componentRef:

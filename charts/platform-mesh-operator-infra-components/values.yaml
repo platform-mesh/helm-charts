@@ -55,6 +55,8 @@ traefikCRDs:
     name: traefik-crds
 
 certManager:
+  chart:
+    name: cert-manager
   targetNamespace: default
   name: cert-manager
   ocmResourceName: chart

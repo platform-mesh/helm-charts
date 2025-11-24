@@ -5,10 +5,13 @@ it should render the application manifests:
     metadata:
       name: cert-manager
     spec:
-      chartRef:
-        kind: OCIRepository
-        name: cert-manager
-        namespace: default
+      chart:
+        spec:
+          chart: cert-manager
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: cert-manager
       interval: 1m
       releaseName: cert-manager
       targetNamespace: default
@@ -22,7 +25,7 @@ it should render the application manifests:
     metadata:
       labels:
         artifact: chart
-        repo: oci
+        repo: helm
       name: cert-manager
     spec:
       componentRef:

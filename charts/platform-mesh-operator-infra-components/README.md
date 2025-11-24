@@ -6,6 +6,7 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| certManager.chart.name | string | `"cert-manager"` |  |
 | certManager.interval | string | `"1m"` |  |
 | certManager.name | string | `"cert-manager"` |  |
 | certManager.ocmResourceName | string | `"chart"` |  |

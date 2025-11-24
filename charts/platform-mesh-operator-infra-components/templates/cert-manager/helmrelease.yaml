@@ -3,10 +3,13 @@ kind: HelmRelease
 metadata:
   name: {{ .Values.certManager.name }}
 spec:
-  chartRef:
-    kind: OCIRepository
-    name: {{ .Values.certManager.name }}
-    namespace: default
+  chart:
+    spec:
+      chart: {{ .Values.certManager.name }}
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.certManager.name }}
   interval: {{ .Values.certManager.interval }}
   releaseName: {{ .Values.certManager.name }}
   targetNamespace: {{ .Values.certManager.targetNamespace }}
