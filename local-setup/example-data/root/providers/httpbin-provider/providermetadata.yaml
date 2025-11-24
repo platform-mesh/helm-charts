@@ -1,7 +1,7 @@
 apiVersion: ui.platform-mesh.io/v1alpha1
 kind: ProviderMetadata
 metadata:
-  name: orchestrate.cloud.sap
+  name: orchestrate.platform-mesh.io
 spec:
   displayName: ABC MSP Provider
   description: |

@@ -32,6 +32,6 @@ spec:
   targetNamespace: platform-mesh-system
   timeout: 15m
   values:
-    apiExportName: orchestrate.cloud.sap
+    apiExportName: orchestrate.platform-mesh.io
     agentName: kcp-api-syncagent
     kcpKubeconfig: httpbin-kubeconfig

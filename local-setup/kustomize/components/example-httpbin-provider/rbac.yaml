@@ -1,0 +1,29 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: 'api-syncagent:httpbin-local-provider'
+rules:
+  - apiGroups:
+      - orchestrate.platform-mesh.io
+    resources:
+      - httpbins
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: api-syncagent:httpbin-local-provider
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: api-syncagent:httpbin-local-provider
+subjects:
+  - kind: ServiceAccount
+    name: api-syncagent
+    namespace: platform-mesh-system

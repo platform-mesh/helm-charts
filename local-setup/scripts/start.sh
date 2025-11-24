@@ -160,10 +160,49 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${CO
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
 if [ "$EXAMPLE_DATA" = true ]; then
+  # Start Hacks
+  kubectl apply -f $SCRIPT_DIR/../example-data/yaml/publishedresource.yaml
+  kubectl patch deployment api-syncagent -n platform-mesh-system --type=merge -p '{
+    "spec": {
+      "template": {
+        "spec": {
+          "hostAliases": [
+            {
+              "ip": "10.96.188.4",
+              "hostnames": ["kcp.api.portal.dev.local"]
+            }
+          ]
+        }
+      }
+    }
+  }'
+  # end Hacks
   export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
   kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root"
   kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers"
-  kubectl apply -k ./local-setup/example-data/root/providers/httpbin-provider --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers:httpbin-provider"
+  kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers:httpbin-provider"
+    kubectl patch workspacetype account --type='merge' -p='{
+      "spec": {
+        "defaultAPIBindings": [
+          {
+              "export": "orchestrate.platform-mesh.io",
+              "path": "root:providers:httpbin-provider"
+          },
+          {
+              "export": "core.platform-mesh.io",
+              "path": "root:platform-mesh-system"
+          },
+          {
+              "export": "tenancy.kcp.io",
+              "path": "root"
+          },
+          {
+              "export": "topology.kcp.io",
+              "path": "root"
+          }
+        ]
+      }
+    }' --server="https://kcp.api.portal.dev.local:8443/clusters/root"
   unset KUBECONFIG
 fi
 
