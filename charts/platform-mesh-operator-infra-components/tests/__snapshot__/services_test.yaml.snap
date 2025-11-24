@@ -1,5 +1,46 @@
 it should render the application manifests:
   1: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: cert-manager
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: cert-manager
+        namespace: default
+      interval: 1m
+      releaseName: cert-manager
+      targetNamespace: default
+      timeout: 15m
+      values:
+        crds:
+          enabled: true
+  2: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: cert-manager
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: cert-manager
+          resource:
+            name: chart
+      skipVerify: true
+  3: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -14,7 +55,7 @@ it should render the application manifests:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  2: |
+  4: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -38,7 +79,7 @@ it should render the application manifests:
           resource:
             name: crds
       skipVerify: true
-  3: |
+  5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -76,7 +117,7 @@ it should render the application manifests:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  4: |
+  6: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

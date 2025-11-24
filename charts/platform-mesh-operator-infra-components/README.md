@@ -6,6 +6,12 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| certManager.chart.name | string | `"cert-manager"` |  |
+| certManager.interval | string | `"1m"` |  |
+| certManager.name | string | `"cert-manager"` |  |
+| certManager.ocmResourceName | string | `"chart"` |  |
+| certManager.targetNamespace | string | `"default"` |  |
+| certManager.values.crds.enabled | bool | `true` |  |
 | gatewayApi.kustomization.install.crds | string | `"Skip"` |  |
 | gatewayApi.kustomization.interval | string | `"1m"` |  |
 | gatewayApi.kustomization.path | string | `"./config/crd/experimental"` |  |
