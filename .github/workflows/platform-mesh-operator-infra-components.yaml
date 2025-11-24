@@ -1,4 +1,4 @@
-name: Build platform-mesh-operator-components Workflow
+name: Build platform-mesh-operator-infra-components Workflow
 on:
   push:
     branches:
