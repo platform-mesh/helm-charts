@@ -22,7 +22,7 @@ it should render the application manifests:
     metadata:
       labels:
         artifact: chart
-        repo: oci
+        repo: helm
       name: cert-manager
     spec:
       componentRef:
