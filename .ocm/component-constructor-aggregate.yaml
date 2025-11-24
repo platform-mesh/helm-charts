@@ -1,4 +1,47 @@
 components:
+  - name: github.com/kubernetes-sigs/gateway-api
+    version: {{ .GATEWAY_API_VERSION }}
+    provider:
+      name: gateway-api
+    resources:
+      - name: crds
+        type: gitOpsTemplate
+        version: {{ .GATEWAY_API_VERSION }}
+        access:
+          type: github
+          repoUrl: https://github.com/kubernetes-sigs/gateway-api
+          ref: {{ .GATEWAY_API_VERSION }}
+          commit: {{ .GATEWAY_API_COMMIT }}
+  - name: github.com/traefik/traefik
+    version: {{ .TRAEFIK_VERSION }}
+    provider:
+      name: traefik
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .TRAEFIK_VERSION }}
+        access:
+          type: helm
+          helmChart: traefik:{{ .TRAEFIK_VERSION }}
+          helmRepository: https://traefik.github.io/charts
+      - name: crds
+        type: helmChart
+        version: {{ .TRAEFIK_CRD_VERSION }}
+        access:
+          type: helm
+          helmChart: traefik-crds:{{ .TRAEFIK_CRD_VERSION }}
+          helmRepository: https://traefik.github.io/charts
+  - name: github.com/cert-manager/cert-manager
+    version: {{ .CERT_MANAGER_VERSION }}
+    provider:
+      name: cert-manager
+    resources:
+      - name: chart
+        type: helmChart
+        version: {{ .CERT_MANAGER_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: quay.io/jetstack/charts/cert-manager:{{ .CERT_MANAGER_VERSION }}
   - name: github.com/crossplane/crossplane
     version: {{ .CROSSPLANE_VERSION }}
     provider:
@@ -172,3 +215,12 @@ components:
       - name: marketplace-ui
         componentName: github.com/platform-mesh/marketplace-ui
         version: {{ .MARKETPLACE_UI_VERSION }}
+      - name: gateway-api
+        componentName: github.com/kubernetes-sigs/gateway-api
+        version: {{ .GATEWAY_API_VERSION }}
+      - name: traefik
+        componentName: github.com/traefik/traefik
+        version: {{ .TRAEFIK_VERSION }}
+      - name: cert-manager
+        componentName: github.com/cert-manager/cert-manager
+        version: {{ .CERT_MANAGER_VERSION }}
