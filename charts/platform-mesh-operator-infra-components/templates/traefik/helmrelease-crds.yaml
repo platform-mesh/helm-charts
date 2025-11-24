@@ -1,0 +1,17 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: {{ .Values.traefikCRDs.name }}
+spec:
+  chart:
+    spec:
+      chart: {{ .Values.traefikCRDs.chart.name }}
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.traefikCRDs.name }}
+  dependsOn: null
+  interval: {{ .Values.traefikCRDs.interval }}
+  releaseName: {{ .Values.traefikCRDs.name }}
+  targetNamespace: {{ .Values.traefikCRDs.targetNamespace }}
+  timeout: 15m

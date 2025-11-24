@@ -1,0 +1,15 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: {{ .Values.certManager.name }}
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: {{ .Values.certManager.name }}
+    namespace: default
+  interval: {{ .Values.certManager.interval }}
+  releaseName: {{ .Values.certManager.name }}
+  targetNamespace: {{ .Values.certManager.targetNamespace }}
+  timeout: 15m
+  values:
+    {{- toYaml .Values.certManager.values | nindent 4 }}

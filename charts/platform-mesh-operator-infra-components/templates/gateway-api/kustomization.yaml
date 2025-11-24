@@ -1,0 +1,14 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: {{ .Values.gatewayApi.name }}
+spec:
+  force: false
+  install:
+    crds: {{ .Values.gatewayApi.kustomization.install.crds }}
+  interval: {{ .Values.gatewayApi.kustomization.interval }}
+  path: {{ .Values.gatewayApi.kustomization.path }}
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: {{ .Values.gatewayApi.name }}

@@ -1,0 +1,186 @@
+it should render the application manifests:
+  1: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: cert-manager
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: cert-manager
+        namespace: default
+      interval: 1m
+      releaseName: cert-manager
+      targetNamespace: default
+      timeout: 15m
+      values:
+        crds:
+          enabled: true
+  2: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: cert-manager
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: cert-manager
+          resource:
+            name: chart
+      skipVerify: true
+  3: |
+    apiVersion: kustomize.toolkit.fluxcd.io/v1
+    kind: Kustomization
+    metadata:
+      name: gateway-api
+    spec:
+      force: false
+      install:
+        crds: Skip
+      interval: 1m
+      path: ./config/crd/experimental
+      prune: true
+      sourceRef:
+        kind: GitRepository
+        name: gateway-api
+  4: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: git
+      name: gateway-api
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: gateway-api
+          resource:
+            name: crds
+      skipVerify: true
+  5: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: traefik-crds
+    spec:
+      chart:
+        spec:
+          chart: traefik-crds
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: traefik-crds
+      dependsOn: null
+      interval: 1m
+      releaseName: traefik-crds
+      targetNamespace: default
+      timeout: 15m
+  6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: traefik
+    spec:
+      chart:
+        spec:
+          chart: traefik
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: traefik
+      dependsOn:
+        - name: traefik-crds
+      interval: 1m
+      releaseName: traefik
+      targetNamespace: default
+      timeout: 15m
+      values:
+        experimental:
+          kubernetesGateway:
+            enabled: true
+        gateway:
+          enabled: false
+        gatewayClass:
+          enabled: true
+        ports:
+          websecure:
+            exposedPort: 8443
+            nodePort: 31000
+        providers:
+          kubernetesGateway:
+            enabled: true
+            experimentalChannel: true
+        service:
+          spec:
+            clusterIP: 10.96.188.4
+          type: NodePort
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: traefik-crds
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: traefik
+          resource:
+            name: crds
+      skipVerify: true
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: traefik
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: traefik
+          resource:
+            name: chart
+      skipVerify: true

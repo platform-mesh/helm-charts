@@ -1,0 +1,32 @@
+name: Build platform-mesh-operator-infra-components Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/platform-mesh-operator-infra-components/**'
+      - '.github/workflows/platform-mesh-operator-infra-components.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+  pull_request:
+    paths:
+      - 'charts/platform-mesh-operator-infra-components/**'
+      - '.github/workflows/platform-mesh-operator-infra-components.yaml'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  pipeline:
+    concurrency:
+      group: platform-mesh-operator-infra-components-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: platform-mesh-operator-infra-components
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+    secrets: inherit
+

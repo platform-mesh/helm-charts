@@ -1,0 +1,26 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  labels:
+    artifact: chart
+    repo: helm
+  name: {{ .Values.traefik.name }}
+spec:
+  componentRef:
+    name: {{ .Values.ocm.component.name }}
+  interval: {{ .Values.ocm.interval }}
+  ocmConfig:
+    - apiVersion: delivery.ocm.software/v1alpha1
+      kind: Repository
+      name: {{ .Values.ocm.repo.name }}
+      namespace: {{ .Release.Namespace }}
+  resource:
+    byReference:
+      referencePath:
+      {{- range .Values.ocm.referencePath }}
+        - name: {{ . }}
+      {{- end }}
+        - name: {{ .Values.traefik.name }}
+      resource:
+        name: {{ .Values.traefik.ocmResourceName }}
+  skipVerify: {{ .Values.ocm.skipVerify }}
