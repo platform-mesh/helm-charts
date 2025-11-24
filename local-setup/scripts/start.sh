@@ -49,20 +49,27 @@ check_wsl_compatibility
 # Run environment checks
 run_environment_checks
 
-# Check if kind cluster is already running, if not create it
-if ! check_kind_cluster; then
-    if [ -d "$SCRIPT_DIR/certs" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
-        rm -rf "$SCRIPT_DIR/certs"
-    fi
-    echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
-    $SCRIPT_DIR/../scripts/gen-certs.sh
+# Check if local cluster exists first, then check kind cluster
+USE_LOCAL_CLUSTER=false
+if check_local_cluster; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Using existing local cluster, bypassing kind cluster creation ${COL_RES}"
+    USE_LOCAL_CLUSTER=true
+else
+    # Check if kind cluster is already running, if not create it
+    if ! check_kind_cluster; then
+        if [ -d "$SCRIPT_DIR/certs" ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
+            rm -rf "$SCRIPT_DIR/certs"
+        fi
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
+        $SCRIPT_DIR/../scripts/gen-certs.sh
 
-    if [ "$CACHED" = true ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
-    else
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        if [ "$CACHED" = true ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
+            kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
+        else
+            kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        fi
     fi
 fi
 
@@ -91,18 +98,36 @@ helm repo add traefik https://traefik.github.io/charts
 helm upgrade --install --namespace=default \
   traefik-crds traefik/traefik-crds --version 1.12.0
 
-helm upgrade --install --namespace=default \
-  --set="experimental.kubernetesGateway.enabled=true" \
-  --set="providers.kubernetesGateway.enabled=true" \
-  --set="providers.kubernetesGateway.experimentalChannel=true" \
-  --set="gatewayClass.enabled=true" \
-  --set="service.type=NodePort" \
-  --set="ports.websecure.nodePort=31000" \
-  --set="ports.websecure.exposedPort=8443" \
-  --set="gateway.enabled=false" \
-  --skip-crds \
-  --set="service.spec.clusterIP=10.96.188.4" \
-  traefik traefik/traefik --version 37.3.0
+# Set service type based on cluster type
+if [ "$USE_LOCAL_CLUSTER" = true ]; then
+  SERVICE_TYPE="LoadBalancer"
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using LoadBalancer service type for local cluster ${COL_RES}"
+  helm upgrade --install --namespace=default \
+    --set="experimental.kubernetesGateway.enabled=true" \
+    --set="providers.kubernetesGateway.enabled=true" \
+    --set="providers.kubernetesGateway.experimentalChannel=true" \
+    --set="gatewayClass.enabled=true" \
+    --set="service.type=${SERVICE_TYPE}" \
+    --set="ports.websecure.exposedPort=8443" \
+    --set="gateway.enabled=false" \
+    --skip-crds \
+    traefik traefik/traefik --version 37.3.0
+else
+  SERVICE_TYPE="NodePort"
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using NodePort service type for kind cluster ${COL_RES}"
+  helm upgrade --install --namespace=default \
+    --set="experimental.kubernetesGateway.enabled=true" \
+    --set="providers.kubernetesGateway.enabled=true" \
+    --set="providers.kubernetesGateway.experimentalChannel=true" \
+    --set="gatewayClass.enabled=true" \
+    --set="service.type=${SERVICE_TYPE}" \
+    --set="ports.websecure.exposedPort=8443" \
+    --set="ports.websecure.nodePort=31000" \
+    --set="gateway.enabled=false" \
+    --skip-crds \
+    --set="service.spec.clusterIP=10.96.188.4" \
+    traefik traefik/traefik --version 37.3.0
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
 
@@ -126,7 +151,7 @@ echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
-kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/certs/cert.key --cert $SCRIPT_DIR/certs/cert.crt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
