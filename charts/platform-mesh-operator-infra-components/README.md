@@ -1,4 +1,4 @@
-# platform-mesh-infra-components
+# platform-mesh-operator-infra-components
 
 A Helm chart for Kubernetes
 
@@ -6,37 +6,30 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| ocm.component.create | bool | `true` |  |
+| gatewayApi.kustomization.install.crds | string | `"Skip"` |  |
+| gatewayApi.kustomization.interval | string | `"1m"` |  |
+| gatewayApi.kustomization.path | string | `"./config/crd/experimental"` |  |
+| gatewayApi.name | string | `"gateway-api"` |  |
+| gatewayApi.ocmResourceName | string | `"crds"` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
 | ocm.interval | string | `"3m"` |  |
 | ocm.referencePath | list | `[]` |  |
-| ocm.repo.create | bool | `true` |  |
 | ocm.repo.name | string | `"platform-mesh"` |  |
 | ocm.skipVerify | bool | `true` |  |
-| services.gateway-api.enabled | bool | `true` |  |
-| services.gateway-api.gitRepo | bool | `true` |  |
-| services.gateway-api.kustomizationResource.enabled | bool | `true` |  |
-| services.gateway-api.kustomizationResource.install.crds | string | `"Skip"` |  |
-| services.gateway-api.kustomizationResource.path | string | `"./config/crd/experimental"` |  |
-| services.gateway-api.path | string | `"charts"` |  |
-| services.gateway-api.resourceName | string | `"crds"` |  |
-| services.gateway-api.skipHelmRelease | bool | `true` |  |
-| services.gateway-api.targetNamespace | string | `"default"` |  |
-| services.gateway-api.values | object | `{}` |  |
-| services.traefik.enabled | bool | `true` |  |
-| services.traefik.helmRepo | bool | `true` |  |
-| services.traefik.path | string | `"charts"` |  |
-| services.traefik.resourceName | string | `"chart"` |  |
-| services.traefik.targetNamespace | string | `"default"` |  |
-| services.traefik.values.experimental.kubernetesGateway.enabled | bool | `true` |  |
-| services.traefik.values.gateway.enabled | bool | `false` |  |
-| services.traefik.values.gatewayClass.enabled | bool | `true` |  |
-| services.traefik.values.ports.websecure.exposedPort | int | `8443` |  |
-| services.traefik.values.ports.websecure.nodePort | int | `31000` |  |
-| services.traefik.values.providers.kubernetesGateway.enabled | bool | `true` |  |
-| services.traefik.values.providers.kubernetesGateway.experimentalChannel | bool | `true` |  |
-| services.traefik.values.service.spec.clusterIP | string | `"10.96.188.4"` |  |
-| services.traefik.values.service.type | string | `"NodePort"` |  |
+| traefik.chart.name | string | `"traefik"` |  |
+| traefik.interval | string | `"1m"` |  |
+| traefik.name | string | `"traefik"` |  |
+| traefik.ocmResourceName | string | `"chart"` |  |
+| traefik.targetNamespace | string | `"default"` |  |
+| traefik.values.experimental.kubernetesGateway.enabled | bool | `true` |  |
+| traefik.values.gateway.enabled | bool | `false` |  |
+| traefik.values.gatewayClass.enabled | bool | `true` |  |
+| traefik.values.ports.websecure.exposedPort | int | `8443` |  |
+| traefik.values.ports.websecure.nodePort | int | `31000` |  |
+| traefik.values.providers.kubernetesGateway.enabled | bool | `true` |  |
+| traefik.values.providers.kubernetesGateway.experimentalChannel | bool | `true` |  |
+| traefik.values.service.spec.clusterIP | string | `"10.96.188.4"` |  |
+| traefik.values.service.type | string | `"NodePort"` |  |
 
 ## Overriding Values
 

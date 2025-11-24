@@ -23,7 +23,14 @@ it should render the application manifests:
         repo: git
       name: gateway-api
     spec:
+      componentRef:
+        name: platform-mesh
       interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
       resource:
         byReference:
           referencePath:

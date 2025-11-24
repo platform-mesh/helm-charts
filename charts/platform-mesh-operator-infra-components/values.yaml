@@ -8,9 +8,6 @@ ocm:
     name: platform-mesh
 
 gatewayApi:
-  path: charts
-  targetNamespace: default
-  values: {}
   name: gateway-api
   ocmResourceName: crds
 
@@ -21,7 +18,6 @@ gatewayApi:
       crds: Skip
 
 traefik:
-  path: charts
   targetNamespace: default
   name: traefik
   ocmResourceName: chart

@@ -6,18 +6,14 @@ metadata:
     repo: git
   name: {{   .Values.gatewayApi.name }}
 spec:
-  {{- if .Values.ocm.component.create }}
   componentRef:
     name: {{ .Values.ocm.component.name }}
-  {{- end }}
   interval: {{ .Values.ocm.interval }}
-  {{- if .Values.ocm.repo.create }}
   ocmConfig:
     - apiVersion: delivery.ocm.software/v1alpha1
       kind: Repository
       name: {{ .Values.ocm.repo.name }}
       namespace: {{ .Release.Namespace }}
-  {{- end }}
   resource:
     byReference:
       referencePath:
