@@ -134,13 +134,6 @@ else
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 fi
 
-sleep 10
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=280s cert-manager
-kubectl wait --for=condition=Established crd/certificates.cert-manager.io --timeout=120s
-kubectl apply -k $SCRIPT_DIR/../kustomize/components/virtual-workspaces
-
 # wait for kind: PlatformMesh resource to become ready
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
 kubectl wait --namespace platform-mesh-system \
