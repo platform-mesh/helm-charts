@@ -41,12 +41,18 @@ done
 # Source compatibility and environment checks
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
 source "$SCRIPT_DIR/check-environment.sh"
+source "$SCRIPT_DIR/setup-registry-proxies.sh"
 
 # Run WSL compatibility checks
 check_wsl_compatibility
 
 # Run environment checks
 run_environment_checks
+
+# Start registry proxies if using cached mode
+if [ "$CACHED" = true ]; then
+    setup_registry_proxies
+fi
 
 # Check if kind cluster is already running, if not create it
 if ! check_kind_cluster; then
