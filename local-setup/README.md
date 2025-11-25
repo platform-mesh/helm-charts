@@ -15,8 +15,13 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 - **kubectl**: Kubernetes command-line tool (usually installed with Docker Desktop or Kind)
 - **openssl**: Required for SSL certificate generation (typically pre-installed on Linux/macOS)
 - **base64**: Required for encoding/decoding operations (standard Unix utility, typically pre-installed)
-- **Task**: Task runner for executing project tasks. [Installation](https://taskfile.dev/installation/)
 - **mkcert**: For generating local SSL certificates. [Installation](https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation)
+
+### Optional Tools
+
+- **Task**: Task runner for executing project tasks. [Installation](https://taskfile.dev/installation/)
+  - Provides convenient command aliases (e.g., `task local-setup`)
+  - Not required - you can run scripts directly (see examples below)
 
 
 ### WSL2 + Windows mkcert Setup Guide
@@ -57,34 +62,56 @@ KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 
 ### 1. Bootstrap Local Environment
 
-The setup script automates the entire bootstrap process:
+The setup script automates the entire bootstrap process.
+
+**Using Task (recommended):**
 ```sh
 # Full setup (deletes existing cluster and creates new one)
 task local-setup
-```
 
-You can also iterate on an existing cluster (faster, preserves cluster state):
-
-```sh
-# Iterate on existing cluster (faster, preserves cluster)
+# Iterate on existing cluster (faster, preserves cluster state)
 task local-setup:iterate
 ```
 
-### 2. Alternative, Bootstrap Local Environment with image caching
-
-#### One time activities to start local image registries:
+**Without Task (direct script execution):**
 ```sh
+# Full setup (deletes existing cluster and creates new one)
+kind delete cluster --name platform-mesh
+./local-setup/scripts/start.sh
+
+# Iterate on existing cluster (faster, preserves cluster state)
+./local-setup/scripts/start.sh
+```
+
+### 2. Alternative: Bootstrap with Image Caching
+
+Image caching speeds up cluster recreation by using local Docker registry mirrors.
+
+**Using Task:**
+```sh
+# One-time: Start local image registries
 task local-setup-start-docker-registries
-```
 
-#### Setup script to bootstrap the environment with locally cached images (faster initial setup):
-```sh
+# Full setup with caching
 task local-setup-cached
+
+# Iterate on existing cluster
+task local-setup-cached:iterate
 ```
 
-#### Iterate on existing cluster (faster, preserves cluster)
+**Without Task:**
 ```sh
-task local-setup-cached:iterate
+# One-time: Start local image registries
+docker run -d --name proxy-quay --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://quay.io registry:2
+docker run -d --name proxy-ghcr --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io registry:2
+docker run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
+
+# Full setup with caching
+kind delete cluster --name platform-mesh
+./local-setup/scripts/start.sh --cached
+
+# Iterate on existing cluster
+./local-setup/scripts/start.sh --cached
 ```
 
 #### Developer information
@@ -171,7 +198,11 @@ Each onboarded organization requires its own subdomain entry in `/etc/hosts`:
 
 #### Enable Debug Mode
 ```sh
+# With Task
 DEBUG=true task local-setup:iterate
+
+# Without Task
+DEBUG=true ./local-setup/scripts/start.sh
 ```
 
 #### Check Component Status
@@ -187,10 +218,14 @@ kubectl get pods -A
 ```
 
 #### Clean Start
-The local-setup task will recreate the kind cluster from scratch
+Recreate the kind cluster from scratch:
 ```sh
-# Delete cluster and start fresh
+# With Task
 task local-setup
+
+# Without Task
+kind delete cluster --name platform-mesh
+./local-setup/scripts/start.sh
 ```
 
 ### Development Workflow

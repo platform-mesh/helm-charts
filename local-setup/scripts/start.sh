@@ -68,7 +68,7 @@ cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.16.4 \
+  --version 2.17.1 \
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
   --set notificationController.create=false \
@@ -81,15 +81,20 @@ kubectl wait --namespace flux-system \
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
   --timeout=120s source-controller
+kubectl wait --namespace flux-system \
+  --for=condition=available deployment \
+  --timeout=120s kustomize-controller
 
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
+
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=480s kro
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
-kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
-kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
 
 kubectl create secret generic domain-certificate -n default \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
@@ -106,23 +111,21 @@ kubectl create secret generic domain-certificate -n platform-mesh-system \
 kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
   --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
 
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=480s kro
-
+echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
-
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
-
 kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
   --timeout=480s platform-mesh-operator
 
-sleep 15
+
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+
+kubectl wait --namespace default \
+  --for=condition=Ready PlatformMeshOperator \
+  --timeout=480s platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 
 # wait for kind: PlatformMesh resource to become ready
