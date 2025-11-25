@@ -91,6 +91,8 @@ spec:
                       type: object
                   type: object
                 type: array
+              infraValues:
+                x-kubernetes-preserve-unknown-fields: true
               kcp:
                 properties:
                   extraDefaultAPIBindings:
@@ -111,6 +113,8 @@ spec:
                   extraInitializerConnections:
                     items:
                       properties:
+                        namespace:
+                          type: string
                         path:
                           type: string
                         secret:
@@ -129,6 +133,8 @@ spec:
                           type: string
                         external:
                           type: boolean
+                        namespace:
+                          type: string
                         path:
                           type: string
                         rawPath:
@@ -173,6 +179,8 @@ spec:
                   initializerConnections:
                     items:
                       properties:
+                        namespace:
+                          type: string
                         path:
                           type: string
                         secret:
@@ -191,6 +199,8 @@ spec:
                           type: string
                         external:
                           type: boolean
+                        namespace:
+                          type: string
                         path:
                           type: string
                         rawPath:
