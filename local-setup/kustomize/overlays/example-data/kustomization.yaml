@@ -17,3 +17,6 @@ patches:
       - op: replace
         path: /spec/kcp/extraProviderConnections
         value: [ { endpointSliceName: "", path: root:providers:httpbin-provider, secret: httpbin-kubeconfig, external: false }]
+      - op: replace
+        path: /spec/kcp/extraDefaultAPIBindings
+        value: [ { workspaceTypePath: root:account, export: orchestrate.platform-mesh.io, path: root:providers:httpbin-provider }]
