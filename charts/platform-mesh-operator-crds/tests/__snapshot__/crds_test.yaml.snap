@@ -92,6 +92,8 @@ operator match the snapshot:
                             type: object
                         type: object
                       type: array
+                    infraValues:
+                      x-kubernetes-preserve-unknown-fields: true
                     kcp:
                       properties:
                         extraDefaultAPIBindings:
@@ -112,6 +114,8 @@ operator match the snapshot:
                         extraInitializerConnections:
                           items:
                             properties:
+                              namespace:
+                                type: string
                               path:
                                 type: string
                               secret:
@@ -130,6 +134,8 @@ operator match the snapshot:
                                 type: string
                               external:
                                 type: boolean
+                              namespace:
+                                type: string
                               path:
                                 type: string
                               rawPath:
@@ -169,6 +175,8 @@ operator match the snapshot:
                         initializerConnections:
                           items:
                             properties:
+                              namespace:
+                                type: string
                               path:
                                 type: string
                               secret:
@@ -187,6 +195,8 @@ operator match the snapshot:
                                 type: string
                               external:
                                 type: boolean
+                              namespace:
+                                type: string
                               path:
                                 type: string
                               rawPath:
