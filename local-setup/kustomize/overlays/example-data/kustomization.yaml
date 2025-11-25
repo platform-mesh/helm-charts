@@ -11,12 +11,20 @@ patches:
       name: platform-mesh
       namespace: platform-mesh-system
     patch: |-
-      - op: replace
-        path: /spec/kcp
-        value: {}
-      - op: replace
-        path: /spec/kcp/extraProviderConnections
-        value: [ { endpointSliceName: "", path: root:providers:httpbin-provider, secret: httpbin-kubeconfig, namespace: example-httpbin-provider, external: false }]
-      - op: replace
-        path: /spec/kcp/extraDefaultAPIBindings
-        value: [ { workspaceTypePath: root:account, export: orchestrate.platform-mesh.io, path: root:providers:httpbin-provider }]
+      apiVersion: your.api.version
+      kind: PlatformMesh
+      metadata:
+        name: platform-mesh
+        namespace: platform-mesh-system
+      spec:
+        kcp:
+          extraProviderConnections:
+            - endpointSliceName: ""
+              path: root:providers:httpbin-provider
+              secret: httpbin-kubeconfig
+              namespace: example-httpbin-provider
+              external: false
+          extraDefaultAPIBindings:
+            - workspaceTypePath: root:account
+              export: orchestrate.platform-mesh.io
+              path: root:providers:httpbin-provider

@@ -9,6 +9,8 @@ metadata:
   name: example-httpbin-provider
   namespace: default
 spec:
+  dependsOn:
+    - name: api-syncagent
   chartRef:
     kind: OCIRepository
     name: example-httpbin-provider
