@@ -159,7 +159,7 @@ run_environment_checks() {
     if ! setup_mkcert_command; then
         checks_failed=$((checks_failed + 1))
     fi
-    
+
     # Check architecture compatibility
     ARCH=$(check_architecture)
     if [ $? -ne 0 ]; then

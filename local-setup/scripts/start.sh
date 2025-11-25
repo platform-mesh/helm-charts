@@ -19,16 +19,12 @@ SCRIPT_DIR=$(dirname "$0")
 
 # Parse command line arguments
 PRERELEASE=false
-MINIMAL=false
 CACHED=false
 
 for arg in "$@"; do
   case $arg in
     --prerelease)
       PRERELEASE=true
-      ;;
-    --minimal)
-      MINIMAL=true
       ;;
     --cached)
       CACHED=true
@@ -72,7 +68,7 @@ cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.16.4 \
+  --version 2.17.1 \
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
   --set notificationController.create=false \
@@ -85,15 +81,20 @@ kubectl wait --namespace flux-system \
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
   --timeout=120s source-controller
+kubectl wait --namespace flux-system \
+  --for=condition=available deployment \
+  --timeout=120s kustomize-controller
 
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and Platform Mesh ${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
+
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=480s kro
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
-kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
-kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
 
 kubectl create secret generic domain-certificate -n default \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
@@ -110,29 +111,22 @@ kubectl create secret generic domain-certificate -n platform-mesh-system \
 kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
   --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
 
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=480s kro
-
+echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
-
-echo -e "${COL}[$(date '+%H:%M:%S')] OCM Controller and PlatformMesh ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
-
 kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
   --timeout=480s platform-mesh-operator
 
-sleep 15
+
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+
+kubectl wait --namespace default \
+  --for=condition=Ready PlatformMeshOperator \
+  --timeout=480s platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
-if [ "$MINIMAL" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
-else
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
-fi
+echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 
 # wait for kind: PlatformMesh resource to become ready
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
@@ -145,17 +139,6 @@ kubectl wait --namespace default \
   --timeout=280s keycloak
 kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
-if [ "$MINIMAL" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
-  kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
-  kubectl scale deployment/cert-manager --replicas=0 -n cert-manager
-  kubectl scale deployment/cert-manager-cainjector --replicas=0 -n cert-manager
-  kubectl scale deployment/cert-manager-webhook --replicas=0 -n cert-manager
-  kubectl scale deployment/root-proxy --replicas=0 -n platform-mesh-system
-  kubectl scale deployment/kcp-operator --replicas=0 -n kcp-operator
-  kubectl scale deployment/etcd-druid --replicas=0 -n etcd-druid-system
-fi
-
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
@@ -163,21 +146,12 @@ kubectl wait --namespace default \
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s account-operator
-if [ "$MINIMAL" != true ]; then
-  kubectl wait --namespace default \
-    --for=condition=Ready helmreleases \
-    --timeout=480s portal
-fi
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=480s portal
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
-
-if [ "$MINIMAL" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
-  kubectl scale deployment/helm-controller --replicas=0 -n flux-system
-  kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
-  kubectl scale deployment/source-controller --replicas=0 -n flux-system
-fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
