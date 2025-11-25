@@ -13,9 +13,11 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 - **Kind**: [Kubernetes in Docker](https://kind.sigs.k8s.io/) for local Kubernetes clusters. [Installation](https://kind.sigs.k8s.io/docs/user/quick-start/)
 - **Helm**: Required for bootstrapping Flux and managing Helm releases. [Installation](https://helm.sh/docs/intro/install/)
 - **kubectl**: Kubernetes command-line tool (usually installed with Docker Desktop or Kind)
+- **openssl**: Required for SSL certificate generation (typically pre-installed on Linux/macOS)
+- **base64**: Required for encoding/decoding operations (standard Unix utility, typically pre-installed)
 - **Task**: Task runner for executing project tasks. [Installation](https://taskfile.dev/installation/)
 - **mkcert**: For generating local SSL certificates. [Installation](https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation)
-  
+
 
 ### WSL2 + Windows mkcert Setup Guide
 
@@ -36,12 +38,6 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
    # In PowerShell as Administrator:
    Import-Certificate -FilePath "C:\Users\$env:USERNAME\mkcert-rootCA.pem" -CertStoreLocation Cert:\LocalMachine\Root
    ```
-
-### Additional Tools (Automatically Checked)
-The setup script will verify these additional dependencies:
-- `yq` - YAML processor
-- `base64` - Base64 encoding/decoding
-- `openssl` - SSL certificate generation
 
 ### WSL2 Specific Requirements
 
