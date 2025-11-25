@@ -79,42 +79,6 @@ helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-comm
   --set helmController.container.additionalArgs[0]="--concurrent=10" \
   --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
 
-kubectl apply -k $SCRIPT_DIR/../kustomize/base/gateway-api
-
-kubectl wait --namespace default \
-  --for=condition=Ready kustomization \
-  --timeout=240s gateway-api-experimental-crds
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing Traefik ${COL_RES}"
-helm repo add traefik https://traefik.github.io/charts
-
-helm upgrade --install --namespace=default \
-  traefik-crds traefik/traefik-crds --version 1.12.0
-
-helm upgrade --install --namespace=default \
-  --set="experimental.kubernetesGateway.enabled=true" \
-  --set="providers.kubernetesGateway.enabled=true" \
-  --set="providers.kubernetesGateway.experimentalChannel=true" \
-  --set="gatewayClass.enabled=true" \
-  --set="service.type=NodePort" \
-  --set="ports.websecure.nodePort=31000" \
-  --set="ports.websecure.exposedPort=8443" \
-  --set="gateway.enabled=false" \
-  --skip-crds \
-  --set="service.spec.clusterIP=10.96.188.4" \
-  traefik traefik/traefik --version 37.3.0
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Starting deployments ${COL_RES}"
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Install Cert-Manager ${COL_RES}"
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.2/cert-manager.yaml
-
-kubectl wait --namespace cert-manager \
-  --for=condition=available deployment \
-  --timeout=240s cert-manager-webhook
-kubectl wait --namespace cert-manager \
-  --for=condition=available deployment \
-  --timeout=120s cert-manager
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
   --timeout=120s helm-controller
@@ -130,7 +94,6 @@ kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic grafana-admin-secret -n observability --from-literal=admin-user=admin --from-literal=admin-password=admin --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n observability create secret generic slack-webhook-secret --from-literal=slack_webhook_url=https://hooks.slack.com/services/TEAMID/SERVICEID/TOKEN || echo "secret slack-webhook-secret already exists, skipping creation"
-
 
 kubectl create secret generic domain-certificate -n default \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
