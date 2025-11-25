@@ -19,16 +19,12 @@ SCRIPT_DIR=$(dirname "$0")
 
 # Parse command line arguments
 PRERELEASE=false
-MINIMAL=false
 CACHED=false
 
 for arg in "$@"; do
   case $arg in
     --prerelease)
       PRERELEASE=true
-      ;;
-    --minimal)
-      MINIMAL=true
       ;;
     --cached)
       CACHED=true
@@ -127,12 +123,7 @@ sleep 15
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
-if [ "$MINIMAL" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Installing minimal setup ${COL_RES}"
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-minimal
-else
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
-fi
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 
 # wait for kind: PlatformMesh resource to become ready
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
@@ -145,17 +136,6 @@ kubectl wait --namespace default \
   --timeout=280s keycloak
 kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
-if [ "$MINIMAL" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
-  kubectl scale deployment/ocm-k8s-toolkit-controller-manager --replicas=0 -n ocm-system
-  kubectl scale deployment/cert-manager --replicas=0 -n cert-manager
-  kubectl scale deployment/cert-manager-cainjector --replicas=0 -n cert-manager
-  kubectl scale deployment/cert-manager-webhook --replicas=0 -n cert-manager
-  kubectl scale deployment/root-proxy --replicas=0 -n platform-mesh-system
-  kubectl scale deployment/kcp-operator --replicas=0 -n kcp-operator
-  kubectl scale deployment/etcd-druid --replicas=0 -n etcd-druid-system
-fi
-
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
@@ -163,21 +143,12 @@ kubectl wait --namespace default \
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s account-operator
-if [ "$MINIMAL" != true ]; then
-  kubectl wait --namespace default \
-    --for=condition=Ready helmreleases \
-    --timeout=480s portal
-fi
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=480s portal
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
-
-if [ "$MINIMAL" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Scaling down to minimal resources $COL_RES"
-  kubectl scale deployment/helm-controller --replicas=0 -n flux-system
-  kubectl scale deployment/kustomize-controller --replicas=0 -n flux-system
-  kubectl scale deployment/source-controller --replicas=0 -n flux-system
-fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
