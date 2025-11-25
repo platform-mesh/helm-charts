@@ -125,7 +125,6 @@ kubectl wait --namespace default \
 
 sleep 15
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
-kubectl wait --for=condition=Established crd/certificates.cert-manager.io --timeout=120s
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Adding 'kind: PlatformMesh' resource ${COL_RES}"
 if [ "$MINIMAL" = true ]; then
@@ -134,6 +133,13 @@ if [ "$MINIMAL" = true ]; then
 else
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 fi
+
+sleep 10
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=280s cert-manager
+kubectl wait --for=condition=Established crd/certificates.cert-manager.io --timeout=120s
+kubectl apply -k $SCRIPT_DIR/../kustomize/components/virtual-workspaces
 
 # wait for kind: PlatformMesh resource to become ready
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
