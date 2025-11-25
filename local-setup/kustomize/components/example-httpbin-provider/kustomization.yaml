@@ -3,4 +3,3 @@ kind: Kustomization
 resources:
   - resources.yaml
   - helmreleases.yaml
-  - rbac.yaml
