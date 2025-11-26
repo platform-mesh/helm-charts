@@ -150,12 +150,28 @@ test.describe('Home Page', () => {
 
     const accountElement = newPage2.locator('[test-id="generic-list-cell-0-metadata.name"]');
     await expect(accountElement).toBeVisible( { timeout: 10000 } );
+    
+    // Close the Mailpit page/tab if it's still open
+    const pages = newPage2.context().pages();
+    for (const p of pages) {
+      if (p.url().includes('mailpit') && p !== newPage2) {
+        await p.close();
+      }
+    }
+    
     await accountElement.click();
-    const download1Promise = newPage2.waitForEvent('download');
-    const downloadButton = await newPage2.locator('[test-id="generic-detail-view-download"]');
+    
+    // Wait for navigation to the detail view
+    await newPage2.waitForURL(/.*\/accounts\/.*/, { timeout: 15000 });
+    await newPage2.waitForLoadState('networkidle');
+    
+    const downloadButton = newPage2.locator('[test-id="generic-detail-view-download"]');
     await expect(downloadButton).toBeVisible( { timeout: 10000 } );
+    
+    const download1Promise = newPage2.waitForEvent('download');
     await downloadButton.click();
-    await expect(download1Promise).toBeDefined();
+    const download = await download1Promise;
+    expect(download).toBeDefined();
 
   });
 });
