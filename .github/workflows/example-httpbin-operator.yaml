@@ -12,6 +12,10 @@ on:
       - 'charts/example-httpbin-operator/**'
       - '.github/workflows/example-httpbin-operator.yaml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   pipeline:
     concurrency:
