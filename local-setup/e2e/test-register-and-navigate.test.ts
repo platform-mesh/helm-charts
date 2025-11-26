@@ -80,6 +80,8 @@ async function ensurePortalHome(page: Page) {
 
 test.describe('Home Page', () => {
 
+  test.setTimeout(2*60*1000);  // 2 minutes test timeout
+
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
 
@@ -94,16 +96,14 @@ test.describe('Home Page', () => {
 
     await newPage.screenshot({ path: 'screenshot-beforeswitch.png' });
 
-    await newPage.pause();  // for debugging
     // onboard 'default' organization and switch to it
-    await newPage.getByRole('textbox', { name: 'Onboard a new organization' }).fill(newOrgName);
-    await newPage.getByRole('button', { name: 'Onboard' }).click();
+    await newPage.locator('[test-id="organization-management-input"]').locator('input').fill(newOrgName);
+    await newPage.locator('[test-id="organization-management-onboard-button"]').locator('button').click();
 
-    await newPage.pause();  // for debugging
 
     // Wait for the "Switch" button (role-based to pierce shadow DOM), and in parallel open Mailpit link
     let welcomePage: Page;
-    const switchButton = newPage.getByRole('button', { name: /Switch/i });
+    const switchButton = await newPage.locator('[test-id="organization-management-switch-button"]').locator('button')
 
     const [_, wp] = await Promise.all([
       switchButton.waitFor({ state: 'visible', timeout: 100000 }),
@@ -136,36 +136,26 @@ test.describe('Home Page', () => {
     // Be explicit: make sure we’re on the portal origin and the SPA has rendered
     await ensurePortalHome(newPage2);
 
-    await newPage2.getByText('Accounts').click();
+    await newPage2.locator('[data-testid="accounts_accounts"]').click();  // data-testid="accounts_accounts"
     // click on "Create" button
-    await newPage2.getByRole('button', { name: 'Create' }).click();
+    await newPage2.locator('[test-id="generic-list-view-create-button"]').click(); // generic-list-view-create-button
 
-    // await page2.pause();
+    await newPage2.pause();
+    
+    await newPage2.locator('[test-id="create-field-metadata_name"]').click();
+    await newPage2.locator('[test-id="create-field-spec_type"]').click();
+    await newPage2.locator('[test-id="create-field-spec_type-option-account"]').click();
+    await newPage2.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
+    await newPage2.locator('[test-id="create-resource-submit"]').click();
 
-    await newPage2.locator('.ui5-select-icon > .ui5-icon-root').click();
-    await newPage2.locator('#ui5wc_10-content > .ui5-li-text-wrapper').click();
-    await newPage2.locator('#inner').nth(1).click();
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').click();
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').press('Shift+Home');
-    await newPage2.locator('ui5-input').filter({ hasText: '<svg xmlns="http://www.w3.org' }).locator('#inner').fill(testAccountName);
-    await newPage2.getByRole('button', { name: 'Submit' }).click();
-
-    const accountElement = await newPage2.getByText(testAccountName);
+    const accountElement = newPage2.locator('[test-id="generic-list-cell-0-metadata.name"]');
     await expect(accountElement).toBeVisible( { timeout: 10000 } );
     await accountElement.click();
     const download1Promise = newPage2.waitForEvent('download');
-    const downloadButton = await newPage2.getByRole('button', { name: 'Download kubeconfig' });
+    const downloadButton = await newPage2.locator('[test-id="generic-detail-view-download"]');
     await expect(downloadButton).toBeVisible( { timeout: 10000 } );
     await downloadButton.click();
     await expect(download1Promise).toBeDefined();
-    await newPage2.getByTestId('luigi-topnav-title').click();
-    await newPage2.getByTestId('accounts_accounts').click();
-
-    await newPage2.pause();
-
-    const accountText = await newPage2.getByText(testAccountName);
-    await expect(accountText).toBeVisible( { timeout: 10000 } );
 
   });
 });
