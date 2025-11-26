@@ -148,7 +148,7 @@ test.describe('Home Page', () => {
     await newPage2.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
     await newPage2.locator('[test-id="create-resource-submit"]').click();
 
-    const accountElement = newPage2.locator('[test-id="generic-list-cell-0-metadata.name"]');
+    const accountElement = newPage2.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
     await expect(accountElement).toBeVisible( { timeout: 10000 } );
     
     // Close the Mailpit page/tab if it's still open
@@ -160,13 +160,10 @@ test.describe('Home Page', () => {
     }
     
     await accountElement.click();
-    
-    // Wait for navigation to the detail view
-    await newPage2.waitForURL(/.*\/accounts\/.*/, { timeout: 15000 });
-    await newPage2.waitForLoadState('networkidle');
-    
     const downloadButton = newPage2.locator('[test-id="generic-detail-view-download"]');
     await expect(downloadButton).toBeVisible( { timeout: 10000 } );
+
+    await newPage2.pause();
     
     const download1Promise = newPage2.waitForEvent('download');
     await downloadButton.click();
