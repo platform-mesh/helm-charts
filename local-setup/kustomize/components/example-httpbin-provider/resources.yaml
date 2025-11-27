@@ -21,7 +21,7 @@ spec:
       referencePath:
         - name: example-httpbin-operator
       resource:
-        name: oci-helm-chart-example-httpbin-operator
+        name: chart
   skipVerify: true
 
 ---

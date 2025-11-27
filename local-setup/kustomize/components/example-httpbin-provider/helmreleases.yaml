@@ -45,6 +45,6 @@ spec:
     hostAliases:
       enabled: true
       values:
-        ip: "10.96.188.4"
-        hostnames:
+        - ip: "10.96.188.4"
+          hostnames:
           - "kcp.api.portal.dev.local"
