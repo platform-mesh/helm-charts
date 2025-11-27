@@ -19,7 +19,12 @@ spec:
   releaseName: example-httpbin-provider
   targetNamespace: example-httpbin-provider
   timeout: 15m
-
+  values:
+    apiSyncagent:
+      rbac:
+        enable: true
+      publishedResources:
+        enable: true
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
