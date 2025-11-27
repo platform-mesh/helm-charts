@@ -83,47 +83,66 @@ kind delete cluster --name platform-mesh
 ./local-setup/scripts/start.sh
 ```
 
-### 2. Alternative: Bootstrap with Image Caching
+### 2. Bootstrap with Example Data (Demo Setup)
 
-Image caching speeds up cluster recreation by using local Docker registry mirrors.
+This setup includes an example provider ("httpbin") to showcase how provider integrations work in Platform Mesh. Perfect for demonstrations and learning.
 
 **Using Task:**
 ```sh
-# One-time: Start local image registries
-task local-setup-start-docker-registries
+# Full setup with example data
+task local-setup:example-data
 
+# Iterate on existing cluster
+task local-setup:example-data:iterate
+```
+
+**Without Task:**
+```sh
+# Full setup with example data
+kind delete cluster --name platform-mesh
+./local-setup/scripts/start.sh --example-data
+
+# Iterate on existing cluster
+./local-setup/scripts/start.sh --example-data
+```
+
+**What gets created:**
+- Standard Platform Mesh installation
+- Example provider workspace: `root:providers:httpbin-provider`
+- HTTPBin provider configuration demonstrating provider integration patterns
+
+### 3. Alternative: Bootstrap with Image Caching
+
+Image caching speeds up cluster recreation by using local Docker registry mirrors. The registry setup is automatically handled by the script.
+
+**Using Task:**
+```sh
 # Full setup with caching
 task local-setup-cached
 
 # Iterate on existing cluster
 task local-setup-cached:iterate
+
+# With example data + caching
+task local-setup-cached:example-data
+task local-setup-cached:example-data:iterate
 ```
 
 **Without Task:**
 ```sh
-# One-time: Start local image registries
-docker run -d --name proxy-quay --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://quay.io registry:2
-docker run -d --name proxy-ghcr --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io registry:2
-docker run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
-
 # Full setup with caching
 kind delete cluster --name platform-mesh
 ./local-setup/scripts/start.sh --cached
 
 # Iterate on existing cluster
 ./local-setup/scripts/start.sh --cached
+
+# With example data + caching
+./local-setup/scripts/start.sh --example-data --cached
 ```
 
 #### Developer information
 See [README-developers](./README-developers.md) for more detailed information related to chart developers.
-
-### 3. Access the Platform
-
-Once the setup completes successfully, you can access:
-
-- **Onboarding Portal**: https://portal.dev.local:8443
-- **Default Organization**: https://default.portal.dev.local:8443
-- **KCP API**: https://kcp.api.portal.dev.local:8443
 
 ### 4. Configure Local DNS
 
@@ -135,6 +154,17 @@ Add the following entries to your `/etc/hosts` file:
 
 **WSL Users**: You may also need to add these entries to the Windows hosts file at:
 `C:\Windows\System32\drivers\etc\hosts`
+
+### 5. Access the Platform
+
+Once the setup completes successfully and DNS is configured, you can access:
+
+- **Onboarding Portal**: https://portal.dev.local:8443
+- **KCP API**: https://kcp.api.portal.dev.local:8443
+
+**If you installed with example data:**
+- The HTTPBin provider is available in the `root:providers:httpbin-provider` workspace
+- Use the KCP admin kubeconfig to explore: `export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig`
 
 ## What the Setup Script Does
 
@@ -171,6 +201,12 @@ The `scripts/start.sh` script performs the following operations:
    - Creates KCP admin kubeconfig for workspace access
    - Waits for all components to become ready
    - Provides access instructions and next steps
+
+7. **Example Data Setup** (when using `--example-data` flag)
+   - Creates KCP provider workspaces structure
+   - Creates `root:providers` workspace for hosting provider integrations
+   - Creates `root:providers:httpbin-provider` workspace
+   - Deploys HTTPBin provider configuration to demonstrate provider integration patterns
 
 ## Advanced Usage
 
