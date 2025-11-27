@@ -1,3 +1,4 @@
+{{- if .Values.gatewayApi.enabled }}
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Resource
 metadata:
@@ -24,3 +25,4 @@ spec:
       resource:
         name: {{   .Values.gatewayApi.ocmResourceName }}
   skipVerify: {{ .Values.ocm.skipVerify }}
+{{- end }}
