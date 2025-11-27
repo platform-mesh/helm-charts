@@ -9,3 +9,11 @@ tests:
 - it: it should render the application manifests
   asserts:
   - matchSnapshot: {}
+- it: disable all components
+  set:
+    traefik.enabled: false
+    traefikCRDs.enabled: false
+    certManager.enabled: false
+    gatewayApi.enabled: false
+  asserts:
+  - matchSnapshot: {}

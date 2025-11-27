@@ -8,6 +8,7 @@ ocm:
     name: platform-mesh
 
 gatewayApi:
+  enabled: true
   name: gateway-api
   ocmResourceName: crds
 
@@ -18,6 +19,7 @@ gatewayApi:
       crds: Skip
 
 traefik:
+  enabled: true
   targetNamespace: default
   name: traefik
   ocmResourceName: chart
@@ -46,6 +48,7 @@ traefik:
       enabled: false
 
 traefikCRDs:
+  enabled: true
   targetNamespace: default
   name: traefik-crds
   ocmComponentName: traefik
@@ -55,6 +58,7 @@ traefikCRDs:
     name: traefik-crds
 
 certManager:
+  enabled: true
   targetNamespace: default
   name: cert-manager
   ocmResourceName: chart
