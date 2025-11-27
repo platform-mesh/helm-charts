@@ -1,0 +1,33 @@
+name: Build example-httpbin-operator Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/example-httpbin-operator/**'
+      - '.github/workflows/example-httpbin-operator.yaml'
+      - '.ocm/component-constructor.yaml'
+  pull_request:
+    paths:
+      - 'charts/example-httpbin-operator/**'
+      - '.github/workflows/example-httpbin-operator.yaml'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  pipeline:
+    concurrency:
+      group: example-httpbin-operator-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: example-httpbin-operator
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-example-httpbin-operator.yaml
+    secrets: inherit
+
+
