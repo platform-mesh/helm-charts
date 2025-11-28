@@ -1,0 +1,45 @@
+{{- $config := .Values.etcdDruid -}}
+{{- $values := .Values -}}
+{{- $service := "etcd-druid" -}}
+{{ $release := .Release }}
+{{- if $config.imageResource.enabled }}
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  {{- if $config.imageResource.name }}
+  name: "{{ $config.imageResource.name }}"
+  {{- else }}
+  name: "{{ $service }}-image"
+  {{- end }}
+  labels:
+    {{- if $config.imageResource.labels }}
+    {{- toYaml $config.imageResource.labels | nindent 4 }}
+    {{- else }}
+    artifact: image
+    repo: oci
+    component: "{{ $service }}"
+    {{- end }}
+spec:
+  componentRef:
+    name: {{ $values.ocm.component.name }}
+  resource:
+    byReference:
+      resource:
+        name: image
+      referencePath:
+        {{- if $config.referencePath }}
+        {{- toYaml $config.referencePath | nindent 8 }}
+        {{- else }}
+        {{- with $values.ocm.referencePath }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        - name: {{ $service}}
+        {{- end }}
+  interval: 1m
+  ocmConfig:
+    - kind: Repository
+      apiVersion: delivery.ocm.software/v1alpha1
+      name: {{ $values.ocm.repo.name }}
+      namespace: {{ $release.Namespace }}
+---
+{{ end -}}
