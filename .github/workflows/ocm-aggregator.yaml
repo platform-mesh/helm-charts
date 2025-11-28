@@ -45,7 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Third-party dependency versions
-      ISTIO_VERSION: "1.27.0"
       CROSSPLANE_VERSION: "1.20.1"
       KCP_OPERATOR_VERSION: "0.3.0"
       KCP_IMAGE_VERSION: "d976f348"
@@ -325,11 +324,6 @@ jobs:
           fi
 
           # Check third-party dependency versions
-          if [ "$CURRENT_ISTIO" != "${{ env.ISTIO_VERSION }}" ]; then
-            echo "Istio: $CURRENT_ISTIO -> ${{ env.ISTIO_VERSION }}"
-            NEEDS_UPDATE=true
-          fi
-
           if [ "$CURRENT_CROSSPLANE" != "${{ env.CROSSPLANE_VERSION }}" ]; then
             echo "Crossplane: $CURRENT_CROSSPLANE -> ${{ env.CROSSPLANE_VERSION }}"
             NEEDS_UPDATE=true
@@ -392,7 +386,6 @@ jobs:
             PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
             PLATFORM_MESH_OPERATOR_VERSION=${{ env.PLATFORM_MESH_OPERATOR_VERSION }} \
             VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
-            ISTIO_VERSION=${{ env.ISTIO_VERSION }} \
             CROSSPLANE_VERSION=${{ env.CROSSPLANE_VERSION }} \
             KCP_OPERATOR_VERSION=${{ env.KCP_OPERATOR_VERSION }} \
             KCP_IMAGE_VERSION=${{ env.KCP_IMAGE_VERSION }} \

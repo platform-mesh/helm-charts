@@ -54,30 +54,6 @@ components:
           type: helm
           helmChart: crossplane:{{ .CROSSPLANE_VERSION }}
           helmRepository: https://charts.crossplane.io/stable
-  - name: github.com/istio/istio/base
-    version: {{ .ISTIO_VERSION }}
-    provider:
-      name: istio
-    resources:
-      - name: chart
-        type: helmChart
-        version: {{ .ISTIO_VERSION }}
-        access:
-          type: helm
-          helmChart: base:{{ .ISTIO_VERSION }}
-          helmRepository: https://istio-release.storage.googleapis.com/charts
-  - name: github.com/istio/istio/istiod
-    version: {{ .ISTIO_VERSION }}
-    provider:
-      name: istio
-    resources:
-      - name: chart
-        type: helmChart
-        version: {{ .ISTIO_VERSION }}
-        access:
-          type: helm
-          helmChart: istiod:{{ .ISTIO_VERSION }}
-          helmRepository: https://istio-release.storage.googleapis.com/charts
   - name: github.com/openfga/openfga
     version: {{ .OPENFGA_VERSION }}
     provider:
@@ -90,18 +66,6 @@ components:
           type: helm
           helmChart: openfga:{{ .OPENFGA_VERSION }}
           helmRepository: https://openfga.github.io/helm-charts
-  - name: github.com/istio/istio/gateway
-    version: {{ .ISTIO_VERSION }}
-    provider:
-      name: istio
-    resources:
-      - name: chart
-        type: helmChart
-        version: {{ .ISTIO_VERSION }}
-        access:
-          type: helm
-          helmChart: gateway:{{ .ISTIO_VERSION }}
-          helmRepository: https://istio-release.storage.googleapis.com/charts
   - name: github.com/kcp-dev/kcp-operator
     version: {{ .KCP_OPERATOR_VERSION }}
     provider:
@@ -164,15 +128,6 @@ components:
       - name: infra
         componentName: github.com/platform-mesh/infra
         version: {{ .INFRA_VERSION }}
-      - name: istio-base
-        componentName: github.com/istio/istio/base
-        version: {{ .ISTIO_VERSION }}
-      - name: istio-istiod
-        componentName: github.com/istio/istio/istiod
-        version: {{ .ISTIO_VERSION }}
-      - name: istio-gateway
-        componentName: github.com/istio/istio/gateway
-        version: {{ .ISTIO_VERSION }}
       - name: keycloak
         componentName: github.com/platform-mesh/keycloak
         version: {{ .KEYCLOAK_VERSION }}
