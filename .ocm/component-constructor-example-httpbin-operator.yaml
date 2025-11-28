@@ -11,6 +11,17 @@ components:
           type: helm
           helmChart: api-syncagent:0.4.4
           helmRepository: https://kcp-dev.github.io/helm-charts
+  - name: github.com/kubernetes/ingress-nginx
+    version: 4.11.3
+    provider:
+      name: kubernetes
+    resources:
+      - name: chart
+        type: helmChart
+        version: 4.11.3
+        access:
+          type: ociArtifact
+          imageReference: ghcr.io/kubernetes/ingress-nginx/charts/ingress-nginx:4.11.3
   - name: {{ .COMPONENT_NAME }}
     version: {{ .VERSION }}
     provider:
@@ -19,6 +30,9 @@ components:
       - name: api-syncagent
         componentName: github.com/kcp-dev/api-syncagent
         version: 0.4.4
+      - name: ingress-nginx
+        componentName: github.com/kubernetes/ingress-nginx
+        version: 4.11.3
     resources:
       - name: chart
         type: helmChart

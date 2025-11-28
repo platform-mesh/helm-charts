@@ -20,11 +20,17 @@ spec:
   targetNamespace: example-httpbin-provider
   timeout: 15m
   values:
+    operator:
+      args:
+        - --local-ingress
     apiSyncagent:
       rbac:
         enable: true
       publishedResources:
         enable: true
+      serviceAccount:
+        name: api-syncagent
+        namespace: example-httpbin-provider
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease

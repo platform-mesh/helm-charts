@@ -24,3 +24,4 @@ registry-ca.pem
 local-setup/rootCA.pem
 local-setup/e2e/node_modules/
 local-setup/e2e/*.png
+/convo
