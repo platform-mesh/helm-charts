@@ -81,7 +81,7 @@ helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-comm
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
   --set notificationController.create=false \
-  --set helmController.container.additionalArgs[0]="--concurrent=10" \
+  --set helmController.container.additionalArgs[0]="--concurrent=50" \
   --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
 
 kubectl wait --namespace flux-system \

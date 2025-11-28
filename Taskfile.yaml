@@ -413,6 +413,8 @@ tasks:
       - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true
 
   bump-local-setup-component-version:
+    deps:
+      - task: setup:ocm
     cmds:
       - |
         LATEST_VERSION=$({{ .LOCAL_BIN }}/ocm get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
