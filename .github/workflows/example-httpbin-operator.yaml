@@ -6,7 +6,7 @@ on:
     paths:
       - 'charts/example-httpbin-operator/**'
       - '.github/workflows/example-httpbin-operator.yaml'
-      - '.ocm/component-constructor.yaml'
+      - '.ocm/component-constructor-example-httpbin-operator.yaml'
   pull_request:
     paths:
       - 'charts/example-httpbin-operator/**'
