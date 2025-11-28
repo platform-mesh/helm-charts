@@ -66,3 +66,21 @@ certManager:
   values:
     crds:
       enabled: true
+
+crossplane:
+  enabled: true
+  helmRepo: true
+  targetNamespace: crossplane-system
+  values:
+    provider:
+      packages:
+        - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
+
+etcdDruid:
+  enabled: true
+  imageResource:
+    enabled: true
+  gitRepo: true
+  path: charts
+  targetNamespace: etcd-druid-system
+  values: {}
