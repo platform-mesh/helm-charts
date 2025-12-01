@@ -6,11 +6,13 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| certManager.enabled | bool | `true` |  |
 | certManager.interval | string | `"1m"` |  |
 | certManager.name | string | `"cert-manager"` |  |
 | certManager.ocmResourceName | string | `"chart"` |  |
 | certManager.targetNamespace | string | `"default"` |  |
 | certManager.values.crds.enabled | bool | `true` |  |
+| gatewayApi.enabled | bool | `true` |  |
 | gatewayApi.kustomization.install.crds | string | `"Skip"` |  |
 | gatewayApi.kustomization.interval | string | `"1m"` |  |
 | gatewayApi.kustomization.path | string | `"./config/crd/experimental"` |  |
@@ -22,6 +24,7 @@ A Helm chart for Kubernetes
 | ocm.repo.name | string | `"platform-mesh"` |  |
 | ocm.skipVerify | bool | `true` |  |
 | traefik.chart.name | string | `"traefik"` |  |
+| traefik.enabled | bool | `true` |  |
 | traefik.interval | string | `"1m"` |  |
 | traefik.name | string | `"traefik"` |  |
 | traefik.ocmResourceName | string | `"chart"` |  |
@@ -36,6 +39,7 @@ A Helm chart for Kubernetes
 | traefik.values.service.spec.clusterIP | string | `"10.96.188.4"` |  |
 | traefik.values.service.type | string | `"NodePort"` |  |
 | traefikCRDs.chart.name | string | `"traefik-crds"` |  |
+| traefikCRDs.enabled | bool | `true` |  |
 | traefikCRDs.interval | string | `"1m"` |  |
 | traefikCRDs.name | string | `"traefik-crds"` |  |
 | traefikCRDs.ocmComponentName | string | `"traefik"` |  |

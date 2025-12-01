@@ -1,3 +1,4 @@
+{{- if .Values.certManager.enabled }}
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Resource
 metadata:
@@ -24,3 +25,4 @@ spec:
       resource:
         name: {{   .Values.certManager.ocmResourceName }}
   skipVerify: {{ .Values.ocm.skipVerify }}
+{{- end }}

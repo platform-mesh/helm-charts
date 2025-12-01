@@ -39,17 +39,6 @@ spec:
           spec:
             description: HttpBinSpec defines the desired state of HttpBin
             properties:
-              enableHTTPS:
-                default: false
-                description: |-
-                  EnableHTTPS determines if HTTPS should be enabled
-                  If true, service port will be 8443
-                  If false or not set, service port will be 443
-                type: boolean
-              foo:
-                description: Foo is an example field of HttpBin. Edit httpbin_types.go
-                  to remove/update
-                type: string
               region:
                 description: Region can be used to filter which HttpBin should be
                   served
