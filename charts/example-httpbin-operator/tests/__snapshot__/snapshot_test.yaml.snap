@@ -25,7 +25,7 @@ match snapshot:
         spec:
           containers:
             - args: null
-              image: ghcr.io/platform-mesh/example-httpbin-operator:0.2.0@sha256:b2bb2f8714545b2645a76bd20df8f3a1e8aaebbde13b0bdd48d599aa88259436
+              image: ghcr.io/platform-mesh/example-httpbin-operator:1.0.0
               imagePullPolicy: IfNotPresent
               name: example-httpbin-operator
               resources:
