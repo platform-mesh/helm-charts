@@ -21,7 +21,6 @@ A Helm chart for deploying the httpbin operator and its CRDs
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.registry | string | `"ghcr.io"` |  |
 | image.repository | string | `"platform-mesh/example-httpbin-operator"` |  |
-| image.tag | string | `"0.2.0@sha256:b2bb2f8714545b2645a76bd20df8f3a1e8aaebbde13b0bdd48d599aa88259436"` |  |
 | metrics.enable | bool | `true` |  |
 | nameOverride | string | `""` |  |
 | networkPolicy.enable | bool | `false` |  |
