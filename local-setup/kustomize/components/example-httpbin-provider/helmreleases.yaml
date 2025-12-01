@@ -22,7 +22,11 @@ spec:
   values:
     operator:
       args:
-        - --local-ingress
+        - --local-http-route
+        - --local-http-route-port=8443
+        - --local-http-route-gateway-name=k8sapi-gateway
+        - --local-http-route-gateway-namespace=platform-mesh-system
+        - --domain=httpbin.services.portal.dev.local
     apiSyncagent:
       rbac:
         enable: true
@@ -59,25 +63,25 @@ spec:
         - ip: "10.96.188.4"
           hostnames:
           - "kcp.api.portal.dev.local"
----
-apiVersion: helm.toolkit.fluxcd.io/v2
-kind: HelmRelease
-metadata:
-  name: ingress-nginx
-  namespace: default
-spec:
-  chart:
-    spec:
-      chart: ingress-nginx
-      reconcileStrategy: ChartVersion
-      sourceRef:
-        kind: HelmRepository
-        name: ingress-nginx
-  interval: 1m
-  releaseName: ingress-nginx
-  targetNamespace: example-httpbin-provider
-  timeout: 15m
-  values:
-    controller:
-      admissionWebhooks:
-        enabled: false
+#---
+#apiVersion: helm.toolkit.fluxcd.io/v2
+#kind: HelmRelease
+#metadata:
+#  name: ingress-nginx
+#  namespace: default
+#spec:
+#  chart:
+#    spec:
+#      chart: ingress-nginx
+#      reconcileStrategy: ChartVersion
+#      sourceRef:
+#        kind: HelmRepository
+#        name: ingress-nginx
+#  interval: 1m
+#  releaseName: ingress-nginx
+#  targetNamespace: example-httpbin-provider
+#  timeout: 15m
+#  values:
+#    controller:
+#      admissionWebhooks:
+#        enabled: false

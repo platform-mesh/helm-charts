@@ -14,8 +14,7 @@ spec:
     referencePath: []
   featureToggles:
    - name: "feature-enable-getting-started"
-   - name: "feature-enable-iam"
-   - name: "feature-enable-marketplace"
+   - name: "feature-enable-marketplace-account"
   values:
     keycloak:
       enabled: true
@@ -165,7 +164,7 @@ spec:
                   url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
     iam-service:
-      enabled: true
+      enabled: false
       values:
         cors:
           enabled: true
@@ -177,7 +176,7 @@ spec:
         istio:
           enabled: false
     iam-ui:
-      enabled: true
+      enabled: false
       values:
         gatewayApi:
           enabled: true

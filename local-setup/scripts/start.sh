@@ -72,7 +72,7 @@ if ! check_kind_cluster; then
 fi
 
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
@@ -167,6 +167,18 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
 
+if [ "$EXAMPLE_DATA" = true ]; then
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=280s api-syncagent
+
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=280s example-httpbin-provider
+
+fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
