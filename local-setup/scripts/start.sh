@@ -167,18 +167,6 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=280s security-operator
 
-if [ "$EXAMPLE_DATA" = true ]; then
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=280s api-syncagent
-
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=280s example-httpbin-provider
-
-fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
@@ -188,6 +176,17 @@ if [ "$EXAMPLE_DATA" = true ]; then
   kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers"
   kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers:httpbin-provider"
   unset KUBECONFIG
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
+
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=280s api-syncagent
+
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=280s example-httpbin-provider
+
 fi
 
 echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
