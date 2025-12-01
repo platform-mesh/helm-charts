@@ -29,7 +29,7 @@ image:
   name: ghcr.io/platform-mesh/example-httpbin-operator
   registry: ghcr.io
   repository: platform-mesh/example-httpbin-operator
-  tag: 0.2.0@sha256:b2bb2f8714545b2645a76bd20df8f3a1e8aaebbde13b0bdd48d599aa88259436
+  tag: v0.4.0@sha256:1b15388347e760432aeaae9ac56b61d0527f4ad96d6340e781085392c7f45bea
   pullPolicy: IfNotPresent
 
 controllerManager:
