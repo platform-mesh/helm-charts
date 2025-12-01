@@ -11,6 +11,8 @@ A Helm chart to automate bootstrapping of new environment
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/platform-mesh-operator"` |  |
 | istio.enabled | bool | `false` |  |
+| kubeConfig.enabled | bool | `false` | Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated. |
+| kubeConfig.secretName | string | `"platform-mesh-kubeconfig"` |  |
 | log.level | string | `"debug"` |  |
 | operator.leaderElect | bool | `true` |  |
 | tracing.collector.endpoint | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
