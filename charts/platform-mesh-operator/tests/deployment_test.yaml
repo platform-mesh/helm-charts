@@ -71,3 +71,14 @@ tests:
       enabled: false
   asserts:
     - matchSnapshot: {}
+- it: external cluster enabled
+  template: deployment.yaml
+  set:
+    kubeConfig:
+      enabled: true
+      secretName: "my-external-cluster-kubeconfig"
+  asserts:
+    - equal:
+        path: spec.template.spec.containers[0].env[?(@.name=="KUBECONFIG")].value
+        value: "/etc/kubeconfig"
+    - matchSnapshot: {}

@@ -35,4 +35,22 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
+        {{- if .Values.kubeConfig.enabled }}
+        - name: KUBECONFIG
+          value: /etc/kubeconfig
+        {{- end }}
+        {{- if .Values.kubeConfig.enabled }}
+        volumeMounts:
+        - name: external-kubeconfig
+          mountPath: /etc
+          readOnly: true
+        {{- end }}
+
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+      {{- if .Values.kubeConfig.enabled }}
+      volumes:
+      - name: external-kubeconfig
+        secret:
+          secretName: {{ .Values.kubeConfig.secretName }}
+          defaultMode: 420
+      {{- end }}

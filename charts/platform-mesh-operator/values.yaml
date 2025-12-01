@@ -23,3 +23,8 @@ extraArgs:
 
 istio:
   enabled: false
+
+kubeConfig:
+  # -- Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated.
+  enabled: false
+  secretName: "platform-mesh-kubeconfig"
