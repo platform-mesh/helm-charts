@@ -80,5 +80,5 @@ tests:
   asserts:
     - equal:
         path: spec.template.spec.containers[0].env[?(@.name=="KUBECONFIG")].value
-        value: "/etc/kubeconfig"
+        value: "/etc/k8s/kubeconfig"
     - matchSnapshot: {}
