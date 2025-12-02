@@ -3,6 +3,11 @@ crds:
 
 deployment:
   replicas: 1
+  hostAliases: []
+  # - hostnames:
+  #   - kcp.api.portal.dev.local
+  #   - portal.dev.local
+  #   ip: 10.96.188.4
 
 log:
   level: debug
@@ -24,7 +29,14 @@ extraArgs:
 istio:
   enabled: false
 
-kubeConfig:
-  # -- Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated.
+kubeConfigPlatformMesh:
+  # -- Enables reconciliation of PlatformMesh resources on remote clusters
   enabled: false
+  # -- Name of the secret containing the kubeconfig for remote cluster access where the PlatformMesh resources will be deployed
   secretName: "platform-mesh-kubeconfig"
+
+kubeConfigDeployment:
+  # -- Enables deployment to remote clusters. Set to true if the operator is not deployed on the same cluster where the FluxCD artefacts will be created.
+  enabled: false
+  # -- Name of the secret containing the kubeconfig for the cluster where the created FluxCD artefacts will be created. NOTE: target deployment will alway be same as the cluster where the Platform Mesh resource lives.
+  secretName: "platform-mesh-infra-kubeconfig"

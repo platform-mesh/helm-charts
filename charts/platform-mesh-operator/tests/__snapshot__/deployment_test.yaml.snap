@@ -307,7 +307,9 @@ external cluster enabled:
                 - --subroutines-deployment-enable-istio=false
               env:
                 - name: KUBECONFIG
-                  value: /etc/kubeconfig
+                  value: /etc/k8s/platformmesh/kubeconfig
+                - name: DEPLOYMENT_KUBECONFIG
+                  value: /etc/k8s/deployment/kubeconfig
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -348,8 +350,11 @@ external cluster enabled:
                   port: 8090
                 periodSeconds: 10
               volumeMounts:
-                - mountPath: /etc
-                  name: external-kubeconfig
+                - mountPath: /etc/k8s/platformmesh
+                  name: external-kubeconfig-platformmesh
+                  readOnly: true
+                - mountPath: /etc/k8s/deployment
+                  name: external-kubeconfig-deployment
                   readOnly: true
           securityContext:
             runAsNonRoot: true
@@ -358,10 +363,14 @@ external cluster enabled:
           serviceAccountName: platform-mesh-operator
           terminationGracePeriodSeconds: 10
           volumes:
-            - name: external-kubeconfig
+            - name: external-kubeconfig-platformmesh
               secret:
                 defaultMode: 420
-                secretName: my-external-cluster-kubeconfig
+                secretName: kubeconfig-platformmesh
+            - name: external-kubeconfig-deployment
+              secret:
+                defaultMode: 420
+                secretName: kubeconfig-deployment
 operator match the snapshot:
   1: |
     apiVersion: rbac.authorization.k8s.io/v1

@@ -74,11 +74,17 @@ tests:
 - it: external cluster enabled
   template: deployment.yaml
   set:
-    kubeConfig:
+    kubeConfigPlatformMesh:
       enabled: true
-      secretName: "my-external-cluster-kubeconfig"
+      secretName: "kubeconfig-platformmesh"
+    kubeConfigDeployment:
+      enabled: true
+      secretName: "kubeconfig-deployment"
   asserts:
     - equal:
         path: spec.template.spec.containers[0].env[?(@.name=="KUBECONFIG")].value
-        value: "/etc/kubeconfig"
+        value: "/etc/k8s/platformmesh/kubeconfig"
+    - equal:
+        path: spec.template.spec.containers[0].env[?(@.name=="DEPLOYMENT_KUBECONFIG")].value
+        value: "/etc/k8s/deployment/kubeconfig"
     - matchSnapshot: {}
