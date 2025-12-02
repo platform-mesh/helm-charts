@@ -307,7 +307,7 @@ external cluster enabled:
                 - --subroutines-deployment-enable-istio=false
               env:
                 - name: KUBECONFIG
-                  value: /etc/kubeconfig
+                  value: /etc/k8s/kubeconfig
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -348,7 +348,7 @@ external cluster enabled:
                   port: 8090
                 periodSeconds: 10
               volumeMounts:
-                - mountPath: /etc
+                - mountPath: /etc/k8s
                   name: external-kubeconfig
                   readOnly: true
           securityContext:
