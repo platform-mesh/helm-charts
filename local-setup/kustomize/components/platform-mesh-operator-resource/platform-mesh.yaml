@@ -83,6 +83,8 @@ spec:
           component: infra
     security-operator:
       values:
+        log:
+          noJson: true
         baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
         initializer:
           extraArgs:
