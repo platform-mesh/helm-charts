@@ -14,7 +14,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: account-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         crds:
           enabled: false
@@ -49,7 +49,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: crossplane
       targetNamespace: crossplane-system
-      timeout: 15m
+      timeout: 30m
       values:
         provider:
           packages:
@@ -72,7 +72,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: etcd-druid
       targetNamespace: etcd-druid-system
-      timeout: 15m
+      timeout: 30m
       values: {}
   4: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -89,7 +89,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: extension-manager-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         crds:
           enabled: false
@@ -117,7 +117,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: infra
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         istio:
           main:
@@ -177,7 +177,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: kcp-operator
       targetNamespace: kcp-operator
-      timeout: 15m
+      timeout: 30m
       values: null
   7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -194,7 +194,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: keycloak
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         auth:
           adminUser: keycloak-admin
@@ -254,7 +254,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: kubernetes-graphql-gateway
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         kubeConfig:
           enabled: true
@@ -310,7 +310,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: openfga
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         autoscaling:
           enabled: false
@@ -373,7 +373,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: rebac-authz-webhook
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         certManager:
           createCA: true
@@ -401,7 +401,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: security-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         baseDomain: example.com:8443
         crds:
@@ -432,7 +432,7 @@ it should render the application manifests:
       interval: 1m
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values: null
   13: |
     apiVersion: delivery.ocm.software/v1alpha1
