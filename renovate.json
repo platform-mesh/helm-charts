@@ -7,11 +7,25 @@
   "customManagers": [
     {
       "customType": "regex",
+      "description": "OCM Component with pre-release tag",
       "fileMatch": [
         "(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$"
       ],
       "matchStrings": [
-        "semver:\\s*(?<currentValue>[\\d\\.]+(-[\\w\\.-]+)?)"
+        "semver:\\s*(?<currentValue>[\\d\\.]+-[\\w\\.-]+)"
+      ],
+      "versioningTemplate": "semver",
+      "depNameTemplate": "ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "OCM Component released version",
+      "fileMatch": [
+        "(^|/)local-setup/kustomize/components/ocm-component-released/component\\.yaml$"
+      ],
+      "matchStrings": [
+        "semver:\\s*(?<currentValue>[\\d\\.]+)"
       ],
       "versioningTemplate": "semver",
       "depNameTemplate": "ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
