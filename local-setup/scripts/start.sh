@@ -196,7 +196,7 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
 fi
 
-echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
+echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local httpbin.services.portal.dev.local\" ${COL_RES}"
 show_wsl_hosts_guidance
 
 echo -e "${YELLOW}⚠️  WARNING: You need to add a hosts entry for every organization that is onboarded!${COL_RES}"
