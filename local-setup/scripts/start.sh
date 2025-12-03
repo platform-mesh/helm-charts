@@ -20,9 +20,10 @@ SCRIPT_DIR=$(dirname "$0")
 PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
+LATEST=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--help]"
   exit 1
 }
 
@@ -31,6 +32,7 @@ while [ $# -gt 0 ]; do
     --prerelease) PRERELEASE=true ;;
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
+    --latest) LATEST=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -126,8 +128,13 @@ kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
   --timeout=480s platform-mesh-operator
 
-
-kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+if [ "$LATEST" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using LATEST OCM Component version ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
+else
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using RELEASED OCM Component version ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+fi
 
 kubectl wait --namespace default \
   --for=condition=Ready PlatformMeshOperator \

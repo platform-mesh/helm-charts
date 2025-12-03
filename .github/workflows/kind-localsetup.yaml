@@ -60,10 +60,10 @@ jobs:
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
           echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local default.portal.dev.local" | sudo tee -a /etc/hosts
-      - name: Run local-setup
+      - name: Run local-setup:latest
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
-          task local-setup
+          task local-setup:latest
       - name: Check/wait for all components to be ready
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
