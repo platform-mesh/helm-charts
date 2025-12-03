@@ -127,44 +127,50 @@ jobs:
           # Calculate next version for potential use with release candidate logic
           # Check if force upgrade is requested with specific version increment
           if [ "${{ inputs.force_version_upgrade }}" = "true" ]; then
-            # Strip RC suffix if present to get base version
-            BASE_VERSION=${PM_VERSION%-rc.*}
-            IFS='.' read -r major minor patch <<< "$BASE_VERSION"
-            case "${{ inputs.version_increment }}" in
-              "major")
-                major=$((major + 1))
-                if [ "${{ inputs.release_type }}" = "full" ]; then
-                  NEXT_VERSION="$major.0.0"
-                else
-                  NEXT_VERSION="$major.0.0-rc.1"
-                fi
-                ;;
-              "minor")
-                minor=$((minor + 1))
-                if [ "${{ inputs.release_type }}" = "full" ]; then
-                  NEXT_VERSION="$major.$minor.0"
-                else
-                  NEXT_VERSION="$major.$minor.0-rc.1"
-                fi
-                ;;
-              "patch")
-                patch=$((patch + 1))
-                if [ "${{ inputs.release_type }}" = "full" ]; then
-                  NEXT_VERSION="$major.$minor.$patch"
-                else
-                  NEXT_VERSION="$major.$minor.$patch-rc.1"
-                fi
-                ;;
-              *)
-                # Default to minor increment
-                minor=$((minor + 1))
-                if [ "${{ inputs.release_type }}" = "full" ]; then
-                  NEXT_VERSION="$major.$minor.0"
-                else
-                  NEXT_VERSION="$major.$minor.0-rc.1"
-                fi
-                ;;
-            esac
+            # Check if current version is an RC and we want to promote to full release
+            if [[ "$PM_VERSION" =~ -rc\.([0-9]+)$ ]] && [ "${{ inputs.release_type }}" = "full" ]; then
+              # Promote RC to full release by stripping RC suffix
+              NEXT_VERSION=${PM_VERSION%-rc.*}
+            else
+              # Strip RC suffix if present to get base version for incrementing
+              BASE_VERSION=${PM_VERSION%-rc.*}
+              IFS='.' read -r major minor patch <<< "$BASE_VERSION"
+              case "${{ inputs.version_increment }}" in
+                "major")
+                  major=$((major + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.0.0"
+                  else
+                    NEXT_VERSION="$major.0.0-rc.1"
+                  fi
+                  ;;
+                "minor")
+                  minor=$((minor + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.0"
+                  else
+                    NEXT_VERSION="$major.$minor.0-rc.1"
+                  fi
+                  ;;
+                "patch")
+                  patch=$((patch + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.$patch"
+                  else
+                    NEXT_VERSION="$major.$minor.$patch-rc.1"
+                  fi
+                  ;;
+                *)
+                  # Default to minor increment
+                  minor=$((minor + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.0"
+                  else
+                    NEXT_VERSION="$major.$minor.0-rc.1"
+                  fi
+                  ;;
+              esac
+            fi
           elif [[ "$PM_VERSION" =~ -rc\.([0-9]+)$ ]]; then
             # Current version is already a release candidate, increment the rc number
             RC_NUM=${BASH_REMATCH[1]}
