@@ -10,7 +10,6 @@ openssl req -newkey rsa:2048 -nodes -keyout local-setup/webhook-config/tls.key \
   -subj "/C=DE/CN=authz-server" \
   -out local-setup/webhook-config/tls.csr
 
-  # -extfile <(printf "subjectAltName=DNS:host.containers.internal") \
 openssl x509 -req \
   -days 365 \
   -extfile <(printf "subjectAltName=IP:10.96.86.219") \

@@ -108,37 +108,6 @@ tasks:
     cmds:
       - "rm oci/* || true"
       - task: helmpackage
-  local-setup:iterate:
-    deps:
-      - task: setup:mkcert
-    cmds:
-      - ./local-setup/scripts/start.sh
-  local-setup:
-    deps:
-      - task: setup:mkcert
-    cmds:
-      - |
-        read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
-        kind delete cluster --name platform-mesh
-        ./local-setup/scripts/start.sh
-
-  local-setup-cached:
-    deps:
-      - task: setup:mkcert
-    cmds:
-      - read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
-      - kind delete cluster --name platform-mesh
-      - ./local-setup/scripts/start.sh --cached
-
-  local-setup-cached:iterate:
-    cmds:
-      - ./local-setup/scripts/start.sh --cached
-
-  local-setup-start-docker-registries:
-    cmds:
-      - docker run -d --name proxy-quay --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://quay.io registry:2
-      - docker run -d --name proxy-ghcr --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io registry:2
-      - docker run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
 
   ocm:deploy:ociregistry:
     internal: true
@@ -444,6 +413,8 @@ tasks:
       - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true
 
   bump-local-setup-component-version:
+    deps:
+      - task: setup:ocm
     cmds:
       - |
         LATEST_VERSION=$({{ .LOCAL_BIN }}/ocm get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
@@ -471,3 +442,57 @@ tasks:
           npx playwright install
           npx playwright test test-register-and-navigate.test.ts
           popd
+
+  local-setup:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - |
+        read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+        kind delete cluster --name platform-mesh
+        ./local-setup/scripts/start.sh
+
+  local-setup:iterate:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - ./local-setup/scripts/start.sh
+
+  local-setup:example-data:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+      - kind delete cluster --name platform-mesh
+      - ./local-setup/scripts/start.sh --example-data
+
+  local-setup:example-data:iterate:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - ./local-setup/scripts/start.sh --example-data
+
+  local-setup-cached:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+      - kind delete cluster --name platform-mesh
+      - ./local-setup/scripts/start.sh --cached
+
+  local-setup-cached:iterate:
+    cmds:
+      - ./local-setup/scripts/start.sh --cached
+
+  local-setup-cached:example-data:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+      - kind delete cluster --name platform-mesh
+      - ./local-setup/scripts/start.sh --example-data --cached
+  local-setup-cached:example-data:iterate:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - ./local-setup/scripts/start.sh --example-data --cached

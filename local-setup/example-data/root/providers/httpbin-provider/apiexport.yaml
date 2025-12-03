@@ -1,0 +1,7 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIExport
+metadata:
+  annotations:
+  name: orchestrate.platform-mesh.io
+  labels:
+    ui.platform-mesh.io/content-for: orchestrate.platform-mesh.io

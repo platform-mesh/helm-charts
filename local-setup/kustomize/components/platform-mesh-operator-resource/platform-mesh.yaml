@@ -14,6 +14,7 @@ spec:
     referencePath: []
   featureToggles:
    - name: "feature-enable-getting-started"
+   - name: "feature-enable-marketplace-account"
   values:
     keycloak:
       enabled: true
@@ -82,6 +83,8 @@ spec:
           component: infra
     security-operator:
       values:
+        log:
+          noJson: true
         baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
         initializer:
           extraArgs:
@@ -182,7 +185,7 @@ spec:
         istio:
           enabled: false
     marketplace-ui:
-      enabled: false
+      enabled: true
       values:
         gatewayApi:
           enabled: true
