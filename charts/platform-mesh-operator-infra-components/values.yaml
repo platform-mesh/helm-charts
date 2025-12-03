@@ -1,3 +1,4 @@
+timeout: 30m
 ocm:
   skipVerify: true
   interval: 3m

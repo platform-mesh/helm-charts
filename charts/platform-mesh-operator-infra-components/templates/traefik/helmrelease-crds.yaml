@@ -15,5 +15,5 @@ spec:
   interval: {{ .Values.traefikCRDs.interval }}
   releaseName: {{ .Values.traefikCRDs.name }}
   targetNamespace: {{ .Values.traefikCRDs.targetNamespace }}
-  timeout: 15m
+  timeout: {{ .Values.timeout }}
 {{- end }}
