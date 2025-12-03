@@ -177,8 +177,6 @@ kind delete cluster --name platform-mesh
 **Release Candidate (--latest flag):** When using the `--latest` flag, the setup deploys the latest release-candidate (RC) version from the OCM registry. This is useful for:
 - Testing against the most recent RC build
 - Validating release candidates before production
-- Reproducing near-production environments
-- Testing without needing to build local components
 
 **Task Naming Convention:**
 - Base tasks: `task local-setup`, `task local-setup:iterate`
