@@ -37,12 +37,12 @@ spec:
         {{- include "common.basicEnvironment" . | nindent 10 }}
         {{- if .Values.kubeConfig.enabled }}
         - name: KUBECONFIG
-          value: /etc/kubeconfig
+          value: /etc/k8s/kubeconfig
         {{- end }}
         {{- if .Values.kubeConfig.enabled }}
         volumeMounts:
         - name: external-kubeconfig
-          mountPath: /etc
+          mountPath: /etc/k8s
           readOnly: true
         {{- end }}
 
