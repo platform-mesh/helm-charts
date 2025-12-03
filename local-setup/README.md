@@ -171,11 +171,8 @@ kind delete cluster --name platform-mesh
 
 ### Understanding Version Options
 
-**Default (Prerelease):** By default, the setup uses a prerelease OCM component that is specially built from your local chart sources. This is ideal for:
-- Local development and testing of chart changes
-- Testing unreleased features and modifications
-- Rapid iteration on component changes
-- Validating local changes before creating a release
+**Default (Released):** By default, the setup uses an officially released OCM component versions from the OCM registry. This is ideal for:
+- Local development and testing using a stable release
 
 **Release Candidate (--latest flag):** When using the `--latest` flag, the setup deploys the latest release-candidate (RC) version from the OCM registry. This is useful for:
 - Testing against the most recent RC build
