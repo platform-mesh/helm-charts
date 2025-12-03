@@ -98,8 +98,7 @@ services:
     values:
       kcp:
         image:
-          # FIXME: this is a temporary fix until we have support for the latest version
-          tag: 8265c399b
+          tag: v0.29.0
         rootShard:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
