@@ -1485,6 +1485,8 @@ match snapshots:
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
+      image:
+        tag: 0.0.0
       replicas: 1
       rootShard:
         ref:
@@ -1539,6 +1541,11 @@ match snapshots:
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
+      image:
+        tag: 0.0.0
+      proxy:
+        image:
+          tag: 0.0.0
       replicas: 1
   6: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
@@ -2312,6 +2319,9 @@ match snapshots w. kcp version:
         - --feature-gates=WorkspaceAuthentication=true
       image:
         tag: v0.1.0
+      proxy:
+        image:
+          tag: v0.1.0
       replicas: 1
   6: |
     apiVersion: openidclient.keycloak.crossplane.io/v1alpha1

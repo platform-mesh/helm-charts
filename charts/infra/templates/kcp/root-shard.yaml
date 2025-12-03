@@ -5,6 +5,11 @@ metadata:
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   replicas: {{ .Values.kcp.rootShard.replicas }}
+  {{ with .Values.kcp.image.tag }}
+  proxy:
+    image:
+      tag: {{ . }}
+  {{- end }}
   {{- if .Values.kcp.oidc.enabled }}
   auth:
     {{ with .Values.kcp.oidc }}
