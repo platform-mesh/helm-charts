@@ -194,6 +194,7 @@ A Helm chart for Kubernetes
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
+| timeout | string | `"30m"` |  |
 
 ## Overriding Values
 

@@ -36,7 +36,7 @@ spec:
   targetNamespace: {{ $config.targetNamespace | default $values.targetNamespace }}
   dependsOn:
     {{ $config.dependsOn | toYaml | nindent 4 }}
-  timeout: 15m
+  timeout: {{ $.Values.timeout }}
   values:
 {{ tpl (toYaml $config.values) $ | indent 4 }}
 ---

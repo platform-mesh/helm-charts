@@ -1,6 +1,7 @@
 targetNamespace: platform-mesh-system
 protocol: https
 port: 443
+timeout: 30m
 ocm:
   skipVerify: true
   interval: 3m
