@@ -59,7 +59,7 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.name | string | `"pass-https"` |  |
 | services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
-| services.infra.values.kcp.image.tag | string | `"8265c399b"` |  |
+| services.infra.values.kcp.image.tag | string | `"v0.29.0"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
