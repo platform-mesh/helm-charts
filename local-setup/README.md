@@ -62,7 +62,7 @@ KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 
 ### 1. Bootstrap Local Environment
 
-The setup script automates the entire bootstrap process.
+The setup script automates the entire bootstrap process. By default, it uses the latest released OCM component. You can optionally use the `:latest` flag to deploy the latest release-candidate (RC) version from the registry.
 
 **Using Task (recommended):**
 ```sh
@@ -71,6 +71,10 @@ task local-setup
 
 # Iterate on existing cluster (faster, preserves cluster state)
 task local-setup:iterate
+
+# Use latest release-candidate (RC)
+task local-setup:latest
+task local-setup:latest:iterate
 ```
 
 **Without Task (direct script execution):**
@@ -81,6 +85,9 @@ kind delete cluster --name platform-mesh
 
 # Iterate on existing cluster (faster, preserves cluster state)
 ./local-setup/scripts/start.sh
+
+# Use latest release-candidate (RC)
+./local-setup/scripts/start.sh --latest
 ```
 
 ### 2. Bootstrap with Example Data (Demo Setup)
@@ -94,6 +101,10 @@ task local-setup:example-data
 
 # Iterate on existing cluster
 task local-setup:example-data:iterate
+
+# With latest release-candidate (RC)
+task local-setup:latest:example-data
+task local-setup:latest:example-data:iterate
 ```
 
 **Without Task:**
@@ -104,6 +115,9 @@ kind delete cluster --name platform-mesh
 
 # Iterate on existing cluster
 ./local-setup/scripts/start.sh --example-data
+
+# With latest release-candidate (RC)
+./local-setup/scripts/start.sh --latest --example-data
 ```
 
 **What gets created:**
@@ -118,14 +132,22 @@ Image caching speeds up cluster recreation by using local Docker registry mirror
 **Using Task:**
 ```sh
 # Full setup with caching
-task local-setup-cached
+task local-setup:cached
 
 # Iterate on existing cluster
-task local-setup-cached:iterate
+task local-setup:cached:iterate
 
 # With example data + caching
-task local-setup-cached:example-data
-task local-setup-cached:example-data:iterate
+task local-setup:cached:example-data
+task local-setup:cached:example-data:iterate
+
+# With latest release-candidate (RC) + caching
+task local-setup:cached:latest
+task local-setup:cached:latest:iterate
+
+# All flags combined (cached + latest + example-data)
+task local-setup:cached:latest:example-data
+task local-setup:cached:latest:example-data:iterate
 ```
 
 **Without Task:**
@@ -138,8 +160,34 @@ kind delete cluster --name platform-mesh
 ./local-setup/scripts/start.sh --cached
 
 # With example data + caching
-./local-setup/scripts/start.sh --example-data --cached
+./local-setup/scripts/start.sh --cached --example-data
+
+# With latest release-candidate (RC) + caching
+./local-setup/scripts/start.sh --cached --latest
+
+# All flags combined
+./local-setup/scripts/start.sh --cached --latest --example-data
 ```
+
+### Understanding Version Options
+
+**Default (Prerelease):** By default, the setup uses a prerelease OCM component that is specially built from your local chart sources. This is ideal for:
+- Local development and testing of chart changes
+- Testing unreleased features and modifications
+- Rapid iteration on component changes
+- Validating local changes before creating a release
+
+**Release Candidate (--latest flag):** When using the `--latest` flag, the setup deploys the latest release-candidate (RC) version from the OCM registry. This is useful for:
+- Testing against the most recent RC build
+- Validating release candidates before production
+- Reproducing near-production environments
+- Testing without needing to build local components
+
+**Task Naming Convention:**
+- Base tasks: `task local-setup`, `task local-setup:iterate`
+- With flags: `task local-setup:<flag1>:<flag2>:...`
+- Available flags: `cached`, `latest`, `example-data`
+- All tasks support both full setup and `:iterate` variants
 
 #### Developer information
 See [README-developers](./README-developers.md) for more detailed information related to chart developers.

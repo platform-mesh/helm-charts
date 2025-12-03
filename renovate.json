@@ -7,7 +7,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "OCM Component with pre-release tag",
+      "description": "OCM Component with release-candidate tag",
       "fileMatch": [
         "(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$"
       ],
