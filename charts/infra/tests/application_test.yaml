@@ -5,6 +5,10 @@ release:
   namespace: platform-mesh-system
 tests:
 - it: match snapshots
+  set:
+    kcp:
+      image:
+        tag: 0.0.0
   asserts:
   - matchSnapshot: {}
 - it: match snapshots w. hostAliases enabled
