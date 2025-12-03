@@ -23,6 +23,7 @@ A Helm chart for Kubernetes
 | ocm.referencePath | list | `[]` |  |
 | ocm.repo.name | string | `"platform-mesh"` |  |
 | ocm.skipVerify | bool | `true` |  |
+| timeout | string | `"30m"` |  |
 | traefik.chart.name | string | `"traefik"` |  |
 | traefik.enabled | bool | `true` |  |
 | traefik.interval | string | `"1m"` |  |

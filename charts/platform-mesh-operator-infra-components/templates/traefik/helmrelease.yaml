@@ -16,7 +16,7 @@ spec:
   interval: {{ .Values.traefik.interval }}
   releaseName: {{ .Values.traefik.name }}
   targetNamespace: {{ .Values.traefik.targetNamespace }}
-  timeout: 15m
+  timeout: {{ .Values.timeout }}
   values:
     {{- toYaml .Values.traefik.values | nindent 4 }}
 {{- end }}
