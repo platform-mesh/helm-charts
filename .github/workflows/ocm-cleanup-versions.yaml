@@ -1,0 +1,81 @@
+name: Cleanup Package Versions
+
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: 'Package prefix (e.g., ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh:0.1.0-rc.)'
+        required: true
+        type: string
+      range_start:
+        description: 'Range start (e.g., 0)'
+        required: true
+        type: number
+      range_end:
+        description: 'Range end (e.g., 700)'
+        required: true
+        type: number
+      dry_run:
+        description: 'Preview only (no deletion)'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+
+      - name: Setup environment
+        run: |
+          echo "=== Cleanup Package Versions Workflow ===" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Prefix: \`${{ inputs.prefix }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Range: ${{ inputs.range_start }} - ${{ inputs.range_end }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Dry Run: ${{ inputs.dry_run }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run cleanup script (dry-run)
+        if: inputs.dry_run == true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./.github/scripts/cleanup-versions.sh \
+            --prefix "${{ inputs.prefix }}" \
+            --range-start ${{ inputs.range_start }} \
+            --range-end ${{ inputs.range_end }} \
+            --dry-run
+
+      - name: Run cleanup script (delete)
+        if: inputs.dry_run == false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./.github/scripts/cleanup-versions.sh \
+            --prefix "${{ inputs.prefix }}" \
+            --range-start ${{ inputs.range_start }} \
+            --range-end ${{ inputs.range_end }} \
+            --force
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            echo "**Status:** Preview completed (dry-run mode)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ No versions were deleted. To perform actual deletion, run this workflow again with 'Preview only' set to false." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status:** Deletion completed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Package versions have been deleted from the registry." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the logs above for detailed information about which versions were processed." >> $GITHUB_STEP_SUMMARY
