@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - ../../components/platform-mesh-operator
-  - ../../components/ocm-component-released
+  - ../../components/ocm
