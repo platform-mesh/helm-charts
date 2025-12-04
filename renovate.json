@@ -7,9 +7,9 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "OCM Component with release-candidate tag",
+      "description": "OCM Component with the latest version",
       "fileMatch": [
-        "(^|/)local-setup/kustomize/components/ocm-component/component\\.yaml$"
+        "(^|/)local-setup/kustomize/components/ocm-latest/component\\.yaml$"
       ],
       "matchStrings": [
         "semver:\\s*(?<currentValue>[\\d\\.]+-[\\w\\.-]+)"
@@ -22,7 +22,7 @@
       "customType": "regex",
       "description": "OCM Component released version",
       "fileMatch": [
-        "(^|/)local-setup/kustomize/components/ocm-component-released/component\\.yaml$"
+        "(^|/)local-setup/kustomize/components/ocm/component\\.yaml$"
       ],
       "matchStrings": [
         "semver:\\s*(?<currentValue>[\\d\\.]+)"
