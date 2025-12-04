@@ -19,9 +19,10 @@ on:
       release_type:
         description: 'Type of release to create (only applies when force_version_upgrade is true)'
         required: false
-        default: 'rc'
+        default: 'build'
         type: choice
         options:
+          - build
           - rc
           - full
   schedule:
@@ -124,40 +125,46 @@ jobs:
           PM_VERSION=${PM_VERSION:-0.0.0}
           echo CURRENT_PM_VERSION="$PM_VERSION" >> $GITHUB_ENV
 
-          # Calculate next version for potential use with release candidate logic
+          # Calculate next version for potential use with release logic
           # Check if force upgrade is requested with specific version increment
           if [ "${{ inputs.force_version_upgrade }}" = "true" ]; then
-            # Check if current version is an RC and we want to promote to full release
-            if [[ "$PM_VERSION" =~ -rc\.([0-9]+)$ ]] && [ "${{ inputs.release_type }}" = "full" ]; then
-              # Promote RC to full release by stripping RC suffix
-              NEXT_VERSION=${PM_VERSION%-rc.*}
+            # Check if current version has a prerelease suffix and we want to promote to full release
+            if [[ "$PM_VERSION" =~ -(build|rc)\.([0-9]+)$ ]] && [ "${{ inputs.release_type }}" = "full" ]; then
+              # Promote prerelease to full release by stripping suffix
+              NEXT_VERSION=${PM_VERSION%-*.*}
             else
-              # Strip RC suffix if present to get base version for incrementing
-              BASE_VERSION=${PM_VERSION%-rc.*}
+              # Strip prerelease suffix if present to get base version for incrementing
+              BASE_VERSION=${PM_VERSION%-*.*}
               IFS='.' read -r major minor patch <<< "$BASE_VERSION"
               case "${{ inputs.version_increment }}" in
                 "major")
                   major=$((major + 1))
                   if [ "${{ inputs.release_type }}" = "full" ]; then
                     NEXT_VERSION="$major.0.0"
-                  else
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
                     NEXT_VERSION="$major.0.0-rc.1"
+                  else
+                    NEXT_VERSION="$major.0.0-build.1"
                   fi
                   ;;
                 "minor")
                   minor=$((minor + 1))
                   if [ "${{ inputs.release_type }}" = "full" ]; then
                     NEXT_VERSION="$major.$minor.0"
-                  else
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
                     NEXT_VERSION="$major.$minor.0-rc.1"
+                  else
+                    NEXT_VERSION="$major.$minor.0-build.1"
                   fi
                   ;;
                 "patch")
                   patch=$((patch + 1))
                   if [ "${{ inputs.release_type }}" = "full" ]; then
                     NEXT_VERSION="$major.$minor.$patch"
-                  else
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
                     NEXT_VERSION="$major.$minor.$patch-rc.1"
+                  else
+                    NEXT_VERSION="$major.$minor.$patch-build.1"
                   fi
                   ;;
                 *)
@@ -165,12 +172,20 @@ jobs:
                   minor=$((minor + 1))
                   if [ "${{ inputs.release_type }}" = "full" ]; then
                     NEXT_VERSION="$major.$minor.0"
-                  else
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
                     NEXT_VERSION="$major.$minor.0-rc.1"
+                  else
+                    NEXT_VERSION="$major.$minor.0-build.1"
                   fi
                   ;;
               esac
             fi
+          elif [[ "$PM_VERSION" =~ -build\.([0-9]+)$ ]]; then
+            # Current version is already a build release, increment the build number
+            BUILD_NUM=${BASH_REMATCH[1]}
+            NEW_BUILD_NUM=$((BUILD_NUM + 1))
+            BASE_VERSION=${PM_VERSION%-build.*}
+            NEXT_VERSION="$BASE_VERSION-build.$NEW_BUILD_NUM"
           elif [[ "$PM_VERSION" =~ -rc\.([0-9]+)$ ]]; then
             # Current version is already a release candidate, increment the rc number
             RC_NUM=${BASH_REMATCH[1]}
@@ -178,10 +193,10 @@ jobs:
             BASE_VERSION=${PM_VERSION%-rc.*}
             NEXT_VERSION="$BASE_VERSION-rc.$NEW_RC_NUM"
           else
-            # Default behavior: increment minor version and add -rc.1
+            # Default behavior: increment minor version and add -build.1
             IFS='.' read -r major minor patch <<< "$PM_VERSION"
             minor=$((minor + 1))
-            NEXT_VERSION="$major.$minor.0-rc.1"
+            NEXT_VERSION="$major.$minor.0-build.1"
           fi
           echo NEXT_VERSION="$NEXT_VERSION" >> $GITHUB_ENV
 
