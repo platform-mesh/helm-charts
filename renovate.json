@@ -8,8 +8,8 @@
     {
       "customType": "regex",
       "description": "OCM Component with release-candidate tag",
-      "fileMatch": [
-        "(^|/)local-setup/kustomize/components/ocm-latest/component\\.yaml$"
+      "managerFilePatterns": [
+        "/(^|/)local-setup/kustomize/components/ocm-latest/component\\.yaml$/"
       ],
       "matchStrings": [
         "semver:\\s*(?<currentValue>[\\d\\.]+-[\\w\\.-]+)"
@@ -21,8 +21,8 @@
     {
       "customType": "regex",
       "description": "OCM Component released version",
-      "fileMatch": [
-        "(^|/)local-setup/kustomize/components/ocm/component\\.yaml$"
+      "managerFilePatterns": [
+        "/(^|/)local-setup/kustomize/components/ocm/component\\.yaml$/"
       ],
       "matchStrings": [
         "semver:\\s*(?<currentValue>[\\d\\.]+)"
@@ -34,19 +34,29 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["regex"],
+      "matchManagers": [
+        "custom.regex"
+      ],
       "ignoreUnstable": false
     },
     {
       "description": "Pre-release updates for ocm-latest",
-      "matchManagers": ["regex"],
-      "matchPaths": ["**/ocm-latest/component.yaml"],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "**/ocm-latest/component.yaml"
+      ],
       "ignoreUnstable": false
     },
     {
       "description": "Stable-only updates for ocm",
-      "matchManagers": ["regex"],
-      "matchPaths": ["**/ocm/component.yaml"],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "**/ocm/component.yaml"
+      ],
       "ignoreUnstable": true
     }
   ]
