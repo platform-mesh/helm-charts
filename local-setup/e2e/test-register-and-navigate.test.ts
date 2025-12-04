@@ -31,7 +31,7 @@ async function confirmInviteMailpit(
 ): Promise<Page> {
 
   await page.goto(`${portalBaseUrl}mailpit/`);
-  await page.click(`text=To: ${userEmail} Update Your Account`, { timeout: 200000 });
+  await page.click(`text=To: ${userEmail} Update Your Account`, { timeout: 2*60*1000 });
   const emailFrame = page.frameLocator('#preview-html');
 
   // Wait for the new page to open when clicking the verification link
