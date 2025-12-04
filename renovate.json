@@ -7,7 +7,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "OCM Component with the latest version",
+      "description": "OCM Component with release-candidate tag",
       "fileMatch": [
         "(^|/)local-setup/kustomize/components/ocm-latest/component\\.yaml$"
       ],
@@ -36,6 +36,18 @@
     {
       "matchManagers": ["regex"],
       "ignoreUnstable": false
+    },
+    {
+      "description": "Pre-release updates for ocm-latest",
+      "matchManagers": ["regex"],
+      "matchPaths": ["**/ocm-latest/component.yaml"],
+      "ignoreUnstable": false
+    },
+    {
+      "description": "Stable-only updates for ocm",
+      "matchManagers": ["regex"],
+      "matchPaths": ["**/ocm/component.yaml"],
+      "ignoreUnstable": true
     }
   ]
 }
