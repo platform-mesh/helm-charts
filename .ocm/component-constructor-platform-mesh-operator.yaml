@@ -23,7 +23,7 @@ components:
         version: {{ .APP_VERSION }}
         input:
           type: file
-          path: ./../rgd/pm-operator-rgd.yaml
+          path: ./../rgd/platform-mesh-operator-rgd.yaml
     sources:
       - name: source
         type: git

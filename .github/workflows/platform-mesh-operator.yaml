@@ -7,10 +7,12 @@ on:
       - 'charts/platform-mesh-operator/**'
       - '.github/workflows/platform-mesh-operator.yaml'
       - '.ocm/component-constructor.yaml'
+      - 'rgd/platform-mesh-operator-rgd.yaml'
   pull_request:
     paths:
       - 'charts/platform-mesh-operator/**'
       - '.github/workflows/platform-mesh-operator.yaml'
+      - 'rgd/platform-mesh-operator-rgd.yaml'
 
 permissions:
   contents: read
