@@ -450,6 +450,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: account-operator
       targetNamespace: platform-mesh-system
@@ -488,6 +489,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: crossplane
       targetNamespace: crossplane-system
@@ -514,6 +516,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: etcd-druid
       targetNamespace: etcd-druid-system
@@ -534,6 +537,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: extension-manager-operator
       targetNamespace: platform-mesh-system
@@ -565,6 +569,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: infra
       targetNamespace: platform-mesh-system
@@ -628,6 +633,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: kcp-operator
       targetNamespace: kcp-operator
@@ -648,6 +654,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: keycloak
       targetNamespace: platform-mesh-system
@@ -711,6 +718,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: kubernetes-graphql-gateway
       targetNamespace: platform-mesh-system
@@ -770,6 +778,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: openfga
       targetNamespace: platform-mesh-system
@@ -836,6 +845,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: rebac-authz-webhook
       targetNamespace: platform-mesh-system
@@ -867,6 +877,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: security-operator
       targetNamespace: platform-mesh-system
@@ -901,6 +912,7 @@ enable remote deployment of helmreleases:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
