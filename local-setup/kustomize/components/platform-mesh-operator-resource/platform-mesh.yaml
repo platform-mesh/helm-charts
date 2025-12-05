@@ -16,6 +16,34 @@ spec:
    - name: "feature-enable-getting-started"
    - name: "feature-enable-marketplace-account"
   values:
+    account-operator:
+      imageResource:
+        enabled: true
+        labels:
+          repo: oci
+          artifact: image
+          for: account-operator
+    etcd-druid:
+      imageResource:
+        enabled: true
+        labels:
+          repo: oci
+          artifact: image
+          for: etcd-druid
+    extension-manager-operator:
+      imageResource:
+        enabled: true
+        labels:
+          repo: oci
+          artifact: image
+          for: extension-manager-operator
+    rebac-authz-webhook:
+      imageResource:
+        enabled: true
+        labels:
+          repo: oci
+          artifact: image
+          for: rebac-authz-webhook
     keycloak:
       enabled: true
       values:
@@ -82,6 +110,12 @@ spec:
           infra: "true"
           component: infra
     security-operator:
+      imageResource:
+        enabled: true
+        labels:
+          repo: oci
+          artifact: image
+          for: security-operator
       values:
         log:
           noJson: true
@@ -97,6 +131,12 @@ spec:
         hostAliases:
           enabled: true
     portal:
+      imageResource:
+        enabled: true
+        labels:
+          repo: oci
+          artifact: image
+          for: portal
       enabled: true
       values:
         gatewayApi:
@@ -141,6 +181,12 @@ spec:
               tls:
                 enabled: false
     virtual-workspaces:
+      imageResource:
+        enabled: true
+        labels:
+          repo: oci
+          artifact: image
+          for: virtual-workspaces
       values:
         virtualWorkspaceSecretName: virtual-workspaces-cert
         deployment:
