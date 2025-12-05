@@ -16,6 +16,6 @@ spec:
   {{- if .Values.fluxCD.kubeConfig.enabled }}
   kubeConfig:
     secretRef: 
-    {{ $values.fluxCD.kubeConfig.secretRef | toYaml | nindent 6 }}
+    {{ .Values.fluxCD.kubeConfig.secretRef | toYaml | nindent 6 }}
   {{- end }}
 {{- end }}
