@@ -1,0 +1,86 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: platform-mesh-operator
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: PlatformMeshOperator
+    spec:
+      resource: "object | required=true"
+      ocm:
+        component:
+          name: "string | default=platform-mesh"
+        repository:
+          name: "string | default=platform-mesh"
+          namespace: "string | default=default"
+  resources:
+    - id: resourceChart
+      readyWhen:
+        - ${has(resourceChart.status) && has(resourceChart.status.resource)}
+        - ${resourceChart.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
+      template:
+        apiVersion: delivery.ocm.software/v1alpha1
+        kind: Resource
+        metadata:
+          name: platform-mesh-operator
+          namespace: ${schema.metadata.namespace}
+        spec:
+          componentRef:
+            name: ${schema.spec.ocm.component.name}
+          interval: 3m0s
+          ocmConfig:
+            - apiVersion: delivery.ocm.software/v1alpha1
+              kind: Repository
+              name: ${schema.spec.ocm.repository.name}
+              namespace: ${schema.spec.ocm.repository.namespace}
+              policy: Propagate
+          resource: ${schema.spec.resource}
+          additionalStatusFields:
+            registry: resource.access.imageReference.toOCI().registry
+            repository: resource.access.imageReference.toOCI().repository
+            version: resource.version
+          skipVerify: true
+    - id: ocirepository
+      readyWhen:
+        - ${has(ocirepository.status.artifact)}
+        - ${ocirepository.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
+      template:
+        apiVersion: source.toolkit.fluxcd.io/v1
+        kind: OCIRepository
+        metadata:
+          name: platform-mesh-operator
+          namespace: ${schema.metadata.namespace}
+        spec:
+          interval: 1m0s
+          insecure: true
+          layerSelector:
+            mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+            operation: copy
+          url: oci://${resourceChart.status.?additional.?registry}/${resourceChart.status.?additional.?repository}
+          ref:
+            tag: ${resourceChart.status.?additional.?version}
+    - id: helmrelease
+      readyWhen:
+        - ${helmrelease.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
+      template:
+        apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        metadata:
+          name: platform-mesh-operator
+          namespace: ${schema.metadata.namespace}
+        spec:
+          releaseName: platform-mesh-operator
+          targetNamespace: platform-mesh-system
+          interval: 1m
+          timeout: 5m
+          uninstall:
+            deletionPropagation: orphan
+          chartRef:
+            kind: OCIRepository
+            name: ${ocirepository.metadata.name}
+            namespace: ${schema.metadata.namespace}
+          values:
+            components:
+              crds:
+                enabled: true
