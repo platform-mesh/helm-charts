@@ -14,7 +14,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: account-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         crds:
           enabled: false
@@ -49,7 +49,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: crossplane
       targetNamespace: crossplane-system
-      timeout: 15m
+      timeout: 30m
       values:
         provider:
           packages:
@@ -72,7 +72,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: etcd-druid
       targetNamespace: etcd-druid-system
-      timeout: 15m
+      timeout: 30m
       values: {}
   4: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -89,7 +89,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: extension-manager-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         crds:
           enabled: false
@@ -117,7 +117,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: infra
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         istio:
           main:
@@ -142,7 +142,7 @@ HelmRelease snapshots:
               protocol: HTTPS
         kcp:
           image:
-            tag: 8265c399b
+            tag: v0.29.0
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
@@ -177,7 +177,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: kcp-operator
       targetNamespace: kcp-operator
-      timeout: 15m
+      timeout: 30m
       values: null
   7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -194,7 +194,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: keycloak
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         auth:
           adminUser: keycloak-admin
@@ -254,7 +254,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: kubernetes-graphql-gateway
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         kubeConfig:
           enabled: true
@@ -310,7 +310,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: openfga
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         autoscaling:
           enabled: false
@@ -373,7 +373,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: rebac-authz-webhook
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         certManager:
           createCA: true
@@ -401,7 +401,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: security-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         baseDomain: ""
         crds:
@@ -432,7 +432,7 @@ HelmRelease snapshots:
       interval: 1m
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values: null
 enable remote deployment of helmreleases:
   1: |
@@ -453,7 +453,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: account-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         crds:
           enabled: false
@@ -491,7 +491,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: crossplane
       targetNamespace: crossplane-system
-      timeout: 15m
+      timeout: 30m
       values:
         provider:
           packages:
@@ -517,7 +517,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: etcd-druid
       targetNamespace: etcd-druid-system
-      timeout: 15m
+      timeout: 30m
       values: {}
   4: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -537,7 +537,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: extension-manager-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         crds:
           enabled: false
@@ -568,7 +568,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: infra
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         istio:
           main:
@@ -593,7 +593,7 @@ enable remote deployment of helmreleases:
               protocol: HTTPS
         kcp:
           image:
-            tag: 8265c399b
+            tag: v0.29.0
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
@@ -631,7 +631,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: kcp-operator
       targetNamespace: kcp-operator
-      timeout: 15m
+      timeout: 30m
       values: null
   7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -651,7 +651,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: keycloak
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         auth:
           adminUser: keycloak-admin
@@ -714,7 +714,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: kubernetes-graphql-gateway
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         kubeConfig:
           enabled: true
@@ -773,7 +773,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: openfga
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         autoscaling:
           enabled: false
@@ -839,7 +839,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: rebac-authz-webhook
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         certManager:
           createCA: true
@@ -870,7 +870,7 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: security-operator
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values:
         baseDomain: ""
         crds:
@@ -904,5 +904,5 @@ enable remote deployment of helmreleases:
           name: test-kubeconfig-secret
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
-      timeout: 15m
+      timeout: 30m
       values: null
