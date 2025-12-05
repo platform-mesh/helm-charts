@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: Test FluxCD remote deployment
+release:
+  name: operator-components
+  namespace: default
+values:
+  - ../values.yaml
+tests:
+- it: FluxCD snapshots
+  asserts:
+    - matchSnapshot: {}
+- it: FluxCD enable remote deployment
+  set:
+    fluxCD:
+      kubeConfig:
+        enabled: true
+        secretRef:
+          name: test-kubeconfig-secret
+  asserts:
+    - matchSnapshot: {}

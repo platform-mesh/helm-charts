@@ -13,6 +13,13 @@ ocm:
     create: true
     name: platform-mesh
 iamWebhookCA: null
+fluxCD:
+  kubeConfig:
+    # -- If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig.
+    enabled: false
+    secretRef:
+      # -- name of the secret containing the kubeconfig
+      name: platform-mesh-kubeconfig
 services:
   account-operator:
     enabled: true

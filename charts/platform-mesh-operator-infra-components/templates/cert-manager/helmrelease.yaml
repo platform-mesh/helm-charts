@@ -14,4 +14,9 @@ spec:
   timeout: {{ .Values.timeout }}
   values:
     {{- toYaml .Values.certManager.values | nindent 4 }}
+  {{- if .Values.fluxCD.kubeConfig.enabled }}
+  kubeConfig:
+    secretRef:
+      name: {{ .Values.fluxCD.kubeConfig.secretRef.name }}
+  {{- end }}
 {{- end }}

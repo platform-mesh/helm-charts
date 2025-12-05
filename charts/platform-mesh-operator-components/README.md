@@ -6,6 +6,8 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| fluxCD.kubeConfig.enabled | bool | `false` | If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig. |
+| fluxCD.kubeConfig.secretRef.name | string | `"platform-mesh-kubeconfig"` | name of the secret containing the kubeconfig |
 | iamWebhookCA | string | `nil` |  |
 | ocm.component.create | bool | `true` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
