@@ -21,7 +21,7 @@ spec:
     {{- toYaml .Values.traefik.values | nindent 4 }}
   {{- if .Values.fluxCD.kubeConfig.enabled }}
   kubeConfig:
-    secretRef:
-      name: {{ .Values.fluxCD.kubeConfig.secretRef.name }}
+    secretRef: 
+    {{ .Values.fluxCD.kubeConfig.secretRef | toYaml | nindent 6 }}
   {{- end }}
 {{- end }}

@@ -75,3 +75,4 @@ fluxCD:
     secretRef:
       # -- name of the secret containing the kubeconfig
       name: platform-mesh-kubeconfig
+      key: kubeconfig

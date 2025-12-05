@@ -13,6 +13,7 @@ A Helm chart for Kubernetes
 | certManager.targetNamespace | string | `"default"` |  |
 | certManager.values.crds.enabled | bool | `true` |  |
 | fluxCD.kubeConfig.enabled | bool | `false` | If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig. |
+| fluxCD.kubeConfig.secretRef.key | string | `"kubeconfig"` |  |
 | fluxCD.kubeConfig.secretRef.name | string | `"platform-mesh-kubeconfig"` | name of the secret containing the kubeconfig |
 | gatewayApi.enabled | bool | `true` |  |
 | gatewayApi.kustomization.install.crds | string | `"Skip"` |  |
