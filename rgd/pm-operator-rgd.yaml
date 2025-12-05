@@ -7,8 +7,8 @@ spec:
     apiVersion: v1alpha1
     kind: PlatformMeshOperator
     spec:
-      resource: "object | required=true"
       ocm:
+        resource: "object | required=true"
         component:
           name: "string | default=platform-mesh"
         repository:
@@ -35,7 +35,7 @@ spec:
               name: ${schema.spec.ocm.repository.name}
               namespace: ${schema.spec.ocm.repository.namespace}
               policy: Propagate
-          resource: ${schema.spec.resource}
+          resource: ${schema.spec.ocm.resource}
           additionalStatusFields:
             registry: resource.access.imageReference.toOCI().registry
             repository: resource.access.imageReference.toOCI().repository
