@@ -123,11 +123,6 @@ kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
   --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
-kubectl wait --namespace default \
-  --for=condition=Ready resourcegraphdefinition \
-  --timeout=480s platform-mesh-operator
-
 if [ "$LATEST" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Using LATEST OCM Component version ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
@@ -135,6 +130,12 @@ else
   echo -e "${COL}[$(date '+%H:%M:%S')] Using RELEASED OCM Component version ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
 fi
+
+kubectl wait --namespace default \
+  --for=condition=Ready Deployer \
+  --timeout=480s platform-mesh-operator
+
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-operator
 
 kubectl wait --namespace default \
   --for=condition=Ready PlatformMeshOperator \

@@ -221,7 +221,7 @@ The `scripts/start.sh` script performs the following operations:
 
 2. **Cluster Management**
    - Creates Kind cluster named `platform-mesh` (if not exists)
-   - Uses Kubernetes v1.33.1 (`kindest/node:v1.33.1`)
+   - Uses Kubernetes v1.33.1 (`kindest/node:v1.34.0`)
    - Configures cluster with custom networking for local development
 
 3. **Certificate Generation**
@@ -231,18 +231,18 @@ The `scripts/start.sh` script performs the following operations:
 
 4. **Core Infrastructure Installation**
    - Installs Flux for GitOps workflow management
-   - Deploys Cert-Manager for SSL certificate management
    - Sets up OCM (Open Component Model) controller
+   - Installs KRO (Kubernetes Resource Orchestrator)
 
 5. **Platform Mesh Deployment**
    - Applies base Kustomize configurations
-   - Creates necessary secrets (Keycloak, Grafana, certificates)
+   - Creates necessary secrets (Keycloak, certificates)
    - Deploys Platform Mesh operator and components
-   - Installs supporting services (Keycloak, RBAC webhook, etc.)
+   - The Platform Mesh Operator then deploys all components of platform-mesh automatically
 
 6. **Post-Installation Setup**
+   - Waits for the Platform Mesh Resource to be ready
    - Creates KCP admin kubeconfig for workspace access
-   - Waits for all components to become ready
    - Provides access instructions and next steps
 
 7. **Example Data Setup** (when using `--example-data` flag)

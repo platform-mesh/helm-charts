@@ -174,7 +174,7 @@ run_environment_checks() {
         exit 1
     fi
     
-    echo -e "${COL}✅ All environment checks passed!${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ All environment checks passed!${COL_RES}"
     echo ""
 }
 

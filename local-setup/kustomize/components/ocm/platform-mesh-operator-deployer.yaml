@@ -1,0 +1,14 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Deployer
+metadata:
+  name: platform-mesh-operator
+spec:
+  resourceRef:
+    name: platform-mesh-operator-rgd
+    namespace: default
+  ocmConfig:
+    - apiVersion: delivery.ocm.software/v1alpha1
+      kind: Repository
+      name: platform-mesh
+      namespace: default
+      policy: Propagate
