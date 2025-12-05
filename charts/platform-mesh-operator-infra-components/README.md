@@ -12,6 +12,8 @@ A Helm chart for Kubernetes
 | certManager.ocmResourceName | string | `"chart"` |  |
 | certManager.targetNamespace | string | `"default"` |  |
 | certManager.values.crds.enabled | bool | `true` |  |
+| fluxCD.kubeConfig.enabled | bool | `false` |  |
+| fluxCD.kubeConfig.secretRef.name | string | `"platform-mesh-kubeconfig"` | name of the secret containing the kubeconfig |
 | gatewayApi.enabled | bool | `true` |  |
 | gatewayApi.kustomization.install.crds | string | `"Skip"` |  |
 | gatewayApi.kustomization.interval | string | `"1m"` |  |

@@ -31,6 +31,11 @@ spec:
     name: {{ $service }}
     namespace: {{ $.Release.Namespace }}
   {{- end }}
+  {{- if $values.fluxCD.kubeConfig.enabled }}
+  kubeConfig:
+    secretRef:
+      name: {{ $values.fluxCD.kubeConfig.secretRef.name }}
+  {{- end }}
   interval: 1m
   releaseName: {{ $service}}
   targetNamespace: {{ $config.targetNamespace | default $values.targetNamespace }}

@@ -1,0 +1,908 @@
+HelmRelease snapshots:
+  1: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: account-operator
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: account-operator
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: account-operator
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        crds:
+          enabled: false
+        kcp:
+          apiExportEndpointSliceName: ""
+          enabled: true
+        kubeconfigSecret: account-operator-kubeconfig
+        log:
+          level: debug
+        subroutines:
+          fga:
+            grpcAddr: openfga:8081
+        tracing:
+          collector:
+            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+          enabled: false
+  2: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: crossplane
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: crossplane
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: crossplane
+      dependsOn: null
+      interval: 1m
+      releaseName: crossplane
+      targetNamespace: crossplane-system
+      timeout: 15m
+      values:
+        provider:
+          packages:
+            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
+  3: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: etcd-druid
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
+      dependsOn: null
+      interval: 1m
+      releaseName: etcd-druid
+      targetNamespace: etcd-druid-system
+      timeout: 15m
+      values: {}
+  4: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: extension-manager-operator
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: extension-manager-operator
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: extension-manager-operator
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        crds:
+          enabled: false
+        kcp:
+          enabled: true
+          kubeconfigSecret: extension-manager-operator-kubeconfig
+        tracing:
+          collector:
+            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+          enabled: false
+  5: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: infra
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: infra
+        namespace: default
+      dependsOn:
+        - name: kcp-operator
+          namespace: default
+      interval: 1m
+      releaseName: infra
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        istio:
+          main:
+            gateway:
+              hosts:
+                - ""
+                - '*.'
+              name: https
+              port: "443"
+              protocol: HTTPS
+              tls:
+                credentialName: domain-certificate
+                minProtocolVersion: TLSV1_2
+                mode: SIMPLE
+          passThrough:
+            gateway:
+              enabled: true
+              hosts:
+                - kcp.api.
+              name: pass-https
+              port: "443"
+              protocol: HTTPS
+        kcp:
+          image:
+            tag: 8265c399b
+          rootShard:
+            extraArgs:
+              - --feature-gates=WorkspaceAuthentication=true
+              - --shard-virtual-workspace-url=https://kcp.api.
+          webhook:
+            enabled: true
+        keycloak:
+          crossplane:
+            clients:
+              welcome:
+                validRedirectUris:
+                  - https:///callback*
+          istio:
+            virtualservice:
+              hosts:
+                - ""
+  6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
+      dependsOn: null
+      interval: 1m
+      releaseName: kcp-operator
+      targetNamespace: kcp-operator
+      timeout: 15m
+      values: null
+  7: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: keycloak
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: keycloak
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: keycloak
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        auth:
+          adminUser: keycloak-admin
+          existingSecret: keycloak-admin
+          passwordSecretKey: secret
+        extraEnvVars:
+          - name: JAVA_OPTS_APPEND
+            value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
+          - name: KC_PROXY_HEADERS
+            value: xforwarded
+          - name: KC_HOSTNAME_STRICT
+            value: "false"
+        global:
+          imagePullSecrets:
+            - name: github
+          security:
+            allowInsecureImages: true
+        httpRelativePath: /keycloak/
+        image:
+          registry: ghcr.io/platform-mesh
+          repository: upstream-images/keycloak
+        postgresql:
+          auth:
+            existingSecret: ""
+            secretKeys:
+              adminPasswordKey: password
+              userPasswordKey: password
+            username: keycloak
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: upstream-images/postgresql
+            tag: 17.6.0-debian-12-r4
+          nameOverride: postgresql-keycloak
+          primary:
+            resourcesPreset: none
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 2Gi
+            memory: 2Gi
+          requests:
+            cpu: 750m
+            ephemeral-storage: 50Mi
+            memory: 1Gi
+  8: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kubernetes-graphql-gateway
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: kubernetes-graphql-gateway
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: kubernetes-graphql-gateway
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        kubeConfig:
+          enabled: true
+          secretName: kubernetes-grapqhl-gateway-kubeconfig
+        listener:
+          virtualWorkspacesConfig:
+            content:
+              virtualWorkspaces:
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: contentconfigurations
+                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: marketplace
+                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace
+            enabled: true
+        tracing:
+          enabled: false
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https:///keycloak/realms/default
+        virtualService:
+          hosts:
+            - ""
+            - '*.'
+          httpRules:
+            - cors:
+                allowHeaders:
+                  - '*'
+                allowMethods:
+                  - GET
+                  - POST
+                allowOrigins:
+                  - regex: .*
+              name: default
+          pathPrefix: /api/kubernetes-graphql-gateway/
+  9: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: openfga
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: openfga
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: openfga
+      dependsOn: null
+      interval: 1m
+      releaseName: openfga
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        autoscaling:
+          enabled: false
+        checkQueryCache:
+          enabled: true
+          limit: 10000
+          ttl: 10s
+        datastore:
+          applyMigrations: true
+          engine: postgres
+          maxOpenConns: 30
+          migrationType: initContainer
+          migrations:
+            image:
+              pullPolicy: Always
+              repository: groundnuty/k8s-wait-for
+              tag: v2.0
+        extraEnvVars:
+          - name: OPENFGA_EXPERIMENTALS
+            value: enable-list-users
+        global:
+          imagePullSecrets:
+            - name: github
+        image:
+          repository: openfga/openfga
+          tag: ""
+        log:
+          level: info
+        migrate:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        podAnnotations:
+          traffic.sidecar.istio.io/excludeInboundPorts: "2112"
+        postgresql:
+          enabled: true
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
+          nameOverride: postgres
+        replicaCount: 1
+        telemetry:
+          trace:
+            enabled: true
+            otlp:
+              endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+              tls:
+                enabled: false
+  10: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: rebac-authz-webhook
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: rebac-authz-webhook
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: rebac-authz-webhook
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        certManager:
+          createCA: true
+          enabled: true
+        istio:
+          dnsNames:
+            - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
+          exposed: false
+        log:
+          level: debug
+        openfga:
+          url: openfga:8081
+  11: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: security-operator
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: security-operator
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: security-operator
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        baseDomain: ""
+        crds:
+          enabled: false
+        fga:
+          inviteKeycloakBaseUrl: https:///keycloak
+          target: openfga.platform-mesh-system.svc.cluster.local:8081
+        initializer:
+          kubeconfigSecret: security-initializer-kubeconfig
+        kubeconfigSecret: security-operator-kubeconfig
+        log:
+          level: debug
+        operator:
+          maxConcurrentReconciles: 1
+          shutdownTimeout: 1m
+  12: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: virtual-workspaces
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: virtual-workspaces
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: virtual-workspaces
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values: null
+enable remote deployment of helmreleases:
+  1: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: account-operator
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: account-operator
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: account-operator
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        crds:
+          enabled: false
+        kcp:
+          apiExportEndpointSliceName: ""
+          enabled: true
+        kubeconfigSecret: account-operator-kubeconfig
+        log:
+          level: debug
+        subroutines:
+          fga:
+            grpcAddr: openfga:8081
+        tracing:
+          collector:
+            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+          enabled: false
+  2: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: crossplane
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: crossplane
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: crossplane
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: crossplane
+      targetNamespace: crossplane-system
+      timeout: 15m
+      values:
+        provider:
+          packages:
+            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
+  3: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: etcd-druid
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: etcd-druid
+      targetNamespace: etcd-druid-system
+      timeout: 15m
+      values: {}
+  4: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: extension-manager-operator
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: extension-manager-operator
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: extension-manager-operator
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        crds:
+          enabled: false
+        kcp:
+          enabled: true
+          kubeconfigSecret: extension-manager-operator-kubeconfig
+        tracing:
+          collector:
+            host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+          enabled: false
+  5: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: infra
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: infra
+        namespace: default
+      dependsOn:
+        - name: kcp-operator
+          namespace: default
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: infra
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        istio:
+          main:
+            gateway:
+              hosts:
+                - ""
+                - '*.'
+              name: https
+              port: "443"
+              protocol: HTTPS
+              tls:
+                credentialName: domain-certificate
+                minProtocolVersion: TLSV1_2
+                mode: SIMPLE
+          passThrough:
+            gateway:
+              enabled: true
+              hosts:
+                - kcp.api.
+              name: pass-https
+              port: "443"
+              protocol: HTTPS
+        kcp:
+          image:
+            tag: 8265c399b
+          rootShard:
+            extraArgs:
+              - --feature-gates=WorkspaceAuthentication=true
+              - --shard-virtual-workspace-url=https://kcp.api.
+          webhook:
+            enabled: true
+        keycloak:
+          crossplane:
+            clients:
+              welcome:
+                validRedirectUris:
+                  - https:///callback*
+          istio:
+            virtualservice:
+              hosts:
+                - ""
+  6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: kcp-operator
+      targetNamespace: kcp-operator
+      timeout: 15m
+      values: null
+  7: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: keycloak
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: keycloak
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: keycloak
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        auth:
+          adminUser: keycloak-admin
+          existingSecret: keycloak-admin
+          passwordSecretKey: secret
+        extraEnvVars:
+          - name: JAVA_OPTS_APPEND
+            value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
+          - name: KC_PROXY_HEADERS
+            value: xforwarded
+          - name: KC_HOSTNAME_STRICT
+            value: "false"
+        global:
+          imagePullSecrets:
+            - name: github
+          security:
+            allowInsecureImages: true
+        httpRelativePath: /keycloak/
+        image:
+          registry: ghcr.io/platform-mesh
+          repository: upstream-images/keycloak
+        postgresql:
+          auth:
+            existingSecret: ""
+            secretKeys:
+              adminPasswordKey: password
+              userPasswordKey: password
+            username: keycloak
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: upstream-images/postgresql
+            tag: 17.6.0-debian-12-r4
+          nameOverride: postgresql-keycloak
+          primary:
+            resourcesPreset: none
+        resources:
+          limits:
+            cpu: "2"
+            ephemeral-storage: 2Gi
+            memory: 2Gi
+          requests:
+            cpu: 750m
+            ephemeral-storage: 50Mi
+            memory: 1Gi
+  8: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kubernetes-graphql-gateway
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: kubernetes-graphql-gateway
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: kubernetes-graphql-gateway
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        kubeConfig:
+          enabled: true
+          secretName: kubernetes-grapqhl-gateway-kubeconfig
+        listener:
+          virtualWorkspacesConfig:
+            content:
+              virtualWorkspaces:
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: contentconfigurations
+                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: marketplace
+                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace
+            enabled: true
+        tracing:
+          enabled: false
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https:///keycloak/realms/default
+        virtualService:
+          hosts:
+            - ""
+            - '*.'
+          httpRules:
+            - cors:
+                allowHeaders:
+                  - '*'
+                allowMethods:
+                  - GET
+                  - POST
+                allowOrigins:
+                  - regex: .*
+              name: default
+          pathPrefix: /api/kubernetes-graphql-gateway/
+  9: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: openfga
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: openfga
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: openfga
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: openfga
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        autoscaling:
+          enabled: false
+        checkQueryCache:
+          enabled: true
+          limit: 10000
+          ttl: 10s
+        datastore:
+          applyMigrations: true
+          engine: postgres
+          maxOpenConns: 30
+          migrationType: initContainer
+          migrations:
+            image:
+              pullPolicy: Always
+              repository: groundnuty/k8s-wait-for
+              tag: v2.0
+        extraEnvVars:
+          - name: OPENFGA_EXPERIMENTALS
+            value: enable-list-users
+        global:
+          imagePullSecrets:
+            - name: github
+        image:
+          repository: openfga/openfga
+          tag: ""
+        log:
+          level: info
+        migrate:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        podAnnotations:
+          traffic.sidecar.istio.io/excludeInboundPorts: "2112"
+        postgresql:
+          enabled: true
+          image:
+            registry: ghcr.io/platform-mesh
+            repository: images/postgresql
+          nameOverride: postgres
+        replicaCount: 1
+        telemetry:
+          trace:
+            enabled: true
+            otlp:
+              endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+              tls:
+                enabled: false
+  10: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: rebac-authz-webhook
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: rebac-authz-webhook
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: rebac-authz-webhook
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        certManager:
+          createCA: true
+          enabled: true
+        istio:
+          dnsNames:
+            - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
+          exposed: false
+        log:
+          level: debug
+        openfga:
+          url: openfga:8081
+  11: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: security-operator
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: security-operator
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: security-operator
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values:
+        baseDomain: ""
+        crds:
+          enabled: false
+        fga:
+          inviteKeycloakBaseUrl: https:///keycloak
+          target: openfga.platform-mesh-system.svc.cluster.local:8081
+        initializer:
+          kubeconfigSecret: security-initializer-kubeconfig
+        kubeconfigSecret: security-operator-kubeconfig
+        log:
+          level: debug
+        operator:
+          maxConcurrentReconciles: 1
+          shutdownTimeout: 1m
+  12: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: virtual-workspaces
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: virtual-workspaces
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: test-kubeconfig-secret
+      releaseName: virtual-workspaces
+      targetNamespace: platform-mesh-system
+      timeout: 15m
+      values: null

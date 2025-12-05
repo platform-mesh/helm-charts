@@ -13,4 +13,9 @@ spec:
   sourceRef:
     kind: GitRepository
     name: {{ .Values.gatewayApi.name }}
+  {{- if .Values.fluxCD.kubeConfig.enabled }}
+  kubeConfig:
+    secretRef:
+      name: {{ .Values.fluxCD.kubeConfig.secretRef.name }}
+  {{- end }}
 {{- end }}

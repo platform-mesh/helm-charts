@@ -67,3 +67,11 @@ certManager:
   values:
     crds:
       enabled: true
+
+fluxCD:
+  kubeConfig:
+    # - If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig.
+    enabled: false
+    secretRef:
+      # -- name of the secret containing the kubeconfig
+      name: platform-mesh-kubeconfig

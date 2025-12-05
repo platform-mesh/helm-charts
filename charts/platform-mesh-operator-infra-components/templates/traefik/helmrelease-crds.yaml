@@ -16,4 +16,9 @@ spec:
   releaseName: {{ .Values.traefikCRDs.name }}
   targetNamespace: {{ .Values.traefikCRDs.targetNamespace }}
   timeout: {{ .Values.timeout }}
+  {{- if .Values.fluxCD.kubeConfig.enabled }}
+  kubeConfig:
+    secretRef:
+      name: {{ .Values.fluxCD.kubeConfig.secretRef.name }}
+  {{- end }}
 {{- end }}
