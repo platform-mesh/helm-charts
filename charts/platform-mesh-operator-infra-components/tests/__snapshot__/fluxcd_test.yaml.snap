@@ -104,6 +104,7 @@ FluxCD enable remote deployment:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: traefik-crds
       targetNamespace: default
@@ -126,6 +127,7 @@ FluxCD enable remote deployment:
       interval: 1m
       kubeConfig:
         secretRef:
+          key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: traefik
       targetNamespace: default
