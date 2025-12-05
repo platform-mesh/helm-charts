@@ -7,6 +7,7 @@ spec:
     apiVersion: v1alpha1
     kind: PlatformMeshOperator
     spec:
+      values: "object"
       ocm:
         resource: "object | required=true"
         component:
@@ -80,7 +81,4 @@ spec:
             kind: OCIRepository
             name: ${ocirepository.metadata.name}
             namespace: ${schema.metadata.namespace}
-          values:
-            components:
-              crds:
-                enabled: true
+          values: ${schema.spec.?values}
