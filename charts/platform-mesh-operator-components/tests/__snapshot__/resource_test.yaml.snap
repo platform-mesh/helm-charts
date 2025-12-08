@@ -5,7 +5,31 @@ image enabled resource:
     metadata:
       labels:
         artifact: image
-        component: etcd-druid
+        for: account-operator
+        repo: oci
+      name: account-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: account-operator
+          resource:
+            name: image
+  2: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: image
+        for: etcd-druid
         repo: oci
       name: etcd-druid-image
     spec:
@@ -23,7 +47,31 @@ image enabled resource:
             - name: etcd-druid
           resource:
             name: image
-  2: |
+  3: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: image
+        for: extension-manager-operator
+        repo: oci
+      name: extension-manager-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: extension-manager-operator
+          resource:
+            name: image
+  4: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -44,5 +92,29 @@ image enabled resource:
         byReference:
           referencePath:
             - name: kcp-operator
+          resource:
+            name: image
+  5: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: image
+        for: rebac-authz-webhook
+        repo: oci
+      name: rebac-authz-webhook-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: rebac-authz-webhook
           resource:
             name: image

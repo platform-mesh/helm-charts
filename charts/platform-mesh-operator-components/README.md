@@ -20,6 +20,10 @@ A Helm chart for Kubernetes
 | port | int | `443` |  |
 | protocol | string | `"https"` |  |
 | services.account-operator.enabled | bool | `true` |  |
+| services.account-operator.imageResource.enabled | bool | `true` |  |
+| services.account-operator.imageResource.labels.artifact | string | `"image"` |  |
+| services.account-operator.imageResource.labels.for | string | `"account-operator"` |  |
+| services.account-operator.imageResource.labels.repo | string | `"oci"` |  |
 | services.account-operator.values.crds.enabled | bool | `false` |  |
 | services.account-operator.values.kcp.apiExportEndpointSliceName | string | `""` |  |
 | services.account-operator.values.kcp.enabled | bool | `true` |  |
@@ -35,10 +39,17 @@ A Helm chart for Kubernetes
 | services.etcd-druid.enabled | bool | `true` |  |
 | services.etcd-druid.gitRepo | bool | `true` |  |
 | services.etcd-druid.imageResource.enabled | bool | `true` |  |
+| services.etcd-druid.imageResource.labels.artifact | string | `"image"` |  |
+| services.etcd-druid.imageResource.labels.for | string | `"etcd-druid"` |  |
+| services.etcd-druid.imageResource.labels.repo | string | `"oci"` |  |
 | services.etcd-druid.path | string | `"charts"` |  |
 | services.etcd-druid.targetNamespace | string | `"etcd-druid-system"` |  |
 | services.etcd-druid.values | object | `{}` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
+| services.extension-manager-operator.imageResource.enabled | bool | `true` |  |
+| services.extension-manager-operator.imageResource.labels.artifact | string | `"image"` |  |
+| services.extension-manager-operator.imageResource.labels.for | string | `"extension-manager-operator"` |  |
+| services.extension-manager-operator.imageResource.labels.repo | string | `"oci"` |  |
 | services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
 | services.extension-manager-operator.values.kcp.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
@@ -179,6 +190,10 @@ A Helm chart for Kubernetes
 | services.portal.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.virtualService.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.rebac-authz-webhook.enabled | bool | `true` |  |
+| services.rebac-authz-webhook.imageResource.enabled | bool | `true` |  |
+| services.rebac-authz-webhook.imageResource.labels.artifact | string | `"image"` |  |
+| services.rebac-authz-webhook.imageResource.labels.for | string | `"rebac-authz-webhook"` |  |
+| services.rebac-authz-webhook.imageResource.labels.repo | string | `"oci"` |  |
 | services.rebac-authz-webhook.values.certManager.createCA | bool | `true` |  |
 | services.rebac-authz-webhook.values.certManager.enabled | bool | `true` |  |
 | services.rebac-authz-webhook.values.istio.dnsNames[0] | string | `"rebac-authz-webhook.platform-mesh-system.svc.cluster.local"` |  |
