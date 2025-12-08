@@ -47,8 +47,9 @@ jobs:
     env:
       # Third-party dependency versions
       CROSSPLANE_VERSION: "1.20.1"
-      KCP_OPERATOR_VERSION: "0.3.0"
-      KCP_IMAGE_VERSION: "d976f348"
+      KCP_OPERATOR_CHART_VERSION: "0.3.0"
+      KCP_OPERATOR_IMAGE_VERSION: "v0.3.0"
+      KCP_VERSION: "v0.29.0"
       GARDENER_ETCD_DRUID_SOURCE_REF: "v0.31.0"
       GARDENER_ETCD_DRUID_CHART_VERSION: "0.1.0"
       OPENFGA_VERSION: "0.2.38"
@@ -232,6 +233,7 @@ jobs:
             CURRENT_ISTIO=$(yq eval '.component.componentReferences[] | select(.name == "istio-base") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_CROSSPLANE=$(yq eval '.component.componentReferences[] | select(.name == "crossplane") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_KCP_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "kcp-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KCP=$(yq eval '.component.componentReferences[] | select(.name == "kcp") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_ETCD_DRUID=$(yq eval '.component.componentReferences[] | select(.name == "etcd-druid") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_OPENFGA=$(yq eval '.component.componentReferences[] | select(.name == "openfga") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_GATEWAY_API=$(yq eval '.component.componentReferences[] | select(.name == "gateway-api") | .version' current_pm_component.yaml 2>/dev/null || echo "")
@@ -349,8 +351,13 @@ jobs:
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_KCP_OPERATOR" != "${{ env.KCP_OPERATOR_VERSION }}" ]; then
-            echo "KCP Operator: $CURRENT_KCP_OPERATOR -> ${{ env.KCP_OPERATOR_VERSION }}"
+          if [ "$CURRENT_KCP_OPERATOR" != "${{ env.KCP_OPERATOR_CHART_VERSION }}" ]; then
+            echo "KCP Operator: $CURRENT_KCP_OPERATOR -> ${{ env.KCP_OPERATOR_CHART_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_KCP" != "${{ env.KCP_VERSION }}" ]; then
+            echo "KCP: $CURRENT_KCP -> ${{ env.KCP_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
@@ -407,8 +414,9 @@ jobs:
             PLATFORM_MESH_OPERATOR_VERSION=${{ env.PLATFORM_MESH_OPERATOR_VERSION }} \
             VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
             CROSSPLANE_VERSION=${{ env.CROSSPLANE_VERSION }} \
-            KCP_OPERATOR_VERSION=${{ env.KCP_OPERATOR_VERSION }} \
-            KCP_IMAGE_VERSION=${{ env.KCP_IMAGE_VERSION }} \
+            KCP_OPERATOR_CHART_VERSION=${{ env.KCP_OPERATOR_CHART_VERSION }} \
+            KCP_OPERATOR_IMAGE_VERSION=${{ env.KCP_OPERATOR_IMAGE_VERSION }} \
+            KCP_VERSION=${{ env.KCP_VERSION }} \
             GARDENER_ETCD_DRUID_SOURCE_REF=${{ env.GARDENER_ETCD_DRUID_SOURCE_REF }} \
             GARDENER_ETCD_DRUID_CHART_VERSION=${{ env.GARDENER_ETCD_DRUID_CHART_VERSION }} \
             OPENFGA_VERSION=${{ env.OPENFGA_VERSION }} \
