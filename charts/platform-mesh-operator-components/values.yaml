@@ -24,6 +24,12 @@ fluxCD:
 services:
   account-operator:
     enabled: true
+    imageResource:
+      enabled: true
+      labels:
+        repo: oci
+        artifact: image
+        for: account-operator
     values:
       tracing:
         enabled: false
@@ -51,6 +57,10 @@ services:
   etcd-druid:
     imageResource:
       enabled: true
+      labels:
+        repo: oci
+        artifact: image
+        for: etcd-druid
     enabled: true
     gitRepo: true
     path: charts
@@ -58,6 +68,12 @@ services:
     values: {}
   extension-manager-operator:
     enabled: true
+    imageResource:
+      enabled: true
+      labels:
+        repo: oci
+        artifact: image
+        for: extension-manager-operator
     values:
       crds:
         enabled: false
@@ -87,6 +103,12 @@ services:
         maxConcurrentReconciles: 1
   rebac-authz-webhook:
     enabled: true
+    imageResource:
+      enabled: true
+      labels:
+        repo: oci
+        artifact: image
+        for: rebac-authz-webhook
     values:
       log:
         level: debug

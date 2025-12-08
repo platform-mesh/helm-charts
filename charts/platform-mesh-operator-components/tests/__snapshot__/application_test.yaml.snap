@@ -440,7 +440,32 @@ it should render the application manifests:
     metadata:
       labels:
         artifact: image
-        component: etcd-druid
+        for: account-operator
+        repo: oci
+      name: account-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: account-operator
+          resource:
+            name: image
+  14: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: image
+        for: etcd-druid
         repo: oci
       name: etcd-druid-image
     spec:
@@ -459,7 +484,32 @@ it should render the application manifests:
             - name: etcd-druid
           resource:
             name: image
-  14: |
+  15: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: image
+        for: extension-manager-operator
+        repo: oci
+      name: extension-manager-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: extension-manager-operator
+          resource:
+            name: image
+  16: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -483,7 +533,32 @@ it should render the application manifests:
             - name: kcp-operator
           resource:
             name: image
-  15: |
+  17: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: image
+        for: rebac-authz-webhook
+        repo: oci
+      name: rebac-authz-webhook-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: rebac-authz-webhook
+          resource:
+            name: image
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -508,7 +583,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  16: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -533,7 +608,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  17: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -558,7 +633,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  18: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -583,7 +658,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  19: |
+  22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -608,7 +683,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  20: |
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -633,7 +708,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  21: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -658,7 +733,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  22: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -683,7 +758,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  23: |
+  26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -708,7 +783,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  24: |
+  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -733,7 +808,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  25: |
+  28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -758,7 +833,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  26: |
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -783,7 +858,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  27: |
+  30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
