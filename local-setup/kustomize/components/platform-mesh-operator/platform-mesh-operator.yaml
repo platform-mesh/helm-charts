@@ -11,7 +11,7 @@ spec:
         name: chart
   values:
     image:
-      tag: v0.27.0-rc.1
+      tag: v0.27.0-rc.2
     kubeConfigPlatformMesh:
       enabled: true
       secretName: platform-mesh-kubeconfig

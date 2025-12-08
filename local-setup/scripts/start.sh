@@ -94,14 +94,14 @@ if ! check_kind_infra_cluster; then
 
 fi
 
-kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.1 --name platform-mesh-infra
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.2 --name platform-mesh-infra
 
 mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
-helm upgrade --kubeconfig .secret/platform-mesh-infra.kubeconfig -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig .secret/platform-mesh-infra.kubeconfig -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
   --version 2.17.1 \
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
@@ -109,7 +109,7 @@ helm upgrade --kubeconfig .secret/platform-mesh-infra.kubeconfig -i -n flux-syst
   --set helmController.container.additionalArgs[0]="--concurrent=50" \
   --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
 
-helm upgrade --kubeconfig .secret/platform-mesh.kubeconfig -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig .secret/platform-mesh.kubeconfig -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
   --version 2.17.1 \
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
