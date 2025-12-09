@@ -64,4 +64,3 @@ istio:
 #           averageUtilization: 80
 certificates:
   create: false
-
