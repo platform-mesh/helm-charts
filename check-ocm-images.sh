@@ -6,6 +6,7 @@ set -euo pipefail
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo "==================================================================="
@@ -42,13 +43,95 @@ echo -e "${GREEN}Found $CLUSTER_COUNT unique images in use${NC}"
 echo ""
 echo "==================================================================="
 
+# Find OCM-managed images that are in use (exact tag match only)
+echo ""
+echo -e "${GREEN}OCM-managed images IN USE on cluster:${NC}"
+echo "-------------------------------------------------------------------"
+
+MANAGED_IN_USE_COUNT=0
+declare -a MATCHED_CLUSTER_IMAGES
+
+if [ -n "$OCM_IMAGES" ]; then
+    while IFS= read -r ocm_image; do
+        [ -z "$ocm_image" ] && continue
+
+        # Check for exact match only
+        while IFS= read -r cluster_image; do
+            [ -z "$cluster_image" ] && continue
+
+            # Direct exact match
+            if [ "$cluster_image" = "$ocm_image" ]; then
+                echo -e "${GREEN}✓${NC} $ocm_image"
+                MANAGED_IN_USE_COUNT=$((MANAGED_IN_USE_COUNT + 1))
+                MATCHED_CLUSTER_IMAGES+=("$cluster_image")
+                break
+            fi
+        done <<< "$CLUSTER_IMAGES"
+    done <<< "$OCM_IMAGES"
+fi
+
+if [ $MANAGED_IN_USE_COUNT -eq 0 ]; then
+    echo -e "${YELLOW}None${NC}"
+fi
+
+echo "-------------------------------------------------------------------"
+
+# Find OCM-managed images NOT in use (includes different tag versions)
+echo ""
+echo -e "${YELLOW}OCM-managed images NOT in use on cluster:${NC}"
+echo "-------------------------------------------------------------------"
+
+MANAGED_NOT_IN_USE_COUNT=0
+
+if [ -n "$OCM_IMAGES" ]; then
+    while IFS= read -r ocm_image; do
+        [ -z "$ocm_image" ] && continue
+
+        FOUND=false
+        FOUND_DIFF_TAG=""
+
+        # Check each cluster image
+        while IFS= read -r cluster_image; do
+            [ -z "$cluster_image" ] && continue
+
+            # Exact match means it's in use
+            if [ "$cluster_image" = "$ocm_image" ]; then
+                FOUND=true
+                break
+            fi
+
+            # Check if cluster image matches OCM image with different tag
+            cluster_repo=$(echo "$cluster_image" | sed 's/:[^:]*$//')
+            ocm_repo=$(echo "$ocm_image" | sed 's/:[^:]*$//')
+
+            if [ "$cluster_repo" = "$ocm_repo" ]; then
+                FOUND_DIFF_TAG="$cluster_image"
+            fi
+        done <<< "$CLUSTER_IMAGES"
+
+        if [ "$FOUND" = false ]; then
+            if [ -n "$FOUND_DIFF_TAG" ]; then
+                echo -e "${YELLOW}○${NC} $ocm_image ${BLUE}(cluster uses different tag: $FOUND_DIFF_TAG)${NC}"
+            else
+                echo -e "${YELLOW}○${NC} $ocm_image"
+            fi
+            MANAGED_NOT_IN_USE_COUNT=$((MANAGED_NOT_IN_USE_COUNT + 1))
+        fi
+    done <<< "$OCM_IMAGES"
+fi
+
+if [ $MANAGED_NOT_IN_USE_COUNT -eq 0 ]; then
+    echo -e "${GREEN}None - all OCM images are in use with exact tags!${NC}"
+fi
+
+echo "-------------------------------------------------------------------"
+
 # Find images NOT managed by OCM
 echo ""
-echo -e "${YELLOW}Images NOT managed by OCM:${NC}"
+echo -e "${RED}Images NOT managed by OCM:${NC}"
 echo "-------------------------------------------------------------------"
 
 UNMANAGED_COUNT=0
-UNMANAGED_IMAGES=""
 
 while IFS= read -r cluster_image; do
     [ -z "$cluster_image" ] && continue
@@ -66,7 +149,6 @@ while IFS= read -r cluster_image; do
             fi
 
             # Check if cluster image matches OCM image (considering tag differences)
-            # Extract repo without tag
             cluster_repo=$(echo "$cluster_image" | sed 's/:[^:]*$//')
             ocm_repo=$(echo "$ocm_image" | sed 's/:[^:]*$//')
 
@@ -80,7 +162,6 @@ while IFS= read -r cluster_image; do
     if [ "$FOUND" = false ]; then
         echo -e "${RED}✗${NC} $cluster_image"
         UNMANAGED_COUNT=$((UNMANAGED_COUNT + 1))
-        UNMANAGED_IMAGES="${UNMANAGED_IMAGES}${cluster_image}\n"
     fi
 done <<< "$CLUSTER_IMAGES"
 
@@ -91,29 +172,14 @@ echo ""
 echo "==================================================================="
 echo "SUMMARY"
 echo "==================================================================="
-echo "Total OCM-managed images:     $OCM_COUNT"
-echo "Total images in use:          $CLUSTER_COUNT"
-echo -e "${RED}Images not managed by OCM:    $UNMANAGED_COUNT${NC}"
+echo "Total OCM-managed images:               $OCM_COUNT"
+echo -e "${GREEN}  - In use on cluster:                  $MANAGED_IN_USE_COUNT${NC}"
+echo -e "${YELLOW}  - Not in use on cluster:              $MANAGED_NOT_IN_USE_COUNT${NC}"
+echo ""
+echo "Total images in use on cluster:         $CLUSTER_COUNT"
+echo -e "${GREEN}  - Managed by OCM:                     $MANAGED_IN_USE_COUNT${NC}"
+echo -e "${RED}  - Not managed by OCM:                 $UNMANAGED_COUNT${NC}"
 echo "==================================================================="
-
-# Optional: Show OCM-managed images
-echo ""
-read -p "Do you want to see the list of OCM-managed images? (y/n) " -n 1 -r
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo ""
-    echo -e "${GREEN}OCM-managed images:${NC}"
-    echo "-------------------------------------------------------------------"
-    if [ -n "$OCM_IMAGES" ]; then
-        while IFS= read -r ocm_image; do
-            [ -z "$ocm_image" ] && continue
-            echo -e "${GREEN}✓${NC} $ocm_image"
-        done <<< "$OCM_IMAGES"
-    else
-        echo "None"
-    fi
-    echo "-------------------------------------------------------------------"
-fi
 
 # Exit with error code if there are unmanaged images
 if [ $UNMANAGED_COUNT -gt 0 ]; then
