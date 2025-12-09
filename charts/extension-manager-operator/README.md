@@ -15,6 +15,7 @@ A Helm chart for extension-manager-operator which manages resources like Content
 |-----|------|---------|-------------|
 | commonAnnotations | object | `{}` |  |
 | crds.enabled | bool | `true` |  |
+| deployment.hostAliases | list | `[]` |  |
 | gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.main | object | `{"gateway":{"name":"websecure","port":8443}}` | HTTPS Terminate configuration |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |

@@ -48,6 +48,17 @@ spec:
           - name: kcp-api-server
             mountPath: /api-kubeconfig
           {{- end }}
+      {{- if .Values.deployment.hostAliases }}
+      hostAliases:
+      {{- range .Values.deployment.hostAliases }}
+        - ip: {{ .ip }}
+          hostnames:
+        {{- range .hostnames }}
+            - {{ . }}
+        {{- end }}
+      {{- end }}
+      {{- else }}
+      {{- end }}
       volumes:
         {{- include "common.extraVolumes" . | nindent 8 }}
         {{- if .Values.kcp.kubeconfigSecret }}

@@ -1,0 +1,27 @@
+suite: Test the Template files
+values:
+- ../values.yaml
+- ../test_values.yaml
+release:
+  name: platform-mesh
+  namespace: platform-mesh-system
+chart:
+  appVersion: 1.0.0
+templates:
+  - deploy.yaml
+tests:
+  - it: matches the Snapshot
+    asserts:
+    - matchSnapshot: {}
+  - it: has all hostAliases configured
+    set:
+      deployment:
+        hostAliases:
+          - hostnames:
+              - kcp.dev.local
+            ip: 10.96.0.100
+    asserts:
+      - matchSnapshot: {}
+      - equal:
+          path: spec.template.spec.hostAliases[0].ip
+          value: 10.96.0.100

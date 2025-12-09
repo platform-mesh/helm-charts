@@ -12,6 +12,7 @@ A Helm chart for Kubernetes
 | certManager.enabled | bool | `true` |  |
 | certManager.ipAddresses[0] | string | `"10.96.86.219"` |  |
 | certificates.create | bool | `false` |  |
+| deployment.hostAliases | list | `[]` |  |
 | health.port | int | `8081` |  |
 | healthProbeBindAddress | string | `":8081"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/rebac-authz-webhook"` |  |

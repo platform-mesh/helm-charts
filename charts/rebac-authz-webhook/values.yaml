@@ -64,3 +64,10 @@ istio:
 #           averageUtilization: 80
 certificates:
   create: false
+
+
+deployment:
+  hostAliases: []
+#    - hostnames:
+#        - kcp.dev.local
+#      ip: 10.96.0.100
