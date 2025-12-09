@@ -66,6 +66,20 @@ components:
           type: helm
           helmChart: openfga:{{ .OPENFGA_VERSION }}
           helmRepository: https://openfga.github.io/helm-charts
+      - name: image
+        type: ociImage
+        relation: external
+        version: {{ .OPENFGA_IMAGE_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "openfga/openfga:{{ .OPENFGA_IMAGE_VERSION }}"
+      - name: postgresql-image
+        type: ociImage
+        relation: external
+        version: {{ .OPENFGA_POSTGRESQL_IMAGE_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/platform-mesh/images/postgresql:{{ .OPENFGA_POSTGRESQL_IMAGE_VERSION }}"
   - name: github.com/kcp-dev/kcp-operator
     version: {{ .KCP_OPERATOR_CHART_VERSION }}
     provider:
