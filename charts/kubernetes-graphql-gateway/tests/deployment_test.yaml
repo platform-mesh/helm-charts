@@ -15,13 +15,15 @@ tests:
     - matchSnapshot: {}
   - it: has all hostAliases configured
     set:
-      deployment:
-        hostAliases:
-          - hostnames:
-              - kcp.dev.local
-            ip: 10.96.0.100
+      hostAliases:
+        enabled: true
+        entries:
+          - ip: "10.0.0.1"
+            hostnames:
+              - "example.com"
+              - "test.example.com"
     asserts:
       - matchSnapshot: {}
       - equal:
           path: spec.template.spec.hostAliases[0].ip
-          value: 10.96.0.100
+          value: 10.0.0.1

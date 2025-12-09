@@ -14,17 +14,7 @@ spec:
     spec:
       serviceAccountName: {{ include "common.entity.name" . }}
       {{- include "common.imagePullSecret" . | indent 6 }}
-      {{- if .Values.deployment.hostAliases }}
-      hostAliases:
-      {{- range .Values.deployment.hostAliases }}
-        - ip: {{ .ip }}
-          hostnames:
-        {{- range .hostnames }}
-            - {{ . }}
-        {{- end }}
-      {{- end }}
-      {{- else }}
-      {{- end }}
+      {{ include "common.hostAliases" . | nindent 6 }}
       volumes:
       - name: certs
         secret:

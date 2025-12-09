@@ -47,9 +47,3 @@ gatewayApi:
     gateway:
       port: 8443
       name: websecure
-
-deployment:
-  hostAliases: []
-#    - hostnames:
-#        - kcp.dev.local
-#      ip: 10.96.0.100

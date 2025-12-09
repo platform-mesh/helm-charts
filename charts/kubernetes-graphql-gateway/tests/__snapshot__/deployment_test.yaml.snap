@@ -170,8 +170,9 @@ has all hostAliases configured:
                   name: virtual-workspaces-config-volume
           hostAliases:
             - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
+                - example.com
+                - test.example.com
+              ip: 10.0.0.1
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
             - emptyDir:
