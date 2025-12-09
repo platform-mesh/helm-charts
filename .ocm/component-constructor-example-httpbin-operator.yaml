@@ -26,7 +26,7 @@ components:
   - name: {{ .COMPONENT_NAME }}
     version: {{ .VERSION }}
     provider:
-      name: The Open Micro Frontend Platform Team
+      name: The Platform Mesh Team
     componentReferences:
       - name: api-syncagent
         componentName: github.com/kcp-dev/api-syncagent
