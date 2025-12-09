@@ -144,6 +144,8 @@ services:
       - name: kcp-operator
         namespace: default
     values:
+      gatewayApi:
+        enabled: true
       kcp:
         image:
           tag: v0.29.0
@@ -264,6 +266,10 @@ services:
           artifact: image
           for: kubernetes-graphql-gateway
     values:
+      gatewayApi:
+        enabled: true
+      cors:
+        enabled: true
       tracing:
         enabled: false
       trust:
@@ -295,10 +301,10 @@ services:
           content:
             virtualWorkspaces:
               - name: contentconfigurations
-                url: "https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations"
+                url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
                 kubeconfig: /app/kubeconfig/kubeconfig
               - name: marketplace
-                url: "https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace"
+                url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
                 kubeconfig: /app/kubeconfig/kubeconfig
   openfga:
     enabled: true
@@ -346,9 +352,9 @@ services:
           repository: images/postgresql
       telemetry:
         trace:
-          enabled: true
+          enabled: false
           otlp:
-            endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+            endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
             tls:
               enabled: false
   portal:
@@ -360,6 +366,13 @@ services:
           artifact: image
           for: portal
     values:
+      gatewayApi:
+        enabled: true
+        httpRoute:
+          parentRefs:
+            - name: k8sapi-gateway
+              sectionName: websecure
+              kind: Gateway
       kcp:
         kubeconfigSecret: portal-kubeconfig
       crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
@@ -408,6 +421,12 @@ services:
           repo: oci
           artifact: image
           for: virtual-workspaces
+    values:
+      virtualWorkspaceSecretName: virtual-workspaces-cert
+      deployment:
+        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
+        resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
+        resourceSchemaWorkspace: "root:platform-mesh-system"
   organization-idp:
     enabled: true
     skipHelmRelease: true

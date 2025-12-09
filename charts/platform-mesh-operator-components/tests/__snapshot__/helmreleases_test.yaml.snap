@@ -119,6 +119,8 @@ HelmRelease snapshots:
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:
+        gatewayApi:
+          enabled: true
         istio:
           main:
             gateway:
@@ -256,6 +258,10 @@ HelmRelease snapshots:
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:
+        cors:
+          enabled: true
+        gatewayApi:
+          enabled: true
         kubeConfig:
           enabled: true
           secretName: kubernetes-grapqhl-gateway-kubeconfig
@@ -265,10 +271,10 @@ HelmRelease snapshots:
               virtualWorkspaces:
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: contentconfigurations
-                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations
+                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: marketplace
-                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace
+                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
         tracing:
           enabled: false
@@ -353,9 +359,9 @@ HelmRelease snapshots:
         replicaCount: 1
         telemetry:
           trace:
-            enabled: true
+            enabled: false
             otlp:
-              endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+              endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
   10: |
@@ -433,7 +439,12 @@ HelmRelease snapshots:
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
       timeout: 30m
-      values: null
+      values:
+        deployment:
+          resourceSchemaName: v250704-6d57f16.contentconfigurations.ui.platform-mesh.io
+          resourceSchemaWorkspace: root:platform-mesh-system
+          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
+        virtualWorkspaceSecretName: virtual-workspaces-cert
 enable remote deployment of helmreleases:
   1: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -575,6 +586,8 @@ enable remote deployment of helmreleases:
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:
+        gatewayApi:
+          enabled: true
         istio:
           main:
             gateway:
@@ -724,6 +737,10 @@ enable remote deployment of helmreleases:
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:
+        cors:
+          enabled: true
+        gatewayApi:
+          enabled: true
         kubeConfig:
           enabled: true
           secretName: kubernetes-grapqhl-gateway-kubeconfig
@@ -733,10 +750,10 @@ enable remote deployment of helmreleases:
               virtualWorkspaces:
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: contentconfigurations
-                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations
+                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: marketplace
-                  url: https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace
+                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
             enabled: true
         tracing:
           enabled: false
@@ -825,9 +842,9 @@ enable remote deployment of helmreleases:
         replicaCount: 1
         telemetry:
           trace:
-            enabled: true
+            enabled: false
             otlp:
-              endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
+              endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
   10: |
@@ -917,4 +934,9 @@ enable remote deployment of helmreleases:
       releaseName: virtual-workspaces
       targetNamespace: platform-mesh-system
       timeout: 30m
-      values: null
+      values:
+        deployment:
+          resourceSchemaName: v250704-6d57f16.contentconfigurations.ui.platform-mesh.io
+          resourceSchemaWorkspace: root:platform-mesh-system
+          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
+        virtualWorkspaceSecretName: virtual-workspaces-cert

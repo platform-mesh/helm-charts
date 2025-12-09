@@ -62,6 +62,7 @@ A Helm chart for Kubernetes
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
 | services.infra.imageResources | list | `[{"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci"},"name":"kcp-image","referencePath":[{"name":"kcp"}],"resource":"image"}]` | Allow the configuration of additional ocm resources |
+| services.infra.values.gatewayApi.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.name | string | `"https"` |  |
@@ -111,14 +112,16 @@ A Helm chart for Kubernetes
 | services.keycloak.values.resources.requests.memory | string | `"1Gi"` |  |
 | services.kubernetes-graphql-gateway.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.imageResources | list | `[{"annotations":{"artifact":"image","for":"kubernetes-graphql-gateway","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
+| services.kubernetes-graphql-gateway.values.cors.enabled | bool | `true` |  |
+| services.kubernetes-graphql-gateway.values.gatewayApi.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.kubeConfig.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-grapqhl-gateway-kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].name | string | `"contentconfigurations"` |  |
-| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://kcp-front-proxy.platform-mesh-system:8443/services/contentconfigurations"` |  |
+| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].name | string | `"marketplace"` |  |
-| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://kcp-front-proxy.platform-mesh-system:8443/services/marketplace"` |  |
+| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.tracing.enabled | bool | `false` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.audience | string | `"default"` |  |
@@ -168,8 +171,8 @@ A Helm chart for Kubernetes
 | services.openfga.values.postgresql.image.repository | string | `"images/postgresql"` |  |
 | services.openfga.values.postgresql.nameOverride | string | `"postgres"` |  |
 | services.openfga.values.replicaCount | int | `1` |  |
-| services.openfga.values.telemetry.trace.enabled | bool | `true` |  |
-| services.openfga.values.telemetry.trace.otlp.endpoint | string | `"observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317"` |  |
+| services.openfga.values.telemetry.trace.enabled | bool | `false` |  |
+| services.openfga.values.telemetry.trace.otlp.endpoint | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.openfga.values.telemetry.trace.otlp.tls.enabled | bool | `false` |  |
 | services.organization-idp.dependsOn[0].name | string | `"keycloak"` |  |
 | services.organization-idp.dependsOn[0].namespace | string | `"default"` |  |
@@ -190,6 +193,10 @@ A Helm chart for Kubernetes
 | services.portal.values.extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
 | services.portal.values.extraEnvVars[1].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
+| services.portal.values.gatewayApi.enabled | bool | `true` |  |
+| services.portal.values.gatewayApi.httpRoute.parentRefs[0].kind | string | `"Gateway"` |  |
+| services.portal.values.gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
+| services.portal.values.gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
 | services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
 | services.portal.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
@@ -215,6 +222,10 @@ A Helm chart for Kubernetes
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
 | services.virtual-workspaces.imageResources | list | `[{"annotations":{"artifact":"image","for":"virtual-workspaces","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
+| services.virtual-workspaces.values.deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
+| services.virtual-workspaces.values.deployment.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
+| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443"` |  |
+| services.virtual-workspaces.values.virtualWorkspaceSecretName | string | `"virtual-workspaces-cert"` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 | timeout | string | `"30m"` |  |
 
