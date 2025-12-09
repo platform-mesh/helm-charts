@@ -16,7 +16,7 @@ echo ""
 
 # Get all OCM-managed images
 echo "Fetching OCM-managed images..."
-OCM_IMAGES=$(kubectl get resources -ojson 2>/dev/null | jq -r '.items[] | select(.metadata.labels.artifact == "image") | .status.resource.access.imageReference' | sort -u)
+OCM_IMAGES=$(kubectl get resources -ojson 2>/dev/null | jq -r '.items[] | select(.metadata.annotations.artifact == "image") | .status.resource.access.imageReference' | sort -u)
 
 if [ -z "$OCM_IMAGES" ]; then
     echo -e "${YELLOW}Warning: No OCM image resources found${NC}"
@@ -28,9 +28,9 @@ fi
 
 echo ""
 
-# Get all images currently in use on the cluster
+# Get all images currently in use on the cluster (excluding kind infrastructure images)
 echo "Fetching images in use on cluster..."
-CLUSTER_IMAGES=$(kubectl get po -A -ojson 2>/dev/null | jq -r '.items[] | .spec.containers[]? | .image' | sort -u)
+CLUSTER_IMAGES=$(kubectl get po -A -ojson 2>/dev/null | jq -r '.items[] | .spec.containers[]? | .image' | grep -v "^docker.io/kindest/" | sort -u)
 
 if [ -z "$CLUSTER_IMAGES" ]; then
     echo -e "${RED}Error: No images found on cluster${NC}"
@@ -38,7 +38,7 @@ if [ -z "$CLUSTER_IMAGES" ]; then
 fi
 
 CLUSTER_COUNT=$(echo "$CLUSTER_IMAGES" | wc -l | tr -d ' ')
-echo -e "${GREEN}Found $CLUSTER_COUNT unique images in use${NC}"
+echo -e "${GREEN}Found $CLUSTER_COUNT unique images in use (excluding kind infrastructure)${NC}"
 
 echo ""
 echo "==================================================================="
