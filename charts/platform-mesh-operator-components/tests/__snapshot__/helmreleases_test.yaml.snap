@@ -296,27 +296,6 @@ HelmRelease snapshots:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: marketplace-ui
-      namespace: default
-    spec:
-      chartRef:
-        kind: OCIRepository
-        name: marketplace-ui
-        namespace: default
-      dependsOn: null
-      interval: 1m
-      releaseName: marketplace-ui
-      targetNamespace: platform-mesh-system
-      timeout: 30m
-      values:
-        gatewayApi:
-          enabled: true
-        istio:
-          enabled: false
-  10: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: openfga
       namespace: default
     spec:
@@ -379,7 +358,7 @@ HelmRelease snapshots:
               endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  11: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -407,7 +386,7 @@ HelmRelease snapshots:
           level: debug
         openfga:
           url: openfga:8081
-  12: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -438,7 +417,7 @@ HelmRelease snapshots:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  13: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -785,31 +764,6 @@ enable remote deployment of helmreleases:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: marketplace-ui
-      namespace: default
-    spec:
-      chartRef:
-        kind: OCIRepository
-        name: marketplace-ui
-        namespace: default
-      dependsOn: null
-      interval: 1m
-      kubeConfig:
-        secretRef:
-          key: kubeconfig
-          name: test-kubeconfig-secret
-      releaseName: marketplace-ui
-      targetNamespace: platform-mesh-system
-      timeout: 30m
-      values:
-        gatewayApi:
-          enabled: true
-        istio:
-          enabled: false
-  10: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: openfga
       namespace: default
     spec:
@@ -876,7 +830,7 @@ enable remote deployment of helmreleases:
               endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  11: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -908,7 +862,7 @@ enable remote deployment of helmreleases:
           level: debug
         openfga:
           url: openfga:8081
-  12: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -943,7 +897,7 @@ enable remote deployment of helmreleases:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  13: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:

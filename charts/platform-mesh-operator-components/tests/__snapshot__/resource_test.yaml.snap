@@ -150,30 +150,6 @@ image enabled resource:
     metadata:
       annotations:
         artifact: image
-        for: marketplace-ui
-        repo: oci
-      name: marketplace-ui-image
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 1m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: marketplace-ui
-          resource:
-            name: image
-  8: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      annotations:
-        artifact: image
         for: rebac-authz-webhook
         repo: oci
       name: rebac-authz-webhook-image
@@ -192,7 +168,7 @@ image enabled resource:
             - name: rebac-authz-webhook
           resource:
             name: image
-  9: |
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -216,7 +192,7 @@ image enabled resource:
             - name: security-operator
           resource:
             name: image
-  10: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

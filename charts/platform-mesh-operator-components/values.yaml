@@ -448,7 +448,7 @@ services:
       istio:
         enabled: false
   marketplace-ui:
-    enabled: true
+    enabled: false
     # -- Allow the configuration of additional ocm resources
     imageResources:
       - annotations:
