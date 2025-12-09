@@ -7,12 +7,15 @@ A Helm chart to automate bootstrapping of new environment
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | crds.enabled | bool | `true` |  |
+| deployment.hostAliases | list | `[]` |  |
 | deployment.replicas | int | `1` |  |
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/platform-mesh-operator"` |  |
 | istio.enabled | bool | `false` |  |
-| kubeConfig.enabled | bool | `false` | Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated. |
-| kubeConfig.secretName | string | `"platform-mesh-kubeconfig"` |  |
+| kubeConfigDeployment.enabled | bool | `false` | Enables deployment to remote clusters. Set to true if the operator is not deployed on the same cluster where the FluxCD artefacts will be created. |
+| kubeConfigDeployment.secretName | string | `"platform-mesh-infra-kubeconfig"` | Name of the secret containing the kubeconfig for the cluster where the created FluxCD artefacts will be created. NOTE: target deployment will alway be same as the cluster where the Platform Mesh resource lives. |
+| kubeConfigPlatformMesh.enabled | bool | `false` | Enables reconciliation of PlatformMesh resources on remote clusters |
+| kubeConfigPlatformMesh.secretName | string | `"platform-mesh-kubeconfig"` | Name of the secret containing the kubeconfig for remote cluster access where the PlatformMesh resources will be deployed |
 | log.level | string | `"debug"` |  |
 | operator.leaderElect | bool | `true` |  |
 | tracing.collector.endpoint | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |

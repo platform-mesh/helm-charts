@@ -35,22 +35,47 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
-        {{- if .Values.kubeConfig.enabled }}
+        {{- if .Values.kubeConfigPlatformMesh.enabled }}
         - name: KUBECONFIG
-          value: /etc/kubeconfig
+          value: /etc/k8s/platformmesh/kubeconfig
         {{- end }}
-        {{- if .Values.kubeConfig.enabled }}
+        {{- if .Values.kubeConfigDeployment.enabled }}
+        - name: DEPLOYMENT_KUBECONFIG
+          value: /etc/k8s/deployment/kubeconfig
+        {{- end }}
+        {{- if .Values.kubeConfigPlatformMesh.enabled }}
         volumeMounts:
-        - name: external-kubeconfig
-          mountPath: /etc
+        - name: external-kubeconfig-platformmesh
+          mountPath: /etc/k8s/platformmesh
           readOnly: true
+        {{- if .Values.kubeConfigDeployment.enabled }}
+        - name: external-kubeconfig-deployment
+          mountPath: /etc/k8s/deployment
+          readOnly: true
+        {{- end }}
         {{- end }}
 
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
-      {{- if .Values.kubeConfig.enabled }}
+      {{- if .Values.deployment.hostAliases }}
+      hostAliases:
+      {{- range .Values.deployment.hostAliases }}
+        - ip: {{ .ip }}
+          hostnames:
+        {{- range .hostnames }}
+            - {{ . }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.kubeConfigPlatformMesh.enabled }}
       volumes:
-      - name: external-kubeconfig
+      - name: external-kubeconfig-platformmesh
         secret:
-          secretName: {{ .Values.kubeConfig.secretName }}
+          secretName: {{ .Values.kubeConfigPlatformMesh.secretName }}
           defaultMode: 420
+      {{- if .Values.kubeConfigDeployment.enabled }}
+      - name: external-kubeconfig-deployment
+        secret:
+          secretName: {{ .Values.kubeConfigDeployment.secretName }}
+          defaultMode: 420
+      {{- end }}
       {{- end }}
