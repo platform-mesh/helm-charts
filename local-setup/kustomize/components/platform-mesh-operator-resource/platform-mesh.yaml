@@ -30,11 +30,6 @@ spec:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-    crossplane:
-      values:
-        provider:
-          packages:
-            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
     infra:
       dependsOn:
         - name: kcp-operator
@@ -49,19 +44,11 @@ spec:
           - "http://*.localhost:4300"
           - "https://portal.dev.local:8443"
           - "https://*.portal.dev.local:8443"
-        gatewayApi:
-          enabled: true
         mailpit:
           enabled: true
         hostAliases:
           enabled: true
         kcp:
-          rootShard:
-            extraArgs:
-              - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomain }}:{{ .Values.port }}
-          webhook:
-            enabled: true
           frontProxy:
             clusterIP: "10.96.0.100"
         keycloak:
@@ -72,20 +59,10 @@ spec:
                   - "http://localhost:8000/callback*"
                   - "http://localhost:4300/callback*"
                   - "https://*"
-    kcp:
-      enabled: false
-    kcp-operator:
-      enabled: true
-      imageResource:
-        enabled: true
-        labels:
-          infra: "true"
-          component: infra
     security-operator:
       values:
         log:
           noJson: true
-        baseDomain: "{{ .Values.baseDomain }}:{{ .Values.port }}"
         initializer:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
@@ -99,13 +76,6 @@ spec:
     portal:
       enabled: true
       values:
-        gatewayApi:
-          enabled: true
-          httpRoute:
-            parentRefs:
-            - name: k8sapi-gateway
-              sectionName: websecure
-              kind: Gateway
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
             value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
@@ -133,61 +103,5 @@ spec:
           auth:
             postgresPassword: password
             database: postgres
-        telemetry:
-          trace:
-            enabled: true
-            otlp:
-              endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
-              tls:
-                enabled: false
-    virtual-workspaces:
-      values:
-        virtualWorkspaceSecretName: virtual-workspaces-cert
-        deployment:
-          serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
-          resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
-          resourceSchemaWorkspace: "root:platform-mesh-system"
-    kubernetes-graphql-gateway:
-      enabled: true
-      values:
-        cors:
-          enabled: true
-        gatewayApi:
-          enabled: true
-        listener:
-          virtualWorkspacesConfig:
-            content:
-              virtualWorkspaces:
-                - kubeconfig: /app/kubeconfig/kubeconfig
-                  name: contentconfigurations
-                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
-                - kubeconfig: /app/kubeconfig/kubeconfig
-                  name: marketplace
-                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
-            enabled: true
-    iam-service:
-      enabled: false
-      values:
-        cors:
-          enabled: true
-        hostAliases:
-          enabled: true
-        caSecret: domain-certificate-ca
-        gatewayApi:
-          enabled: true
-        istio:
-          enabled: false
-    iam-ui:
-      enabled: false
-      values:
-        gatewayApi:
-          enabled: true
-        istio:
-          enabled: false
     marketplace-ui:
       enabled: true
-      values:
-        gatewayApi:
-          enabled: true
-        istio:
-          enabled: false
