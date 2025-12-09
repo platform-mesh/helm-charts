@@ -7,7 +7,7 @@ spec:
     apiVersion: v1alpha1
     kind: PlatformMeshOperator
     spec:
-      resource: "object | required=true"
+      referencePath: "[]map[string]string | required=false"
   resources:
     - id: resourceChart
       readyWhen:
@@ -28,7 +28,42 @@ spec:
               name: platform-mesh
               namespace: default
               policy: Propagate
-          resource: ${schema.spec.resource}
+          resource:
+            byReference:
+              referencePath: ${schema.spec.referencePath}
+              resource:
+                name: chart
+          additionalStatusFields:
+            registry: resource.access.imageReference.toOCI().registry
+            repository: resource.access.imageReference.toOCI().repository
+            version: resource.version
+          skipVerify: true
+    - id: resourceImage
+      readyWhen:
+        - ${has(resourceImage.status.resource)}
+        - ${resourceImage.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
+      template:
+        apiVersion: delivery.ocm.software/v1alpha1
+        kind: Resource
+        metadata:
+          name: platform-mesh-operator-image
+          annotations:
+            artifact: image
+        spec:
+          componentRef:
+            name: platform-mesh
+          interval: 3m0s
+          ocmConfig:
+            - apiVersion: delivery.ocm.software/v1alpha1
+              kind: Repository
+              name: platform-mesh
+              namespace: default
+              policy: Propagate
+          resource:
+            byReference:
+              referencePath: ${schema.spec.referencePath}
+              resource:
+                name: image
           additionalStatusFields:
             registry: resource.access.imageReference.toOCI().registry
             repository: resource.access.imageReference.toOCI().repository
@@ -69,3 +104,6 @@ spec:
             kind: OCIRepository
             name: ${ocirepository.metadata.name}
             namespace: default
+          values:
+            image:
+              tag: ${resourceImage.status.?resource.?version}
