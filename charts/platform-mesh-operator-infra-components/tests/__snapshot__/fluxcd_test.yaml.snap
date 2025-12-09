@@ -24,6 +24,81 @@ FluxCD enable remote deployment:
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
+      annotations:
+        artifact: image
+        for: cert-manager
+        repo: oci
+      name: cert-manager-cainjector-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: cert-manager
+          resource:
+            name: cainjector-image
+      skipVerify: true
+  3: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: cert-manager
+        repo: oci
+      name: cert-manager-controller-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: cert-manager
+          resource:
+            name: controller-image
+      skipVerify: true
+  4: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: cert-manager
+        repo: oci
+      name: cert-manager-webhook-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: cert-manager
+          resource:
+            name: webhook-image
+      skipVerify: true
+  5: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
       labels:
         artifact: chart
         repo: oci
@@ -44,7 +119,7 @@ FluxCD enable remote deployment:
           resource:
             name: chart
       skipVerify: true
-  3: |
+  6: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -63,7 +138,7 @@ FluxCD enable remote deployment:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  4: |
+  7: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -87,7 +162,7 @@ FluxCD enable remote deployment:
           resource:
             name: crds
       skipVerify: true
-  5: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -109,7 +184,7 @@ FluxCD enable remote deployment:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  6: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -152,7 +227,7 @@ FluxCD enable remote deployment:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  7: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -176,7 +251,33 @@ FluxCD enable remote deployment:
           resource:
             name: crds
       skipVerify: true
-  8: |
+  11: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: traefik
+        repo: oci
+      name: traefik-image
+      namespace: default
+    spec:
+      componentRef:
+        interval: 3m
+        name: platform-mesh
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: traefik
+          resource:
+            name: image
+      skipVerify: true
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -222,6 +323,81 @@ FluxCD snapshots:
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
+      annotations:
+        artifact: image
+        for: cert-manager
+        repo: oci
+      name: cert-manager-cainjector-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: cert-manager
+          resource:
+            name: cainjector-image
+      skipVerify: true
+  3: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: cert-manager
+        repo: oci
+      name: cert-manager-controller-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: cert-manager
+          resource:
+            name: controller-image
+      skipVerify: true
+  4: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: cert-manager
+        repo: oci
+      name: cert-manager-webhook-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: cert-manager
+          resource:
+            name: webhook-image
+      skipVerify: true
+  5: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
       labels:
         artifact: chart
         repo: oci
@@ -242,7 +418,7 @@ FluxCD snapshots:
           resource:
             name: chart
       skipVerify: true
-  3: |
+  6: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -257,7 +433,7 @@ FluxCD snapshots:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  4: |
+  7: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -281,7 +457,7 @@ FluxCD snapshots:
           resource:
             name: crds
       skipVerify: true
-  5: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -299,7 +475,7 @@ FluxCD snapshots:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  6: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -338,7 +514,7 @@ FluxCD snapshots:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  7: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -362,7 +538,33 @@ FluxCD snapshots:
           resource:
             name: crds
       skipVerify: true
-  8: |
+  11: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: traefik
+        repo: oci
+      name: traefik-image
+      namespace: default
+    spec:
+      componentRef:
+        interval: 3m
+        name: platform-mesh
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: traefik
+          resource:
+            name: image
+      skipVerify: true
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
