@@ -31,9 +31,6 @@ spec:
             ephemeral-storage: 50Mi
             memory: 1Gi
     infra:
-      dependsOn:
-        - name: kcp-operator
-          namespace: default
       values:
         cors:
           enabled: true
