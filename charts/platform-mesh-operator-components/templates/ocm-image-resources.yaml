@@ -1,32 +1,39 @@
 {{ $values := .Values }}
 {{ $release := .Release }}
 {{- range $service, $config := .Values.services }}
-{{- if and $config.imageResource $config.imageResource.enabled }}
+{{- with $config.imageResources }}
+{{- range . }}
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Resource
 metadata:
-  {{- if $config.imageResource.name }}
-  name: "{{ $config.imageResource.name }}"
+  {{- if .name }}
+  name: "{{ .name }}"
   {{- else }}
   name: "{{ $service }}-image"
   {{- end }}
   labels:
-    {{- if $config.imageResource.labels }}
-    {{- toYaml $config.imageResource.labels | nindent 4 }}
+    {{- if .labels }}
+    {{- toYaml .labels | nindent 4 }}
     {{- else }}
     artifact: image
     repo: oci
     component: "{{ $service }}"
     {{- end }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   componentRef:
     name: {{ $values.ocm.component.name }}
   resource:
     byReference:
       resource:
-        name: image
+        name: {{ .resource | default "image"}}
       referencePath:
-        {{- if $config.referencePath }}
+        {{- if .referencePath }}
+        {{- toYaml .referencePath | nindent 8 }}
+        {{- else if $config.referencePath }}
         {{- toYaml $config.referencePath | nindent 8 }}
         {{- else }}
         {{- with $values.ocm.referencePath }}
@@ -41,5 +48,6 @@ spec:
       name: {{ $values.ocm.repo.name }}
       namespace: {{ $release.Namespace }}
 ---
+{{- end }}
 {{ end -}}
 {{ end -}}
