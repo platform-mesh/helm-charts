@@ -177,7 +177,6 @@ image enabled resource:
         for: openfga
         path: postgresql.image.tag
         repo: oci
-        resource: postgresql-image
       name: openfga-postgresql-image
     spec:
       componentRef:
@@ -193,7 +192,7 @@ image enabled resource:
           referencePath:
             - name: openfga
           resource:
-            name: image
+            name: postgresql-image
   9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
