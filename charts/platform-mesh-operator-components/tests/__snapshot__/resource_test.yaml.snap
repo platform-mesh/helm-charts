@@ -126,6 +126,30 @@ image enabled resource:
     metadata:
       annotations:
         artifact: image
+        for: kubernetes-graphql-gateway
+        repo: oci
+      name: kubernetes-graphql-gateway-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kubernetes-graphql-gateway
+          resource:
+            name: image
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
         for: rebac-authz-webhook
         repo: oci
       name: rebac-authz-webhook-image
@@ -142,5 +166,53 @@ image enabled resource:
         byReference:
           referencePath:
             - name: rebac-authz-webhook
+          resource:
+            name: image
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: security-operator
+        repo: oci
+      name: security-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: security-operator
+          resource:
+            name: image
+  9: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: virtual-workspaces
+        repo: oci
+      name: virtual-workspaces-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: virtual-workspaces
           resource:
             name: image

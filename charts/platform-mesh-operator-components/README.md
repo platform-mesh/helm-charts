@@ -47,7 +47,17 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `false` |  |
 | services.iam-service.enabled | bool | `false` |  |
+| services.iam-service.imageResources | list | `[{"annotations":{"artifact":"image","for":"iam-service","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
+| services.iam-service.values.caSecret | string | `"domain-certificate-ca"` |  |
+| services.iam-service.values.cors.enabled | bool | `true` |  |
+| services.iam-service.values.gatewayApi.enabled | bool | `true` |  |
+| services.iam-service.values.hostAliases.enabled | bool | `true` |  |
+| services.iam-service.values.istio.enabled | bool | `false` |  |
 | services.iam-service.values.istio.hosts[0] | string | `"*.{{ .Values.baseDomain }}"` |  |
+| services.iam-ui.enabled | bool | `false` |  |
+| services.iam-ui.imageResources | list | `[{"annotations":{"artifact":"image","for":"iam-ui","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
+| services.iam-ui.values.gatewayApi.enabled | bool | `true` |  |
+| services.iam-ui.values.istio.enabled | bool | `false` |  |
 | services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
@@ -100,6 +110,7 @@ A Helm chart for Kubernetes
 | services.keycloak.values.resources.requests.ephemeral-storage | string | `"50Mi"` |  |
 | services.keycloak.values.resources.requests.memory | string | `"1Gi"` |  |
 | services.kubernetes-graphql-gateway.enabled | bool | `true` |  |
+| services.kubernetes-graphql-gateway.imageResources | list | `[{"annotations":{"artifact":"image","for":"kubernetes-graphql-gateway","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.kubernetes-graphql-gateway.values.kubeConfig.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-grapqhl-gateway-kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
@@ -121,6 +132,10 @@ A Helm chart for Kubernetes
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowOrigins[0].regex | string | `".*"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].name | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.pathPrefix | string | `"/api/kubernetes-graphql-gateway/"` |  |
+| services.marketplace-ui.enabled | bool | `false` |  |
+| services.marketplace-ui.imageResources | list | `[{"annotations":{"artifact":"image","for":"marketplace-ui","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
+| services.marketplace-ui.values.gatewayApi.enabled | bool | `true` |  |
+| services.marketplace-ui.values.istio.enabled | bool | `false` |  |
 | services.observability.enabled | bool | `false` |  |
 | services.observability.targetNamespace | string | `"observability"` |  |
 | services.observability.values.istio.grafana.virtualService.hosts[0] | string | `"grafana.{{ .Values.baseDomain }}"` |  |
@@ -161,6 +176,7 @@ A Helm chart for Kubernetes
 | services.organization-idp.enabled | bool | `true` |  |
 | services.organization-idp.skipHelmRelease | bool | `true` |  |
 | services.portal.enabled | bool | `false` |  |
+| services.portal.imageResources | list | `[{"annotations":{"artifact":"image","for":"portal","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.portal.values.auth.default.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
 | services.portal.values.auth.default.clientId | string | `"welcome"` |  |
 | services.portal.values.auth.default.clientSecretKey | string | `"attribute.client_secret"` |  |
@@ -187,6 +203,7 @@ A Helm chart for Kubernetes
 | services.rebac-authz-webhook.values.log.level | string | `"debug"` |  |
 | services.rebac-authz-webhook.values.openfga.url | string | `"openfga:8081"` |  |
 | services.security-operator.enabled | bool | `true` |  |
+| services.security-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"security-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.security-operator.values.baseDomain | string | `"{{ .Values.baseDomainPort }}"` |  |
 | services.security-operator.values.crds.enabled | bool | `false` |  |
 | services.security-operator.values.fga.inviteKeycloakBaseUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak"` |  |
@@ -197,6 +214,7 @@ A Helm chart for Kubernetes
 | services.security-operator.values.operator.maxConcurrentReconciles | int | `1` |  |
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
+| services.virtual-workspaces.imageResources | list | `[{"annotations":{"artifact":"image","for":"virtual-workspaces","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 | timeout | string | `"30m"` |  |
 

@@ -1,6 +1,7 @@
 {{ $values := .Values }}
 {{ $release := .Release }}
 {{- range $service, $config := .Values.services }}
+{{- if $config.enabled }}
 {{- with $config.imageResources }}
 {{- range . }}
 apiVersion: delivery.ocm.software/v1alpha1
@@ -44,6 +45,7 @@ spec:
       name: {{ $values.ocm.repo.name }}
       namespace: {{ $release.Namespace }}
 ---
+{{- end }}
 {{- end }}
 {{ end -}}
 {{ end -}}
