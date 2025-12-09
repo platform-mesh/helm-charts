@@ -20,10 +20,11 @@ it should render the application manifests:
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
-      labels:
+      annotations:
         artifact: image
+        for: cert-manager
         repo: oci
-      name: cert-manager
+      name: cert-manager-cainjector-image
     spec:
       componentRef:
         name: platform-mesh
@@ -44,10 +45,11 @@ it should render the application manifests:
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
-      labels:
+      annotations:
         artifact: image
+        for: cert-manager
         repo: oci
-      name: cert-manager
+      name: cert-manager-controller-image
     spec:
       componentRef:
         name: platform-mesh
@@ -68,10 +70,11 @@ it should render the application manifests:
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
-      labels:
+      annotations:
         artifact: image
+        for: cert-manager
         repo: oci
-      name: cert-manager
+      name: cert-manager-webhook-image
     spec:
       componentRef:
         name: platform-mesh
