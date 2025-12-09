@@ -37,7 +37,7 @@ components:
         version: {{ .TRAEFIK_IMAGE_VERSION }}
         access:
           type: ociArtifact
-          imageReference: "docker.io/traefik:{{ .TRAEFIK_IMAGE_VERSION }}"
+          imageReference: "traefik:{{ .TRAEFIK_IMAGE_VERSION }}"
   - name: github.com/cert-manager/cert-manager
     version: {{ .CERT_MANAGER_VERSION }}
     provider:
