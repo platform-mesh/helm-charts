@@ -31,6 +31,13 @@ components:
           type: helm
           helmChart: traefik-crds:{{ .TRAEFIK_CRD_VERSION }}
           helmRepository: https://traefik.github.io/charts
+      - name: image
+        type: ociImage
+        relation: external
+        version: {{ .TRAEFIK_IMAGE_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "docker.io/traefik:{{ .TRAEFIK_IMAGE_VERSION }}"
   - name: github.com/cert-manager/cert-manager
     version: {{ .CERT_MANAGER_VERSION }}
     provider:
@@ -54,6 +61,20 @@ components:
           type: helm
           helmChart: crossplane:{{ .CROSSPLANE_VERSION }}
           helmRepository: https://charts.crossplane.io/stable
+      - name: image
+        type: ociImage
+        relation: external
+        version: {{ .CROSSPLANE_IMAGE_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "xpkg.crossplane.io/crossplane/crossplane:{{ .CROSSPLANE_IMAGE_VERSION }}"
+      - name: keycloak-provider
+        type: ociImage
+        relation: external
+        version: {{ .CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "xpkg.upbound.io/crossplane-contrib/provider-keycloak:{{ .CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION }}"
   - name: github.com/openfga/openfga
     version: {{ .OPENFGA_VERSION }}
     provider:
