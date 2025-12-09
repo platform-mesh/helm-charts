@@ -629,7 +629,6 @@ it should render the application manifests:
         for: openfga
         path: postgresql.image.tag
         repo: oci
-        resource: postgresql-image
       name: openfga-postgresql-image
     spec:
       componentRef:
@@ -646,7 +645,7 @@ it should render the application manifests:
             - name: test
             - name: openfga
           resource:
-            name: image
+            name: postgresql-image
   21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource

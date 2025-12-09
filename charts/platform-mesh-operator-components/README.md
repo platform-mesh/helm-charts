@@ -147,16 +147,7 @@ A Helm chart for Kubernetes
 | services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
 | services.openfga.enabled | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
-| services.openfga.imageResources[0].annotations.artifact | string | `"image"` |  |
-| services.openfga.imageResources[0].annotations.for | string | `"openfga"` |  |
-| services.openfga.imageResources[0].annotations.repo | string | `"oci"` |  |
-| services.openfga.imageResources[0].name | string | `"openfga-image"` |  |
-| services.openfga.imageResources[1].annotations.artifact | string | `"image"` |  |
-| services.openfga.imageResources[1].annotations.for | string | `"openfga"` |  |
-| services.openfga.imageResources[1].annotations.path | string | `"postgresql.image.tag"` |  |
-| services.openfga.imageResources[1].annotations.repo | string | `"oci"` |  |
-| services.openfga.imageResources[1].annotations.resource | string | `"postgresql-image"` |  |
-| services.openfga.imageResources[1].name | string | `"openfga-postgresql-image"` |  |
+| services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |
 | services.openfga.values.checkQueryCache.enabled | bool | `true` |  |
 | services.openfga.values.checkQueryCache.limit | int | `10000` |  |
