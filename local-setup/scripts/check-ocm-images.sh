@@ -16,7 +16,7 @@ echo ""
 
 # Get all OCM-managed images
 echo "Fetching OCM-managed images..."
-OCM_IMAGES=$(kubectl get resources -ojson 2>/dev/null | jq -r '.items[] | select(.metadata.labels.artifact == "image") | .status.resource.access.imageReference' | sort -u)
+OCM_IMAGES=$(kubectl get resources -ojson 2>/dev/null | jq -r '.items[] | select(.metadata.annotations.artifact == "image") | .status.resource.access.imageReference' | sort -u)
 
 if [ -z "$OCM_IMAGES" ]; then
     echo -e "${YELLOW}Warning: No OCM image resources found${NC}"
