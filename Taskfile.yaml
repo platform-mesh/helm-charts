@@ -412,6 +412,11 @@ tasks:
         rm registry-ca.pem
       - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true
 
+  ocm:check-images:
+    desc: Check which images are OCM-managed vs unmanaged on the cluster
+    cmds:
+      - ./local-setup/scripts/check-ocm-images.sh
+
   bump-local-setup-component-version:
     deps:
       - task: setup:ocm
