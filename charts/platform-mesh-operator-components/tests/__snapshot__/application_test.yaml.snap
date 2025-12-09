@@ -630,7 +630,7 @@ it should render the application manifests:
         path: postgresql.image.tag
         repo: oci
         resource: postgresql-image
-      name: openfga-image
+      name: openfga-postgresql-image
     spec:
       componentRef:
         name: platform-mesh

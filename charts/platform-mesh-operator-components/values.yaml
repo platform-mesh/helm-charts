@@ -310,11 +310,13 @@ services:
     enabled: true
     helmRepo: true
     imageResources:
-      - annotations:
+      - name: openfga-image
+        annotations:
           repo: oci
           artifact: image
           for: openfga
-      - annotations:
+      - name: openfga-postgresql-image
+        annotations:
           repo: oci
           artifact: image
           for: openfga
