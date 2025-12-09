@@ -11,7 +11,7 @@ metadata:
 spec:
   componentRef:
     name: {{ .Values.ocm.component.name }}
-    interval: {{ .Values.ocm.interval }}
+  interval: {{ .Values.ocm.interval }}
   ocmConfig:
     - apiVersion: delivery.ocm.software/v1alpha1
       kind: Repository
