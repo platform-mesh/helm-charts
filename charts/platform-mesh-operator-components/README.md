@@ -132,7 +132,7 @@ A Helm chart for Kubernetes
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowOrigins[0].regex | string | `".*"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].name | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.pathPrefix | string | `"/api/kubernetes-graphql-gateway/"` |  |
-| services.marketplace-ui.enabled | bool | `true` |  |
+| services.marketplace-ui.enabled | bool | `false` |  |
 | services.marketplace-ui.imageResources | list | `[{"annotations":{"artifact":"image","for":"marketplace-ui","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.marketplace-ui.values.gatewayApi.enabled | bool | `true` |  |
 | services.marketplace-ui.values.istio.enabled | bool | `false` |  |
