@@ -7,10 +7,6 @@ image enabled resource:
         artifact: image
         for: account-operator
         repo: oci
-      labels:
-        artifact: image
-        component: account-operator
-        repo: oci
       name: account-operator-image
     spec:
       componentRef:
@@ -35,10 +31,6 @@ image enabled resource:
         artifact: image
         for: etcd-druid
         repo: oci
-      labels:
-        artifact: image
-        component: etcd-druid
-        repo: oci
       name: etcd-druid-image
     spec:
       componentRef:
@@ -62,10 +54,6 @@ image enabled resource:
       annotations:
         artifact: image
         for: extension-manager-operator
-        repo: oci
-      labels:
-        artifact: image
-        component: extension-manager-operator
         repo: oci
       name: extension-manager-operator-image
     spec:
@@ -92,10 +80,6 @@ image enabled resource:
         for: infra
         path: kcp.image.tag
         repo: oci
-      labels:
-        artifact: image
-        component: infra
-        repo: oci
       name: kcp-image
     spec:
       componentRef:
@@ -120,10 +104,6 @@ image enabled resource:
         artifact: image
         for: kcp-operator
         repo: oci
-      labels:
-        artifact: image
-        component: kcp-operator
-        repo: oci
       name: kcp-operator-image
     spec:
       componentRef:
@@ -147,10 +127,6 @@ image enabled resource:
       annotations:
         artifact: image
         for: rebac-authz-webhook
-        repo: oci
-      labels:
-        artifact: image
-        component: rebac-authz-webhook
         repo: oci
       name: rebac-authz-webhook-image
     spec:

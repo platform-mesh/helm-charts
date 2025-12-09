@@ -11,14 +11,10 @@ metadata:
   {{- else }}
   name: "{{ $service }}-image"
   {{- end }}
+  {{- with .labels }}
   labels:
-    {{- if .labels }}
-    {{- toYaml .labels | nindent 4 }}
-    {{- else }}
-    artifact: image
-    repo: oci
-    component: "{{ $service }}"
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- with .annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
