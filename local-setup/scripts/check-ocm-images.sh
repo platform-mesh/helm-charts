@@ -28,9 +28,11 @@ fi
 
 echo ""
 
-# Get all images currently in use on the cluster (excluding kind infrastructure images)
+# Get all images currently in use on the cluster (excluding infrastructure images)
 echo "Fetching images in use on cluster..."
-CLUSTER_IMAGES=$(kubectl get po -A -ojson 2>/dev/null | jq -r '.items[] | .spec.containers[]? | .image' | grep -v "^docker.io/kindest/" | sort -u)
+CLUSTER_IMAGES=$(kubectl get po -A -ojson 2>/dev/null | jq -r '.items[] | .spec.containers[]? | .image' | \
+    grep -vE "^(docker\.io/kindest/|registry\.k8s\.io/coredns/|registry\.k8s\.io/etcd:|registry\.k8s\.io/kube-apiserver|registry\.k8s\.io/kube-controller-manager|registry\.k8s\.io/kube-proxy|registry\.k8s\.io/kube-scheduler|registry\.k8s\.io/kro/|ghcr\.io/fluxcd/helm-controller|ghcr\.io/fluxcd/kustomize-controller|ghcr\.io/fluxcd/source-controller|ghcr\.io/open-component-model/kubernetes/controller|quay\.io/jetstack/cert-manager-)" | \
+    sort -u)
 
 if [ -z "$CLUSTER_IMAGES" ]; then
     echo -e "${RED}Error: No images found on cluster${NC}"
@@ -38,7 +40,7 @@ if [ -z "$CLUSTER_IMAGES" ]; then
 fi
 
 CLUSTER_COUNT=$(echo "$CLUSTER_IMAGES" | wc -l | tr -d ' ')
-echo -e "${GREEN}Found $CLUSTER_COUNT unique images in use (excluding kind infrastructure)${NC}"
+echo -e "${GREEN}Found $CLUSTER_COUNT unique images in use (excluding infrastructure)${NC}"
 
 echo ""
 echo "==================================================================="
