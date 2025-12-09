@@ -7,7 +7,6 @@ A Helm chart to automate bootstrapping of new environment
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | crds.enabled | bool | `true` |  |
-| deployment.hostAliases | list | `[]` |  |
 | deployment.replicas | int | `1` |  |
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/platform-mesh-operator"` |  |
