@@ -65,7 +65,6 @@ deployment:
       cpu: 300m
       memory: 800Mi
 
-
 sentry:
   environment: dev
 

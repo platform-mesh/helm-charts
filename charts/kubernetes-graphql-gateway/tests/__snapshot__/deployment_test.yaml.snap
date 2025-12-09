@@ -1,0 +1,361 @@
+has all hostAliases configured:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: platform-mesh-kubernetes-graphql-gateway
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: platform-mesh-kubernetes-graphql-gateway
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+      template:
+        metadata:
+          labels:
+            app: platform-mesh-kubernetes-graphql-gateway
+            version: 1.0.0
+        spec:
+          containers:
+            - args:
+                - gateway
+                - --metrics-bind-address=:8081
+                - --health-probe-bind-address=:3389
+                - --log-level=warn
+                - --tracing-enabled=true
+                - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
+                - --tracing-config-service-version=1.0.0
+                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
+              env:
+                - name: KEY1
+                  value: value1
+                - name: OPENAPI_DEFINITIONS_PATH
+                  value: /app/definitions
+                - name: LOCAL_DEVELOPMENT
+                  value: "false"
+                - name: ENABLE_KCP
+                  value: "true"
+                - name: KEY1
+                  value: value1
+                - name: GATEWAY_HANDLER_CFG_GRAPHI_QL
+                  value: "true"
+                - name: GATEWAY_LOG_LEVEL
+                  value: trace
+                - name: GATEWAY_PORT
+                  value: "8080"
+                - name: GATEWAY_USERNAME_CLAIM
+                  value: email
+                - name: GATEWAY_SHOULD_IMPERSONATE
+                  value: "true"
+                - name: GATEWAY_INTROSPECTION_AUTHENTICATION
+                  value: "true"
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 3389
+                periodSeconds: 10
+              name: platform-mesh-kubernetes-graphql-gateway-gateway
+              ports:
+                - containerPort: 8081
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 3389
+                  name: health-port
+                  protocol: TCP
+                - containerPort: 8080
+                  name: service-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 3389
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 1600Mi
+                requests:
+                  cpu: 300m
+                  memory: 800Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 3389
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /app/definitions
+                  name: definitions-volume
+            - args:
+                - listener
+                - --metrics-bind-address=:8091
+                - --health-probe-bind-address=:3390
+                - --log-level=warn
+              env:
+                - name: KEY1
+                  value: value1
+                - name: OPENAPI_DEFINITIONS_PATH
+                  value: /app/definitions
+                - name: LOCAL_DEVELOPMENT
+                  value: "false"
+                - name: ENABLE_KCP
+                  value: "true"
+                - name: KEY1
+                  value: value1
+                - name: LISTENER_APIEXPORT_NAME
+                  value: kcp.io
+                - name: VIRTUAL_WORKSPACES_CONFIG_PATH
+                  value: /app/config/virtual-workspaces.yaml
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 3390
+                periodSeconds: 10
+              name: platform-mesh-kubernetes-graphql-gateway-listener
+              ports:
+                - containerPort: 8091
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 3390
+                  name: health-port
+                  protocol: TCP
+                - containerPort: 8090
+                  name: service-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 3390
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 1600Mi
+                requests:
+                  cpu: 300m
+                  memory: 800Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 3390
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /app/definitions
+                  name: definitions-volume
+                - mountPath: /app/config
+                  name: virtual-workspaces-config-volume
+          hostAliases:
+            - hostnames:
+                - example.com
+                - test.example.com
+              ip: 10.0.0.1
+          serviceAccountName: platform-mesh-kubernetes-graphql-gateway
+          volumes:
+            - emptyDir:
+                sizeLimit: 500Mi
+              name: definitions-volume
+            - configMap:
+                name: virtual-workspaces-config
+              name: virtual-workspaces-config-volume
+matches the Snapshot:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: platform-mesh-kubernetes-graphql-gateway
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: platform-mesh-kubernetes-graphql-gateway
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+      template:
+        metadata:
+          labels:
+            app: platform-mesh-kubernetes-graphql-gateway
+            version: 1.0.0
+        spec:
+          containers:
+            - args:
+                - gateway
+                - --metrics-bind-address=:8081
+                - --health-probe-bind-address=:3389
+                - --log-level=warn
+                - --tracing-enabled=true
+                - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
+                - --tracing-config-service-version=1.0.0
+                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
+              env:
+                - name: KEY1
+                  value: value1
+                - name: OPENAPI_DEFINITIONS_PATH
+                  value: /app/definitions
+                - name: LOCAL_DEVELOPMENT
+                  value: "false"
+                - name: ENABLE_KCP
+                  value: "true"
+                - name: KEY1
+                  value: value1
+                - name: GATEWAY_HANDLER_CFG_GRAPHI_QL
+                  value: "true"
+                - name: GATEWAY_LOG_LEVEL
+                  value: trace
+                - name: GATEWAY_PORT
+                  value: "8080"
+                - name: GATEWAY_USERNAME_CLAIM
+                  value: email
+                - name: GATEWAY_SHOULD_IMPERSONATE
+                  value: "true"
+                - name: GATEWAY_INTROSPECTION_AUTHENTICATION
+                  value: "true"
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 3389
+                periodSeconds: 10
+              name: platform-mesh-kubernetes-graphql-gateway-gateway
+              ports:
+                - containerPort: 8081
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 3389
+                  name: health-port
+                  protocol: TCP
+                - containerPort: 8080
+                  name: service-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 3389
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 1600Mi
+                requests:
+                  cpu: 300m
+                  memory: 800Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 3389
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /app/definitions
+                  name: definitions-volume
+            - args:
+                - listener
+                - --metrics-bind-address=:8091
+                - --health-probe-bind-address=:3390
+                - --log-level=warn
+              env:
+                - name: KEY1
+                  value: value1
+                - name: OPENAPI_DEFINITIONS_PATH
+                  value: /app/definitions
+                - name: LOCAL_DEVELOPMENT
+                  value: "false"
+                - name: ENABLE_KCP
+                  value: "true"
+                - name: KEY1
+                  value: value1
+                - name: LISTENER_APIEXPORT_NAME
+                  value: kcp.io
+                - name: VIRTUAL_WORKSPACES_CONFIG_PATH
+                  value: /app/config/virtual-workspaces.yaml
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 3390
+                periodSeconds: 10
+              name: platform-mesh-kubernetes-graphql-gateway-listener
+              ports:
+                - containerPort: 8091
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 3390
+                  name: health-port
+                  protocol: TCP
+                - containerPort: 8090
+                  name: service-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 3390
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 1600Mi
+                requests:
+                  cpu: 300m
+                  memory: 800Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 3390
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /app/definitions
+                  name: definitions-volume
+                - mountPath: /app/config
+                  name: virtual-workspaces-config-volume
+          serviceAccountName: platform-mesh-kubernetes-graphql-gateway
+          volumes:
+            - emptyDir:
+                sizeLimit: 500Mi
+              name: definitions-volume
+            - configMap:
+                name: virtual-workspaces-config
+              name: virtual-workspaces-config-volume

@@ -24,6 +24,7 @@ spec:
     spec:
       serviceAccountName: {{ include "common.entity.name" . }}
       {{- include "common.imagePullSecret" . | nindent 6 }}
+      {{ include "common.hostAliases" . | nindent 6 }}
       containers:
       - name: {{ include "common.entity.name" . }}-gateway
         image: {{ include "common.image" . }}
