@@ -147,6 +147,14 @@ A Helm chart for Kubernetes
 | services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
 | services.openfga.enabled | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
+| services.openfga.imageResources[0].annotations.artifact | string | `"image"` |  |
+| services.openfga.imageResources[0].annotations.for | string | `"openfga"` |  |
+| services.openfga.imageResources[0].annotations.repo | string | `"oci"` |  |
+| services.openfga.imageResources[1].annotations.artifact | string | `"image"` |  |
+| services.openfga.imageResources[1].annotations.for | string | `"openfga"` |  |
+| services.openfga.imageResources[1].annotations.path | string | `"postgresql.image.tag"` |  |
+| services.openfga.imageResources[1].annotations.repo | string | `"oci"` |  |
+| services.openfga.imageResources[1].annotations.resource | string | `"postgresql-image"` |  |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |
 | services.openfga.values.checkQueryCache.enabled | bool | `true` |  |
 | services.openfga.values.checkQueryCache.limit | int | `10000` |  |

@@ -309,6 +309,17 @@ services:
   openfga:
     enabled: true
     helmRepo: true
+    imageResources:
+      - annotations:
+          repo: oci
+          artifact: image
+          for: openfga
+      - annotations:
+          repo: oci
+          artifact: image
+          for: openfga
+          resource: postgresql-image
+          path: postgresql.image.tag
     values:
       global:
         imagePullSecrets:

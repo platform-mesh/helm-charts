@@ -150,6 +150,56 @@ image enabled resource:
     metadata:
       annotations:
         artifact: image
+        for: openfga
+        repo: oci
+      name: openfga-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: openfga
+          resource:
+            name: image
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: openfga
+        path: postgresql.image.tag
+        repo: oci
+        resource: postgresql-image
+      name: openfga-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: openfga
+          resource:
+            name: image
+  9: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
         for: rebac-authz-webhook
         repo: oci
       name: rebac-authz-webhook-image
@@ -168,7 +218,7 @@ image enabled resource:
             - name: rebac-authz-webhook
           resource:
             name: image
-  8: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -192,7 +242,7 @@ image enabled resource:
             - name: security-operator
           resource:
             name: image
-  9: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
