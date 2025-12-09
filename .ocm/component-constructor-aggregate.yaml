@@ -49,6 +49,27 @@ components:
         access:
           type: ociArtifact
           imageReference: quay.io/jetstack/charts/cert-manager:{{ .CERT_MANAGER_VERSION }}
+      - name: webhook-image
+        type: ociImage
+        relation: external
+        version: {{ .CERT_MANAGER_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "quay.io/jetstack/cert-manager-webhook:{{ .CERT_MANAGER_VERSION }}"
+      - name: controller-image
+        type: ociImage
+        relation: external
+        version: {{ .CERT_MANAGER_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "quay.io/jetstack/cert-manager-controller:{{ .CERT_MANAGER_VERSION }}"
+      - name: cert-manager-cainjector-image
+        type: ociImage
+        relation: external
+        version: {{ .CERT_MANAGER_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "quay.io/jetstack/cert-manager-cainjector:{{ .CERT_MANAGER_VERSION }}"
   - name: github.com/crossplane/crossplane
     version: {{ .CROSSPLANE_VERSION }}
     provider:
