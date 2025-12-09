@@ -54,18 +54,8 @@ spec:
           readOnly: true
         {{- end }}
         {{- end }}
-
+      {{ include "common.hostAliases" $ | nindent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
-      {{- if .Values.deployment.hostAliases }}
-      hostAliases:
-      {{- range .Values.deployment.hostAliases }}
-        - ip: {{ .ip }}
-          hostnames:
-        {{- range .hostnames }}
-            - {{ . }}
-        {{- end }}
-      {{- end }}
-      {{- end }}
       {{- if .Values.kubeConfigPlatformMesh.enabled }}
       volumes:
       - name: external-kubeconfig-platformmesh

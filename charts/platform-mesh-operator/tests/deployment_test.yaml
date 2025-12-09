@@ -88,3 +88,25 @@ tests:
         path: spec.template.spec.containers[0].env[?(@.name=="DEPLOYMENT_KUBECONFIG")].value
         value: "/etc/k8s/deployment/kubeconfig"
     - matchSnapshot: {}
+- it: configure hosAliases
+  templates:
+    - deployment.yaml
+  set:
+    hostAliases:
+      enabled: true
+      entries:
+        - ip: "10.0.0.1"
+          hostnames:
+            - "example.com"
+            - "test.example.com"
+  asserts:
+    - matchSnapshot: {}
+    - equal:
+        path: spec.template.spec.hostAliases[0].ip
+        value: "10.0.0.1"
+    - equal:
+        path: spec.template.spec.hostAliases[0].hostnames[0]
+        value: "example.com"
+    - equal:
+        path: spec.template.spec.hostAliases[0].hostnames[1]
+        value: "test.example.com"
