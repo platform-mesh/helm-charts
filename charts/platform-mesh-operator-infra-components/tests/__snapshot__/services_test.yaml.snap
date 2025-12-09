@@ -247,8 +247,8 @@ it should render the application manifests:
       namespace: default
     spec:
       componentRef:
-        interval: 3m
         name: platform-mesh
+      interval: 3m
       ocmConfig:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
