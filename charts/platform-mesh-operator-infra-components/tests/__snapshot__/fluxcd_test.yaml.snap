@@ -53,7 +53,6 @@ FluxCD enable remote deployment:
       annotations:
         artifact: image
         for: cert-manager
-        path: controllergit .image.tag
         repo: oci
       name: cert-manager-controller-image
     spec:
@@ -355,7 +354,6 @@ FluxCD snapshots:
       annotations:
         artifact: image
         for: cert-manager
-        path: controllergit .image.tag
         repo: oci
       name: cert-manager-controller-image
     spec:
