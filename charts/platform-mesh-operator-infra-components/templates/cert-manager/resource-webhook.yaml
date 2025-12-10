@@ -6,6 +6,7 @@ metadata:
     artifact: image
     repo: oci
     for: cert-manager
+    path: webhook.image.tag
   name: {{ .Values.certManager.name }}-webhook-image
 spec:
   componentRef:

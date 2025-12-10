@@ -27,6 +27,7 @@ FluxCD enable remote deployment:
       annotations:
         artifact: image
         for: cert-manager
+        path: cainjector.image.tag
         repo: oci
       name: cert-manager-cainjector-image
     spec:
@@ -52,6 +53,7 @@ FluxCD enable remote deployment:
       annotations:
         artifact: image
         for: cert-manager
+        path: controllergit .image.tag
         repo: oci
       name: cert-manager-controller-image
     spec:
@@ -77,6 +79,7 @@ FluxCD enable remote deployment:
       annotations:
         artifact: image
         for: cert-manager
+        path: webhook.image.tag
         repo: oci
       name: cert-manager-webhook-image
     spec:
@@ -326,6 +329,7 @@ FluxCD snapshots:
       annotations:
         artifact: image
         for: cert-manager
+        path: cainjector.image.tag
         repo: oci
       name: cert-manager-cainjector-image
     spec:
@@ -351,6 +355,7 @@ FluxCD snapshots:
       annotations:
         artifact: image
         for: cert-manager
+        path: controllergit .image.tag
         repo: oci
       name: cert-manager-controller-image
     spec:
@@ -376,6 +381,7 @@ FluxCD snapshots:
       annotations:
         artifact: image
         for: cert-manager
+        path: webhook.image.tag
         repo: oci
       name: cert-manager-webhook-image
     spec:
