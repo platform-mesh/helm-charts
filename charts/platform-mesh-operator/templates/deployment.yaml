@@ -31,6 +31,7 @@ spec:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
+          {{- include "common.extraArgs" . | nindent 10 }}
         ports:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         env:
