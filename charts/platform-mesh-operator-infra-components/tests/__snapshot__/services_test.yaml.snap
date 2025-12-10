@@ -23,6 +23,7 @@ it should render the application manifests:
       annotations:
         artifact: image
         for: cert-manager
+        path: cainjector.image.tag
         repo: oci
       name: cert-manager-cainjector-image
     spec:
@@ -73,6 +74,7 @@ it should render the application manifests:
       annotations:
         artifact: image
         for: cert-manager
+        path: webhook.image.tag
         repo: oci
       name: cert-manager-webhook-image
     spec:

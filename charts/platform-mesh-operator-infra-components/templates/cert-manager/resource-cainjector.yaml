@@ -6,6 +6,7 @@ metadata:
     artifact: image
     repo: oci
     for: cert-manager
+    path: cainjector.image.tag
   name: {{ .Values.certManager.name }}-cainjector-image
 spec:
   componentRef:
