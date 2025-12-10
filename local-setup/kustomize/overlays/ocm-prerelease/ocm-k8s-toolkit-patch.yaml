@@ -30,6 +30,15 @@ spec:
           value:
             - name: SSL_CERT_FILE
               value: /etc/ocm/ca/registry-ca.pem
+        - op: replace
+          path: /spec/template/spec/containers/0/args
+          value:
+            - --health-probe-bind-address=:8081
+            - --resource-controller-concurrency=21
+            - --zap-log-level=4
+        - op: replace
+          path: /spec/template/spec/containers/0/image
+          value: ghcr.io/open-component-model/kubernetes/controller@sha256:5e790dad020adcfd0793f249d177a28429ef22446def39c9286eab90c52175c1
 
       target:
         kind: Deployment

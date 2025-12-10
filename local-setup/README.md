@@ -393,6 +393,11 @@ kind delete cluster --name platform-mesh
    - Check component logs: `kubectl logs -n <namespace> <pod-name>`
    - Verify all required images can be pulled
 
+7. **Helm credentials issues**
+   - make sure Helm config file doesn't create authentication for `ghcr.io`
+   - do `helm registry logout ghcr.io`
+   - do `docker logout ghcr.io`
+
 ### Getting Help
 
 If you encounter issues:
