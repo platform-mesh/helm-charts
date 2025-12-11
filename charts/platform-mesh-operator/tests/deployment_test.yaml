@@ -110,3 +110,16 @@ tests:
     - equal:
         path: spec.template.spec.hostAliases[0].hostnames[1]
         value: "test.example.com"
+- it: deploy with extraArgs
+  template: deployment.yaml
+  set:
+    extraArgs:
+      - --custom-arg=value
+      - --another-arg=anotherValue
+  asserts:
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--custom-arg=value")]
+        value: "--custom-arg=value"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--another-arg=anotherValue")]
+        value: "--another-arg=anotherValue"

@@ -39,6 +39,7 @@ configure hosAliases:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -135,6 +136,7 @@ deployment with tracing:
                 - --tracing-config-collector-endpoint=test:4317
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -222,6 +224,7 @@ disables istio sidecar injection:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -310,6 +313,7 @@ enables istio sidecar injection:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=true
+                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -397,6 +401,7 @@ external cluster enabled:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --subroutines-feature-toggles-enabled=true
               env:
                 - name: KUBECONFIG
                   value: /etc/k8s/platformmesh/kubeconfig
@@ -646,6 +651,7 @@ operator match the snapshot:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
