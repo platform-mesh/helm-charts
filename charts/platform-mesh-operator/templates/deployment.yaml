@@ -38,7 +38,7 @@ spec:
           - --remote-platform-mesh-fluxcd-secret-key={{ .Values.remotePlatformmesh.fluxcd.secretKey }}
           {{- end }}
           {{- if .Values.remoteFluxCD.enabled }}
-          - --remote-fluxcd-enabled=true
+          - --remote-fluxcd-enabled
           - --remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig
           {{- end }}
           {{- include "common.extraArgs" . | nindent 10 }}
