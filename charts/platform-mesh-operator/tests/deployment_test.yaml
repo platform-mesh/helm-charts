@@ -123,14 +123,14 @@ tests:
   asserts:
     - matchSnapshot: {}
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-enabled=true")]
-        value: "--remote-fluxcd-enabled=true"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-enabled")]
+        value: "--remote-fluxcd-enabled"
     - equal:
         path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig")]
         value: "--remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig"
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled=true")]
-        value: "--remote-platform-mesh-enabled=true"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled")]
+        value: "--remote-platform-mesh-enabled"
     - equal:
         path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig")]
         value: "--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig"
@@ -154,8 +154,8 @@ tests:
         secretName: "kubeconfig-platformmesh"
   asserts:
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled=true")]
-        value: "--remote-platform-mesh-enabled=true"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled")]
+        value: "--remote-platform-mesh-enabled"
     - equal:
         path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig")]
         value: "--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig"

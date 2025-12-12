@@ -315,11 +315,11 @@ enable remote PlatformMesh and FluxCD:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --remote-platform-mesh-enabled=true
+                - --remote-platform-mesh-enabled
                 - --remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig
                 - --remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh
                 - --remote-platform-mesh-fluxcd-secret-key=kubeconfig
-                - --remote-fluxcd-enabled=true
+                - --remote-fluxcd-enabled
                 - --remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig
                 - --subroutines-feature-toggles-enabled=true
               env: null
