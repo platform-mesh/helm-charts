@@ -71,23 +71,6 @@ tests:
       enabled: false
   asserts:
     - matchSnapshot: {}
-- it: external cluster enabled
-  template: deployment.yaml
-  set:
-    kubeConfigPlatformMesh:
-      enabled: true
-      secretName: "kubeconfig-platformmesh"
-    kubeConfigDeployment:
-      enabled: true
-      secretName: "kubeconfig-deployment"
-  asserts:
-    - equal:
-        path: spec.template.spec.containers[0].env[?(@.name=="KUBECONFIG")].value
-        value: "/etc/k8s/platformmesh/kubeconfig"
-    - equal:
-        path: spec.template.spec.containers[0].env[?(@.name=="DEPLOYMENT_KUBECONFIG")].value
-        value: "/etc/k8s/deployment/kubeconfig"
-    - matchSnapshot: {}
 - it: configure hosAliases
   templates:
     - deployment.yaml
@@ -123,3 +106,63 @@ tests:
     - equal:
         path: spec.template.spec.containers[0].args[?(@=="--another-arg=anotherValue")]
         value: "--another-arg=anotherValue"
+- it: enable remote PlatformMesh and FluxCD
+  template: deployment.yaml
+  set:
+    remoteFluxCD:
+      enabled: true
+      secretName: "kubeconfig-platformmesh"
+      secretKey: "kubeconfig"
+    remotePlatformmesh:
+      enabled: true
+      operator:
+        secretName: "kubeconfig-deployment"
+      fluxcd:
+        secretName: "kubeconfig-platformmesh"
+        secretKey: "kubeconfig"
+  asserts:
+    - matchSnapshot: {}
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-enabled=true")]
+        value: "--remote-fluxcd-enabled=true"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig")]
+        value: "--remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled=true")]
+        value: "--remote-platform-mesh-enabled=true"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig")]
+        value: "--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh")]
+        value: "--remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-fluxcd-secret-key=kubeconfig")]
+        value: "--remote-platform-mesh-fluxcd-secret-key=kubeconfig"
+- it: enable remote PlatformMesh and local FluxCD
+  template: deployment.yaml
+  set:
+    remoteFluxCD:
+      enabled: false
+    remotePlatformmesh:
+      enabled: true
+      operator:
+        secretName: "kubeconfig-deployment"
+        secretKey: "kubeconfig"
+      fluxcd:
+        secretName: "kubeconfig-platformmesh"
+  asserts:
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-enabled=false")]
+        value: "--remote-fluxcd-enabled=false"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled=true")]
+        value: "--remote-platform-mesh-enabled=true"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig")]
+        value: "--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig"
+    - equal:
+        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh")]
+        value: "--remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh"
+    - notFailedTemplate: {}

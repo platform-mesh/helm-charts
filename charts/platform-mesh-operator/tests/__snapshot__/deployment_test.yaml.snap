@@ -39,6 +39,8 @@ configure hosAliases:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --remote-platform-mesh-enabled=false
+                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -80,6 +82,7 @@ configure hosAliases:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+              volumeMounts: null
           hostAliases:
             - hostnames:
                 - example.com
@@ -136,6 +139,8 @@ deployment with tracing:
                 - --tracing-config-collector-endpoint=test:4317
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --remote-platform-mesh-enabled=false
+                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -177,6 +182,7 @@ deployment with tracing:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+              volumeMounts: null
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -224,6 +230,8 @@ disables istio sidecar injection:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --remote-platform-mesh-enabled=false
+                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -265,12 +273,125 @@ disables istio sidecar injection:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+              volumeMounts: null
           securityContext:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
           serviceAccountName: platform-mesh-operator
           terminationGracePeriodSeconds: 10
+enable remote PlatformMesh and FluxCD:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: platform-mesh-operator
+      namespace: NAMESPACE
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: platform-mesh-operator
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations: null
+          labels:
+            app: platform-mesh-operator
+            control-plane: controller-manager
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - operator
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=debug
+                - --region=local
+                - --environment=local
+                - --image-tag=0.0.0
+                - --image-name="ghcr.io/platform-mesh/platform-mesh-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
+                - --subroutines-feature-toggles-enabled=true
+                - --subroutines-deployment-enable-istio=false
+                - --remote-platform-mesh-enabled=true
+                - --remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig
+                - --remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh
+                - --remote-platform-mesh-fluxcd-secret-key=kubeconfig
+                - --remote-fluxcd-enabled=true
+                - --remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig
+                - --subroutines-feature-toggles-enabled=true
+              env: null
+              image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: platform-mesh-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /etc/fluxcd
+                  name: external-fluxcd-deployment
+                  readOnly: true
+                - mountPath: /etc/platformmesh
+                  name: external-platformmesh-deployment
+                  readOnly: true
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: platform-mesh-operator
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: external-fluxcd-deployment
+              secret:
+                defaultMode: 420
+                secretKey: kubeconfig
+                secretName: kubeconfig-platformmesh
+            - name: external-platformmesh-deployment
+              secret:
+                defaultMode: 420
+                secretKey: kubeconfig
+                secretName: kubeconfig-deployment
 enables istio sidecar injection:
   1: |
     apiVersion: apps/v1
@@ -313,6 +434,8 @@ enables istio sidecar injection:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=true
+                - --remote-platform-mesh-enabled=false
+                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -354,120 +477,13 @@ enables istio sidecar injection:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+              volumeMounts: null
           securityContext:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
           serviceAccountName: platform-mesh-operator
           terminationGracePeriodSeconds: 10
-external cluster enabled:
-  1: |
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: platform-mesh-operator
-      namespace: NAMESPACE
-    spec:
-      replicas: 1
-      revisionHistoryLimit: 3
-      selector:
-        matchLabels:
-          app: platform-mesh-operator
-      strategy:
-        rollingUpdate:
-          maxSurge: 5
-          maxUnavailable: 0
-        type: RollingUpdate
-      template:
-        metadata:
-          annotations: null
-          labels:
-            app: platform-mesh-operator
-            control-plane: controller-manager
-        spec:
-          automountServiceAccountToken: true
-          containers:
-            - args:
-                - operator
-                - --leader-elect
-                - --metrics-bind-address=:9090
-                - --health-probe-bind-address=:8090
-                - --log-level=debug
-                - --region=local
-                - --environment=local
-                - --image-tag=0.0.0
-                - --image-name="ghcr.io/platform-mesh/platform-mesh-operator"
-                - --shutdown-timeout=1m
-                - --max-concurrent-reconciles=10
-                - --subroutines-feature-toggles-enabled=true
-                - --subroutines-deployment-enable-istio=false
-                - --subroutines-feature-toggles-enabled=true
-              env:
-                - name: KUBECONFIG
-                  value: /etc/k8s/platformmesh/kubeconfig
-                - name: DEPLOYMENT_KUBECONFIG
-                  value: /etc/k8s/deployment/kubeconfig
-              image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
-              imagePullPolicy: IfNotPresent
-              livenessProbe:
-                failureThreshold: 1
-                httpGet:
-                  path: /healthz
-                  port: 8090
-                periodSeconds: 10
-              name: platform-mesh-operator
-              ports:
-                - containerPort: 9090
-                  name: metrics
-                  protocol: TCP
-                - containerPort: 8090
-                  name: health-port
-                  protocol: TCP
-              readinessProbe:
-                httpGet:
-                  path: /readyz
-                  port: 8090
-                initialDelaySeconds: 5
-                periodSeconds: 10
-              resources:
-                limits:
-                  memory: 512Mi
-                requests:
-                  cpu: 40m
-                  memory: 50Mi
-              securityContext:
-                readOnlyRootFilesystem: true
-                runAsNonRoot: true
-                seccompProfile:
-                  type: RuntimeDefault
-              startupProbe:
-                failureThreshold: 30
-                httpGet:
-                  path: /readyz
-                  port: 8090
-                periodSeconds: 10
-              volumeMounts:
-                - mountPath: /etc/k8s/platformmesh
-                  name: external-kubeconfig-platformmesh
-                  readOnly: true
-                - mountPath: /etc/k8s/deployment
-                  name: external-kubeconfig-deployment
-                  readOnly: true
-          securityContext:
-            runAsNonRoot: true
-            seccompProfile:
-              type: RuntimeDefault
-          serviceAccountName: platform-mesh-operator
-          terminationGracePeriodSeconds: 10
-          volumes:
-            - name: external-kubeconfig-platformmesh
-              secret:
-                defaultMode: 420
-                secretName: kubeconfig-platformmesh
-            - name: external-kubeconfig-deployment
-              secret:
-                defaultMode: 420
-                secretName: kubeconfig-deployment
 operator match the snapshot:
   1: |
     apiVersion: rbac.authorization.k8s.io/v1
@@ -651,6 +667,8 @@ operator match the snapshot:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
+                - --remote-platform-mesh-enabled=false
+                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -692,6 +710,7 @@ operator match the snapshot:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
+              volumeMounts: null
           securityContext:
             runAsNonRoot: true
             seccompProfile:
