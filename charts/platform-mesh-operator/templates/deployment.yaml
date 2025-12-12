@@ -36,14 +36,10 @@ spec:
           - --remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig
           - --remote-platform-mesh-fluxcd-secret-name={{ .Values.remotePlatformmesh.fluxcd.secretName }}
           - --remote-platform-mesh-fluxcd-secret-key={{ .Values.remotePlatformmesh.fluxcd.secretKey }}
-          {{- else }}
-          - --remote-platform-mesh-enabled=false
           {{- end }}
           {{- if .Values.remoteFluxCD.enabled }}
           - --remote-fluxcd-enabled=true
           - --remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig
-          {{- else }}
-          - --remote-fluxcd-enabled=false
           {{- end }}
           {{- include "common.extraArgs" . | nindent 10 }}
         ports:

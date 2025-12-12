@@ -39,8 +39,6 @@ configure hosAliases:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --remote-platform-mesh-enabled=false
-                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -139,8 +137,6 @@ deployment with tracing:
                 - --tracing-config-collector-endpoint=test:4317
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --remote-platform-mesh-enabled=false
-                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -230,8 +226,6 @@ disables istio sidecar injection:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --remote-platform-mesh-enabled=false
-                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -434,8 +428,6 @@ enables istio sidecar injection:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=true
-                - --remote-platform-mesh-enabled=false
-                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -667,8 +659,6 @@ operator match the snapshot:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --remote-platform-mesh-enabled=false
-                - --remote-fluxcd-enabled=false
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0

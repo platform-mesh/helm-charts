@@ -154,9 +154,6 @@ tests:
         secretName: "kubeconfig-platformmesh"
   asserts:
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-enabled=false")]
-        value: "--remote-fluxcd-enabled=false"
-    - equal:
         path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled=true")]
         value: "--remote-platform-mesh-enabled=true"
     - equal:
