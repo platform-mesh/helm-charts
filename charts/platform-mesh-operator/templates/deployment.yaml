@@ -32,7 +32,7 @@ spec:
           {{- include "common.commonOperatorArgs" . | indent 8 }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
           {{- if .Values.remotePlatformmesh.enabled }}
-          - --remote-platform-mesh-enabled=true
+          - --remote-platform-mesh-enabled
           - --remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig
           - --remote-platform-mesh-fluxcd-secret-name={{ .Values.remotePlatformmesh.fluxcd.secretName }}
           - --remote-platform-mesh-fluxcd-secret-key={{ .Values.remotePlatformmesh.fluxcd.secretKey }}
