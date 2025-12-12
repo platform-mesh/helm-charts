@@ -68,6 +68,15 @@ certManager:
     crds:
       enabled: true
 
+etcdDruid:
+  enabled: true
+  imageResource:
+    enabled: true
+  gitRepo: true
+  path: charts
+  targetNamespace: etcd-druid-system
+  values: {}
+
 fluxCD:
   kubeConfig:
     # -- If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig.
