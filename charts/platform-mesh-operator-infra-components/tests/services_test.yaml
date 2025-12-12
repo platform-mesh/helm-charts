@@ -17,13 +17,12 @@ tests:
     gatewayApi.enabled: false
   asserts:
   - matchSnapshot: {}
-- it: enable etcd-druid and crossplane only
+- it: enable etcd-druid
   set:
     traefik.enabled: false
     traefikCRDs.enabled: false
     certManager.enabled: false
     gatewayApi.enabled: false
-    crossplane.enabled: true
     etcdDruid.enabled: true
   asserts:
   - matchSnapshot: {}
