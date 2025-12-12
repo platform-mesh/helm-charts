@@ -31,42 +31,48 @@ spec:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
+          {{- if .Values.remotePlatformmesh.enabled }}
+          - --remote-platform-mesh-enabled
+          - --remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig
+          - --remote-platform-mesh-fluxcd-secret-name={{ .Values.remotePlatformmesh.fluxcd.secretName }}
+          - --remote-platform-mesh-fluxcd-secret-key={{ .Values.remotePlatformmesh.fluxcd.secretKey }}
+          {{- end }}
+          {{- if .Values.remoteFluxCD.enabled }}
+          - --remote-fluxcd-enabled
+          - --remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig
+          {{- end }}
           {{- include "common.extraArgs" . | nindent 10 }}
         ports:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
-        {{- if .Values.kubeConfigPlatformMesh.enabled }}
-        - name: KUBECONFIG
-          value: /etc/k8s/platformmesh/kubeconfig
-        {{- end }}
-        {{- if .Values.kubeConfigDeployment.enabled }}
-        - name: DEPLOYMENT_KUBECONFIG
-          value: /etc/k8s/deployment/kubeconfig
-        {{- end }}
-        {{- if .Values.kubeConfigPlatformMesh.enabled }}
         volumeMounts:
-        - name: external-kubeconfig-platformmesh
-          mountPath: /etc/k8s/platformmesh
-          readOnly: true
-        {{- if .Values.kubeConfigDeployment.enabled }}
-        - name: external-kubeconfig-deployment
-          mountPath: /etc/k8s/deployment
+        {{- if .Values.remoteFluxCD.enabled }}
+        - name: external-fluxcd-deployment
+          mountPath: /etc/fluxcd
           readOnly: true
         {{- end }}
+        {{- if .Values.remotePlatformmesh.enabled }}
+        - name: external-platformmesh-deployment
+          mountPath: /etc/platformmesh
+          readOnly: true
         {{- end }}
       {{ include "common.hostAliases" $ | nindent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
-      {{- if .Values.kubeConfigPlatformMesh.enabled }}
+      {{- if .Values.remotePlatformmesh.enabled }}
       volumes:
-      - name: external-kubeconfig-platformmesh
+      {{- if .Values.remoteFluxCD.enabled }}
+      - name: external-fluxcd-deployment
         secret:
-          secretName: {{ .Values.kubeConfigPlatformMesh.secretName }}
+          secretName: {{ .Values.remoteFluxCD.secretName }}
+          secretKey: {{ .Values.remoteFluxCD.secretKey }}
           defaultMode: 420
-      {{- if .Values.kubeConfigDeployment.enabled }}
-      - name: external-kubeconfig-deployment
+      {{- end }}
+      {{- if .Values.remotePlatformmesh.enabled }}
+      - name: external-platformmesh-deployment
         secret:
-          secretName: {{ .Values.kubeConfigDeployment.secretName }}
+          secretName: {{ .Values.remotePlatformmesh.operator.secretName }}
+          secretKey: {{ .Values.remotePlatformmesh.operator.secretKey }}
           defaultMode: 420
       {{- end }}
       {{- end }}
