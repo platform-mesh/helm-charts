@@ -33,6 +33,8 @@ spec:
             memory: 1Gi
     infra:
       values:
+        gatewayApi:
+          enabled: true
         cors:
           enabled: true
           accessControlAllowOriginList:
