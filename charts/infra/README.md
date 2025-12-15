@@ -10,7 +10,7 @@ A Helm chart for Kubernetes
 | cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crossplane.enabled | bool | `true` |  |
 | externalSecrets.enabled | bool | `false` |  |
-| gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
+| gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |

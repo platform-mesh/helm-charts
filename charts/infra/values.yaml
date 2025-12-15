@@ -291,7 +291,7 @@ istio:
 
 gatewayApi:
   # -- Toggle to enable/disable Gateway API resources
-  enabled: false
+  enabled: true
   # -- Name of the Gateway resource
   name: k8sapi-gateway
   # -- GatewayClass name
