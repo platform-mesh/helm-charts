@@ -112,7 +112,7 @@ EOF
         local avatar_url=$(echo "$contributor" | jq -r '.avatar_url // ""')
 
         if [[ -n "$author" ]] && [[ -n "$author_url" ]] && [[ -n "$avatar_url" ]]; then
-          avatar_html="${avatar_html}<a href=\"${author_url}\"><img src=\"${avatar_url}\" width=\"50\" height=\"50\" alt=\"${author}\" title=\"${author}\" style=\"border-radius: 50%; margin: 5px; display: inline-block;\"></a>"
+          avatar_html="${avatar_html}<a href=\"${author_url}\"><img src=\"${avatar_url}\" width=\"50\" height=\"50\" alt=\"${author}\" title=\"${author}\" style=\"border-radius: 50%; margin: 5px; display: inline-block; object-fit: cover;\"></a>"
         fi
       fi
     done < <(echo "$contributors" | jq -c '.[]')
