@@ -1,4 +1,4 @@
-# Platform Mesh OCM Component Release Process
+# Platform Mesh Release Process
 
 This document describes how to create draft releases for the platform-mesh OCM component using the `./hack/draft-release.sh` script (or the `/draft-release` slash command when using Claude Code).
 
@@ -122,9 +122,9 @@ The release notes will include:
 
 Example:
 ```markdown
-# Platform Mesh OCM Component v0.1.0
+# Platform Mesh v0.1.0
 
-This is the initial stable release of the Platform Mesh OCM component,
+This is the initial stable release of Platform Mesh,
 aggregating changes from 3 release candidates: 0.1.0-rc.1 0.1.0-rc.2 0.1.0-rc.3.
 
 ## Summary
