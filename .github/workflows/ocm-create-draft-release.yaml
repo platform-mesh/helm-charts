@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       to_version:
-        description: 'Target release version (e.g., 0.2.0 or 0.1.0-rc.1)'
+        description: 'Target release version (e.g., 0.2.0). Will use latest pre-release automatically.'
         required: true
         type: string
 
@@ -78,6 +78,34 @@ jobs:
           chmod a+x ocm
           sudo mv ocm /usr/local/bin/
           ocm version
+
+      - name: Find latest pre-release version
+        id: find_prerelease
+        run: |
+          TARGET_VERSION="${{ inputs.to_version }}"
+
+          echo "=== Finding latest pre-release for $TARGET_VERSION ==="
+
+          # Query OCM for all versions matching the target version pattern
+          # This includes -rc.X, -build.X, etc.
+          PRERELEASE_VERSIONS=$(ocm get componentversions github.com/platform-mesh/platform-mesh \
+            --repo ghcr.io/platform-mesh -o json 2>/dev/null | \
+            jq -r ".items[] | select(.component.version | startswith(\"${TARGET_VERSION}-\")) | .component.version" | \
+            sort -V || echo "")
+
+          if [[ -n "$PRERELEASE_VERSIONS" ]]; then
+            # Get the latest (last in sorted list)
+            LATEST_PRERELEASE=$(echo "$PRERELEASE_VERSIONS" | tail -1)
+            echo "prerelease_version=$LATEST_PRERELEASE" >> $GITHUB_OUTPUT
+            echo "✓ Found latest pre-release: $LATEST_PRERELEASE"
+            echo ""
+            echo "All matching pre-releases:"
+            echo "$PRERELEASE_VERSIONS" | sed 's/^/  - /'
+          else
+            echo "prerelease_version=$TARGET_VERSION" >> $GITHUB_OUTPUT
+            echo "⚠ No pre-release versions found for $TARGET_VERSION"
+            echo "  Using target version as-is: $TARGET_VERSION"
+          fi
 
       - name: Auto-detect from_version
         id: detect_from_version
@@ -177,14 +205,18 @@ jobs:
       - name: Fetch component versions
         run: |
           FROM_VERSION="${{ steps.detect_from_version.outputs.from_version }}"
-          TO_VERSION="${{ inputs.to_version }}"
+          PRERELEASE_VERSION="${{ steps.find_prerelease.outputs.prerelease_version }}"
+          TARGET_VERSION="${{ inputs.to_version }}"
 
           echo "=== Fetching component versions ==="
           echo "From: $FROM_VERSION"
-          echo "To: $TO_VERSION"
+          echo "To: $PRERELEASE_VERSION"
+          if [[ "$PRERELEASE_VERSION" != "$TARGET_VERSION" ]]; then
+            echo "  (using latest pre-release for target version $TARGET_VERSION)"
+          fi
           echo ""
 
-          ./hack/fetch-versions.sh "$FROM_VERSION" "$TO_VERSION"
+          ./hack/fetch-versions.sh "$FROM_VERSION" "$PRERELEASE_VERSION"
 
           if [ ! -f generated/component-versions.json ]; then
             echo "Error: Failed to fetch component versions"
