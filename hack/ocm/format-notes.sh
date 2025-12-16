@@ -103,9 +103,8 @@ EOF
   local contributor_count=$(echo "$contributors" | jq 'length')
 
   if [[ "$contributor_count" -gt 0 ]]; then
-    # Render contributors with avatars in a compact format
-    echo "<div>"
-    echo ""
+    # Render contributors with avatars in a horizontal layout
+    local avatar_html=""
     while IFS= read -r contributor; do
       if [[ -n "$contributor" ]] && [[ "$contributor" != "null" ]]; then
         local author=$(echo "$contributor" | jq -r '.author // ""')
@@ -113,11 +112,13 @@ EOF
         local avatar_url=$(echo "$contributor" | jq -r '.avatar_url // ""')
 
         if [[ -n "$author" ]] && [[ -n "$author_url" ]] && [[ -n "$avatar_url" ]]; then
-          echo "<a href=\"${author_url}\"><img src=\"${avatar_url}\" width=\"50\" height=\"50\" alt=\"${author}\" title=\"${author}\" style=\"border-radius: 50%; margin: 5px;\"></a>"
+          avatar_html="${avatar_html}<a href=\"${author_url}\"><img src=\"${avatar_url}\" width=\"50\" height=\"50\" alt=\"${author}\" title=\"${author}\" style=\"border-radius: 50%; margin: 5px; display: inline-block;\"></a>"
         fi
       fi
     done < <(echo "$contributors" | jq -c '.[]')
-    echo ""
+
+    echo "<div style=\"display: flex; flex-wrap: wrap;\">"
+    echo "$avatar_html"
     echo "</div>"
     echo ""
     echo "_${contributor_count} contributor(s)_"
@@ -125,6 +126,47 @@ EOF
     echo "_No contributors found_"
   fi
   echo ""
+
+  # Key Changes section (consolidated from all components)
+  if [[ $change_count -gt 0 ]]; then
+    local has_key_changes=false
+
+    # Check if there are any key changes across all components
+    local changes=$(jq -c '.changes[]' "$changelog_file")
+    while IFS= read -r change; do
+      local pr_changelogs=$(echo "$change" | jq -r '.pr_changelogs[]? // empty' 2>/dev/null)
+      if [[ -n "$pr_changelogs" ]]; then
+        has_key_changes=true
+        break
+      fi
+    done <<< "$changes"
+
+    if [[ "$has_key_changes" == "true" ]]; then
+      cat << EOF
+## Key Changes
+
+EOF
+
+      # Iterate through all changes and collect key changes
+      local changes=$(jq -c '.changes[]' "$changelog_file")
+      while IFS= read -r change; do
+        local component=$(echo "$change" | jq -r '.component')
+        local pr_changelogs=$(echo "$change" | jq -r '.pr_changelogs[]? // empty' 2>/dev/null)
+
+        if [[ -n "$pr_changelogs" ]]; then
+          while IFS= read -r item; do
+            if [[ -n "$item" ]]; then
+              # Remove leading dash if present
+              item=$(echo "$item" | sed 's/^[-*+][[:space:]]*//')
+              echo "- **${component}**: ${item}"
+            fi
+          done <<< "$pr_changelogs"
+        fi
+      done <<< "$changes"
+
+      echo ""
+    fi
+  fi
 
   # Component Changes section
   if [[ $change_count -gt 0 ]]; then
@@ -215,25 +257,6 @@ EOF
         echo '```'
         echo ""
         echo "</details>"
-      fi
-
-      # Extract and display PR changelog items
-      local pr_changelogs=$(echo "$change" | jq -r '.pr_changelogs[]? // empty' 2>/dev/null)
-
-      if [[ -n "$pr_changelogs" ]]; then
-        echo ""
-        echo "**Key Changes:**"
-        echo ""
-        while IFS= read -r item; do
-          if [[ -n "$item" ]]; then
-            # Ensure item starts with a dash, add if missing
-            if [[ "$item" == -* ]]; then
-              echo "$item"
-            else
-              echo "- $item"
-            fi
-          fi
-        done <<< "$pr_changelogs"
       fi
 
       # Extract and display PR details as collapsible list
