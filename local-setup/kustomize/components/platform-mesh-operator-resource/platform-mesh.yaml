@@ -15,6 +15,7 @@ spec:
   featureToggles:
    - name: "feature-enable-getting-started"
    - name: "feature-enable-marketplace-account"
+   - name: "feature-enable-iam"
   values:
     keycloak:
       enabled: true
@@ -32,6 +33,8 @@ spec:
             memory: 1Gi
     infra:
       values:
+        gatewayApi:
+          enabled: true
         cors:
           enabled: true
           accessControlAllowOriginList:
@@ -70,6 +73,79 @@ spec:
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
+        coreModule: |-
+          module core
+          
+          type user
+          
+          type role
+          relations
+          define assignee: [ user,user:* ]
+          
+          type core_platform-mesh_io_account
+          relations
+          define parent: [ core_platform-mesh_io_account ]
+          
+          define owner: [ role#assignee ] or owner from parent
+          define member: [ role#assignee ] or owner
+          
+          define get: member
+          define update: member
+          define patch: member
+          define delete: owner
+          
+          define create_core_platform-mesh_io_accounts: member
+          define list_core_platform-mesh_io_accounts: member
+          define watch_core_platform-mesh_io_accounts: member
+          
+          # org and account specific
+          define watch: member
+          
+          define create_core_platform-mesh_io_accountinfos: member
+          define list_core_platform-mesh_io_accountinfos: member
+          define watch_core_platform-mesh_io_accountinfos: member
+          
+          define create_apis_kcp_io_apibindings: owner
+          define list_apis_kcp_io_apibindings: member
+          define watch_apis_kcp_io_apibindings: member
+          
+          # IAM specific
+          define manage_iam_roles: owner
+          define get_iam_roles: member
+          define get_iam_users: member
+          
+          type core_platform-mesh_io_accountinfo
+          relations
+          define parent: [ core_platform-mesh_io_account ]
+          
+          define member: member from parent
+          define owner: owner from parent
+          
+          define get: member
+          define watch: member
+          
+          # IAM specific
+          define manage_iam_roles: owner
+          define get_iam_roles: member
+          define get_iam_users: member
+          
+          type apis_kcp_io_apibinding
+          relations
+          define parent: [ core_platform-mesh_io_account ]
+          
+          define member: member from parent
+          define owner: owner from parent
+          
+          define get: member
+          define watch: member
+          define update: owner
+          define patch: owner
+          define delete: owner
+          
+          # IAM specific
+          define manage_iam_roles: owner
+          define get_iam_roles: member
+          define get_iam_users: member
     portal:
       enabled: true
       values:
@@ -101,4 +177,8 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
+      enabled: true
+    iam-service:
+      enabled: true
+    iam-ui:
       enabled: true
