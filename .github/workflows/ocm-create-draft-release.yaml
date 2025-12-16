@@ -279,7 +279,7 @@ jobs:
             gh release edit "$RELEASE_VERSION" \
               --repo "$REPO" \
               --draft \
-              --title "Platform Mesh OCM Component $RELEASE_VERSION" \
+              --title "$RELEASE_VERSION" \
               --notes-file dist/release-notes.md
 
             echo ""
@@ -291,7 +291,7 @@ jobs:
             gh release create "$RELEASE_VERSION" \
               --repo "$REPO" \
               --draft \
-              --title "Platform Mesh OCM Component $RELEASE_VERSION" \
+              --title "$RELEASE_VERSION" \
               --notes-file dist/release-notes.md \
               --target main
 
