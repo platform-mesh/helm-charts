@@ -1,0 +1,276 @@
+name: Create Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      to_version:
+        description: 'Target release version (e.g., 0.2.0 or 0.1.0-rc.1)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: read
+
+concurrency:
+  group: draft-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  create-draft-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Validate version format
+        run: |
+          TO_VERSION="${{ inputs.to_version }}"
+
+          # Simple version format validation (allows semver and RC versions)
+          if ! [[ "$TO_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$ ]]; then
+            echo "Error: to_version must be in format X.Y.Z or X.Y.Z-rc.N"
+            exit 1
+          fi
+
+          echo "✓ Version format is valid: $TO_VERSION"
+
+      - name: Check out the repo
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          fetch-depth: 0  # Need full history for tag lookups
+
+      - name: Setup yq
+        run: |
+          if ! command -v yq &>/dev/null; then
+            mkdir -p /home/runner/.local/bin
+            wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /home/runner/.local/bin/yq
+            chmod +x /home/runner/.local/bin/yq
+            echo "/home/runner/.local/bin" >> $GITHUB_PATH
+          fi
+
+      - name: Setup jq
+        run: |
+          if ! command -v jq &>/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+
+      - name: Setup GitHub CLI
+        run: |
+          if ! command -v gh &>/dev/null; then
+            type -p curl >/dev/null || (sudo apt update && sudo apt install curl -y)
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
+            sudo apt install gh -y
+          fi
+
+      - name: Setup OCM CLI
+        run: |
+          REPO="open-component-model/ocm"
+          version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
+          echo "Installing OCM CLI version: $version"
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          chmod a+x ocm
+          sudo mv ocm /usr/local/bin/
+          ocm version
+
+      - name: Auto-detect from_version
+        id: detect_from_version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TO_VERSION="${{ inputs.to_version }}"
+
+          # Remove 'v' prefix if present
+          target_clean=${TO_VERSION#v}
+
+          # Parse version components
+          IFS='.' read -r target_major target_minor target_patch <<< "${target_clean%%-*}"
+
+          # Special case: version 0.1.0 is the initial release
+          if [[ "$target_major" == "0" ]] && [[ "$target_minor" == "1" ]] && [[ "$target_patch" == "0" ]]; then
+            echo "from_version=0.0.0" >> $GITHUB_OUTPUT
+            echo "✓ Detected initial release, using from_version: 0.0.0"
+            exit 0
+          fi
+
+          # Fetch all non-prerelease releases from GitHub
+          all_releases=$(gh release list --limit 100 --json tagName,isPrerelease --jq '.[] | select(.isPrerelease == false) | .tagName' 2>/dev/null || echo "")
+
+          if [[ -z "$all_releases" ]]; then
+            echo "⚠ No previous releases found, using from_version: 0.0.0"
+            echo "from_version=0.0.0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Find the most recent release that is less than the target version
+          previous=""
+          while IFS= read -r release; do
+            if [[ -z "$release" ]]; then
+              continue
+            fi
+
+            # Remove 'v' prefix
+            rel_clean=${release#v}
+
+            # Parse release version components (strip RC suffix for comparison)
+            IFS='.' read -r rel_major rel_minor rel_patch <<< "${rel_clean%%-*}"
+
+            # Compare versions: find the highest version that is less than target
+            if [[ "$target_major" -gt "$rel_major" ]]; then
+              # Target is a major version bump: find latest from previous major
+              if [[ -z "$previous" ]]; then
+                previous="$release"
+              else
+                prev_clean=${previous#v}
+                IFS='.' read -r prev_major prev_minor prev_patch <<< "${prev_clean%%-*}"
+
+                # Update if this release is newer within the same major version
+                if [[ "$rel_major" == "$prev_major" ]] && [[ "$rel_clean" > "$prev_clean" ]]; then
+                  previous="$release"
+                elif [[ "$rel_major" -gt "$prev_major" ]]; then
+                  previous="$release"
+                fi
+              fi
+            elif [[ "$target_major" == "$rel_major" ]] && [[ "$target_minor" -gt "$rel_minor" ]]; then
+              # Same major, target has higher minor: find latest from previous minor
+              if [[ -z "$previous" ]]; then
+                previous="$release"
+              else
+                prev_clean=${previous#v}
+                IFS='.' read -r prev_major prev_minor prev_patch <<< "${prev_clean%%-*}"
+
+                # Update if this release is newer within the same major version
+                if [[ "$rel_major" == "$prev_major" ]] && [[ "$rel_clean" > "$prev_clean" ]]; then
+                  previous="$release"
+                fi
+              fi
+            elif [[ "$target_major" == "$rel_major" ]] && [[ "$target_minor" == "$rel_minor" ]] && [[ "$target_patch" -gt "$rel_patch" ]]; then
+              # Same major and minor, target has higher patch: find latest from previous patch
+              if [[ -z "$previous" ]]; then
+                previous="$release"
+              else
+                prev_clean=${previous#v}
+                IFS='.' read -r prev_major prev_minor prev_patch <<< "${prev_clean%%-*}"
+
+                # Update if this release is newer
+                if [[ "$rel_clean" > "$prev_clean" ]]; then
+                  previous="$release"
+                fi
+              fi
+            fi
+          done <<< "$all_releases"
+
+          if [[ -n "$previous" ]]; then
+            echo "from_version=$previous" >> $GITHUB_OUTPUT
+            echo "✓ Auto-detected from_version: $previous"
+          else
+            echo "from_version=0.0.0" >> $GITHUB_OUTPUT
+            echo "⚠ Could not find suitable previous release, using from_version: 0.0.0"
+          fi
+
+      - name: Fetch component versions
+        run: |
+          FROM_VERSION="${{ steps.detect_from_version.outputs.from_version }}"
+          TO_VERSION="${{ inputs.to_version }}"
+
+          echo "=== Fetching component versions ==="
+          echo "From: $FROM_VERSION"
+          echo "To: $TO_VERSION"
+          echo ""
+
+          ./hack/fetch-versions.sh "$FROM_VERSION" "$TO_VERSION"
+
+          if [ ! -f generated/component-versions.json ]; then
+            echo "Error: Failed to fetch component versions"
+            exit 1
+          fi
+
+          echo ""
+          echo "✓ Component versions fetched successfully"
+
+      - name: Generate changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== Generating changelog ==="
+          ./hack/generate-changelog.sh
+
+          if [ ! -f generated/changelog.json ]; then
+            echo "Error: Failed to generate changelog"
+            exit 1
+          fi
+
+          echo ""
+          echo "✓ Changelog generated successfully"
+
+      - name: Format release notes
+        run: |
+          # Extract release version (strip RC suffix if present)
+          TO_VERSION="${{ inputs.to_version }}"
+          RELEASE_VERSION="${TO_VERSION%%-rc.*}"
+
+          echo "=== Formatting release notes for version: $RELEASE_VERSION ==="
+          ./hack/format-notes.sh "$RELEASE_VERSION"
+
+          if [ ! -f dist/release-notes.md ]; then
+            echo "Error: Failed to format release notes"
+            exit 1
+          fi
+
+          echo ""
+          echo "✓ Release notes formatted successfully"
+          echo ""
+          echo "=== Release Notes Preview (first 50 lines) ==="
+          head -50 dist/release-notes.md
+
+      - name: Create or update draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Extract release version (strip RC suffix if present)
+          TO_VERSION="${{ inputs.to_version }}"
+          RELEASE_VERSION="${TO_VERSION%%-rc.*}"
+          REPO="platform-mesh/ocm"
+
+          echo "=== Creating or updating draft release for version: $RELEASE_VERSION ==="
+
+          # Check if release already exists
+          if gh release view "$RELEASE_VERSION" --repo "$REPO" &> /dev/null; then
+            echo "Draft release $RELEASE_VERSION already exists, updating..."
+
+            gh release edit "$RELEASE_VERSION" \
+              --repo "$REPO" \
+              --draft \
+              --title "Platform Mesh OCM Component $RELEASE_VERSION" \
+              --notes-file dist/release-notes.md
+
+            echo ""
+            echo "✓ Draft release updated successfully"
+          else
+            echo "Creating new draft release for $RELEASE_VERSION..."
+            echo "Note: Draft release will reference current HEAD of main branch"
+
+            gh release create "$RELEASE_VERSION" \
+              --repo "$REPO" \
+              --draft \
+              --title "Platform Mesh OCM Component $RELEASE_VERSION" \
+              --notes-file dist/release-notes.md \
+              --target main
+
+            echo ""
+            echo "✓ Draft release created successfully"
+          fi
+
+          echo ""
+          echo "View at: https://github.com/$REPO/releases/tag/$RELEASE_VERSION"
+          echo ""
+          echo "Next steps:"
+          echo "  1. Review the release notes in GitHub"
+          echo "  2. Edit if needed"
+          echo "  3. Publish when ready"

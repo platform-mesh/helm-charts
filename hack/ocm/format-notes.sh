@@ -90,6 +90,42 @@ This release includes ${change_count} component update(s)$([ $breaking_count -gt
 EOF
   fi
 
+  # Contributors section
+  cat << 'EOF'
+## Contributors
+
+Thank you to all the contributors who made this release possible:
+
+EOF
+
+  # Collect unique contributors from all PRs across all components
+  local contributors=$(jq -r '[.changes[].pr_details[]? | {author: .author, author_url: .author_url, avatar_url: .avatar_url}] | unique_by(.author) | sort_by(.author)' "$changelog_file")
+  local contributor_count=$(echo "$contributors" | jq 'length')
+
+  if [[ "$contributor_count" -gt 0 ]]; then
+    # Render contributors with avatars in a compact format
+    echo "<div>"
+    echo ""
+    while IFS= read -r contributor; do
+      if [[ -n "$contributor" ]] && [[ "$contributor" != "null" ]]; then
+        local author=$(echo "$contributor" | jq -r '.author // ""')
+        local author_url=$(echo "$contributor" | jq -r '.author_url // ""')
+        local avatar_url=$(echo "$contributor" | jq -r '.avatar_url // ""')
+
+        if [[ -n "$author" ]] && [[ -n "$author_url" ]] && [[ -n "$avatar_url" ]]; then
+          echo "<a href=\"${author_url}\"><img src=\"${avatar_url}\" width=\"50\" height=\"50\" alt=\"${author}\" title=\"${author}\" style=\"border-radius: 50%; margin: 5px;\"></a>"
+        fi
+      fi
+    done < <(echo "$contributors" | jq -c '.[]')
+    echo ""
+    echo "</div>"
+    echo ""
+    echo "_${contributor_count} contributor(s)_"
+  else
+    echo "_No contributors found_"
+  fi
+  echo ""
+
   # Component Changes section
   if [[ $change_count -gt 0 ]]; then
     cat << EOF
@@ -177,6 +213,57 @@ EOF
         echo '```yaml'
         echo "$raw_yaml"
         echo '```'
+        echo ""
+        echo "</details>"
+      fi
+
+      # Extract and display PR changelog items
+      local pr_changelogs=$(echo "$change" | jq -r '.pr_changelogs[]? // empty' 2>/dev/null)
+
+      if [[ -n "$pr_changelogs" ]]; then
+        echo ""
+        echo "**Key Changes:**"
+        echo ""
+        while IFS= read -r item; do
+          if [[ -n "$item" ]]; then
+            # Ensure item starts with a dash, add if missing
+            if [[ "$item" == -* ]]; then
+              echo "$item"
+            else
+              echo "- $item"
+            fi
+          fi
+        done <<< "$pr_changelogs"
+      fi
+
+      # Extract and display PR details as collapsible list
+      local pr_details=$(echo "$change" | jq -c '.pr_details[]? // empty' 2>/dev/null)
+
+      if [[ -n "$pr_details" ]]; then
+        local pr_count=$(echo "$change" | jq '.pr_details | length' 2>/dev/null || echo "0")
+        echo ""
+        echo "<details>"
+        echo "<summary>All Pull Requests (${pr_count})</summary>"
+        echo ""
+
+        while IFS= read -r pr_json; do
+          if [[ -n "$pr_json" ]]; then
+            local pr_number=$(echo "$pr_json" | jq -r '.number // ""')
+            local pr_title=$(echo "$pr_json" | jq -r '.title // ""')
+            local pr_url=$(echo "$pr_json" | jq -r '.url // ""')
+            local pr_author=$(echo "$pr_json" | jq -r '.author // ""')
+            local pr_author_url=$(echo "$pr_json" | jq -r '.author_url // ""')
+
+            if [[ -n "$pr_number" ]] && [[ -n "$pr_url" ]]; then
+              if [[ -n "$pr_author" ]] && [[ -n "$pr_author_url" ]]; then
+                echo "- [#${pr_number}](${pr_url}): ${pr_title} by [@${pr_author}](${pr_author_url})"
+              else
+                echo "- [#${pr_number}](${pr_url}): ${pr_title}"
+              fi
+            fi
+          fi
+        done <<< "$pr_details"
+
         echo ""
         echo "</details>"
       fi
@@ -280,7 +367,7 @@ EOF
   cat << EOF
 ## Installation
 
-For installation instructions, see the [Getting Started Guide](https://platform-mesh.io/getting-started).
+For installation instructions, see the [Getting Started Guide](https://platform-mesh.io/main/getting-started).
 
 To fetch the component using OCM CLI:
 
@@ -299,8 +386,5 @@ echo >&2
 
 format_release_notes "$TARGET_VERSION" "$VERSIONS_FILE" "$CHANGELOG_FILE" > "$OUTPUT_FILE"
 
-echo "Release notes formatted and saved to: $OUTPUT_FILE" >&2
+echo "✓ Release notes formatted and saved to: $OUTPUT_FILE" >&2
 echo >&2
-
-# Output to stdout as well
-cat "$OUTPUT_FILE"

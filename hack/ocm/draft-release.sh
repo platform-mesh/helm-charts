@@ -2,17 +2,17 @@
 set -euo pipefail
 
 # Script to orchestrate the draft release creation process
-# Usage: ./draft-release.sh <from-version> <to-version> [--dry-run]
+# Usage: ./draft-release.sh <from-version> <to-version> [--create]
 
 FROM_VERSION="${1:-}"
 TO_VERSION="${2:-}"
-DRY_RUN="false"
+DRY_RUN="true"
 
 # Parse flags
 for arg in "$@"; do
   case $arg in
-    --dry-run)
-      DRY_RUN="true"
+    --create)
+      DRY_RUN="false"
       shift
       ;;
   esac
@@ -20,12 +20,12 @@ done
 
 if [[ -z "$FROM_VERSION" ]] || [[ -z "$TO_VERSION" ]]; then
   echo "Error: Both from-version and to-version are required" >&2
-  echo "Usage: $0 <from-version> <to-version> [--dry-run]" >&2
+  echo "Usage: $0 <from-version> <to-version> [--create]" >&2
   echo "" >&2
   echo "Examples:" >&2
-  echo "  Initial release (dry-run): $0 0.0.0 0.1.0 --dry-run" >&2
-  echo "  Initial release: $0 0.0.0 0.1.0" >&2
-  echo "  Subsequent release: $0 0.1.0 0.2.0" >&2
+  echo "  Initial release (dry-run, default): $0 0.0.0 0.1.0" >&2
+  echo "  Initial release (create): $0 0.0.0 0.1.0 --create" >&2
+  echo "  Subsequent release: $0 0.1.0 0.2.0 --create" >&2
   exit 1
 fi
 
@@ -121,7 +121,7 @@ echo "" >&2
 # Step 6: Create draft release
 echo "[6/6] Creating draft release..." >&2
 if [[ "$DRY_RUN" == "true" ]]; then
-  "$SCRIPT_DIR/create-release.sh" "$RELEASE_VERSION" dist/release-notes.md --dry-run
-else
   "$SCRIPT_DIR/create-release.sh" "$RELEASE_VERSION" dist/release-notes.md
+else
+  "$SCRIPT_DIR/create-release.sh" "$RELEASE_VERSION" dist/release-notes.md --create
 fi
