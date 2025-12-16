@@ -103,8 +103,7 @@ EOF
   local contributor_count=$(echo "$contributors" | jq 'length')
 
   if [[ "$contributor_count" -gt 0 ]]; then
-    # Render contributors with avatars in a horizontal layout
-    local avatar_html=""
+    # Render contributors with avatars using plain markdown
     while IFS= read -r contributor; do
       if [[ -n "$contributor" ]] && [[ "$contributor" != "null" ]]; then
         local author=$(echo "$contributor" | jq -r '.author // ""')
@@ -112,14 +111,13 @@ EOF
         local avatar_url=$(echo "$contributor" | jq -r '.avatar_url // ""')
 
         if [[ -n "$author" ]] && [[ -n "$author_url" ]] && [[ -n "$avatar_url" ]]; then
-          avatar_html="${avatar_html}<a href=\"${author_url}\"><img src=\"${avatar_url}\" width=\"50\" height=\"50\" alt=\"${author}\" title=\"${author}\" style=\"border-radius: 50%; margin: 5px; display: inline-block; object-fit: cover;\"></a>"
+          # Use markdown syntax: [![alt](image)](link) with width parameter
+          echo -n "[<img src=\"${avatar_url}\" width=\"50\" height=\"50\" alt=\"${author}\" title=\"${author}\">](${author_url})&nbsp;&nbsp;"
         fi
       fi
     done < <(echo "$contributors" | jq -c '.[]')
 
-    echo "<div style=\"display: flex; flex-wrap: wrap;\">"
-    echo "$avatar_html"
-    echo "</div>"
+    echo ""
     echo ""
     echo "_${contributor_count} contributor(s)_"
   else
