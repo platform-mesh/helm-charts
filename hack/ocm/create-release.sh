@@ -2,17 +2,17 @@
 set -euo pipefail
 
 # Script to create a draft GitHub release
-# Usage: ./create-release.sh <version> <notes-file> [--dry-run]
+# Usage: ./create-release.sh <version> <notes-file> [--create]
 
 VERSION="${1:-}"
 NOTES_FILE="${2:-dist/release-notes.md}"
-DRY_RUN="false"
+DRY_RUN="true"
 
 # Parse flags
 for arg in "$@"; do
   case $arg in
-    --dry-run)
-      DRY_RUN="true"
+    --create)
+      DRY_RUN="false"
       shift
       ;;
   esac
@@ -20,7 +20,7 @@ done
 
 if [[ -z "$VERSION" ]]; then
   echo "Error: Version required" >&2
-  echo "Usage: $0 <version> [notes-file] [--dry-run]" >&2
+  echo "Usage: $0 <version> [notes-file] [--create]" >&2
   exit 1
 fi
 
@@ -68,14 +68,11 @@ if [[ "$DRY_RUN" == "true" ]]; then
   echo "Title: Platform Mesh OCM Component $VERSION" >&2
   echo "Repository: $REPO" >&2
   echo "Draft: Yes" >&2
+  echo "Release Notes File: $NOTES_FILE" >&2
   echo "----------------------------------------" >&2
   echo >&2
-  echo "Release Notes Preview:" >&2
-  echo "----------------------------------------" >&2
-  cat "$NOTES_FILE"
-  echo "----------------------------------------" >&2
-  echo >&2
-  echo "To create this release for real, run without --dry-run" >&2
+  echo "✓ Release notes are ready for preview at: $NOTES_FILE" >&2
+  echo "To create this release for real, run with --create" >&2
   exit 0
 fi
 

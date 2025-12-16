@@ -40,32 +40,18 @@ gh auth login
 
 ## Usage
 
-### Creating a Release
+### Preview Mode (Default)
 
-To create a draft release for version 0.1.0, you can either:
+By default, the script runs in dry-run mode to preview what would be created without actually creating the release:
 
 **Using the script directly:**
 ```bash
-./hack/draft-release.sh 0.0.0 0.1.0
+./hack/draft-release.sh 0.1.0 $(ocm get cv --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items.[0].component.version')
 ```
 
 **Using Claude Code slash command:**
 ```bash
 /draft-release 0.1.0
-```
-
-### Dry Run (Preview Only)
-
-To preview what would be created without actually creating the release:
-
-**Using the script directly:**
-```bash
-./hack/draft-release.sh 0.0.0 0.1.0 --dry-run
-```
-
-**Using Claude Code slash command:**
-```bash
-/draft-release 0.1.0 --dry-run
 ```
 
 This will:
@@ -74,9 +60,23 @@ This will:
 - Preview the final release format
 - NOT create the actual GitHub release
 
+### Creating a Release
+
+To actually create a draft release for version 0.1.0, you must use the `--create` flag:
+
+**Using the script directly:**
+```bash
+./hack/draft-release.sh 0.0.0 0.1.0 --create
+```
+
+**Using Claude Code slash command:**
+```bash
+/draft-release 0.1.0 --create
+```
+
 ### Process Flow
 
-When you run the draft release command (either `./hack/draft-release.sh 0.0.0 0.1.0` or `/draft-release 0.1.0`), the following happens:
+When you run the draft release command (either `./hack/draft-release.sh 0.0.0 0.1.0` for preview or `./hack/draft-release.sh 0.0.0 0.1.0 --create` to actually create), the following happens:
 
 1. **Prerequisites Check** (~5 seconds)
    - Validates required tools are installed
@@ -171,7 +171,7 @@ The release version already exists on GitHub. Either:
 If you hit GitHub API rate limits:
 - Wait for the rate limit to reset (shown in error message)
 - Use a personal access token with higher rate limits
-- Run with `--dry-run` to preview without making API calls
+- Run in preview mode (default, without --create) to test without making release creation API calls
 
 ## Files Created
 
@@ -210,8 +210,11 @@ Each script is modular and can be run independently for testing:
 # Format notes
 ./.claude/scripts/format-notes.sh 0.1.0 component-versions.json changelog.json release-notes.md
 
-# Create release (dry run)
-./.claude/scripts/create-release.sh 0.1.0 release-notes.md --dry-run
+# Create release (preview mode, default)
+./hack/create-release.sh 0.1.0 release-notes.md
+
+# Create release (actually create)
+./hack/create-release.sh 0.1.0 release-notes.md --create
 ```
 
 ## Next Steps After Creating a Release
@@ -357,5 +360,5 @@ Delete specific build versions:
 For issues or questions:
 - Check this documentation
 - Review the plan file: `.claude/plans/toasty-riding-cocoa.md`
-- Run with `--dry-run` to debug issues
+- Run in default preview mode (without --create) to debug issues
 - Check script outputs in the terminal
