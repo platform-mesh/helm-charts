@@ -22,6 +22,7 @@ Gateway API enabled:
               - group: ""
                 kind: Secret
                 name: domain-certificate
+                namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
             kinds:
@@ -536,6 +537,7 @@ Istio disabled:
               - group: ""
                 kind: Secret
                 name: domain-certificate
+                namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
             kinds:
@@ -1015,6 +1017,7 @@ Istio enabled:
               - group: ""
                 kind: Secret
                 name: domain-certificate
+                namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
             kinds:
@@ -1556,6 +1559,7 @@ match snapshots:
               - group: ""
                 kind: Secret
                 name: domain-certificate
+                namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
             kinds:
@@ -2042,6 +2046,7 @@ match snapshots w. hostAliases enabled:
               - group: ""
                 kind: Secret
                 name: domain-certificate
+                namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
             kinds:
@@ -2536,6 +2541,7 @@ match snapshots w. kcp version:
               - group: ""
                 kind: Secret
                 name: domain-certificate
+                namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
             kinds:
@@ -3022,6 +3028,7 @@ match snapshots with mailpit enabled:
               - group: ""
                 kind: Secret
                 name: domain-certificate
+                namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
             kinds:

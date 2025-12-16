@@ -63,7 +63,7 @@ tests:
         gateway:
           tls:
             credentialName: domain-certificate
-            namespace: default2
+            credentialNamespace: default2
   asserts:
   - equal:
       path: spec.listeners[0].tls.certificateRefs[0].namespace
