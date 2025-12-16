@@ -53,3 +53,18 @@ tests:
       enabled: true
   asserts:
     - matchSnapshot: {}
+- it: configure gateway TLS credential namespace
+  templates:
+    - gatewayapi/gateway.yaml
+  set:
+    gatewayApi:
+      enabled: true
+      main:
+        gateway:
+          tls:
+            credentialName: domain-certificate
+            namespace: default2
+  asserts:
+  - equal:
+      path: spec.listeners[0].tls.certificateRefs[0].namespace
+      value: default2
