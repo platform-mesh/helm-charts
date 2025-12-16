@@ -32,10 +32,6 @@ spec:
             memory: 1Gi
     infra:
       values:
-        gatewayApi:
-          enabled: true
-        istio:
-          enabled: false
         cors:
           enabled: true
           accessControlAllowOriginList:
