@@ -65,7 +65,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
   echo >&2
   echo "----------------------------------------" >&2
   echo "Version: $VERSION" >&2
-  echo "Title: Platform Mesh OCM Component $VERSION" >&2
+  echo "Title: Platform Mesh $VERSION" >&2
   echo "Repository: $REPO" >&2
   echo "Draft: Yes" >&2
   echo "Release Notes File: $NOTES_FILE" >&2
@@ -82,7 +82,7 @@ echo "Creating draft release..." >&2
 release_url=$(gh release create "$VERSION" \
   --repo "$REPO" \
   --draft \
-  --title "Platform Mesh OCM Component $VERSION" \
+  --title "Platform Mesh $VERSION" \
   --notes-file "$NOTES_FILE" 2>&1)
 
 if [[ $? -eq 0 ]]; then

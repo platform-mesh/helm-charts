@@ -64,18 +64,18 @@ format_release_notes() {
 
   # Start generating markdown
   cat << EOF
-# Platform Mesh OCM Component ${version}
+# Platform Mesh ${version}
 
 EOF
 
   if [[ $rc_count -gt 0 ]]; then
     cat << EOF
-This is the initial stable release of the Platform Mesh OCM component, aggregating changes from ${rc_count} release candidate(s): ${rc_versions}.
+This is the release of Platform Mesh, aggregating changes from ${rc_count} release candidate(s): ${rc_versions}.
 
 EOF
   else
     cat << EOF
-This release of the Platform Mesh OCM component includes updates to multiple components.
+This release of Platform Mesh includes updates to multiple components.
 
 EOF
   fi
