@@ -306,6 +306,8 @@ gatewayApi:
         mode: Terminate
         # -- Name of the secret containing the TLS certificate
         credentialName: domain-certificate
+        # -- Set secret namespace if different from the gateway namespace
+        credentialNamespace: platform-mesh-system
   passThrough:
     gateway:
       # -- Toggle to enable/disable the passthrough gateway

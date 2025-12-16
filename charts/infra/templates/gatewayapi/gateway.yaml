@@ -24,6 +24,9 @@ spec:
         - group: ""
           kind: Secret
           name: {{ .credentialName }}
+          {{- if .credentialNamespace }}
+          namespace: {{ .credentialNamespace }}
+          {{- end }}
       {{- end }}
     {{- end }}
   {{- if .Values.gatewayApi.passThrough.gateway.enabled }}

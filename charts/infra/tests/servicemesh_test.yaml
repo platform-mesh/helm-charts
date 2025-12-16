@@ -1,4 +1,4 @@
-suite: Test traefik manifests
+suite: Test service-mesh manifests
 templates:
   - traefik/cors-middleware.yaml
   - keycloak/httproute.yaml
