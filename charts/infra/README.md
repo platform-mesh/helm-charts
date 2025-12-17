@@ -16,7 +16,7 @@ A Helm chart for Kubernetes
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
 | gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
-| gatewayApi.main | object | `{"gateway":{"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","credentialNamespace":"platform-mesh-system","mode":"Terminate"}}}` | HTTPS Terminate configuration |
+| gatewayApi.main | object | `{"gateway":{"infrastructure":null,"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","credentialNamespace":"platform-mesh-system","mode":"Terminate"}}}` | HTTPS Terminate configuration |
 | gatewayApi.main.gateway.tls.credentialName | string | `"domain-certificate"` | Name of the secret containing the TLS certificate |
 | gatewayApi.main.gateway.tls.credentialNamespace | string | `"platform-mesh-system"` | Set secret namespace if different from the gateway namespace |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
