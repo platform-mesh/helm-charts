@@ -2,6 +2,7 @@ suite: Test service-mesh manifests
 templates:
   - traefik/cors-middleware.yaml
   - keycloak/httproute.yaml
+  - gatewayapi/gateway.yaml
 release:
   name: infra
   namespace: platform-mesh-system
@@ -43,3 +44,19 @@ tests:
       enabled: true
   asserts:
   - matchSnapshot: {}
+- it: configure Gateway infrastructure
+  templates: 
+  - gatewayapi/gateway.yaml
+  set:
+    gatewayApi:
+      enabled: true
+      main:
+        gateway:
+          infrastructure:
+            annotations:
+              dns.gardener.cloud/class: garden
+  asserts:
+  - equal:
+      path: spec.infrastructure.annotations
+      value:
+        dns.gardener.cloud/class: garden

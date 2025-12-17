@@ -308,6 +308,7 @@ gatewayApi:
         credentialName: domain-certificate
         # -- Set secret namespace if different from the gateway namespace
         credentialNamespace: platform-mesh-system
+      infrastructure: null
   passThrough:
     gateway:
       # -- Toggle to enable/disable the passthrough gateway

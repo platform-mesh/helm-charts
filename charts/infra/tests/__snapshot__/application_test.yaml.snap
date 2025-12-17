@@ -7,6 +7,7 @@ Gateway API enabled:
       namespace: platform-mesh-system
     spec:
       gatewayClassName: traefik
+      infrastructure: null
       listeners:
         - allowedRoutes:
             kinds:
@@ -522,6 +523,7 @@ Istio disabled:
       namespace: platform-mesh-system
     spec:
       gatewayClassName: traefik
+      infrastructure: null
       listeners:
         - allowedRoutes:
             kinds:
@@ -1002,6 +1004,7 @@ Istio enabled:
       namespace: platform-mesh-system
     spec:
       gatewayClassName: traefik
+      infrastructure: null
       listeners:
         - allowedRoutes:
             kinds:
@@ -1544,6 +1547,7 @@ match snapshots:
       namespace: platform-mesh-system
     spec:
       gatewayClassName: traefik
+      infrastructure: null
       listeners:
         - allowedRoutes:
             kinds:
@@ -2031,6 +2035,7 @@ match snapshots w. hostAliases enabled:
       namespace: platform-mesh-system
     spec:
       gatewayClassName: traefik
+      infrastructure: null
       listeners:
         - allowedRoutes:
             kinds:
@@ -2526,6 +2531,7 @@ match snapshots w. kcp version:
       namespace: platform-mesh-system
     spec:
       gatewayClassName: traefik
+      infrastructure: null
       listeners:
         - allowedRoutes:
             kinds:
@@ -3013,6 +3019,7 @@ match snapshots with mailpit enabled:
       namespace: platform-mesh-system
     spec:
       gatewayClassName: traefik
+      infrastructure: null
       listeners:
         - allowedRoutes:
             kinds:
