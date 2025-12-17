@@ -45,8 +45,8 @@ spec:
     tls:
       mode: Passthrough
   {{- end }}
-{{- .with .Values.gatewayApi.main.gateway.infrastructure }}
+{{- with .Values.gatewayApi.main.gateway.infrastructure }}
   infrastructure:
     {{- toYaml . | nindent 4 }}
-{{- .end }}
+{{- end }}
 {{- end }}
