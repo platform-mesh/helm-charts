@@ -13,6 +13,7 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 - **Kind**: [Kubernetes in Docker](https://kind.sigs.k8s.io/) for local Kubernetes clusters. [Installation](https://kind.sigs.k8s.io/docs/user/quick-start/)
 - **Helm**: Required for bootstrapping Flux and managing Helm releases. [Installation](https://helm.sh/docs/intro/install/)
 - **kubectl**: Kubernetes command-line tool (usually installed with Docker Desktop or Kind)
+- **kubectl-kcp plugin** (required only for `--example-data` setup): KCP kubectl plugin for workspace management. [Installation](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/)
 - **openssl**: Required for SSL certificate generation (typically pre-installed on Linux/macOS)
 - **base64**: Required for encoding/decoding operations (standard Unix utility, typically pre-installed)
 - **mkcert**: For generating local SSL certificates. [Installation](https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation)
@@ -93,6 +94,8 @@ kind delete cluster --name platform-mesh
 ### 2. Bootstrap with Example Data (Demo Setup)
 
 This setup includes an example provider ("httpbin") to showcase how provider integrations work in Platform Mesh. Perfect for demonstrations and learning.
+
+**Note**: The `--example-data` setup requires the [KCP kubectl plugin](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/) to be installed for workspace creation commands.
 
 **Using Task:**
 ```sh

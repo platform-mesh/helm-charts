@@ -138,23 +138,36 @@ check_architecture() {
     esac
 }
 
+check_kcp_plugin() {
+    if ! kubectl kcp --help &> /dev/null; then
+        echo -e "${RED}❌ Error: 'kubectl-kcp' plugin is not installed${COL_RES}"
+        echo -e "${COL}🔌 The KCP kubectl plugin is required for creating workspaces when using --example-data.${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://docs.kcp.io/kcp/main/setup/kubectl-plugin/${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ kubectl-kcp plugin is available${COL_RES}"
+    return 0
+}
+
 # Run all environment checks
 run_environment_checks() {
     echo -e "${COL}🔍 Checking environment dependencies...${COL_RES}"
     echo ""
-    
+
     local checks_failed=0
-    
+
     # Check container runtime dependency (Docker or Podman)
     if ! check_container_runtime_dependency; then
         checks_failed=$((checks_failed + 1))
     fi
-    
+
     # Check kind dependency
     if ! check_kind_dependency; then
         checks_failed=$((checks_failed + 1))
     fi
-    
+
     # Check mkcert dependency
     if ! setup_mkcert_command; then
         checks_failed=$((checks_failed + 1))
@@ -167,13 +180,20 @@ run_environment_checks() {
     else
         echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Architecture: $ARCH${COL_RES}"
     fi
-    
+
+    # Check KCP plugin if example-data mode is enabled
+    if [ "$EXAMPLE_DATA" = true ]; then
+        if ! check_kcp_plugin; then
+            checks_failed=$((checks_failed + 1))
+        fi
+    fi
+
     if [ $checks_failed -gt 0 ]; then
         echo -e "${RED}❌ $checks_failed dependency check(s) failed. Please install the missing dependencies and try again.${COL_RES}"
         echo ""
         exit 1
     fi
-    
+
     echo -e "${COL}✅ All environment checks passed!${COL_RES}"
     echo ""
 }
@@ -185,4 +205,5 @@ export -f check_docker_dependency
 export -f check_container_runtime_dependency
 export -f setup_mkcert_command
 export -f check_architecture
+export -f check_kcp_plugin
 export -f run_environment_checks
