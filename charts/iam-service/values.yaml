@@ -7,12 +7,6 @@ imagePullSecret: "github"
 health:
   port: 8080
 
-metrics:
-  port: 8080
-
-openfga:
-  grpcPort: 8081
-
 cors:
   enabled: false
 
@@ -23,8 +17,6 @@ exposure:
     - "*.portal.dev.local"
 
 gatewayApi:
-  # -- toggle to enable the Gateway API
-  enabled: false
   httpRoute:
     pathPrefix: /iam/graphql
     parentRefs:
@@ -43,15 +35,10 @@ gatewayApi:
           name: cors-header
         type: ExtensionRef
 
-istio:
-  gateway:
-    name: gateway
-
 port: 8080
 
 kcp:
   kubeconfig:
-    enabled: true
     secretName: iam-service-kubeconfig
 
 caSecret: ""

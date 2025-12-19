@@ -5,35 +5,23 @@ Helm Chart for the iam-ui
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| contentConfig.baseDomain | string | `"localhost:8000/ui/iam"` |  |
-| contentConfig.protocol | string | `"http"` |  |
 | cors.enabled | bool | `false` | toggle to enable CORS support |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | exposure.hostnames | list | `["portal.dev.local","*.portal.dev.local"]` | hostnames to be used for exposure |
-| gatewayApi.enabled | bool | `false` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
 | gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
-| gatewayApi.httpRoute.filters[0].requestHeaderModifier.set[0].name | string | `"Host"` |  |
-| gatewayApi.httpRoute.filters[0].requestHeaderModifier.set[0].value | string | `"*"` |  |
-| gatewayApi.httpRoute.filters[0].type | string | `"RequestHeaderModifier"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/ui/iam"` |  |
 | health.port | int | `8080` |  |
 | health.readiness.path | string | `"/healthz"` |  |
 | health.startup.path | string | `"/healthz"` |  |
-| http.protocol | string | `"https"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/iam-ui"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.pullSecret | string | `"github"` |  |
-| imagePullSecret | string | `"github"` |  |
-| istio.enabled | bool | `true` |  |
-| istio.virtualService.hosts[0] | string | `"*"` |  |
-| istio.virtualService.matcher.match[0].uri.exact | string | `"/ui/iam"` |  |
-| istio.virtualService.matcher.match[1].uri.prefix | string | `"/ui/iam/"` |  |
 | port | int | `8080` |  |
 
 ## Overriding Values

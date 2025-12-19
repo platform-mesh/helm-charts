@@ -7,8 +7,6 @@ deployment:
   maxUnavailable: 0
   maxSurge: 5
 
-imagePullSecret: "github"
-
 port: 8080
 
 health:
@@ -19,42 +17,16 @@ health:
     path: /healthz
 
 
-contentConfig:
-  baseDomain: localhost:8000/ui/iam
-  protocol: http
-
-istio:
-  enabled: true
-  virtualService:
-    hosts:
-      - "*"
-    matcher:
-      match:
-        - uri:
-            exact: /ui/iam
-        - uri:
-            prefix: /ui/iam/
-
-http:
-  protocol: https
-
 cors:
   # -- toggle to enable CORS support
   enabled: false
 
 gatewayApi:
-  enabled: false
   httpRoute:
     pathPrefix: /ui/iam
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
-    filters:
-    - type: RequestHeaderModifier
-      requestHeaderModifier:
-        set:
-        - name: Host
-          value: "*"
     corsFilters:
     - extensionRef:
         group: traefik.io

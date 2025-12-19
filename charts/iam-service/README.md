@@ -8,7 +8,6 @@ A Helm chart for Kubernetes
 | caSecret | string | `""` |  |
 | cors.enabled | bool | `false` |  |
 | exposure.hostnames | list | `["portal.dev.local","*.portal.dev.local"]` | hostnames to be used for exposure |
-| gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
@@ -27,16 +26,12 @@ A Helm chart for Kubernetes
 | image.name | string | `"ghcr.io/platform-mesh/iam-service"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | imagePullSecret | string | `"github"` |  |
-| istio.gateway.name | string | `"gateway"` |  |
 | jwt.userIdClaim | string | `"email"` |  |
-| kcp.kubeconfig.enabled | bool | `true` |  |
 | kcp.kubeconfig.secretName | string | `"iam-service-kubeconfig"` |  |
 | keycloak.baseUrl | string | `"https://portal.dev.local:8443/keycloak"` |  |
 | keycloak.client.id | string | `"iam"` |  |
 | keycloak.client.secret.key | string | `"attribute.client_secret"` |  |
 | keycloak.client.secret.name | string | `"iam-client-secret"` |  |
-| metrics.port | int | `8080` |  |
-| openfga.grpcPort | int | `8081` |  |
 | port | int | `8080` |  |
 | roles.raw.roles[0].groupResource | string | `"core.platform-mesh.io/Account"` |  |
 | roles.raw.roles[0].roles[0].description | string | `"Full access to all resources within the account."` |  |
