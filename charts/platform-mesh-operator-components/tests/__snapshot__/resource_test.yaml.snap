@@ -77,6 +77,54 @@ image enabled resource:
     metadata:
       annotations:
         artifact: image
+        for: iam-service
+        repo: oci
+      name: iam-service-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: iam-service
+          resource:
+            name: image
+  5: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: iam-ui
+        repo: oci
+      name: iam-ui-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: iam-ui
+          resource:
+            name: image
+  6: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
         for: infra
         path: kcp.image.tag
         repo: oci
@@ -96,7 +144,7 @@ image enabled resource:
             - name: kcp
           resource:
             name: image
-  5: |
+  7: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -120,7 +168,7 @@ image enabled resource:
             - name: kcp-operator
           resource:
             name: image
-  6: |
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -144,7 +192,7 @@ image enabled resource:
             - name: kubernetes-graphql-gateway
           resource:
             name: image
-  7: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -168,7 +216,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: image
-  8: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -193,7 +241,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: postgresql-image
-  9: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -217,7 +265,7 @@ image enabled resource:
             - name: rebac-authz-webhook
           resource:
             name: image
-  10: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -241,7 +289,7 @@ image enabled resource:
             - name: security-operator
           resource:
             name: image
-  11: |
+  13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
