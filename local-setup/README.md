@@ -59,6 +59,24 @@ If you're using Podman on MacOS make sure to set the following env:
 KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 ```
 
+### MacOS Virtualization Framework (Recommended)
+
+**macOS users**: For optimal performance and stability, we recommend using Apple's Virtualization Framework (VZ) with your container runtime:
+
+**Docker Desktop:**
+1. Open Docker Desktop
+2. Go to Settings → General
+3. Enable "Use Virtualization framework" or "VirtioFS"
+4. Restart Docker Desktop
+
+**Podman:**
+1. Stop the current machine: `podman machine stop`
+2. Remove the current machine: `podman machine rm`
+3. Create new machine with VZ: `podman machine init --vm-type=applehv`
+4. Start the machine: `podman machine start`
+
+While Platform-mesh can work with other virtualization frameworks like QEMU, it has been primarily tested with Apple's Virtualization Framework on macOS.
+
 ## Quick Start
 
 ### 1. Bootstrap Local Environment
