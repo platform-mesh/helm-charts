@@ -59,13 +59,18 @@ spec:
       values:
         log:
           noJson: true
-        initializer:
+        fga:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.dev.local
+        initializer:
+          extraArgs:
             - --domain-ca-lookup
-            - --idp-additional-redirect-urls="https://default.portal.dev.local:3000/callback*"
+            # remove arguments below when the operator and the portal are ready
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.dev.local
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
