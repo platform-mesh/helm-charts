@@ -13,6 +13,7 @@ RED='\033[91m'
 YELLOW='\033[93m'
 COL_RES='\033[0m'
 
+KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
 KINDEST_VERSION="kindest/node:v1.34.0"
 
 SCRIPT_DIR=$(dirname "$0")
@@ -88,20 +89,20 @@ helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-comm
 
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s helm-controller > /dev/null 2>&1
+  --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s source-controller > /dev/null 2>&1
+  --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s kustomize-controller > /dev/null 2>&1
+  --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=480s kro
+  --timeout=$KUBECTL_WAIT_TIMEOUT kro
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 #kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
@@ -126,7 +127,7 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
 kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
-  --timeout=480s platform-mesh-operator
+  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
 if [ "$LATEST" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Using LATEST OCM Component version ${COL_RES}"
@@ -138,8 +139,8 @@ fi
 
 kubectl wait --namespace default \
   --for=condition=Ready PlatformMeshOperator \
-  --timeout=480s platform-mesh-operator
-kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
+  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
 if [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
@@ -153,26 +154,26 @@ fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
-  --timeout=580s platform-mesh
+  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s keycloak
+  --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
 kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s rebac-authz-webhook
+  --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s account-operator
+  --timeout=$KUBECTL_WAIT_TIMEOUT account-operator
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=480s portal
+  --timeout=$KUBECTL_WAIT_TIMEOUT portal
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s security-operator
+  --timeout=$KUBECTL_WAIT_TIMEOUT security-operator
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
@@ -188,11 +189,11 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
   kubectl wait --namespace default \
     --for=condition=Ready helmreleases \
-    --timeout=280s api-syncagent
+    --timeout=$KUBECTL_WAIT_TIMEOUT api-syncagent
 
   kubectl wait --namespace default \
     --for=condition=Ready helmreleases \
-    --timeout=280s example-httpbin-provider
+    --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
 
 fi
 

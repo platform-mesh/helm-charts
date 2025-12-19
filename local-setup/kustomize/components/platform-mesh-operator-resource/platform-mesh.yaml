@@ -14,7 +14,6 @@ spec:
     referencePath: []
   featureToggles:
    - name: "feature-enable-getting-started"
-   - name: "feature-enable-marketplace-account"
   values:
     keycloak:
       enabled: true
@@ -102,3 +101,11 @@ spec:
             database: postgres
     marketplace-ui:
       enabled: true
+    iam-service:
+      values:
+        extraArgs:
+          - --no-json
+        cors:
+          enabled: true
+        hostAliases:
+          enabled: true
