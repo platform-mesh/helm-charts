@@ -104,6 +104,41 @@ HelmRelease snapshots:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: iam-service
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-service
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: iam-service
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        caSecret: domain-certificate-ca
+  6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-ui
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-ui
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: iam-ui
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values: null
+  7: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: infra
       namespace: default
     spec:
@@ -161,7 +196,7 @@ HelmRelease snapshots:
             virtualservice:
               hosts:
                 - ""
-  6: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -181,7 +216,7 @@ HelmRelease snapshots:
       targetNamespace: kcp-operator
       timeout: 30m
       values: null
-  7: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -241,7 +276,7 @@ HelmRelease snapshots:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  8: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -298,7 +333,7 @@ HelmRelease snapshots:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  9: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -364,7 +399,7 @@ HelmRelease snapshots:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  10: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -392,7 +427,7 @@ HelmRelease snapshots:
           level: debug
         openfga:
           url: openfga:8081
-  11: |
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -423,7 +458,7 @@ HelmRelease snapshots:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  12: |
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -567,6 +602,49 @@ enable remote deployment of helmreleases:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: iam-service
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-service
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          key: kubeconfig
+          name: test-kubeconfig-secret
+      releaseName: iam-service
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        caSecret: domain-certificate-ca
+  6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-ui
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-ui
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          key: kubeconfig
+          name: test-kubeconfig-secret
+      releaseName: iam-ui
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values: null
+  7: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: infra
       namespace: default
     spec:
@@ -628,7 +706,7 @@ enable remote deployment of helmreleases:
             virtualservice:
               hosts:
                 - ""
-  6: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -652,7 +730,7 @@ enable remote deployment of helmreleases:
       targetNamespace: kcp-operator
       timeout: 30m
       values: null
-  7: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -716,7 +794,7 @@ enable remote deployment of helmreleases:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  8: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -777,7 +855,7 @@ enable remote deployment of helmreleases:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  9: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -847,7 +925,7 @@ enable remote deployment of helmreleases:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  10: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -879,7 +957,7 @@ enable remote deployment of helmreleases:
           level: debug
         openfga:
           url: openfga:8081
-  11: |
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -914,7 +992,7 @@ enable remote deployment of helmreleases:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  12: |
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:

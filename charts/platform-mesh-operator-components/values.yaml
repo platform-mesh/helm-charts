@@ -448,7 +448,8 @@ services:
       - name: keycloak
         namespace: default
   iam-service:
-    enabled: false
+    # -- Enable IAM Service
+    enabled: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
       - annotations:
@@ -456,30 +457,16 @@ services:
           artifact: image
           for: iam-service
     values:
-      istio:
-        enabled: false
-        hosts:
-          - "*.{{ .Values.baseDomain }}"
-      cors:
-        enabled: true
-      hostAliases:
-        enabled: true
       caSecret: domain-certificate-ca
-      gatewayApi:
-        enabled: true
   iam-ui:
-    enabled: false
+    # -- Enable IAM UI
+    enabled: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
       - annotations:
           repo: oci
           artifact: image
           for: iam-ui
-    values:
-      gatewayApi:
-        enabled: true
-      istio:
-        enabled: false
   marketplace-ui:
     enabled: false
     # -- Allow the configuration of additional ocm resources

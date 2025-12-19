@@ -46,18 +46,11 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `false` |  |
-| services.iam-service.enabled | bool | `false` |  |
+| services.iam-service.enabled | bool | `true` | Enable IAM Service |
 | services.iam-service.imageResources | list | `[{"annotations":{"artifact":"image","for":"iam-service","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.iam-service.values.caSecret | string | `"domain-certificate-ca"` |  |
-| services.iam-service.values.cors.enabled | bool | `true` |  |
-| services.iam-service.values.gatewayApi.enabled | bool | `true` |  |
-| services.iam-service.values.hostAliases.enabled | bool | `true` |  |
-| services.iam-service.values.istio.enabled | bool | `false` |  |
-| services.iam-service.values.istio.hosts[0] | string | `"*.{{ .Values.baseDomain }}"` |  |
-| services.iam-ui.enabled | bool | `false` |  |
+| services.iam-ui.enabled | bool | `true` | Enable IAM UI |
 | services.iam-ui.imageResources | list | `[{"annotations":{"artifact":"image","for":"iam-ui","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.iam-ui.values.gatewayApi.enabled | bool | `true` |  |
-| services.iam-ui.values.istio.enabled | bool | `false` |  |
 | services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
