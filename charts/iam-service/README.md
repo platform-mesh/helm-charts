@@ -22,6 +22,7 @@ A Helm chart for Kubernetes
 | health.port | int | `8080` |  |
 | hostAliases.enabled | bool | `false` |  |
 | hostAliases.items[0].hostnames[0] | string | `"portal.dev.local"` |  |
+| hostAliases.items[0].hostnames[1] | string | `"kcp.api.portal.dev.local"` |  |
 | hostAliases.items[0].ip | string | `"10.96.188.4"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/iam-service"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
