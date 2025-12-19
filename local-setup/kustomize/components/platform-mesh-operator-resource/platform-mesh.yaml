@@ -64,7 +64,6 @@ spec:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.dev.local
-            - --idp-additional-redirect-urls="https://default.portal.dev.local:3000/callback*"
         initializer:
           extraArgs:
             - --domain-ca-lookup
@@ -72,7 +71,6 @@ spec:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.dev.local
-            - --idp-additional-redirect-urls="https://default.portal.dev.local:3000/callback*"
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
