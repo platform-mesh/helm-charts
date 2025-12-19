@@ -1,7 +1,6 @@
 image:
   name: ghcr.io/platform-mesh/iam-ui
   pullPolicy: IfNotPresent
-  pullSecret: github
 
 deployment:
   maxUnavailable: 0

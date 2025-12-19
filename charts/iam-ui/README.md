@@ -21,7 +21,6 @@ Helm Chart for the iam-ui
 | health.startup.path | string | `"/healthz"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/iam-ui"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.pullSecret | string | `"github"` |  |
 | port | int | `8080` |  |
 
 ## Overriding Values
