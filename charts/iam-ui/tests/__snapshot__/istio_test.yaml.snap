@@ -1,0 +1,23 @@
+matches the snapshot:
+  1: |
+    apiVersion: networking.istio.io/v1alpha3
+    kind: VirtualService
+    metadata:
+      name: RELEASE-NAME-iam-ui
+      namespace: NAMESPACE
+    spec:
+      gateways:
+        - NAMESPACE/gateway
+      hosts:
+        - '*'
+      http:
+        - match:
+            - uri:
+                exact: /ui/iam
+            - uri:
+                prefix: /ui/iam/
+          route:
+            - destination:
+                host: RELEASE-NAME-iam-ui.NAMESPACE.svc.cluster.local
+                port:
+                  number: 8080

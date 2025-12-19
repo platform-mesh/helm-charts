@@ -1,0 +1,17 @@
+suite: istio
+templates:
+  - istio-*
+tests:
+  - it: matches the snapshot
+    values:
+      - test-values.yaml
+    asserts:
+      - matchSnapshot: {}
+  - it: matches the snapshot with istio disabled
+    values:
+      - test-values.yaml
+    set:
+      istio:
+        enabled: false
+    asserts:
+      - matchSnapshot: {}

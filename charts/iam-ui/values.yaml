@@ -1,0 +1,69 @@
+image:
+  name: ghcr.io/platform-mesh/iam-ui
+  pullPolicy: IfNotPresent
+  pullSecret: github
+
+deployment:
+  maxUnavailable: 0
+  maxSurge: 5
+
+imagePullSecret: "github"
+
+port: 8080
+
+health:
+  port: 8080
+  startup:
+    path: /healthz
+  readiness:
+    path: /healthz
+
+
+contentConfig:
+  baseDomain: localhost:8000/ui/iam
+  protocol: http
+
+istio:
+  enabled: true
+  virtualService:
+    hosts:
+      - "*"
+    matcher:
+      match:
+        - uri:
+            exact: /ui/iam
+        - uri:
+            prefix: /ui/iam/
+
+http:
+  protocol: https
+
+cors:
+  # -- toggle to enable CORS support
+  enabled: false
+
+gatewayApi:
+  enabled: false
+  httpRoute:
+    pathPrefix: /ui/iam
+    parentRefs:
+    - name: k8sapi-gateway
+      sectionName: websecure
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: Host
+          value: "*"
+    corsFilters:
+    - extensionRef:
+        group: traefik.io
+        kind: Middleware
+        name: cors-header
+      type: ExtensionRef
+
+exposure:
+  # -- hostnames to be used for exposure
+  hostnames:
+    - "portal.dev.local"
+    - "*.portal.dev.local"

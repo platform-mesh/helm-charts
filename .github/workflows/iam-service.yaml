@@ -1,0 +1,27 @@
+name: Build iam-service Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/iam-service/**'
+      - '.github/workflows/iam-service.yaml'
+      - '.ocm/component-constructor.yaml'
+  pull_request:
+    paths:
+      - 'charts/iam-service/**'
+      - '.github/workflows/iam-service.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: iam-service-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: iam-service
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+    secrets: inherit
+
