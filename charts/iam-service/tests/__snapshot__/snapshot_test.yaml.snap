@@ -65,6 +65,7 @@ match the snapshots:
           hostAliases:
             - hostnames:
                 - portal.dev.local
+                - kcp.api.portal.dev.local
               ip: 10.96.188.4
           imagePullSecrets:
             - name: github
@@ -160,36 +161,3 @@ match the snapshots:
       selector:
         app: iam-service
       type: ClusterIP
-  6: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: VirtualService
-    metadata:
-      name: iam-service
-      namespace: platform-mesh-system
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - portal.dev.local
-        - '*.portal.dev.local'
-      http:
-        - corsPolicy:
-            allowHeaders:
-              - Authorization
-              - Content-Type
-              - '*'
-            allowMethods:
-              - GET
-              - POST
-            allowOrigins:
-              - regex: .*
-          match:
-            - uri:
-                prefix: /iam/graphql
-          rewrite:
-            uri: /graphql
-          route:
-            - destination:
-                host: iam-service.platform-mesh-system.svc.cluster.local
-                port:
-                  number: 8080
