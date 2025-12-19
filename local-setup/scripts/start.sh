@@ -42,6 +42,7 @@ done
 
 # Source compatibility and environment checks
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
+source "$SCRIPT_DIR/check-macos-virtualization.sh"
 source "$SCRIPT_DIR/check-environment.sh"
 source "$SCRIPT_DIR/setup-registry-proxies.sh"
 

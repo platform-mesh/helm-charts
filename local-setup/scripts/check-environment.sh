@@ -181,6 +181,11 @@ run_environment_checks() {
         echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Architecture: $ARCH${COL_RES}"
     fi
 
+    # Check macOS virtualization framework (warning only, doesn't fail)
+    if command -v check_macos_virtualization &> /dev/null; then
+        check_macos_virtualization
+    fi
+
     # Check KCP plugin if example-data mode is enabled
     if [ "$EXAMPLE_DATA" = true ]; then
         if ! check_kcp_plugin; then
