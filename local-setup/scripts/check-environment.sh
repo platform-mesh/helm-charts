@@ -9,7 +9,7 @@ COL_RES='\033[0m'
 
 check_kind_cluster() {
     # Check if kind cluster is already running
-    if [ $(kind get clusters | grep -c platform-mesh) -gt 0 ]; then
+    if [ $(kind get clusters 2>/dev/null | grep -c platform-mesh) -gt 0 ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Kind cluster already running, using existing ${COL_RES}"
         kind export kubeconfig --name platform-mesh
         return 0  # Return 0 to indicate cluster exists
@@ -199,7 +199,7 @@ run_environment_checks() {
         exit 1
     fi
 
-    echo -e "${COL}✅ All environment checks passed!${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ All environment checks passed!${COL_RES}"
     echo ""
 }
 

@@ -493,8 +493,10 @@ tasks:
       FLAGS: '{{.FLAGS | default ""}}'
     cmds:
       - |
-        read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
-        kind delete cluster --name platform-mesh
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
+          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh
+        fi
         ./local-setup/scripts/start.sh {{.FLAGS}}
 
   local-setup:iterate:

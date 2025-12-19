@@ -63,19 +63,19 @@ if ! check_kind_cluster; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
         rm -rf "$SCRIPT_DIR/certs"
     fi
-    echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
     $SCRIPT_DIR/../scripts/gen-certs.sh
 
     if [ "$CACHED" = true ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached images ${COL_RES}"
+        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
     else
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
+        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
     fi
 fi
 
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
@@ -85,17 +85,17 @@ helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-comm
   --set imageReflectionController.create=false \
   --set notificationController.create=false \
   --set helmController.container.additionalArgs[0]="--concurrent=50" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
+  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
 
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s helm-controller
+  --timeout=120s helm-controller > /dev/null 2>&1
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s source-controller
+  --timeout=120s source-controller > /dev/null 2>&1
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s kustomize-controller
+  --timeout=120s kustomize-controller > /dev/null 2>&1
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base

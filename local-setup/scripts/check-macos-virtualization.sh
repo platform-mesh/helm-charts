@@ -23,18 +23,6 @@ check_docker_desktop_virtualization() {
     fi
 
     # Check for UseVirtualizationFramework or useVirtualizationFramework field
-    if command -v python3 &> /dev/null; then
-        local use_vz=$(python3 -c "import json; f=open('$settings_file'); data=json.load(f); print(data.get('UseVirtualizationFramework', data.get('useVirtualizationFramework', 'unknown')))" 2>/dev/null)
-        if [ "$use_vz" = "True" ] || [ "$use_vz" = "true" ]; then
-            echo "vz"
-            return
-        elif [ "$use_vz" = "False" ] || [ "$use_vz" = "false" ]; then
-            echo "qemu"
-            return
-        fi
-    fi
-
-    # Fallback: try grep for both field name variations
     if grep -qi '"UseVirtualizationFramework"[[:space:]]*:[[:space:]]*true' "$settings_file" 2>/dev/null || \
        grep -qi '"useVirtualizationFramework"[[:space:]]*:[[:space:]]*true' "$settings_file" 2>/dev/null; then
         echo "vz"
@@ -70,27 +58,6 @@ check_podman_virtualization() {
     echo "unknown"
 }
 
-check_colima_virtualization() {
-    # Check Colima configuration
-    local colima_config="$HOME/.colima/default/colima.yaml"
-
-    if [ ! -f "$colima_config" ]; then
-        echo "unknown"
-        return
-    fi
-
-    # Check vm_type field
-    if grep -q '^[[:space:]]*vm_type:[[:space:]]*vz' "$colima_config" 2>/dev/null; then
-        echo "vz"
-        return
-    elif grep -q '^[[:space:]]*vm_type:[[:space:]]*qemu' "$colima_config" 2>/dev/null; then
-        echo "qemu"
-        return
-    fi
-
-    echo "unknown"
-}
-
 show_docker_desktop_guidance() {
     echo -e "${YELLOW}To switch to Apple Virtualization Framework in Docker Desktop:${COL_RES}"
     echo -e "${YELLOW}  1. Open Docker Desktop${COL_RES}"
@@ -107,20 +74,11 @@ show_podman_guidance() {
     echo -e "${YELLOW}  4. Start the machine: podman machine start${COL_RES}"
 }
 
-show_colima_guidance() {
-    echo -e "${YELLOW}To use Apple Virtualization Framework with Colima:${COL_RES}"
-    echo -e "${YELLOW}  1. Stop Colima: colima stop${COL_RES}"
-    echo -e "${YELLOW}  2. Delete current instance: colima delete${COL_RES}"
-    echo -e "${YELLOW}  3. Start with VZ: colima start --vm-type=vz${COL_RES}"
-}
-
 check_macos_virtualization() {
     # Check if running on macOS
     if [ "$(uname -s)" != "Darwin" ]; then
         return 0  # Skip check on non-macOS systems
     fi
-
-    echo -e "${COL}[$(date '+%H:%M:%S')] Checking macOS virtualization framework...${COL_RES}"
 
     local virt_type="unknown"
     local runtime_name=""
@@ -135,10 +93,6 @@ check_macos_virtualization() {
         runtime_name="Podman"
         runtime_detected=true
         virt_type=$(check_podman_virtualization)
-    elif command -v colima &> /dev/null && colima status &> /dev/null 2>&1; then
-        runtime_name="Colima"
-        runtime_detected=true
-        virt_type=$(check_colima_virtualization)
     fi
 
     if [ "$runtime_detected" = false ]; then
@@ -151,9 +105,9 @@ check_macos_virtualization() {
         echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Apple Virtualization Framework (VZ) detected for $runtime_name${COL_RES}"
     elif [ "$virt_type" = "qemu" ]; then
         echo ""
-        echo -e "${YELLOW}⚠️  WARNING: QEMU virtualization detected on macOS${COL_RES}"
-        echo -e "${YELLOW}Docker containers running in kind may experience issues with QEMU virtualization.${COL_RES}"
-        echo -e "${YELLOW}For better performance and stability, we recommend using Apple Virtualization Framework (VZ).${COL_RES}"
+        echo -e "${YELLOW}⚠️  WARNING: A different virtualization framework was detected on macOS${COL_RES}"
+        echo -e "${YELLOW}Platform-mesh has been tested with Apple Virtualization Framework (VZ).${COL_RES}"
+        echo -e "${YELLOW}You may experience issues with other virtualization frameworks.${COL_RES}"
         echo ""
 
         # Show runtime-specific guidance
@@ -164,9 +118,6 @@ check_macos_virtualization() {
             "Podman")
                 show_podman_guidance
                 ;;
-            "Colima")
-                show_colima_guidance
-                ;;
         esac
 
         echo ""
@@ -174,7 +125,8 @@ check_macos_virtualization() {
         sleep 5
     else
         echo -e "${YELLOW}[$(date '+%H:%M:%S')] ⚠️  Could not determine virtualization framework for $runtime_name${COL_RES}"
-        echo -e "${YELLOW}If you experience issues with containers in kind, consider switching to Apple Virtualization Framework (VZ).${COL_RES}"
+        echo -e "${YELLOW}Platform-mesh has been tested with Apple Virtualization Framework (VZ).${COL_RES}"
+        echo -e "${YELLOW}If you experience issues, consider switching to Apple Virtualization Framework (VZ).${COL_RES}"
     fi
 
     echo ""
