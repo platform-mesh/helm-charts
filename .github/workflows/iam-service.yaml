@@ -12,6 +12,10 @@ on:
       - 'charts/iam-service/**'
       - '.github/workflows/iam-service.yaml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   pipeline:
     concurrency:
