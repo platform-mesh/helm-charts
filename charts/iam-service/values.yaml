@@ -1,0 +1,84 @@
+image:
+  name: ghcr.io/platform-mesh/iam-service
+  pullPolicy: IfNotPresent
+
+imagePullSecret: "github"
+
+health:
+  port: 8080
+
+cors:
+  enabled: false
+
+exposure:
+  # -- hostnames to be used for exposure
+  hostnames:
+    - "portal.dev.local"
+    - "*.portal.dev.local"
+
+gatewayApi:
+  httpRoute:
+    pathPrefix: /iam/graphql
+    parentRefs:
+      - name: k8sapi-gateway
+        sectionName: websecure
+    filters:
+      - type: URLRewrite
+        urlRewrite:
+          path:
+            type: ReplacePrefixMatch
+            replacePrefixMatch: /graphql
+    corsFilters:
+      - extensionRef:
+          group: traefik.io
+          kind: Middleware
+          name: cors-header
+        type: ExtensionRef
+
+port: 8080
+
+kcp:
+  kubeconfig:
+    secretName: iam-service-kubeconfig
+
+caSecret: ""
+
+hostAliases:
+  enabled: false
+  items:
+    - ip: 10.96.188.4
+      hostnames:
+        - portal.dev.local
+        - kcp.api.portal.dev.local
+
+keycloak:
+  baseUrl: https://portal.dev.local:8443/keycloak
+  client:
+    id: iam
+    secret:
+      name: iam-client-secret
+      key: attribute.client_secret
+
+# JWT configuration
+jwt:
+  userIdClaim: "email"
+
+roles:
+  raw:
+    roles:
+    - groupResource: core.platform-mesh.io/Account
+      roles:
+        - id: owner
+          displayName: Owner
+          description: Full access to all resources within the account.
+        - id: member
+          displayName: Member
+          description: Limited access to resources within the account. Can view and interact with resources but cannot administrate them.
+    - groupResource: Namespace
+      roles:
+        - id: owner
+          displayName: Owner
+          description: Full access to all resources within the account.
+        - id: member
+          displayName: Member
+          description: Limited access to resources within the account. Can view and interact with resources but cannot administrate them.
