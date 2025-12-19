@@ -63,7 +63,7 @@ hostAliases:
       hostnames:
         - portal.dev.local
         - kcp.api.portal.dev.local
-        
+
 keycloak:
   baseUrl: https://portal.dev.local:8443/keycloak
   client:
