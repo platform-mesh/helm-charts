@@ -105,5 +105,7 @@ spec:
             name: ${ocirepository.metadata.name}
             namespace: default
           values:
+            log:
+              noJson: true
             image:
               tag: ${resourceImage.status.?resource.?version}
