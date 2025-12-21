@@ -6,6 +6,8 @@ metadata:
 spec:
   exposure:
     port: 8443
+    baseDomain: portal.dev.local
+    protocol: https
   ocm:
     repo:
       name: platform-mesh
@@ -106,6 +108,27 @@ spec:
             database: postgres
     marketplace-ui:
       enabled: true
+      values:
+        hostAliases:
+          - hostnames:
+            - kcp.api.portal.dev.local
+            - portal.dev.local
+            ip: 10.96.188.4
+        cors:
+          enabled: true
+        gatewayApi:
+          enabled: true
+        listener:
+          virtualWorkspacesConfig:
+            content:
+              virtualWorkspaces:
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: contentconfigurations
+                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
+                - kubeconfig: /app/kubeconfig/kubeconfig
+                  name: marketplace
+                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
+            enabled: true
     iam-service:
       values:
         extraArgs:

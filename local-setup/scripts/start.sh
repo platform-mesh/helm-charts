@@ -94,7 +94,7 @@ if ! check_kind_infra_cluster; then
 
 fi
 
-kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.2 --name platform-mesh-infra
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.4 --name platform-mesh-infra
 
 mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
@@ -138,9 +138,9 @@ kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace flux-syst
   --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/kro
+# kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/kro
 kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/kro
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
+# kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
 kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
 
 
@@ -159,10 +159,12 @@ kubectl config set-cluster kind-platform-mesh \
   --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
 kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
   --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
+kubectl create secret generic platform-mesh-kubeconfig -n default \
+  --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
 
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=480s kro
+# kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace default \
+#   --for=condition=Ready helmreleases \
+#   --timeout=480s kro
 kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT kro
@@ -191,20 +193,23 @@ kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../k
 sleep 5
 kubectl  --kubeconfig .secret/platform-mesh.kubeconfig wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
 
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Install port-fixer on platform-mesh cluster ${COL_RES}"
+kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/port-fixer
+
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
 kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/rgd
-# kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
-#   --for=condition=Ready resourcegraphdefinition \
-#   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+  --for=condition=Ready resourcegraphdefinition \
+  --timeout=480s platform-mesh-operator
 
 kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default
 
-kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/ocm-component
+# kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/ocm-component
 
-
-# kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
-#   --for=condition=Ready PlatformMeshOperator \
-#   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+  --for=condition=Ready PlatformMeshOperator \
+  --timeout=480s platform-mesh-operator
 
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
 
