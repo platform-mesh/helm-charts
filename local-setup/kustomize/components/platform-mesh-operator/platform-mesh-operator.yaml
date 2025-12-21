@@ -11,10 +11,28 @@ spec:
         name: chart
   values:
     image:
-      tag: v0.27.0-rc.4
-    kubeConfigPlatformMesh:
+      tag: v0.27.0-rc.8
+    remoteFluxCD:
+      enabled: false
+    remotePlatformmesh:
       enabled: true
-      secretName: platform-mesh-kubeconfig
-    kubeConfigDeployment:
+      operator:
+        secretName: "platform-mesh-kubeconfig"
+        secretKey: "kubeconfig"
+      fluxcd:
+        secretName: "platform-mesh-kubeconfig"
+        secretKey: "kubeconfig"
+    hostAliases:
       enabled: true
-      secretName: platform-mesh-infra-kubeconfig
+      entries:
+        - ip: "172.18.0.6"
+          hostnames:
+            - kcp.api.portal.dev.local
+            - portal.dev.local
+    # extraArgs:
+    #   - --remote-fluxcd-enabled=false
+    #   - --remote-fluxcd-platform-mesh-kubeconfig-secret-name=platform-mesh-kubeconfig
+    #   - --remote-fluxcd-platform-mesh-kubeconfig-secret-key=kubeconfig
+    #   - --remote-platform-mesh-enabled=true
+    #   - --remote-platform-mesh-kubeconfig=/etc/k8s/platformmesh/kubeconfig
+
