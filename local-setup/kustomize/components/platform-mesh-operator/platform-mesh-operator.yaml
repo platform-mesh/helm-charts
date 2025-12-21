@@ -3,5 +3,18 @@ kind: PlatformMeshOperator
 metadata:
   name: platform-mesh-operator
 spec:
-  referencePath:
-    - name: platform-mesh-operator
+  resource:
+    byReference:
+      referencePath:
+        - name: platform-mesh-operator
+      resource:
+        name: chart
+  values:
+    image:
+      tag: v0.27.0-rc.1
+    kubeConfigPlatformMesh:
+      enabled: true
+      secretName: platform-mesh-kubeconfig
+    kubeConfigDeployment:
+      enabled: true
+      secretName: platform-mesh-infra-kubeconfig
