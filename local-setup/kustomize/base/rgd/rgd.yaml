@@ -8,6 +8,8 @@ spec:
     kind: PlatformMeshOperator
     spec:
       referencePath: "[]map[string]string | required=false"
+      resource: "object | required=true"
+      values: "object | required=false"
   resources:
     - id: resourceChart
       readyWhen:
@@ -104,8 +106,4 @@ spec:
             kind: OCIRepository
             name: ${ocirepository.metadata.name}
             namespace: default
-          values:
-            log:
-              noJson: true
-            image:
-              tag: ${resourceImage.status.?resource.?version}
+          values: ${schema.spec.values}
