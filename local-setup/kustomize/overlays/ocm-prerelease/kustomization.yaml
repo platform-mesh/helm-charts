@@ -5,14 +5,14 @@ resources:
   - prerelease-repository.yml
   - prerelease-component.yml
   - ../../components/platform-mesh-operator-resource/
-patches:
-  - target:
-      kind: PlatformMesh
-      name: platform-mesh
-    patch: |
-      - op: replace
-        path: /spec/ocm/repo/name
-        value: prerelease
-      - op: replace
-        path: /spec/ocm/component/name
-        value: prerelease
+# patches:
+#   - target:
+#       kind: PlatformMesh
+#       name: platform-mesh
+#     patch: |
+#       - op: replace
+#         path: /spec/ocm/repo/name
+#         value: prerelease
+#       - op: replace
+#         path: /spec/ocm/component/name
+#         value: prerelease
