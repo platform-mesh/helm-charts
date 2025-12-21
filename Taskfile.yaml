@@ -433,15 +433,15 @@ tasks:
     aliases:
       - ocm:apply
     cmds:
-      - kind export kubeconfig -n platform-mesh
+      - kind export kubeconfig -n platform-mesh-infra
       - |
         echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
         yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
 
       - |
-        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
+        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease --kubeconfig=.secret/platform-mesh-infra.kubeconfig
         echo "Applied kustomize overlay"
-      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
+      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system --kubeconfig=.secret/platform-mesh-infra.kubeconfig
 
   ocm:cleanup:
     cmds:

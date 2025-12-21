@@ -4,7 +4,7 @@ resources:
   - ocm-k8s-toolkit-patch.yaml
   - prerelease-repository.yml
   - prerelease-component.yml
-  - ../../components/platform-mesh-operator-resource/
+  # - ../../components/platform-mesh-operator-resource/
 # patches:
 #   - target:
 #       kind: PlatformMesh
