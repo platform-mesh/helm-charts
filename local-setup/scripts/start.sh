@@ -91,7 +91,10 @@ if ! check_kind_infra_cluster; then
         kind create cluster --config $SCRIPT_DIR/../kind/kind-config-infra.yaml --name platform-mesh-infra --image=$KINDEST_VERSION
     fi
     kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
+
 fi
+
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.1 --name platform-mesh-infra
 
 mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
@@ -140,6 +143,10 @@ kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
 kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
 
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Install CRDs ${COL_RES}"
+kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/crds
+
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating namespaces ${COL_RES}"
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
 kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
@@ -150,7 +157,7 @@ IP_ADDR=$(docker inspect platform-mesh-control-plane|jq '.[0] | .NetworkSettings
 kubectl config set-cluster kind-platform-mesh \
   --server=https://$IP_ADDR:6443 \
   --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
-kubectl create secret generic platform-mesh-kubeconfig -n default \
+kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
   --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
 
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace default \
@@ -205,17 +212,17 @@ kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../k
 
 # wait for kind: PlatformMesh resource to become ready
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
-kubectl wait --namespace platform-mesh-system \
+kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
-kubectl wait --namespace default \
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
-kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
+kubectl --kubeconfig .secret/platform-mesh.kubeconfig delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
-kubectl wait --namespace default \
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
 kubectl wait --namespace default \
