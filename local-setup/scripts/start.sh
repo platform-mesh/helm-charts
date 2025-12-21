@@ -216,22 +216,22 @@ kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace platform-
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
-kubectl wait --namespace default \
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT account-operator
-kubectl wait --namespace default \
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT portal
-kubectl wait --namespace default \
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT security-operator
 
