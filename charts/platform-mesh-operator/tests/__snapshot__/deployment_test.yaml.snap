@@ -700,6 +700,18 @@ operator match the snapshot:
           - realms/finalizers
         verbs:
           - update
+      - apiGroups:
+          - kustomize.toolkit.fluxcd.io
+        resources:
+          - kustomizations
+        verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
   2: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
