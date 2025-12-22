@@ -35,6 +35,12 @@ keycloak:
       name: security-operator-client-secret
       key: attribute.client_secret
 
+smtp:
+  password:
+    secret:
+      name: ""
+      key: ""
+
 initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""

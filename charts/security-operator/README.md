@@ -30,6 +30,8 @@ A Helm chart for security-operator
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |
 | region | string | `"local"` | region indicator, used for logging and observability |
+| smtp.password.secret.key | string | `""` |  |
+| smtp.password.secret.name | string | `""` |  |
 
 ## Overriding Values
 
