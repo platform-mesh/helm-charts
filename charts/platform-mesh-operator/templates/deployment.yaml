@@ -31,15 +31,15 @@ spec:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
-          {{- if .Values.remotePlatformmesh.enabled }}
-          - --remote-platform-mesh-enabled
-          - --remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig
-          - --remote-platform-mesh-fluxcd-secret-name={{ .Values.remotePlatformmesh.fluxcd.secretName }}
-          - --remote-platform-mesh-fluxcd-secret-key={{ .Values.remotePlatformmesh.fluxcd.secretKey }}
+          {{- if .Values.remoteRuntime.enabled }}
+          - --remote-runtime-enabled=true
+          - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
+          - --remote-runtime-infra-secret-name={{ .Values.remoteRuntime.infra.secretName }}
+          - --remote-runtime-infra-secret-key={{ .Values.remoteRuntime.infra.secretKey }}
           {{- end }}
-          {{- if .Values.remoteFluxCD.enabled }}
-          - --remote-fluxcd-enabled
-          - --remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig
+          {{- if .Values.remoteInfra.enabled }}
+          - --remote-infra-enabled
+          - --remote-infra-kubeconfig=/etc/infra/kubeconfig
           {{- end }}
           {{- include "common.extraArgs" . | nindent 10 }}
         ports:
@@ -47,32 +47,34 @@ spec:
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
         volumeMounts:
-        {{- if .Values.remoteFluxCD.enabled }}
-        - name: external-fluxcd-deployment
-          mountPath: /etc/fluxcd
+        {{- include "common.extraVolumeMounts" . | nindent 8 }}
+        {{- if .Values.remoteInfra.enabled }}
+        - name: external-infra-deployment
+          mountPath: /etc/infra
           readOnly: true
         {{- end }}
-        {{- if .Values.remotePlatformmesh.enabled }}
+        {{- if .Values.remoteRuntime.enabled }}
         - name: external-platformmesh-deployment
           mountPath: /etc/platformmesh
           readOnly: true
         {{- end }}
       {{ include "common.hostAliases" $ | nindent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
-      {{- if .Values.remotePlatformmesh.enabled }}
+      {{- if or .Values.extraVolumes .Values.remoteRuntime.enabled .Values.remoteInfra.enabled }}
       volumes:
-      {{- if .Values.remoteFluxCD.enabled }}
-      - name: external-fluxcd-deployment
+      {{- include "common.extraVolumes" . | nindent 6 }}
+      {{- if .Values.remoteInfra.enabled }}
+      - name: external-infra-deployment
         secret:
-          secretName: {{ .Values.remoteFluxCD.secretName }}
-          secretKey: {{ .Values.remoteFluxCD.secretKey }}
+          secretName: {{ .Values.remoteInfra.secretName }}
+          secretKey: {{ .Values.remoteInfra.secretKey }}
           defaultMode: 420
       {{- end }}
-      {{- if .Values.remotePlatformmesh.enabled }}
+      {{- if .Values.remoteRuntime.enabled }}
       - name: external-platformmesh-deployment
         secret:
-          secretName: {{ .Values.remotePlatformmesh.operator.secretName }}
-          secretKey: {{ .Values.remotePlatformmesh.operator.secretKey }}
+          secretName: {{ .Values.remoteRuntime.secretName }}
+          secretKey: {{ .Values.remoteRuntime.secretKey }}
           defaultMode: 420
       {{- end }}
       {{- end }}

@@ -106,60 +106,77 @@ tests:
     - equal:
         path: spec.template.spec.containers[0].args[?(@=="--another-arg=anotherValue")]
         value: "--another-arg=anotherValue"
-- it: enable remote PlatformMesh and FluxCD
+- it: enable remote PlatformMesh and Infra
   template: deployment.yaml
   set:
-    remoteFluxCD:
+    remoteInfra:
       enabled: true
       secretName: "kubeconfig-platformmesh"
       secretKey: "kubeconfig"
-    remotePlatformmesh:
+    remoteRuntime:
       enabled: true
-      operator:
-        secretName: "kubeconfig-deployment"
-      fluxcd:
+      secretName: "kubeconfig-deployment"
+      infra:
         secretName: "kubeconfig-platformmesh"
         secretKey: "kubeconfig"
   asserts:
     - matchSnapshot: {}
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-enabled")]
-        value: "--remote-fluxcd-enabled"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-infra-enabled")]
+        value: "--remote-infra-enabled"
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig")]
-        value: "--remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-infra-kubeconfig=/etc/infra/kubeconfig")]
+        value: "--remote-infra-kubeconfig=/etc/infra/kubeconfig"
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled")]
-        value: "--remote-platform-mesh-enabled"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-enabled=true")]
+        value: "--remote-runtime-enabled=true"
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig")]
-        value: "--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig")]
+        value: "--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig"
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh")]
-        value: "--remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-infra-secret-name=kubeconfig-platformmesh")]
+        value: "--remote-runtime-infra-secret-name=kubeconfig-platformmesh"
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-fluxcd-secret-key=kubeconfig")]
-        value: "--remote-platform-mesh-fluxcd-secret-key=kubeconfig"
-- it: enable remote PlatformMesh and local FluxCD
+        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-infra-secret-key=kubeconfig")]
+        value: "--remote-runtime-infra-secret-key=kubeconfig"
+- it: enable remote PlatformMesh and local infra
   template: deployment.yaml
   set:
-    remoteFluxCD:
+    remoteInfra:
       enabled: false
-    remotePlatformmesh:
+    remoteRuntime:
       enabled: true
-      operator:
-        secretName: "kubeconfig-deployment"
-        secretKey: "kubeconfig"
-      fluxcd:
+      secretName: "kubeconfig-deployment"
+      secretKey: "kubeconfig"
+      infra:
         secretName: "kubeconfig-platformmesh"
   asserts:
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-enabled")]
-        value: "--remote-platform-mesh-enabled"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-enabled=true")]
+        value: "--remote-runtime-enabled=true"
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig")]
-        value: "--remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig")]
+        value: "--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig"
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh")]
-        value: "--remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh"
+        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-infra-secret-name=kubeconfig-platformmesh")]
+        value: "--remote-runtime-infra-secret-name=kubeconfig-platformmesh"
     - notFailedTemplate: {}
+- it: configure extraVolumes and extraVolumeMounts
+  template: deployment.yaml
+  set:
+    extraVolumes:
+      - name: extra-volume
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: extra-volume-mount
+        mountPath: /mnt/extra
+  asserts:
+    - matchSnapshot: {}
+    - equal:
+        path: spec.template.spec.volumes[?(@.name=="extra-volume")]
+        value:
+          emptyDir: {}
+          name: extra-volume
+    - equal:
+        path: spec.template.spec.containers[0].volumeMounts[?(@.name=="extra-volume-mount")].mountPath
+        value: /mnt/extra

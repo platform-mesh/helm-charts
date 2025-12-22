@@ -1,3 +1,97 @@
+configure extraVolumes and extraVolumeMounts:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: platform-mesh-operator
+      namespace: NAMESPACE
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: platform-mesh-operator
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+        type: RollingUpdate
+      template:
+        metadata:
+          annotations: null
+          labels:
+            app: platform-mesh-operator
+            control-plane: controller-manager
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - operator
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=debug
+                - --region=local
+                - --environment=local
+                - --image-tag=0.0.0
+                - --image-name="ghcr.io/platform-mesh/platform-mesh-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
+                - --subroutines-feature-toggles-enabled=true
+                - --subroutines-deployment-enable-istio=false
+                - --subroutines-feature-toggles-enabled=true
+              env: null
+              image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: platform-mesh-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 512Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /mnt/extra
+                  name: extra-volume-mount
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: platform-mesh-operator
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - emptyDir: {}
+              name: extra-volume
 configure hosAliases:
   1: |
     apiVersion: apps/v1
@@ -274,7 +368,7 @@ disables istio sidecar injection:
               type: RuntimeDefault
           serviceAccountName: platform-mesh-operator
           terminationGracePeriodSeconds: 10
-enable remote PlatformMesh and FluxCD:
+enable remote PlatformMesh and Infra:
   1: |
     apiVersion: apps/v1
     kind: Deployment
@@ -315,12 +409,12 @@ enable remote PlatformMesh and FluxCD:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --remote-platform-mesh-enabled
-                - --remote-platform-mesh-kubeconfig=/etc/platformmesh/kubeconfig
-                - --remote-platform-mesh-fluxcd-secret-name=kubeconfig-platformmesh
-                - --remote-platform-mesh-fluxcd-secret-key=kubeconfig
-                - --remote-fluxcd-enabled
-                - --remote-fluxcd-kubeconfig=/etc/fluxcd/kubeconfig
+                - --remote-runtime-enabled=true
+                - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
+                - --remote-runtime-infra-secret-name=kubeconfig-platformmesh
+                - --remote-runtime-infra-secret-key=kubeconfig
+                - --remote-infra-enabled
+                - --remote-infra-kubeconfig=/etc/infra/kubeconfig
                 - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
@@ -363,8 +457,8 @@ enable remote PlatformMesh and FluxCD:
                   port: 8090
                 periodSeconds: 10
               volumeMounts:
-                - mountPath: /etc/fluxcd
-                  name: external-fluxcd-deployment
+                - mountPath: /etc/infra
+                  name: external-infra-deployment
                   readOnly: true
                 - mountPath: /etc/platformmesh
                   name: external-platformmesh-deployment
@@ -376,7 +470,7 @@ enable remote PlatformMesh and FluxCD:
           serviceAccountName: platform-mesh-operator
           terminationGracePeriodSeconds: 10
           volumes:
-            - name: external-fluxcd-deployment
+            - name: external-infra-deployment
               secret:
                 defaultMode: 420
                 secretKey: kubeconfig
