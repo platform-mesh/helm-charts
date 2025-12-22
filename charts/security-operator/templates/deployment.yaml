@@ -49,6 +49,13 @@ spec:
               secretKeyRef:
                 name: {{ .Values.keycloak.client.secret.name }}
                 key: {{ .Values.keycloak.client.secret.key }}
+          {{- if .Values.smtp.password.secret.name }}
+          - name: IDP_SMTP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.smtp.password.secret.name }}
+                key: {{ .Values.smtp.password.secret.key }}
+          {{- end }}
         volumeMounts:
           {{- if .Values.kubeconfigSecret }}
           - name: external-api-server
