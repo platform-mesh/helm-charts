@@ -94,7 +94,7 @@ if ! check_kind_infra_cluster; then
 
 fi
 
-kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.8 --name platform-mesh-infra
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.9 --name platform-mesh-infra
 
 mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
@@ -145,6 +145,7 @@ kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../ku
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install CRDs ${COL_RES}"
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/crds
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/crds
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating namespaces ${COL_RES}"
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
@@ -196,18 +197,26 @@ kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../ku
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
 
-# echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
-# kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/rgd
-# kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
-#   --for=condition=Ready resourcegraphdefinition \
-#   --timeout=480s platform-mesh-operator
+echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/rgd
+kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+  --for=condition=Ready resourcegraphdefinition \
+  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
-kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default
+if [ "$LATEST" = true ]; then
+  kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
+else
+  kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default
+fi
 kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default-runtime
 
-# kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
-#   --for=condition=Ready PlatformMeshOperator \
-#   --timeout=480s platform-mesh-operator
+kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+  --for=condition=Ready PlatformMeshOperator \
+  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+
+# Install Platform-Mesh Runtime
+echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
+kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource
 
 
 # wait for kind: PlatformMesh resource to become ready
