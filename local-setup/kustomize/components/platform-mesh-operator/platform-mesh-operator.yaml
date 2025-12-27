@@ -3,25 +3,13 @@ kind: PlatformMeshOperator
 metadata:
   name: platform-mesh-operator
 spec:
+  referencePath:
+    - name: platform-mesh-operator
   resource:
-    byReference:
-      referencePath:
-        - name: platform-mesh-operator
-      resource:
-        name: chart
+    name: chart
   values:
     image:
-      tag: v0.27.0-rc.8
-    remoteFluxCD:
-      enabled: false
-    remotePlatformmesh:
-      enabled: true
-      operator:
-        secretName: "platform-mesh-kubeconfig"
-        secretKey: "kubeconfig"
-      fluxcd:
-        secretName: "platform-mesh-kubeconfig"
-        secretKey: "kubeconfig"
+      tag: v0.27.0-rc.9
     hostAliases:
       enabled: true
       entries:
@@ -30,9 +18,12 @@ spec:
             - kcp.api.portal.dev.local
             - portal.dev.local
     # extraArgs:
-    #   - --remote-fluxcd-enabled=false
-    #   - --remote-fluxcd-platform-mesh-kubeconfig-secret-name=platform-mesh-kubeconfig
-    #   - --remote-fluxcd-platform-mesh-kubeconfig-secret-key=kubeconfig
-    #   - --remote-platform-mesh-enabled=true
-    #   - --remote-platform-mesh-kubeconfig=/etc/k8s/platformmesh/kubeconfig
-
+    #   - --remote-infra-enabled=true
+    #   - --remote-infra-kubeconfig=platform-mesh-kubeconfig
+    remoteRuntime:
+      enabled: true
+      secretName: "platform-mesh-kubeconfig"
+      secretKey: "kubeconfig"
+      infra:
+        secretName: "platform-mesh-kubeconfig"
+        secretKey: "kubeconfig"
