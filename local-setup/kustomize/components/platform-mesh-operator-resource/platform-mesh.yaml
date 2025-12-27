@@ -68,11 +68,6 @@ spec:
         baseDomain: "{{ .baseDomain }}:{{ .port }}"
         initializer:
           extraArgs:
-            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-            - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
-        initializer:
-          extraArgs:
             - --domain-ca-lookup
             # remove arguments below when the operator and the portal are ready
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
@@ -112,7 +107,7 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
-      enabled: true
+      enabled: false
       values:
         hostAliases:
           - hostnames:
@@ -142,3 +137,38 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
+    kubernetes-graphql-gateway:
+      enabled: true
+      values:
+        istio:
+          enabled: false
+        gatewayApi:
+          enabled: true
+        hostAliases:
+          enabled: true
+          # entries:
+          #   - ip: "10.96.188.4"
+          #     hostnames:
+          #       - "kcp.api.portal.dev.local"
+          #       - "portal.dev.local"
+        tracing:
+          enabled: false
+        trust:
+          default:
+            trustedIssuer: "https://{{ .baseDomainPort }}/keycloak/realms/default"
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            audience: default
+        kubeConfig:
+          enabled: true
+          secretName: kubernetes-grapqhl-gateway-kubeconfig
+        listener:
+          virtualWorkspacesConfig:
+            enabled: true
+            content:
+              virtualWorkspaces:
+                - name: contentconfigurations
+                  url: "https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations"
+                  kubeconfig: /app/kubeconfig/kubeconfig
+                - name: marketplace
+                  url: "https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace"
+                  kubeconfig: /app/kubeconfig/kubeconfig
