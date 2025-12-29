@@ -9,7 +9,7 @@ spec:
     name: chart
   values:
     image:
-      tag: v0.27.0-rc.9
+      tag: v0.27.0-rc.10
     hostAliases:
       enabled: true
       entries:
