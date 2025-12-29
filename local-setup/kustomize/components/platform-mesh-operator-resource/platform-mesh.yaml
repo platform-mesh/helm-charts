@@ -6,8 +6,6 @@ metadata:
 spec:
   exposure:
     port: 8443
-    baseDomain: portal.dev.local
-    protocol: https
   ocm:
     repo:
       name: platform-mesh
@@ -47,12 +45,6 @@ spec:
         hostAliases:
           enabled: true
         kcp:
-          rootShard:
-            extraArgs:
-              - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}
-          webhook:
-            enabled: true
           frontProxy:
             clusterIP: "10.96.0.100"
         keycloak:
@@ -65,7 +57,13 @@ spec:
                   - "https://*"
     security-operator:
       values:
-        baseDomain: "{{ .Values.baseDomainPort }}"
+        log:
+          noJson: true
+        fga:
+          extraArgs:
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.dev.local
         initializer:
           extraArgs:
             - --domain-ca-lookup
@@ -107,28 +105,7 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
-      enabled: false
-      values:
-        hostAliases:
-          - hostnames:
-            - kcp.api.portal.dev.local
-            - portal.dev.local
-            ip: 10.96.188.4
-        cors:
-          enabled: true
-        gatewayApi:
-          enabled: true
-        listener:
-          virtualWorkspacesConfig:
-            content:
-              virtualWorkspaces:
-                - kubeconfig: /app/kubeconfig/kubeconfig
-                  name: contentconfigurations
-                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
-                - kubeconfig: /app/kubeconfig/kubeconfig
-                  name: marketplace
-                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
-            enabled: true
+      enabled: true
     iam-service:
       values:
         extraArgs:
@@ -137,38 +114,3 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-    kubernetes-graphql-gateway:
-      enabled: true
-      values:
-        istio:
-          enabled: false
-        gatewayApi:
-          enabled: true
-        hostAliases:
-          enabled: true
-          # entries:
-          #   - ip: "10.96.188.4"
-          #     hostnames:
-          #       - "kcp.api.portal.dev.local"
-          #       - "portal.dev.local"
-        tracing:
-          enabled: false
-        trust:
-          default:
-            trustedIssuer: "https://{{ .Values.baseDomainPort }}/keycloak/realms/default"
-            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            audience: default
-        kubeConfig:
-          enabled: true
-          secretName: kubernetes-grapqhl-gateway-kubeconfig
-        listener:
-          virtualWorkspacesConfig:
-            enabled: true
-            content:
-              virtualWorkspaces:
-                - name: contentconfigurations
-                  url: "https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations"
-                  kubeconfig: /app/kubeconfig/kubeconfig
-                - name: marketplace
-                  url: "https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace"
-                  kubeconfig: /app/kubeconfig/kubeconfig
