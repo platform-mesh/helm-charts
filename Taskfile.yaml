@@ -433,15 +433,15 @@ tasks:
     aliases:
       - ocm:apply
     cmds:
-      - kind export kubeconfig -n platform-mesh-infra
+      - kind export kubeconfig -n platform-mesh
       - |
         echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
         yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
 
       - |
-        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease --kubeconfig=.secret/platform-mesh-infra.kubeconfig
+        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
         echo "Applied kustomize overlay"
-      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system --kubeconfig=.secret/platform-mesh-infra.kubeconfig
+      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
   ocm:cleanup:
     cmds:
@@ -585,8 +585,7 @@ tasks:
   local-setup-remotedeployment:
     deps:
       - task: setup:mkcert
-    vars:
-      FLAGS: '{{.FLAGS | default ""}}'
+    vars: {FLAGS: "--cached --latest"}
     cmds:
       - |
         if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
@@ -597,4 +596,12 @@ tasks:
           read -r -p "Are you sure you want to delete the infra cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
           kind delete cluster --name platform-mesh-infra
         fi
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:iterate:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest"}
+    cmds:
+      - |
         local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
