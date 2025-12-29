@@ -72,36 +72,14 @@ if ! check_kind_cluster; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
         kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
     fi
-    kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
 fi
-
-# Check if kind infra cluster is already running, if not create it
-if ! check_kind_infra_cluster; then
-    if [ -d "$SCRIPT_DIR/certs" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
-        rm -rf "$SCRIPT_DIR/certs"
-    fi
-    echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind infra cluster ${COL_RES}"
-    $SCRIPT_DIR/../scripts/gen-certs.sh
-
-    if [ "$CACHED" = true ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind infra cluster with cached image ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-infra-cached.yaml --name platform-mesh-infra --image=$KINDEST_VERSION
-    else
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-infra.yaml --name platform-mesh-infra --image=$KINDEST_VERSION
-    fi
-    kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
-
-fi
-
-kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.9 --name platform-mesh-infra
 
 mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
-HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig .secret/platform-mesh-infra.kubeconfig -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
   --version 2.17.1 \
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
@@ -109,138 +87,91 @@ HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig .secret/pl
   --set helmController.container.additionalArgs[0]="--concurrent=50" \
   --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
 
-HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig .secret/platform-mesh.kubeconfig -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.17.1 \
-  --set imageAutomationController.create=false \
-  --set imageReflectionController.create=false \
-  --set notificationController.create=false \
-  --set helmController.container.additionalArgs[0]="--concurrent=10" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
-
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
-
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace flux-system \
+kubectl wait --namespace flux-system \
   --for=condition=available deployment \
   --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace flux-system \
+kubectl wait --namespace flux-system \
   --for=condition=available deployment \
   --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace flux-system \
+kubectl wait --namespace flux-system \
   --for=condition=available deployment \
   --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/kro
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
+kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Install CRDs ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/crds
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/crds
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Creating namespaces ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
-
-# add platform-mesh kubeconfig to the infra cluster as a secret
-cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
-IP_ADDR=$(docker inspect platform-mesh-control-plane|jq '.[0] | .NetworkSettings | .Networks | .kind | .IPAddress' -r)
-kubectl config set-cluster kind-platform-mesh \
-  --server=https://$IP_ADDR:6443 \
-  --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
-kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
-  --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
-kubectl create secret generic platform-mesh-kubeconfig -n default \
-  --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
-
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT kro
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
-kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f -
-kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f -
+#kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl create secret generic domain-certificate -n default \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
   --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
   --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
-  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f -
+  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
 
 kubectl create secret generic domain-certificate -n platform-mesh-system \
   --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
   --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
   --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
-  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f -
+  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
 
 kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
-  --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f -
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh CRDs ${COL_RES}"
-kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/platform-mesh-operator-crds
-sleep 5
-kubectl  --kubeconfig .secret/platform-mesh.kubeconfig wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
-
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Install port-fixer on platform-mesh cluster ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/port-fixer
-
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+  --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/rgd
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
+kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
 if [ "$LATEST" = true ]; then
-  kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using LATEST OCM Component version ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
 else
-  kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using RELEASED OCM Component version ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
 fi
-kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default-runtime
 
-kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+kubectl wait --namespace default \
   --for=condition=Ready PlatformMeshOperator \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
-# Install Platform-Mesh Runtime
-echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
-kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource
-
+if [ "$EXAMPLE_DATA" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+else
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+fi
 
 # wait for kind: PlatformMesh resource to become ready
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace platform-mesh-system \
+kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
+kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
+kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
+kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
+kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT account-operator
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
+kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT portal
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
+kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT security-operator
 
