@@ -203,12 +203,8 @@ kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace def
   --for=condition=Ready resourcegraphdefinition \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
-if [ "$LATEST" = true ]; then
-  kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
-else
-  kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default
-fi
-kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/default-runtime
+kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/infra
+kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
 
 kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
   --for=condition=Ready PlatformMeshOperator \

@@ -17,13 +17,3 @@ spec:
           hostnames:
             - kcp.api.portal.dev.local
             - portal.dev.local
-    # extraArgs:
-    #   - --remote-infra-enabled=true
-    #   - --remote-infra-kubeconfig=platform-mesh-kubeconfig
-    remoteRuntime:
-      enabled: true
-      secretName: "platform-mesh-kubeconfig"
-      secretKey: "kubeconfig"
-      infra:
-        secretName: "platform-mesh-kubeconfig"
-        secretKey: "kubeconfig"
