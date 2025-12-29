@@ -50,7 +50,7 @@ spec:
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}
+              - --shard-virtual-workspace-url=https://kcp.api.{{ .baseDomainPort }}
           webhook:
             enabled: true
           frontProxy:
@@ -65,7 +65,7 @@ spec:
                   - "https://*"
     security-operator:
       values:
-        baseDomain: "{{ .Values.baseDomainPort }}"
+        baseDomain: "{{ .baseDomainPort }}"
         initializer:
           extraArgs:
             - --domain-ca-lookup
@@ -81,9 +81,9 @@ spec:
       values:
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-            value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
+            value: https://${org-subdomain}{{ .baseDomainPort }}/iam/graphql
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-            value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+            value: "https://${org-subdomain}{{ .baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
@@ -155,7 +155,7 @@ spec:
           enabled: false
         trust:
           default:
-            trustedIssuer: "https://{{ .Values.baseDomainPort }}/keycloak/realms/default"
+            trustedIssuer: "https://{{ .baseDomainPort }}/keycloak/realms/default"
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             audience: default
         kubeConfig:
