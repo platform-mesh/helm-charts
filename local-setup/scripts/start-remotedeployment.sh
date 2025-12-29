@@ -212,7 +212,7 @@ kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace de
 
 # Install Platform-Mesh Runtime
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
-kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource
+kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource-new
 
 
 # wait for kind: PlatformMesh resource to become ready
