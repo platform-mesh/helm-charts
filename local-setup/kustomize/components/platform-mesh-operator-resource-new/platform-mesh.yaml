@@ -49,15 +49,6 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-        kcp:
-          rootShard:
-            extraArgs:
-              - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.{{ .baseDomainPort }}
-          webhook:
-            enabled: true
-          frontProxy:
-            clusterIP: "10.96.0.100"
         keycloak:
           crossplane:
             clients:
