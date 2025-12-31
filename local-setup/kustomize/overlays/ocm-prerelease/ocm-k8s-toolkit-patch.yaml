@@ -5,6 +5,7 @@ metadata:
   namespace: default
 spec:
   interval: 1m
+  timeout: 3m
   targetNamespace: ocm-system
   sourceRef:
     kind: GitRepository

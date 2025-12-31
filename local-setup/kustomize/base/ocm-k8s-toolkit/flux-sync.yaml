@@ -4,6 +4,7 @@ metadata:
   name: ocm-k8s-toolkit
   namespace: default
 spec:
+  timeout: 3m
   interval: 1m
   url: https://github.com/open-component-model/open-component-model
   ref:
