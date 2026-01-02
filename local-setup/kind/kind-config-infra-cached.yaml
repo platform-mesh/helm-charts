@@ -1,0 +1,23 @@
+apiVersion: kind.x-k8s.io/v1alpha4
+kind: Cluster
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."quay.io"]
+      endpoint = ["http://proxy-quay:5000"]
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."ghcr.io"]
+      endpoint = ["http://proxy-ghcr:5000"]
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.k8s.io"]
+      endpoint = ["http://proxy-k8s-io:5000"]
+nodes:
+- role: control-plane
+  # extraPortMappings:
+  # - containerPort: 31000
+  #   hostPort: 8443
+  #   protocol: TCP
+  #   listenAddress: "127.0.0.1"
+  # - containerPort: 32000
+  #   hostPort: 15021
+  #   protocol: TCP
+  #   listenAddress: "127.0.0.1"
