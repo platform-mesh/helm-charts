@@ -15,6 +15,10 @@ spec:
   featureToggles:
    - name: "feature-enable-getting-started"
   values:
+    etcd-druid:
+      values:
+        image:
+          tag: v0.31.0
     keycloak:
       enabled: true
       values:
@@ -118,3 +122,34 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
+    kubernetes-graphql-gateway:
+      enabled: true
+      values:
+        gatewayApi:
+          enabled: true
+        hostAliases:
+          enabled: true
+        istio:
+          enabled: false
+        kubeConfig:
+          enabled: true
+          secretName: kubernetes-grapqhl-gateway-kubeconfig
+        listener:
+          virtualWorkspacesConfig:
+            content:
+              virtualWorkspaces:
+              - kubeconfig: /app/kubeconfig/kubeconfig
+                name: contentconfigurations
+                url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
+              - kubeconfig: /app/kubeconfig/kubeconfig
+                name: marketplace
+                url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
+            enabled: true
+        tracing:
+          enabled: false
+        trust:
+          default:
+            audience: default
+            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
+            trustedIssuer: https://{{ .baseDomainPort }}/keycloak/realms/default
+
