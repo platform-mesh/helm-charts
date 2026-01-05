@@ -422,20 +422,20 @@ jobs:
           echo "Full component descriptor:"
           echo "---"
           ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
-            -o yaml .ocm/transport.ctf
+            --repo .ocm/transport.ctf -o yaml
           echo ""
 
           # Show component references (platform-mesh components)
           echo "Platform-mesh component references:"
           ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
-            -o json .ocm/transport.ctf | \
+            --repo .ocm/transport.ctf -o json | \
             jq -r '.component.componentReferences[] | "  - \(.name): \(.version)"' | sort
           echo ""
 
           # Show resources (third-party components)
           echo "Resources (third-party components):"
           ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
-            -o json .ocm/transport.ctf | \
+            --repo .ocm/transport.ctf -o json | \
             jq -r '.component.resources[] | "  - \(.name) (\(.type)): \(.version)"' | sort
           echo ""
 
