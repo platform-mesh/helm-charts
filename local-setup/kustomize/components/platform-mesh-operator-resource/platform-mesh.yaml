@@ -87,6 +87,16 @@ spec:
       values:
         gatewayApi:
           enabled: true
+          httpRoute:
+            pathPrefix: /
+            hostnames:
+            - "portal.dev.local"
+            - "*.portal.dev.local"
+            parentRefs:
+            - name: k8sapi-gateway
+              sectionName: websecure
+              namespace: platform-mesh-system
+              kind: Gateway
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
             value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
