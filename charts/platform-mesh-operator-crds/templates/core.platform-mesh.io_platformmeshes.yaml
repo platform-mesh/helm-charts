@@ -14,311 +14,427 @@ spec:
     singular: platformmesh
   scope: Namespaced
   versions:
-  - additionalPrinterColumns:
-    - description: KCP status (shows reason if Unknown)
-      jsonPath: .status.conditions[?(@.type=='KcpsetupSubroutine_Ready')].status
-      name: KCP
-      type: string
-    - description: KCP reason if status is Unknown
-      jsonPath: .status.conditions[?(@.type=='KcpsetupSubroutine_Ready')].reason
-      name: KCP_REASON
-      priority: 1
-      type: string
-    - description: Provider Secret status (shows reason if Unknown)
-      jsonPath: .status.conditions[?(@.type=='ProvidersecretSubroutine_Ready')].status
-      name: SECRET
-      type: string
-    - description: Provider Secret reason if status is Unknown
-      jsonPath: .status.conditions[?(@.type=='ProvidersecretSubroutine_Ready')].reason
-      name: SECRET_REASON
-      priority: 1
-      type: string
-    - description: Deployment status (shows reason if Unknown)
-      jsonPath: .status.conditions[?(@.type=='DeploymentSubroutine_Ready')].status
-      name: DEPLOYMENT
-      type: string
-    - description: Deployment reason if status is Unknown
-      jsonPath: .status.conditions[?(@.type=='DeploymentSubroutine_Ready')].reason
-      name: DEPLOYMENT_REASON
-      priority: 1
-      type: string
-    - description: Shows if resource is ready
-      jsonPath: .status.conditions[?(@.type=='Ready')].status
-      name: Ready
-      type: string
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: PlatformMesh is the Schema for the platform-mesh API
-        properties:
-          apiVersion:
-            description: |-
-              APIVersion defines the versioned schema of this representation of an object.
-              Servers should convert recognized schemas to the latest internal value, and
-              may reject unrecognized values.
-              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-            type: string
-          kind:
-            description: |-
-              Kind is a string value representing the REST resource this object represents.
-              Servers may infer this from the endpoint the client submits requests to.
-              Cannot be updated.
-              In CamelCase.
-              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-            type: string
-          metadata:
-            type: object
-          spec:
-            description: PlatformMeshSpec defines the desired state of PlatformMesh
-            properties:
-              exposure:
-                properties:
-                  baseDomain:
-                    type: string
-                  port:
-                    type: integer
-                  protocol:
-                    type: string
-                type: object
-              featureToggles:
-                items:
+    - additionalPrinterColumns:
+        - description: KCP status (shows reason if Unknown)
+          jsonPath: .status.conditions[?(@.type=='KcpsetupSubroutine_Ready')].status
+          name: KCP
+          type: string
+        - description: KCP reason if status is Unknown
+          jsonPath: .status.conditions[?(@.type=='KcpsetupSubroutine_Ready')].reason
+          name: KCP_REASON
+          priority: 1
+          type: string
+        - description: Provider Secret status (shows reason if Unknown)
+          jsonPath: .status.conditions[?(@.type=='ProvidersecretSubroutine_Ready')].status
+          name: SECRET
+          type: string
+        - description: Provider Secret reason if status is Unknown
+          jsonPath: .status.conditions[?(@.type=='ProvidersecretSubroutine_Ready')].reason
+          name: SECRET_REASON
+          priority: 1
+          type: string
+        - description: Deployment status (shows reason if Unknown)
+          jsonPath: .status.conditions[?(@.type=='DeploymentSubroutine_Ready')].status
+          name: DEPLOYMENT
+          type: string
+        - description: Deployment reason if status is Unknown
+          jsonPath: .status.conditions[?(@.type=='DeploymentSubroutine_Ready')].reason
+          name: DEPLOYMENT_REASON
+          priority: 1
+          type: string
+        - description: Shows if resource is ready
+          jsonPath: .status.conditions[?(@.type=='Ready')].status
+          name: Ready
+          type: string
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: PlatformMesh is the Schema for the platform-mesh API
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: PlatformMeshSpec defines the desired state of PlatformMesh
+              properties:
+                exposure:
                   properties:
-                    name:
+                    baseDomain:
                       type: string
-                    parameters:
-                      additionalProperties:
-                        type: string
-                      type: object
+                    port:
+                      type: integer
+                    protocol:
+                      type: string
                   type: object
-                type: array
-              infraValues:
-                x-kubernetes-preserve-unknown-fields: true
-              kcp:
-                properties:
-                  extraDefaultAPIBindings:
-                    items:
-                      properties:
-                        export:
-                          type: string
-                        path:
-                          type: string
-                        workspaceTypePath:
-                          type: string
-                      required:
-                      - export
-                      - path
-                      - workspaceTypePath
-                      type: object
-                    type: array
-                  extraInitializerConnections:
-                    items:
-                      properties:
-                        namespace:
-                          type: string
-                        path:
-                          type: string
-                        secret:
-                          type: string
-                        workspaceTypeName:
-                          type: string
-                      required:
-                      - path
-                      - workspaceTypeName
-                      type: object
-                    type: array
-                  extraProviderConnections:
-                    items:
-                      properties:
-                        endpointSliceName:
-                          type: string
-                        external:
-                          type: boolean
-                        namespace:
-                          type: string
-                        path:
-                          type: string
-                        rawPath:
-                          type: string
-                        secret:
-                          type: string
-                      required:
-                      - endpointSliceName
-                      type: object
-                    type: array
-                  extraWorkspaces:
-                    description: ExtraWorkspaces allows declaring additional workspaces
-                      that the operator will create.
-                    items:
-                      description: WorkspaceDeclaration defines a workspace to be
-                        created by the operator.
-                      properties:
-                        path:
-                          description: Path is the full logical path of the workspace
-                            to be created (e.g., "root:orgs:my-workspace").
-                          type: string
-                        type:
-                          description: Type defines the WorkspaceType for the new
-                            workspace.
-                          properties:
-                            name:
-                              description: Name is the name of the WorkspaceType.
-                              type: string
-                            path:
-                              description: Path is the logical cluster path where
-                                the WorkspaceType is defined.
-                              type: string
-                          required:
-                          - name
-                          - path
-                          type: object
-                      required:
-                      - path
-                      - type
-                      type: object
-                    type: array
-                  initializerConnections:
-                    items:
-                      properties:
-                        namespace:
-                          type: string
-                        path:
-                          type: string
-                        secret:
-                          type: string
-                        workspaceTypeName:
-                          type: string
-                      required:
-                      - path
-                      - workspaceTypeName
-                      type: object
-                    type: array
-                  providerConnections:
-                    items:
-                      properties:
-                        endpointSliceName:
-                          type: string
-                        external:
-                          type: boolean
-                        namespace:
-                          type: string
-                        path:
-                          type: string
-                        rawPath:
-                          type: string
-                        secret:
-                          type: string
-                      required:
-                      - endpointSliceName
-                      type: object
-                    type: array
-                type: object
-              ocm:
-                properties:
-                  component:
+                featureToggles:
+                  items:
                     properties:
                       name:
-                        default: platform-mesh
                         type: string
+                      parameters:
+                        additionalProperties:
+                          type: string
+                        type: object
                     type: object
-                  referencePath:
-                    items:
+                  type: array
+                infraValues:
+                  x-kubernetes-preserve-unknown-fields: true
+                kcp:
+                  properties:
+                    extraDefaultAPIBindings:
+                      items:
+                        properties:
+                          export:
+                            type: string
+                          path:
+                            type: string
+                          workspaceTypePath:
+                            type: string
+                        required:
+                          - export
+                          - path
+                          - workspaceTypePath
+                        type: object
+                      type: array
+                    extraInitializerConnections:
+                      items:
+                        properties:
+                          namespace:
+                            type: string
+                          path:
+                            type: string
+                          secret:
+                            type: string
+                          workspaceTypeName:
+                            type: string
+                        required:
+                          - path
+                          - workspaceTypeName
+                        type: object
+                      type: array
+                    extraProviderConnections:
+                      items:
+                        properties:
+                          endpointSliceName:
+                            type: string
+                          external:
+                            type: boolean
+                          namespace:
+                            type: string
+                          path:
+                            type: string
+                          rawPath:
+                            type: string
+                          secret:
+                            type: string
+                        required:
+                          - secret
+                        type: object
+                      type: array
+                    extraWorkspaces:
+                      description: ExtraWorkspaces allows declaring additional workspaces
+                        that the operator will create.
+                      items:
+                        description: WorkspaceDeclaration defines a workspace to be
+                          created by the operator.
+                        properties:
+                          path:
+                            description: Path is the full logical path of the workspace
+                              to be created (e.g., "root:orgs:my-workspace").
+                            type: string
+                          type:
+                            description: Type defines the WorkspaceType for the new
+                              workspace.
+                            properties:
+                              name:
+                                description: Name is the name of the WorkspaceType.
+                                type: string
+                              path:
+                                description: Path is the logical cluster path where
+                                  the WorkspaceType is defined.
+                                type: string
+                            required:
+                              - name
+                              - path
+                            type: object
+                        required:
+                          - path
+                          - type
+                        type: object
+                      type: array
+                    initializerConnections:
+                      items:
+                        properties:
+                          namespace:
+                            type: string
+                          path:
+                            type: string
+                          secret:
+                            type: string
+                          workspaceTypeName:
+                            type: string
+                        required:
+                          - path
+                          - workspaceTypeName
+                        type: object
+                      type: array
+                    providerConnections:
+                      items:
+                        properties:
+                          endpointSliceName:
+                            type: string
+                          external:
+                            type: boolean
+                          namespace:
+                            type: string
+                          path:
+                            type: string
+                          rawPath:
+                            type: string
+                          secret:
+                            type: string
+                        required:
+                          - secret
+                        type: object
+                      type: array
+                  type: object
+                ocm:
+                  properties:
+                    component:
                       properties:
                         name:
+                          default: platform-mesh
                           type: string
-                      required:
-                      - name
                       type: object
-                    type: array
-                  repo:
+                    referencePath:
+                      items:
+                        properties:
+                          name:
+                            type: string
+                        required:
+                          - name
+                        type: object
+                      type: array
+                    repo:
+                      properties:
+                        name:
+                          default: platform-mesh
+                          type: string
+                      type: object
+                  type: object
+                values:
+                  x-kubernetes-preserve-unknown-fields: true
+                wait:
+                  properties:
+                    resourceTypes:
+                      items:
+                        properties:
+                          apiVersion:
+                            description: |-
+                              APIVersion defines the versioned schema of this representation of an object.
+                              Servers should convert recognized schemas to the latest internal value, and
+                              may reject unrecognized values.
+                              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+                            type: string
+                          conditionStatus:
+                            type: string
+                          conditionType:
+                            type: string
+                          group:
+                            type: string
+                          kind:
+                            description: |-
+                              Kind is a string value representing the REST resource this object represents.
+                              Servers may infer this from the endpoint the client submits requests to.
+                              Cannot be updated.
+                              In CamelCase.
+                              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                            type: string
+                          matchExpressions:
+                            description: matchExpressions is a list of label selector
+                              requirements. The requirements are ANDed.
+                            items:
+                              description: |-
+                                A label selector requirement is a selector that contains values, a key, and an operator that
+                                relates the key and values.
+                              properties:
+                                key:
+                                  description: key is the label key that the selector
+                                    applies to.
+                                  type: string
+                                operator:
+                                  description: |-
+                                    operator represents a key's relationship to a set of values.
+                                    Valid operators are In, NotIn, Exists and DoesNotExist.
+                                  type: string
+                                values:
+                                  description: |-
+                                    values is an array of string values. If the operator is In or NotIn,
+                                    the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                    the values array must be empty. This array is replaced during a strategic
+                                    merge patch.
+                                  items:
+                                    type: string
+                                  type: array
+                                  x-kubernetes-list-type: atomic
+                              required:
+                                - key
+                                - operator
+                              type: object
+                            type: array
+                            x-kubernetes-list-type: atomic
+                          matchLabels:
+                            additionalProperties:
+                              type: string
+                            description: |-
+                              matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                              map is equivalent to an element of matchExpressions, whose key field is "key", the
+                              operator is "In", and the values array contains only "value". The requirements are ANDed.
+                            type: object
+                          name:
+                            type: string
+                          namespace:
+                            type: string
+                          serverAddressByClientCIDRs:
+                            description: |-
+                              a map of client CIDR to server address that is serving this group.
+                              This is to help clients reach servers in the most network-efficient way possible.
+                              Clients can use the appropriate server address as per the CIDR that they match.
+                              In case of multiple matches, clients should use the longest matching CIDR.
+                              The server returns only those CIDRs that it thinks that the client can match.
+                              For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
+                              Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
+                            items:
+                              description: ServerAddressByClientCIDR helps the client
+                                to determine the server address that they should use,
+                                depending on the clientCIDR that they match.
+                              properties:
+                                clientCIDR:
+                                  description: The CIDR with which clients can match
+                                    their IP to figure out the server address that they
+                                    should use.
+                                  type: string
+                                serverAddress:
+                                  description: |-
+                                    Address of this server, suitable for a client that matches the above CIDR.
+                                    This can be a hostname, hostname:port, IP or IP:port.
+                                  type: string
+                              required:
+                                - clientCIDR
+                                - serverAddress
+                              type: object
+                            type: array
+                            x-kubernetes-list-type: atomic
+                          versions:
+                            description: versions are the api versions that are available.
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: atomic
+                        required:
+                          - group
+                          - kind
+                          - serverAddressByClientCIDRs
+                          - versions
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      type: array
+                  type: object
+              type: object
+            status:
+              description: PlatformMeshStatus defines the observed state of PlatformMesh
+              properties:
+                conditions:
+                  items:
+                    description: Condition contains details for one aspect of the current
+                      state of this API Resource.
+                    properties:
+                      lastTransitionTime:
+                        description: |-
+                          lastTransitionTime is the last time the condition transitioned from one status to another.
+                          This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                        format: date-time
+                        type: string
+                      message:
+                        description: |-
+                          message is a human readable message indicating details about the transition.
+                          This may be an empty string.
+                        maxLength: 32768
+                        type: string
+                      observedGeneration:
+                        description: |-
+                          observedGeneration represents the .metadata.generation that the condition was set based upon.
+                          For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                          with respect to the current state of the instance.
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      reason:
+                        description: |-
+                          reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                          Producers of specific condition types may define expected values and meanings for this field,
+                          and whether the values are considered a guaranteed API.
+                          The value should be a CamelCase string.
+                          This field may not be empty.
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                        type: string
+                      status:
+                        description: status of the condition, one of True, False, Unknown.
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                        type: string
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                        maxLength: 316
+                        pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                        type: string
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    type: object
+                  type: array
+                kcpWorkspaces:
+                  items:
                     properties:
                       name:
-                        default: platform-mesh
                         type: string
+                      phase:
+                        type: string
+                    required:
+                      - name
+                      - phase
                     type: object
-                type: object
-              values:
-                x-kubernetes-preserve-unknown-fields: true
-            type: object
-          status:
-            description: PlatformMeshStatus defines the observed state of PlatformMesh
-            properties:
-              conditions:
-                items:
-                  description: Condition contains details for one aspect of the current
-                    state of this API Resource.
-                  properties:
-                    lastTransitionTime:
-                      description: |-
-                        lastTransitionTime is the last time the condition transitioned from one status to another.
-                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
-                      format: date-time
-                      type: string
-                    message:
-                      description: |-
-                        message is a human readable message indicating details about the transition.
-                        This may be an empty string.
-                      maxLength: 32768
-                      type: string
-                    observedGeneration:
-                      description: |-
-                        observedGeneration represents the .metadata.generation that the condition was set based upon.
-                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
-                        with respect to the current state of the instance.
-                      format: int64
-                      minimum: 0
-                      type: integer
-                    reason:
-                      description: |-
-                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
-                        Producers of specific condition types may define expected values and meanings for this field,
-                        and whether the values are considered a guaranteed API.
-                        The value should be a CamelCase string.
-                        This field may not be empty.
-                      maxLength: 1024
-                      minLength: 1
-                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
-                      type: string
-                    status:
-                      description: status of the condition, one of True, False, Unknown.
-                      enum:
-                      - "True"
-                      - "False"
-                      - Unknown
-                      type: string
-                    type:
-                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
-                      maxLength: 316
-                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
-                      type: string
-                  required:
-                  - lastTransitionTime
-                  - message
-                  - reason
-                  - status
-                  - type
-                  type: object
-                type: array
-              kcpWorkspaces:
-                items:
-                  properties:
-                    name:
-                      type: string
-                    phase:
-                      type: string
-                  required:
-                  - name
-                  - phase
-                  type: object
-                type: array
-              nextReconcileTime:
-                format: date-time
-                type: string
-              observedGeneration:
-                format: int64
-                type: integer
-            type: object
-        type: object
-    served: true
-    storage: true
-    subresources:
-      status: {}
+                  type: array
+                nextReconcileTime:
+                  format: date-time
+                  type: string
+                observedGeneration:
+                  format: int64
+                  type: integer
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
