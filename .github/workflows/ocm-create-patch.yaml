@@ -12,13 +12,13 @@ on:
         required: true
         type: string
       component_overrides:
-        description: 'Component version overrides (one per line: component-name=version)'
+        description: 'Component version overrides (comma-separated: component1=version1,component2=version2)'
         required: false
         type: string
       dry_run:
         description: 'Dry run mode - create component archive but do not transfer to registry'
         required: false
-        default: false
+        default: true
         type: boolean
 
 permissions:
@@ -143,14 +143,19 @@ jobs:
             echo ""
             echo "Applying component overrides:"
 
-            while IFS= read -r line; do
-              # Skip empty lines
-              if [ -z "$line" ]; then
+            # Split by comma and process each override
+            IFS=',' read -ra OVERRIDES <<< "$COMPONENT_OVERRIDES"
+            for override in "${OVERRIDES[@]}"; do
+              # Trim whitespace
+              override=$(echo "$override" | xargs)
+
+              # Skip empty entries
+              if [ -z "$override" ]; then
                 continue
               fi
 
               # Parse component=version
-              if [[ "$line" =~ ^([a-zA-Z0-9_-]+)=(.+)$ ]]; then
+              if [[ "$override" =~ ^([a-zA-Z0-9_-]+)=(.+)$ ]]; then
                 component="${BASH_REMATCH[1]}"
                 version="${BASH_REMATCH[2]}"
 
@@ -159,9 +164,9 @@ jobs:
                 # Apply override using yq
                 yq eval "(.component.componentReferences[] | select(.name == \"$component\") | .version) = \"$version\"" -i patch-component.yaml
               else
-                echo "  Warning: Ignoring invalid override line: $line"
+                echo "  Warning: Ignoring invalid override: $override"
               fi
-            done <<< "$COMPONENT_OVERRIDES"
+            done
           else
             echo "No component overrides specified - using all versions from base"
           fi
@@ -169,13 +174,16 @@ jobs:
           echo ""
           echo "Converting descriptor to OCM component list format..."
           # Transform from descriptor format to component list format
-          # From: {component: {..., provider: "string"}, meta: {...}}
+          # From: {component: {..., provider: "string", repositoryContexts: [...], creationTime: "..."}, meta: {...}}
           # To: {components: [{..., provider: {name: "string"}}]}
 
-          # Step 1: Extract component and wrap in array
-          yq eval '{"components": [.component]}' patch-component.yaml > patch-component-list.yaml
+          # Step 1: Remove runtime metadata fields that are not allowed in component specs
+          yq eval 'del(.component.repositoryContexts) | del(.component.creationTime)' patch-component.yaml > patch-component-clean.yaml
 
-          # Step 2: Transform provider from string to object
+          # Step 2: Extract component and wrap in array
+          yq eval '{"components": [.component]}' patch-component-clean.yaml > patch-component-list.yaml
+
+          # Step 3: Transform provider from string to object
           yq eval '.components[].provider |= {"name": .}' -i patch-component-list.yaml
 
           echo "✓ Generated patch component descriptor"
@@ -286,7 +294,7 @@ jobs:
           TARGET_VERSION="${{ inputs.target_version }}"
 
           echo ""
-          echo "=== DRY RUN MODE ===""
+          echo "=== DRY RUN MODE ==="
           echo ""
           echo "✓ Component created successfully in local CTF"
           echo "✗ Transfer to registry SKIPPED (dry-run mode)"
