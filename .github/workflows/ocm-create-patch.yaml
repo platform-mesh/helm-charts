@@ -169,9 +169,14 @@ jobs:
           echo ""
           echo "Converting descriptor to OCM component list format..."
           # Transform from descriptor format to component list format
-          # From: {component: {...}, meta: {...}}
-          # To: {components: [{...}]}
+          # From: {component: {..., provider: "string"}, meta: {...}}
+          # To: {components: [{..., provider: {name: "string"}}]}
+
+          # Step 1: Extract component and wrap in array
           yq eval '{"components": [.component]}' patch-component.yaml > patch-component-list.yaml
+
+          # Step 2: Transform provider from string to object
+          yq eval '.components[].provider |= {"name": .}' -i patch-component-list.yaml
 
           echo "✓ Generated patch component descriptor"
 
