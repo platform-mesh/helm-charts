@@ -1,5 +1,7 @@
 name: Create Patch OCM Component
 
+run-name: "Patch OCM: ${{ inputs.base_version }} → ${{ inputs.target_version }}${{ inputs.dry_run && ' [DRY RUN]' || '' }}"
+
 on:
   workflow_dispatch:
     inputs:
