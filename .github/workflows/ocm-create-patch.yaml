@@ -167,6 +167,12 @@ jobs:
           fi
 
           echo ""
+          echo "Converting descriptor to OCM component list format..."
+          # Transform from descriptor format to component list format
+          # From: {component: {...}, meta: {...}}
+          # To: {components: [{...}]}
+          yq eval '{"components": [.component]}' patch-component.yaml > patch-component-list.yaml
+
           echo "✓ Generated patch component descriptor"
 
       - name: Show component references comparison
@@ -226,7 +232,7 @@ jobs:
           mkdir -p "$(dirname "$ocm_ctf")"
 
           # Add component using descriptor directly (no templating!)
-          ocm add components -c --templater=none --file "$ocm_ctf" patch-component.yaml
+          ocm add components -c --templater=none --file "$ocm_ctf" patch-component-list.yaml
 
           echo ""
           echo "✓ OCM component created in local CTF"
