@@ -51,58 +51,6 @@ jobs:
             echo "  Mode: DRY RUN (will not transfer to registry)"
           fi
 
-      - name: Check out the repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
-        with:
-          fetch-depth: 0  # Need full history for tag lookups
-
-      - name: Check for git tag and extract constructor
-        id: constructor_setup
-        run: |
-          BASE_VERSION="${{ inputs.base_version }}"
-
-          echo "=== Checking for git tag to extract constructor ==="
-          echo ""
-
-          # Try to find a git tag (optional)
-          TAG=""
-          if git rev-parse --verify "refs/tags/${BASE_VERSION}" >/dev/null 2>&1; then
-            TAG="${BASE_VERSION}"
-          elif git rev-parse --verify "refs/tags/v${BASE_VERSION}" >/dev/null 2>&1; then
-            TAG="v${BASE_VERSION}"
-          fi
-
-          if [ -n "$TAG" ]; then
-            echo "✓ Found git tag: $TAG"
-            echo ""
-            echo "Attempting to extract constructor from tag..."
-
-            # Try to extract constructor from the tag
-            if git show "${TAG}:constructor/component-constructor.yaml" > constructor-from-tag.yaml 2>/dev/null; then
-              if [ -s constructor-from-tag.yaml ]; then
-                echo "✓ Extracted constructor/component-constructor.yaml from tag"
-                echo "  Using constructor from base version for exact reproduction"
-                echo "constructor_file=constructor-from-tag.yaml" >> $GITHUB_OUTPUT
-                echo "using_tag_constructor=true" >> $GITHUB_OUTPUT
-              else
-                echo "⚠ Constructor file from tag is empty, using current constructor"
-                echo "constructor_file=constructor/component-constructor.yaml" >> $GITHUB_OUTPUT
-                echo "using_tag_constructor=false" >> $GITHUB_OUTPUT
-              fi
-            else
-              echo "⚠ Could not extract constructor from tag, using current constructor"
-              echo "constructor_file=constructor/component-constructor.yaml" >> $GITHUB_OUTPUT
-              echo "using_tag_constructor=false" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "⚠ No git tag found for base version ${BASE_VERSION}"
-            echo "  Using current constructor/component-constructor.yaml"
-            echo "constructor_file=constructor/component-constructor.yaml" >> $GITHUB_OUTPUT
-            echo "using_tag_constructor=false" >> $GITHUB_OUTPUT
-          fi
-
-          echo ""
-
       - name: Setup yq
         run: |
           if ! command -v yq &>/dev/null; then
@@ -118,12 +66,6 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y jq
           fi
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Setup OCM CLI
         run: |
@@ -156,407 +98,76 @@ jobs:
                       properties:
                         username: github
                         password: ${{ secrets.GITHUB_TOKEN }}
-                - identity:
-                    type: OCIRegistry
-                    scheme: https
-                    hostname: registry-1.docker.io
-                  credentials:
-                    - type: Credentials
-                      properties:
-                        username: ${{ secrets.DOCKERHUB_USERNAME }}
-                        password: ${{ secrets.DOCKERHUB_TOKEN }}
           EOF
 
-      - name: Fetch base component versions from OCM
+      - name: Fetch base component descriptor
         run: |
           BASE_VERSION="${{ inputs.base_version }}"
 
-          echo "=== Fetching component versions from OCM registry ==="
+          echo "=== Fetching base component descriptor from OCM registry ==="
           echo "Base version: $BASE_VERSION"
           echo ""
 
           # Fetch the base component descriptor
           ocm get component "github.com/platform-mesh/platform-mesh:${BASE_VERSION}" \
-            --repo ghcr.io/platform-mesh -o yaml > base_component.yaml
+            --repo ghcr.io/platform-mesh -o yaml > base-component.yaml
 
-          if [ ! -s base_component.yaml ]; then
+          if [ ! -s base-component.yaml ]; then
             echo "Error: Could not fetch OCM component for version ${BASE_VERSION}"
             exit 1
           fi
 
           echo "✓ Fetched base component descriptor"
           echo ""
-
-          # Extract component references and set as environment variables
-          echo "Extracting component versions..."
-
-          # Helper function to extract component version
-          extract_version() {
-            local component_name=$1
-            local version=$(yq eval ".component.componentReferences[] | select(.name == \"$component_name\") | .version" base_component.yaml 2>/dev/null || echo "")
-            echo "$version"
-          }
-
-          # Platform-mesh components (matching ocm.yaml structure)
-          ACCOUNT_OPERATOR_VERSION=$(extract_version "account-operator")
-          SECURITY_OPERATOR_VERSION=$(extract_version "security-operator")
-          EXTENSION_MANAGER_OPERATOR_VERSION=$(extract_version "extension-manager-operator")
-          INFRA_VERSION=$(extract_version "infra")
-          REBAC_AUTHZ_WEBHOOK_VERSION=$(extract_version "rebac-authz-webhook")
-          PORTAL_VERSION=$(extract_version "portal")
-          PLATFORM_MESH_OPERATOR_VERSION=$(extract_version "platform-mesh-operator")
-          KEYCLOAK_VERSION=$(extract_version "keycloak")
-          KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(extract_version "kubernetes-graphql-gateway")
-          VIRTUAL_WORKSPACES_VERSION=$(extract_version "virtual-workspaces")
-          PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$(extract_version "platform-mesh-operator-components")
-          PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION=$(extract_version "platform-mesh-operator-infra-components")
-          EXAMPLE_HTTPBIN_OPERATOR_VERSION=$(extract_version "example-httpbin-operator")
-          IAM_SERVICE_VERSION=$(extract_version "iam-service")
-          IAM_UI_VERSION=$(extract_version "iam-ui")
-          MARKETPLACE_UI_VERSION=$(extract_version "marketplace-ui")
-          ORGANIZATION_IDP_VERSION=$(extract_version "organization-idp")
-
-          # Export to environment
-          echo "ACCOUNT_OPERATOR_VERSION=$ACCOUNT_OPERATOR_VERSION" >> $GITHUB_ENV
-          echo "SECURITY_OPERATOR_VERSION=$SECURITY_OPERATOR_VERSION" >> $GITHUB_ENV
-          echo "EXTENSION_MANAGER_OPERATOR_VERSION=$EXTENSION_MANAGER_OPERATOR_VERSION" >> $GITHUB_ENV
-          echo "INFRA_VERSION=$INFRA_VERSION" >> $GITHUB_ENV
-          echo "REBAC_AUTHZ_WEBHOOK_VERSION=$REBAC_AUTHZ_WEBHOOK_VERSION" >> $GITHUB_ENV
-          echo "PORTAL_VERSION=$PORTAL_VERSION" >> $GITHUB_ENV
-          echo "PLATFORM_MESH_OPERATOR_VERSION=$PLATFORM_MESH_OPERATOR_VERSION" >> $GITHUB_ENV
-          echo "KEYCLOAK_VERSION=$KEYCLOAK_VERSION" >> $GITHUB_ENV
-          echo "KUBERNETES_GRAPHQL_GATEWAY_VERSION=$KUBERNETES_GRAPHQL_GATEWAY_VERSION" >> $GITHUB_ENV
-          echo "VIRTUAL_WORKSPACES_VERSION=$VIRTUAL_WORKSPACES_VERSION" >> $GITHUB_ENV
-          echo "PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION" >> $GITHUB_ENV
-          echo "PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION=$PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION" >> $GITHUB_ENV
-          echo "EXAMPLE_HTTPBIN_OPERATOR_VERSION=$EXAMPLE_HTTPBIN_OPERATOR_VERSION" >> $GITHUB_ENV
-          echo "IAM_SERVICE_VERSION=$IAM_SERVICE_VERSION" >> $GITHUB_ENV
-          echo "IAM_UI_VERSION=$IAM_UI_VERSION" >> $GITHUB_ENV
-          echo "MARKETPLACE_UI_VERSION=$MARKETPLACE_UI_VERSION" >> $GITHUB_ENV
-          echo "ORGANIZATION_IDP_VERSION=$ORGANIZATION_IDP_VERSION" >> $GITHUB_ENV
-
-          echo "✓ Extracted platform-mesh component versions"
-
-          # Store all component reference names to check later
-          yq eval '.component.componentReferences[].name' base_component.yaml > base_component_refs.txt
-          echo ""
-          echo "Base component references found:"
-          cat base_component_refs.txt | sed 's/^/  - /'
-
-      - name: Extract third-party versions from base component references
-        run: |
-          echo "=== Extracting third-party component versions from base ==="
+          echo "Component includes:"
+          echo "  - $(yq eval '.component.componentReferences | length' base-component.yaml) component references"
           echo ""
 
-          # Helper function to extract version for a specific component reference
-          extract_ref_version() {
-            local ref_name=$1
-            local version=$(yq eval ".component.componentReferences[] | select(.name == \"$ref_name\") | .version" base_component.yaml 2>/dev/null || echo "")
-            echo "$version"
-          }
-
-          # Check if component reference exists in base
-          has_component_ref() {
-            local ref_name=$1
-            grep -q "^${ref_name}$" base_component_refs.txt && echo "true" || echo "false"
-          }
-
-          # Extract third-party component versions only if they exist in base
-          if [ "$(has_component_ref 'crossplane')" = "true" ]; then
-            CROSSPLANE_VERSION=$(extract_ref_version "crossplane")
-            echo "  crossplane: $CROSSPLANE_VERSION (from base)"
-            echo "CROSSPLANE_VERSION=$CROSSPLANE_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ "$(has_component_ref 'kcp-operator')" = "true" ]; then
-            KCP_OPERATOR_CHART_VERSION=$(extract_ref_version "kcp-operator")
-            echo "  kcp-operator: $KCP_OPERATOR_CHART_VERSION (from base)"
-            echo "KCP_OPERATOR_CHART_VERSION=$KCP_OPERATOR_CHART_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ "$(has_component_ref 'kcp')" = "true" ]; then
-            KCP_VERSION=$(extract_ref_version "kcp")
-            echo "  kcp: $KCP_VERSION (from base)"
-            echo "KCP_VERSION=$KCP_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ "$(has_component_ref 'etcd-druid')" = "true" ]; then
-            GARDENER_ETCD_DRUID_SOURCE_REF=$(extract_ref_version "etcd-druid")
-            echo "  etcd-druid: $GARDENER_ETCD_DRUID_SOURCE_REF (from base)"
-            echo "GARDENER_ETCD_DRUID_SOURCE_REF=$GARDENER_ETCD_DRUID_SOURCE_REF" >> $GITHUB_ENV
-          fi
-
-          if [ "$(has_component_ref 'openfga')" = "true" ]; then
-            OPENFGA_VERSION=$(extract_ref_version "openfga")
-            echo "  openfga: $OPENFGA_VERSION (from base)"
-            echo "OPENFGA_VERSION=$OPENFGA_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ "$(has_component_ref 'gateway-api')" = "true" ]; then
-            GATEWAY_API_VERSION=$(extract_ref_version "gateway-api")
-            echo "  gateway-api: $GATEWAY_API_VERSION (from base)"
-            echo "GATEWAY_API_VERSION=$GATEWAY_API_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ "$(has_component_ref 'traefik')" = "true" ]; then
-            TRAEFIK_VERSION=$(extract_ref_version "traefik")
-            echo "  traefik: $TRAEFIK_VERSION (from base)"
-            echo "TRAEFIK_VERSION=$TRAEFIK_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ "$(has_component_ref 'cert-manager')" = "true" ]; then
-            CERT_MANAGER_VERSION=$(extract_ref_version "cert-manager")
-            echo "  cert-manager: $CERT_MANAGER_VERSION (from base)"
-            echo "CERT_MANAGER_VERSION=$CERT_MANAGER_VERSION" >> $GITHUB_ENV
-          fi
-
-          echo ""
-          echo "✓ Extracted third-party component versions from base component references"
-
-      - name: Extract additional version details from current ocm.yaml
-        run: |
-          echo "=== Extracting additional version details ==="
-          echo ""
-          echo "Note: Some versions require additional details (image versions, commits, etc.)"
-          echo "      These will be extracted from current ocm.yaml as they are not stored in component references"
-          echo ""
-
-          # Helper function to extract from current ocm.yaml
-          extract_env() {
-            local var_name=$1
-            local value=$(yq eval ".jobs.ocm.env.${var_name}" .github/workflows/ocm.yaml 2>/dev/null || echo "")
-            echo "$value"
-          }
-
-          # For components that have additional version details, extract from ocm.yaml
-          # Only if the main version was extracted above
-          if [ -n "${CROSSPLANE_VERSION:-}" ]; then
-            CROSSPLANE_IMAGE_VERSION=$(extract_env "CROSSPLANE_IMAGE_VERSION")
-            CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION=$(extract_env "CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION")
-            echo "CROSSPLANE_IMAGE_VERSION=$CROSSPLANE_IMAGE_VERSION" >> $GITHUB_ENV
-            echo "CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION=$CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ -n "${KCP_OPERATOR_CHART_VERSION:-}" ]; then
-            KCP_OPERATOR_IMAGE_VERSION=$(extract_env "KCP_OPERATOR_IMAGE_VERSION")
-            echo "KCP_OPERATOR_IMAGE_VERSION=$KCP_OPERATOR_IMAGE_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ -n "${GARDENER_ETCD_DRUID_SOURCE_REF:-}" ]; then
-            GARDENER_ETCD_DRUID_CHART_VERSION=$(extract_env "GARDENER_ETCD_DRUID_CHART_VERSION")
-            GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION=$(extract_env "GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION")
-            GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION=$(extract_env "GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION")
-            echo "GARDENER_ETCD_DRUID_CHART_VERSION=$GARDENER_ETCD_DRUID_CHART_VERSION" >> $GITHUB_ENV
-            echo "GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION=$GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION" >> $GITHUB_ENV
-            echo "GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION=$GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ -n "${OPENFGA_VERSION:-}" ]; then
-            OPENFGA_IMAGE_VERSION=$(extract_env "OPENFGA_IMAGE_VERSION")
-            OPENFGA_POSTGRESQL_IMAGE_VERSION=$(extract_env "OPENFGA_POSTGRESQL_IMAGE_VERSION")
-            echo "OPENFGA_IMAGE_VERSION=$OPENFGA_IMAGE_VERSION" >> $GITHUB_ENV
-            echo "OPENFGA_POSTGRESQL_IMAGE_VERSION=$OPENFGA_POSTGRESQL_IMAGE_VERSION" >> $GITHUB_ENV
-          fi
-
-          if [ -n "${GATEWAY_API_VERSION:-}" ]; then
-            GATEWAY_API_COMMIT=$(extract_env "GATEWAY_API_COMMIT")
-            echo "GATEWAY_API_COMMIT=$GATEWAY_API_COMMIT" >> $GITHUB_ENV
-          fi
-
-          if [ -n "${TRAEFIK_VERSION:-}" ]; then
-            TRAEFIK_IMAGE_VERSION=$(extract_env "TRAEFIK_IMAGE_VERSION")
-            TRAEFIK_CRD_VERSION=$(extract_env "TRAEFIK_CRD_VERSION")
-            echo "TRAEFIK_IMAGE_VERSION=$TRAEFIK_IMAGE_VERSION" >> $GITHUB_ENV
-            echo "TRAEFIK_CRD_VERSION=$TRAEFIK_CRD_VERSION" >> $GITHUB_ENV
-          fi
-
-          echo ""
-          echo "✓ Additional version details extracted"
-
-      - name: Apply component overrides
-        if: inputs.component_overrides != ''
-        run: |
-          echo "=== Applying component overrides ==="
-          echo ""
-
-          OVERRIDES="${{ inputs.component_overrides }}"
-
-          # Parse overrides line by line
-          while IFS= read -r line; do
-            # Skip empty lines
-            if [ -z "$line" ]; then
-              continue
-            fi
-
-            # Parse component=version
-            if [[ "$line" =~ ^([a-zA-Z0-9_-]+)=(.+)$ ]]; then
-              component="${BASH_REMATCH[1]}"
-              version="${BASH_REMATCH[2]}"
-
-              # Convert component name to environment variable name
-              # e.g., account-operator -> ACCOUNT_OPERATOR_VERSION
-              env_var=$(echo "$component" | tr '[:lower:]' '[:upper:]' | tr '-' '_')_VERSION
-
-              echo "  Overriding $component: $version"
-              echo "${env_var}=${version}" >> $GITHUB_ENV
-            else
-              echo "  Warning: Ignoring invalid override line: $line"
-            fi
-          done <<< "$OVERRIDES"
-
-          echo ""
-          echo "✓ Applied component overrides"
-
-      - name: Display final component versions
-        run: |
-          echo "=== Final Component Versions ==="
-          echo ""
-          echo "Target version: ${{ inputs.target_version }}"
-          echo ""
-          echo "Platform-mesh components:"
-          echo "  account-operator: $ACCOUNT_OPERATOR_VERSION"
-          echo "  security-operator: $SECURITY_OPERATOR_VERSION"
-          echo "  extension-manager-operator: $EXTENSION_MANAGER_OPERATOR_VERSION"
-          echo "  infra: $INFRA_VERSION"
-          echo "  rebac-authz-webhook: $REBAC_AUTHZ_WEBHOOK_VERSION"
-          echo "  portal: $PORTAL_VERSION"
-          echo "  platform-mesh-operator: $PLATFORM_MESH_OPERATOR_VERSION"
-          echo "  keycloak: $KEYCLOAK_VERSION"
-          echo "  kubernetes-graphql-gateway: $KUBERNETES_GRAPHQL_GATEWAY_VERSION"
-          echo "  virtual-workspaces: $VIRTUAL_WORKSPACES_VERSION"
-          echo "  platform-mesh-operator-components: $PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION"
-          echo "  platform-mesh-operator-infra-components: $PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION"
-          echo "  example-httpbin-operator: $EXAMPLE_HTTPBIN_OPERATOR_VERSION"
-          echo "  iam-service: $IAM_SERVICE_VERSION"
-          echo "  iam-ui: $IAM_UI_VERSION"
-          echo "  marketplace-ui: $MARKETPLACE_UI_VERSION"
-          echo "  organization-idp: $ORGANIZATION_IDP_VERSION"
-          echo ""
-          echo "Third-party components:"
-          echo "  crossplane: $CROSSPLANE_VERSION"
-          echo "  kcp-operator: $KCP_OPERATOR_CHART_VERSION"
-          echo "  gateway-api: $GATEWAY_API_VERSION"
-          echo "  traefik: $TRAEFIK_VERSION"
-          echo "  cert-manager: $CERT_MANAGER_VERSION"
-          echo "  openfga: $OPENFGA_VERSION"
-          echo "  etcd-druid: $GARDENER_ETCD_DRUID_SOURCE_REF"
-
-      - name: Set default values for undefined variables
-        run: |
-          echo "=== Setting defaults for undefined variables ==="
-          echo ""
-
-          # Set empty defaults for any variables that might not be set
-          # This ensures the constructor doesn't fail on missing variables
-
-          # Platform-mesh components (should all be set, but just in case)
-          echo "ACCOUNT_OPERATOR_VERSION=${ACCOUNT_OPERATOR_VERSION:-}" >> $GITHUB_ENV
-          echo "SECURITY_OPERATOR_VERSION=${SECURITY_OPERATOR_VERSION:-}" >> $GITHUB_ENV
-          echo "EXTENSION_MANAGER_OPERATOR_VERSION=${EXTENSION_MANAGER_OPERATOR_VERSION:-}" >> $GITHUB_ENV
-          echo "INFRA_VERSION=${INFRA_VERSION:-}" >> $GITHUB_ENV
-          echo "REBAC_AUTHZ_WEBHOOK_VERSION=${REBAC_AUTHZ_WEBHOOK_VERSION:-}" >> $GITHUB_ENV
-          echo "PORTAL_VERSION=${PORTAL_VERSION:-}" >> $GITHUB_ENV
-          echo "PLATFORM_MESH_OPERATOR_VERSION=${PLATFORM_MESH_OPERATOR_VERSION:-}" >> $GITHUB_ENV
-          echo "KEYCLOAK_VERSION=${KEYCLOAK_VERSION:-}" >> $GITHUB_ENV
-          echo "KUBERNETES_GRAPHQL_GATEWAY_VERSION=${KUBERNETES_GRAPHQL_GATEWAY_VERSION:-}" >> $GITHUB_ENV
-          echo "VIRTUAL_WORKSPACES_VERSION=${VIRTUAL_WORKSPACES_VERSION:-}" >> $GITHUB_ENV
-          echo "PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION=${PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION:-}" >> $GITHUB_ENV
-          echo "PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION=${PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION:-}" >> $GITHUB_ENV
-          echo "EXAMPLE_HTTPBIN_OPERATOR_VERSION=${EXAMPLE_HTTPBIN_OPERATOR_VERSION:-}" >> $GITHUB_ENV
-          echo "IAM_SERVICE_VERSION=${IAM_SERVICE_VERSION:-}" >> $GITHUB_ENV
-          echo "IAM_UI_VERSION=${IAM_UI_VERSION:-}" >> $GITHUB_ENV
-          echo "MARKETPLACE_UI_VERSION=${MARKETPLACE_UI_VERSION:-}" >> $GITHUB_ENV
-          echo "ORGANIZATION_IDP_VERSION=${ORGANIZATION_IDP_VERSION:-}" >> $GITHUB_ENV
-
-          # Third-party components (conditionally set, need defaults)
-          echo "CROSSPLANE_VERSION=${CROSSPLANE_VERSION:-}" >> $GITHUB_ENV
-          echo "CROSSPLANE_IMAGE_VERSION=${CROSSPLANE_IMAGE_VERSION:-}" >> $GITHUB_ENV
-          echo "CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION=${CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION:-}" >> $GITHUB_ENV
-
-          # KCP Operator - handle both old and new variable names
-          echo "KCP_OPERATOR_CHART_VERSION=${KCP_OPERATOR_CHART_VERSION:-}" >> $GITHUB_ENV
-          echo "KCP_OPERATOR_IMAGE_VERSION=${KCP_OPERATOR_IMAGE_VERSION:-}" >> $GITHUB_ENV
-          echo "KCP_OPERATOR_VERSION=${KCP_OPERATOR_CHART_VERSION:-}" >> $GITHUB_ENV  # Old name for compatibility
-
-          # KCP - handle both old and new variable names
-          echo "KCP_VERSION=${KCP_VERSION:-}" >> $GITHUB_ENV
-          echo "KCP_IMAGE_VERSION=${KCP_VERSION:-}" >> $GITHUB_ENV  # Old name for compatibility
-          echo "GARDENER_ETCD_DRUID_SOURCE_REF=${GARDENER_ETCD_DRUID_SOURCE_REF:-}" >> $GITHUB_ENV
-          echo "GARDENER_ETCD_DRUID_CHART_VERSION=${GARDENER_ETCD_DRUID_CHART_VERSION:-}" >> $GITHUB_ENV
-          echo "GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION=${GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION:-}" >> $GITHUB_ENV
-          echo "GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION=${GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION:-}" >> $GITHUB_ENV
-          echo "OPENFGA_VERSION=${OPENFGA_VERSION:-}" >> $GITHUB_ENV
-          echo "OPENFGA_IMAGE_VERSION=${OPENFGA_IMAGE_VERSION:-}" >> $GITHUB_ENV
-          echo "OPENFGA_POSTGRESQL_IMAGE_VERSION=${OPENFGA_POSTGRESQL_IMAGE_VERSION:-}" >> $GITHUB_ENV
-          echo "GATEWAY_API_VERSION=${GATEWAY_API_VERSION:-}" >> $GITHUB_ENV
-          echo "GATEWAY_API_COMMIT=${GATEWAY_API_COMMIT:-}" >> $GITHUB_ENV
-          echo "TRAEFIK_VERSION=${TRAEFIK_VERSION:-}" >> $GITHUB_ENV
-          echo "TRAEFIK_IMAGE_VERSION=${TRAEFIK_IMAGE_VERSION:-}" >> $GITHUB_ENV
-          echo "TRAEFIK_CRD_VERSION=${TRAEFIK_CRD_VERSION:-}" >> $GITHUB_ENV
-          echo "CERT_MANAGER_VERSION=${CERT_MANAGER_VERSION:-}" >> $GITHUB_ENV
-
-          echo "✓ Default values set for all variables"
-
-      - name: Create OCM component archive
+      - name: Generate patch component descriptor
         run: |
           TARGET_VERSION="${{ inputs.target_version }}"
-          CONSTRUCTOR_FILE="${{ steps.constructor_setup.outputs.constructor_file }}"
-          USING_TAG_CONSTRUCTOR="${{ steps.constructor_setup.outputs.using_tag_constructor }}"
+          COMPONENT_OVERRIDES="${{ inputs.component_overrides }}"
 
-          echo "=== Creating OCM component archive ==="
-          echo "Version: $TARGET_VERSION"
-          echo "Constructor: $CONSTRUCTOR_FILE"
-          if [ "$USING_TAG_CONSTRUCTOR" = "true" ]; then
-            echo "  (using constructor from base version git tag)"
+          echo "=== Generating patch component descriptor ==="
+          echo ""
+
+          # Copy base descriptor to patch descriptor
+          cp base-component.yaml patch-component.yaml
+
+          # Update the main component version
+          echo "Setting component version to: $TARGET_VERSION"
+          yq eval ".component.version = \"$TARGET_VERSION\"" -i patch-component.yaml
+
+          # Apply component overrides if provided
+          if [ -n "$COMPONENT_OVERRIDES" ]; then
+            echo ""
+            echo "Applying component overrides:"
+
+            while IFS= read -r line; do
+              # Skip empty lines
+              if [ -z "$line" ]; then
+                continue
+              fi
+
+              # Parse component=version
+              if [[ "$line" =~ ^([a-zA-Z0-9_-]+)=(.+)$ ]]; then
+                component="${BASH_REMATCH[1]}"
+                version="${BASH_REMATCH[2]}"
+
+                echo "  - $component: $version"
+
+                # Apply override using yq
+                yq eval "(.component.componentReferences[] | select(.name == \"$component\") | .version) = \"$version\"" -i patch-component.yaml
+              else
+                echo "  Warning: Ignoring invalid override line: $line"
+              fi
+            done <<< "$COMPONENT_OVERRIDES"
+          else
+            echo "No component overrides specified - using all versions from base"
           fi
-          echo ""
-
-          ocm_ctf=.ocm/transport.ctf
-          mkdir -p "$(dirname "$ocm_ctf")"
-
-          ocm add components -c --templater=go --file "$ocm_ctf" "$CONSTRUCTOR_FILE" -- \
-            VERSION="$TARGET_VERSION" \
-            ACCOUNT_OPERATOR_VERSION="$ACCOUNT_OPERATOR_VERSION" \
-            EXTENSION_MANAGER_OPERATOR_VERSION="$EXTENSION_MANAGER_OPERATOR_VERSION" \
-            INFRA_VERSION="$INFRA_VERSION" \
-            SECURITY_OPERATOR_VERSION="$SECURITY_OPERATOR_VERSION" \
-            REBAC_AUTHZ_WEBHOOK_VERSION="$REBAC_AUTHZ_WEBHOOK_VERSION" \
-            PORTAL_VERSION="$PORTAL_VERSION" \
-            PLATFORM_MESH_OPERATOR_VERSION="$PLATFORM_MESH_OPERATOR_VERSION" \
-            VIRTUAL_WORKSPACES_VERSION="$VIRTUAL_WORKSPACES_VERSION" \
-            CROSSPLANE_VERSION="$CROSSPLANE_VERSION" \
-            CROSSPLANE_IMAGE_VERSION="$CROSSPLANE_IMAGE_VERSION" \
-            CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION="$CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION" \
-            KCP_OPERATOR_CHART_VERSION="$KCP_OPERATOR_CHART_VERSION" \
-            KCP_OPERATOR_IMAGE_VERSION="$KCP_OPERATOR_IMAGE_VERSION" \
-            KCP_OPERATOR_VERSION="$KCP_OPERATOR_VERSION" \
-            KCP_VERSION="$KCP_VERSION" \
-            KCP_IMAGE_VERSION="$KCP_IMAGE_VERSION" \
-            GARDENER_ETCD_DRUID_SOURCE_REF="$GARDENER_ETCD_DRUID_SOURCE_REF" \
-            GARDENER_ETCD_DRUID_CHART_VERSION="$GARDENER_ETCD_DRUID_CHART_VERSION" \
-            GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION="$GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION" \
-            GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION="$GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION" \
-            OPENFGA_VERSION="$OPENFGA_VERSION" \
-            OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
-            OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
-            GATEWAY_API_VERSION="$GATEWAY_API_VERSION" \
-            GATEWAY_API_COMMIT="$GATEWAY_API_COMMIT" \
-            TRAEFIK_VERSION="$TRAEFIK_VERSION" \
-            TRAEFIK_IMAGE_VERSION="$TRAEFIK_IMAGE_VERSION" \
-            TRAEFIK_CRD_VERSION="$TRAEFIK_CRD_VERSION" \
-            CERT_MANAGER_VERSION="$CERT_MANAGER_VERSION" \
-            KUBERNETES_GRAPHQL_GATEWAY_VERSION="$KUBERNETES_GRAPHQL_GATEWAY_VERSION" \
-            KEYCLOAK_VERSION="$KEYCLOAK_VERSION" \
-            PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION="$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION" \
-            PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION="$PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION" \
-            EXAMPLE_HTTPBIN_OPERATOR_VERSION="$EXAMPLE_HTTPBIN_OPERATOR_VERSION" \
-            IAM_SERVICE_VERSION="$IAM_SERVICE_VERSION" \
-            IAM_UI_VERSION="$IAM_UI_VERSION" \
-            MARKETPLACE_UI_VERSION="$MARKETPLACE_UI_VERSION" \
-            ORGANIZATION_IDP_VERSION="$ORGANIZATION_IDP_VERSION"
 
           echo ""
-          echo "✓ OCM component archive created"
+          echo "✓ Generated patch component descriptor"
 
       - name: Show component references comparison
         run: |
@@ -566,68 +177,71 @@ jobs:
           echo "=== Component References Comparison ==="
           echo ""
 
-          # Extract component references from base
           echo "Base version ($BASE_VERSION) component references:"
-          ocm get component "github.com/platform-mesh/platform-mesh:$BASE_VERSION" \
-            --repo ghcr.io/platform-mesh -o json | \
-            jq -r '.component.componentReferences[] | "  - \(.name): \(.version)"' | sort
+          yq eval '.component.componentReferences[] | "  - " + .name + ": " + .version' base-component.yaml | sort
 
           echo ""
 
-          # Extract component references from new
-          echo "New version ($TARGET_VERSION) component references:"
-          ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
-            --repo .ocm/transport.ctf -o json | \
-            jq -r '.component.componentReferences[] | "  - \(.name): \(.version)"' | sort
+          echo "Patch version ($TARGET_VERSION) component references:"
+          yq eval '.component.componentReferences[] | "  - " + .name + ": " + .version' patch-component.yaml | sort
 
           echo ""
           echo "================================"
           echo ""
 
-      - name: Show diff between base and new component
+      - name: Show full descriptor diff
         run: |
           BASE_VERSION="${{ inputs.base_version }}"
           TARGET_VERSION="${{ inputs.target_version }}"
 
-          echo "=== Diff: Base vs New Component ==="
+          echo "=== Diff: Base vs Patch Component Descriptor ==="
           echo ""
           echo "Comparing:"
-          echo "  Base:   github.com/platform-mesh/platform-mesh:$BASE_VERSION"
-          echo "  New:    github.com/platform-mesh/platform-mesh:$TARGET_VERSION"
+          echo "  Base:  $BASE_VERSION"
+          echo "  Patch: $TARGET_VERSION"
           echo ""
-
-          # Get base component from OCM registry (already fetched earlier)
-          ocm get component "github.com/platform-mesh/platform-mesh:$BASE_VERSION" \
-            --repo ghcr.io/platform-mesh -o yaml > base_component_for_diff.yaml
-
-          # Get new component from local CTF
-          ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
-            --repo .ocm/transport.ctf -o yaml > new_component_for_diff.yaml
-
-          echo "Differences (base -> new):"
+          echo "Differences (base -> patch):"
           echo "---"
 
           # Show diff with context, suppress "No differences" if files are identical
-          if diff -u base_component_for_diff.yaml new_component_for_diff.yaml; then
+          if diff -u base-component.yaml patch-component.yaml; then
             echo ""
-            echo "✓ No differences found (components are identical)"
+            echo "✓ No differences found (components are identical except version)"
           fi || true
 
           echo ""
           echo "================================"
           echo ""
 
-      - name: Display component information
+      - name: Create OCM component from descriptor
         run: |
           TARGET_VERSION="${{ inputs.target_version }}"
 
-          echo "=== OCM Component Information (from local CTF) ==="
+          echo "=== Creating OCM component from descriptor ==="
+          echo "Target version: $TARGET_VERSION"
+          echo ""
+
+          # Create CTF directory
+          ocm_ctf=.ocm/transport.ctf
+          mkdir -p "$(dirname "$ocm_ctf")"
+
+          # Add component using descriptor directly (no templating!)
+          ocm add components -c --templater=none --file "$ocm_ctf" patch-component.yaml
+
+          echo ""
+          echo "✓ OCM component created in local CTF"
+
+      - name: Display created component information
+        run: |
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          echo "=== Created OCM Component Information ==="
           echo ""
           echo "Component: github.com/platform-mesh/platform-mesh:$TARGET_VERSION"
           echo ""
 
-          # Show component descriptor in YAML format
-          echo "Full component descriptor:"
+          # Show component descriptor
+          echo "Component descriptor:"
           echo "---"
           ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
             --repo .ocm/transport.ctf -o yaml
@@ -654,3 +268,19 @@ jobs:
           echo ""
           echo "Verify with:"
           echo "  ocm get component github.com/platform-mesh/platform-mesh:$TARGET_VERSION --repo ghcr.io/platform-mesh"
+
+      - name: Dry run summary
+        if: inputs.dry_run == true
+        run: |
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          echo ""
+          echo "=== DRY RUN MODE ===""
+          echo ""
+          echo "✓ Component created successfully in local CTF"
+          echo "✗ Transfer to registry SKIPPED (dry-run mode)"
+          echo ""
+          echo "Component version: $TARGET_VERSION"
+          echo "Location: .ocm/transport.ctf"
+          echo ""
+          echo "To publish this component, re-run with dry_run=false"
