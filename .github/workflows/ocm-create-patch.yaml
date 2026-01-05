@@ -425,20 +425,6 @@ jobs:
             --repo .ocm/transport.ctf -o yaml
           echo ""
 
-          # Show component references (platform-mesh components)
-          echo "Platform-mesh component references:"
-          ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
-            --repo .ocm/transport.ctf -o json | \
-            jq -r '.component.componentReferences[] | "  - \(.name): \(.version)"' | sort
-          echo ""
-
-          # Show resources (third-party components)
-          echo "Resources (third-party components):"
-          ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
-            --repo .ocm/transport.ctf -o json | \
-            jq -r '.component.resources[] | "  - \(.name) (\(.type)): \(.version)"' | sort
-          echo ""
-
           echo "================================"
 
       - name: Transfer to OCM repository
@@ -460,21 +446,3 @@ jobs:
           echo ""
           echo "Verify with:"
           echo "  ocm get component github.com/platform-mesh/platform-mesh:$TARGET_VERSION --repo ghcr.io/platform-mesh"
-
-      - name: Dry run summary
-        if: inputs.dry_run == true
-        run: |
-          TARGET_VERSION="${{ inputs.target_version }}"
-
-          echo ""
-          echo "=== DRY RUN MODE - No Transfer Performed ==="
-          echo ""
-          echo "The OCM component archive has been created but NOT transferred to the registry."
-          echo ""
-          echo "Component: github.com/platform-mesh/platform-mesh:$TARGET_VERSION"
-          echo "Archive location: .ocm/transport.ctf"
-          echo ""
-          echo "To publish this component for real, re-run the workflow with dry_run=false"
-          echo ""
-          echo "Would execute:"
-          echo "  ocm transfer ctf --overwrite .ocm/transport.ctf ghcr.io/platform-mesh"
