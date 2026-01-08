@@ -466,3 +466,15 @@ jobs:
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
         run: ./ocm transfer ctf --overwrite .ocm/transport.ctf "ghcr.io/platform-mesh"
+
+      - name: Update workflow run name
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ steps.version_check.outputs.needs_update }}" = "true" ]; then
+            gh api -X PATCH /repos/${{ github.repository }}/actions/runs/${{ github.run_id }} \
+              -f name="platform-mesh ${{ env.VERSION }}"
+          else
+            gh api -X PATCH /repos/${{ github.repository }}/actions/runs/${{ github.run_id }} \
+              -f name="platform-mesh ${{ env.CURRENT_PM_VERSION }} - skipped"
+          fi
