@@ -22,7 +22,7 @@ gateway:
   metricsPort: 8081
   graphiql: true
   logLevel: trace
-  shouldImpersonate: true
+  shouldImpersonate: false
   introspectionAuthentication: true
   usernameClaim: email
   resources:
