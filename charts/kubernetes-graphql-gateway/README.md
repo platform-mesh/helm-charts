@@ -39,7 +39,7 @@ kubeConfig:
 | gateway.resources.limits.memory | string | `"1200Mi"` |  |
 | gateway.resources.requests.cpu | string | `"250m"` |  |
 | gateway.resources.requests.memory | string | `"1000Mi"` |  |
-| gateway.shouldImpersonate | bool | `true` |  |
+| gateway.shouldImpersonate | bool | `false` |  |
 | gateway.usernameClaim | string | `"email"` |  |
 | gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
 | gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}},{"requestHeaderModifier":{"set":[{"name":"Host","value":"portal.dev.local"}]},"type":"RequestHeaderModifier"}],"hostnames":["portal.dev.local","*.portal.dev.local"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
