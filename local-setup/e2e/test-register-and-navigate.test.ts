@@ -8,37 +8,24 @@ const firstName = 'Firstname';
 const lastName = 'Lastname';
 const newOrgName = 'default';
 
-async function activateUserEmailViaMailpit(
-  page: Page,
-  userEmail: string
-): Promise<Page> {
-  await page.goto(`${portalBaseUrl}mailpit/`);
-  await page.click(`text=To: ${userEmail}`, { timeout: 30000 });
-  const emailFrame = page.frameLocator('#preview-html');
-
-  // Wait for the new page to open when clicking the verification link
-  const [newPage] = await Promise.all([
-    page.context().waitForEvent('page'),
-    emailFrame.locator('text=Link to e-mail address verification').click({ timeout: 30000 }),
-  ]);
-
-  return newPage;
-}
-
 async function confirmInviteMailpit(
   page: Page,
   userEmail: string
 ): Promise<Page> {
-
-  await page.goto(`${portalBaseUrl}mailpit/`);
-  await page.click(`text=To: ${userEmail} Update Your Account`, { timeout: 2*60*1000 });
-  const emailFrame = page.frameLocator('#preview-html');
+  // Open mailpit in a new tab to avoid navigating away from the current page
+  const mailpitPage = await page.context().newPage();
+  await mailpitPage.goto(`${portalBaseUrl}mailpit/`);
+  await mailpitPage.click(`text=To: ${userEmail} Update Your Account`, { timeout: 2*60*1000 });
+  const emailFrame = mailpitPage.frameLocator('#preview-html');
 
   // Wait for the new page to open when clicking the verification link
   const [newPage] = await Promise.all([
     page.context().waitForEvent('page'),
     emailFrame.locator('text=Link to account update').click(),
   ]);
+
+  // Close the mailpit tab
+  await mailpitPage.close();
 
   return newPage;
 }
@@ -55,7 +42,7 @@ async function registerNewUser(
   await page.fill('input[id="lastName"]', lastName);
 
   await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle' }),
+    page.waitForNavigation({ waitUntil: 'load' }),
     page.click('input[value="Register"]', { timeout: 10000 })
   ]);
 
@@ -85,25 +72,24 @@ test.describe('Home Page', () => {
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
 
-    page = await registerNewUser(page);
-    
-    const newPage = await activateUserEmailViaMailpit(page, userEmail);
+    await registerNewUser(page);
 
-    // Wait for the new page to load and check for the existence of specific text
-    await newPage.waitForLoadState('domcontentloaded');
-    const verificationText = await newPage.getByText("Welcome to the Platform Mesh Portal!");
+    // Registration now redirects directly to the welcome page
+    await page.waitForURL(`${portalBaseUrl}**`, { timeout: 20000 });
+    await page.waitForLoadState('load', { timeout: 20000 });
+    const verificationText = page.getByText("Welcome to the Platform Mesh Portal!");
     await expect(verificationText).toBeVisible( { timeout: 10000 });
 
-    await newPage.screenshot({ path: 'screenshot-beforeswitch.png' });
+    await page.screenshot({ path: 'screenshot-beforeswitch.png' });
 
     // onboard 'default' organization and switch to it
-    await newPage.locator('[test-id="organization-management-input"]').locator('input').fill(newOrgName);
-    await newPage.locator('[test-id="organization-management-onboard-button"]').locator('button').click();
+    await page.locator('[test-id="organization-management-input"]').locator('input').fill(newOrgName);
+    await page.locator('[test-id="organization-management-onboard-button"]').locator('button').click();
 
 
     // Wait for the "Switch" button (role-based to pierce shadow DOM), and in parallel open Mailpit link
     let welcomePage: Page;
-    const switchButton = await newPage.locator('[test-id="organization-management-switch-button"]').locator('button')
+    const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button')
 
     const [_, wp] = await Promise.all([
       switchButton.waitFor({ state: 'visible', timeout: 100000 }),
