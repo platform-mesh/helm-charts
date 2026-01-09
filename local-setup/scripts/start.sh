@@ -57,8 +57,12 @@ if [ "$CACHED" = true ]; then
     setup_registry_proxies
 fi
 
-# Check if kind cluster is already running, if not create it
-if ! check_kind_cluster; then
+# Check if k3d cluster exists first, then check kind cluster, if neither exists create kind
+USE_K3D_CLUSTER=false
+if check_k3d_cluster; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Using existing k3d cluster, bypassing kind cluster creation ${COL_RES}"
+    USE_K3D_CLUSTER=true
+elif ! check_kind_cluster; then
     if [ -d "$SCRIPT_DIR/certs" ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
         rm -rf "$SCRIPT_DIR/certs"

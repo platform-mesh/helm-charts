@@ -7,6 +7,37 @@ COL='\033[92m'
 RED='\033[91m'
 COL_RES='\033[0m'
 
+check_k3d_cluster() {
+    # Check if k3d is installed
+    # k3d is an alternative to kind for running local Kubernetes clusters
+    # Reference: https://github.com/platform-mesh/helm-charts/commit/b082f0cde7b9d7d4242aaeb3e9dba03b0e4fdbad
+    # Reference: https://github.com/platform-mesh/helm-charts/commit/ae2be316be7d3d49d8bd7bd781cb82bceb5b6c29
+    if ! command -v k3d &> /dev/null; then
+        return 1  # k3d not installed, can't check for k3d clusters
+    fi
+    
+    # Check if any k3d cluster is running
+    local k3d_clusters=$(k3d cluster list 2>/dev/null | grep -v "NAME" | awk '{print $1}')
+    
+    if [ -n "$k3d_clusters" ]; then
+        local first_cluster=$(echo "$k3d_clusters" | head -n 1)
+        echo -e "${COL}[$(date '+%H:%M:%S')] k3d cluster '$first_cluster' detected, bypassing kind cluster creation ${COL_RES}"
+        
+        # Export kubeconfig for the k3d cluster
+        k3d kubeconfig merge "$first_cluster" --kubeconfig-switch-context > /dev/null 2>&1
+        
+        if [ $? -eq 0 ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Using k3d cluster: $first_cluster ${COL_RES}"
+            return 0  # Return 0 to indicate cluster exists
+        else
+            echo -e "${YELLOW}[$(date '+%H:%M:%S')] Warning: Failed to export k3d kubeconfig, will attempt to use kind ${COL_RES}"
+            return 1
+        fi
+    fi
+    
+    return 1  # Return 1 to indicate no k3d cluster exists
+}
+
 check_kind_cluster() {
     # Check if kind cluster is already running
     if [ $(kind get clusters 2>/dev/null | grep -c platform-mesh) -gt 0 ]; then
@@ -18,6 +49,16 @@ check_kind_cluster() {
 }
 
 check_kind_dependency() {
+    # Check if k3d is available and has clusters - if so, we don't need kind
+    if command -v k3d &> /dev/null; then
+        local k3d_clusters=$(k3d cluster list 2>/dev/null | grep -v "NAME" | awk '{print $1}')
+        if [ -n "$k3d_clusters" ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] ✅ k3d is available with existing clusters, skipping kind dependency check${COL_RES}"
+            return 0
+        fi
+    fi
+    
+    # If k3d is not available or has no clusters, kind is required
     if ! command -v kind &> /dev/null; then
         echo -e "${RED}❌ Error: 'kind' (Kubernetes in Docker) is not installed${COL_RES}"
         echo -e "${COL}📦 Kind is required to create local Kubernetes clusters.${COL_RES}"
@@ -199,6 +240,7 @@ run_environment_checks() {
 }
 
 # Export functions so they can be used by the main script
+export -f check_k3d_cluster
 export -f check_kind_cluster
 export -f check_kind_dependency
 export -f check_docker_dependency
