@@ -8,6 +8,8 @@ spec:
   resource:
     name: chart
   values:
+    log:
+      level: debug
     hostAliases:
       enabled: true
       entries:

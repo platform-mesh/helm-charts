@@ -585,7 +585,7 @@ tasks:
   local-setup-remotedeployment:
     deps:
       - task: setup:mkcert
-    vars: {FLAGS: "--cached --latest"}
+    vars: {FLAGS: "--cached --latest --deployment-tech=argocd"}
     cmds:
       - |
         if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
@@ -601,7 +601,7 @@ tasks:
   local-setup-remotedeployment:iterate:
     deps:
       - task: setup:mkcert
-    vars: {FLAGS: "--cached --latest"}
+    vars: {FLAGS: "--cached --latest --deployment-tech=argocd"}
     cmds:
       - |
         local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}

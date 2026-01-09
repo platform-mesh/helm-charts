@@ -22,9 +22,11 @@ PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
 LATEST=false
+DEPLOYMENT_TECH="fluxcd"
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--deployment-tech=fluxcd|argocd] [--help]"
+  echo "  --deployment-tech: Choose deployment technology (fluxcd or argocd). Default: fluxcd"
   exit 1
 }
 
@@ -34,6 +36,13 @@ while [ $# -gt 0 ]; do
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --latest) LATEST=true ;;
+    --deployment-tech=*)
+      DEPLOYMENT_TECH="${1#*=}"
+      if [ "$DEPLOYMENT_TECH" != "fluxcd" ] && [ "$DEPLOYMENT_TECH" != "argocd" ]; then
+        echo "Error: --deployment-tech must be either 'fluxcd' or 'argocd'" >&2
+        usage
+      fi
+      ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -56,6 +65,8 @@ run_environment_checks
 if [ "$CACHED" = true ]; then
     setup_registry_proxies
 fi
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Using deployment technology: ${DEPLOYMENT_TECH} ${COL_RES}"
 
 # Check if kind cluster is already running, if not create it
 if ! check_kind_cluster; then
@@ -94,48 +105,112 @@ if ! check_kind_infra_cluster; then
 
 fi
 
-kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.10 --name platform-mesh-infra
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11 --name platform-mesh-infra
 
 mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
-HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig .secret/platform-mesh-infra.kubeconfig -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.17.1 \
-  --set imageAutomationController.create=false \
-  --set imageReflectionController.create=false \
-  --set notificationController.create=false \
-  --set helmController.container.additionalArgs[0]="--concurrent=50" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
+install_fluxcd() {
+  local kubeconfig=$1
+  local concurrent=$2
+  local namespace="flux-system"
+  
+  echo -e "${COL}[$(date '+%H:%M:%S')] Installing FluxCD ${COL_RES}"
+  HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig "$kubeconfig" -i -n "$namespace" --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+    --version 2.17.1 \
+    --set imageAutomationController.create=false \
+    --set imageReflectionController.create=false \
+    --set notificationController.create=false \
+    --set helmController.container.additionalArgs[0]="--concurrent=$concurrent" \
+    --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
 
-HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig .secret/platform-mesh.kubeconfig -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.17.1 \
-  --set imageAutomationController.create=false \
-  --set imageReflectionController.create=false \
-  --set notificationController.create=false \
-  --set helmController.container.additionalArgs[0]="--concurrent=10" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
+}
 
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
+install_argocd() {
+  local kubeconfig=$1
+  local namespace="argocd"
+  
+  echo -e "${COL}[$(date '+%H:%M:%S')] Installing ArgoCD ${COL_RES}"
+  HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig "$kubeconfig" -i -n "$namespace" --create-namespace argo-cd oci://ghcr.io/argoproj/argo-helm/argo-cd \
+    --version 9.2.4 \
+    --set controller.replicas=1 \
+    --set server.replicas=1 \
+    --set repoServer.replicas=1 \
+    --set applicationSet.replicas=1 \
+    --set notifications.enabled=false \
+    --set dex.enabled=false \
+    --set configs.params."server\.insecure"=true > /dev/null 2>&1
 
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
+  echo "Waiting for ArgoCD server to be ready"
+
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-applicationset-controller > /dev/null 2>&1
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-repo-server > /dev/null 2>&1
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-server > /dev/null 2>&1
+}
+
+setup_argocd() {
+  echo -e "${COL}[$(date '+%H:%M:%S')] Setting up ArgoCD clusters ${COL_RES}"
+  kind export kubeconfig --name platform-mesh-infra
+  argocd login --core
+  kubectl config set-context --current --namespace=argocd
+  argocd cluster add kind-platform-mesh --yes --kubeconfig .secret/platform-mesh.kubeconfig.tmp
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch configmap argocd-cmd-params-cm -n argocd \
+  --type merge \
+  -p '{"data": {"application.namespaces": "argocd,platform-mesh-system"}}'
+  kubectl delete pod -n argocd -l app.kubernetes.io/instance=argo-cd
+}
+
+wait_for_deployment_resource() {
+  local kubeconfig=$1
+  local namespace=$2
+  local resource_name=$3
+  
+  if [ "$DEPLOYMENT_TECH" = "fluxcd" ]; then
+    kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+      --for=condition=Ready helmreleases \
+      --timeout=$KUBECTL_WAIT_TIMEOUT "$resource_name"
+  elif [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+    # ArgoCD Applications use health and sync status instead of Ready condition
+    # Wait for both health=Healthy and sync=Synced
+    local elapsed=0
+    local timeout_seconds=$(echo "$KUBECTL_WAIT_TIMEOUT" | sed 's/s$//')
+    while [ $elapsed -lt $timeout_seconds ]; do
+      local health=$(kubectl --kubeconfig "$kubeconfig" get application "$resource_name" -n "$namespace" -o jsonpath='{.status.health.status}' 2>/dev/null || echo "")
+      local sync=$(kubectl --kubeconfig "$kubeconfig" get application "$resource_name" -n "$namespace" -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "")
+      if [ "$health" = "Healthy" ] && [ "$sync" = "Synced" ]; then
+        return 0
+      fi
+      sleep 2
+      elapsed=$((elapsed + 2))
+    done
+    echo "Warning: Application $resource_name did not become Healthy and Synced within timeout" >&2
+    return 1
+  fi
+}
+
+install_fluxcd .secret/platform-mesh-infra.kubeconfig 50
+install_fluxcd .secret/platform-mesh.kubeconfig 10
+
+if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+  install_argocd .secret/platform-mesh-infra.kubeconfig
+  install_argocd .secret/platform-mesh.kubeconfig
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
 kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/kro
@@ -162,9 +237,7 @@ kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
 kubectl create secret generic platform-mesh-kubeconfig -n default \
   --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
 
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT kro
+# wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default kro
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f -
@@ -210,6 +283,25 @@ kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace de
   --for=condition=Ready PlatformMeshOperator \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
+patch_platform_mesh_operator_roles() {
+  echo -e "${COL}[$(date '+%H:%M:%S')] Patching Platform-Mesh Operator roles to include ArgoCD permissions ${COL_RES}"
+  # Temporary: patch the ClusterRole until the chart is updated
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch clusterrole platform-mesh-operator --type='json' -p='[
+    {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["appprojects"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}},
+    {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["applications"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}}
+  ]'
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch role platform-mesh-operator -n platform-mesh-system --type='json' -p='[
+    {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["appprojects"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}},
+    {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["applications"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}}
+  ]'
+
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig delete pod -l app=platform-mesh-operator -n platform-mesh-system
+}
+
+patch_platform_mesh_operator_roles
+
+setup_argocd
+
 # Install Platform-Mesh Runtime
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
 kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource-new
@@ -221,24 +313,14 @@ kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace platform-
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
+wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system keycloak
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT account-operator
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT portal
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT security-operator
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for ${DEPLOYMENT_TECH} resources ${COL_RES}"
+wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system rebac-authz-webhook
+wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system account-operator
+wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system portal
+wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system security-operator
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
@@ -252,13 +334,9 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
-  kubectl wait --namespace default \
-    --for=condition=Ready helmreleases \
-    --timeout=$KUBECTL_WAIT_TIMEOUT api-syncagent
+  wait_for_deployment_resource .secret/platform-mesh.kubeconfig default api-syncagent
 
-  kubectl wait --namespace default \
-    --for=condition=Ready helmreleases \
-    --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
+  wait_for_deployment_resource .secret/platform-mesh.kubeconfig default example-httpbin-provider
 
 fi
 

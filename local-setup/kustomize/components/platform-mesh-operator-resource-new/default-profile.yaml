@@ -2,6 +2,8 @@ apiVersion: v1
 data:
   profile.yaml: |
     components:
+      deploymentTechnology: argocd
+      destinationServer: https://172.18.0.6:6443
       iamWebhookCA: null
       ocm:
         component:
@@ -169,7 +171,7 @@ data:
               enabled: false
             kubeConfig:
               enabled: true
-              secretName: kubernetes-grapqhl-gateway-kubeconfig
+              secretName: kubernetes-graphql-gateway-kubeconfig
             listener:
               virtualWorkspacesConfig:
                 content:
@@ -323,6 +325,11 @@ data:
           enabled: true
       targetNamespace: platform-mesh-system
     infra:
+      dependsOn:
+      - name: keycloak
+        namespace: platform-mesh-system
+      deploymentTechnology: argocd
+      destinationServer: https://172.18.0.6:6443
       certManager:
         enabled: true
         interval: 1m
@@ -330,8 +337,7 @@ data:
         ocmResourceName: chart
         targetNamespace: default
         values:
-          crds:
-            enabled: true
+          installCRDs: true
       gatewayApi:
         enabled: true
         kustomization:
