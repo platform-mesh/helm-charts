@@ -13,7 +13,9 @@ spec:
       name: platform-mesh
     referencePath: []
   featureToggles:
-   - name: "feature-enable-getting-started"
+   - name: feature-enable-getting-started
+   - name: feature-disable-email-verification
+   - name: feature-accounts-in-accounts
   values:
     keycloak:
       enabled: true
@@ -49,6 +51,8 @@ spec:
             clusterIP: "10.96.0.100"
         keycloak:
           crossplane:
+            realm:
+              verifyEmail: false
             clients:
               welcome:
                 validRedirectUris:
