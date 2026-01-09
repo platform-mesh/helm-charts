@@ -532,3 +532,44 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --latest --example-data"}
+
+  # Search-enabled local-setup tasks
+  local-setup:search:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--search"}
+
+  local-setup:search:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--search"}
+
+  local-setup:example-data:search:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--example-data --search"}
+
+  local-setup:example-data:search:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--example-data --search"}
+
+  local-setup:cached:search:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --search"}
+
+  local-setup:cached:search:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --search"}
+
+  local-setup:cached:example-data:search:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --example-data --search"}
+
+  local-setup:cached:example-data:search:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --example-data --search"}

@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform-mesh-system
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: opensearch
+  namespace: default
+spec:
+  interval: 5m
+  url: https://opensearch-project.github.io/helm-charts/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: opensearch
+  namespace: default
+spec:
+  chart:
+    spec:
+      chart: opensearch
+      version: "3.4.0"
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: opensearch
+  interval: 1m
+  releaseName: opensearch
+  targetNamespace: platform-mesh-system
+  timeout: 15m
+  values:
+    # Single-node configuration for local development
+    singleNode: true
+    replicas: 1
+    
+    # Security disabled for local development
+    config:
+      opensearch.yml: |
+        cluster.name: platform-mesh-search
+        network.host: 0.0.0.0
+        plugins.security.disabled: true
+        
+    # Disable security plugin completely
+    securityConfig:
+      enabled: false
+    
+    # Resource limits for local development
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    
+    # Java heap settings
+    opensearchJavaOpts: "-Xms512m -Xmx512m"
+    
+    # No persistence for Kind - always start fresh
+    persistence:
+      enabled: false
+    
+    # Service configuration
+    service:
+      type: ClusterIP
+      port: 9200
+    
+    # Disable extra components not needed for MVP
+    dashboards:
+      enabled: false
+    
+    # Pod annotations
+    podAnnotations: {}
+    
+    # Sysctls for vm.max_map_count
+    sysctlInit:
+      enabled: true

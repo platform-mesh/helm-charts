@@ -21,9 +21,10 @@ PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
 LATEST=false
+SEARCH=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--search] [--help]"
   exit 1
 }
 
@@ -33,6 +34,7 @@ while [ $# -gt 0 ]; do
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --latest) LATEST=true ;;
+    --search) SEARCH=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -141,9 +143,16 @@ kubectl wait --namespace default \
   --timeout=480s platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
 
-if [ "$EXAMPLE_DATA" = true ]; then
+if [ "$EXAMPLE_DATA" = true ] && [ "$SEARCH" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data and search) ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+  kubectl apply -k $SCRIPT_DIR/../kustomize/components/opensearch
+elif [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+elif [ "$SEARCH" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with search) ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/search
 else
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
@@ -194,6 +203,14 @@ if [ "$EXAMPLE_DATA" = true ]; then
     --for=condition=Ready helmreleases \
     --timeout=280s example-httpbin-provider
 
+fi
+
+if [ "$SEARCH" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for OpenSearch ${COL_RES}"
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=480s opensearch
+  echo -e "${COL}[$(date '+%H:%M:%S')] OpenSearch is ready! ${COL_RES}"
 fi
 
 echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"

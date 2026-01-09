@@ -298,6 +298,47 @@ services:
             endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
             tls:
               enabled: false
+  opensearch:
+    # OpenSearch for Platform Mesh search functionality
+    # Enable this to deploy OpenSearch for indexing platform resources
+    enabled: false
+    helmRepo: true
+    helmRepoUrl: https://opensearch-project.github.io/helm-charts/
+    values:
+      # Single-node configuration suitable for development/small deployments
+      singleNode: true
+      replicas: 1
+      # Security disabled - enable and configure for production
+      config:
+        opensearch.yml: |
+          cluster.name: platform-mesh-search
+          network.host: 0.0.0.0
+          plugins.security.disabled: true
+      securityConfig:
+        enabled: false
+      # Resource configuration
+      resources:
+        requests:
+          cpu: 250m
+          memory: 512Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+      opensearchJavaOpts: "-Xms512m -Xmx512m"
+      # Persistence
+      persistence:
+        enabled: true
+        size: 8Gi
+      # Service
+      service:
+        type: ClusterIP
+        port: 9200
+      # Disable dashboards for MVP
+      dashboards:
+        enabled: false
+      # Sysctls for vm.max_map_count
+      sysctlInit:
+        enabled: true
   portal:
     enabled: false
     values:

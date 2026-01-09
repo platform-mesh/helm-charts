@@ -75,6 +75,10 @@ task local-setup:iterate
 # Use latest release-candidate (RC)
 task local-setup:latest
 task local-setup:latest:iterate
+
+# Enable OpenSearch (search)
+task local-setup:search
+task local-setup:search:iterate
 ```
 
 **Without Task (direct script execution):**
@@ -88,6 +92,9 @@ kind delete cluster --name platform-mesh
 
 # Use latest release-candidate (RC)
 ./local-setup/scripts/start.sh --latest
+
+# Enable OpenSearch (search)
+./local-setup/scripts/start.sh --search
 ```
 
 ### 2. Bootstrap with Example Data (Demo Setup)
@@ -105,6 +112,10 @@ task local-setup:example-data:iterate
 # With latest release-candidate (RC)
 task local-setup:latest:example-data
 task local-setup:latest:example-data:iterate
+
+# With example data + search
+task local-setup:example-data:search
+task local-setup:example-data:search:iterate
 ```
 
 **Without Task:**
@@ -118,6 +129,9 @@ kind delete cluster --name platform-mesh
 
 # With latest release-candidate (RC)
 ./local-setup/scripts/start.sh --latest --example-data
+
+# With example data + search
+./local-setup/scripts/start.sh --example-data --search
 ```
 
 **What gets created:**
@@ -141,13 +155,25 @@ task local-setup:cached:iterate
 task local-setup:cached:example-data
 task local-setup:cached:example-data:iterate
 
+# With search + caching
+task local-setup:cached:search
+task local-setup:cached:search:iterate
+
 # With latest release-candidate (RC) + caching
 task local-setup:cached:latest
 task local-setup:cached:latest:iterate
 
+# With latest release-candidate (RC) + search + caching
+task local-setup:cached:latest:search
+task local-setup:cached:latest:search:iterate
+
 # All flags combined (cached + latest + example-data)
 task local-setup:cached:latest:example-data
 task local-setup:cached:latest:example-data:iterate
+
+# All flags combined (cached + latest + example-data + search)
+task local-setup:cached:latest:example-data:search
+task local-setup:cached:latest:example-data:search:iterate
 ```
 
 **Without Task:**
@@ -162,11 +188,20 @@ kind delete cluster --name platform-mesh
 # With example data + caching
 ./local-setup/scripts/start.sh --cached --example-data
 
+# With search + caching
+./local-setup/scripts/start.sh --cached --search
+
 # With latest release-candidate (RC) + caching
 ./local-setup/scripts/start.sh --cached --latest
 
+# With latest release-candidate (RC) + search + caching
+./local-setup/scripts/start.sh --cached --latest --search
+
 # All flags combined
 ./local-setup/scripts/start.sh --cached --latest --example-data
+
+# All flags combined (cached + latest + example-data + search)
+./local-setup/scripts/start.sh --cached --latest --example-data --search
 ```
 
 ### Understanding Version Options
@@ -181,7 +216,7 @@ kind delete cluster --name platform-mesh
 **Task Naming Convention:**
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `cached`, `latest`, `example-data`
+- Available flags: `cached`, `latest`, `example-data`, `search`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
