@@ -6,7 +6,7 @@ spec:
   repositoryRef:
     name: platform-mesh
   component: github.com/platform-mesh/platform-mesh
-  semver: 0.2.0-build.367
+  semver: 0.2.0-build.368
   interval: 1m
   ocmConfig:
     - kind: Repository
