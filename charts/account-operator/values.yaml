@@ -18,6 +18,7 @@ webhooks:
   certDir: /certs
   # -- List of denied organization names
   denyList: ["admin", "root", "system", "www"]
+  additionalAccountTypes: []
 
 # -- The KCP configuration
 kcp:
