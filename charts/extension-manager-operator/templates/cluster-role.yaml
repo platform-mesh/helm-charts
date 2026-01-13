@@ -4,7 +4,7 @@ metadata:
   name: {{ include "common.entity.name" . }}
 rules:
 - apiGroups:
-  - core.platform-mesh.io
+  - ui.platform-mesh.io
   resources:
   - contentconfigurations
   - contentconfigurations/status
