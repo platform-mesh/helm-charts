@@ -94,7 +94,7 @@ enable Gateway API:
       name: extension-manager-operator
     rules:
       - apiGroups:
-          - core.platform-mesh.io
+          - ui.platform-mesh.io
         resources:
           - contentconfigurations
           - contentconfigurations/status
@@ -350,7 +350,7 @@ operator match the snapshot:
       name: extension-manager-operator
     rules:
       - apiGroups:
-          - core.platform-mesh.io
+          - ui.platform-mesh.io
         resources:
           - contentconfigurations
           - contentconfigurations/status
