@@ -197,12 +197,10 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
 fi
 
-echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
-show_wsl_hosts_guidance
-
-echo -e "${YELLOW}⚠️  WARNING: You need to add a hosts entry for every organization that is onboarded!${COL_RES}"
+echo -e "${YELLOW}⚠️  REMINDER: You need to add a hosts entry for every organization that is onboarded!${COL_RES}"
 echo -e "${YELLOW}   Each organization will require its own subdomain entry in /etc/hosts${COL_RES}"
 echo -e "${YELLOW}   Example: 127.0.0.1 <organization-name>.portal.dev.local${COL_RES}"
+show_wsl_hosts_guidance
 
 echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
 
