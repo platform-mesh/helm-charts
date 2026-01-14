@@ -1,1 +1,3 @@
 # Place values here
+crds:
+  scope: Cluster # Possible values: Namespaced, Cluster
