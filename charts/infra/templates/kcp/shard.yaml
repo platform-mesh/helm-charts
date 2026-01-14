@@ -1,0 +1,13 @@
+{{- range .Values.kcp.additionalShards }}
+apiVersion: operator.kcp.io/v1alpha1
+kind: Shard
+metadata:
+  name: {{ . }}
+  namespace: {{ $.Values.kcp.namespace | default "kcp-system" }}
+spec:
+  rootShard:
+    ref:
+      name: root
+  {{ include "kcpShardCommonValues" $ }}
+---
+{{- end }}

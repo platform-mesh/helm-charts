@@ -1,0 +1,654 @@
+---
+# Source: infra/templates/keycloak/crossplane/provider-config.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keycloak-provider-config
+  namespace: platform-mesh-system
+stringData:
+  config: |
+    {
+      "client_id":"admin-cli",
+      "username": "keycloak-admin",
+      "password": "aesaeXaefu0x",
+      "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
+      "realm": "master"
+    }
+---
+# Source: infra/templates/kcp/admin-client-cert.yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: kcp-cluster-admin-client-cert
+  namespace: platform-mesh-system
+spec:
+  commonName: cluster-admin
+  issuerRef:
+    name: root-front-proxy-client-ca
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  secretName: kcp-cluster-admin-client-cert
+  subject:
+    organizations:
+      
+      - system:kcp:admin
+  usages:
+    - client auth
+---
+# Source: infra/templates/keycloak/crossplane/client.yaml
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: welcome
+spec:
+  forProvider:
+    enabled: true
+    accessType: CONFIDENTIAL
+    clientId: welcome
+    standardFlowEnabled: true
+    name: Welcome
+    realmIdRef:
+      name: welcome
+    validRedirectUris: 
+      - http://localhost:8000/callback*
+      - http://localhost:4300/callback*
+  providerConfigRef:
+    name: keycloak-provider-config
+  writeConnectionSecretToRef:
+    name: portal-client-secret-welcome
+    namespace: platform-mesh-system
+---
+# Source: infra/templates/keycloak/crossplane/management-clients/client.yaml
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: iam
+spec:
+  forProvider:
+    enabled: true
+    accessType: "CONFIDENTIAL"
+    clientId: iam
+    serviceAccountsEnabled: true
+    name: iam
+    realmId: master
+  providerConfigRef:
+    name: keycloak-provider-config
+  writeConnectionSecretToRef:
+    name: iam-client-secret
+    namespace: platform-mesh-system
+---
+# Source: infra/templates/keycloak/crossplane/management-clients/client.yaml
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: security-operator
+spec:
+  forProvider:
+    enabled: true
+    accessType: "CONFIDENTIAL"
+    clientId: security-operator
+    serviceAccountsEnabled: true
+    name: security-operator
+    realmId: master
+  providerConfigRef:
+    name: keycloak-provider-config
+  writeConnectionSecretToRef:
+    name: security-operator-client-secret
+    namespace: platform-mesh-system
+---
+# Source: infra/templates/keycloak/crossplane/client.yaml
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientDefaultScopes
+metadata:
+  name: welcome-default-scopes
+spec:
+  forProvider:
+    clientIdRef:
+      name: welcome
+    defaultScopes:
+    - profile
+    - email
+    - basic
+    - acr
+    - groups
+    - trusted-platform-mesh-audiences
+    realmIdRef:
+      name: welcome
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/keycloak/crossplane/group.yaml
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientScope
+metadata:
+  name: groups-client-scope
+spec:
+  forProvider:
+    description: When requested, this scope will map a user's group memberships to
+      a claim
+    includeInTokenScope: true
+    name: groups
+    realmIdRef:
+      name: welcome
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/keycloak/crossplane/oidc-audences.yaml
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientScope
+metadata:
+  name: trusted-platform-mesh-audiences
+spec:
+  forProvider:
+    includeInTokenScope: true
+    name: trusted-platform-mesh-audiences
+    realmIdRef:
+      name: welcome
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/keycloak/crossplane/management-clients/client.yaml
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientServiceAccountRealmRole
+metadata:
+  name: iam
+spec:
+  forProvider:
+    realmId: master
+    role: admin
+    serviceAccountUserClientIdRef:
+      name: iam
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/keycloak/crossplane/management-clients/client.yaml
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: ClientServiceAccountRealmRole
+metadata:
+  name: security-operator
+spec:
+  forProvider:
+    realmId: master
+    role: admin
+    serviceAccountUserClientIdRef:
+      name: security-operator
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/keycloak/crossplane/group.yaml
+apiVersion: defaults.keycloak.crossplane.io/v1alpha1
+kind: DefaultGroups
+metadata:
+  name: default
+spec:
+  forProvider:
+    groupIdsRefs:
+    - name: portal
+    realmIdRef:
+      name: welcome
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/kcp/etcd.yaml
+apiVersion: druid.gardener.cloud/v1alpha1
+kind: Etcd
+metadata:
+  name: etcd-kcp
+  namespace: platform-mesh-system
+  labels:
+    app: etcd-statefulset
+    gardener.cloud/role: controlplane
+    role: kcp
+spec:
+  annotations:
+    app: etcd-statefulset
+    gardener.cloud/role: controlplane
+    role: kcp
+  labels:
+    app: etcd-statefulset
+    gardener.cloud/role: controlplane
+    role: kcp
+  etcd:
+    metrics: basic
+    defragmentationSchedule: 0 */24 * * *
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 200Mi
+    clientPort: 2379
+    serverPort: 2380
+    quota: 8Gi
+  backup:
+    port: 8080
+    fullSnapshotSchedule: 0 */24 * * *
+    resources:
+      limits:
+        cpu: 200m
+        memory: 1Gi
+      requests:
+        cpu: 23m
+        memory: 128Mi
+    garbageCollectionPolicy: Exponential
+    garbageCollectionPeriod: 43200s
+    deltaSnapshotPeriod: 300s
+    deltaSnapshotMemoryLimit: 1Gi
+    compression:
+      enabled: false
+      policy: gzip
+    leaderElection:
+      reelectionPeriod: 5s
+      etcdConnectionTimeout: 5s
+
+  sharedConfig:
+    autoCompactionMode: periodic
+    autoCompactionRetention: 30m
+
+
+  replicas: 1
+---
+# Source: infra/templates/kcp/front-proxy.yaml
+apiVersion: operator.kcp.io/v1alpha1
+kind: FrontProxy
+metadata:
+  name: frontproxy
+  namespace: platform-mesh-system
+spec:
+  replicas: 1
+  
+  image:
+    tag: v0.29.0
+  additionalPathMappings:
+    - backend: https://virtual-workspaces.platform-mesh-system:8443
+      backend_server_ca: /etc/kcp/tls/ca/tls.crt
+      path: /services/contentconfigurations
+      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+    - backend: https://virtual-workspaces.platform-mesh-system:8443
+      backend_server_ca: /etc/kcp/tls/ca/tls.crt
+      path: /services/marketplace
+      proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+      proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+  external:
+    # replace the hostname with the external DNS name for your kcp instance
+    hostname: localhost
+    port: 8443
+  rootShard:
+    ref:
+      name: root
+  serviceTemplate:
+    spec:
+      type: ClusterIP
+      ports:
+      - appProtocol: https
+        name: https
+        port: 8443
+        protocol: TCP
+        targetPort: 6443
+  extraArgs:
+    - --feature-gates=WorkspaceAuthentication=true
+---
+# Source: infra/templates/gatewayapi/gateway.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: k8sapi-gateway
+  namespace: default
+spec:
+  gatewayClassName: traefik
+  listeners:
+  - name: websecure
+    port: 8443
+    protocol: HTTPS
+    hostname: "portal.localhost"
+    allowedRoutes:
+      namespaces:
+        from: All
+      kinds:
+        - group: gateway.networking.k8s.io
+          kind: HTTPRoute
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - group: ""
+          kind: Secret
+          name: domain-certificate
+          namespace: platform-mesh-system
+  - name: websecure-wildcard-portal-localhost
+    port: 8443
+    protocol: HTTPS
+    hostname: "*.portal.localhost"
+    allowedRoutes:
+      namespaces:
+        from: All
+      kinds:
+        - group: gateway.networking.k8s.io
+          kind: HTTPRoute
+    tls:
+      mode: Terminate
+      certificateRefs:
+        - group: ""
+          kind: Secret
+          name: domain-certificate
+          namespace: platform-mesh-system
+  - name: https-passthrough
+    port: 8443
+    protocol: TLS
+    hostname: "localhost"
+    allowedRoutes:
+      namespaces:
+        from: All
+      kinds:
+        - group: gateway.networking.k8s.io
+          kind: TLSRoute
+    tls:
+      mode: Passthrough
+---
+# Source: infra/templates/keycloak/crossplane/group.yaml
+apiVersion: group.keycloak.crossplane.io/v1alpha1
+kind: Group
+metadata:
+  name: portal
+spec:
+  forProvider:
+    name: portal
+    realmIdRef:
+      name: welcome
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/keycloak/crossplane/group.yaml
+apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
+kind: GroupMembershipProtocolMapper
+metadata:
+  name: group-membership-mapper
+spec:
+  forProvider:
+    claimName: groups
+    clientIdRef:
+      name: groups-client-scope
+    name: group-membership-mapper
+    realmIdRef:
+      name: welcome
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/keycloak/httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: keycloak
+spec: 
+  hostnames:
+  - "portal.localhost"
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: k8sapi-gateway
+    sectionName: websecure
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /keycloak
+    backendRefs:
+    - group: ""
+      kind: Service
+      name: keycloak
+      namespace: default
+      port: 80
+---
+# Source: infra/templates/mailpit/httproute.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mailpit
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: k8sapi-gateway
+    sectionName: websecure
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: mailpit
+      port: 8025
+    matches:
+    - path:
+        type: PathPrefix
+        value: /mailpit
+---
+# Source: infra/templates/kcp/issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned
+  namespace: platform-mesh-system
+spec:
+  selfSigned: {}
+---
+# Source: infra/templates/keycloak/crossplane/provider-config.yaml
+apiVersion: keycloak.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: keycloak-provider-config
+  namespace: platform-mesh-system
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      name: keycloak-provider-config
+      namespace: platform-mesh-system
+      key: config
+---
+# Source: infra/templates/keycloak/crossplane/realm.yaml
+apiVersion: realm.keycloak.crossplane.io/v1alpha1
+kind: Realm
+metadata:
+  name: welcome
+spec:
+  forProvider:
+    accessTokenLifespan: 8h
+    ssoSessionIdleTimeout: 8h
+    organizationsEnabled: true
+    displayName: welcome
+    displayNameHtml: <b>welcome</b>
+    enabled: true
+    realm: welcome
+    loginWithEmailAllowed: true
+    registrationEmailAsUsername: true
+    registrationAllowed: true
+    verifyEmail: true
+    smtpServer:
+      
+      - from: noreply@portal.localhost
+        host: mailpit.platform-mesh-system.svc.cluster.local
+        port: "1025"
+  providerConfigRef:
+    name: keycloak-provider-config
+---
+# Source: infra/templates/kcp/root-shard.yaml
+apiVersion: operator.kcp.io/v1alpha1
+kind: RootShard
+metadata:
+  name: root
+  namespace: platform-mesh-system
+spec:
+  replicas: 1
+  
+  proxy:
+    image:
+      tag: v0.29.0
+  external:
+    # replace the hostname with the external DNS name for your kcp instance
+    hostname: localhost
+    port: 8443
+  authorization:
+    webhook:
+      configSecretName: kcp-webhook-secret
+  certificates:
+    # this references the issuer created above
+    issuerRef:
+      group: cert-manager.io
+      kind: Issuer
+      name: selfsigned
+  cache:
+    embedded:
+      # kcp comes with a cache server accessible to all shards,
+      # in this case it is fine to enable the embedded instance
+      enabled: true
+  etcd:
+    endpoints:
+      # this is the service URL to etcd. Replace if Helm chart was
+      # installed under a different name or the namespace is not "default"
+      - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
+  
+  image:
+    tag: v0.29.0
+  deploymentTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            # this excludes webhook traffic from the istio sidecar
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+        spec:
+        
+          
+  extraArgs:
+    - --feature-gates=WorkspaceAuthentication=true
+---
+# Source: infra/templates/kcp/shard.yaml
+apiVersion: operator.kcp.io/v1alpha1
+kind: Shard
+metadata:
+  name: one
+  namespace: platform-mesh-system
+spec:
+  rootShard:
+    ref:
+      name: root
+  replicas: 1
+  
+  proxy:
+    image:
+      tag: v0.29.0
+  external:
+    # replace the hostname with the external DNS name for your kcp instance
+    hostname: localhost
+    port: 8443
+  authorization:
+    webhook:
+      configSecretName: kcp-webhook-secret
+  certificates:
+    # this references the issuer created above
+    issuerRef:
+      group: cert-manager.io
+      kind: Issuer
+      name: selfsigned
+  cache:
+    embedded:
+      # kcp comes with a cache server accessible to all shards,
+      # in this case it is fine to enable the embedded instance
+      enabled: true
+  etcd:
+    endpoints:
+      # this is the service URL to etcd. Replace if Helm chart was
+      # installed under a different name or the namespace is not "default"
+      - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
+  
+  image:
+    tag: v0.29.0
+  deploymentTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            # this excludes webhook traffic from the istio sidecar
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+        spec:
+        
+          
+  extraArgs:
+    - --feature-gates=WorkspaceAuthentication=true
+---
+# Source: infra/templates/kcp/shard.yaml
+apiVersion: operator.kcp.io/v1alpha1
+kind: Shard
+metadata:
+  name: two
+  namespace: platform-mesh-system
+spec:
+  rootShard:
+    ref:
+      name: root
+  replicas: 1
+  
+  proxy:
+    image:
+      tag: v0.29.0
+  external:
+    # replace the hostname with the external DNS name for your kcp instance
+    hostname: localhost
+    port: 8443
+  authorization:
+    webhook:
+      configSecretName: kcp-webhook-secret
+  certificates:
+    # this references the issuer created above
+    issuerRef:
+      group: cert-manager.io
+      kind: Issuer
+      name: selfsigned
+  cache:
+    embedded:
+      # kcp comes with a cache server accessible to all shards,
+      # in this case it is fine to enable the embedded instance
+      enabled: true
+  etcd:
+    endpoints:
+      # this is the service URL to etcd. Replace if Helm chart was
+      # installed under a different name or the namespace is not "default"
+      - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
+  
+  image:
+    tag: v0.29.0
+  deploymentTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            # this excludes webhook traffic from the istio sidecar
+            traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+        spec:
+        
+          
+  extraArgs:
+    - --feature-gates=WorkspaceAuthentication=true
+---
+# Source: infra/templates/kcp/tlsroute.yaml
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TLSRoute
+metadata:
+  name: kcp-front-proxy-tlsroute
+spec:
+  hostnames:
+  - localhost
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: k8sapi-gateway
+    sectionName: https-passthrough
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: frontproxy-front-proxy
+      port: 6443
+      weight: 1
+    name: https-passthrough
