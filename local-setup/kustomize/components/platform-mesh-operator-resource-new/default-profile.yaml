@@ -3,7 +3,7 @@ data:
   profile.yaml: |
     components:
       deploymentTechnology: argocd
-      destinationServer: https://172.18.0.6:6443
+      destinationServer: https://172.18.0.5:6443
       iamWebhookCA: null
       ocm:
         component:
@@ -329,7 +329,7 @@ data:
       - name: keycloak
         namespace: platform-mesh-system
       deploymentTechnology: argocd
-      destinationServer: https://172.18.0.6:6443
+      destinationServer: https://172.18.0.5:6443
       certManager:
         enabled: true
         interval: 1m

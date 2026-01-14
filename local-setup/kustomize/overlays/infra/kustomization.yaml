@@ -22,7 +22,7 @@ patches:
           hostAliases:
             enabled: true
             entries:
-              - ip: "172.18.0.6"
+              - ip: "172.18.0.5"
                 hostnames:
                   - kcp.api.portal.dev.local
                   - portal.dev.local

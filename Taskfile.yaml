@@ -113,7 +113,7 @@ tasks:
     internal: true
     cmds:
       - |
-        kind export kubeconfig -n platform-mesh
+        kind export kubeconfig -n platform-mesh-infra
         # docs: https://github.com/twuni/docker-registry.helm
         helm repo add twuni https://twuni.github.io/docker-registry.helm || true
         helm repo update
@@ -404,6 +404,7 @@ tasks:
   ocm:deploy:transfer-pod:
     internal: true
     cmds:
+      - kind export kubeconfig -n platform-mesh-infra
       - |
         set -e
         echo "Transferring OCM transport archive to local registry from a pod..."

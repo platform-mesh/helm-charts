@@ -169,7 +169,7 @@ setup_argocd() {
   kind export kubeconfig --name platform-mesh-infra
   argocd login --core
   kubectl config set-context --current --namespace=argocd
-  argocd cluster add kind-platform-mesh --yes --kubeconfig .secret/platform-mesh.kubeconfig.tmp
+  argocd cluster add kind-platform-mesh --yes --kubeconfig .secret/platform-mesh.kubeconfig
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch configmap argocd-cmd-params-cm -n argocd \
   --type merge \
   -p '{"data": {"application.namespaces": "argocd,platform-mesh-system"}}'
