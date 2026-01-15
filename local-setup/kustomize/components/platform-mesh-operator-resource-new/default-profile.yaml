@@ -87,7 +87,7 @@ data:
               enabled: false
             kcp:
               image:
-                tag: 8265c399b
+                tag: v0.29.0
               rootShard:
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true

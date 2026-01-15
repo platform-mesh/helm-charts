@@ -169,10 +169,30 @@ setup_argocd() {
   kind export kubeconfig --name platform-mesh-infra
   argocd login --core
   kubectl config set-context --current --namespace=argocd
-  argocd cluster add kind-platform-mesh --yes --kubeconfig .secret/platform-mesh.kubeconfig
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch configmap argocd-cmd-params-cm -n argocd \
   --type merge \
   -p '{"data": {"application.namespaces": "argocd,platform-mesh-system"}}'
+
+  CA_DATA=$(yq '.clusters[0].cluster["certificate-authority-data"]' .secret/platform-mesh.kubeconfig.tmp)
+  CERT_DATA=$(yq '.users[0].user["client-certificate-data"]' .secret/platform-mesh.kubeconfig.tmp)
+  CERT_KEY=$(yq '.users[0].user["client-key-data"]' .secret/platform-mesh.kubeconfig.tmp)
+
+export CERTCONFIG="$(cat <<EOF
+{
+  "tlsClientConfig": {
+    "insecure": false,
+    "caData": "$CA_DATA",
+    "certData": "$CERT_DATA",
+    "keyData": "$CERT_KEY"
+  }
+}
+EOF
+)"
+  yq -i '
+    .stringData.config = (strenv(CERTCONFIG) + "\n")
+    | .stringData.config style="literal"
+  ' local-setup/kustomize/overlays/infra/platform-mesh-cluster-secret.yml
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f local-setup/kustomize/overlays/infra/platform-mesh-cluster-secret.yml
   kubectl delete pod -n argocd -l app.kubernetes.io/instance=argo-cd
 }
 
@@ -276,6 +296,9 @@ kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace def
   --for=condition=Ready resourcegraphdefinition \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
+
+setup_argocd
+
 kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/infra
 kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
 
@@ -299,8 +322,6 @@ patch_platform_mesh_operator_roles() {
 }
 
 patch_platform_mesh_operator_roles
-
-setup_argocd
 
 # Install Platform-Mesh Runtime
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"

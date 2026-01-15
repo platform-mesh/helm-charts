@@ -3,7 +3,7 @@ kind: Kustomization
 
 resources:
   - ../../components/platform-mesh-operator-resource-new
-  - ../../components/ocm
+  - ../../components/ocm-latest
 patches:
   - target:
       kind: Component
