@@ -5,3 +5,13 @@ metadata:
 spec:
   referencePath:
     - name: platform-mesh-operator
+  resource:
+    name: chart
+  values:
+    hostAliases:
+      enabled: true
+      entries:
+        - ip: "172.18.0.6"
+          hostnames:
+            - kcp.api.portal.dev.local
+            - portal.dev.local
