@@ -162,6 +162,7 @@ operator match the snapshot:
           containers:
             - args:
                 - fga
+                - --base-domain=portal.localhost:8443
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -352,6 +353,7 @@ operator match the snapshot:
             - args:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
+                - --base-domain=portal.localhost:8443
                 - --test=myval
                 - --test2=myval
                 - --leader-elect
@@ -597,6 +599,7 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - fga
+                - --base-domain=portal.localhost:8443
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -799,6 +802,7 @@ operator match the snapshot w. sentry:
             - args:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
+                - --base-domain=portal.localhost:8443
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090

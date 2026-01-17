@@ -7,7 +7,7 @@ A Helm chart for Kubernetes
 |-----|------|---------|-------------|
 | caSecret | string | `""` |  |
 | cors.enabled | bool | `false` |  |
-| exposure.hostnames | list | `["portal.dev.local","*.portal.dev.local"]` | hostnames to be used for exposure |
+| exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
@@ -17,18 +17,20 @@ A Helm chart for Kubernetes
 | gatewayApi.httpRoute.filters[0].urlRewrite.path.type | string | `"ReplacePrefixMatch"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
+| gatewayApi.httpRoute.parentRefs[1].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[1].sectionName | string | `"websecure-wildcard-portal-localhost"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/iam/graphql"` |  |
 | health.port | int | `8080` |  |
 | hostAliases.enabled | bool | `false` |  |
-| hostAliases.items[0].hostnames[0] | string | `"portal.dev.local"` |  |
-| hostAliases.items[0].hostnames[1] | string | `"kcp.api.portal.dev.local"` |  |
+| hostAliases.items[0].hostnames[0] | string | `"portal.localhost"` |  |
+| hostAliases.items[0].hostnames[1] | string | `"localhost"` |  |
 | hostAliases.items[0].ip | string | `"10.96.188.4"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/iam-service"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | imagePullSecret | string | `"github"` |  |
 | jwt.userIdClaim | string | `"email"` |  |
 | kcp.kubeconfig.secretName | string | `"iam-service-kubeconfig"` |  |
-| keycloak.baseUrl | string | `"https://portal.dev.local:8443/keycloak"` |  |
+| keycloak.baseUrl | string | `"https://portal.localhost:8443/keycloak"` |  |
 | keycloak.client.id | string | `"iam"` |  |
 | keycloak.client.secret.key | string | `"attribute.client_secret"` |  |
 | keycloak.client.secret.name | string | `"iam-client-secret"` |  |

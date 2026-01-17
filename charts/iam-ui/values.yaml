@@ -26,6 +26,8 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
+    - name: k8sapi-gateway
+      sectionName: websecure-wildcard-portal-localhost
     corsFilters:
     - extensionRef:
         group: traefik.io
@@ -36,5 +38,5 @@ gatewayApi:
 exposure:
   # -- hostnames to be used for exposure
   hostnames:
-    - "portal.dev.local"
-    - "*.portal.dev.local"
+    - "portal.localhost"
+    - "*.portal.localhost"

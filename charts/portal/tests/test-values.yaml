@@ -21,9 +21,9 @@ extraEnvVars:
   - name: TEST_TEST
     value: test test
   - name: DEMO_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-    value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+    value: https://${org-subdomain}portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
   - name: DEMO_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-    value: https://portal.dev.local:8443/iam/query
+    value: https://portal.localhost:8443/iam/query
   - name: DEMO_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
     value: >-
       {"account":{"contextProperty":"entityId"}}

@@ -287,46 +287,6 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --example-data"}
 
-  local-setup:latest:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--latest"}
-
-  local-setup:latest:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--latest"}
-
-  local-setup:latest:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--latest --example-data"}
-
-  local-setup:latest:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--latest --example-data"}
-
-  local-setup:cached:latest:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --latest"}
-
-  local-setup:cached:latest:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --latest"}
-
-  local-setup:cached:latest:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --latest --example-data"}
-
-  local-setup:cached:latest:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --latest --example-data"}
-
   local-setup:prerelease:
     cmds:
       - task: local-setup

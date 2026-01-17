@@ -213,23 +213,14 @@ kind delete cluster --name platform-mesh
 #### Developer information
 See [README-developers](./README-developers.md) for more detailed information related to chart developers.
 
-### 4. Configure Local DNS
+### 4. Access the Platform
 
-Add the following entries to your `/etc/hosts` file:
+Once the setup completes successfully, you can access:
 
-```
-127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local
-```
+- **Onboarding Portal**: https://portal.localhost:8443
+- **KCP API**: https://localhost:8443
 
-**WSL Users**: You may also need to add these entries to the Windows hosts file at:
-`C:\Windows\System32\drivers\etc\hosts`
-
-### 5. Access the Platform
-
-Once the setup completes successfully and DNS is configured, you can access:
-
-- **Onboarding Portal**: https://portal.dev.local:8443
-- **KCP API**: https://kcp.api.portal.dev.local:8443
+**Note**: Modern browsers automatically resolve `*.localhost` domains to `127.0.0.1`, so no `/etc/hosts` configuration is required for browser access. Organization subdomains like `myorg.portal.localhost` will also work automatically in browsers.
 
 **If you installed with example data:**
 - The HTTPBin provider is available in the `root:providers:httpbin-provider` workspace
@@ -253,7 +244,7 @@ The `scripts/start.sh` script performs the following operations:
 3. **Certificate Generation**
    - Generates local SSL certificates using mkcert
    - Creates CA certificates for webhook configurations
-   - Sets up domain certificates for `*.dev.local` and `*.portal.dev.local`
+   - Sets up domain certificates for `localhost`, `*.localhost`, and `*.portal.localhost`
 
 4. **Core Infrastructure Installation**
    - Installs Flux for GitOps workflow management
@@ -291,13 +282,7 @@ This gives you access to the root workspace and organization management.
 
 ### Adding New Organizations
 
-Each onboarded organization requires its own subdomain entry in `/etc/hosts`:
-
-```
-127.0.0.1 <organization-name>.portal.dev.local
-```
-
-**⚠️ Important**: Remember to add hosts entries for every organization that gets onboarded to the platform.
+Organization subdomains like `<organization-name>.portal.localhost` are automatically resolved by modern browsers. No `/etc/hosts` entries are needed for browser access.
 
 ### Debugging and Troubleshooting
 
@@ -438,7 +423,7 @@ If you encounter issues:
 
 After successful setup:
 
-1. **Explore the Portal**: Visit https://portal.dev.local:8443
+1. **Explore the Portal**: Visit https://portal.localhost:8443
 2. **Set up Organizations**: Create and configure organizations for your use case
 3. **Development**: Start building on top of the Platform Mesh framework
 
