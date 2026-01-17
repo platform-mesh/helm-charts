@@ -27,7 +27,7 @@ kubeconfigSecret: ""
 keycloakSecret: "keycloak-admin"
 caSecret: ""
 
-baseDomain: ""
+baseDomain: "portal.localhost:8443"
 
 keycloak:
   client:

@@ -152,7 +152,7 @@ services:
         rootShard:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
-            - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}
+            - --shard-virtual-workspace-url=https://localhost:8443
         webhook:
           enabled: true
       istio:
@@ -380,13 +380,6 @@ services:
           artifact: image
           for: portal
     values:
-      gatewayApi:
-        enabled: true
-        httpRoute:
-          parentRefs:
-            - name: k8sapi-gateway
-              sectionName: websecure
-              kind: Gateway
       kcp:
         kubeconfigSecret: portal-kubeconfig
       crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"

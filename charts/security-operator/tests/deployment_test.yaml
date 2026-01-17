@@ -44,18 +44,3 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].startupProbe.httpGet.path
           value: /readyz
-  - it: enable hostAliases
-    template: deployment.yaml
-    set:
-      hostAliases:
-        enabled: true
-    asserts:
-      - equal:
-          path: spec.template.spec.hostAliases[0].ip
-          value: "10.96.188.4"
-      - equal:
-          path: spec.template.spec.hostAliases[0].hostnames[0]
-          value: "localhost"
-      - equal:
-          path: spec.template.spec.hostAliases[0].hostnames[1]
-          value: "portal.localhost"

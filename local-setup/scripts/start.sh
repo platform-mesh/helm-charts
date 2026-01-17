@@ -21,16 +21,14 @@ SCRIPT_DIR=$(dirname "$0")
 PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
-LATEST=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
   echo "  --cached        Use local Docker registry mirrors for faster image pulls"
   echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
-  echo "  --latest        Use latest release-candidate (RC) version from OCM registry"
   echo "  --help          Show this help message"
   exit 1
 }
@@ -40,7 +38,6 @@ while [ $# -gt 0 ]; do
     --prerelease) PRERELEASE=true ;;
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
-    --latest) LATEST=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -83,7 +80,7 @@ if ! check_kind_cluster; then
 fi
 
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
@@ -139,12 +136,10 @@ kubectl wait --namespace default \
 
 if [ "$PRERELEASE" = true ]; then
   run_prerelease_setup
-elif [ "$LATEST" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Using LATEST OCM Component version ${COL_RES}"
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
 else
-  echo -e "${COL}[$(date '+%H:%M:%S')] Using RELEASED OCM Component version ${COL_RES}"
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+  OCM_VERSION=$(yq '.spec.semver' "$SCRIPT_DIR/../kustomize/components/ocm/component.yaml")
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using OCM Component version: ${OCM_VERSION} ${COL_RES}"
+  kubectl apply -k "$SCRIPT_DIR/../kustomize/overlays/default"
 fi
 
 kubectl wait --namespace default \

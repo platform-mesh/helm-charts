@@ -20,6 +20,7 @@ match snapshots:
           - http://*.localhost:4200
           - http://*.localhost:4300
           - https://portal.localhost:8443
+          - https://*.portal.localhost:8443
         accessControlMaxAge: 100
         addVaryHeader: true
 test HTTPRoutes:
