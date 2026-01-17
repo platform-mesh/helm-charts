@@ -19,6 +19,7 @@ data:
       protocol: https
       services:
         account-operator:
+          syncWave: 4
           enabled: true
           values:
             crds:
@@ -37,6 +38,7 @@ data:
                 host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               enabled: false
         crossplane:
+          syncWave: 1
           enabled: true
           helmRepo: true
           targetNamespace: crossplane-system
@@ -45,6 +47,7 @@ data:
               packages:
               - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
         etcd-druid:
+          syncWave: 1
           enabled: true
           gitRepo: true
           imageResources:
@@ -56,6 +59,7 @@ data:
           targetNamespace: etcd-druid-system
           values: {}
         extension-manager-operator:
+          syncWave: 4
           enabled: true
           values:
             crds:
@@ -68,12 +72,14 @@ data:
                 host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               enabled: false
         iam-service:
+          syncWave: 4
           enabled: false
           values:
             istio:
               hosts:
               - '*.{{ .baseDomain }}'
         infra:
+          syncWave: 3
           dependsOn:
           - name: kcp-operator
             namespace: platform-mesh-system
@@ -105,6 +111,7 @@ data:
                   hosts:
                   - '{{ .baseDomain }}'
         kcp-operator:
+          syncWave: 1
           enabled: true
           helmRepo: true
           imageResource:
@@ -115,6 +122,7 @@ data:
             name: kcp-image
           targetNamespace: kcp-operator
         keycloak:
+          syncWave: 2
           enabled: true
           values:
             auth:
@@ -161,6 +169,7 @@ data:
                 ephemeral-storage: 50Mi
                 memory: 1Gi
         kubernetes-graphql-gateway:
+          syncWave: 4
           enabled: true
           values:
             gatewayApi:
@@ -191,6 +200,7 @@ data:
                 jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
                 trustedIssuer: https://{{ .baseDomainPort }}/keycloak/realms/default
         observability:
+          syncWave: 4
           enabled: false
           targetNamespace: observability
           values:
@@ -208,6 +218,7 @@ data:
               service:
                 type: ClusterIP
         openfga:
+          syncWave: 2
           enabled: true
           helmRepo: true
           values:
@@ -234,11 +245,11 @@ data:
               imagePullSecrets:
               - name: github
             image:
-              repository: openfga/openfga
               tag: ""
             log:
               level: info
             migrate:
+              repository: openfga/openfga
               annotations:
                 sidecar.istio.io/inject: "false"
             podAnnotations:
@@ -258,13 +269,15 @@ data:
                   tls:
                     enabled: false
         organization-idp:
+          syncWave: 4
           dependsOn:
           - name: keycloak
             namespace: platform-mesh-system
           enabled: true
           skipHelmRelease: true
         portal:
-          enabled: false
+          syncWave: 4
+          enabled: true
           values:
             auth:
               default:
@@ -291,6 +304,7 @@ data:
               - '{{ .baseDomain }}'
               - '*.{{ .baseDomain }}'
         rebac-authz-webhook:
+          syncWave: 4
           enabled: true
           values:
             certManager:
@@ -305,6 +319,7 @@ data:
             openfga:
               url: openfga:8081
         security-operator:
+          syncWave: 4
           enabled: true
           values:
             baseDomain: '{{ .baseDomainPort }}'
@@ -322,14 +337,20 @@ data:
               maxConcurrentReconciles: 1
               shutdownTimeout: 1m
         virtual-workspaces:
+          syncWave: 4
           enabled: true
-      targetNamespace: platform-mesh-system
+          targetNamespace: platform-mesh-system
     infra:
-      dependsOn:
-      - name: keycloak
-        namespace: platform-mesh-system
       deploymentTechnology: argocd
       destinationServer: https://172.18.0.5:6443
+      ocm:
+        component:
+          name: platform-mesh
+        interval: 3m
+        referencePath: []
+        repo:
+          name: platform-mesh
+        skipVerify: true
       certManager:
         enabled: true
         interval: 1m
@@ -347,15 +368,8 @@ data:
           path: ./config/crd/experimental
         name: gateway-api
         ocmResourceName: crds
-      ocm:
-        component:
-          name: platform-mesh
-        interval: 3m
-        referencePath: []
-        repo:
-          name: platform-mesh
-        skipVerify: true
       traefik:
+        syncWave: 1
         chart:
           name: traefik
         enabled: true
