@@ -151,6 +151,19 @@ check_kcp_plugin() {
     return 0
 }
 
+check_task_dependency() {
+    if ! command -v task &> /dev/null; then
+        echo -e "${RED}❌ Error: 'task' CLI is not installed${COL_RES}"
+        echo -e "${COL}🔧 The Task CLI is required for --prerelease mode to build OCM components.${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://taskfile.dev/installation/${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Task CLI is available${COL_RES}"
+    return 0
+}
+
 check_hosts_entry() {
     local hostname="$1"
     local expected_ip="127.0.0.1"
@@ -272,6 +285,13 @@ run_environment_checks() {
         fi
     fi
 
+    # Check Task CLI if prerelease mode is enabled
+    if [ "$PRERELEASE" = true ]; then
+        if ! check_task_dependency; then
+            checks_failed=$((checks_failed + 1))
+        fi
+    fi
+
     if [ $checks_failed -gt 0 ]; then
         echo -e "${RED}❌ $checks_failed dependency check(s) failed. Please install the missing dependencies and try again.${COL_RES}"
         echo ""
@@ -290,6 +310,7 @@ export -f check_container_runtime_dependency
 export -f setup_mkcert_command
 export -f check_architecture
 export -f check_kcp_plugin
+export -f check_task_dependency
 export -f check_hosts_entry
 export -f check_hosts_entries
 export -f run_environment_checks

@@ -16,22 +16,29 @@ vars:
   COMPONENT_PRERELEASE_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
-    - security-operator: charts/security-operator
+    - example-httpbin-operator: charts/example-httpbin-operator
     - extension-manager-operator: charts/extension-manager-operator
+    - iam-service: charts/iam-service
+    - iam-ui: charts/iam-ui
     - infra: charts/infra
-    - rebac-authz-webhook: charts/rebac-authz-webhook
-    - platform-mesh: charts/platform-mesh-operator
-    - portal: charts/portal
     - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
+    - organization-idp: charts/organization-idp
+    - platform-mesh-operator: charts/platform-mesh-operator
+    - platform-mesh-operator-components: charts/platform-mesh-operator-components
+    - platform-mesh-operator-infra-components: charts/platform-mesh-operator-infra-components
+    - portal: charts/portal
+    - rebac-authz-webhook: charts/rebac-authz-webhook
+    - security-operator: charts/security-operator
     - virtual-workspaces: charts/virtual-workspaces
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
   CMD_SED:
     sh: |
-      if [ "$(uname)" = "Darwin" ]; then
-        echo "sed -i ''"
-      else
+      # Check if sed is GNU sed or BSD sed (GNU sed has --version, BSD sed doesn't)
+      if sed --version >/dev/null 2>&1; then
         echo "sed -i"
+      else
+        echo "sed -i ''"
       fi
 
 tasks:
@@ -141,6 +148,10 @@ tasks:
         set -e
         echo "Building custom local charts from {{ .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}"
 
+        # Create prerelease directory for packaged charts
+        mkdir -p prerelease
+        rm -f prerelease/*.tgz
+
         # Iterate key:path pairs rendered from the mapping list
         for pair in {{ range .CUSTOM_LOCAL_COMPONENTS_CHART_PATHS }}"{{ range $k,$v := . }}{{$k}}:{{$v}}{{ end }}" {{ end }}; do
           comp="${pair%%:*}"
@@ -162,7 +173,7 @@ tasks:
             : "${CHART_VERSION:?Failed to read version for $COMPONENT_NAME}"
           APP_VERSION=$(yq -r '.appVersion // ""' "$CHART_DIR/Chart.yaml" 2>/dev/null || true)
 
-          out="$(helm package "$CHART_DIR")"
+          out="$(helm package "$CHART_DIR" -d prerelease)"
           TARBALL="$(echo "$out" | awk -F': ' '/saved it to:/ {print $2}')"
           if [ ! -f "$TARBALL" ]; then
             echo "Failed to package $COMPONENT_NAME"
@@ -175,9 +186,7 @@ tasks:
           echo "Pushed $TARBALL to local oci registry"
 
           IMAGE_NAME=$(yq '.image["name"] // ""' "$CHART_DIR/values.yaml")
-          COMPONENT_NAME="$COMPONENT_NAME"
-          CHART_REPO="$COMPONENT_NAME"
-          CLEAN_CHART_REPO="${CHART_REPO#./}"
+          CLEAN_CHART_REPO="${COMPONENT_NAME#./}"
           LOCAL_CHART_PATH="$CLEAN_CHART_REPO"
           COMMIT=$(git rev-parse HEAD)
           LOCAL_CHART_PATH=../$CHART_DIR
@@ -189,8 +198,6 @@ tasks:
           echo "APP_VERSION=$APP_VERSION"
           echo "IMAGE_NAME=$IMAGE_NAME"
           echo "COMMIT=$COMMIT"
-          echo "IMAGE_REPO_SHA=$IMAGE_REPO_SHA"
-          echo "CHART_REPO=$CHART_REPO"
           echo "COMPONENT_NAME=$COMPONENT_NAME"
           echo "CHART_OCI_PATH=$CHART_OCI_PATH"
           echo "LOCAL_CHART_PATH=$LOCAL_CHART_PATH"
@@ -201,15 +208,15 @@ tasks:
           CHART_REAL_NAME=$(grep '^name:' "$CHART_DIR/Chart.yaml" | awk '{print $2}')
           CHART_LOCATION="oci://oci-registry-docker-registry.registry.svc.cluster.local:9443/platform-mesh/${CHART_REAL_NAME}:$CHART_VERSION"
 
-          if [ $APP_VERSION == "0.0.0" ]; then
-            echo "Using ocm-constructor-file: .ocm/component-constructor-chart-only.yaml"
+          if [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
+            echo "Using ocm-constructor-file: .ocm/component-constructor-chart-only.yaml (APP_VERSION=$APP_VERSION, IMAGE_NAME=$IMAGE_NAME)"
             kubectl exec -ti ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-chart-only.yaml -- \
             VERSION=$VERSION \
             APP_VERSION=$APP_VERSION \
             IMAGE_NAME=$IMAGE_NAME \
             COMMIT=$COMMIT \
             IMAGE_REPO_SHA=$COMMIT \
-            CHART_REPO=$CHART_REPO \
+            CHART_REPO=$COMPONENT_NAME \
             COMPONENT_NAME=$COMPONENT_NAME \
             CHART_OCI_PATH=$CHART_OCI_PATH \
             LOCAL_CHART_PATH=$LOCAL_CHART_PATH
@@ -218,9 +225,10 @@ tasks:
             VERSION=$VERSION \
             APP_VERSION=$APP_VERSION \
             IMAGE_NAME=$IMAGE_NAME \
+            IMAGE_REPO=$COMPONENT_NAME \
             COMMIT=$COMMIT \
             IMAGE_REPO_SHA=$COMMIT \
-            CHART_REPO=$CHART_REPO \
+            CHART_REPO=$COMPONENT_NAME \
             COMPONENT_NAME=$COMPONENT_NAME \
             CHART_OCI_PATH=$CHART_OCI_PATH \
             LOCAL_CHART_PATH=$LOCAL_CHART_PATH
@@ -286,11 +294,11 @@ tasks:
           else
             # 3. Remote latest
             repo="ghcr.io/platform-mesh"
-            val=$(kubectl exec -ti ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
+            val=$(kubectl exec ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
             if [ -z "$val" ] || [ "$val" = "null" ]; then
               repo="ghcr.io/platform-mesh/images"
               echo "Primary repo lookup failed for $component, trying fallback repo $repo"
-              val=$(kubectl exec -ti ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
+              val=$(kubectl exec ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
             fi
             if [ -z "$val" ] || [ "$val" = "null" ]; then
               echo "Failed to resolve remote version for $component" >&2
@@ -470,11 +478,8 @@ tasks:
   
   ocm:update:constructor:
     cmds:
-      - |
-        curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
-        
-        # replace component name
-        {{ .CMD_SED }} "s|- name: github.com/platform-mesh/platform-mesh|- name: github.com/platform-mesh/prerelease|" .ocm/component-constructor-prerelease.yaml
+      - curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
+      - sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' .ocm/component-constructor-prerelease.yaml > .ocm/component-constructor-prerelease.yaml.tmp && mv .ocm/component-constructor-prerelease.yaml.tmp .ocm/component-constructor-prerelease.yaml
 
   test:portal-e2e:
     cmds:
@@ -577,3 +582,43 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --latest --example-data"}
+
+  local-setup:prerelease:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--prerelease"}
+
+  local-setup:prerelease:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--prerelease"}
+
+  local-setup:prerelease:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--prerelease --example-data"}
+
+  local-setup:prerelease:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--prerelease --example-data"}
+
+  local-setup:cached:prerelease:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --prerelease"}
+
+  local-setup:cached:prerelease:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --prerelease"}
+
+  local-setup:cached:prerelease:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --prerelease --example-data"}
+
+  local-setup:cached:prerelease:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --prerelease --example-data"}

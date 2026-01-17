@@ -25,6 +25,13 @@ LATEST=false
 
 usage() {
   echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--help]"
+  echo ""
+  echo "Options:"
+  echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
+  echo "  --cached        Use local Docker registry mirrors for faster image pulls"
+  echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
+  echo "  --latest        Use latest release-candidate (RC) version from OCM registry"
+  echo "  --help          Show this help message"
   exit 1
 }
 
@@ -45,6 +52,7 @@ done
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
 source "$SCRIPT_DIR/check-environment.sh"
 source "$SCRIPT_DIR/setup-registry-proxies.sh"
+source "$SCRIPT_DIR/setup-prerelease.sh"
 
 # Run WSL compatibility checks
 check_wsl_compatibility
@@ -129,7 +137,9 @@ kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
-if [ "$LATEST" = true ]; then
+if [ "$PRERELEASE" = true ]; then
+  run_prerelease_setup
+elif [ "$LATEST" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Using LATEST OCM Component version ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
 else
@@ -142,7 +152,16 @@ kubectl wait --namespace default \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
-if [ "$EXAMPLE_DATA" = true ]; then
+if [ "$PRERELEASE" = true ]; then
+  if [ "$EXAMPLE_DATA" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
+    # TODO: Create example-data-prerelease overlay if needed
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+  else
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+  fi
+elif [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
 else

@@ -199,10 +199,15 @@ kind delete cluster --name platform-mesh
 - Testing against the most recent RC build
 - Validating release candidates before production
 
+**Prerelease (--prerelease flag):** When using the `--prerelease` flag, the setup deploys locally built OCM components instead of released versions. This is useful for:
+- Testing local chart changes without going through the official release process
+- Chart development and iteration workflows
+- Note: Requires the `task` CLI to be installed
+
 **Task Naming Convention:**
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `cached`, `latest`, `example-data`
+- Available flags: `cached`, `latest`, `example-data`, `prerelease`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
