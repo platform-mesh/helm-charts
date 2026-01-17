@@ -6,7 +6,7 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cors.accessControlAllowOriginList | list | `["http://localhost:4200","http://localhost:4300","http://*.localhost:4200","http://*.localhost:4300","https://portal.dev.local:8443"]` | list of allowed origins |
+| cors.accessControlAllowOriginList | list | `["http://localhost:4200","http://localhost:4300","http://*.localhost:4200","http://*.localhost:4300","https://portal.localhost:8443","https://*.portal.localhost:8443"]` | list of allowed origins |
 | cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crossplane.enabled | bool | `true` |  |
 | externalSecrets.enabled | bool | `false` |  |
@@ -16,18 +16,19 @@ A Helm chart for Kubernetes
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
 | gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
-| gatewayApi.main | object | `{"gateway":{"infrastructure":null,"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","credentialNamespace":"platform-mesh-system","mode":"Terminate"}}}` | HTTPS Terminate configuration |
+| gatewayApi.main | object | `{"gateway":{"hostnames":["portal.localhost","*.portal.localhost"],"infrastructure":null,"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","credentialNamespace":"platform-mesh-system","mode":"Terminate"}}}` | HTTPS Terminate configuration |
+| gatewayApi.main.gateway.hostnames | list | `["portal.localhost","*.portal.localhost"]` | This is required when using passthrough on the same port to avoid conflicts. |
 | gatewayApi.main.gateway.tls.credentialName | string | `"domain-certificate"` | Name of the secret containing the TLS certificate |
 | gatewayApi.main.gateway.tls.credentialNamespace | string | `"platform-mesh-system"` | Set secret namespace if different from the gateway namespace |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | gatewayApi.passThrough.gateway.enabled | bool | `true` | Toggle to enable/disable the passthrough gateway |
-| gatewayApi.passThrough.gateway.hostname | string | `"kcp.api.portal.dev.local"` |  |
+| gatewayApi.passThrough.gateway.hostname | string | `"localhost"` |  |
 | gatewayApi.passThrough.gateway.name | string | `"https-passthrough"` |  |
 | gatewayApi.passThrough.gateway.port | int | `8443` |  |
 | gatewayApi.passThrough.gateway.protocol | string | `"TLS"` |  |
 | hostAliases.enabled | bool | `false` |  |
-| hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
-| hostAliases.entries[0].hostnames[1] | string | `"portal.dev.local"` |  |
+| hostAliases.entries[0].hostnames[0] | string | `"localhost"` |  |
+| hostAliases.entries[0].hostnames[1] | string | `"portal.localhost"` |  |
 | hostAliases.entries[0].ip | string | `"10.96.188.4"` |  |
 | istio.enabled | bool | `false` |  |
 | istio.gateway.annotations | object | `{}` |  |
@@ -73,7 +74,7 @@ A Helm chart for Kubernetes
 | kcp.etcd.service.port | int | `2379` |  |
 | kcp.etcd.sharedConfig.autoCompactionMode | string | `"periodic"` |  |
 | kcp.etcd.sharedConfig.autoCompactionRetention | string | `"30m"` |  |
-| kcp.external.hostname | string | `"kcp.api.portal.dev.local"` |  |
+| kcp.external.hostname | string | `"localhost"` |  |
 | kcp.external.port | int | `8443` |  |
 | kcp.frontProxy.additionalPathMappings[0].backend | string | `"https://virtual-workspaces.platform-mesh-system:8443"` |  |
 | kcp.frontProxy.additionalPathMappings[0].backend_server_ca | string | `"/etc/kcp/tls/ca/tls.crt"` |  |
@@ -91,7 +92,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.port | int | `8443` |  |
 | kcp.frontProxy.replicas | int | `1` |  |
 | kcp.image.tag | string | `""` |  |
-| kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
+| kcp.istio.hosts[0] | string | `"localhost"` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.caFileRef.key | string | `"tls.crt"` |  |
 | kcp.oidc.caFileRef.name | string | `"domain-certificate-ca"` |  |
@@ -117,7 +118,7 @@ A Helm chart for Kubernetes
 | keycloak.crossplane.providerConfig | object | `{"name":"keycloak-provider-config","namespace":"platform-mesh-system"}` | crossplane provider config |
 | keycloak.crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
 | keycloak.crossplane.providerConfig.namespace | string | `"platform-mesh-system"` | client namespace |
-| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"welcome","name":"welcome","registrationAllowed":true,"smtpServer":[{"from":"noreply@portal.dev.local","host":"mailpit.platform-mesh-system.svc.cluster.local","port":"1025"}],"verifyEmail":true}` | crossplane realm config |
+| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"welcome","name":"welcome","registrationAllowed":true,"smtpServer":[{"from":"noreply@portal.localhost","host":"mailpit.platform-mesh-system.svc.cluster.local","port":"1025"}],"verifyEmail":true}` | crossplane realm config |
 | keycloak.crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
 | keycloak.crossplane.realm.displayName | string | `"welcome"` | realm display name |
 | keycloak.crossplane.realm.name | string | `"welcome"` | realm name |
@@ -128,9 +129,9 @@ A Helm chart for Kubernetes
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
 | keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].name | string | `"Host"` |  |
-| keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].value | string | `"portal.dev.local"` |  |
+| keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].value | string | `"portal.localhost"` |  |
 | keycloak.gatewayApi.filters[0].type | string | `"RequestHeaderModifier"` |  |
-| keycloak.gatewayApi.hostnames | list | `["portal.dev.local"]` | hostnames for the Keycloak HTTPRoute |
+| keycloak.gatewayApi.hostnames | list | `["portal.localhost"]` | hostnames for the Keycloak HTTPRoute |
 | keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
 | keycloak.istio.https.port | int | `8443` |  |
 | keycloak.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |

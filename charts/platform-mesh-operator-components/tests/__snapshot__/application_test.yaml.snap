@@ -183,7 +183,7 @@ it should render the application manifests:
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.example.com:8443
+              - --shard-virtual-workspace-url=https://localhost:8443
           webhook:
             enabled: true
         keycloak:
