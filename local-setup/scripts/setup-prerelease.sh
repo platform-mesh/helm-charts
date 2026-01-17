@@ -45,9 +45,7 @@ deploy_transfer_pod() {
 # Build and deploy prerelease OCM component
 build_prerelease_component() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Building prerelease OCM component ${COL_RES}"
-  pushd "$SCRIPT_DIR/../.." > /dev/null
-  task ocm:build
-  popd > /dev/null
+  "$SCRIPT_DIR/ocm-build-component.sh"
 }
 
 # Run the full prerelease setup workflow
