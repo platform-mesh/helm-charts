@@ -78,8 +78,8 @@ gatewayApi:
   httpRoute:
     pathPrefix: /
     hostnames:
-    - "portal.dev.local"
-    - "*.portal.dev.local"
+    - "portal.localhost"
+    - "*.portal.localhost"
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure

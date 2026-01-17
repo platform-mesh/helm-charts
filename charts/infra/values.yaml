@@ -3,8 +3,8 @@ hostAliases:
   entries:
     - ip: "10.96.188.4"
       hostnames:
-        - "kcp.api.portal.dev.local"
-        - "portal.dev.local"
+        - "localhost"
+        - "portal.localhost"
 
 crossplane:
   enabled: true
@@ -17,7 +17,7 @@ kcp:
     tag: ""
   namespace: platform-mesh-system
   external:
-    hostname: kcp.api.portal.dev.local
+    hostname: localhost
     port: 8443
   auth:
     adminCert:
@@ -80,7 +80,7 @@ kcp:
 
   istio:
     hosts:
-      - kcp.api.portal.dev.local
+      - localhost
 
   webhook:
     enabled: true
@@ -140,7 +140,7 @@ keycloak:
   gatewayApi:
     # -- hostnames for the Keycloak HTTPRoute
     hostnames:
-      - portal.dev.local
+      - portal.localhost
     # -- path prefix for the Keycloak HTTPRoute
     pathPrefix: /keycloak
     filters:
@@ -148,7 +148,7 @@ keycloak:
       requestHeaderModifier:
         set:
           - name: Host
-            value: portal.dev.local
+            value: portal.localhost
   istio:
     virtualservice:
       # -- istio virtual service hosts
@@ -196,7 +196,7 @@ keycloak:
       smtpServer:
         - host: mailpit.platform-mesh-system.svc.cluster.local
           port: "1025"
-          from: noreply@portal.dev.local
+          from: noreply@portal.localhost
 
     managementClients:
       - name: iam
@@ -302,6 +302,11 @@ gatewayApi:
       port: 8443
       name: websecure
       protocol: HTTPS
+      # -- Hostnames for the main gateway listener. If set, creates separate listeners per hostname.
+      # -- This is required when using passthrough on the same port to avoid conflicts.
+      hostnames:
+        - "portal.localhost"
+        - "*.portal.localhost"
       tls:
         mode: Terminate
         # -- Name of the secret containing the TLS certificate
@@ -313,7 +318,7 @@ gatewayApi:
     gateway:
       # -- Toggle to enable/disable the passthrough gateway
       enabled: true
-      hostname: kcp.api.portal.dev.local
+      hostname: localhost
       port: 8443
       name: https-passthrough
       protocol: TLS
@@ -334,4 +339,4 @@ cors:
     - "http://localhost:4300"
     - "http://*.localhost:4200"
     - "http://*.localhost:4300"
-    - "https://portal.dev.local:8443"
+    - "https://portal.localhost:8443"

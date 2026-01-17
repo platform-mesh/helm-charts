@@ -8,7 +8,7 @@ Helm Chart for the iam-ui
 | cors.enabled | bool | `false` | toggle to enable CORS support |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
-| exposure.hostnames | list | `["portal.dev.local","*.portal.dev.local"]` | hostnames to be used for exposure |
+| exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |

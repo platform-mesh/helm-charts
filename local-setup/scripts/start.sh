@@ -83,7 +83,7 @@ if ! check_kind_cluster; then
 fi
 
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
@@ -199,9 +199,9 @@ $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
 if [ "$EXAMPLE_DATA" = true ]; then
   export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
-  kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root"
-  kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers"
-  kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers:httpbin-provider"
+  kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
+  kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
+  kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
   unset KUBECONFIG
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
@@ -216,9 +216,8 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
 fi
 
-echo -e "${YELLOW}⚠️  REMINDER: You need to add a hosts entry for every organization that is onboarded!${COL_RES}"
-echo -e "${YELLOW}   Each organization will require its own subdomain entry in /etc/hosts${COL_RES}"
-echo -e "${YELLOW}   Example: 127.0.0.1 <organization-name>.portal.dev.local${COL_RES}"
+echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
+echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"
 show_wsl_hosts_guidance
 
 echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
@@ -226,7 +225,7 @@ echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pw
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
-echo -e "${COL}You can access the onboarding portal at: https://portal.dev.local:8443 , any send emails can be received here: https://portal.dev.local:8443/mailpit ${COL_RES}"
+echo -e "${COL}You can access the onboarding portal at: https://portal.localhost:8443 , any send emails can be received here: https://portal.localhost:8443/mailpit ${COL_RES}"
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"

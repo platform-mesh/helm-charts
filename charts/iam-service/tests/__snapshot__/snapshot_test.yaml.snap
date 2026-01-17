@@ -19,7 +19,7 @@ match the snapshots:
           containers:
             - args:
                 - serve
-                - --keycloak-base-url=https://portal.dev.local:8443/keycloak
+                - --keycloak-base-url=https://portal.localhost:8443/keycloak
                 - --keycloak-client-id=iam
                 - --roles-file-path=/roles/roles.yaml
                 - --jwt-user-id-claim=email
@@ -64,8 +64,8 @@ match the snapshots:
                   name: roles
           hostAliases:
             - hostnames:
-                - portal.dev.local
-                - kcp.api.portal.dev.local
+                - portal.localhost
+                - localhost
               ip: 10.96.188.4
           imagePullSecrets:
             - name: github
@@ -84,8 +84,8 @@ match the snapshots:
       name: iam-service
     spec:
       hostnames:
-        - portal.dev.local
-        - '*.portal.dev.local'
+        - portal.localhost
+        - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
           sectionName: websecure

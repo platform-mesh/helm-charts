@@ -36,5 +36,5 @@ gatewayApi:
 exposure:
   # -- hostnames to be used for exposure
   hostnames:
-    - "portal.dev.local"
-    - "*.portal.dev.local"
+    - "portal.localhost"
+    - "*.portal.localhost"

@@ -25,8 +25,8 @@ Helm Chart for the Platform Mesh Portal
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
 | gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
-| gatewayApi.httpRoute.hostnames[0] | string | `"portal.dev.local"` |  |
-| gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.dev.local"` |  |
+| gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
+| gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |
 | gatewayApi.httpRoute.parentRefs[0].kind | string | `"Gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].namespace | string | `"default"` |  |

@@ -40,19 +40,51 @@ spec:
           - "http://localhost:4300"
           - "http://*.localhost:4200"
           - "http://*.localhost:4300"
-          - "https://portal.dev.local:8443"
-          - "https://*.portal.dev.local:8443"
+          - "https://portal.localhost:8443"
+          - "https://*.portal.localhost:8443"
         mailpit:
           enabled: true
         hostAliases:
           enabled: true
+          entries:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "localhost"
+                - "portal.localhost"
         kcp:
+          external:
+            hostname: localhost
+          istio:
+            hosts:
+              - localhost
           frontProxy:
             clusterIP: "10.96.0.100"
+        gatewayApi:
+          main:
+            gateway:
+              hostnames:
+                - "portal.localhost"
+                - "*.portal.localhost"
+          passThrough:
+            gateway:
+              hostname: localhost
         keycloak:
+          gatewayApi:
+            hostnames:
+              - portal.localhost
+            filters:
+            - type: RequestHeaderModifier
+              requestHeaderModifier:
+                set:
+                  - name: Host
+                    value: portal.localhost
           crossplane:
             realm:
               verifyEmail: false
+              smtpServer:
+                - host: mailpit.platform-mesh-system.svc.cluster.local
+                  port: "1025"
+                  from: noreply@portal.localhost
             clients:
               welcome:
                 validRedirectUris:
@@ -67,20 +99,25 @@ spec:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
+            - --idp-from-address=keycloak@portal.localhost
         initializer:
           extraArgs:
             - --domain-ca-lookup
             # remove arguments below when the operator and the portal are ready
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
+            - --idp-from-address=keycloak@portal.localhost
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
     portal:
       enabled: true
       values:
+        gatewayApi:
+          httpRoute:
+            hostnames:
+              - "portal.localhost"
+              - "*.portal.localhost"
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
             value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
@@ -99,6 +136,11 @@ spec:
             readOnly: true
         hostAliases:
           enabled: true
+          entries:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "localhost"
+                - "portal.localhost"
     openfga:
       enabled: true
       values:
@@ -116,5 +158,44 @@ spec:
           - --no-json
         cors:
           enabled: true
+        exposure:
+          hostnames:
+            - "portal.localhost"
+            - "*.portal.localhost"
+        keycloak:
+          baseUrl: https://portal.localhost:8443/keycloak
         hostAliases:
           enabled: true
+          items:
+            - ip: 10.96.188.4
+              hostnames:
+                - portal.localhost
+                - localhost
+    iam-ui:
+      values:
+        exposure:
+          hostnames:
+            - "portal.localhost"
+            - "*.portal.localhost"
+    kubernetes-graphql-gateway:
+      values:
+        gatewayApi:
+          httpRoute:
+            hostnames:
+              - "portal.localhost"
+              - "*.portal.localhost"
+            filters:
+            - type: URLRewrite
+              urlRewrite:
+                path:
+                  type: ReplacePrefixMatch
+                  replacePrefixMatch: /
+            - type: RequestHeaderModifier
+              requestHeaderModifier:
+                set:
+                - name: Host
+                  value: "portal.localhost"
+    virtual-workspaces:
+      values:
+        cert:
+          extraDnsNames: [localhost]

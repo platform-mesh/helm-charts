@@ -130,8 +130,8 @@ gatewayApi:
   httpRoute:
     pathPrefix: /api/kubernetes-graphql-gateway/
     hostnames:
-    - "portal.dev.local"
-    - "*.portal.dev.local"
+    - "portal.localhost"
+    - "*.portal.localhost"
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
@@ -145,7 +145,7 @@ gatewayApi:
       requestHeaderModifier:
         set:
         - name: Host
-          value: "portal.dev.local"
+          value: "portal.localhost"
     corsFilters:
     - extensionRef:
         group: traefik.io

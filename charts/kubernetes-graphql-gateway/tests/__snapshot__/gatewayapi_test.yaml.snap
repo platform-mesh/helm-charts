@@ -7,8 +7,8 @@ disable Istio, enable Gateway API - match the Snapshot:
       namespace: platform-mesh-system
     spec:
       hostnames:
-        - portal.dev.local
-        - '*.portal.dev.local'
+        - portal.localhost
+        - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
           sectionName: websecure
@@ -26,7 +26,7 @@ disable Istio, enable Gateway API - match the Snapshot:
             - requestHeaderModifier:
                 set:
                   - name: Host
-                    value: portal.dev.local
+                    value: portal.localhost
               type: RequestHeaderModifier
           matches:
             - path:

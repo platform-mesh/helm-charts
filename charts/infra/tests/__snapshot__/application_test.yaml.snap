@@ -14,7 +14,25 @@ Gateway API enabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -30,7 +48,7 @@ Gateway API enabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -130,7 +148,7 @@ Gateway API enabled:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -184,7 +202,7 @@ Gateway API enabled:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -196,7 +214,7 @@ Gateway API enabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -426,7 +444,7 @@ Gateway API enabled:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          - from: noreply@portal.dev.local
+          - from: noreply@portal.localhost
             host: mailpit.platform-mesh-system.svc.cluster.local
             port: "1025"
         ssoSessionIdleTimeout: 8h
@@ -440,7 +458,7 @@ Gateway API enabled:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -510,7 +528,7 @@ Gateway API enabled:
           - http://localhost:4300
           - http://*.localhost:4200
           - http://*.localhost:4300
-          - https://portal.dev.local:8443
+          - https://portal.localhost:8443
         accessControlMaxAge: 100
         addVaryHeader: true
 Istio disabled:
@@ -529,7 +547,25 @@ Istio disabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -545,7 +581,7 @@ Istio disabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -645,7 +681,7 @@ Istio disabled:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -699,7 +735,7 @@ Istio disabled:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -711,7 +747,7 @@ Istio disabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -941,7 +977,7 @@ Istio disabled:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          - from: noreply@portal.dev.local
+          - from: noreply@portal.localhost
             host: mailpit.platform-mesh-system.svc.cluster.local
             port: "1025"
         ssoSessionIdleTimeout: 8h
@@ -955,7 +991,7 @@ Istio disabled:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1009,7 +1045,25 @@ Istio enabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -1025,7 +1079,7 @@ Istio enabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -1125,7 +1179,7 @@ Istio enabled:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -1179,7 +1233,7 @@ Istio enabled:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -1191,7 +1245,7 @@ Istio enabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1421,7 +1475,7 @@ Istio enabled:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          - from: noreply@portal.dev.local
+          - from: noreply@portal.localhost
             host: mailpit.platform-mesh-system.svc.cluster.local
             port: "1025"
         ssoSessionIdleTimeout: 8h
@@ -1435,7 +1489,7 @@ Istio enabled:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1551,7 +1605,25 @@ match snapshots:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -1567,7 +1639,7 @@ match snapshots:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -1667,7 +1739,7 @@ match snapshots:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -1723,7 +1795,7 @@ match snapshots:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -1740,7 +1812,7 @@ match snapshots:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1970,7 +2042,7 @@ match snapshots:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          - from: noreply@portal.dev.local
+          - from: noreply@portal.localhost
             host: mailpit.platform-mesh-system.svc.cluster.local
             port: "1025"
         ssoSessionIdleTimeout: 8h
@@ -1984,7 +2056,7 @@ match snapshots:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2038,7 +2110,25 @@ match snapshots w. hostAliases enabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -2054,7 +2144,7 @@ match snapshots w. hostAliases enabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -2159,11 +2249,11 @@ match snapshots w. hostAliases enabled:
             spec:
               hostAliases:
                 - hostnames:
-                    - kcp.api.portal.dev.local
-                    - portal.dev.local
+                    - localhost
+                    - portal.localhost
                   ip: 10.96.188.4
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -2216,14 +2306,14 @@ match snapshots w. hostAliases enabled:
             spec:
               hostAliases:
                 - hostnames:
-                    - kcp.api.portal.dev.local
-                    - portal.dev.local
+                    - localhost
+                    - portal.localhost
                   ip: 10.96.188.4
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -2235,7 +2325,7 @@ match snapshots w. hostAliases enabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2465,7 +2555,7 @@ match snapshots w. hostAliases enabled:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          - from: noreply@portal.dev.local
+          - from: noreply@portal.localhost
             host: mailpit.platform-mesh-system.svc.cluster.local
             port: "1025"
         ssoSessionIdleTimeout: 8h
@@ -2479,7 +2569,7 @@ match snapshots w. hostAliases enabled:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2533,7 +2623,25 @@ match snapshots w. kcp version:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -2549,7 +2657,7 @@ match snapshots w. kcp version:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -2649,7 +2757,7 @@ match snapshots w. kcp version:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -2705,7 +2813,7 @@ match snapshots w. kcp version:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -2722,7 +2830,7 @@ match snapshots w. kcp version:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2952,7 +3060,7 @@ match snapshots w. kcp version:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          - from: noreply@portal.dev.local
+          - from: noreply@portal.localhost
             host: mailpit.platform-mesh-system.svc.cluster.local
             port: "1025"
         ssoSessionIdleTimeout: 8h
@@ -2966,7 +3074,7 @@ match snapshots w. kcp version:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -3020,7 +3128,25 @@ match snapshots with mailpit enabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -3036,7 +3162,7 @@ match snapshots with mailpit enabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -3136,7 +3262,7 @@ match snapshots with mailpit enabled:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -3190,7 +3316,7 @@ match snapshots with mailpit enabled:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -3202,7 +3328,7 @@ match snapshots with mailpit enabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -3432,7 +3558,7 @@ match snapshots with mailpit enabled:
         registrationAllowed: true
         registrationEmailAsUsername: true
         smtpServer:
-          - from: noreply@portal.dev.local
+          - from: noreply@portal.localhost
             host: mailpit.platform-mesh-system.svc.cluster.local
             port: "1025"
         ssoSessionIdleTimeout: 8h
@@ -3446,7 +3572,7 @@ match snapshots with mailpit enabled:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway

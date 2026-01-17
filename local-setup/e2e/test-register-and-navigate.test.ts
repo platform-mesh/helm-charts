@@ -1,6 +1,6 @@
 import test, { expect, Page } from '@playwright/test';
 
-const portalBaseUrl = 'https://portal.dev.local:8443/';
+const portalBaseUrl = 'https://portal.localhost:8443/';
 const testAccountName = 'testaccount';
 const userEmail = 'username@sap.com';
 const userPassword = 'MyPass1234';
@@ -51,7 +51,7 @@ async function registerNewUser(
 
 // Ensures we’re on portal and the SPA finished routing
 async function ensurePortalHome(page: Page) {
-  await page.waitForURL('https://'+ newOrgName +'.portal.dev.local:8443/**', { timeout: 20000 });
+  await page.waitForURL('https://'+ newOrgName +'.portal.localhost:8443/**', { timeout: 20000 });
   await page.waitForLoadState('networkidle', { timeout: 20000 });
   const welcome = page.getByText("Welcome! Let's get started.", { exact: true });
   for (let i = 0; i < 3; i++) {
