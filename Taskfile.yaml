@@ -213,7 +213,7 @@ tasks:
     cmds:
       - |
         LATEST_VERSION=$({{ .LOCAL_BIN }}/ocm --config .ocm/config get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
-        yq -i '.spec.semver = "'$LATEST_VERSION'"' local-setup/kustomize/components/ocm-latest/component.yaml
+        yq -i '.spec.semver = "'$LATEST_VERSION'"' local-setup/kustomize/components/ocm/component.yaml
 
   ocm:build-apply:iterate:
     cmds:
