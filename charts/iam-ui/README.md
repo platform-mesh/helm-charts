@@ -8,13 +8,15 @@ Helm Chart for the iam-ui
 | cors.enabled | bool | `false` | toggle to enable CORS support |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
-| exposure.hostnames | list | `["portal.dev.local","*.portal.dev.local"]` | hostnames to be used for exposure |
+| exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
 | gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
+| gatewayApi.httpRoute.parentRefs[1].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[1].sectionName | string | `"websecure-wildcard-portal-localhost"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/ui/iam"` |  |
 | health.port | int | `8080` |  |
 | health.readiness.path | string | `"/healthz"` |  |

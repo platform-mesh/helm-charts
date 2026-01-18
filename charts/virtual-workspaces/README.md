@@ -15,7 +15,7 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 |-----|------|---------|-------------|
 | authenticationKubeconfigSecretName | string | `"portal-kubeconfig"` |  |
 | cert.duration | string | `"8760h0m0s"` | Certificate duration |
-| cert.extraDnsNames | list | `["kcp.api.portal.dev.local"]` | Extra DNS names for the certificate |
+| cert.extraDnsNames | list | `["localhost"]` | Extra DNS names for the certificate |
 | cert.issuer.kind | string | `"Issuer"` | Issuer reference |
 | cert.issuer.name | string | `"root-server-ca"` | Issuer name |
 | cert.key.algorithm | string | `"RSA"` | Key algorithm (e.g. RSA or ECDSA) |

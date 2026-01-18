@@ -13,8 +13,8 @@ cors:
 exposure:
   # -- hostnames to be used for exposure
   hostnames:
-    - "portal.dev.local"
-    - "*.portal.dev.local"
+    - "portal.localhost"
+    - "*.portal.localhost"
 
 gatewayApi:
   httpRoute:
@@ -22,6 +22,8 @@ gatewayApi:
     parentRefs:
       - name: k8sapi-gateway
         sectionName: websecure
+      - name: k8sapi-gateway
+        sectionName: websecure-wildcard-portal-localhost
     filters:
       - type: URLRewrite
         urlRewrite:
@@ -48,11 +50,11 @@ hostAliases:
   items:
     - ip: 10.96.188.4
       hostnames:
-        - portal.dev.local
-        - kcp.api.portal.dev.local
+        - portal.localhost
+        - localhost
 
 keycloak:
-  baseUrl: https://portal.dev.local:8443/keycloak
+  baseUrl: https://portal.localhost:8443/keycloak
   client:
     id: iam
     secret:

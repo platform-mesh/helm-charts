@@ -74,16 +74,20 @@ validation:
 
 gatewayApi:
   # -- toggle to enable the Gateway API
-  enabled: false
+  enabled: true
   httpRoute:
     pathPrefix: /
     hostnames:
-    - "portal.dev.local"
-    - "*.portal.dev.local"
+    - "portal.localhost"
+    - "*.portal.localhost"
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
-      namespace: default
+      namespace: platform-mesh-system
+      kind: Gateway
+    - name: k8sapi-gateway
+      sectionName: websecure-wildcard-portal-localhost
+      namespace: platform-mesh-system
       kind: Gateway
     corsFilters:
     - extensionRef:
