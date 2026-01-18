@@ -2,7 +2,7 @@ type: application
 apiVersion: v2
 name: infra
 description: A Helm chart for Kubernetes
-version: 0.19.0
+version: 0.20.0
 appVersion: "0.0.0"
 
 dependencies:
