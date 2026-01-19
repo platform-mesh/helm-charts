@@ -24,5 +24,6 @@ spec:
         - name: {{   .Values.etcdDruid.name }}
       resource:
         name: {{   .Values.etcdDruid.ocmResourceName }}
+        type: helmChart/v1
   skipVerify: {{ .Values.ocm.skipVerify }}
 {{- end }}

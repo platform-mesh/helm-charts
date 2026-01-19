@@ -25,6 +25,7 @@ spec:
       {{- end }}
         - name: {{   .Values.etcdDruid.name }}
       resource:
-        name: image
+        name: {{   .Values.etcdDruid.ocmResourceName }}
+        type: ociImage
   skipVerify: {{ .Values.ocm.skipVerify }}
 {{- end }}

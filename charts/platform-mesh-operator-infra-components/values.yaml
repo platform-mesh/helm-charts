@@ -72,7 +72,7 @@ etcdDruid:
   enabled: true
   targetNamespace: etcd-druid-system
   name: etcd-druid
-  ocmResourceName: chart
+  ocmResourceName: etcd-druid
   interval: 1m
 
 

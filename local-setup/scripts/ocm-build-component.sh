@@ -86,9 +86,14 @@ get_component_version() {
     done
 
     # 2. Check for local chart directory
-    if is_local "$short" && [ -n "$chart_dir" ] && [ -f "$PROJECT_ROOT/$chart_dir/Chart.yaml" ]; then
+    # Use prerelease charts directory if set, otherwise fall back to project root
+    local chart_base_dir="${PRERELEASE_CHARTS_DIR:-$PROJECT_ROOT/charts}"
+    local chart_name="${chart_dir#charts/}"
+    local chart_yaml_path="$chart_base_dir/$chart_name/Chart.yaml"
+
+    if is_local "$short" && [ -n "$chart_dir" ] && [ -f "$chart_yaml_path" ]; then
         local val
-        val=$(grep '^version:' "$PROJECT_ROOT/$chart_dir/Chart.yaml" | sed 's/^version: //')
+        val=$(grep '^version:' "$chart_yaml_path" | sed 's/^version: //')
         echo "Using LOCAL chartDir version for $short -> $val"
         export "$env_var"="$val"
         return 0

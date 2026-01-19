@@ -16,6 +16,7 @@ source "$SCRIPT_DIR/ocm-setup.sh"
 LOCAL_BIN="${LOCAL_BIN:-$PROJECT_ROOT/bin}"
 OCM_DIR="${OCM_DIR:-$PROJECT_ROOT/.ocm}"
 PRERELEASE_DIR="${PRERELEASE_DIR:-$PROJECT_ROOT/prerelease}"
+PRERELEASE_CHARTS_DIR="${PRERELEASE_CHARTS_DIR:-$PRERELEASE_DIR/charts}"
 
 # Local charts to build (component-name:chart-path)
 CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
@@ -55,16 +56,29 @@ if [ -t 0 ]; then
     KUBECTL_EXEC_FLAGS="-ti"
 fi
 
+# Copy charts to prerelease directory to avoid modifying original charts
+copy_charts_to_prerelease() {
+    echo -e "${COL}[$(date '+%H:%M:%S')] Copying charts to prerelease directory...${COL_RES}"
+
+    # Clean up any existing copied charts
+    rm -rf "$PRERELEASE_CHARTS_DIR"
+    mkdir -p "$PRERELEASE_CHARTS_DIR"
+
+    # Copy all charts (including common for file:// reference)
+    cp -r "$PROJECT_ROOT/charts/"* "$PRERELEASE_CHARTS_DIR/"
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] Charts copied to $PRERELEASE_CHARTS_DIR${COL_RES}"
+}
+
 # Swap OCI common chart reference to local file reference (only for 'common' dependency)
 swap_common_to_local() {
     local chart_dir="$1"
-    local chart_yaml="$PROJECT_ROOT/$chart_dir/Chart.yaml"
+    local prerelease_chart_dir="$PRERELEASE_CHARTS_DIR/${chart_dir#charts/}"
+    local chart_yaml="$prerelease_chart_dir/Chart.yaml"
+    local chart_yaml_tmp="$prerelease_chart_dir/Chart.yaml.tmp"
 
     # Check if this chart has a common dependency with OCI reference
     if grep -A2 "name: common" "$chart_yaml" | grep -q "oci://ghcr.io/platform-mesh/helm-charts"; then
-        # Backup original
-        cp "$chart_yaml" "$chart_yaml.bak"
-
         # Replace only the common chart's OCI reference with local file reference
         # Uses awk to only modify the repository line that follows "name: common"
         awk '
@@ -74,24 +88,14 @@ swap_common_to_local() {
                 in_common=0
             }
             { print }
-        ' "$chart_yaml.bak" > "$chart_yaml"
+        ' "$chart_yaml" > "$chart_yaml_tmp" && mv "$chart_yaml_tmp" "$chart_yaml"
 
         # Update dependencies to fetch local common chart
-        helm dependency update "$PROJECT_ROOT/$chart_dir" 2>/dev/null || true
+        helm dependency update "$prerelease_chart_dir" 2>/dev/null || true
 
         return 0  # swapped
     fi
     return 1  # no swap needed
-}
-
-# Restore original Chart.yaml
-restore_chart_yaml() {
-    local chart_dir="$1"
-    local chart_yaml="$PROJECT_ROOT/$chart_dir/Chart.yaml"
-
-    if [[ -f "$chart_yaml.bak" ]]; then
-        mv "$chart_yaml.bak" "$chart_yaml"
-    fi
 }
 
 # Copy constructor templates to transfer pod
@@ -105,6 +109,7 @@ copy_templates_to_pod() {
 build_and_push_chart() {
     local comp="$1"
     local chart_dir="$2"
+    local prerelease_chart_dir="$PRERELEASE_CHARTS_DIR/${chart_dir#charts/}"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Processing $chart_dir${COL_RES}"
 
@@ -119,7 +124,7 @@ build_and_push_chart() {
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Component: $component_name (chart dir: $chart_dir)${COL_RES}"
 
-    # Get chart version and app version
+    # Get chart version and app version from original chart
     local chart_version app_version
     chart_version=$(grep '^version:' "$PROJECT_ROOT/$chart_dir/Chart.yaml" | sed 's/^version: //')
     if [ -z "$chart_version" ]; then
@@ -129,20 +134,12 @@ build_and_push_chart() {
     app_version=$(yq -r '.appVersion // ""' "$PROJECT_ROOT/$chart_dir/Chart.yaml" 2>/dev/null || true)
 
     # Swap common chart reference to local for prerelease build
-    local swapped=false
-    if swap_common_to_local "$chart_dir"; then
-        swapped=true
-    fi
+    swap_common_to_local "$chart_dir"
 
-    # Package the chart
+    # Package the chart from the prerelease directory
     local out tarball
-    out=$(helm package "$PROJECT_ROOT/$chart_dir" -d "$PRERELEASE_DIR")
+    out=$(helm package "$prerelease_chart_dir" -d "$PRERELEASE_DIR")
     tarball=$(echo "$out" | awk -F': ' '/saved it to:/ {print $2}')
-
-    # Restore original Chart.yaml
-    if [[ "$swapped" == "true" ]]; then
-        restore_chart_yaml "$chart_dir"
-    fi
 
     if [ ! -f "$tarball" ]; then
         echo -e "${RED}Failed to package $component_name${COL_RES}" >&2
@@ -155,7 +152,7 @@ build_and_push_chart() {
     kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- helm push "$(basename "$tarball")" oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
     echo -e "${COL}[$(date '+%H:%M:%S')] Pushed $tarball to local OCI registry${COL_RES}"
 
-    # Get image name and prepare variables
+    # Get image name and prepare variables (read from original chart for accurate metadata)
     local image_name commit chart_real_name chart_oci_path
     image_name=$(yq '.image["name"] // ""' "$PROJECT_ROOT/$chart_dir/values.yaml")
     commit=$(git -C "$PROJECT_ROOT" rev-parse HEAD)
@@ -222,6 +219,12 @@ build_local_charts() {
     # Create prerelease directory
     mkdir -p "$PRERELEASE_DIR"
     rm -f "$PRERELEASE_DIR"/*.tgz
+
+    # Copy charts to prerelease directory to avoid modifying original charts
+    copy_charts_to_prerelease
+
+    # Export PRERELEASE_CHARTS_DIR for use by other scripts
+    export PRERELEASE_CHARTS_DIR
 
     # Setup OCM CLI
     setup_ocm_cli

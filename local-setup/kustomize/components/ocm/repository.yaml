@@ -7,3 +7,7 @@ spec:
     baseUrl: ghcr.io/platform-mesh
     type: OCIRegistry
   interval: 1m
+  ocmConfig:
+  - kind: ConfigMap
+    name: ocmconfig
+    policy: Propagate
