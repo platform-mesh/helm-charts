@@ -165,6 +165,7 @@ components:
           type: github
           repoUrl: https://github.com/gardener/etcd-druid
           ref: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
+          commit: f0144827af9e6c0a2c30c0698d09b8d1c7529505
       - name: image
         type: ociImage
         relation: external
