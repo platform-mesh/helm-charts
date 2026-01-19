@@ -320,6 +320,28 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
+### Running E2E Tests
+
+After the local setup is running, you can run end-to-end tests to verify the portal functionality:
+
+**Using Task:**
+```sh
+task test:portal-e2e
+```
+
+**Without Task:**
+```sh
+cd local-setup/e2e
+npm install
+npm ci
+npx playwright install
+npx playwright test test-register-and-navigate.test.ts
+```
+
+**Prerequisites:**
+- Node.js and npm must be installed
+- The local setup cluster must be running (via `task local-setup` or similar)
+- Playwright browsers will be installed automatically on first run
 
 ## Files and Scripts
 
