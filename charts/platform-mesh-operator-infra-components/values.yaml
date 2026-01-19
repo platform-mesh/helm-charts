@@ -60,13 +60,21 @@ traefikCRDs:
 
 certManager:
   enabled: true
-  targetNamespace: default
+  targetNamespace: cert-manager
   name: cert-manager
   ocmResourceName: chart
   interval: 1m
   values:
     crds:
       enabled: true
+
+etcdDruid:
+  enabled: true
+  targetNamespace: etcd-druid-system
+  name: etcd-druid
+  ocmResourceName: chart
+  interval: 1m
+
 
 fluxCD:
   kubeConfig:

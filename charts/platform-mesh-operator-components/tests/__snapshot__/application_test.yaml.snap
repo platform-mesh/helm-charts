@@ -58,26 +58,6 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: etcd-druid
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: charts
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: GitRepository
-            name: etcd-druid
-      dependsOn: null
-      interval: 1m
-      releaseName: etcd-druid
-      targetNamespace: etcd-druid-system
-      timeout: 30m
-      values: {}
-  4: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: extension-manager-operator
       namespace: default
     spec:
@@ -100,7 +80,7 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: false
-  5: |
+  4: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -118,7 +98,7 @@ it should render the application manifests:
       timeout: 30m
       values:
         caSecret: domain-certificate-ca
-  6: |
+  5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -135,7 +115,7 @@ it should render the application manifests:
       targetNamespace: platform-mesh-system
       timeout: 30m
       values: null
-  7: |
+  6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -196,7 +176,7 @@ it should render the application manifests:
             virtualservice:
               hosts:
                 - example.com
-  8: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -216,7 +196,7 @@ it should render the application manifests:
       targetNamespace: kcp-operator
       timeout: 30m
       values: null
-  9: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -276,7 +256,7 @@ it should render the application manifests:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  10: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -333,7 +313,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  11: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -399,7 +379,7 @@ it should render the application manifests:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  12: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -427,7 +407,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  13: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -458,7 +438,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  14: |
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -480,7 +460,7 @@ it should render the application manifests:
           resourceSchemaWorkspace: root:platform-mesh-system
           serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
         virtualWorkspaceSecretName: virtual-workspaces-cert
-  15: |
+  14: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -505,32 +485,7 @@ it should render the application manifests:
             - name: account-operator
           resource:
             name: image
-  16: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      annotations:
-        artifact: image
-        for: etcd-druid
-        repo: oci
-      name: etcd-druid-image
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 1m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: etcd-druid
-          resource:
-            name: image
-  17: |
+  15: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -555,7 +510,7 @@ it should render the application manifests:
             - name: extension-manager-operator
           resource:
             name: image
-  18: |
+  16: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -580,7 +535,7 @@ it should render the application manifests:
             - name: iam-service
           resource:
             name: image
-  19: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -605,7 +560,7 @@ it should render the application manifests:
             - name: iam-ui
           resource:
             name: image
-  20: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -630,7 +585,7 @@ it should render the application manifests:
             - name: kcp
           resource:
             name: image
-  21: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -655,7 +610,7 @@ it should render the application manifests:
             - name: kcp-operator
           resource:
             name: image
-  22: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -680,7 +635,7 @@ it should render the application manifests:
             - name: kubernetes-graphql-gateway
           resource:
             name: image
-  23: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -705,7 +660,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: image
-  24: |
+  22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -731,7 +686,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: postgresql-image
-  25: |
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -756,7 +711,7 @@ it should render the application manifests:
             - name: rebac-authz-webhook
           resource:
             name: image
-  26: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -781,7 +736,7 @@ it should render the application manifests:
             - name: security-operator
           resource:
             name: image
-  27: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -806,7 +761,7 @@ it should render the application manifests:
             - name: virtual-workspaces
           resource:
             name: image
-  28: |
+  26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -831,7 +786,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  29: |
+  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -856,32 +811,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  30: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: git
-      name: etcd-druid
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: etcd-druid
-          resource:
-            name: chart
-      skipVerify: true
-  31: |
+  28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -906,7 +836,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  32: |
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -931,7 +861,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  33: |
+  30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -956,7 +886,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  34: |
+  31: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -981,7 +911,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  35: |
+  32: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1006,7 +936,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  36: |
+  33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1031,7 +961,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  37: |
+  34: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1056,7 +986,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  38: |
+  35: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1081,7 +1011,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  39: |
+  36: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1106,7 +1036,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  40: |
+  37: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1131,7 +1061,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  41: |
+  38: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1156,7 +1086,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  42: |
+  39: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
