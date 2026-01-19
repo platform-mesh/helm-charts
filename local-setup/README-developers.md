@@ -1,19 +1,70 @@
 # Developer documentation
 
-This section is more advanced information for chart developers who want to test their changes locally, without going through the official release process for OCM components and charts.
+This section is for chart developers who want to test changes locally without going through the official release process.
 
-The steps below describe a procedure to be followed when a developer changes a chart and wants to try it out within a local-setup environment.
+## Quick Start: Fresh Setup with Local Charts
 
-## Bootstrap with locally built OCM components (circumvents deployment of released components)
+The simplest way to test local chart changes is using the `--prerelease` flag:
 
-Prerequisite: `task local-setup` or `task local-setup-cached` must be run and complete successfully, before the steps below are executed. They require a functioning local-setup environment to work.
+```sh
+# Full setup with locally built components (deletes existing cluster)
+task local-setup:prerelease
 
-To test local charts, run the local-setup script and make modifications to the chars while bumping the version in Chart.yaml. The follow the steps:
+# With caching for faster image pulls
+task local-setup:cached:prerelease
+```
 
-Steps:
+This automatically:
+1. Creates a fresh kind cluster
+2. Deploys OCM infrastructure (OCI registry, transfer pod)
+3. Builds your local chart changes into a prerelease OCM component
+4. Deploys platform mesh using the prerelease component
 
-- (optional) edit Taskfile.yaml and configure `COMPONENT_PRERELEASE_VERSION`, `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS` and `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS` parameters as needed
-- (optional) if adding new componentReferences, update [.ocm/component-constructor-prerelease.yaml](.ocm/component-constructor-prerelease.yaml)
-- run `task ocm:deploy` to deploy the OCM infrastructure components. This needs to be called just once.
-- run `task ocm:build ocm:apply` to build and deploy the new OCM component with your changes
-- run `task ocm:cleanup` for Cleanup when needed
+## Testing with an Existing Cluster
+
+If you already have a running cluster and want to test prerelease changes without recreating it, use the `:iterate` variant:
+
+```sh
+# Reuse existing cluster (faster, no cluster recreation)
+task local-setup:prerelease:iterate
+
+# With caching
+task local-setup:cached:prerelease:iterate
+```
+
+This is the recommended approach for iterative development as it:
+- Skips cluster deletion and recreation
+- Reuses existing OCM infrastructure
+- Only rebuilds and redeploys the changed components
+
+## Iterating on Chart Changes
+
+After making chart changes on an already running prerelease setup, rebuild and redeploy:
+
+```sh
+task ocm:build ocm:apply
+```
+
+This builds a new prerelease OCM component with your changes and applies it to the cluster.
+
+## Configuration (Optional)
+
+Edit `Taskfile.yaml` to configure:
+- `COMPONENT_PRERELEASE_VERSION`: Version for the prerelease component
+- `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS`: Maps component names to local chart paths
+- `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS`: Override specific dependency versions
+
+## Advanced: Starting from Existing Released Setup
+
+If you have a running local-setup with released components and want to switch to prerelease mode:
+
+```sh
+task ocm:deploy           # Deploy OCM infrastructure (once)
+task ocm:build ocm:apply  # Build and deploy prerelease component
+```
+
+## Cleanup
+
+```sh
+task ocm:cleanup       # Remove transfer pod and temp files
+```

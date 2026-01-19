@@ -151,6 +151,7 @@ check_kcp_plugin() {
     return 0
 }
 
+
 check_hosts_entry() {
     local hostname="$1"
     local expected_ip="127.0.0.1"
@@ -185,48 +186,10 @@ check_hosts_entry() {
 }
 
 check_hosts_entries() {
-    local check_failed=0
-    local missing_hosts=()
-
-    # Required hostnames for local setup
-    local required_hosts=("portal.dev.local" "kcp.api.portal.dev.local")
-
-    # Check each required hostname
-    for hostname in "${required_hosts[@]}"; do
-        if ! check_hosts_entry "$hostname"; then
-            missing_hosts+=("$hostname")
-            check_failed=1
-        fi
-    done
-
-    if [ $check_failed -eq 1 ]; then
-        echo -e "${RED}❌ Error: Required DNS entries are not configured${COL_RES}"
-        echo -e "${COL}🌐 The following hostnames must resolve to 127.0.0.1:${COL_RES}"
-        for host in "${missing_hosts[@]}"; do
-            echo -e "${COL}   - $host${COL_RES}"
-        done
-        echo ""
-        echo -e "${COL}📝 Add the following line to your /etc/hosts file:${COL_RES}"
-        echo -e "${COL}   127.0.0.1 portal.dev.local kcp.api.portal.dev.local${COL_RES}"
-        echo ""
-
-        # WSL-specific guidance
-        if grep -qi microsoft /proc/version 2>/dev/null; then
-            echo -e "${COL}💡 WSL Note: You may also need to add this entry to the Windows hosts file:${COL_RES}"
-            echo -e "${COL}   C:\\Windows\\System32\\drivers\\etc\\hosts${COL_RES}"
-            echo -e "${COL}   (This requires Administrator privileges on Windows)${COL_RES}"
-            echo ""
-        fi
-
-        echo -e "${COL}⚠️  Without these entries:${COL_RES}"
-        echo -e "${COL}   - The setup script will fail when accessing KCP API${COL_RES}"
-        echo -e "${COL}   - You won't be able to access the portal at https://portal.dev.local:8443${COL_RES}"
-        echo ""
-
-        return 1
-    fi
-
-    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Required DNS entries are configured${COL_RES}"
+    # With localhost-based domains, no custom DNS entries are required
+    # localhost and *.localhost are resolved automatically by modern browsers
+    # and localhost is resolved by the system
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Using localhost-based domains - no custom DNS entries required${COL_RES}"
     return 0
 }
 

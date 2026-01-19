@@ -6,6 +6,7 @@ metadata:
 spec:
   exposure:
     port: 8443
+    baseDomain: "portal.localhost"
   ocm:
     repo:
       name: platform-mesh
@@ -35,13 +36,6 @@ spec:
       values:
         cors:
           enabled: true
-          accessControlAllowOriginList:
-          - "http://localhost:4200"
-          - "http://localhost:4300"
-          - "http://*.localhost:4200"
-          - "http://*.localhost:4300"
-          - "https://portal.dev.local:8443"
-          - "https://*.portal.dev.local:8443"
         mailpit:
           enabled: true
         hostAliases:
@@ -67,14 +61,14 @@ spec:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
+            - --idp-from-address=keycloak@portal.localhost
         initializer:
           extraArgs:
             - --domain-ca-lookup
             # remove arguments below when the operator and the portal are ready
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
+            - --idp-from-address=keycloak@portal.localhost
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
@@ -99,6 +93,11 @@ spec:
             readOnly: true
         hostAliases:
           enabled: true
+          entries:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "localhost"
+                - "portal.localhost"
     openfga:
       enabled: true
       values:

@@ -1,12 +1,22 @@
 #!/bin/bash
 
-# # get registry CA
-# openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:9443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Verify the certificate file exists
+if [ ! -f "$SCRIPT_DIR/registry-ca.pem" ]; then
+  echo "Error: $SCRIPT_DIR/registry-ca.pem not found"
+  exit 1
+fi
+
+# Create ocm-system namespace if it doesn't exist
+kubectl create namespace ocm-system --dry-run=client -oyaml | kubectl apply -f -
 
 # patch ocm-controller-manager to trust the local OCI registry CA
-kubectl -n ocm-system create configmap ocm-custom-ca   --from-file=registry-ca.pem=registry-ca.pem || true
-# kubectl -n flux-system create configmap ocm-custom-ca --from-file=registry-ca.pem=registry-ca.pem || true
-kubectl create secret generic domain-certificate-ca -n flux-system --from-file=registry-ca.pem=local-setup/scripts/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
+echo "Creating configmap ocm-custom-ca in ocm-system namespace..."
+kubectl -n ocm-system create configmap ocm-custom-ca --from-file=registry-ca.pem=$SCRIPT_DIR/registry-ca.pem --dry-run=client -oyaml | kubectl apply -f -
+
+# Also create for flux
+kubectl create secret generic domain-certificate-ca -n flux-system --from-file=registry-ca.pem=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
 
 # patch flux source-controller to trust the local OCI registry CA
 kubectl -n flux-system patch deployment source-controller --type strategic --patch '

@@ -56,14 +56,10 @@ jobs:
         with:
           version: 3.44.1
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: etc hosts update
+      - name: Run local-setup
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
-          echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local default.portal.dev.local" | sudo tee -a /etc/hosts
-      - name: Run local-setup:latest
-        if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
-        run: |
-          task local-setup:latest
+          task local-setup
       - name: Check/wait for all components to be ready
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
