@@ -75,6 +75,8 @@ spec:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.dev.local
+            - --idp-kubectl-client-additional-redirect-urls=http://localhost:8000
+            - --idp-kubectl-client-additional-redirect-urls=http://localhost:18000
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
