@@ -26,8 +26,6 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
-    - name: k8sapi-gateway
-      sectionName: websecure-wildcard-portal-localhost
     corsFilters:
     - extensionRef:
         group: traefik.io
