@@ -165,28 +165,27 @@ components:
           type: github
           repoUrl: https://github.com/gardener/etcd-druid
           ref: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
-          commit: 58fa963fc3583daf2e5488a708d198fa38f4413d
       - name: image
         type: ociImage
         relation: external
         version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
         access:
           type: ociArtifact
-          imageReference: "europe-docker.pkg.dev/gardener-project/public/gardener/etcd-druid:{{ .GARDENER_ETCD_DRUID_SOURCE_REF }}"
+          imageReference: "europe-docker.pkg.dev/gardener-project/releases/gardener/etcd-druid:{{ .GARDENER_ETCD_DRUID_SOURCE_REF }}"
       - name: etcd-wrapper-image
         type: ociImage
         relation: external
         version: {{ .GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION }}
         access:
           type: ociArtifact
-          imageReference: "europe-docker.pkg.dev/gardener-project/public/gardener/etcd-wrapper:{{ .GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION }}"
+          imageReference: "europe-docker.pkg.dev/gardener-project/releases/gardener/etcd-wrapper:{{ .GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION }}"
       - name: etcdbrctl-image
         type: ociImage
         relation: external
         version: {{ .GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION }}
         access:
           type: ociArtifact
-          imageReference: "europe-docker.pkg.dev/gardener-project/public/gardener/etcdbrctl:{{ .GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION }}"
+          imageReference: "europe-docker.pkg.dev/gardener-project/releases/gardener/etcdbrctl:{{ .GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION }}"
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
