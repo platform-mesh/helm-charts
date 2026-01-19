@@ -16,9 +16,6 @@ A Helm chart for Kubernetes
 | gatewayApi.httpRoute.filters[0].urlRewrite.path.replacePrefixMatch | string | `"/graphql"` |  |
 | gatewayApi.httpRoute.filters[0].urlRewrite.path.type | string | `"ReplacePrefixMatch"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
-| gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
-| gatewayApi.httpRoute.parentRefs[1].name | string | `"k8sapi-gateway"` |  |
-| gatewayApi.httpRoute.parentRefs[1].sectionName | string | `"websecure-wildcard-portal-localhost"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/iam/graphql"` |  |
 | health.port | int | `8080` |  |
 | hostAliases.enabled | bool | `false` |  |

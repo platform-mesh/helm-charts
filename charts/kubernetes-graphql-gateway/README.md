@@ -42,7 +42,7 @@ kubeConfig:
 | gateway.shouldImpersonate | bool | `false` |  |
 | gateway.usernameClaim | string | `"email"` |  |
 | gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
-| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}},{"requestHeaderModifier":{"set":[{"name":"Host","value":"portal.localhost"}]},"type":"RequestHeaderModifier"}],"hostnames":["portal.localhost","*.portal.localhost"],"parentRefs":[{"name":"k8sapi-gateway","sectionName":"websecure"},{"name":"k8sapi-gateway","sectionName":"websecure-wildcard-portal-localhost"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
+| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}},{"requestHeaderModifier":{"set":[{"name":"Host","value":"portal.localhost"}]},"type":"RequestHeaderModifier"}],"hostnames":["portal.localhost","*.portal.localhost"],"parentRefs":[{"name":"k8sapi-gateway"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
 | health.liveness.failureThreshold | int | `1` |  |
 | health.liveness.path | string | `"/healthz"` |  |
 | health.liveness.periodSeconds | int | `10` |  |

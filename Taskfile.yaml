@@ -5,7 +5,7 @@ vars:
   CHARTS:
     sh: "printf '%s' $(ls -d charts/*/ | paste -sd ',' -)"
   CHANGED_CHARTS:
-    sh: "git status --porcelain | grep '^ M charts/' | cut -d'/' -f2 | sort -u | sed 's|^|charts/|' | paste -sd ',' -"
+    sh: "git status --porcelain | grep '^M  charts/' | cut -d'/' -f2 | sort -u | sed 's|^|charts/|' | paste -sd ',' -"
   PACKAGED_CHARTS:
     sh: "mkdir -p oci/ && ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
   GOOS:
