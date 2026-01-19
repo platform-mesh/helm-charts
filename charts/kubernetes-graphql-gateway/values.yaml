@@ -134,6 +134,9 @@ gatewayApi:
     - "*.portal.localhost"
     parentRefs:
     - name: k8sapi-gateway
+      sectionName: websecure
+    - name: k8sapi-gateway
+      sectionName: websecure-wildcard-portal-localhost
     filters:
     - type: URLRewrite
       urlRewrite:

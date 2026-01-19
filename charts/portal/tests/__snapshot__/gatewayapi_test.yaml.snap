@@ -9,7 +9,14 @@ disable Istio, enable Gateway API - match the Snapshot:
         - portal.localhost
         - '*.portal.localhost'
       parentRefs:
-        - name: k8sapi-gateway
+        - kind: Gateway
+          name: k8sapi-gateway
+          namespace: platform-mesh-system
+          sectionName: websecure
+        - kind: Gateway
+          name: k8sapi-gateway
+          namespace: platform-mesh-system
+          sectionName: websecure-wildcard-portal-localhost
       rules:
         - backendRefs:
             - group: ""

@@ -6,4 +6,4 @@ dependencies:
   repository: oci://ghcr.io/platform-mesh/helm-charts
   version: 0.0.1
 digest: sha256:5bcb920cf5c473f9b1a6947ac802f4cf98e8f3e62e4c052292059509f3dc3f2e
-generated: "2026-01-19T10:40:27.258429+01:00"
+generated: "2026-01-17T20:05:26.636277+01:00"

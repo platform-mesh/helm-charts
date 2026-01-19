@@ -11,6 +11,9 @@ matches the snapshot:
         - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
+          sectionName: websecure
+        - name: k8sapi-gateway
+          sectionName: websecure-wildcard-portal-localhost
       rules:
         - backendRefs:
             - name: RELEASE-NAME-iam-ui

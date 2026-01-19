@@ -27,7 +27,14 @@ Helm Chart for the Platform Mesh Portal
 | gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
 | gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |
+| gatewayApi.httpRoute.parentRefs[0].kind | string | `"Gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[0].namespace | string | `"platform-mesh-system"` |  |
+| gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
+| gatewayApi.httpRoute.parentRefs[1].kind | string | `"Gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[1].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[1].namespace | string | `"platform-mesh-system"` |  |
+| gatewayApi.httpRoute.parentRefs[1].sectionName | string | `"websecure-wildcard-portal-localhost"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/"` |  |
 | health.liveness.path | string | `"/rest/health"` | path used for the liveness probe |
 | health.port | int | `8080` | health port to be used by probes |

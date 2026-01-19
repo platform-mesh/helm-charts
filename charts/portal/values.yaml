@@ -82,6 +82,13 @@ gatewayApi:
     - "*.portal.localhost"
     parentRefs:
     - name: k8sapi-gateway
+      sectionName: websecure
+      namespace: platform-mesh-system
+      kind: Gateway
+    - name: k8sapi-gateway
+      sectionName: websecure-wildcard-portal-localhost
+      namespace: platform-mesh-system
+      kind: Gateway
     corsFilters:
     - extensionRef:
         group: traefik.io
