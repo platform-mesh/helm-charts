@@ -185,7 +185,7 @@ tests:
           value: "10.96.188.4"
       - equal:
           path: spec.template.spec.hostAliases[0].hostnames[0]
-          value: "kcp.api.portal.dev.local"
+          value: "localhost"
       - equal:
           path: spec.template.spec.hostAliases[0].hostnames[1]
-          value: "portal.dev.local"
+          value: "portal.localhost"
