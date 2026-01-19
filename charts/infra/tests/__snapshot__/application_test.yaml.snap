@@ -422,13 +422,18 @@ Gateway API enabled:
           - get
       - apiGroups:
           - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+      - apiGroups:
+          - ""
         resourceNames:
           - keycloak-provider-config
         resources:
           - secrets
         verbs:
           - get
-          - create
           - update
           - patch
           - delete
@@ -1045,13 +1050,18 @@ Istio disabled:
           - get
       - apiGroups:
           - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+      - apiGroups:
+          - ""
         resourceNames:
           - keycloak-provider-config
         resources:
           - secrets
         verbs:
           - get
-          - create
           - update
           - patch
           - delete
@@ -1632,13 +1642,18 @@ Istio enabled:
           - get
       - apiGroups:
           - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+      - apiGroups:
+          - ""
         resourceNames:
           - keycloak-provider-config
         resources:
           - secrets
         verbs:
           - get
-          - create
           - update
           - patch
           - delete
@@ -2288,13 +2303,18 @@ match snapshots:
           - get
       - apiGroups:
           - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+      - apiGroups:
+          - ""
         resourceNames:
           - keycloak-provider-config
         resources:
           - secrets
         verbs:
           - get
-          - create
           - update
           - patch
           - delete
@@ -2890,13 +2910,18 @@ match snapshots w. hostAliases enabled:
           - get
       - apiGroups:
           - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+      - apiGroups:
+          - ""
         resourceNames:
           - keycloak-provider-config
         resources:
           - secrets
         verbs:
           - get
-          - create
           - update
           - patch
           - delete
@@ -3484,13 +3509,18 @@ match snapshots w. kcp version:
           - get
       - apiGroups:
           - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+      - apiGroups:
+          - ""
         resourceNames:
           - keycloak-provider-config
         resources:
           - secrets
         verbs:
           - get
-          - create
           - update
           - patch
           - delete
@@ -4071,13 +4101,18 @@ match snapshots with mailpit enabled:
           - get
       - apiGroups:
           - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+      - apiGroups:
+          - ""
         resourceNames:
           - keycloak-provider-config
         resources:
           - secrets
         verbs:
           - get
-          - create
           - update
           - patch
           - delete
