@@ -115,14 +115,7 @@ matches the snapshot:
         - portal.localhost
         - '*.portal.localhost'
       parentRefs:
-        - kind: Gateway
-          name: k8sapi-gateway
-          namespace: platform-mesh-system
-          sectionName: websecure
-        - kind: Gateway
-          name: k8sapi-gateway
-          namespace: platform-mesh-system
-          sectionName: websecure-wildcard-portal-localhost
+        - name: k8sapi-gateway
       rules:
         - backendRefs:
             - group: ""
@@ -297,14 +290,7 @@ matches the snapshot with istio disabled:
         - portal.localhost
         - '*.portal.localhost'
       parentRefs:
-        - kind: Gateway
-          name: k8sapi-gateway
-          namespace: platform-mesh-system
-          sectionName: websecure
-        - kind: Gateway
-          name: k8sapi-gateway
-          namespace: platform-mesh-system
-          sectionName: websecure-wildcard-portal-localhost
+        - name: k8sapi-gateway
       rules:
         - backendRefs:
             - group: ""
