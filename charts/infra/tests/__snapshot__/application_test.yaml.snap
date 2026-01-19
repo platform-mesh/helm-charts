@@ -400,6 +400,110 @@ Gateway API enabled:
       providerConfigRef:
         name: keycloak-provider-config
   19: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+  20: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-admin
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-provider-config
+        resources:
+          - secrets
+        verbs:
+          - get
+          - create
+          - update
+          - patch
+          - delete
+  21: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: keycloak-provider-config-secret-creator
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-provider-config-secret-creator
+        namespace: platform-mesh-system
+  22: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+        helm.sh/hook-weight: "1"
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    spec:
+      template:
+        metadata:
+          name: keycloak-provider-config-secret-creator
+        spec:
+          containers:
+            - command:
+                - /bin/sh
+                - -c
+                - |-
+                  set -e
+
+                  # Read the keycloak-admin secret
+                  echo "Reading keycloak-admin secret..."
+                  ADMIN_SECRET=$(kubectl get secret keycloak-admin -n platform-mesh-system -o jsonpath='{.data.secret}' 2>/dev/null || echo "")
+
+                  if [ -z "$ADMIN_SECRET" ]; then
+                    echo "Warning: keycloak-admin secret not found or secret key missing, using default password"
+                    PASSWORD="aesaeXaefu0x"
+                  else
+                    # Decode base64 password
+                    PASSWORD=$(echo "$ADMIN_SECRET" | base64 -d)
+                  fi
+
+                  # Escape password for JSON (escape backslashes, quotes, and newlines)
+                  ESCAPED_PASSWORD=$(echo -n "$PASSWORD" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
+                  # Create the provider config JSON using printf to avoid shell expansion issues
+                  CONFIG_JSON=$(printf '{"client_id":"admin-cli","username":"keycloak-admin","password":"%s","url":"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak","realm":"master"}' "$ESCAPED_PASSWORD")
+
+                  # Check if secret already exists
+                  if kubectl get secret keycloak-provider-config -n platform-mesh-system &>/dev/null; then
+                    echo "Updating existing secret keycloak-provider-config..."
+                    # Delete and recreate to ensure clean state
+                    kubectl delete secret keycloak-provider-config -n platform-mesh-system --ignore-not-found=true
+                  fi
+
+                  echo "Creating secret keycloak-provider-config..."
+                  kubectl create secret generic keycloak-provider-config \
+                    --from-literal=config="$CONFIG_JSON" \
+                    -n platform-mesh-system
+
+                  echo "Secret keycloak-provider-config created/updated successfully"
+              image: ghcr.io/platform-mesh/images/ocmbuilder:pr-4
+              name: secret-creator
+          restartPolicy: OnFailure
+          serviceAccountName: keycloak-provider-config-secret-creator
+  23: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -412,22 +516,7 @@ Gateway API enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
+  24: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -451,7 +540,7 @@ Gateway API enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
+  25: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -481,7 +570,7 @@ Gateway API enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
+  26: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -508,7 +597,7 @@ Gateway API enabled:
             - path:
                 type: PathPrefix
                 value: /mailpit
-  24: |
+  27: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -934,6 +1023,110 @@ Istio disabled:
       providerConfigRef:
         name: keycloak-provider-config
   19: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+  20: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-admin
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-provider-config
+        resources:
+          - secrets
+        verbs:
+          - get
+          - create
+          - update
+          - patch
+          - delete
+  21: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: keycloak-provider-config-secret-creator
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-provider-config-secret-creator
+        namespace: platform-mesh-system
+  22: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+        helm.sh/hook-weight: "1"
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    spec:
+      template:
+        metadata:
+          name: keycloak-provider-config-secret-creator
+        spec:
+          containers:
+            - command:
+                - /bin/sh
+                - -c
+                - |-
+                  set -e
+
+                  # Read the keycloak-admin secret
+                  echo "Reading keycloak-admin secret..."
+                  ADMIN_SECRET=$(kubectl get secret keycloak-admin -n platform-mesh-system -o jsonpath='{.data.secret}' 2>/dev/null || echo "")
+
+                  if [ -z "$ADMIN_SECRET" ]; then
+                    echo "Warning: keycloak-admin secret not found or secret key missing, using default password"
+                    PASSWORD="aesaeXaefu0x"
+                  else
+                    # Decode base64 password
+                    PASSWORD=$(echo "$ADMIN_SECRET" | base64 -d)
+                  fi
+
+                  # Escape password for JSON (escape backslashes, quotes, and newlines)
+                  ESCAPED_PASSWORD=$(echo -n "$PASSWORD" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
+                  # Create the provider config JSON using printf to avoid shell expansion issues
+                  CONFIG_JSON=$(printf '{"client_id":"admin-cli","username":"keycloak-admin","password":"%s","url":"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak","realm":"master"}' "$ESCAPED_PASSWORD")
+
+                  # Check if secret already exists
+                  if kubectl get secret keycloak-provider-config -n platform-mesh-system &>/dev/null; then
+                    echo "Updating existing secret keycloak-provider-config..."
+                    # Delete and recreate to ensure clean state
+                    kubectl delete secret keycloak-provider-config -n platform-mesh-system --ignore-not-found=true
+                  fi
+
+                  echo "Creating secret keycloak-provider-config..."
+                  kubectl create secret generic keycloak-provider-config \
+                    --from-literal=config="$CONFIG_JSON" \
+                    -n platform-mesh-system
+
+                  echo "Secret keycloak-provider-config created/updated successfully"
+              image: ghcr.io/platform-mesh/images/ocmbuilder:pr-4
+              name: secret-creator
+          restartPolicy: OnFailure
+          serviceAccountName: keycloak-provider-config-secret-creator
+  23: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -946,22 +1139,7 @@ Istio disabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
+  24: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -985,7 +1163,7 @@ Istio disabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
+  25: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1009,7 +1187,7 @@ Istio disabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
+  26: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1432,6 +1610,110 @@ Istio enabled:
       providerConfigRef:
         name: keycloak-provider-config
   19: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+  20: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-admin
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-provider-config
+        resources:
+          - secrets
+        verbs:
+          - get
+          - create
+          - update
+          - patch
+          - delete
+  21: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: keycloak-provider-config-secret-creator
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-provider-config-secret-creator
+        namespace: platform-mesh-system
+  22: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+        helm.sh/hook-weight: "1"
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    spec:
+      template:
+        metadata:
+          name: keycloak-provider-config-secret-creator
+        spec:
+          containers:
+            - command:
+                - /bin/sh
+                - -c
+                - |-
+                  set -e
+
+                  # Read the keycloak-admin secret
+                  echo "Reading keycloak-admin secret..."
+                  ADMIN_SECRET=$(kubectl get secret keycloak-admin -n platform-mesh-system -o jsonpath='{.data.secret}' 2>/dev/null || echo "")
+
+                  if [ -z "$ADMIN_SECRET" ]; then
+                    echo "Warning: keycloak-admin secret not found or secret key missing, using default password"
+                    PASSWORD="aesaeXaefu0x"
+                  else
+                    # Decode base64 password
+                    PASSWORD=$(echo "$ADMIN_SECRET" | base64 -d)
+                  fi
+
+                  # Escape password for JSON (escape backslashes, quotes, and newlines)
+                  ESCAPED_PASSWORD=$(echo -n "$PASSWORD" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
+                  # Create the provider config JSON using printf to avoid shell expansion issues
+                  CONFIG_JSON=$(printf '{"client_id":"admin-cli","username":"keycloak-admin","password":"%s","url":"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak","realm":"master"}' "$ESCAPED_PASSWORD")
+
+                  # Check if secret already exists
+                  if kubectl get secret keycloak-provider-config -n platform-mesh-system &>/dev/null; then
+                    echo "Updating existing secret keycloak-provider-config..."
+                    # Delete and recreate to ensure clean state
+                    kubectl delete secret keycloak-provider-config -n platform-mesh-system --ignore-not-found=true
+                  fi
+
+                  echo "Creating secret keycloak-provider-config..."
+                  kubectl create secret generic keycloak-provider-config \
+                    --from-literal=config="$CONFIG_JSON" \
+                    -n platform-mesh-system
+
+                  echo "Secret keycloak-provider-config created/updated successfully"
+              image: ghcr.io/platform-mesh/images/ocmbuilder:pr-4
+              name: secret-creator
+          restartPolicy: OnFailure
+          serviceAccountName: keycloak-provider-config-secret-creator
+  23: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -1444,22 +1726,7 @@ Istio enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
+  24: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -1483,7 +1750,7 @@ Istio enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
+  25: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1507,7 +1774,7 @@ Istio enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
+  26: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1528,7 +1795,7 @@ Istio enabled:
             - path:
                 type: PathPrefix
                 value: /mailpit
-  24: |
+  27: |
     apiVersion: security.istio.io/v1beta1
     kind: AuthorizationPolicy
     metadata:
@@ -1579,7 +1846,7 @@ Istio enabled:
       selector:
         matchLabels:
           app.kubernetes.io/name: openfga
-  25: |
+  28: |
     apiVersion: networking.istio.io/v1alpha3
     kind: DestinationRule
     metadata:
@@ -1999,6 +2266,110 @@ match snapshots:
       providerConfigRef:
         name: keycloak-provider-config
   19: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+  20: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-admin
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-provider-config
+        resources:
+          - secrets
+        verbs:
+          - get
+          - create
+          - update
+          - patch
+          - delete
+  21: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: keycloak-provider-config-secret-creator
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-provider-config-secret-creator
+        namespace: platform-mesh-system
+  22: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+        helm.sh/hook-weight: "1"
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    spec:
+      template:
+        metadata:
+          name: keycloak-provider-config-secret-creator
+        spec:
+          containers:
+            - command:
+                - /bin/sh
+                - -c
+                - |-
+                  set -e
+
+                  # Read the keycloak-admin secret
+                  echo "Reading keycloak-admin secret..."
+                  ADMIN_SECRET=$(kubectl get secret keycloak-admin -n platform-mesh-system -o jsonpath='{.data.secret}' 2>/dev/null || echo "")
+
+                  if [ -z "$ADMIN_SECRET" ]; then
+                    echo "Warning: keycloak-admin secret not found or secret key missing, using default password"
+                    PASSWORD="aesaeXaefu0x"
+                  else
+                    # Decode base64 password
+                    PASSWORD=$(echo "$ADMIN_SECRET" | base64 -d)
+                  fi
+
+                  # Escape password for JSON (escape backslashes, quotes, and newlines)
+                  ESCAPED_PASSWORD=$(echo -n "$PASSWORD" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
+                  # Create the provider config JSON using printf to avoid shell expansion issues
+                  CONFIG_JSON=$(printf '{"client_id":"admin-cli","username":"keycloak-admin","password":"%s","url":"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak","realm":"master"}' "$ESCAPED_PASSWORD")
+
+                  # Check if secret already exists
+                  if kubectl get secret keycloak-provider-config -n platform-mesh-system &>/dev/null; then
+                    echo "Updating existing secret keycloak-provider-config..."
+                    # Delete and recreate to ensure clean state
+                    kubectl delete secret keycloak-provider-config -n platform-mesh-system --ignore-not-found=true
+                  fi
+
+                  echo "Creating secret keycloak-provider-config..."
+                  kubectl create secret generic keycloak-provider-config \
+                    --from-literal=config="$CONFIG_JSON" \
+                    -n platform-mesh-system
+
+                  echo "Secret keycloak-provider-config created/updated successfully"
+              image: ghcr.io/platform-mesh/images/ocmbuilder:pr-4
+              name: secret-creator
+          restartPolicy: OnFailure
+          serviceAccountName: keycloak-provider-config-secret-creator
+  23: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -2011,22 +2382,7 @@ match snapshots:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
+  24: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -2050,7 +2406,7 @@ match snapshots:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
+  25: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -2074,7 +2430,7 @@ match snapshots:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
+  26: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -2512,6 +2868,110 @@ match snapshots w. hostAliases enabled:
       providerConfigRef:
         name: keycloak-provider-config
   19: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+  20: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-admin
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-provider-config
+        resources:
+          - secrets
+        verbs:
+          - get
+          - create
+          - update
+          - patch
+          - delete
+  21: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: keycloak-provider-config-secret-creator
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-provider-config-secret-creator
+        namespace: platform-mesh-system
+  22: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+        helm.sh/hook-weight: "1"
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    spec:
+      template:
+        metadata:
+          name: keycloak-provider-config-secret-creator
+        spec:
+          containers:
+            - command:
+                - /bin/sh
+                - -c
+                - |-
+                  set -e
+
+                  # Read the keycloak-admin secret
+                  echo "Reading keycloak-admin secret..."
+                  ADMIN_SECRET=$(kubectl get secret keycloak-admin -n platform-mesh-system -o jsonpath='{.data.secret}' 2>/dev/null || echo "")
+
+                  if [ -z "$ADMIN_SECRET" ]; then
+                    echo "Warning: keycloak-admin secret not found or secret key missing, using default password"
+                    PASSWORD="aesaeXaefu0x"
+                  else
+                    # Decode base64 password
+                    PASSWORD=$(echo "$ADMIN_SECRET" | base64 -d)
+                  fi
+
+                  # Escape password for JSON (escape backslashes, quotes, and newlines)
+                  ESCAPED_PASSWORD=$(echo -n "$PASSWORD" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
+                  # Create the provider config JSON using printf to avoid shell expansion issues
+                  CONFIG_JSON=$(printf '{"client_id":"admin-cli","username":"keycloak-admin","password":"%s","url":"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak","realm":"master"}' "$ESCAPED_PASSWORD")
+
+                  # Check if secret already exists
+                  if kubectl get secret keycloak-provider-config -n platform-mesh-system &>/dev/null; then
+                    echo "Updating existing secret keycloak-provider-config..."
+                    # Delete and recreate to ensure clean state
+                    kubectl delete secret keycloak-provider-config -n platform-mesh-system --ignore-not-found=true
+                  fi
+
+                  echo "Creating secret keycloak-provider-config..."
+                  kubectl create secret generic keycloak-provider-config \
+                    --from-literal=config="$CONFIG_JSON" \
+                    -n platform-mesh-system
+
+                  echo "Secret keycloak-provider-config created/updated successfully"
+              image: ghcr.io/platform-mesh/images/ocmbuilder:pr-4
+              name: secret-creator
+          restartPolicy: OnFailure
+          serviceAccountName: keycloak-provider-config-secret-creator
+  23: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -2524,22 +2984,7 @@ match snapshots w. hostAliases enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
+  24: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -2563,7 +3008,7 @@ match snapshots w. hostAliases enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
+  25: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -2587,7 +3032,7 @@ match snapshots w. hostAliases enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
+  26: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -3017,6 +3462,110 @@ match snapshots w. kcp version:
       providerConfigRef:
         name: keycloak-provider-config
   19: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+  20: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-admin
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-provider-config
+        resources:
+          - secrets
+        verbs:
+          - get
+          - create
+          - update
+          - patch
+          - delete
+  21: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: keycloak-provider-config-secret-creator
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-provider-config-secret-creator
+        namespace: platform-mesh-system
+  22: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+        helm.sh/hook-weight: "1"
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    spec:
+      template:
+        metadata:
+          name: keycloak-provider-config-secret-creator
+        spec:
+          containers:
+            - command:
+                - /bin/sh
+                - -c
+                - |-
+                  set -e
+
+                  # Read the keycloak-admin secret
+                  echo "Reading keycloak-admin secret..."
+                  ADMIN_SECRET=$(kubectl get secret keycloak-admin -n platform-mesh-system -o jsonpath='{.data.secret}' 2>/dev/null || echo "")
+
+                  if [ -z "$ADMIN_SECRET" ]; then
+                    echo "Warning: keycloak-admin secret not found or secret key missing, using default password"
+                    PASSWORD="aesaeXaefu0x"
+                  else
+                    # Decode base64 password
+                    PASSWORD=$(echo "$ADMIN_SECRET" | base64 -d)
+                  fi
+
+                  # Escape password for JSON (escape backslashes, quotes, and newlines)
+                  ESCAPED_PASSWORD=$(echo -n "$PASSWORD" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
+                  # Create the provider config JSON using printf to avoid shell expansion issues
+                  CONFIG_JSON=$(printf '{"client_id":"admin-cli","username":"keycloak-admin","password":"%s","url":"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak","realm":"master"}' "$ESCAPED_PASSWORD")
+
+                  # Check if secret already exists
+                  if kubectl get secret keycloak-provider-config -n platform-mesh-system &>/dev/null; then
+                    echo "Updating existing secret keycloak-provider-config..."
+                    # Delete and recreate to ensure clean state
+                    kubectl delete secret keycloak-provider-config -n platform-mesh-system --ignore-not-found=true
+                  fi
+
+                  echo "Creating secret keycloak-provider-config..."
+                  kubectl create secret generic keycloak-provider-config \
+                    --from-literal=config="$CONFIG_JSON" \
+                    -n platform-mesh-system
+
+                  echo "Secret keycloak-provider-config created/updated successfully"
+              image: ghcr.io/platform-mesh/images/ocmbuilder:pr-4
+              name: secret-creator
+          restartPolicy: OnFailure
+          serviceAccountName: keycloak-provider-config-secret-creator
+  23: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -3029,22 +3578,7 @@ match snapshots w. kcp version:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
+  24: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -3068,7 +3602,7 @@ match snapshots w. kcp version:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
+  25: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -3092,7 +3626,7 @@ match snapshots w. kcp version:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
+  26: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -3515,6 +4049,110 @@ match snapshots with mailpit enabled:
       providerConfigRef:
         name: keycloak-provider-config
   19: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+  20: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-admin
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resourceNames:
+          - keycloak-provider-config
+        resources:
+          - secrets
+        verbs:
+          - get
+          - create
+          - update
+          - patch
+          - delete
+  21: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: keycloak-provider-config-secret-creator
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-provider-config-secret-creator
+        namespace: platform-mesh-system
+  22: |
+    apiVersion: batch/v1
+    kind: Job
+    metadata:
+      annotations:
+        helm.sh/hook: post-install,post-upgrade
+        helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+        helm.sh/hook-weight: "1"
+      name: keycloak-provider-config-secret-creator
+      namespace: platform-mesh-system
+    spec:
+      template:
+        metadata:
+          name: keycloak-provider-config-secret-creator
+        spec:
+          containers:
+            - command:
+                - /bin/sh
+                - -c
+                - |-
+                  set -e
+
+                  # Read the keycloak-admin secret
+                  echo "Reading keycloak-admin secret..."
+                  ADMIN_SECRET=$(kubectl get secret keycloak-admin -n platform-mesh-system -o jsonpath='{.data.secret}' 2>/dev/null || echo "")
+
+                  if [ -z "$ADMIN_SECRET" ]; then
+                    echo "Warning: keycloak-admin secret not found or secret key missing, using default password"
+                    PASSWORD="aesaeXaefu0x"
+                  else
+                    # Decode base64 password
+                    PASSWORD=$(echo "$ADMIN_SECRET" | base64 -d)
+                  fi
+
+                  # Escape password for JSON (escape backslashes, quotes, and newlines)
+                  ESCAPED_PASSWORD=$(echo -n "$PASSWORD" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+
+                  # Create the provider config JSON using printf to avoid shell expansion issues
+                  CONFIG_JSON=$(printf '{"client_id":"admin-cli","username":"keycloak-admin","password":"%s","url":"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak","realm":"master"}' "$ESCAPED_PASSWORD")
+
+                  # Check if secret already exists
+                  if kubectl get secret keycloak-provider-config -n platform-mesh-system &>/dev/null; then
+                    echo "Updating existing secret keycloak-provider-config..."
+                    # Delete and recreate to ensure clean state
+                    kubectl delete secret keycloak-provider-config -n platform-mesh-system --ignore-not-found=true
+                  fi
+
+                  echo "Creating secret keycloak-provider-config..."
+                  kubectl create secret generic keycloak-provider-config \
+                    --from-literal=config="$CONFIG_JSON" \
+                    -n platform-mesh-system
+
+                  echo "Secret keycloak-provider-config created/updated successfully"
+              image: ghcr.io/platform-mesh/images/ocmbuilder:pr-4
+              name: secret-creator
+          restartPolicy: OnFailure
+          serviceAccountName: keycloak-provider-config-secret-creator
+  23: |
     apiVersion: keycloak.crossplane.io/v1beta1
     kind: ProviderConfig
     metadata:
@@ -3527,22 +4165,7 @@ match snapshots with mailpit enabled:
           name: keycloak-provider-config
           namespace: platform-mesh-system
         source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
+  24: |
     apiVersion: realm.keycloak.crossplane.io/v1alpha1
     kind: Realm
     metadata:
@@ -3566,7 +4189,7 @@ match snapshots with mailpit enabled:
         verifyEmail: true
       providerConfigRef:
         name: keycloak-provider-config
-  22: |
+  25: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -3590,7 +4213,7 @@ match snapshots with mailpit enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
+  26: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -3618,7 +4241,7 @@ match snapshots with mailpit enabled:
                 - containerPort: 1025
                   name: smtp
                   protocol: TCP
-  24: |
+  27: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -3639,7 +4262,7 @@ match snapshots with mailpit enabled:
             - path:
                 type: PathPrefix
                 value: /mailpit
-  25: |
+  28: |
     apiVersion: v1
     kind: Service
     metadata:
