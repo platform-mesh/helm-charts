@@ -112,6 +112,6 @@ coreModule: |-
       define parent: [core_platform-mesh_io_account]
 
       define member: member from parent
-    
+
       define get: member
       define watch: member

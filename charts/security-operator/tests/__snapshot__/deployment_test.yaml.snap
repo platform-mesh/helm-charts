@@ -65,7 +65,70 @@ operator match the snapshot:
   3: |
     apiVersion: v1
     data:
-      coreModule.fga: "\nmodule core\n\ntype user\n\ntype role\n  relations\n    define assignee: [user,user:*]\n\ntype core_platform-mesh_io_account\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define owner: [role#assignee] or owner from parent\n    define member: [role#assignee] or owner or member from parent\n\n    define get: member\n    define update: member\n    define patch: member\n    define delete: owner\n\n    define create_core_platform-mesh_io_accounts: member\n    define list_core_platform-mesh_io_accounts: member\n    define watch_core_platform-mesh_io_accounts: member\n\n    # org and account specific\n    define watch: member\n\n    define create_core_platform-mesh_io_accountinfos: member\n    define list_core_platform-mesh_io_accountinfos: member\n    define watch_core_platform-mesh_io_accountinfos: member\n\n    define create_apis_kcp_io_apibindings: owner\n    define list_apis_kcp_io_apibindings: member\n    define watch_apis_kcp_io_apibindings: member\n\n    # IAM specific\n    define manage_iam_roles: owner\n    define get_iam_roles: member\n    define get_iam_users: member\n\ntype core_platform-mesh_io_accountinfo\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define member: member from parent\n    define owner: owner from parent\n\n    define get: member\n    define watch: member\n\n    # IAM specific\n    define manage_iam_roles: owner\n    define get_iam_roles: member\n    define get_iam_users: member\n\ntype core_kcp_io_logicalcluster\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define member: member from parent\n  \n    define get: member\n    define watch: member"
+      coreModule.fga: |2-
+        module core
+
+        type user
+
+        type role
+          relations
+            define assignee: [user,user:*]
+
+        type core_platform-mesh_io_account
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define owner: [role#assignee] or owner from parent
+            define member: [role#assignee] or owner or member from parent
+
+            define get: member
+            define update: member
+            define patch: member
+            define delete: owner
+
+            define create_core_platform-mesh_io_accounts: member
+            define list_core_platform-mesh_io_accounts: member
+            define watch_core_platform-mesh_io_accounts: member
+
+            # org and account specific
+            define watch: member
+
+            define create_core_platform-mesh_io_accountinfos: member
+            define list_core_platform-mesh_io_accountinfos: member
+            define watch_core_platform-mesh_io_accountinfos: member
+
+            define create_apis_kcp_io_apibindings: owner
+            define list_apis_kcp_io_apibindings: member
+            define watch_apis_kcp_io_apibindings: member
+
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
+        type core_platform-mesh_io_accountinfo
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define member: member from parent
+            define owner: owner from parent
+
+            define get: member
+            define watch: member
+
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
+        type core_kcp_io_logicalcluster
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define member: member from parent
+
+            define get: member
+            define watch: member
     kind: ConfigMap
     metadata:
       name: RELEASE-NAME-security-operator-core-module
@@ -430,7 +493,70 @@ operator match the snapshot w. sentry:
   3: |
     apiVersion: v1
     data:
-      coreModule.fga: "\nmodule core\n\ntype user\n\ntype role\n  relations\n    define assignee: [user,user:*]\n\ntype core_platform-mesh_io_account\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define owner: [role#assignee] or owner from parent\n    define member: [role#assignee] or owner or member from parent\n\n    define get: member\n    define update: member\n    define patch: member\n    define delete: owner\n\n    define create_core_platform-mesh_io_accounts: member\n    define list_core_platform-mesh_io_accounts: member\n    define watch_core_platform-mesh_io_accounts: member\n\n    # org and account specific\n    define watch: member\n\n    define create_core_platform-mesh_io_accountinfos: member\n    define list_core_platform-mesh_io_accountinfos: member\n    define watch_core_platform-mesh_io_accountinfos: member\n\n    define create_apis_kcp_io_apibindings: owner\n    define list_apis_kcp_io_apibindings: member\n    define watch_apis_kcp_io_apibindings: member\n\n    # IAM specific\n    define manage_iam_roles: owner\n    define get_iam_roles: member\n    define get_iam_users: member\n\ntype core_platform-mesh_io_accountinfo\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define member: member from parent\n    define owner: owner from parent\n\n    define get: member\n    define watch: member\n\n    # IAM specific\n    define manage_iam_roles: owner\n    define get_iam_roles: member\n    define get_iam_users: member\n\ntype core_kcp_io_logicalcluster\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define member: member from parent\n  \n    define get: member\n    define watch: member"
+      coreModule.fga: |2-
+        module core
+
+        type user
+
+        type role
+          relations
+            define assignee: [user,user:*]
+
+        type core_platform-mesh_io_account
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define owner: [role#assignee] or owner from parent
+            define member: [role#assignee] or owner or member from parent
+
+            define get: member
+            define update: member
+            define patch: member
+            define delete: owner
+
+            define create_core_platform-mesh_io_accounts: member
+            define list_core_platform-mesh_io_accounts: member
+            define watch_core_platform-mesh_io_accounts: member
+
+            # org and account specific
+            define watch: member
+
+            define create_core_platform-mesh_io_accountinfos: member
+            define list_core_platform-mesh_io_accountinfos: member
+            define watch_core_platform-mesh_io_accountinfos: member
+
+            define create_apis_kcp_io_apibindings: owner
+            define list_apis_kcp_io_apibindings: member
+            define watch_apis_kcp_io_apibindings: member
+
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
+        type core_platform-mesh_io_accountinfo
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define member: member from parent
+            define owner: owner from parent
+
+            define get: member
+            define watch: member
+
+            # IAM specific
+            define manage_iam_roles: owner
+            define get_iam_roles: member
+            define get_iam_users: member
+
+        type core_kcp_io_logicalcluster
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define member: member from parent
+
+            define get: member
+            define watch: member
     kind: ConfigMap
     metadata:
       name: RELEASE-NAME-security-operator-core-module
