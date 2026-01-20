@@ -23,9 +23,6 @@ COMPONENT_PRERELEASE_VERSION="${COMPONENT_PRERELEASE_VERSION:-1.0.0}"
 REMOTE_REGISTRY="${REMOTE_REGISTRY:-ghcr.io/platform-mesh}"
 LOCAL_REGISTRY="${LOCAL_REGISTRY:-oci-registry-docker-registry.registry.svc.cluster.local}"
 
-# Third-party component registries
-GARDENER_REGISTRY="${GARDENER_REGISTRY:-europe-docker.pkg.dev/gardener-project/releases}"
-
 # List of local component names (for version resolution)
 CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,kubernetes-graphql-gateway,organization-idp,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,virtual-workspaces"
 
@@ -89,14 +86,9 @@ get_component_version() {
     done
 
     # 2. Check for local chart directory
-    # Use prerelease charts directory if set, otherwise fall back to project root
-    local chart_base_dir="${PRERELEASE_CHARTS_DIR:-$PROJECT_ROOT/charts}"
-    local chart_name="${chart_dir#charts/}"
-    local chart_yaml_path="$chart_base_dir/$chart_name/Chart.yaml"
-
-    if is_local "$short" && [ -n "$chart_dir" ] && [ -f "$chart_yaml_path" ]; then
+    if is_local "$short" && [ -n "$chart_dir" ] && [ -f "$PROJECT_ROOT/$chart_dir/Chart.yaml" ]; then
         local val
-        val=$(grep '^version:' "$chart_yaml_path" | sed 's/^version: //')
+        val=$(grep '^version:' "$PROJECT_ROOT/$chart_dir/Chart.yaml" | sed 's/^version: //')
         echo "Using LOCAL chartDir version for $short -> $val"
         export "$env_var"="$val"
         return 0
@@ -124,12 +116,10 @@ get_component_version() {
 }
 
 # Get resource version from OCM
-# Args: component query [repository]
 get_ocm_resource_version() {
     local component="$1"
     local query="$2"
-    local repository="${3:-$REMOTE_REGISTRY}"
-    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get resources "oci://$repository//$component" --latest -o json | jq -r "$query"
+    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get resources "oci://ghcr.io/platform-mesh//$component" --latest -o json | jq -r "$query"
 }
 
 # Resolve all component versions
@@ -163,7 +153,8 @@ resolve_component_versions() {
     export OPENFGA_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[0].element["version"]')
     export KCP_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[0].element["version"]')
     export KCP_IMAGE_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[] | select(.element.type == "ociImage") | .element.version' | sed 's/^0\.0\.0-//')
-    export GARDENER_ETCD_DRUID_SOURCE_REF=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "ociImage" and .element.name == "etcd-druid") | .element.version' "$GARDENER_REGISTRY")
+    export GARDENER_ETCD_DRUID_SOURCE_REF=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
+    export GARDENER_ETCD_DRUID_CHART_VERSION=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "helmChart") | .element.version')
     export GATEWAY_API_VERSION=$(get_ocm_resource_version "github.com/kubernetes-sigs/gateway-api" '.items[0].element["version"]')
     export GATEWAY_API_COMMIT=$(get_ocm_resource_version "github.com/kubernetes-sigs/gateway-api" '.items[0].element.access["commit"]')
     export TRAEFIK_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[0].element["version"]')
@@ -176,6 +167,8 @@ resolve_component_versions() {
     export CROSSPLANE_IMAGE_VERSION=$(get_ocm_resource_version "github.com/crossplane/crossplane" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
     export CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION=$(get_ocm_resource_version "github.com/crossplane/crossplane" '.items[] | select(.element.type == "ociImage" and .element.name == "keycloak-provider") | .element.version')
     export OPENFGA_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
+    export GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "ociImage" and .element.name == "etcd-wrapper-image") | .element.version')
+    export GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "ociImage" and .element.name == "etcdbrctl-image") | .element.version')
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "postgresql-image") | .element.version')
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
@@ -201,6 +194,7 @@ build_final_component() {
         KCP_OPERATOR_VERSION="$KCP_OPERATOR_VERSION" \
         KCP_IMAGE_VERSION="$KCP_IMAGE_VERSION" \
         GARDENER_ETCD_DRUID_SOURCE_REF="$GARDENER_ETCD_DRUID_SOURCE_REF" \
+        GARDENER_ETCD_DRUID_CHART_VERSION="$GARDENER_ETCD_DRUID_CHART_VERSION" \
         ACCOUNT_OPERATOR_VERSION="$ACCOUNT_OPERATOR_VERSION" \
         PLATFORM_MESH_OPERATOR_VERSION="$PLATFORM_MESH_OPERATOR_VERSION" \
         EXTENSION_MANAGER_OPERATOR_VERSION="$EXTENSION_MANAGER_OPERATOR_VERSION" \
@@ -230,7 +224,9 @@ build_final_component() {
         CROSSPLANE_IMAGE_VERSION="$CROSSPLANE_IMAGE_VERSION" \
         CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION="$CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION" \
         OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
-        OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION"
+        OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
+        GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION="$GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION" \
+        GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION="$GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION"
 
     echo ""
     echo -e "${COL}[$(date '+%H:%M:%S')] Built prerelease component version $COMPONENT_PRERELEASE_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)${COL_RES}"

@@ -8,7 +8,3 @@ spec:
   repositorySpec:
     baseUrl: oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
     type: OCIRegistry
-  ocmConfig:
-    - kind: ConfigMap
-      name: ocmconfig
-      policy: Propagate
