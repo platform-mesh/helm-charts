@@ -9,9 +9,11 @@ it should render the application manifests:
         kind: OCIRepository
         name: cert-manager
         namespace: default
+      install:
+        createNamespace: true
       interval: 1m
       releaseName: cert-manager
-      targetNamespace: default
+      targetNamespace: cert-manager
       timeout: 30m
       values:
         crds:
