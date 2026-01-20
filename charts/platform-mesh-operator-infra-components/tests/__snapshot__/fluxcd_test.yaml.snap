@@ -9,13 +9,15 @@ FluxCD enable remote deployment:
         kind: OCIRepository
         name: cert-manager
         namespace: default
+      install:
+        createNamespace: true
       interval: 1m
       kubeConfig:
         secretRef:
           key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: cert-manager
-      targetNamespace: default
+      targetNamespace: cert-manager
       timeout: 30m
       values:
         crds:
@@ -314,9 +316,11 @@ FluxCD snapshots:
         kind: OCIRepository
         name: cert-manager
         namespace: default
+      install:
+        createNamespace: true
       interval: 1m
       releaseName: cert-manager
-      targetNamespace: default
+      targetNamespace: cert-manager
       timeout: 30m
       values:
         crds:
