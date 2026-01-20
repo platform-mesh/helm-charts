@@ -97,12 +97,6 @@ jobs:
           cat <<EOF > $HOME/.ocmconfig
           type: generic.config.ocm.software/v1
           configurations:
-            - type: ocm.config.ocm.software
-              resolvers:
-                - repository:
-                  type: OCIRegistry
-                  baseUrl: https://europe-docker.pkg.dev/gardener-project/releases
-                  prefix: github.com/gardener
             - type: credentials.config.ocm.software
               consumers:
                 - identity:
