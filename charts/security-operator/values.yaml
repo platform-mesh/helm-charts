@@ -83,9 +83,8 @@ coreModule: |-
       define list_core_platform-mesh_io_accountinfos: member
       define watch_core_platform-mesh_io_accountinfos: member
 
-      define create_apis_kcp_io_apibindings: owner
-      define list_apis_kcp_io_apibindings: member
-      define watch_apis_kcp_io_apibindings: member
+      define list_core_kcp_io_logicalclusters: member
+      define watch_core_kcp_io_logicalclusters: member
 
       # IAM specific
       define manage_iam_roles: owner
