@@ -10,7 +10,7 @@ A Helm chart for Kubernetes
 | certManager.interval | string | `"1m"` |  |
 | certManager.name | string | `"cert-manager"` |  |
 | certManager.ocmResourceName | string | `"chart"` |  |
-| certManager.targetNamespace | string | `"default"` |  |
+| certManager.targetNamespace | string | `"cert-manager"` |  |
 | certManager.values.crds.enabled | bool | `true` |  |
 | fluxCD.kubeConfig.enabled | bool | `false` | If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig. |
 | fluxCD.kubeConfig.secretRef.key | string | `"kubeconfig"` |  |
