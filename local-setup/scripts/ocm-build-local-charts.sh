@@ -133,8 +133,8 @@ build_and_push_chart() {
     fi
     app_version=$(yq -r '.appVersion // ""' "$PROJECT_ROOT/$chart_dir/Chart.yaml" 2>/dev/null || true)
 
-    # Swap common chart reference to local for prerelease build
-    swap_common_to_local "$chart_dir"
+    # Swap common chart reference to local for prerelease build (|| true to ignore return code for charts without common dependency)
+    swap_common_to_local "$chart_dir" || true
 
     # Package the chart from the prerelease directory
     local out tarball

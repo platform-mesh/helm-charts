@@ -38,6 +38,6 @@ data:
               baseUrl: https://ghcr.io/platform-mesh
             prefix: github.com/cert-manager
           - repository:
-            type: OCIRegistry
-            baseUrl: https://europe-docker.pkg.dev/gardener-project/releases
+              type: OCIRegistry
+              baseUrl: https://europe-docker.pkg.dev/gardener-project/releases
             prefix: github.com/gardener
