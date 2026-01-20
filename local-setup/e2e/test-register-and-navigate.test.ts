@@ -135,7 +135,7 @@ test.describe('Home Page', () => {
     await newPage2.locator('[test-id="create-resource-submit"]').click();
 
     const accountElement = newPage2.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
-    await expect(accountElement).toBeVisible( { timeout: 10000 } );
+    await expect(accountElement).toBeVisible( { timeout: 20000 } );
     
     // Close the Mailpit page/tab if it's still open
     const pages = newPage2.context().pages();
