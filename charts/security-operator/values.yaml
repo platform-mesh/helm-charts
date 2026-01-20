@@ -82,7 +82,7 @@ coreModule: |-
       define create_core_platform-mesh_io_accountinfos: member
       define list_core_platform-mesh_io_accountinfos: member
       define watch_core_platform-mesh_io_accountinfos: member
-      
+
       define list_core_kcp_io_logicalclusters: member
       define watch_core_kcp_io_logicalclusters: member
 
