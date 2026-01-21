@@ -56,17 +56,17 @@ if [ -t 0 ]; then
 fi
 
 # Swap OCI common chart reference to local file reference (only for 'common' dependency)
+# Operates on a copied chart in the prerelease directory to avoid modifying original files
 swap_common_to_local() {
-    local chart_dir="$1"
-    local chart_yaml="$PROJECT_ROOT/$chart_dir/Chart.yaml"
+    local chart_path="$1"  # Full path to the copied chart
+    local chart_yaml="$chart_path/Chart.yaml"
 
     # Check if this chart has a common dependency with OCI reference
     if grep -A2 "name: common" "$chart_yaml" | grep -q "oci://ghcr.io/platform-mesh/helm-charts"; then
-        # Backup original
-        cp "$chart_yaml" "$chart_yaml.bak"
-
         # Replace only the common chart's OCI reference with local file reference
         # Uses awk to only modify the repository line that follows "name: common"
+        local temp_file
+        temp_file=$(mktemp)
         awk '
             /- name: common/ { in_common=1 }
             in_common && /repository:.*oci:\/\/ghcr.io\/platform-mesh\/helm-charts/ {
@@ -74,24 +74,15 @@ swap_common_to_local() {
                 in_common=0
             }
             { print }
-        ' "$chart_yaml.bak" > "$chart_yaml"
+        ' "$chart_yaml" > "$temp_file"
+        mv "$temp_file" "$chart_yaml"
 
         # Update dependencies to fetch local common chart
-        helm dependency update "$PROJECT_ROOT/$chart_dir" 2>/dev/null || true
+        helm dependency update "$chart_path" 2>/dev/null || true
 
         return 0  # swapped
     fi
     return 1  # no swap needed
-}
-
-# Restore original Chart.yaml
-restore_chart_yaml() {
-    local chart_dir="$1"
-    local chart_yaml="$PROJECT_ROOT/$chart_dir/Chart.yaml"
-
-    if [[ -f "$chart_yaml.bak" ]]; then
-        mv "$chart_yaml.bak" "$chart_yaml"
-    fi
 }
 
 # Copy constructor templates to transfer pod
@@ -119,7 +110,7 @@ build_and_push_chart() {
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Component: $component_name (chart dir: $chart_dir)${COL_RES}"
 
-    # Get chart version and app version
+    # Get chart version and app version from original chart
     local chart_version app_version
     chart_version=$(grep '^version:' "$PROJECT_ROOT/$chart_dir/Chart.yaml" | sed 's/^version: //')
     if [ -z "$chart_version" ]; then
@@ -128,21 +119,18 @@ build_and_push_chart() {
     fi
     app_version=$(yq -r '.appVersion // ""' "$PROJECT_ROOT/$chart_dir/Chart.yaml" 2>/dev/null || true)
 
-    # Swap common chart reference to local for prerelease build
-    local swapped=false
-    if swap_common_to_local "$chart_dir"; then
-        swapped=true
-    fi
+    # Copy chart to prerelease directory to avoid modifying the original
+    local prerelease_chart_dir="$PRERELEASE_DIR/$comp"
+    rm -rf "$prerelease_chart_dir"
+    cp -r "$PROJECT_ROOT/$chart_dir" "$prerelease_chart_dir"
 
-    # Package the chart
+    # Swap common chart reference to local in the copied chart
+    swap_common_to_local "$prerelease_chart_dir"
+
+    # Package the chart from the prerelease copy
     local out tarball
-    out=$(helm package "$PROJECT_ROOT/$chart_dir" -d "$PRERELEASE_DIR")
+    out=$(helm package "$prerelease_chart_dir" -d "$PRERELEASE_DIR")
     tarball=$(echo "$out" | awk -F': ' '/saved it to:/ {print $2}')
-
-    # Restore original Chart.yaml
-    if [[ "$swapped" == "true" ]]; then
-        restore_chart_yaml "$chart_dir"
-    fi
 
     if [ ! -f "$tarball" ]; then
         echo -e "${RED}Failed to package $component_name${COL_RES}" >&2
