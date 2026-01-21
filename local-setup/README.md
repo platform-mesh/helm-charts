@@ -35,7 +35,7 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
    ```sh
    # In WSL2, after installing mkcert:
    mkcert -install
-   
+
    # Copy the CA to Windows (adjust path as needed):
    cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
    ```
@@ -218,7 +218,7 @@ See [README-developers](./README-developers.md) for more detailed information re
 Once the setup completes successfully, you can access:
 
 - **Onboarding Portal**: https://portal.localhost:8443
-- **KCP API**: https://localhost:8443
+- **KCP API**: https://kcp.api.localhost:8443
 
 **Note**: Modern browsers automatically resolve `*.localhost` domains to `127.0.0.1`, so no `/etc/hosts` configuration is required for browser access. Organization subdomains like `myorg.portal.localhost` will also work automatically in browsers.
 
@@ -377,7 +377,7 @@ npx playwright test test-register-and-navigate.test.ts
      ```sh
      # In WSL2: Install CA in Linux certificate store
      mkcert -install
-     
+
      # Copy CA to Windows and install there too
      cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
      ```
@@ -401,7 +401,7 @@ npx playwright test test-register-and-navigate.test.ts
      ```sh
      # Install the local CA in the system trust store
      mkcert -install
-     
+
      # For Firefox users: manually import CA certificate
      # 1. Open Firefox → Settings → Privacy & Security → Certificates → View Certificates
      # 2. Go to "Authorities" tab → Import

@@ -2,7 +2,7 @@
 
 KCP_CA_SECRET=root-frontproxy-server
 KCP_ADMIN_SECRET=kcp-cluster-admin-client-cert
-KCP_URL=https://localhost:8443
+KCP_URL=https://kcp.api.portal.localhost:8443
 #KCP_URL=https://kcp.api.portal.cc-one.showroom.apeirora.eu
 
 mkdir -p $PWD/.secret/kcp

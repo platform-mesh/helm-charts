@@ -40,14 +40,6 @@ spec:
   {{- with .Values.kcp.frontProxy.clusterIP }}
       clusterIP: {{ . }}
   {{- end }}
-  {{- with .Values.kcp.frontProxy.port }}
-      ports:
-      - appProtocol: https
-        name: https
-        port: {{ . }}
-        protocol: TCP
-        targetPort: 6443
-  {{- end }}
   {{- if .Values.hostAliases.enabled }}
   {{- with .Values.hostAliases.entries }}
   deploymentTemplate:
@@ -59,3 +51,35 @@ spec:
   {{- end }}
   extraArgs:
 {{ toYaml .Values.kcp.frontProxy.extraArgs | indent 4 }}
+---
+{{- if .Values.gatewayApi.enabled }}
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TLSRoute
+metadata:
+  name: kcp-front-proxy
+  namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
+spec:
+  hostnames:
+  - {{ .Values.kcp.external.hostname }}
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.gatewayApi.name }}
+    sectionName: {{ .Values.gatewayApi.passThrough.gateway.name }}
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: {{ .Values.kcp.frontProxy.name }}-front-proxy
+      namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
+      port: 6443
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
+    {{- if .Values.cors.enabled }}
+    filters:
+    {{- toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 4 }}
+    {{- end }}
+---
+{{- end }}
