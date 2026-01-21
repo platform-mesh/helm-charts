@@ -29,10 +29,6 @@ A Helm chart for Kubernetes
 | services.account-operator.values.subroutines.fga.grpcAddr | string | `"openfga:8081"` |  |
 | services.account-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.account-operator.values.tracing.enabled | bool | `false` |  |
-| services.crossplane.enabled | bool | `true` |  |
-| services.crossplane.helmRepo | bool | `true` |  |
-| services.crossplane.targetNamespace | string | `"crossplane-system"` |  |
-| services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2"` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"extension-manager-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
