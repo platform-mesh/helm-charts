@@ -19,6 +19,15 @@ webhooks:
   # -- List of denied organization names
   denyList: ["admin", "root", "system", "www"]
 
+  # -- CA certificate duration (default: 1 year)
+  caDuration: 8760h
+  # -- CA certificate renewal time before expiration (default: 30 days)
+  caRenewBefore: 720h
+  # -- Serving certificate duration (default: 3 months)
+  certDuration: 2160h
+  # -- Serving certificate renewal time before expiration (default: 30 days)
+  certRenewBefore: 720h
+
 # -- The KCP configuration
 kcp:
   # -- Enable KCP
