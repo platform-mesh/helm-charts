@@ -1,0 +1,27 @@
+{{- if .Values.kcpOperator.enabled }}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: {{ .Values.kcpOperator.name }}
+spec:
+  chart:
+    spec:
+      chart: {{ .Values.kcpOperator.name }}
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: {{ .Values.kcpOperator.name }}
+  interval: {{ .Values.kcpOperator.interval }}
+  releaseName: {{ .Values.kcpOperator.name }}
+  targetNamespace: {{ .Values.kcpOperator.targetNamespace }}
+  install:
+    createNamespace: true
+  timeout: {{ .Values.timeout }}
+  values:
+    {{- toYaml .Values.kcpOperator.values | nindent 4 }}
+  {{- if .Values.fluxCD.kubeConfig.enabled }}
+  kubeConfig:
+    secretRef: 
+    {{ .Values.fluxCD.kubeConfig.secretRef | toYaml | nindent 6 }}
+  {{- end }}
+{{- end }}

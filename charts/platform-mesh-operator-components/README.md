@@ -33,12 +33,6 @@ A Helm chart for Kubernetes
 | services.crossplane.helmRepo | bool | `true` |  |
 | services.crossplane.targetNamespace | string | `"crossplane-system"` |  |
 | services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2"` |  |
-| services.etcd-druid.enabled | bool | `true` |  |
-| services.etcd-druid.gitRepo | bool | `true` |  |
-| services.etcd-druid.imageResources | list | `[{"annotations":{"artifact":"image","for":"etcd-druid","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.etcd-druid.path | string | `"charts"` |  |
-| services.etcd-druid.targetNamespace | string | `"etcd-druid-system"` |  |
-| services.etcd-druid.values | object | `{}` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"extension-manager-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
@@ -75,10 +69,6 @@ A Helm chart for Kubernetes
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
 | services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"https://{{ .Values.baseDomainPort }}/callback*"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.kcp-operator.enabled | bool | `true` |  |
-| services.kcp-operator.helmRepo | bool | `true` |  |
-| services.kcp-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"kcp-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
 | services.keycloak.enabled | bool | `true` |  |
 | services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
 | services.keycloak.values.auth.existingSecret | string | `"keycloak-admin"` | keycloak admin secret |

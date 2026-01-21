@@ -126,30 +126,6 @@ image enabled resource:
     metadata:
       annotations:
         artifact: image
-        for: kcp-operator
-        repo: oci
-      name: kcp-operator-image
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 1m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: kcp-operator
-          resource:
-            name: image
-  7: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      annotations:
-        artifact: image
         for: kubernetes-graphql-gateway
         repo: oci
       name: kubernetes-graphql-gateway-image
@@ -168,7 +144,7 @@ image enabled resource:
             - name: kubernetes-graphql-gateway
           resource:
             name: image
-  8: |
+  7: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -192,7 +168,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: image
-  9: |
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -217,7 +193,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: postgresql-image
-  10: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -241,7 +217,7 @@ image enabled resource:
             - name: rebac-authz-webhook
           resource:
             name: image
-  11: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -265,7 +241,7 @@ image enabled resource:
             - name: security-operator
           resource:
             name: image
-  12: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -320,30 +296,6 @@ ocm resources:
     metadata:
       labels:
         artifact: chart
-        repo: helm
-      name: crossplane
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: crossplane
-          resource:
-            name: chart
-      skipVerify: true
-  3: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
         repo: oci
       name: extension-manager-operator
     spec:
@@ -362,7 +314,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  4: |
+  3: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -386,7 +338,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  5: |
+  4: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -410,7 +362,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  6: |
+  5: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -434,31 +386,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  7: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: helm
-      name: kcp-operator
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: kcp-operator
-          resource:
-            name: chart
-      skipVerify: true
-  8: |
+  6: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -482,7 +410,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  9: |
+  7: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -506,7 +434,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  10: |
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -530,7 +458,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  11: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -554,7 +482,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  12: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -578,7 +506,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  13: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -602,7 +530,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  14: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

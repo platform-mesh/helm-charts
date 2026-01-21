@@ -3,12 +3,62 @@ disable all components:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: crossplane
+    spec:
+      chart:
+        spec:
+          chart: crossplane
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: crossplane
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: crossplane
+      targetNamespace: crossplane-system
+      timeout: 30m
+      values:
+        provider:
+          packages:
+            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
+  2: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: crossplane
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: crossplane
+          resource:
+            name: chart
+      skipVerify: true
+  3: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: etcd-druid
     spec:
-      chartRef:
-        kind: OCIRepository
-        name: etcd-druid
-        namespace: default
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
       install:
         createNamespace: true
       interval: 1m
@@ -16,7 +66,7 @@ disable all components:
       targetNamespace: etcd-druid-system
       timeout: 30m
       values: null
-  2: |
+  4: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -42,13 +92,13 @@ disable all components:
           resource:
             name: image
       skipVerify: true
-  3: |
+  5: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
       labels:
         artifact: chart
-        repo: oci
+        repo: git
       name: etcd-druid
     spec:
       componentRef:
@@ -63,6 +113,76 @@ disable all components:
         byReference:
           referencePath:
             - name: etcd-druid
+          resource:
+            name: chart
+      skipVerify: true
+  6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+    spec:
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: kcp-operator
+      targetNamespace: kcp-operator
+      timeout: 30m
+      values: null
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: kcp-operator
+        path: image.tag
+        repo: oci
+      name: kcp-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: image
+      skipVerify: true
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: kcp-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
           resource:
             name: chart
       skipVerify: true
@@ -191,12 +311,62 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: crossplane
+    spec:
+      chart:
+        spec:
+          chart: crossplane
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: crossplane
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: crossplane
+      targetNamespace: crossplane-system
+      timeout: 30m
+      values:
+        provider:
+          packages:
+            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: crossplane
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: crossplane
+          resource:
+            name: chart
+      skipVerify: true
+  8: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: etcd-druid
     spec:
-      chartRef:
-        kind: OCIRepository
-        name: etcd-druid
-        namespace: default
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
       install:
         createNamespace: true
       interval: 1m
@@ -204,7 +374,7 @@ it should render the application manifests:
       targetNamespace: etcd-druid-system
       timeout: 30m
       values: null
-  7: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -230,13 +400,13 @@ it should render the application manifests:
           resource:
             name: image
       skipVerify: true
-  8: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
       labels:
         artifact: chart
-        repo: oci
+        repo: git
       name: etcd-druid
     spec:
       componentRef:
@@ -254,7 +424,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  9: |
+  11: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -269,7 +439,7 @@ it should render the application manifests:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  10: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -293,7 +463,77 @@ it should render the application manifests:
           resource:
             name: crds
       skipVerify: true
-  11: |
+  13: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+    spec:
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: kcp-operator
+      targetNamespace: kcp-operator
+      timeout: 30m
+      values: null
+  14: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: kcp-operator
+        path: image.tag
+        repo: oci
+      name: kcp-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: image
+      skipVerify: true
+  15: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: kcp-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: chart
+      skipVerify: true
+  16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -311,7 +551,7 @@ it should render the application manifests:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  12: |
+  17: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -350,7 +590,7 @@ it should render the application manifests:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  13: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -374,7 +614,7 @@ it should render the application manifests:
           resource:
             name: crds
       skipVerify: true
-  14: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -400,7 +640,7 @@ it should render the application manifests:
           resource:
             name: image
       skipVerify: true
-  15: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

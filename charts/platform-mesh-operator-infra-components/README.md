@@ -26,6 +26,11 @@ A Helm chart for Kubernetes
 | gatewayApi.kustomization.path | string | `"./config/crd/experimental"` |  |
 | gatewayApi.name | string | `"gateway-api"` |  |
 | gatewayApi.ocmResourceName | string | `"crds"` |  |
+| kcpOperator.enabled | bool | `true` |  |
+| kcpOperator.interval | string | `"1m"` |  |
+| kcpOperator.name | string | `"kcp-operator"` |  |
+| kcpOperator.ocmResourceName | string | `"chart"` |  |
+| kcpOperator.targetNamespace | string | `"kcp-operator"` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
 | ocm.interval | string | `"3m"` |  |
 | ocm.referencePath | list | `[]` |  |
