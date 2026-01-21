@@ -43,6 +43,7 @@ A Helm chart for Kubernetes
 | istio.passThrough.gateway.enabled | bool | `false` |  |
 | istio.serviceEntries.https.enabled | bool | `false` | A toggle to enable the service entries for external https communication |
 | istio.serviceEntries.https.hosts | list | `[]` | The list of hosts to be added to the service entry |
+| kcp.additionalShards | list | `[]` |  |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
 | kcp.auth.adminCert.privateKey.size | int | `2048` |  |

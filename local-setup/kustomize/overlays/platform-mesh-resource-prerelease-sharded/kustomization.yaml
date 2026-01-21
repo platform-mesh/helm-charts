@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../platform-mesh-resource-prerelease
+
+patches:
+  - target:
+      kind: PlatformMesh
+      name: platform-mesh
+      namespace: platform-mesh-system
+    patch: |-
+      - path: /spec/values/infra/values/kcp/additionalShards
+        op: replace
+        value:
+          - fox
+          - car
+          - melon

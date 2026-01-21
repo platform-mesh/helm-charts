@@ -130,7 +130,7 @@ tasks:
           --from-file=tls.key=./local-setup/scripts/certs/cert.key \
           --from-file=ca.crt=./local-setup/scripts/certs/ca.crt \
           --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
-        
+
         kubectl wait --namespace registry \
           --for=condition=available deployment \
           --timeout=120s oci-registry-docker-registry
@@ -163,7 +163,7 @@ tasks:
         kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/images/ocmbuilder:pr-4 -- sleep infinity || true
         kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
         kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm
-        
+
         # configure RootCA truststore on the pod
         kubectl exec -ti ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
         kubectl cp registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
@@ -219,7 +219,7 @@ tasks:
     cmds:
       - task: ocm:build:component
       - task: ocm:kustomize:apply
-  
+
   ocm:update:constructor:
     cmds:
       - curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
@@ -297,6 +297,11 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--prerelease"}
 
+  local-setup:prerelease:iterate:sharded:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--prerelease --sharded"}
+
   local-setup:prerelease:example-data:
     cmds:
       - task: local-setup
@@ -306,6 +311,11 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--prerelease --example-data"}
+
+  local-setup:prerelease:example-data:iterate:sharded:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--prerelease --example-data --sharded"}
 
   local-setup:cached:prerelease:
     cmds:

@@ -93,6 +93,9 @@ kcp:
     replicas: 1
     extraArgs:
     - --feature-gates=WorkspaceAuthentication=true
+  # Names for additional shards to deploy alongside the root shard.
+  additionalShards: []
+
   frontProxy:
     replicas: 1
     name: frontproxy

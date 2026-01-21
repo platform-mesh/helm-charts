@@ -21,12 +21,14 @@ SCRIPT_DIR=$(dirname "$0")
 PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
+SHARDED_SUFFIX=
 
 usage() {
   echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
+  echo "  --sharded       Deploy Platform-Mesh with sharded architecture, only applies with --prerelease"
   echo "  --cached        Use local Docker registry mirrors for faster image pulls"
   echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
   echo "  --help          Show this help message"
@@ -38,6 +40,7 @@ while [ $# -gt 0 ]; do
     --prerelease) PRERELEASE=true ;;
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
+    --sharded) SHARDED_SUFFIX="-sharded" ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -151,10 +154,10 @@ if [ "$PRERELEASE" = true ]; then
   if [ "$EXAMPLE_DATA" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
     # TODO: Create example-data-prerelease overlay if needed
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease$SHARDED_SUFFIX
   else
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease$SHARDED_SUFFIX
   fi
 elif [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
