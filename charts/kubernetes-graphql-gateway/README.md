@@ -15,9 +15,6 @@ kubeConfig:
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cors.allowedHeaders | string | `"*"` |  |
-| cors.allowedOrigins | string | `"*"` |  |
-| cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crds.enabled | bool | `false` |  |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
@@ -55,10 +52,6 @@ kubeConfig:
 | health.startup.periodSeconds | int | `10` |  |
 | image.name | string | `"ghcr.io/platform-mesh/kubernetes-graphql-gateway"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| istio.authorizationPolicy | object | `{"create":false}` | ALlows the creation of a AuthorizationPolicy resource, by default disabled |
-| istio.enabled | bool | `false` |  |
-| istio.gateway.name | string | `"gateway"` |  |
-| istio.requestAuthentication | object | `{"create":false}` | ALlows the creation of a RequestAuthentication resource, by default disabled |
 | kcp.enabled | bool | `true` |  |
 | kubeConfig.createSecret | bool | `false` |  |
 | kubeConfig.enabled | bool | `false` | Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated. |
@@ -77,13 +70,6 @@ kubeConfig:
 | listener.virtualWorkspacesConfig.path | string | `"/app/config/virtual-workspaces.yaml"` |  |
 | sentry.environment | string | `"dev"` |  |
 | tracing.enabled | bool | `true` |  |
-| virtualService.hosts[0] | string | `"*"` |  |
-| virtualService.httpRules[0].cors.allowHeaders[0] | string | `"*"` |  |
-| virtualService.httpRules[0].cors.allowMethods[0] | string | `"GET"` |  |
-| virtualService.httpRules[0].cors.allowMethods[1] | string | `"POST"` |  |
-| virtualService.httpRules[0].cors.allowOrigins[0].regex | string | `".*"` |  |
-| virtualService.httpRules[0].name | string | `"default"` |  |
-| virtualService.pathPrefix | string | `"/kubernetes-graphql-gateway/"` |  |
 
 ## Overriding Values
 

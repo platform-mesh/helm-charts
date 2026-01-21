@@ -1,12 +1,6 @@
 crds:
   enabled: false
 
-cors:
-  # -- toggle to enable CORS configuration
-  enabled: false
-  allowedHeaders: "*"
-  allowedOrigins: "*"
-
 image:
   name: ghcr.io/platform-mesh/kubernetes-graphql-gateway
   pullPolicy: IfNotPresent
@@ -68,32 +62,6 @@ deployment:
 sentry:
   environment: dev
 
-istio:
-  enabled: false
-  # -- ALlows the creation of a RequestAuthentication resource, by default disabled
-  requestAuthentication:
-    create: false
-  # -- ALlows the creation of a AuthorizationPolicy resource, by default disabled
-  authorizationPolicy:
-    create: false
-  gateway:
-    name: gateway
-
-virtualService:
-  pathPrefix: /kubernetes-graphql-gateway/
-  hosts:
-    - "*"
-  httpRules:
-    - name: default
-      cors:
-        allowHeaders:
-          - "*"
-        allowMethods:
-          - GET
-          - POST
-        allowOrigins:
-          - regex: .*
-
 kubeConfig:
   createSecret: false
   # -- Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated.
@@ -135,15 +103,15 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
     filters:
-      - cors:
-          allowCredentials: true
-          allowHeaders: ['*']
-          allowMethods: ['*']
-          allowOrigins: ['*']
-          maxAge: 5
-        type: CORS
-      - type: URLRewrite
-        urlRewrite:
-          path:
-            replacePrefixMatch: /
-            type: ReplacePrefixMatch
+    - cors:
+        allowCredentials: true
+        allowHeaders: ['*']
+        allowMethods: ['*']
+        allowOrigins: ['*']
+        maxAge: 5
+      type: CORS
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          replacePrefixMatch: /
+          type: ReplacePrefixMatch
