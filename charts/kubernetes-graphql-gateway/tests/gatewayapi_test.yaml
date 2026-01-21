@@ -3,17 +3,12 @@ values:
 - ../values.yaml
 - ../test_values.yaml
 release:
-  name: platform-mesh
+  name: kubernetes-graphql-gateway
   namespace: platform-mesh-system
 chart:
   appVersion: 1.0.0
 templates:
   - gatewayApi-httproute.yaml
-  - istio-authorizationpolicy.yaml
-  - istio-destinationrule.yaml
-  - istio-peerauthentication.yaml
-  - istio-requestauthentication.yaml
-  - istio-virtualservice.yaml
 tests:
   - it: enable Istio, disable Gateway API - match the Snapshot
     set:
