@@ -35,49 +35,6 @@ HelmRelease snapshots:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: crossplane
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: crossplane
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: crossplane
-      dependsOn: null
-      interval: 1m
-      releaseName: crossplane
-      targetNamespace: crossplane-system
-      timeout: 30m
-      values:
-        provider:
-          packages:
-            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-  3: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: etcd-druid
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: charts
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: GitRepository
-            name: etcd-druid
-      dependsOn: null
-      interval: 1m
-      releaseName: etcd-druid
-      targetNamespace: etcd-druid-system
-      timeout: 30m
-      values: {}
-  4: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: extension-manager-operator
       namespace: default
     spec:
@@ -100,7 +57,7 @@ HelmRelease snapshots:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: false
-  5: |
+  3: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -118,7 +75,7 @@ HelmRelease snapshots:
       timeout: 30m
       values:
         caSecret: domain-certificate-ca
-  6: |
+  4: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -135,7 +92,7 @@ HelmRelease snapshots:
       targetNamespace: platform-mesh-system
       timeout: 30m
       values: null
-  7: |
+  5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -196,27 +153,7 @@ HelmRelease snapshots:
             virtualservice:
               hosts:
                 - ""
-  8: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: kcp-operator
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: kcp-operator
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: kcp-operator
-      dependsOn: null
-      interval: 1m
-      releaseName: kcp-operator
-      targetNamespace: kcp-operator
-      timeout: 30m
-      values: null
-  9: |
+  6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -276,7 +213,7 @@ HelmRelease snapshots:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  10: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -333,7 +270,7 @@ HelmRelease snapshots:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  11: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -399,7 +336,7 @@ HelmRelease snapshots:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  12: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -427,7 +364,7 @@ HelmRelease snapshots:
           level: debug
         openfga:
           url: openfga:8081
-  13: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -458,7 +395,7 @@ HelmRelease snapshots:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  14: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -521,57 +458,6 @@ enable remote deployment of helmreleases:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: crossplane
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: crossplane
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: crossplane
-      dependsOn: null
-      interval: 1m
-      kubeConfig:
-        secretRef:
-          key: kubeconfig
-          name: test-kubeconfig-secret
-      releaseName: crossplane
-      targetNamespace: crossplane-system
-      timeout: 30m
-      values:
-        provider:
-          packages:
-            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-  3: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: etcd-druid
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: charts
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: GitRepository
-            name: etcd-druid
-      dependsOn: null
-      interval: 1m
-      kubeConfig:
-        secretRef:
-          key: kubeconfig
-          name: test-kubeconfig-secret
-      releaseName: etcd-druid
-      targetNamespace: etcd-druid-system
-      timeout: 30m
-      values: {}
-  4: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: extension-manager-operator
       namespace: default
     spec:
@@ -598,7 +484,7 @@ enable remote deployment of helmreleases:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: false
-  5: |
+  3: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -620,7 +506,7 @@ enable remote deployment of helmreleases:
       timeout: 30m
       values:
         caSecret: domain-certificate-ca
-  6: |
+  4: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -641,7 +527,7 @@ enable remote deployment of helmreleases:
       targetNamespace: platform-mesh-system
       timeout: 30m
       values: null
-  7: |
+  5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -706,31 +592,7 @@ enable remote deployment of helmreleases:
             virtualservice:
               hosts:
                 - ""
-  8: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: kcp-operator
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: kcp-operator
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: kcp-operator
-      dependsOn: null
-      interval: 1m
-      kubeConfig:
-        secretRef:
-          key: kubeconfig
-          name: test-kubeconfig-secret
-      releaseName: kcp-operator
-      targetNamespace: kcp-operator
-      timeout: 30m
-      values: null
-  9: |
+  6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -794,7 +656,7 @@ enable remote deployment of helmreleases:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  10: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -855,7 +717,7 @@ enable remote deployment of helmreleases:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  11: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -925,7 +787,7 @@ enable remote deployment of helmreleases:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  12: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -957,7 +819,7 @@ enable remote deployment of helmreleases:
           level: debug
         openfga:
           url: openfga:8081
-  13: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -992,7 +854,7 @@ enable remote deployment of helmreleases:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  14: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
