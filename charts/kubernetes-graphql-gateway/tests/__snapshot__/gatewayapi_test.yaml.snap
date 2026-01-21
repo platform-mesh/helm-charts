@@ -17,16 +17,21 @@ disable Istio, enable Gateway API - match the Snapshot:
               namespace: platform-mesh-system
               port: 8080
           filters:
+            - cors:
+                allowCredentials: true
+                allowHeaders:
+                  - '*'
+                allowMethods:
+                  - '*'
+                allowOrigins:
+                  - '*'
+                maxAge: 5
+              type: CORS
             - type: URLRewrite
               urlRewrite:
                 path:
                   replacePrefixMatch: /
                   type: ReplacePrefixMatch
-            - requestHeaderModifier:
-                set:
-                  - name: Host
-                    value: portal.localhost
-              type: RequestHeaderModifier
           matches:
             - path:
                 type: PathPrefix
