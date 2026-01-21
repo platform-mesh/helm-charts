@@ -12,6 +12,11 @@ A Helm chart for Kubernetes
 | certManager.ocmResourceName | string | `"chart"` |  |
 | certManager.targetNamespace | string | `"cert-manager"` |  |
 | certManager.values.crds.enabled | bool | `true` |  |
+| etcdDruid.enabled | bool | `true` |  |
+| etcdDruid.interval | string | `"1m"` |  |
+| etcdDruid.name | string | `"etcd-druid"` |  |
+| etcdDruid.ocmResourceName | string | `"chart"` |  |
+| etcdDruid.targetNamespace | string | `"etcd-druid-system"` |  |
 | fluxCD.kubeConfig.enabled | bool | `false` | If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig. |
 | fluxCD.kubeConfig.secretRef.key | string | `"kubeconfig"` |  |
 | fluxCD.kubeConfig.secretRef.name | string | `"platform-mesh-kubeconfig"` | name of the secret containing the kubeconfig |

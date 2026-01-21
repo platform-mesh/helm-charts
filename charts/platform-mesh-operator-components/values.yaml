@@ -54,18 +54,6 @@ services:
       provider:
         packages:
           - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-  etcd-druid:
-    # -- Allow the configuration of additional ocm resources
-    imageResources:
-      - annotations:
-          repo: oci
-          artifact: image
-          for: etcd-druid
-    enabled: true
-    gitRepo: true
-    path: charts
-    targetNamespace: etcd-druid-system
-    values: {}
   extension-manager-operator:
     enabled: true
     # -- Allow the configuration of additional ocm resources
