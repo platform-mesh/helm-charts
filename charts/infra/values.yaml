@@ -6,6 +6,7 @@ hostAliases:
         - "localhost"
         - "portal.localhost"
         - "kcp.api.portal.localhost"
+        - "root.kcp.api.portal.localhost"
 
 crossplane:
   enabled: true
@@ -90,10 +91,22 @@ kcp:
     authorizationWebhookSecretName: kcp-webhook-secret
     port: 9443
 
-  rootShard:
+  shards:
+    # How many replicas are deployed per shard. If replicas is set to
+    # two and three extra shards are deployed eight total pods will be
+    # runs - four shards (root shard + three extra shards) with two pods
+    # each.
     replicas: 1
+    # The domain to expose the shards under via HTTPRoute. Only used with gatewayAPI.
+    # The shards will be exposed under $shardName.$domain, e.g.
+    # root.kcp.api.portal.localhost and fox.kcp.api.portal.localhost.
+    domain: kcp.api.portal.localhost
+    # Names for extra shards to deploy alongside the root shard.
+    extraShards: []
+    # Common kcp shard values used by both root and additional shards.
     extraArgs:
     - --feature-gates=WorkspaceAuthentication=true
+
   frontProxy:
     replicas: 1
     name: frontproxy

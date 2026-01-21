@@ -149,10 +149,9 @@ services:
       kcp:
         image:
           tag: v0.29.0
-        rootShard:
+        shards:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
-            - --shard-virtual-workspace-url=https://localhost:8443
         webhook:
           enabled: true
       istio:
