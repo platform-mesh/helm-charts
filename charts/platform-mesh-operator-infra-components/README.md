@@ -12,6 +12,17 @@ A Helm chart for Kubernetes
 | certManager.ocmResourceName | string | `"chart"` |  |
 | certManager.targetNamespace | string | `"cert-manager"` |  |
 | certManager.values.crds.enabled | bool | `true` |  |
+| crossplane.enabled | bool | `true` |  |
+| crossplane.interval | string | `"1m"` |  |
+| crossplane.name | string | `"crossplane"` |  |
+| crossplane.ocmResourceName | string | `"chart"` |  |
+| crossplane.targetNamespace | string | `"crossplane-system"` |  |
+| crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2"` |  |
+| etcdDruid.enabled | bool | `true` |  |
+| etcdDruid.interval | string | `"1m"` |  |
+| etcdDruid.name | string | `"etcd-druid"` |  |
+| etcdDruid.ocmResourceName | string | `"chart"` |  |
+| etcdDruid.targetNamespace | string | `"etcd-druid-system"` |  |
 | fluxCD.kubeConfig.enabled | bool | `false` | If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig. |
 | fluxCD.kubeConfig.secretRef.key | string | `"kubeconfig"` |  |
 | fluxCD.kubeConfig.secretRef.name | string | `"platform-mesh-kubeconfig"` | name of the secret containing the kubeconfig |
@@ -21,6 +32,11 @@ A Helm chart for Kubernetes
 | gatewayApi.kustomization.path | string | `"./config/crd/experimental"` |  |
 | gatewayApi.name | string | `"gateway-api"` |  |
 | gatewayApi.ocmResourceName | string | `"crds"` |  |
+| kcpOperator.enabled | bool | `true` |  |
+| kcpOperator.interval | string | `"1m"` |  |
+| kcpOperator.name | string | `"kcp-operator"` |  |
+| kcpOperator.ocmResourceName | string | `"chart"` |  |
+| kcpOperator.targetNamespace | string | `"kcp-operator"` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
 | ocm.interval | string | `"3m"` |  |
 | ocm.referencePath | list | `[]` |  |

@@ -29,30 +29,6 @@ image enabled resource:
     metadata:
       annotations:
         artifact: image
-        for: etcd-druid
-        repo: oci
-      name: etcd-druid-image
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 1m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: etcd-druid
-          resource:
-            name: image
-  3: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      annotations:
-        artifact: image
         for: extension-manager-operator
         repo: oci
       name: extension-manager-operator-image
@@ -71,7 +47,7 @@ image enabled resource:
             - name: extension-manager-operator
           resource:
             name: image
-  4: |
+  3: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -95,7 +71,7 @@ image enabled resource:
             - name: iam-service
           resource:
             name: image
-  5: |
+  4: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -119,7 +95,7 @@ image enabled resource:
             - name: iam-ui
           resource:
             name: image
-  6: |
+  5: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -144,31 +120,7 @@ image enabled resource:
             - name: kcp
           resource:
             name: image
-  7: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      annotations:
-        artifact: image
-        for: kcp-operator
-        repo: oci
-      name: kcp-operator-image
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 1m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: kcp-operator
-          resource:
-            name: image
-  8: |
+  6: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -192,7 +144,7 @@ image enabled resource:
             - name: kubernetes-graphql-gateway
           resource:
             name: image
-  9: |
+  7: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -216,7 +168,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: image
-  10: |
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -241,7 +193,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: postgresql-image
-  11: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -265,7 +217,7 @@ image enabled resource:
             - name: rebac-authz-webhook
           resource:
             name: image
-  12: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -289,7 +241,7 @@ image enabled resource:
             - name: security-operator
           resource:
             name: image
-  13: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -313,3 +265,292 @@ image enabled resource:
             - name: virtual-workspaces
           resource:
             name: image
+ocm resources:
+  1: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: account-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: account-operator
+          resource:
+            name: chart
+      skipVerify: true
+  2: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: extension-manager-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: extension-manager-operator
+          resource:
+            name: chart
+      skipVerify: true
+  3: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: iam-service
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: iam-service
+          resource:
+            name: chart
+      skipVerify: true
+  4: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: iam-ui
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: iam-ui
+          resource:
+            name: chart
+      skipVerify: true
+  5: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: infra
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: infra
+          resource:
+            name: chart
+      skipVerify: true
+  6: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: keycloak
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: keycloak
+          resource:
+            name: chart
+      skipVerify: true
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: kubernetes-graphql-gateway
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kubernetes-graphql-gateway
+          resource:
+            name: chart
+      skipVerify: true
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: openfga
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: openfga
+          resource:
+            name: chart
+      skipVerify: true
+  9: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: organization-idp
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: organization-idp
+          resource:
+            name: chart
+      skipVerify: true
+  10: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: rebac-authz-webhook
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: rebac-authz-webhook
+          resource:
+            name: chart
+      skipVerify: true
+  11: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: security-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: security-operator
+          resource:
+            name: chart
+      skipVerify: true
+  12: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: virtual-workspaces
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: virtual-workspaces
+          resource:
+            name: chart
+      skipVerify: true

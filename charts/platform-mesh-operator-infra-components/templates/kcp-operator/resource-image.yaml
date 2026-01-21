@@ -1,0 +1,30 @@
+{{- if .Values.kcpOperator.enabled }}
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Resource
+metadata:
+  annotations:
+    artifact: image
+    repo: oci
+    for: {{ .Values.kcpOperator.name }}
+    path: image.tag
+  name: {{ .Values.kcpOperator.name }}-image
+spec:
+  componentRef:
+    name: {{ .Values.ocm.component.name }}
+  interval: {{ .Values.ocm.interval }}
+  ocmConfig:
+    - apiVersion: delivery.ocm.software/v1alpha1
+      kind: Repository
+      name: {{ .Values.ocm.repo.name }}
+      namespace: {{ .Release.Namespace }}
+  resource:
+    byReference:
+      referencePath:
+      {{- range .Values.ocm.referencePath }}
+        - name: {{ . }}
+      {{- end }}
+        - name: {{   .Values.kcpOperator.name }}
+      resource:
+        name: image
+  skipVerify: {{ .Values.ocm.skipVerify }}
+{{- end }}
