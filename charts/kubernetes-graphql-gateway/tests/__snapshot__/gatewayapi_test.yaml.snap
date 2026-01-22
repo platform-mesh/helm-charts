@@ -1,4 +1,4 @@
-disable Istio, enable Gateway API - match the Snapshot:
+HTTPRoute with traefik enabled - match the Snapshot:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -17,16 +17,39 @@ disable Istio, enable Gateway API - match the Snapshot:
               namespace: platform-mesh-system
               port: 8080
           filters:
-            - cors:
-                allowCredentials: true
-                allowHeaders:
-                  - '*'
-                allowMethods:
-                  - '*'
-                allowOrigins:
-                  - '*'
-                maxAge: 5
-              type: CORS
+            - type: URLRewrite
+              urlRewrite:
+                path:
+                  replacePrefixMatch: /
+                  type: ReplacePrefixMatch
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
+          matches:
+            - path:
+                type: PathPrefix
+                value: /api/kubernetes-graphql-gateway/
+HTTPRoute without traefik - match the Snapshot:
+  1: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - portal.localhost
+        - '*.portal.localhost'
+      parentRefs:
+        - name: k8sapi-gateway
+      rules:
+        - backendRefs:
+            - name: kubernetes-graphql-gateway
+              namespace: platform-mesh-system
+              port: 8080
+          filters:
             - type: URLRewrite
               urlRewrite:
                 path:
