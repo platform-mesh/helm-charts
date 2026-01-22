@@ -19,7 +19,13 @@ Helm Chart for the Platform Mesh Portal
 | environment | string | `"local"` | environment |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
-| gatewayApi.httpRoute | object | `{"hostnames":["portal.localhost","*.portal.localhost"],"parentRefs":[{"name":"k8sapi-gateway"}],"pathPrefix":"/"}` | toggle to enable the Gateway API |
+| gatewayApi.enabled | bool | `true` | toggle to enable the Gateway API |
+| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
+| gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
+| gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |
+| gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.pathPrefix | string | `"/"` |  |
 | health.liveness.path | string | `"/rest/health"` | path used for the liveness probe |
 | health.port | int | `8080` | health port to be used by probes |
 | health.readiness.path | string | `"/rest/health"` | path used for the readiness probe |
@@ -33,6 +39,7 @@ Helm Chart for the Platform Mesh Portal
 | importContent | bool | `false` | import content toggle |
 | kcp.kubeconfigSecret | string | `""` |  |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 | validWebcomponentUrls | string | `".?"` |  |
 | validation.path | string | `"/validate"` |  |
 | validation.port | int | `8088` |  |

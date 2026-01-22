@@ -19,6 +19,12 @@ test HTTPRoutes:
               name: keycloak
               namespace: platform-mesh-system
               port: 80
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix

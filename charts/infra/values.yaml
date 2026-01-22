@@ -112,6 +112,12 @@ openfga:
       - cluster.local/ns/platform-mesh-system/sa/security-operator
       - cluster.local/ns/platform-mesh-system/sa/account-operator
 
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
+  # -- list of origins allowed for CORS (used by Traefik middleware)
+  accessControlAllowOriginList: []
+
 keycloak:
   gatewayApi:
     # -- hostnames for the Keycloak HTTPRoute
@@ -119,7 +125,15 @@ keycloak:
       - portal.localhost
     # -- path prefix for the Keycloak HTTPRoute
     pathPrefix: /keycloak
-    # filters: []
+    # -- list of HTTPRoute filters (default: none)
+    filters: []
+    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
+    corsFilters:
+      - type: ExtensionRef
+        extensionRef:
+          group: traefik.io
+          kind: Middleware
+          name: cors-header
 
   # -- service configuration
   service:

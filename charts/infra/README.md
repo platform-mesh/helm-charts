@@ -90,6 +90,8 @@ A Helm chart for Kubernetes
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
+| keycloak.gatewayApi.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| keycloak.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
 | keycloak.gatewayApi.hostnames | list | `["portal.localhost"]` | hostnames for the Keycloak HTTPRoute |
 | keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
 | keycloak.keycloakConfig.admin | object | `{"password":{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},"username":{"value":"keycloak-admin"}}` | admin user configuration |
@@ -114,6 +116,8 @@ A Helm chart for Kubernetes
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
 | openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
+| traefik.accessControlAllowOriginList | list | `[]` | list of origins allowed for CORS (used by Traefik middleware) |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

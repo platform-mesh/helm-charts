@@ -72,8 +72,13 @@ validation:
   service: "extension-manager-operator-server"
   protocol: "http"
 
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
+
 gatewayApi:
   # -- toggle to enable the Gateway API
+  enabled: true
   httpRoute:
     pathPrefix: /
     hostnames:
@@ -81,4 +86,13 @@ gatewayApi:
     - "*.portal.localhost"
     parentRefs:
     - name: k8sapi-gateway
+    # -- list of HTTPRoute filters (default: none)
+    filters: []
+    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
+    corsFilters:
+      - type: ExtensionRef
+        extensionRef:
+          group: traefik.io
+          kind: Middleware
+          name: cors-header
 

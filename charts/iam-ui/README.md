@@ -5,10 +5,11 @@ Helm Chart for the iam-ui
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cors.enabled | bool | `false` | toggle to enable CORS support |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
+| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/ui/iam"` |  |
@@ -18,6 +19,7 @@ Helm Chart for the iam-ui
 | image.name | string | `"ghcr.io/platform-mesh/iam-ui"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | port | int | `8080` |  |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

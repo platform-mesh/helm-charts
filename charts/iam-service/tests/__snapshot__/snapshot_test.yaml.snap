@@ -99,6 +99,11 @@ match the snapshots:
                 path:
                   replacePrefixMatch: /graphql
                   type: ReplacePrefixMatch
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix

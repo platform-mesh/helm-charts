@@ -6,11 +6,9 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | caSecret | string | `""` |  |
-| cors.enabled | bool | `false` |  |
 | exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
-| gatewayApi.httpRoute.filters[0].type | string | `"URLRewrite"` |  |
-| gatewayApi.httpRoute.filters[0].urlRewrite.path.replacePrefixMatch | string | `"/graphql"` |  |
-| gatewayApi.httpRoute.filters[0].urlRewrite.path.type | string | `"ReplacePrefixMatch"` |  |
+| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/graphql","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only, no CORS) |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/iam/graphql"` |  |
 | health.port | int | `8080` |  |
@@ -42,6 +40,7 @@ A Helm chart for Kubernetes
 | roles.raw.roles[1].roles[1].description | string | `"Limited access to resources within the account. Can view and interact with resources but cannot administrate them."` |  |
 | roles.raw.roles[1].roles[1].displayName | string | `"Member"` |  |
 | roles.raw.roles[1].roles[1].id | string | `"member"` |  |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

@@ -17,9 +17,14 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.gatewayApi.httpRoute.pathPrefix }}
-    {{- with .Values.gatewayApi.httpRoute.filters }}
+    {{- if or .Values.gatewayApi.httpRoute.filters .Values.traefik.enabled }}
     filters:
-    {{- toYaml . | nindent 6 }}
+    {{- with .Values.gatewayApi.httpRoute.filters }}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.traefik.enabled }}
+    {{ toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 4 }}
+    {{- end }}
     {{- end }}
     backendRefs:
     - name: {{ include "common.entity.name" . }}
