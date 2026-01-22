@@ -24,11 +24,6 @@ spec:
         {{- with .Values.deployment.specTemplate.annotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- if .Values.webhooks.enabled }}
-        {{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "istio.enabled")) "true" }}
-        traffic.sidecar.istio.io/excludeInboundPorts: "9443"
-        {{- end -}}
-        {{- end }}
     spec:
       {{- include "common.imagePullSecret" . | indent 6 }}
       {{- include "common.pod.securityContext" . | indent 6 }}

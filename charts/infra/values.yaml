@@ -75,10 +75,6 @@ kcp:
       name: domain-certificate-ca
       key: tls.crt
 
-  istio:
-    hosts:
-      - localhost
-
   webhook:
     enabled: true
     caData: ""
@@ -176,43 +172,6 @@ keycloak:
             name: keycloak-admin
             # -- key of the password in the secret
             key: secret
-istio:
-  networking:
-    # -- The istio apiVersion used for networking resources in this chart eg. networking.istio.io/v1, networking.istio.io/v1beta1
-    apiVersion: networking.istio.io/v1
-  serviceEntries:
-    https:
-      # -- A toggle to enable the service entries for external https communication
-      enabled: false
-      # -- The list of hosts to be added to the service entry
-      hosts: []
-  enabled: false
-  main:
-    gateway:
-      hosts:
-        - "*"
-      port: 8000
-      name: http
-      protocol: HTTP
-  #      tls:
-  #        minProtocolVersion: TLSV1_2
-  #        mode: SIMPLE
-  #        credentialName: istio-ingressgateway-certs
-  passThrough:
-    gateway:
-      enabled: false
-  #      hosts:
-  #        - "passthrough.my-domain.com"
-  #      port: 8000
-  #      name: pass-https
-  #      protocol: HTTPS
-
-  gateway:
-    annotations: {}
-    apiVersion: networking.istio.io/v1
-    name: gateway
-    selector:
-      istio: gateway
 
 gatewayApi:
   # -- Toggle to enable/disable Gateway API resources

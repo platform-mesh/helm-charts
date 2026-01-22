@@ -100,10 +100,6 @@ services:
         level: debug
       openfga:
         url: openfga:8081
-      istio:
-        exposed: false
-        dnsNames:
-          - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
       certManager:
         enabled: true
         createCA: true
