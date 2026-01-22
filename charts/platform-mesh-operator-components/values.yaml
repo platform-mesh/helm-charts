@@ -161,11 +161,6 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
-        crossplane:
-          clients:
-            welcome:
-              validRedirectUris:
-                - "https://{{ .Values.baseDomainPort }}/callback*"
   keycloak:
     enabled: true
     values:

@@ -8,10 +8,6 @@ A Helm chart for Kubernetes
 | caSecret | string | `""` |  |
 | cors.enabled | bool | `false` |  |
 | exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
-| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.httpRoute.filters[0].type | string | `"URLRewrite"` |  |
 | gatewayApi.httpRoute.filters[0].urlRewrite.path.replacePrefixMatch | string | `"/graphql"` |  |
 | gatewayApi.httpRoute.filters[0].urlRewrite.path.type | string | `"ReplacePrefixMatch"` |  |

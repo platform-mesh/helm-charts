@@ -6,16 +6,9 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cors.accessControlAllowOriginList | list | `["http://localhost:4200","http://localhost:4300","http://*.localhost:4200","http://*.localhost:4300","https://portal.localhost:8443","https://*.portal.localhost:8443"]` | list of allowed origins |
-| cors.enabled | bool | `false` | toggle to enable CORS configuration |
-| crossplane.enabled | bool | `true` |  |
 | externalSecrets.enabled | bool | `false` |  |
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
-| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.main | object | `{"gateway":{"hostnames":["portal.localhost","*.portal.localhost"],"infrastructure":null,"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","credentialNamespace":"platform-mesh-system","mode":"Terminate"}}}` | HTTPS Terminate configuration |
 | gatewayApi.main.gateway.hostnames | list | `["portal.localhost","*.portal.localhost"]` | This is required when using passthrough on the same port to avoid conflicts. |
 | gatewayApi.main.gateway.tls.credentialName | string | `"domain-certificate"` | Name of the secret containing the TLS certificate |
@@ -108,33 +101,11 @@ A Helm chart for Kubernetes
 | kcp.webhook.enabled | bool | `true` |  |
 | kcp.webhook.port | int | `9443` |  |
 | kcp.webhook.server | string | `"https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz"` |  |
-| keycloak.crossplane.clients.welcome.name | string | `"Welcome"` | name of the client |
-| keycloak.crossplane.clients.welcome.validRedirectUris | list | `["http://localhost:8000/callback*","http://localhost:4300/callback*"]` | valid redirect uris for the client |
-| keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
-| keycloak.crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
-| keycloak.crossplane.identityProviders | object | `{}` |  |
-| keycloak.crossplane.managementClients[0].name | string | `"iam"` |  |
-| keycloak.crossplane.managementClients[1].name | string | `"security-operator"` |  |
-| keycloak.crossplane.providerConfig | object | `{"name":"keycloak-provider-config","namespace":"platform-mesh-system"}` | crossplane provider config |
-| keycloak.crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
-| keycloak.crossplane.providerConfig.namespace | string | `"platform-mesh-system"` | client namespace |
-| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"welcome","name":"welcome","registrationAllowed":true,"smtpServer":[{"from":"noreply@portal.localhost","host":"mailpit.platform-mesh-system.svc.cluster.local","port":"1025"}],"verifyEmail":true}` | crossplane realm config |
-| keycloak.crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
-| keycloak.crossplane.realm.displayName | string | `"welcome"` | realm display name |
-| keycloak.crossplane.realm.name | string | `"welcome"` | realm name |
-| keycloak.crossplane.realm.registrationAllowed | bool | `true` | realm registration allowed |
-| keycloak.crossplane.realm.verifyEmail | bool | `true` | realm email verification |
-| keycloak.crossplane.trustedAudiences | list | `[]` |  |
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
-| keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].name | string | `"Host"` |  |
-| keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].value | string | `"portal.localhost"` |  |
-| keycloak.gatewayApi.filters[0].type | string | `"RequestHeaderModifier"` |  |
 | keycloak.gatewayApi.hostnames | list | `["portal.localhost"]` | hostnames for the Keycloak HTTPRoute |
 | keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
-| keycloak.istio.https.port | int | `8443` |  |
-| keycloak.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
 | keycloak.keycloakConfig.admin | object | `{"password":{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},"username":{"value":"keycloak-admin"}}` | admin user configuration |
 | keycloak.keycloakConfig.admin.password | object | `{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}}` | admin password |
 | keycloak.keycloakConfig.admin.password.valueFrom.secretKeyRef.key | string | `"secret"` | key of the password in the secret |
@@ -154,12 +125,6 @@ A Helm chart for Kubernetes
 | keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
 | keycloak.service.name | string | `"keycloak"` | service name |
 | keycloak.service.port | int | `80` | service port |
-| mailpit.domain.pathPrefix | string | `"/mailpit"` | path prefix |
-| mailpit.enabled | bool | `false` |  |
-| mailpit.image.tag | string | `"v1.27.9"` |  |
-| mailpit.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
-| mailpit.smtp.port | int | `1025` |  |
-| mailpit.ui.port | int | `8025` |  |
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
 | openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |

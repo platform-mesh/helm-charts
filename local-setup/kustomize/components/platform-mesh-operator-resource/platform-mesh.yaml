@@ -47,16 +47,6 @@ spec:
         kcp:
           frontProxy:
             clusterIP: "10.96.0.100"
-        keycloak:
-          crossplane:
-            realm:
-              verifyEmail: false
-            clients:
-              welcome:
-                validRedirectUris:
-                  - "http://localhost:8000/callback*"
-                  - "http://localhost:4300/callback*"
-                  - "https://*"
     security-operator:
       values:
         log:

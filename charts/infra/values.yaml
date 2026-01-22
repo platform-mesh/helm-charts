@@ -6,9 +6,6 @@ hostAliases:
         - "localhost"
         - "portal.localhost"
 
-crossplane:
-  enabled: true
-
 externalSecrets:
   enabled: false
 

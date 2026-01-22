@@ -21,10 +21,6 @@ Helm Chart for the Platform Mesh Portal
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `true` | toggle to enable the Gateway API |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
-| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
 | gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |

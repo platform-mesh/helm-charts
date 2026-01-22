@@ -144,11 +144,6 @@ it should render the application manifests:
           webhook:
             enabled: true
         keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - https://example.com:8443/callback*
           istio:
             virtualservice:
               hosts:

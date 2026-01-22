@@ -11,11 +11,6 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: crossplane-system
----
-apiVersion: v1
-kind: Namespace
-metadata:
   name: ocm-system
 ---
 apiVersion: v1

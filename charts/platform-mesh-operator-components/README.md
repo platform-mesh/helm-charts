@@ -63,7 +63,6 @@ A Helm chart for Kubernetes
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://localhost:8443"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
-| services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"https://{{ .Values.baseDomainPort }}/callback*"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.keycloak.enabled | bool | `true` |  |
 | services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
