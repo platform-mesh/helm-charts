@@ -71,7 +71,7 @@ kubeConfig:
 | listener.virtualWorkspacesConfig.path | string | `"/app/config/virtual-workspaces.yaml"` |  |
 | sentry.environment | string | `"dev"` |  |
 | tracing.enabled | bool | `true` |  |
-| traefik.enabled | bool | `false` | toggle to enable traefik CORS filter in HTTPRoute |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

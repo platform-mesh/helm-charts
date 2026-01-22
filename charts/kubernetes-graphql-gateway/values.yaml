@@ -93,7 +93,7 @@ health:
 
 traefik:
   # -- toggle to enable traefik CORS filter in HTTPRoute
-  enabled: false
+  enabled: true
 
 gatewayApi:
   # -- configuration for the HTTPRoute resource
