@@ -119,23 +119,6 @@ openfga:
       - cluster.local/ns/platform-mesh-system/sa/security-operator
       - cluster.local/ns/platform-mesh-system/sa/account-operator
 
-mailpit:
-  enabled: false
-  image:
-    tag: v1.27.9
-
-  ui:
-    port: 8025
-  smtp:
-    port: 1025
-  istio:
-    virtualservice:
-      # -- istio virtual service hosts
-      hosts: ["*"]
-  domain:
-    # -- path prefix
-    pathPrefix: "/mailpit"
-
 keycloak:
   gatewayApi:
     # -- hostnames for the Keycloak HTTPRoute
@@ -143,18 +126,8 @@ keycloak:
       - portal.localhost
     # -- path prefix for the Keycloak HTTPRoute
     pathPrefix: /keycloak
-    filters:
-    - type: RequestHeaderModifier
-      requestHeaderModifier:
-        set:
-          - name: Host
-            value: portal.localhost
-  istio:
-    virtualservice:
-      # -- istio virtual service hosts
-      hosts: ["*"]
-    https:
-      port: 8443
+    # filters: []
+
   # -- service configuration
   service:
     # -- service name
@@ -168,51 +141,6 @@ keycloak:
     name: platform-mesh.io
     # -- path prefix
     pathPrefix: "/keycloak"
-
-  crossplane:
-    # -- toggle to enable/disable crossplane
-    enabled: true
-
-    # -- crossplane provider config
-    providerConfig:
-      # -- name of the client
-      name: keycloak-provider-config
-      # -- client namespace
-      namespace: platform-mesh-system
-
-    # -- crossplane realm config
-    realm:
-      # -- realm name
-      name: welcome
-      # -- realm display name
-      displayName: welcome
-      # -- realm registration allowed
-      registrationAllowed: true
-      # -- realm access token lifespan
-      accessTokenLifespan: 8h
-      # -- realm email verification
-      verifyEmail: true
-
-      smtpServer:
-        - host: mailpit.platform-mesh-system.svc.cluster.local
-          port: "1025"
-          from: noreply@portal.localhost
-
-    managementClients:
-      - name: iam
-      - name: security-operator
-    clients:
-      welcome:
-        # -- name of the client
-        name: Welcome
-        # -- valid redirect uris for the client
-        validRedirectUris:
-          # -- keycloak callback url
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-    trustedAudiences: []
-
-    identityProviders: {}
 
   keycloakConfig:
     # -- url of the keycloak server
@@ -322,22 +250,3 @@ gatewayApi:
       port: 8443
       name: https-passthrough
       protocol: TLS
-  httpRoute:
-    corsFilters:
-    - extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header
-      type: ExtensionRef
-
-cors:
-  # -- toggle to enable CORS configuration
-  enabled: false
-  # -- list of allowed origins
-  accessControlAllowOriginList:
-    - "http://localhost:4200"
-    - "http://localhost:4300"
-    - "http://*.localhost:4200"
-    - "http://*.localhost:4300"
-    - "https://portal.localhost:8443"
-    - "https://*.portal.localhost:8443"

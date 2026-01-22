@@ -1,4 +1,3 @@
-{{- if .Values.gatewayApi.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -20,9 +19,9 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.keycloak.gatewayApi.pathPrefix }}
-    {{- if .Values.cors.enabled }}
+    {{- with .Values.keycloak.gatewayApi.filters }}
     filters:
-    {{- toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 6 }}
+      {{ toYaml .Values.keycloak.gatewayApi.filters | nindent 6 }}
     {{- end }}
     backendRefs:
     - group: ""
@@ -30,5 +29,3 @@ spec:
       name: {{ .Values.keycloak.service.name }}
       namespace: {{ .Release.Namespace }}
       port: {{ .Values.keycloak.service.port }}
-
-{{- end }}

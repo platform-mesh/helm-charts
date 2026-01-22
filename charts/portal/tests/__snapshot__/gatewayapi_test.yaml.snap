@@ -17,12 +17,7 @@ disable Istio, enable Gateway API - match the Snapshot:
               name: platform-mesh-portal
               namespace: platform-mesh-system
               port: 8080
-          filters:
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
-                name: cors-header
-              type: ExtensionRef
+          filters: null
           matches:
             - path:
                 type: PathPrefix

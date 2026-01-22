@@ -82,17 +82,6 @@ kcpOperator:
   ocmResourceName: chart
   interval: 1m
 
-crossplane:
-  enabled: true
-  targetNamespace: crossplane-system
-  name: crossplane
-  ocmResourceName: chart
-  interval: 1m
-  values:
-    provider:
-      packages:
-        - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-
 fluxCD:
   kubeConfig:
     # -- If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig.

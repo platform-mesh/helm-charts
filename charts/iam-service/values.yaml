@@ -27,12 +27,6 @@ gatewayApi:
           path:
             type: ReplacePrefixMatch
             replacePrefixMatch: /graphql
-    corsFilters:
-      - extensionRef:
-          group: traefik.io
-          kind: Middleware
-          name: cors-header
-        type: ExtensionRef
 
 port: 8080
 

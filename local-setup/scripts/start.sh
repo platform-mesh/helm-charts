@@ -170,25 +170,6 @@ kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
-kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT account-operator
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT portal
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT security-operator
-
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 

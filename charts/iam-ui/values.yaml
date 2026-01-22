@@ -26,12 +26,7 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
       sectionName: websecure
-    corsFilters:
-    - extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header
-      type: ExtensionRef
+#    filters: []
 
 exposure:
   # -- hostnames to be used for exposure

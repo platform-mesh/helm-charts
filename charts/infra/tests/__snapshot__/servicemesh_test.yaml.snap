@@ -1,28 +1,3 @@
-match snapshots:
-  1: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: cors-header
-      namespace: platform-mesh-system
-    spec:
-      headers:
-        accessControlAllowCredentials: true
-        accessControlAllowHeaders:
-          - '*'
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - POST
-        accessControlAllowOriginList:
-          - http://localhost:4200
-          - http://localhost:4300
-          - http://*.localhost:4200
-          - http://*.localhost:4300
-          - https://portal.localhost:8443
-          - https://*.portal.localhost:8443
-        accessControlMaxAge: 100
-        addVaryHeader: true
 test HTTPRoutes:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -44,12 +19,6 @@ test HTTPRoutes:
               name: keycloak
               namespace: platform-mesh-system
               port: 80
-          filters:
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
-                name: cors-header
-              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix

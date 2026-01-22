@@ -16,9 +16,6 @@ spec:
           port: {{ .Values.port }}
       filters:
         {{ toYaml .Values.gatewayApi.httpRoute.filters | nindent 6 }}
-        {{- if .Values.cors.enabled }}
-        {{- toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 6 }}
-        {{- end }}
       matches:
         - path:
             type: PathPrefix
