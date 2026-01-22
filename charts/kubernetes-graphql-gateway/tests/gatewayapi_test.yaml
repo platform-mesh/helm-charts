@@ -8,17 +8,15 @@ release:
 chart:
   appVersion: 1.0.0
 templates:
-  - gatewayApi-httproute.yaml
+  - httproute.yaml
 tests:
-  - it: enable Istio, disable Gateway API - match the Snapshot
+  - it: HTTPRoute without traefik - match the Snapshot
     set:
-      istio.enabled: true
-      gatewayApi.enabled: false
+      traefik.enabled: false
     asserts:
-    - matchSnapshot: {}
-  - it: disable Istio, enable Gateway API - match the Snapshot
+      - matchSnapshot: {}
+  - it: HTTPRoute with traefik enabled - match the Snapshot
     set:
-      istio.enabled: false
-      gatewayApi.enabled: true
+      traefik.enabled: true
     asserts:
       - matchSnapshot: {}
