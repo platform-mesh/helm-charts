@@ -24,7 +24,7 @@ REMOTE_REGISTRY="${REMOTE_REGISTRY:-ghcr.io/platform-mesh}"
 LOCAL_REGISTRY="${LOCAL_REGISTRY:-oci-registry-docker-registry.registry.svc.cluster.local}"
 
 # List of local component names (for version resolution)
-CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,kubernetes-graphql-gateway,organization-idp,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,virtual-workspaces"
+CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,kubernetes-graphql-gateway,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,virtual-workspaces"
 
 # Fixed version overrides (empty by default)
 FIXED_VERSION_PAIRS=""
@@ -142,7 +142,7 @@ resolve_component_versions() {
     get_component_version iam-service github.com/platform-mesh/iam-service charts/iam-service IAM_SERVICE_VERSION
     get_component_version iam-ui github.com/platform-mesh/iam-ui charts/iam-ui IAM_UI_VERSION
     get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui charts/marketplace-ui MARKETPLACE_UI_VERSION
-    get_component_version organization-idp github.com/platform-mesh/organization-idp charts/organization-idp ORGANIZATION_IDP_VERSION
+    get_component_version organization-idp github.com/platform-mesh/organization-idp "" ORGANIZATION_IDP_VERSION
     get_component_version example-httpbin-operator github.com/platform-mesh/example-httpbin-operator charts/example-httpbin-operator EXAMPLE_HTTPBIN_OPERATOR_VERSION
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Resolving third-party component versions...${COL_RES}"
