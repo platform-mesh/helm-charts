@@ -135,7 +135,7 @@ kubectl wait --namespace default \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
 # kind load image-archive image.tar --name platform-mesh
-kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.41.9 --name platform-mesh
+# kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.41.9 --name platform-mesh
 if [ "$PRERELEASE" = true ]; then
   run_prerelease_setup
 else
