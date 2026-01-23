@@ -353,6 +353,11 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --prerelease --example-data"}
 
+  local-setup:gardener:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--gardener"}
+
   local-setup:cached:prerelease:concurrent:
     cmds:
       - task: local-setup

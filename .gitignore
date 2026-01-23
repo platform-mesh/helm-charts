@@ -27,4 +27,5 @@ local-setup/rootCA.pem
 local-setup/e2e/node_modules/
 local-setup/e2e/*.png
 local-setup/scripts/load-custom-images.sh
+local-setup/gardener/gardener/
 /convo

@@ -22,15 +22,17 @@ PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
 CONCURRENT=false
+GARDENER=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--gardener] [--concurrent] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
   echo "  --cached        Use local Docker registry mirrors for faster image pulls"
   echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
   echo "  --concurrent    Run prerelease chart builds in parallel instead of sequentially"
+  echo "  --gardener      Use local Gardener shoot cluster instead of kind"
   echo "  --help          Show this help message"
   exit 1
 }
@@ -41,6 +43,7 @@ while [ $# -gt 0 ]; do
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
+    --gardener) GARDENER=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -68,8 +71,62 @@ if [ "$CACHED" = true ]; then
     setup_registry_proxies
 fi
 
-# Check if kind cluster is already running, if not create it
-if ! check_kind_cluster; then
+# Setup Gardener shoot cluster if using gardener mode
+if [ "$GARDENER" = true ]; then
+    GARDENER_DIR="$SCRIPT_DIR/../gardener/gardener"
+
+    # Clone gardener if not present
+    if [ ! -d "$GARDENER_DIR" ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Cloning Gardener repository... ${COL_RES}"
+        git clone https://github.com/gardener/gardener.git "$GARDENER_DIR"
+    fi
+
+    # Check if gardener-local kind cluster exists
+    if ! kind get clusters 2>/dev/null | grep -q "^gardener-local$"; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Setting up Gardener local environment... ${COL_RES}"
+        pushd "$GARDENER_DIR"
+        make kind-up gardener-up
+        popd
+    fi
+
+    # Switch to gardener context
+    kubectl config use-context kind-gardener-local
+
+    # Check if shoot exists
+    if ! kubectl -n garden-local get shoot platform-mesh &>/dev/null; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating Gardener shoot... ${COL_RES}"
+        kubectl apply -f "$SCRIPT_DIR/../gardener/shoot.yaml"
+    fi
+
+    # Wait for shoot to be ready
+    echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for Gardener shoot to be ready... ${COL_RES}"
+    NAMESPACE=garden-local "$GARDENER_DIR/hack/usage/wait-for.sh" shoot platform-mesh \
+        APIServerAvailable ControlPlaneHealthy ObservabilityComponentsHealthy \
+        EveryNodeReady SystemComponentsHealthy
+
+    # Generate admin kubeconfig
+    echo -e "${COL}[$(date '+%H:%M:%S')] Generating shoot admin kubeconfig... ${COL_RES}"
+    mkdir -p "$SCRIPT_DIR/../../.secret"
+    "$GARDENER_DIR/hack/usage/generate-admin-kubeconf.sh" --namespace garden-local --shoot-name platform-mesh > "$SCRIPT_DIR/../../.secret/admin-kubeconf.yaml"
+
+    # Add /etc/hosts entries for shoot API server access if not present
+    SHOOT_API_DOMAIN="api.platform-mesh.local.external.local.gardener.cloud"
+    if ! grep -q "$SHOOT_API_DOMAIN" /etc/hosts; then
+        echo -e "${YELLOW}⚠️  Adding /etc/hosts entries for shoot cluster access (requires sudo)${COL_RES}"
+        sudo tee -a /etc/hosts > /dev/null <<EOF
+
+# Gardener local setup - platform-mesh shoot
+172.18.255.1 api.platform-mesh.local.external.local.gardener.cloud
+172.18.255.1 api.platform-mesh.local.internal.local.gardener.cloud
+EOF
+    fi
+
+    # Use the shoot kubeconfig for the rest of the setup
+    export KUBECONFIG="$SCRIPT_DIR/../../.secret/admin-kubeconf.yaml"
+fi
+
+# Check if kind cluster is already running, if not create it (skip for gardener mode)
+if [ "$GARDENER" != true ] && ! check_kind_cluster; then
     if [ -d "$SCRIPT_DIR/certs" ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
         rm -rf "$SCRIPT_DIR/certs"
