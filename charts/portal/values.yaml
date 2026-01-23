@@ -95,4 +95,3 @@ gatewayApi:
           group: traefik.io
           kind: Middleware
           name: cors-header
-
