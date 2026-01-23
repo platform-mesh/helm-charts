@@ -8,8 +8,10 @@ Helm Chart for the iam-ui
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
-| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
-| gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
+| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/ui/iam"` |  |
 | health.port | int | `8080` |  |

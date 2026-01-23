@@ -22,8 +22,8 @@ A Helm chart for Kubernetes
 | jwt.userIdClaim | string | `"email"` |  |
 | kcp.kubeconfig.secretName | string | `"iam-service-kubeconfig"` |  |
 | keycloak.baseUrl | string | `"https://portal.localhost:8443/keycloak"` |  |
-| keycloak.client.id | string | `"iam"` |  |
-| keycloak.client.secret.key | string | `"attribute.client_secret"` |  |
+| keycloak.client.id | string | `"iam-service"` |  |
+| keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"iam-client-secret"` |  |
 | port | int | `8080` |  |
 | roles.raw.roles[0].groupResource | string | `"core.platform-mesh.io/Account"` |  |

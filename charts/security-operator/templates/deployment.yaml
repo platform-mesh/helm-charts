@@ -18,6 +18,30 @@ spec:
       {{- include "common.pod.securityContext" . | indent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
       {{ include "common.hostAliases" $ | nindent 6 }}
+      {{- if .Values.initContainer.enabled }}
+      initContainers:
+      - name: bootstrap-keycloak-clients
+        image: {{ .Values.image.name }}:{{ .Chart.AppVersion }}
+        imagePullPolicy: IfNotPresent
+        {{- include "common.container.securityContext" . | indent 8 }}
+        args:
+          - init-container
+        resources:
+          {{- toYaml .Values.initContainer.resources | nindent 10 }}
+        volumeMounts:
+          - name: init-container-config
+            mountPath: /config
+            readOnly: true
+          - name: keycloak-password
+            mountPath: /secrets
+            readOnly: true
+          {{- if .Values.caSecret }}
+          - name: domain-ca
+            mountPath: /etc/ssl/certs/domain-ca.crt
+            subPath: tls.crt
+            readOnly: true
+          {{- end }}
+      {{- end }}
       containers:
       - {{- include "common.podBasics" . | indent 8 }}
         {{- include "common.container.securityContext" . | indent 8 }}
@@ -67,6 +91,17 @@ spec:
           {{- end }}
           {{- include "common.extraVolumeMounts" . | nindent 10 }}
       volumes:
+        {{- if .Values.initContainer.enabled }}
+        - name: init-container-config
+          configMap:
+            name: {{ include "common.entity.name" . }}-init-container-config
+        - name: keycloak-password
+          secret:
+            secretName: {{ .Values.keycloakSecret }}
+            items:
+              - key: secret
+                path: keycloak-password
+        {{- end }}
         {{- if .Values.kubeconfigSecret }}
         - name: external-api-server
           secret:

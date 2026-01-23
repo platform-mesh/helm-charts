@@ -56,10 +56,10 @@ hostAliases:
 keycloak:
   baseUrl: https://portal.localhost:8443/keycloak
   client:
-    id: iam
+    id: iam-service
     secret:
       name: iam-client-secret
-      key: attribute.client_secret
+      key: client_secret
 
 # JWT configuration
 jwt:
