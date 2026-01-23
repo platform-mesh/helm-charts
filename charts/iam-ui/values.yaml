@@ -25,10 +25,6 @@ gatewayApi:
     pathPrefix: /ui/iam
     parentRefs:
     - name: k8sapi-gateway
-      sectionName: websecure
-    # -- list of HTTPRoute filters (default: none)
-    filters: []
-    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
     corsFilters:
       - type: ExtensionRef
         extensionRef:
