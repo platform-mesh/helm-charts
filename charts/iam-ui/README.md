@@ -15,6 +15,8 @@ Helm Chart for the iam-ui
 | gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
+| gatewayApi.httpRoute.parentRefs[1].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.parentRefs[1].sectionName | string | `"websecure-wildcard-portal-localhost"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/ui/iam"` |  |
 | health.port | int | `8080` |  |
 | health.readiness.path | string | `"/healthz"` |  |
