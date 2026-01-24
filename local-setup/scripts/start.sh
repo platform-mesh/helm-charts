@@ -83,6 +83,12 @@ mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
+# Load custom images if hook script exists
+if [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Loading custom images ${COL_RES}"
+    source "$SCRIPT_DIR/load-custom-images.sh"
+fi
+
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
   --version 2.17.1 \
