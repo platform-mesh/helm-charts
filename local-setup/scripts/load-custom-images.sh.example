@@ -1,4 +1,5 @@
 #!/bin/bash
+SCRIPT_DIR=$(dirname "$0")
 # This script is sourced by start.sh to load custom Docker images into the Kind cluster.
 # Copy this file to load-custom-images.sh and customize it for your needs.
 # The load-custom-images.sh file is gitignored, so your local changes won't be committed.
@@ -9,7 +10,11 @@
 #   task local-setup:iterate
 
 # Example: Load a locally built platform-mesh-operator image
-# kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:dev -n platform-mesh
+docker build -t ghcr.io/platform-mesh/marketplace-ui:v0.8.0 ../../marketplace-ui/
+kind load docker-image ghcr.io/platform-mesh/marketplace-ui:v0.8.0 -n platform-mesh
+
+docker build -t ghcr.io/platform-mesh/portal:v0.16.169 ../../portal/
+kind load docker-image ghcr.io/platform-mesh/portal:v0.16.169 -n platform-mesh
 
 # Example: Load multiple images
 # kind load docker-image ghcr.io/platform-mesh/portal:dev -n platform-mesh
