@@ -107,6 +107,8 @@ services:
       certManager:
         enabled: true
         createCA: true
+      kcp:
+        apiExportEndpointSliceName: "core.platform-mesh.io"
   infra:
     enabled: true
     # -- Allow the configuration of additional ocm resources

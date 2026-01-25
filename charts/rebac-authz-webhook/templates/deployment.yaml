@@ -20,7 +20,7 @@ spec:
         secret:
           secretName: {{ include "common.entity.name" . }}-cert
       {{- with .Values.kcp.kubeconfig.secret }}
-      - name: kcp-kubeconfig
+      - name: api-kubeconfig
         secret:
           secretName: {{ . }}
       {{- end }}
@@ -39,8 +39,8 @@ spec:
           - name: certs
             mountPath: /config
           {{- with .Values.kcp.kubeconfig.secret }}
-          - name: kcp-kubeconfig
-            mountPath: /etc/kcp-kubeconfig
+          - name: api-kubeconfig
+            mountPath: /api-kubeconfig
             readOnly: true
           {{- end }}
           {{- with .Values.extraVolumeMounts }}
@@ -49,8 +49,8 @@ spec:
         args:
           - "serve"
           - "--openfga-addr={{ .Values.openfga.url }}"
-          {{- with .Values.kcp.kubeconfig.secret }}
-          - --kcp-kubeconfig-path=/etc/kcp-kubeconfig/kubeconfig
+          {{- if .Values.kcp.apiExportEndpointSliceName }}
+          - "--kcp-api-export-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}"
           {{- end }}
           {{- if .Values.healthProbeBindAddress }}
           - "--health-probe-bind-address={{ .Values.healthProbeBindAddress }}"
@@ -60,6 +60,10 @@ spec:
           {{- end }}
           {{- include "common.extraArgs" . | nindent 10 }}
         env:
+          {{- with .Values.kcp.kubeconfig.secret }}
+          - name: KUBECONFIG
+            value: /api-kubeconfig/kubeconfig
+          {{- end }}
           {{- with .Values.extraEnvs }}
           {{- toYaml . | nindent 10 }}
           {{- end }}

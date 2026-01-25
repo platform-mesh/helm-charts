@@ -115,6 +115,19 @@ spec:
             database: postgres
     marketplace-ui:
       enabled: true
+    rebac-authz-webhook:
+      values:
+        kcp:
+          # apiExportEndpointSliceName not set - operator will generate Root KCP URL (not Virtual Workspace) for kubeconfig secret
+          # This is needed because cache.New() requires API Server Discovery which only works with Root KCP API Server
+          kubeconfig:
+            secret: rebac-authz-webhook-kubeconfig  # Use KUBECONFIG env var (like iam-service) for Root KCP API Server access
+        hostAliases:
+          enabled: true
+          entries:
+            - ip: "10.96.188.4"  # Gateway service IP (same as iam-service) - maps localhost:8443 to gateway for Virtual Workspace URLs
+              hostnames:
+                - "localhost"
     iam-service:
       values:
         extraArgs:
