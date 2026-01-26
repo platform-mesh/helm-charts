@@ -153,10 +153,6 @@ A Helm chart for Kubernetes
 | services.openfga.values.telemetry.trace.enabled | bool | `false` |  |
 | services.openfga.values.telemetry.trace.otlp.endpoint | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.openfga.values.telemetry.trace.otlp.tls.enabled | bool | `false` |  |
-| services.organization-idp.dependsOn[0].name | string | `"keycloak"` |  |
-| services.organization-idp.dependsOn[0].namespace | string | `"default"` |  |
-| services.organization-idp.enabled | bool | `true` |  |
-| services.organization-idp.skipHelmRelease | bool | `true` |  |
 | services.portal.enabled | bool | `false` |  |
 | services.portal.imageResources | list | `[{"annotations":{"artifact":"image","for":"portal","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.portal.values.auth.default.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
