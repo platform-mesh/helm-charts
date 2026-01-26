@@ -9,8 +9,8 @@ const lastName = 'Lastname';
 const newOrgName = 'default';
 
 async function confirmInviteMailpit(
-    page: Page,
-    userEmail: string
+  page: Page,
+  userEmail: string
 ): Promise<Page> {
   // Open mailpit in a new tab to avoid navigating away from the current page
   const mailpitPage = await page.context().newPage();
@@ -32,7 +32,7 @@ async function confirmInviteMailpit(
 
 
 async function registerNewUser(
-    page: Page): Promise<Page> {
+  page: Page): Promise<Page> {
 
   await page.click('text=Register', { timeout: 10000 });
   await page.fill('input[name="email"]', userEmail);
