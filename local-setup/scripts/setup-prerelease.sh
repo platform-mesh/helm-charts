@@ -3,6 +3,16 @@
 # Prerelease setup functions for local development with locally built OCM components
 # This script is sourced by start.sh when using the --prerelease flag
 
+# Get kubectl exec flags based on current TTY availability
+# -t allocates a pseudo-TTY, -i keeps stdin open
+get_kubectl_exec_flags() {
+  if [ -t 0 ]; then
+    echo "-ti"
+  else
+    echo "-i"
+  fi
+}
+
 # Deploy OCI registry for prerelease workflow
 deploy_oci_registry() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Deploying local OCI registry ${COL_RES}"
@@ -33,13 +43,13 @@ deploy_transfer_pod() {
   kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
   kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/images/ocmbuilder:pr-4 -- sleep infinity
   kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
-  kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- mkdir -p .ocm
 
   # Configure CA on the pod
-  kubectl exec -ti ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > $SCRIPT_DIR/registry-ca.pem
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > $SCRIPT_DIR/registry-ca.pem
   kubectl cp $SCRIPT_DIR/registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
-  kubectl exec -ti ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
-  kubectl exec -ti ocm-transfer-pod -- sudo update-ca-certificates
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo update-ca-certificates
 }
 
 # Build and deploy prerelease OCM component
