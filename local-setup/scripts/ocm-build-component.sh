@@ -40,11 +40,15 @@ else
     COL_RES=''
 fi
 
-# Determine kubectl exec flags based on TTY availability
-KUBECTL_EXEC_FLAGS="-i"
-if [ -t 0 ]; then
-    KUBECTL_EXEC_FLAGS="-ti"
-fi
+# Get kubectl exec flags based on current TTY availability
+# Must be called at point of use, not script init, because background jobs lose TTY
+get_kubectl_exec_flags() {
+    if [ -t 0 ]; then
+        echo "-ti"
+    else
+        echo "-i"
+    fi
+}
 
 # Update/download the component constructor template
 update_constructor() {
@@ -80,7 +84,7 @@ get_component_version() {
         if [ "$short" = "$name" ] && [ -n "$ver" ] && [ "$ver" != "$name" ]; then
             echo "Using FIXED override version for $short -> $ver"
             export "$env_var"="$ver"
-            kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://$LOCAL_REGISTRY/platform-mesh
+            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://$LOCAL_REGISTRY/platform-mesh
             return 0
         fi
     done
@@ -111,7 +115,7 @@ get_component_version() {
     fi
 
     echo "Using REMOTE component version for $short -> $val"
-    kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm transfer componentversion --copy-resources --overwrite "$repo//$component:$val" .ocm/transport.ctf
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --copy-resources --overwrite "$repo//$component:$val" .ocm/transport.ctf
     export "$env_var"="$val"
 }
 
@@ -182,7 +186,7 @@ build_final_component() {
     kubectl cp "$OCM_DIR/component-constructor-prerelease.yaml" -n default ocm-transfer-pod:.ocm/component-constructor-prerelease.yaml
 
     # Build the component
-    kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm add components \
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components \
         --lookup "$LOCAL_REGISTRY" \
         -c --templater=go \
         --file ".ocm/transport.ctf" \

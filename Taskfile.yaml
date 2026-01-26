@@ -161,17 +161,17 @@ tasks:
         kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
         kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/images/ocmbuilder:pr-4 -- sleep infinity || true
         kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
-        kubectl exec -ti ocm-transfer-pod -- mkdir -p .ocm
-        
+        kubectl exec -i ocm-transfer-pod -- mkdir -p .ocm
+
         # configure RootCA truststore on the pod
-        kubectl exec -ti ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
+        kubectl exec -i ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
         kubectl cp registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
-        kubectl exec -ti ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
-        kubectl exec -ti ocm-transfer-pod -- sudo update-ca-certificates
+        kubectl exec -i ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
+        kubectl exec -i ocm-transfer-pod -- sudo update-ca-certificates
 
   ocm:transfer:dir-to-local-oci:
     cmds:
-      - cmd: kubectl exec -it ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+      - cmd: kubectl exec -i ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
         ignore_error: true
 
   ocm:deploy:
@@ -325,3 +325,13 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --prerelease --example-data"}
+
+  local-setup:cached:prerelease:concurrent:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --prerelease --concurrent"}
+
+  local-setup:cached:prerelease:concurrent:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --prerelease --concurrent"}

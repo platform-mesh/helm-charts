@@ -3,7 +3,7 @@ name: platform-mesh-operator
 description: A Helm chart to automate bootstrapping of new environment
 type: application
 version: 0.18.0
-appVersion: "v0.42.2"
+appVersion: "v0.42.3"
 dependencies:
   - name: common
     version: 0.11.1
