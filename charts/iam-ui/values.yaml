@@ -25,13 +25,6 @@ gatewayApi:
     pathPrefix: /ui/iam
     parentRefs:
     - name: k8sapi-gateway
-    corsFilters:
-      - type: ExtensionRef
-        extensionRef:
-          group: traefik.io
-          kind: Middleware
-          name: cors-header
-
 exposure:
   # -- hostnames to be used for exposure
   hostnames:
