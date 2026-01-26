@@ -18,7 +18,6 @@ A Helm chart for security-operator
 | environment | string | `"local"` | environment indicator, used for logging and observability |
 | fga.extraArgs | list | `[]` |  |
 | fga.inviteKeycloakBaseUrl | string | `""` |  |
-| fga.setDefaultPassword | bool | `false` |  |
 | fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | generator.extraArgs | list | `[]` |  |
 | hostAliases.enabled | bool | `false` |  |
