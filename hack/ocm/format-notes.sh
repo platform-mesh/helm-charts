@@ -313,7 +313,6 @@ EOF
     ["GATEWAY_API_VERSION"]="Gateway API|kubernetes-sigs/gateway-api|"
     ["TRAEFIK_VERSION"]="Traefik|traefik/traefik-helm-chart|v"
     ["CERT_MANAGER_VERSION"]="Cert Manager|cert-manager/cert-manager|"
-    ["CROSSPLANE_VERSION"]="Crossplane|crossplane/crossplane|v"
     ["OPENFGA_VERSION"]="OpenFGA|openfga/helm-charts|openfga-"
     ["KCP_OPERATOR_VERSION"]="KCP Operator|kcp-dev/helm-charts|kcp-operator-"
     ["GARDENER_ETCD_DRUID_SOURCE_REF"]="etcd-druid|gardener/etcd-druid|"
