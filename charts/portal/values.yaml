@@ -6,16 +6,8 @@ http:
   # -- protocol
   protocol: http
 
-# -- import content toggle
-importContent: false
-
 validWebcomponentUrls: ".?"
 featureToggles: "enableSessionAutoRefresh=true"
-
-virtualService:
-  # -- virtual service hosts
-  hosts:
-    - "*"
 
 # -- environment
 environment: local
@@ -25,10 +17,6 @@ developmentLandcsape: "true"
 
 # -- frontend port
 frontendPort: 8000
-
-baseDomains:
-  # -- base domains for VirtualService
-  - "localhost"
 
 # -- cookie domain
 cookieDomain: "localhost"
@@ -49,15 +37,6 @@ auth:
 health:
   # -- health port to be used by probes
   port: 8080
-  readiness:
-    # -- path used for the readiness probe
-    path: /rest/health
-  liveness:
-    # -- path used for the liveness probe
-    path: /rest/health
-  startup:
-    # -- path used for the startup probe
-    path: /rest/health
 
 # -- hostAliases configuration
 hostAliases:
@@ -72,6 +51,10 @@ validation:
   service: "extension-manager-operator-server"
   protocol: "http"
 
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
+
 gatewayApi:
   # -- toggle to enable the Gateway API
   enabled: true
@@ -82,16 +65,5 @@ gatewayApi:
     - "*.portal.localhost"
     parentRefs:
     - name: k8sapi-gateway
-    corsFilters:
-    - extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header
-      type: ExtensionRef
-
-istio:
-  enabled: false
-
-cors:
-  # -- toggle to enable CORS configuration
-  enabled: false
+    # -- list of HTTPRoute filters (default: none)
+    filters: []

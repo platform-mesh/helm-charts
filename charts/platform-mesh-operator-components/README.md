@@ -63,7 +63,6 @@ A Helm chart for Kubernetes
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://localhost:8443"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
-| services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"https://{{ .Values.baseDomainPort }}/callback*"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.keycloak.enabled | bool | `true` |  |
 | services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
@@ -154,10 +153,6 @@ A Helm chart for Kubernetes
 | services.openfga.values.telemetry.trace.enabled | bool | `false` |  |
 | services.openfga.values.telemetry.trace.otlp.endpoint | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.openfga.values.telemetry.trace.otlp.tls.enabled | bool | `false` |  |
-| services.organization-idp.dependsOn[0].name | string | `"keycloak"` |  |
-| services.organization-idp.dependsOn[0].namespace | string | `"default"` |  |
-| services.organization-idp.enabled | bool | `true` |  |
-| services.organization-idp.skipHelmRelease | bool | `true` |  |
 | services.portal.enabled | bool | `false` |  |
 | services.portal.imageResources | list | `[{"annotations":{"artifact":"image","for":"portal","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.portal.values.auth.default.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
@@ -181,8 +176,6 @@ A Helm chart for Kubernetes
 | services.rebac-authz-webhook.imageResources | list | `[{"annotations":{"artifact":"image","for":"rebac-authz-webhook","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.rebac-authz-webhook.values.certManager.createCA | bool | `true` |  |
 | services.rebac-authz-webhook.values.certManager.enabled | bool | `true` |  |
-| services.rebac-authz-webhook.values.istio.dnsNames[0] | string | `"rebac-authz-webhook.platform-mesh-system.svc.cluster.local"` |  |
-| services.rebac-authz-webhook.values.istio.exposed | bool | `false` |  |
 | services.rebac-authz-webhook.values.log.level | string | `"debug"` |  |
 | services.rebac-authz-webhook.values.openfga.url | string | `"openfga:8081"` |  |
 | services.security-operator.enabled | bool | `true` |  |

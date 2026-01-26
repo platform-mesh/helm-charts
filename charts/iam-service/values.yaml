@@ -7,8 +7,9 @@ imagePullSecret: "github"
 health:
   port: 8080
 
-cors:
-  enabled: false
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
 
 exposure:
   # -- hostnames to be used for exposure
@@ -21,18 +22,20 @@ gatewayApi:
     pathPrefix: /iam/graphql
     parentRefs:
       - name: k8sapi-gateway
+    # -- list of HTTPRoute filters (default: URLRewrite only, no CORS)
     filters:
       - type: URLRewrite
         urlRewrite:
           path:
             type: ReplacePrefixMatch
             replacePrefixMatch: /graphql
+    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
     corsFilters:
-      - extensionRef:
+      - type: ExtensionRef
+        extensionRef:
           group: traefik.io
           kind: Middleware
           name: cors-header
-        type: ExtensionRef
 
 port: 8080
 
@@ -53,10 +56,10 @@ hostAliases:
 keycloak:
   baseUrl: https://portal.localhost:8443/keycloak
   client:
-    id: iam
+    id: iam-service
     secret:
       name: iam-client-secret
-      key: attribute.client_secret
+      key: client_secret
 
 # JWT configuration
 jwt:

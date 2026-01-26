@@ -6,9 +6,6 @@ hostAliases:
         - "localhost"
         - "portal.localhost"
 
-crossplane:
-  enabled: true
-
 externalSecrets:
   enabled: false
 
@@ -78,10 +75,6 @@ kcp:
       name: domain-certificate-ca
       key: tls.crt
 
-  istio:
-    hosts:
-      - localhost
-
   webhook:
     enabled: true
     caData: ""
@@ -119,22 +112,11 @@ openfga:
       - cluster.local/ns/platform-mesh-system/sa/security-operator
       - cluster.local/ns/platform-mesh-system/sa/account-operator
 
-mailpit:
-  enabled: false
-  image:
-    tag: v1.27.9
-
-  ui:
-    port: 8025
-  smtp:
-    port: 1025
-  istio:
-    virtualservice:
-      # -- istio virtual service hosts
-      hosts: ["*"]
-  domain:
-    # -- path prefix
-    pathPrefix: "/mailpit"
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
+  # -- list of origins allowed for CORS (used by Traefik middleware)
+  accessControlAllowOriginList: []
 
 keycloak:
   gatewayApi:
@@ -143,18 +125,16 @@ keycloak:
       - portal.localhost
     # -- path prefix for the Keycloak HTTPRoute
     pathPrefix: /keycloak
-    filters:
-    - type: RequestHeaderModifier
-      requestHeaderModifier:
-        set:
-          - name: Host
-            value: portal.localhost
-  istio:
-    virtualservice:
-      # -- istio virtual service hosts
-      hosts: ["*"]
-    https:
-      port: 8443
+    # -- list of HTTPRoute filters (default: none)
+    filters: []
+    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
+    corsFilters:
+      - type: ExtensionRef
+        extensionRef:
+          group: traefik.io
+          kind: Middleware
+          name: cors-header
+
   # -- service configuration
   service:
     # -- service name
@@ -168,51 +148,6 @@ keycloak:
     name: platform-mesh.io
     # -- path prefix
     pathPrefix: "/keycloak"
-
-  crossplane:
-    # -- toggle to enable/disable crossplane
-    enabled: true
-
-    # -- crossplane provider config
-    providerConfig:
-      # -- name of the client
-      name: keycloak-provider-config
-      # -- client namespace
-      namespace: platform-mesh-system
-
-    # -- crossplane realm config
-    realm:
-      # -- realm name
-      name: welcome
-      # -- realm display name
-      displayName: welcome
-      # -- realm registration allowed
-      registrationAllowed: true
-      # -- realm access token lifespan
-      accessTokenLifespan: 8h
-      # -- realm email verification
-      verifyEmail: true
-
-      smtpServer:
-        - host: mailpit.platform-mesh-system.svc.cluster.local
-          port: "1025"
-          from: noreply@portal.localhost
-
-    managementClients:
-      - name: iam
-      - name: security-operator
-    clients:
-      welcome:
-        # -- name of the client
-        name: Welcome
-        # -- valid redirect uris for the client
-        validRedirectUris:
-          # -- keycloak callback url
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-    trustedAudiences: []
-
-    identityProviders: {}
 
   keycloakConfig:
     # -- url of the keycloak server
@@ -251,43 +186,6 @@ keycloak:
             name: keycloak-admin
             # -- key of the password in the secret
             key: secret
-istio:
-  networking:
-    # -- The istio apiVersion used for networking resources in this chart eg. networking.istio.io/v1, networking.istio.io/v1beta1
-    apiVersion: networking.istio.io/v1
-  serviceEntries:
-    https:
-      # -- A toggle to enable the service entries for external https communication
-      enabled: false
-      # -- The list of hosts to be added to the service entry
-      hosts: []
-  enabled: false
-  main:
-    gateway:
-      hosts:
-        - "*"
-      port: 8000
-      name: http
-      protocol: HTTP
-  #      tls:
-  #        minProtocolVersion: TLSV1_2
-  #        mode: SIMPLE
-  #        credentialName: istio-ingressgateway-certs
-  passThrough:
-    gateway:
-      enabled: false
-  #      hosts:
-  #        - "passthrough.my-domain.com"
-  #      port: 8000
-  #      name: pass-https
-  #      protocol: HTTPS
-
-  gateway:
-    annotations: {}
-    apiVersion: networking.istio.io/v1
-    name: gateway
-    selector:
-      istio: gateway
 
 gatewayApi:
   # -- Toggle to enable/disable Gateway API resources
@@ -322,22 +220,3 @@ gatewayApi:
       port: 8443
       name: https-passthrough
       protocol: TLS
-  httpRoute:
-    corsFilters:
-    - extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header
-      type: ExtensionRef
-
-cors:
-  # -- toggle to enable CORS configuration
-  enabled: false
-  # -- list of allowed origins
-  accessControlAllowOriginList:
-    - "http://localhost:4200"
-    - "http://localhost:4300"
-    - "http://*.localhost:4200"
-    - "http://*.localhost:4300"
-    - "https://portal.localhost:8443"
-    - "https://*.portal.localhost:8443"
