@@ -22,6 +22,8 @@ spec:
   values:
     account-operator:
       values:
+        hostAliases:
+          enabled: true
         log:
           noJson: true
     keycloak:
