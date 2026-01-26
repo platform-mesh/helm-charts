@@ -77,6 +77,16 @@ services:
       operator:
         shutdownTimeout: 1m
         maxConcurrentReconciles: 1
+  search-operator:
+    enabled: false
+    values:
+      crds:
+        enabled: false
+      kubeconfigSecret: search-operator-kubeconfig
+      log:
+        level: debug
+      opensearch:
+        url: "http://opensearch.platform-mesh-system.svc.cluster.local:9200"
   rebac-authz-webhook:
     enabled: true
     values:
@@ -299,8 +309,6 @@ services:
             tls:
               enabled: false
   opensearch:
-    # OpenSearch for Platform Mesh search functionality
-    # Enable this to deploy OpenSearch for indexing platform resources
     enabled: false
     helmRepo: true
     helmRepoUrl: https://opensearch-project.github.io/helm-charts/
