@@ -20,7 +20,6 @@ Helm Chart for the Platform Mesh Portal
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `true` | toggle to enable the Gateway API |
-| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
 | gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
 | gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |

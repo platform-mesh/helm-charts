@@ -88,10 +88,3 @@ gatewayApi:
     - name: k8sapi-gateway
     # -- list of HTTPRoute filters (default: none)
     filters: []
-    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
-    corsFilters:
-      - type: ExtensionRef
-        extensionRef:
-          group: traefik.io
-          kind: Middleware
-          name: cors-header
