@@ -146,7 +146,7 @@ kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.i
 if [ "$EXAMPLE_DATA" = true ] && [ "$SEARCH" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data and search) ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-  kubectl apply -k $SCRIPT_DIR/../kustomize/components/opensearch
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/search
 elif [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
