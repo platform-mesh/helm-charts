@@ -98,6 +98,7 @@ copy_templates_to_pod() {
 
 # Configuration for parallel execution
 MAX_PARALLEL=${MAX_PARALLEL:-8}
+SEQUENTIAL=${SEQUENTIAL:-false}
 
 # Phase 1: Prepare chart and push to OCI registry (can run in parallel)
 # This function handles steps 1-5: copy, swap, package, push to OCI
@@ -258,35 +259,48 @@ build_local_charts() {
     # Copy templates to pod
     copy_templates_to_pod
 
-    # Phase 1: Prepare and push all charts in parallel (with controlled concurrency)
-    echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (parallel, max $MAX_PARALLEL concurrent) ===${COL_RES}"
-    local running=0
-    local pids=()
+    # Phase 1: Prepare and push all charts
     local failed=0
 
-    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
-        local comp="${pair%%:*}"
-        local chart_dir="${pair#*:}"
+    if [ "$SEQUENTIAL" = "true" ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (sequential) ===${COL_RES}"
+        for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+            local comp="${pair%%:*}"
+            local chart_dir="${pair#*:}"
 
-        # Start background job
-        prepare_and_push_chart "$comp" "$chart_dir" &
-        pids+=($!)
-        ((running++))
+            if ! prepare_and_push_chart "$comp" "$chart_dir"; then
+                ((failed++))
+            fi
+        done
+    else
+        echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (parallel, max $MAX_PARALLEL concurrent) ===${COL_RES}"
+        local running=0
+        local pids=()
 
-        # Limit concurrency
-        if ((running >= MAX_PARALLEL)); then
-            # Wait for any one job to finish
-            wait -n 2>/dev/null || true
-            ((running--))
-        fi
-    done
+        for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+            local comp="${pair%%:*}"
+            local chart_dir="${pair#*:}"
 
-    # Wait for all remaining jobs to complete
-    for pid in "${pids[@]}"; do
-        if ! wait "$pid"; then
-            ((failed++))
-        fi
-    done
+            # Start background job
+            prepare_and_push_chart "$comp" "$chart_dir" &
+            pids+=($!)
+            ((running++))
+
+            # Limit concurrency
+            if ((running >= MAX_PARALLEL)); then
+                # Wait for any one job to finish
+                wait -n 2>/dev/null || true
+                ((running--))
+            fi
+        done
+
+        # Wait for all remaining jobs to complete
+        for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+                ((failed++))
+            fi
+        done
+    fi
 
     if ((failed > 0)); then
         echo -e "${RED}[$(date '+%H:%M:%S')] Phase 1 completed with $failed failures${COL_RES}" >&2

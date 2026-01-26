@@ -21,14 +21,16 @@ SCRIPT_DIR=$(dirname "$0")
 PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
+SEQUENTIAL=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--sequential] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
   echo "  --cached        Use local Docker registry mirrors for faster image pulls"
   echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
+  echo "  --sequential    Run prerelease chart builds sequentially instead of in parallel"
   echo "  --help          Show this help message"
   exit 1
 }
@@ -38,12 +40,16 @@ while [ $# -gt 0 ]; do
     --prerelease) PRERELEASE=true ;;
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
+    --sequential) SEQUENTIAL=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
   esac
   shift
 done
+
+# Export SEQUENTIAL for prerelease build scripts
+export SEQUENTIAL
 
 # Source compatibility and environment checks
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
