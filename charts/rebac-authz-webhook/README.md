@@ -30,6 +30,18 @@ A Helm chart for Kubernetes
 | serviceAccount.automount | bool | `true` |  |
 | serviceAccount.create | bool | `true` |  |
 
+## KCP Configuration
+
+The webhook requires access to the Root KCP API Server (not Virtual Workspace) for API Server Discovery. The operator generates a Root KCP URL for the kubeconfig secret, which is required because:
+
+- `cache.New()` inside the provider needs Root KCP API Server to discover `APIExportEndpointSlice` resources
+- Virtual Workspace kubeconfig doesn't support API Server Discovery for root KCP CRDs
+- The provider uses Virtual Workspace URLs from the endpoint slice for actual cluster access
+
+The webhook uses the `KUBECONFIG` environment variable (set by the deployment template) to access the kubeconfig secret. The default `apiExportEndpointSliceName` is `"core.platform-mesh.io"` (configured in the code).
+
+The `hostAliases` configuration maps `localhost` to the gateway service IP (`10.96.188.4`) to enable Virtual Workspace URL resolution.
+
 ## Overriding Values
 
 The values in the `defaults:` section can be reused from other charts by using the lookup function "common.getKeyValue". It implements lookup on three levels:

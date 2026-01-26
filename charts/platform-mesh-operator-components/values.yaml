@@ -108,7 +108,14 @@ services:
         enabled: true
         createCA: true
       kcp:
-        apiExportEndpointSliceName: "core.platform-mesh.io"
+        kubeconfig:
+          secret: rebac-authz-webhook-kubeconfig
+      hostAliases:
+        enabled: true
+        entries:
+          - ip: "10.96.188.4"
+            hostnames:
+              - "localhost"
   infra:
     enabled: true
     # -- Allow the configuration of additional ocm resources
