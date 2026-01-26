@@ -8,7 +8,7 @@ crds match the snapshot:
     spec:
       latestResourceSchemas:
         - v260126-7c674ee.accountinfos.core.platform-mesh.io
-        - v250305-70de32b.accounts.core.platform-mesh.io
+        - v250915-1185c0b.accounts.core.platform-mesh.io
       permissionClaims:
         - all: true
           resource: namespaces
@@ -202,7 +202,7 @@ crds match the snapshot:
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250305-70de32b.accounts.core.platform-mesh.io
+      name: v250915-1185c0b.accounts.core.platform-mesh.io
     spec:
       group: core.platform-mesh.io
       names:
@@ -306,24 +306,7 @@ crds match the snapshot:
                 properties:
                   conditions:
                     items:
-                      description: |-
-                        Condition contains details for one aspect of the current state of this API Resource.
-                        ---
-                        This struct is intended for direct use as an array at the field path .status.conditions.  For example,
-
-
-                        	type FooStatus struct{
-                        	    // Represents the observations of a foo's current state.
-                        	    // Known .status.conditions.type are: "Available", "Progressing", and "Degraded"
-                        	    // +patchMergeKey=type
-                        	    // +patchStrategy=merge
-                        	    // +listType=map
-                        	    // +listMapKey=type
-                        	    Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
-
-
-                        	    // other fields
-                        	}
+                      description: Condition contains details for one aspect of the current state of this API Resource.
                       properties:
                         lastTransitionTime:
                           description: |-
@@ -364,12 +347,7 @@ crds match the snapshot:
                             - Unknown
                           type: string
                         type:
-                          description: |-
-                            type of condition in CamelCase or in foo.example.com/CamelCase.
-                            ---
-                            Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
-                            useful (see .node.status.conditions), the ability to deconflict is important.
-                            The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                          description: type of condition in CamelCase or in foo.example.com/CamelCase.
                           maxLength: 316
                           pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
                           type: string
@@ -403,7 +381,7 @@ crds with kcp enabled match the snapshot:
     spec:
       latestResourceSchemas:
         - v260126-7c674ee.accountinfos.core.platform-mesh.io
-        - v250305-70de32b.accounts.core.platform-mesh.io
+        - v250915-1185c0b.accounts.core.platform-mesh.io
       permissionClaims:
         - all: true
           resource: namespaces
@@ -597,7 +575,7 @@ crds with kcp enabled match the snapshot:
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250305-70de32b.accounts.core.platform-mesh.io
+      name: v250915-1185c0b.accounts.core.platform-mesh.io
     spec:
       group: core.platform-mesh.io
       names:
@@ -701,24 +679,7 @@ crds with kcp enabled match the snapshot:
                 properties:
                   conditions:
                     items:
-                      description: |-
-                        Condition contains details for one aspect of the current state of this API Resource.
-                        ---
-                        This struct is intended for direct use as an array at the field path .status.conditions.  For example,
-
-
-                        	type FooStatus struct{
-                        	    // Represents the observations of a foo's current state.
-                        	    // Known .status.conditions.type are: "Available", "Progressing", and "Degraded"
-                        	    // +patchMergeKey=type
-                        	    // +patchStrategy=merge
-                        	    // +listType=map
-                        	    // +listMapKey=type
-                        	    Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type" protobuf:"bytes,1,rep,name=conditions"`
-
-
-                        	    // other fields
-                        	}
+                      description: Condition contains details for one aspect of the current state of this API Resource.
                       properties:
                         lastTransitionTime:
                           description: |-
@@ -759,12 +720,7 @@ crds with kcp enabled match the snapshot:
                             - Unknown
                           type: string
                         type:
-                          description: |-
-                            type of condition in CamelCase or in foo.example.com/CamelCase.
-                            ---
-                            Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
-                            useful (see .node.status.conditions), the ability to deconflict is important.
-                            The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                          description: type of condition in CamelCase or in foo.example.com/CamelCase.
                           maxLength: 316
                           pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
                           type: string

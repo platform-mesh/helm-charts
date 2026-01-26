@@ -6,7 +6,7 @@ metadata:
 spec:
   latestResourceSchemas:
   - v260126-7c674ee.accountinfos.core.platform-mesh.io
-  - v250305-70de32b.accounts.core.platform-mesh.io
+  - v250915-1185c0b.accounts.core.platform-mesh.io
   permissionClaims:
   - all: true
     resource: namespaces
