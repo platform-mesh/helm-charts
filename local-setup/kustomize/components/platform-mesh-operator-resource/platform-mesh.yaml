@@ -42,8 +42,6 @@ spec:
       values:
         cors:
           enabled: true
-        mailpit:
-          enabled: true
         hostAliases:
           enabled: true
         kcp:
