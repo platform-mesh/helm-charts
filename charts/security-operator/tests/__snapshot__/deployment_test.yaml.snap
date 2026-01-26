@@ -79,7 +79,7 @@ operator match the snapshot:
             define parent: [core_platform-mesh_io_account]
 
             define owner: [role#assignee] or owner from parent
-            define member: [role#assignee] or owner or member from parent
+            define member: [role#assignee] or owner
 
             define get: member
             define update: member
@@ -542,7 +542,7 @@ operator match the snapshot w. sentry:
             define parent: [core_platform-mesh_io_account]
 
             define owner: [role#assignee] or owner from parent
-            define member: [role#assignee] or owner or member from parent
+            define member: [role#assignee] or owner
 
             define get: member
             define update: member
