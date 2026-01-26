@@ -47,13 +47,16 @@ else
     COL_RES=''
 fi
 
-# Determine kubectl exec flags based on TTY availability
+# Get kubectl exec flags based on current TTY availability
+# Must be called at point of use, not script init, because background jobs lose TTY
 # -t allocates a pseudo-TTY, -i keeps stdin open
-# Some environments (CI, non-interactive shells) don't have TTY
-KUBECTL_EXEC_FLAGS="-i"
-if [ -t 0 ]; then
-    KUBECTL_EXEC_FLAGS="-ti"
-fi
+get_kubectl_exec_flags() {
+    if [ -t 0 ]; then
+        echo "-ti"
+    else
+        echo "-i"
+    fi
+}
 
 # Swap OCI common chart reference to local file reference (only for 'common' dependency)
 # Operates on a copied chart in the prerelease directory to avoid modifying original files
@@ -95,6 +98,7 @@ copy_templates_to_pod() {
 
 # Configuration for parallel execution
 MAX_PARALLEL=${MAX_PARALLEL:-8}
+CONCURRENT=${CONCURRENT:-false}
 
 # Phase 1: Prepare chart and push to OCI registry (can run in parallel)
 # This function handles steps 1-5: copy, swap, package, push to OCI
@@ -149,7 +153,7 @@ prepare_and_push_chart() {
     # Push to local OCI registry
     echo -e "${COL}[$(date '+%H:%M:%S')] Pushing $tarball to local OCI registry...${COL_RES}"
     kubectl cp "$tarball" -n default ocm-transfer-pod:.
-    kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- helm push "$(basename "$tarball")" oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- helm push "$(basename "$tarball")" oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
     echo -e "${COL}[$(date '+%H:%M:%S')] Pushed $tarball to local OCI registry${COL_RES}"
 
     # Get image name and prepare variables
@@ -199,7 +203,7 @@ add_chart_to_ctf() {
 
     # Add component to OCM transport archive
     if [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
-        kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-chart-only.yaml -- \
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-chart-only.yaml -- \
             VERSION="$VERSION" \
             APP_VERSION="$APP_VERSION" \
             IMAGE_NAME="$IMAGE_NAME" \
@@ -210,7 +214,7 @@ add_chart_to_ctf() {
             CHART_OCI_PATH="$CHART_OCI_PATH" \
             LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
     else
-        kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor.yaml -- \
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor.yaml -- \
             VERSION="$VERSION" \
             APP_VERSION="$APP_VERSION" \
             IMAGE_NAME="$IMAGE_NAME" \
@@ -229,7 +233,7 @@ add_chart_to_ctf() {
 # Transfer OCM transport archive to local OCI registry
 transfer_to_local_oci() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry...${COL_RES}"
-    kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh || true
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh || true
 }
 
 # Build all local charts using two-phase parallel approach
@@ -255,35 +259,48 @@ build_local_charts() {
     # Copy templates to pod
     copy_templates_to_pod
 
-    # Phase 1: Prepare and push all charts in parallel (with controlled concurrency)
-    echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (parallel, max $MAX_PARALLEL concurrent) ===${COL_RES}"
-    local running=0
-    local pids=()
+    # Phase 1: Prepare and push all charts
     local failed=0
 
-    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
-        local comp="${pair%%:*}"
-        local chart_dir="${pair#*:}"
+    if [ "$CONCURRENT" = "true" ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (parallel, max $MAX_PARALLEL concurrent) ===${COL_RES}"
+        local running=0
+        local pids=()
 
-        # Start background job
-        prepare_and_push_chart "$comp" "$chart_dir" &
-        pids+=($!)
-        ((running++))
+        for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+            local comp="${pair%%:*}"
+            local chart_dir="${pair#*:}"
 
-        # Limit concurrency
-        if ((running >= MAX_PARALLEL)); then
-            # Wait for any one job to finish
-            wait -n 2>/dev/null || true
-            ((running--))
-        fi
-    done
+            # Start background job
+            prepare_and_push_chart "$comp" "$chart_dir" &
+            pids+=($!)
+            ((running++))
 
-    # Wait for all remaining jobs to complete
-    for pid in "${pids[@]}"; do
-        if ! wait "$pid"; then
-            ((failed++))
-        fi
-    done
+            # Limit concurrency
+            if ((running >= MAX_PARALLEL)); then
+                # Wait for any one job to finish
+                wait -n 2>/dev/null || true
+                ((running--))
+            fi
+        done
+
+        # Wait for all remaining jobs to complete
+        for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+                ((failed++))
+            fi
+        done
+    else
+        echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (sequential) ===${COL_RES}"
+        for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+            local comp="${pair%%:*}"
+            local chart_dir="${pair#*:}"
+
+            if ! prepare_and_push_chart "$comp" "$chart_dir"; then
+                ((failed++))
+            fi
+        done
+    fi
 
     if ((failed > 0)); then
         echo -e "${RED}[$(date '+%H:%M:%S')] Phase 1 completed with $failed failures${COL_RES}" >&2
