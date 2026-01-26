@@ -12,12 +12,6 @@ A Helm chart for Kubernetes
 | certManager.ocmResourceName | string | `"chart"` |  |
 | certManager.targetNamespace | string | `"cert-manager"` |  |
 | certManager.values.crds.enabled | bool | `true` |  |
-| crossplane.enabled | bool | `true` |  |
-| crossplane.interval | string | `"1m"` |  |
-| crossplane.name | string | `"crossplane"` |  |
-| crossplane.ocmResourceName | string | `"chart"` |  |
-| crossplane.targetNamespace | string | `"crossplane-system"` |  |
-| crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2"` |  |
 | etcdDruid.enabled | bool | `true` |  |
 | etcdDruid.interval | string | `"1m"` |  |
 | etcdDruid.name | string | `"etcd-druid"` |  |

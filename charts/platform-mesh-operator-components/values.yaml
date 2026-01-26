@@ -100,10 +100,6 @@ services:
         level: debug
       openfga:
         url: openfga:8081
-      istio:
-        exposed: false
-        dnsNames:
-          - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
       certManager:
         enabled: true
         createCA: true
@@ -164,11 +160,6 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
-        crossplane:
-          clients:
-            welcome:
-              validRedirectUris:
-                - "https://{{ .Values.baseDomainPort }}/callback*"
   keycloak:
     enabled: true
     values:
@@ -407,12 +398,6 @@ services:
         serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
         resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
         resourceSchemaWorkspace: "root:platform-mesh-system"
-  organization-idp:
-    enabled: true
-    skipHelmRelease: true
-    dependsOn:
-      - name: keycloak
-        namespace: default
   iam-service:
     # -- Enable IAM Service
     enabled: true

@@ -144,11 +144,6 @@ HelmRelease snapshots:
           webhook:
             enabled: true
         keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - https:///callback*
           istio:
             virtualservice:
               hosts:
@@ -586,11 +581,6 @@ enable remote deployment of helmreleases:
           webhook:
             enabled: true
         keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - https:///callback*
           istio:
             virtualservice:
               hosts:

@@ -3,7 +3,7 @@ name: rebac-authz-webhook
 description: A Helm chart for Kubernetes
 type: application
 version: 0.13.8
-appVersion: "v0.2.136"
+appVersion: "v0.2.139"
 dependencies:
   - name: common
     version: 0.11.1
