@@ -35,7 +35,7 @@ crds match the snapshot:
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250516-0b27c30.accountinfos.core.platform-mesh.io
+      name: v260126-7c674ee.accountinfos.core.platform-mesh.io
     spec:
       group: core.platform-mesh.io
       names:
@@ -72,10 +72,14 @@ crds match the snapshot:
                   account:
                     properties:
                       generatedClusterId:
+                        description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
                       name:
                         type: string
                       originClusterId:
+                        description: |-
+                          The OriginClusterId represents the cluster id of the workspace that holds the account resource that
+                          lead to this workspace
                         type: string
                       path:
                         type: string
@@ -110,13 +114,34 @@ crds match the snapshot:
                     required:
                       - store
                     type: object
+                  oidc:
+                    properties:
+                      clients:
+                        additionalProperties:
+                          properties:
+                            clientId:
+                              type: string
+                          required:
+                            - clientId
+                          type: object
+                        type: object
+                      issuerUrl:
+                        type: string
+                    required:
+                      - clients
+                      - issuerUrl
+                    type: object
                   organization:
                     properties:
                       generatedClusterId:
+                        description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
                       name:
                         type: string
                       originClusterId:
+                        description: |-
+                          The OriginClusterId represents the cluster id of the workspace that holds the account resource that
+                          lead to this workspace
                         type: string
                       path:
                         type: string
@@ -135,10 +160,14 @@ crds match the snapshot:
                   parentAccount:
                     properties:
                       generatedClusterId:
+                        description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
                       name:
                         type: string
                       originClusterId:
+                        description: |-
+                          The OriginClusterId represents the cluster id of the workspace that holds the account resource that
+                          lead to this workspace
                         type: string
                       path:
                         type: string
@@ -401,7 +430,7 @@ crds with kcp enabled match the snapshot:
     kind: APIResourceSchema
     metadata:
       creationTimestamp: null
-      name: v250516-0b27c30.accountinfos.core.platform-mesh.io
+      name: v260126-7c674ee.accountinfos.core.platform-mesh.io
     spec:
       group: core.platform-mesh.io
       names:
@@ -438,10 +467,14 @@ crds with kcp enabled match the snapshot:
                   account:
                     properties:
                       generatedClusterId:
+                        description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
                       name:
                         type: string
                       originClusterId:
+                        description: |-
+                          The OriginClusterId represents the cluster id of the workspace that holds the account resource that
+                          lead to this workspace
                         type: string
                       path:
                         type: string
@@ -476,13 +509,34 @@ crds with kcp enabled match the snapshot:
                     required:
                       - store
                     type: object
+                  oidc:
+                    properties:
+                      clients:
+                        additionalProperties:
+                          properties:
+                            clientId:
+                              type: string
+                          required:
+                            - clientId
+                          type: object
+                        type: object
+                      issuerUrl:
+                        type: string
+                    required:
+                      - clients
+                      - issuerUrl
+                    type: object
                   organization:
                     properties:
                       generatedClusterId:
+                        description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
                       name:
                         type: string
                       originClusterId:
+                        description: |-
+                          The OriginClusterId represents the cluster id of the workspace that holds the account resource that
+                          lead to this workspace
                         type: string
                       path:
                         type: string
@@ -501,10 +555,14 @@ crds with kcp enabled match the snapshot:
                   parentAccount:
                     properties:
                       generatedClusterId:
+                        description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
                       name:
                         type: string
                       originClusterId:
+                        description: |-
+                          The OriginClusterId represents the cluster id of the workspace that holds the account resource that
+                          lead to this workspace
                         type: string
                       path:
                         type: string
