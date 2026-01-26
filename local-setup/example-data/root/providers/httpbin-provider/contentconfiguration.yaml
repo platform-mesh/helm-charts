@@ -20,7 +20,7 @@ spec:
                           "label": "Http Bins",
                           "icon": "paint-bucket",
                           "order": 800,
-                          "entityType": "main.core_platform-mesh_io_account.core_namespace",
+                          "entityType": "main.core_platform-mesh_io_account.namespace",
                           "loadingIndicator": {
                               "enabled": false
                           },
@@ -33,7 +33,8 @@ spec:
                               "resourceDefinition": {
                                   "group": "orchestrate.platform-mesh.io",
                                   "plural": "httpbins",
-                                  "singular": "httpbin",
+                                  "singular": "httpbin", 
+                                  "version": "v1alpha1",
                                   "kind": "HttpBin",
                                   "scope": "Namespaced",
                                   "namespace": null,
@@ -101,7 +102,7 @@ spec:
                           ]
                       },
                       {
-                        "entityType": "main.core_platform-mesh_io_account.core_namespace.orchestrate_platform-mesh_io_httpbin",
+                        "entityType": "main.core_platform-mesh_io_account.namespace.orchestrate_platform-mesh_io_httpbin",
                         "pathSegment": "dashboard",
                         "label": "Dashboard",
                         "url": "/assets/platform-mesh-portal-ui-wc.js#generic-detail-view",
