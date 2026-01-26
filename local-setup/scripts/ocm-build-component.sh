@@ -146,7 +146,6 @@ resolve_component_versions() {
     get_component_version iam-service github.com/platform-mesh/iam-service charts/iam-service IAM_SERVICE_VERSION
     get_component_version iam-ui github.com/platform-mesh/iam-ui charts/iam-ui IAM_UI_VERSION
     get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui charts/marketplace-ui MARKETPLACE_UI_VERSION
-    get_component_version organization-idp github.com/platform-mesh/organization-idp "" ORGANIZATION_IDP_VERSION
     get_component_version example-httpbin-operator github.com/platform-mesh/example-httpbin-operator charts/example-httpbin-operator EXAMPLE_HTTPBIN_OPERATOR_VERSION
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Resolving third-party component versions...${COL_RES}"
@@ -214,7 +213,6 @@ build_final_component() {
         IAM_SERVICE_VERSION="$IAM_SERVICE_VERSION" \
         IAM_UI_VERSION="$IAM_UI_VERSION" \
         MARKETPLACE_UI_VERSION="$MARKETPLACE_UI_VERSION" \
-        ORGANIZATION_IDP_VERSION="$ORGANIZATION_IDP_VERSION" \
         GATEWAY_API_VERSION="$GATEWAY_API_VERSION" \
         GATEWAY_API_COMMIT="$GATEWAY_API_COMMIT" \
         TRAEFIK_VERSION="$TRAEFIK_VERSION" \
