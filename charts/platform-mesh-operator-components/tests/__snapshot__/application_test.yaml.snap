@@ -144,11 +144,6 @@ it should render the application manifests:
           webhook:
             enabled: true
         keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - https://example.com:8443/callback*
           istio:
             virtualservice:
               hosts:
@@ -356,10 +351,6 @@ it should render the application manifests:
         certManager:
           createCA: true
           enabled: true
-        istio:
-          dnsNames:
-            - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
-          exposed: false
         log:
           level: debug
         openfga:
@@ -900,31 +891,6 @@ it should render the application manifests:
       labels:
         artifact: chart
         repo: oci
-      name: organization-idp
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: organization-idp
-          resource:
-            name: chart
-      skipVerify: true
-  32: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: oci
       name: rebac-authz-webhook
     spec:
       componentRef:
@@ -943,7 +909,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  33: |
+  32: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -968,7 +934,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  34: |
+  33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

@@ -5,7 +5,6 @@ Helm Chart for the iam-ui
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cors.enabled | bool | `false` | toggle to enable CORS support |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
@@ -21,6 +20,7 @@ Helm Chart for the iam-ui
 | image.name | string | `"ghcr.io/platform-mesh/iam-ui"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | port | int | `8080` |  |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

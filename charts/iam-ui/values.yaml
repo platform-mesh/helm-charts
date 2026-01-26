@@ -16,9 +16,9 @@ health:
     path: /healthz
 
 
-cors:
-  # -- toggle to enable CORS support
-  enabled: false
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
 
 gatewayApi:
   httpRoute:
@@ -26,11 +26,11 @@ gatewayApi:
     parentRefs:
     - name: k8sapi-gateway
     corsFilters:
-    - extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header
-      type: ExtensionRef
+      - type: ExtensionRef
+        extensionRef:
+          group: traefik.io
+          kind: Middleware
+          name: cors-header
 
 exposure:
   # -- hostnames to be used for exposure

@@ -20,7 +20,7 @@ match the snapshots:
             - args:
                 - serve
                 - --keycloak-base-url=https://portal.localhost:8443/keycloak
-                - --keycloak-client-id=iam
+                - --keycloak-client-id=iam-service
                 - --roles-file-path=/roles/roles.yaml
                 - --jwt-user-id-claim=email
                 - --test=abc
@@ -30,7 +30,7 @@ match the snapshots:
                 - name: KEYCLOAK_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:
-                      key: attribute.client_secret
+                      key: client_secret
                       name: iam-client-secret
               image: ghcr.io/platform-mesh/iam-service:12345
               imagePullPolicy: IfNotPresent

@@ -33,19 +33,39 @@ keycloak:
   client:
     secret:
       name: security-operator-client-secret
-      key: attribute.client_secret
+      key: client_secret
 
 initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
   extraArgs: []
 
+# -- Init container configuration for bootstrapping Keycloak service account clients
+initContainer:
+  # -- Enable the init container
+  enabled: true
+  # -- Keycloak base URL (e.g., https://keycloak.example.com). If empty, derived from baseDomain.
+  keycloakBaseURL: ""
+  # -- Keycloak client ID for admin authentication
+  keycloakClientId: admin-cli
+  # -- Keycloak username for admin authentication
+  keycloakUser: keycloak-admin
+  # -- Service account clients to create (beyond the default one from keycloak.client.secret)
+  clients:
+  - name: security-operator
+    secretRef:
+      name: security-operator-client-secret
+      namespace: platform-mesh-system
+  - name: iam-service
+    secretRef:
+      name: iam-client-secret
+      namespace: platform-mesh-system
+
 generator:
   extraArgs: []
 fga:
   target: openfga.platform-mesh-system.svc.cluster.local:8081
   inviteKeycloakBaseUrl: ""
-  setDefaultPassword: false
   extraArgs: []
 
 hostAliases:

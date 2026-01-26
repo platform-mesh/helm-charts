@@ -465,30 +465,6 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: organization-idp
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: organization-idp
-          resource:
-            name: chart
-      skipVerify: true
-  10: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: oci
       name: rebac-authz-webhook
     spec:
       componentRef:
@@ -506,7 +482,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  11: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -530,7 +506,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  12: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

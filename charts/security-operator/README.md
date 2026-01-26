@@ -18,14 +18,19 @@ A Helm chart for security-operator
 | environment | string | `"local"` | environment indicator, used for logging and observability |
 | fga.extraArgs | list | `[]` |  |
 | fga.inviteKeycloakBaseUrl | string | `""` |  |
-| fga.setDefaultPassword | bool | `false` |  |
 | fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | generator.extraArgs | list | `[]` |  |
 | hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/security-operator"` |  |
+| initContainer | object | `{"clients":[{"name":"security-operator","secretRef":{"name":"security-operator-client-secret","namespace":"platform-mesh-system"}},{"name":"iam-service","secretRef":{"name":"iam-client-secret","namespace":"platform-mesh-system"}}],"enabled":true,"keycloakBaseURL":"","keycloakClientId":"admin-cli","keycloakUser":"keycloak-admin"}` | Init container configuration for bootstrapping Keycloak service account clients |
+| initContainer.clients | list | `[{"name":"security-operator","secretRef":{"name":"security-operator-client-secret","namespace":"platform-mesh-system"}},{"name":"iam-service","secretRef":{"name":"iam-client-secret","namespace":"platform-mesh-system"}}]` | Service account clients to create (beyond the default one from keycloak.client.secret) |
+| initContainer.enabled | bool | `true` | Enable the init container |
+| initContainer.keycloakBaseURL | string | `""` | Keycloak base URL (e.g., https://keycloak.example.com). If empty, derived from baseDomain. |
+| initContainer.keycloakClientId | string | `"admin-cli"` | Keycloak client ID for admin authentication |
+| initContainer.keycloakUser | string | `"keycloak-admin"` | Keycloak username for admin authentication |
 | initializer.extraArgs | list | `[]` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
-| keycloak.client.secret.key | string | `"attribute.client_secret"` |  |
+| keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"security-operator-client-secret"` |  |
 | keycloakSecret | string | `"keycloak-admin"` |  |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |

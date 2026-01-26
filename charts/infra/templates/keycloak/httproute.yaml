@@ -1,10 +1,9 @@
-{{- if .Values.gatewayApi.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: keycloak
 spec:
-  {{- with .Values.keycloak.gatewayApi.hostnames }} 
+  {{- with .Values.keycloak.gatewayApi.hostnames }}
   hostnames:
   {{- range . }}
   - {{ . | quote }}
@@ -20,9 +19,14 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.keycloak.gatewayApi.pathPrefix }}
-    {{- if .Values.cors.enabled }}
+    {{- if or .Values.keycloak.gatewayApi.filters $.Values.traefik.enabled }}
     filters:
-    {{- toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 6 }}
+    {{- with .Values.keycloak.gatewayApi.filters }}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if $.Values.traefik.enabled }}
+    {{ toYaml .Values.keycloak.gatewayApi.corsFilters | nindent 4 }}
+    {{- end }}
     {{- end }}
     backendRefs:
     - group: ""
@@ -30,5 +34,3 @@ spec:
       name: {{ .Values.keycloak.service.name }}
       namespace: {{ .Release.Namespace }}
       port: {{ .Values.keycloak.service.port }}
-
-{{- end }}

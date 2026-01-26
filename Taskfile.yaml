@@ -22,7 +22,6 @@ vars:
     - iam-ui: charts/iam-ui
     - infra: charts/infra
     - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
-    - organization-idp: charts/organization-idp
     - platform-mesh-operator: charts/platform-mesh-operator
     - platform-mesh-operator-components: charts/platform-mesh-operator-components
     - platform-mesh-operator-infra-components: charts/platform-mesh-operator-infra-components
@@ -232,7 +231,7 @@ tasks:
           npm install
           npm ci
           npx playwright install
-          npx playwright test test-register-and-navigate.test.ts
+        npx playwright test test-register-and-navigate.test.ts
           popd
 
   local-setup:

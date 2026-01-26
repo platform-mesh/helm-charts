@@ -1,4 +1,4 @@
-disable Istio, enable Gateway API - match the Snapshot:
+match the Snapshot:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -27,51 +27,3 @@ disable Istio, enable Gateway API - match the Snapshot:
             - path:
                 type: PathPrefix
                 value: /
-enable Istio, disable Gateway API - match the Snapshot:
-  1: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: DestinationRule
-    metadata:
-      name: platform-mesh-portal
-    spec:
-      host: platform-mesh-portal.platform-mesh-system.svc.cluster.local
-      trafficPolicy:
-        tls:
-          mode: ISTIO_MUTUAL
-  2: |
-    apiVersion: security.istio.io/v1beta1
-    kind: PeerAuthentication
-    metadata:
-      name: platform-mesh-portal
-    spec:
-      mtls:
-        mode: STRICT
-      selector:
-        matchLabels:
-          app: platform-mesh-portal
-  3: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: VirtualService
-    metadata:
-      name: platform-mesh-portal
-    spec:
-      gateways:
-        - platform-mesh-system/gateway
-      hosts:
-        - '*'
-      http:
-        - corsPolicy:
-            allowHeaders:
-              - Authorization
-              - Content-Type
-              - '*'
-            allowMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-          route:
-            - destination:
-                host: platform-mesh-portal.platform-mesh-system.svc.cluster.local
-                port:
-                  number: 8080
