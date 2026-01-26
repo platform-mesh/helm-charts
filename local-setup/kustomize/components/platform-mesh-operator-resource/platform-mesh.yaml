@@ -41,7 +41,7 @@ spec:
         cors:
           enabled: true
         mailpit:
-          enabled: false
+          enabled: true
         hostAliases:
           enabled: true
         kcp:
@@ -62,10 +62,17 @@ spec:
         log:
           noJson: true
         fga:
-          setDefaultPassword: true
+          extraArgs:
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.localhost
         initializer:
           extraArgs:
             - --domain-ca-lookup
+            # remove arguments below when the operator and the portal are ready
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.localhost
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
