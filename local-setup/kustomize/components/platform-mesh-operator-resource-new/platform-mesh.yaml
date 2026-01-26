@@ -7,6 +7,16 @@ spec:
   profileConfigMap:
     name: platform-mesh-profile
     namespace: platform-mesh-system
+  wait:
+    resourceTypes:
+      - versions: ["v1alpha1"]
+        group: argoproj.io
+        kind: Application
+        namespace: platform-mesh-system
+        matchLabels:
+          core.platform-mesh.io/operator-created: "true"
+        statusFieldPath: ["status", "sync", "status"]
+        statusValue: "Synced"
   exposure:
     port: 8443
     baseDomain: portal.dev.local

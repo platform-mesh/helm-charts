@@ -3,7 +3,7 @@ data:
   profile.yaml: |
     components:
       deploymentTechnology: argocd
-      destinationServer: https://172.18.0.5:6443
+      destinationServer: https://172.18.0.6:6443
       iamWebhookCA: null
       ocm:
         component:
@@ -79,6 +79,14 @@ data:
               hosts:
               - '*.{{ .baseDomain }}'
         infra:
+          ignoreDifferences:
+          - group: operator.kcp.io
+            kind: FrontProxy
+            name: frontproxy
+            jsonPointers:
+            - /status
+            - /metadata/finalizers
+            - /spec/serviceTemplate/spec/ports
           syncWave: 3
           dependsOn:
           - name: kcp-operator
@@ -342,7 +350,7 @@ data:
           targetNamespace: platform-mesh-system
     infra:
       deploymentTechnology: argocd
-      destinationServer: https://172.18.0.5:6443
+      destinationServer: https://172.18.0.6:6443
       ocm:
         component:
           name: platform-mesh
@@ -360,6 +368,17 @@ data:
         values:
           installCRDs: true
       gatewayApi:
+        syncOptions:
+        - ServerSideApply=true
+        - SkipCRDs=false
+        # ignoreDifferences:
+        # - group: apiextensions.k8s.io
+        #   kind: CustomResourceDefinition
+        #   jsonPointers:
+        #   - /spec/conversion/webhook/clientConfig/caBundle
+        #   - /status
+        #   # Some versions of Gateway API injection add specific annotations
+        #   - /metadata/annotations/controller-gen.kubebuilder.io~1version
         enabled: true
         kustomization:
           install:
@@ -369,6 +388,9 @@ data:
         name: gateway-api
         ocmResourceName: crds
       traefik:
+        skipCrds: true
+        syncOptions:
+        - SkipCRDs=true
         syncWave: 1
         chart:
           name: traefik
@@ -406,6 +428,8 @@ data:
         ocmComponentName: traefik
         ocmResourceName: crds
         targetNamespace: default
+        values:
+          gatewayAPI: false
 kind: ConfigMap
 metadata:
   name: platform-mesh-profile
