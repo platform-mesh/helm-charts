@@ -47,13 +47,16 @@ else
     COL_RES=''
 fi
 
-# Determine kubectl exec flags based on TTY availability
+# Get kubectl exec flags based on current TTY availability
+# Must be called at point of use, not script init, because background jobs lose TTY
 # -t allocates a pseudo-TTY, -i keeps stdin open
-# Some environments (CI, non-interactive shells) don't have TTY
-KUBECTL_EXEC_FLAGS="-i"
-if [ -t 0 ]; then
-    KUBECTL_EXEC_FLAGS="-ti"
-fi
+get_kubectl_exec_flags() {
+    if [ -t 0 ]; then
+        echo "-ti"
+    else
+        echo "-i"
+    fi
+}
 
 # Swap OCI common chart reference to local file reference (only for 'common' dependency)
 # Operates on a copied chart in the prerelease directory to avoid modifying original files
@@ -149,7 +152,7 @@ prepare_and_push_chart() {
     # Push to local OCI registry
     echo -e "${COL}[$(date '+%H:%M:%S')] Pushing $tarball to local OCI registry...${COL_RES}"
     kubectl cp "$tarball" -n default ocm-transfer-pod:.
-    kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- helm push "$(basename "$tarball")" oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- helm push "$(basename "$tarball")" oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
     echo -e "${COL}[$(date '+%H:%M:%S')] Pushed $tarball to local OCI registry${COL_RES}"
 
     # Get image name and prepare variables
@@ -199,7 +202,7 @@ add_chart_to_ctf() {
 
     # Add component to OCM transport archive
     if [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
-        kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-chart-only.yaml -- \
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-chart-only.yaml -- \
             VERSION="$VERSION" \
             APP_VERSION="$APP_VERSION" \
             IMAGE_NAME="$IMAGE_NAME" \
@@ -210,7 +213,7 @@ add_chart_to_ctf() {
             CHART_OCI_PATH="$CHART_OCI_PATH" \
             LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
     else
-        kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor.yaml -- \
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor.yaml -- \
             VERSION="$VERSION" \
             APP_VERSION="$APP_VERSION" \
             IMAGE_NAME="$IMAGE_NAME" \
@@ -229,7 +232,7 @@ add_chart_to_ctf() {
 # Transfer OCM transport archive to local OCI registry
 transfer_to_local_oci() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry...${COL_RES}"
-    kubectl exec $KUBECTL_EXEC_FLAGS ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh || true
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh || true
 }
 
 # Build all local charts using two-phase parallel approach
