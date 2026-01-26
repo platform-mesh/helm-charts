@@ -31,7 +31,6 @@ declare -A THIRD_PARTY_COMPONENTS=(
   ["gateway-api"]="kubernetes-sigs/gateway-api"
   ["traefik"]="traefik/traefik"
   ["cert-manager"]="cert-manager/cert-manager"
-  ["crossplane"]="crossplane/crossplane"
   ["openfga"]="openfga/openfga"
   ["kcp-operator"]="kcp-dev/kcp-operator"
   ["etcd-druid"]="gardener/etcd-druid"

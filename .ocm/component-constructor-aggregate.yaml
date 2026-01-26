@@ -70,32 +70,6 @@ components:
         access:
           type: ociArtifact
           imageReference: "quay.io/jetstack/cert-manager-cainjector:{{ .CERT_MANAGER_VERSION }}"
-  - name: github.com/crossplane/crossplane
-    version: {{ .CROSSPLANE_VERSION }}
-    provider:
-      name: crossplane
-    resources:
-      - name: chart
-        type: helmChart
-        version: {{ .CROSSPLANE_VERSION }}
-        access:
-          type: helm
-          helmChart: crossplane:{{ .CROSSPLANE_VERSION }}
-          helmRepository: https://charts.crossplane.io/stable
-      - name: image
-        type: ociImage
-        relation: external
-        version: {{ .CROSSPLANE_IMAGE_VERSION }}
-        access:
-          type: ociArtifact
-          imageReference: "xpkg.crossplane.io/crossplane/crossplane:{{ .CROSSPLANE_IMAGE_VERSION }}"
-      - name: keycloak-provider
-        type: ociImage
-        relation: external
-        version: {{ .CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION }}
-        access:
-          type: ociArtifact
-          imageReference: "xpkg.upbound.io/crossplane-contrib/provider-keycloak:{{ .CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION }}"
   - name: github.com/openfga/openfga
     version: {{ .OPENFGA_VERSION }}
     provider:
@@ -195,9 +169,6 @@ components:
       - name: account-operator
         componentName: github.com/platform-mesh/account-operator
         version: {{ .ACCOUNT_OPERATOR_VERSION }}
-      - name: crossplane
-        componentName: github.com/crossplane/crossplane
-        version: {{ .CROSSPLANE_VERSION }}
       - name: etcd-druid
         componentName: github.com/gardener/etcd-druid
         version: {{ .GARDENER_ETCD_DRUID_SOURCE_REF }}
@@ -252,9 +223,6 @@ components:
       - name: iam-ui
         componentName: github.com/platform-mesh/iam-ui
         version: {{ .IAM_UI_VERSION }}
-      - name: organization-idp
-        componentName: github.com/platform-mesh/organization-idp
-        version: {{ .ORGANIZATION_IDP_VERSION }}
       - name: marketplace-ui
         componentName: github.com/platform-mesh/marketplace-ui
         version: {{ .MARKETPLACE_UI_VERSION }}

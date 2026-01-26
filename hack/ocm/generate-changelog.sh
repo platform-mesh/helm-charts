@@ -292,7 +292,6 @@ declare -A THIRD_PARTY_COMPONENTS=(
   ["gateway-api"]=1
   ["traefik"]=1
   ["cert-manager"]=1
-  ["crossplane"]=1
   ["openfga"]=1
   ["kcp-operator"]=1
   ["etcd-druid"]=1
