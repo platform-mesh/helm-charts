@@ -183,6 +183,7 @@ A Helm chart for Kubernetes
 | services.rebac-authz-webhook.values.certManager.enabled | bool | `true` |  |
 | services.rebac-authz-webhook.values.istio.dnsNames[0] | string | `"rebac-authz-webhook.platform-mesh-system.svc.cluster.local"` |  |
 | services.rebac-authz-webhook.values.istio.exposed | bool | `false` |  |
+| services.rebac-authz-webhook.values.kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` |  |
 | services.rebac-authz-webhook.values.log.level | string | `"debug"` |  |
 | services.rebac-authz-webhook.values.openfga.url | string | `"openfga:8081"` |  |
 | services.security-operator.enabled | bool | `true` |  |
