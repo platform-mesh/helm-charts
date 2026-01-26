@@ -151,7 +151,6 @@ resolve_component_versions() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Resolving third-party component versions...${COL_RES}"
 
     # Third-party components (always remote)
-    export CROSSPLANE_VERSION=$(get_ocm_resource_version "github.com/crossplane/crossplane" '.items[0].element["version"]')
     export ISTIO_VERSION=$(get_ocm_resource_version "github.com/istio/istio/base" '.items[0].element["version"]')
     export OPENFGA_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[0].element["version"]')
     export KCP_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[0].element["version"]')
@@ -167,8 +166,6 @@ resolve_component_versions() {
     export KCP_OPERATOR_IMAGE_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[] | select(.element.type == "ociImage") | .element.version')
     export KCP_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp" '.items[0].element["version"]')
     export TRAEFIK_IMAGE_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
-    export CROSSPLANE_IMAGE_VERSION=$(get_ocm_resource_version "github.com/crossplane/crossplane" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
-    export CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION=$(get_ocm_resource_version "github.com/crossplane/crossplane" '.items[] | select(.element.type == "ociImage" and .element.name == "keycloak-provider") | .element.version')
     export OPENFGA_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
     export GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "ociImage" and .element.name == "etcd-wrapper-image") | .element.version')
     export GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "ociImage" and .element.name == "etcdbrctl-image") | .element.version')
@@ -192,7 +189,6 @@ build_final_component() {
         .ocm/component-constructor-prerelease.yaml -- \
         VERSION="$COMPONENT_PRERELEASE_VERSION" \
         ISTIO_VERSION="$ISTIO_VERSION" \
-        CROSSPLANE_VERSION="$CROSSPLANE_VERSION" \
         OPENFGA_VERSION="$OPENFGA_VERSION" \
         KCP_OPERATOR_VERSION="$KCP_OPERATOR_VERSION" \
         KCP_IMAGE_VERSION="$KCP_IMAGE_VERSION" \
@@ -223,8 +219,6 @@ build_final_component() {
         KCP_OPERATOR_IMAGE_VERSION="$KCP_OPERATOR_IMAGE_VERSION" \
         KCP_VERSION="$KCP_VERSION" \
         TRAEFIK_IMAGE_VERSION="$TRAEFIK_IMAGE_VERSION" \
-        CROSSPLANE_IMAGE_VERSION="$CROSSPLANE_IMAGE_VERSION" \
-        CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION="$CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION" \
         OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
         OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
         GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION="$GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION" \
