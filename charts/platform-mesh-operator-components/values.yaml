@@ -103,9 +103,6 @@ services:
       certManager:
         enabled: true
         createCA: true
-      kcp:
-        kubeconfig:
-          secret: rebac-authz-webhook-kubeconfig
   infra:
     enabled: true
     # -- Allow the configuration of additional ocm resources

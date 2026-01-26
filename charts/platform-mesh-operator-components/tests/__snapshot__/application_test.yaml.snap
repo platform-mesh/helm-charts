@@ -351,13 +351,6 @@ it should render the application manifests:
         certManager:
           createCA: true
           enabled: true
-        istio:
-          dnsNames:
-            - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
-          exposed: false
-        kcp:
-          kubeconfig:
-            secret: rebac-authz-webhook-kubeconfig
         log:
           level: debug
         openfga:
