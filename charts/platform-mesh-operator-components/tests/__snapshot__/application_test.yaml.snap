@@ -361,7 +361,8 @@ it should render the application manifests:
             - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
           exposed: false
         kcp:
-          apiExportEndpointSliceName: core.platform-mesh.io
+          kubeconfig:
+            secret: rebac-authz-webhook-kubeconfig
         log:
           level: debug
         openfga:
