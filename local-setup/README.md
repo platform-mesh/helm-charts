@@ -320,6 +320,23 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
+#### Loading Custom Docker Images
+
+When developing locally built components, you can load custom Docker images into the Kind cluster by creating a hook script. This script is automatically ignored by git, so your local customizations won't be committed.
+
+**Create the hook script from the example:**
+```sh
+cp local-setup/scripts/load-custom-images.sh.example local-setup/scripts/load-custom-images.sh
+# Edit the script with your custom images
+```
+
+The script will be automatically sourced during cluster setup if it exists. You can add multiple `kind load` commands for all the images you need.
+
+**Typical workflow:**
+1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
+2. Add the load command to `load-custom-images.sh`
+3. Run `task local-setup:iterate` to reload the cluster with your custom images
+
 ### Running E2E Tests
 
 After the local setup is running, you can run end-to-end tests to verify the portal functionality:
