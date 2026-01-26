@@ -24,7 +24,7 @@ REMOTE_REGISTRY="${REMOTE_REGISTRY:-ghcr.io/platform-mesh}"
 LOCAL_REGISTRY="${LOCAL_REGISTRY:-oci-registry-docker-registry.registry.svc.cluster.local}"
 
 # List of local component names (for version resolution)
-CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,kubernetes-graphql-gateway,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,virtual-workspaces"
+CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,kubernetes-graphql-gateway,organization-idp,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,virtual-workspaces"
 
 # Fixed version overrides (empty by default)
 FIXED_VERSION_PAIRS=""
@@ -146,11 +146,13 @@ resolve_component_versions() {
     get_component_version iam-service github.com/platform-mesh/iam-service charts/iam-service IAM_SERVICE_VERSION
     get_component_version iam-ui github.com/platform-mesh/iam-ui charts/iam-ui IAM_UI_VERSION
     get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui charts/marketplace-ui MARKETPLACE_UI_VERSION
+    get_component_version organization-idp github.com/platform-mesh/organization-idp charts/organization-idp ORGANIZATION_IDP_VERSION
     get_component_version example-httpbin-operator github.com/platform-mesh/example-httpbin-operator charts/example-httpbin-operator EXAMPLE_HTTPBIN_OPERATOR_VERSION
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Resolving third-party component versions...${COL_RES}"
 
     # Third-party components (always remote)
+    export CROSSPLANE_VERSION=$(get_ocm_resource_version "github.com/crossplane/crossplane" '.items[0].element["version"]')
     export ISTIO_VERSION=$(get_ocm_resource_version "github.com/istio/istio/base" '.items[0].element["version"]')
     export OPENFGA_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[0].element["version"]')
     export KCP_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[0].element["version"]')
@@ -166,6 +168,8 @@ resolve_component_versions() {
     export KCP_OPERATOR_IMAGE_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[] | select(.element.type == "ociImage") | .element.version')
     export KCP_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp" '.items[0].element["version"]')
     export TRAEFIK_IMAGE_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
+    export CROSSPLANE_IMAGE_VERSION=$(get_ocm_resource_version "github.com/crossplane/crossplane" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
+    export CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION=$(get_ocm_resource_version "github.com/crossplane/crossplane" '.items[] | select(.element.type == "ociImage" and .element.name == "keycloak-provider") | .element.version')
     export OPENFGA_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
     export GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "ociImage" and .element.name == "etcd-wrapper-image") | .element.version')
     export GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION=$(get_ocm_resource_version "github.com/gardener/etcd-druid" '.items[] | select(.element.type == "ociImage" and .element.name == "etcdbrctl-image") | .element.version')
@@ -189,6 +193,7 @@ build_final_component() {
         .ocm/component-constructor-prerelease.yaml -- \
         VERSION="$COMPONENT_PRERELEASE_VERSION" \
         ISTIO_VERSION="$ISTIO_VERSION" \
+        CROSSPLANE_VERSION="$CROSSPLANE_VERSION" \
         OPENFGA_VERSION="$OPENFGA_VERSION" \
         KCP_OPERATOR_VERSION="$KCP_OPERATOR_VERSION" \
         KCP_IMAGE_VERSION="$KCP_IMAGE_VERSION" \
@@ -209,6 +214,7 @@ build_final_component() {
         IAM_SERVICE_VERSION="$IAM_SERVICE_VERSION" \
         IAM_UI_VERSION="$IAM_UI_VERSION" \
         MARKETPLACE_UI_VERSION="$MARKETPLACE_UI_VERSION" \
+        ORGANIZATION_IDP_VERSION="$ORGANIZATION_IDP_VERSION" \
         GATEWAY_API_VERSION="$GATEWAY_API_VERSION" \
         GATEWAY_API_COMMIT="$GATEWAY_API_COMMIT" \
         TRAEFIK_VERSION="$TRAEFIK_VERSION" \
@@ -219,6 +225,8 @@ build_final_component() {
         KCP_OPERATOR_IMAGE_VERSION="$KCP_OPERATOR_IMAGE_VERSION" \
         KCP_VERSION="$KCP_VERSION" \
         TRAEFIK_IMAGE_VERSION="$TRAEFIK_IMAGE_VERSION" \
+        CROSSPLANE_IMAGE_VERSION="$CROSSPLANE_IMAGE_VERSION" \
+        CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION="$CROSSPLANE_KEYCLOAK_PROVIDER_IMAGE_VERSION" \
         OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
         OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
         GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION="$GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION" \

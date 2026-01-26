@@ -26,7 +26,8 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "iam-ui:charts/iam-ui"
     "infra:charts/infra"
     "kubernetes-graphql-gateway:charts/kubernetes-graphql-gateway"
-platform-mesh-operator:charts/platform-mesh-operator
+    "organization-idp:charts/organization-idp"
+    "platform-mesh-operator:charts/platform-mesh-operator"
     "platform-mesh-operator-components:charts/platform-mesh-operator-components"
     "platform-mesh-operator-infra-components:charts/platform-mesh-operator-infra-components"
     "portal:charts/portal"

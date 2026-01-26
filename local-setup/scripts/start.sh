@@ -89,12 +89,6 @@ mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
-# Load custom images if hook script exists
-if [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Loading custom images ${COL_RES}"
-    source "$SCRIPT_DIR/load-custom-images.sh"
-fi
-
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
   --version 2.17.1 \
@@ -146,8 +140,6 @@ kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
-# kind load image-archive image.tar --name platform-mesh
-# kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.41.9 --name platform-mesh
 if [ "$PRERELEASE" = true ]; then
   run_prerelease_setup
 else
@@ -183,6 +175,25 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to 
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
+
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
+kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=$KUBECTL_WAIT_TIMEOUT account-operator
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=$KUBECTL_WAIT_TIMEOUT portal
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=$KUBECTL_WAIT_TIMEOUT security-operator
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
