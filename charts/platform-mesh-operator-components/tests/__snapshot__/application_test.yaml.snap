@@ -360,6 +360,8 @@ it should render the application manifests:
           dnsNames:
             - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
           exposed: false
+        kcp:
+          apiExportEndpointSliceName: core.platform-mesh.io
         log:
           level: debug
         openfga:
