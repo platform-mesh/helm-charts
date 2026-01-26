@@ -1,12 +1,6 @@
 crds:
   enabled: false
 
-cors:
-  # -- toggle to enable CORS configuration
-  enabled: false
-  allowedHeaders: "*"
-  allowedOrigins: "*"
-
 image:
   name: ghcr.io/platform-mesh/kubernetes-graphql-gateway
   pullPolicy: IfNotPresent
@@ -68,32 +62,6 @@ deployment:
 sentry:
   environment: dev
 
-istio:
-  enabled: false
-  # -- ALlows the creation of a RequestAuthentication resource, by default disabled
-  requestAuthentication:
-    create: false
-  # -- ALlows the creation of a AuthorizationPolicy resource, by default disabled
-  authorizationPolicy:
-    create: false
-  gateway:
-    name: gateway
-
-virtualService:
-  pathPrefix: /kubernetes-graphql-gateway/
-  hosts:
-    - "*"
-  httpRules:
-    - name: default
-      cors:
-        allowHeaders:
-          - "*"
-        allowMethods:
-          - GET
-          - POST
-        allowOrigins:
-          - regex: .*
-
 kubeConfig:
   createSecret: false
   # -- Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated.
@@ -123,9 +91,11 @@ health:
     failureThreshold: 30
     periodSeconds: 10
 
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
+
 gatewayApi:
-  # -- toggle to enable the Gateway API
-  enabled: false
   # -- configuration for the HTTPRoute resource
   httpRoute:
     pathPrefix: /api/kubernetes-graphql-gateway/
@@ -134,20 +104,17 @@ gatewayApi:
     - "*.portal.localhost"
     parentRefs:
     - name: k8sapi-gateway
+    # -- list of HTTPRoute filters (default: URLRewrite only, no CORS)
     filters:
     - type: URLRewrite
       urlRewrite:
         path:
-          type: ReplacePrefixMatch
           replacePrefixMatch: /
-    - type: RequestHeaderModifier
-      requestHeaderModifier:
-        set:
-        - name: Host
-          value: "portal.localhost"
+          type: ReplacePrefixMatch
+    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
     corsFilters:
-    - extensionRef:
+    - type: ExtensionRef
+      extensionRef:
         group: traefik.io
         kind: Middleware
         name: cors-header
-      type: ExtensionRef

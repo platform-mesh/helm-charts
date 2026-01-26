@@ -15,9 +15,6 @@ kubeConfig:
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cors.allowedHeaders | string | `"*"` |  |
-| cors.allowedOrigins | string | `"*"` |  |
-| cors.enabled | bool | `false` | toggle to enable CORS configuration |
 | crds.enabled | bool | `false` |  |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
@@ -41,8 +38,9 @@ kubeConfig:
 | gateway.resources.requests.memory | string | `"1000Mi"` |  |
 | gateway.shouldImpersonate | bool | `false` |  |
 | gateway.usernameClaim | string | `"email"` |  |
-| gatewayApi.enabled | bool | `false` | toggle to enable the Gateway API |
-| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}},{"requestHeaderModifier":{"set":[{"name":"Host","value":"portal.localhost"}]},"type":"RequestHeaderModifier"}],"hostnames":["portal.localhost","*.portal.localhost"],"parentRefs":[{"name":"k8sapi-gateway"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
+| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}}],"hostnames":["portal.localhost","*.portal.localhost"],"parentRefs":[{"name":"k8sapi-gateway"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
+| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only, no CORS) |
 | health.liveness.failureThreshold | int | `1` |  |
 | health.liveness.path | string | `"/healthz"` |  |
 | health.liveness.periodSeconds | int | `10` |  |
@@ -55,10 +53,6 @@ kubeConfig:
 | health.startup.periodSeconds | int | `10` |  |
 | image.name | string | `"ghcr.io/platform-mesh/kubernetes-graphql-gateway"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| istio.authorizationPolicy | object | `{"create":false}` | ALlows the creation of a AuthorizationPolicy resource, by default disabled |
-| istio.enabled | bool | `false` |  |
-| istio.gateway.name | string | `"gateway"` |  |
-| istio.requestAuthentication | object | `{"create":false}` | ALlows the creation of a RequestAuthentication resource, by default disabled |
 | kcp.enabled | bool | `true` |  |
 | kubeConfig.createSecret | bool | `false` |  |
 | kubeConfig.enabled | bool | `false` | Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated. |
@@ -77,13 +71,7 @@ kubeConfig:
 | listener.virtualWorkspacesConfig.path | string | `"/app/config/virtual-workspaces.yaml"` |  |
 | sentry.environment | string | `"dev"` |  |
 | tracing.enabled | bool | `true` |  |
-| virtualService.hosts[0] | string | `"*"` |  |
-| virtualService.httpRules[0].cors.allowHeaders[0] | string | `"*"` |  |
-| virtualService.httpRules[0].cors.allowMethods[0] | string | `"GET"` |  |
-| virtualService.httpRules[0].cors.allowMethods[1] | string | `"POST"` |  |
-| virtualService.httpRules[0].cors.allowOrigins[0].regex | string | `".*"` |  |
-| virtualService.httpRules[0].name | string | `"default"` |  |
-| virtualService.pathPrefix | string | `"/kubernetes-graphql-gateway/"` |  |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 
