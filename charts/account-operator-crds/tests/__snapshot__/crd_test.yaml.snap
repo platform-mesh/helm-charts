@@ -7,7 +7,7 @@ crds match the snapshot:
       name: core.platform-mesh.io
     spec:
       latestResourceSchemas:
-        - v250516-0b27c30.accountinfos.core.platform-mesh.io
+        - v260126-7c674ee.accountinfos.core.platform-mesh.io
         - v250305-70de32b.accounts.core.platform-mesh.io
       permissionClaims:
         - all: true
@@ -402,7 +402,7 @@ crds with kcp enabled match the snapshot:
       name: core.platform-mesh.io
     spec:
       latestResourceSchemas:
-        - v250516-0b27c30.accountinfos.core.platform-mesh.io
+        - v260126-7c674ee.accountinfos.core.platform-mesh.io
         - v250305-70de32b.accounts.core.platform-mesh.io
       permissionClaims:
         - all: true
