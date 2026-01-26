@@ -1287,10 +1287,6 @@ operator match the snapshot:
                 - mountPath: /certs
                   name: cert
                   readOnly: true
-          hostAliases:
-            - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
           securityContext:
             runAsNonRoot: true
             seccompProfile:

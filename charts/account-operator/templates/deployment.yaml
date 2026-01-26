@@ -33,6 +33,7 @@ spec:
       {{- include "common.imagePullSecret" . | indent 6 }}
       {{- include "common.pod.securityContext" . | indent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+{{ include "common.hostAliases" $ | nindent 6 }}
       containers:
       - {{- include "common.podBasics" . | indent 8 }}
         {{- include "common.container.securityContext" . | indent 8 }}
@@ -99,17 +100,6 @@ spec:
           name: cert
           readOnly: true
         {{- end }}
-      {{- if .Values.deployment.hostAliases }}
-      hostAliases:
-      {{- range .Values.deployment.hostAliases }}
-        - ip: {{ .ip }}
-          hostnames:
-        {{- range .hostnames }}
-            - {{ . }}
-        {{- end }}
-      {{- end }}
-      {{- else }}
-      {{- end }}
       volumes:
         {{- include "common.extraVolumes" . | nindent 8 }}
         {{- if .Values.kubeconfigSecret }}
