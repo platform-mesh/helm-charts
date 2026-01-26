@@ -115,6 +115,10 @@ spec:
             database: postgres
     marketplace-ui:
       enabled: true
+    rebac-authz-webhook:
+      values:
+        hostAliases:
+          enabled: true
     iam-service:
       values:
         extraArgs:
