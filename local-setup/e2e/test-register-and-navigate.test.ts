@@ -127,7 +127,7 @@ test.describe('Home Page', () => {
     await newPage2.locator('[test-id="generic-list-view-create-button"]').click(); // generic-list-view-create-button
 
     await newPage2.pause();
-    
+
     await newPage2.locator('[test-id="create-field-metadata_name"]').click();
     await newPage2.locator('[test-id="create-field-spec_type"]').click();
     await newPage2.locator('[test-id="create-field-spec_type-option-account"]').click();
@@ -136,7 +136,7 @@ test.describe('Home Page', () => {
 
     const accountElement = newPage2.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
     await expect(accountElement).toBeVisible( { timeout: 180000 } );
-    
+
     // Close the Mailpit page/tab if it's still open
     const pages = newPage2.context().pages();
     for (const p of pages) {
@@ -144,13 +144,13 @@ test.describe('Home Page', () => {
         await p.close();
       }
     }
-    
+
     await accountElement.click();
     const downloadButton = newPage2.locator('[test-id="generic-detail-view-download"]');
     await expect(downloadButton).toBeVisible( { timeout: 10000 } );
 
     await newPage2.pause();
-    
+
     const download1Promise = newPage2.waitForEvent('download');
     await downloadButton.click();
     const download = await download1Promise;
