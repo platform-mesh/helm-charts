@@ -65,7 +65,7 @@ operator match the snapshot:
   3: |
     apiVersion: v1
     data:
-      coreModule.fga: |2-
+      coreModule.fga: |-
         module core
 
         type user
@@ -492,7 +492,7 @@ operator match the snapshot w. sentry:
   3: |
     apiVersion: v1
     data:
-      coreModule.fga: |2-
+      coreModule.fga: |-
         module core
 
         type user
