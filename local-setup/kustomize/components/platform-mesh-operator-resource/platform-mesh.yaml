@@ -58,7 +58,6 @@ spec:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.localhost
-            - --development-allow-unverified-emails
             - --set-default-password
         initializer:
           extraArgs:
@@ -67,6 +66,7 @@ spec:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.localhost
+            - --development-allow-unverified-emails
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
