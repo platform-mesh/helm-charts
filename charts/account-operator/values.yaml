@@ -76,10 +76,8 @@ deployment:
     labels: {}
   replicas: 1
 
-  hostAliases: []
-#    - hostnames:
-#        - kcp.dev.local
-#      ip: 10.96.0.100
+hostAliases:
+  enabled: false
 
 operator:
   leaderElect: true

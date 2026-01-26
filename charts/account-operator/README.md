@@ -14,10 +14,10 @@ A Helm chart to deploy platform-mesh Account-Operator
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | crds.enabled | bool | `true` | Enable CRDs |
-| deployment.hostAliases | list | `[]` |  |
 | deployment.replicas | int | `1` |  |
 | deployment.specTemplate.annotations | object | `{}` | The annotations for the deployment |
 | deployment.specTemplate.labels | object | `{}` | The labels for the deployment |
+| hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/account-operator"` | The image repository |
 | istio.enabled | bool | `false` |  |
 | kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The KCP configuration |

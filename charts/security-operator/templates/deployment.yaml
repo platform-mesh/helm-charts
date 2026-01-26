@@ -29,6 +29,9 @@ spec:
           {{- with .Values.fga.inviteKeycloakBaseUrl }}
           - --invite-keycloak-base-url={{ . }}
           {{- end }}
+          {{- if .Values.fga.setDefaultPassword }}
+          - --set-default-password
+          {{- end }}
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
