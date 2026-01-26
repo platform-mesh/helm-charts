@@ -326,3 +326,13 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --prerelease --example-data"}
+
+  local-setup:cached:prerelease:concurrent:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --prerelease --concurrent"}
+
+  local-setup:cached:prerelease:concurrent:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --prerelease --concurrent"}

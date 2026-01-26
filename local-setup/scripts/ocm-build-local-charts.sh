@@ -98,7 +98,7 @@ copy_templates_to_pod() {
 
 # Configuration for parallel execution
 MAX_PARALLEL=${MAX_PARALLEL:-8}
-SEQUENTIAL=${SEQUENTIAL:-false}
+CONCURRENT=${CONCURRENT:-false}
 
 # Phase 1: Prepare chart and push to OCI registry (can run in parallel)
 # This function handles steps 1-5: copy, swap, package, push to OCI
@@ -262,17 +262,7 @@ build_local_charts() {
     # Phase 1: Prepare and push all charts
     local failed=0
 
-    if [ "$SEQUENTIAL" = "true" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (sequential) ===${COL_RES}"
-        for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
-            local comp="${pair%%:*}"
-            local chart_dir="${pair#*:}"
-
-            if ! prepare_and_push_chart "$comp" "$chart_dir"; then
-                ((failed++))
-            fi
-        done
-    else
+    if [ "$CONCURRENT" = "true" ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (parallel, max $MAX_PARALLEL concurrent) ===${COL_RES}"
         local running=0
         local pids=()
@@ -297,6 +287,16 @@ build_local_charts() {
         # Wait for all remaining jobs to complete
         for pid in "${pids[@]}"; do
             if ! wait "$pid"; then
+                ((failed++))
+            fi
+        done
+    else
+        echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 1: Preparing and pushing charts (sequential) ===${COL_RES}"
+        for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+            local comp="${pair%%:*}"
+            local chart_dir="${pair#*:}"
+
+            if ! prepare_and_push_chart "$comp" "$chart_dir"; then
                 ((failed++))
             fi
         done
