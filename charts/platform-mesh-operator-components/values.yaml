@@ -110,12 +110,6 @@ services:
       kcp:
         kubeconfig:
           secret: rebac-authz-webhook-kubeconfig
-      hostAliases:
-        enabled: true
-        entries:
-          - ip: "10.96.188.4"
-            hostnames:
-              - "localhost"
   infra:
     enabled: true
     # -- Allow the configuration of additional ocm resources
