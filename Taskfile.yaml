@@ -231,7 +231,7 @@ tasks:
           npm install
           npm ci
           npx playwright install
-        npx playwright test test-register-and-navigate.test.ts
+          npx playwright test test-register-and-navigate.test.ts
           popd
 
   local-setup:
