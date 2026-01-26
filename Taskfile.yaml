@@ -225,16 +225,13 @@ tasks:
       - sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' .ocm/component-constructor-prerelease.yaml > .ocm/component-constructor-prerelease.yaml.tmp && mv .ocm/component-constructor-prerelease.yaml.tmp .ocm/component-constructor-prerelease.yaml
 
   test:portal-e2e:
-    vars:
-      ORG_NAME: '{{.ORG_NAME | default "default"}}'
-      HEADED: '{{.HEADED | default ""}}'
     cmds:
       - |
           pushd local-setup/e2e
           npm install
           npm ci
           npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test test-register-and-navigate.test.ts {{if .HEADED}}--headed{{end}}
+        npx playwright test test-register-and-navigate.test.ts
           popd
 
   local-setup:
