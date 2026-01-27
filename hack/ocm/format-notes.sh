@@ -244,18 +244,12 @@ EOF
         echo "| 🐳 Container Image | \`${image_version}\` | ${image_links} |"
       fi
 
-      # Add raw OCM YAML in collapsed section (if available)
-      if [[ -n "$raw_yaml" ]] && [[ "$raw_yaml" != "null" ]]; then
-        echo ""
-        echo "<details>"
-        echo "<summary>OCM Component Descriptor (click to expand)</summary>"
-        echo ""
-        echo '```yaml'
-        echo "$raw_yaml"
-        echo '```'
-        echo ""
-        echo "</details>"
-      fi
+      # Add OCM CLI command to fetch component descriptor
+      echo ""
+      echo "**OCM Component Descriptor:**"
+      echo '```bash'
+      echo "ocm get cv github.com/platform-mesh/${component}:${new_ver} --repo ghcr.io/platform-mesh -o yaml"
+      echo '```'
 
       # Extract and display PR details as collapsible list
       local pr_details=$(echo "$change" | jq -c '.pr_details[]? // empty' 2>/dev/null)
@@ -361,28 +355,16 @@ EOF
 EOF
 
   # OCM Component Descriptor section
-  # Determine which version to fetch (use to_version from versions file which is the RC version)
-  local ocm_version=$(jq -r '.to_version' "$versions_file")
+  cat << EOF
+## OCM Component Descriptor
 
-  # Fetch platform-mesh component descriptor
-  local platform_mesh_yaml=""
-  if command -v ocm &> /dev/null; then
-    platform_mesh_yaml=$(ocm get component "github.com/platform-mesh/platform-mesh:${ocm_version}" --repo ghcr.io/platform-mesh -o yaml 2>/dev/null || echo "")
-  fi
+To fetch the full Platform Mesh component descriptor:
 
-  if [[ -n "$platform_mesh_yaml" ]]; then
-    cat << EOF
-<details>
-<summary>Platform Mesh OCM Component Descriptor (click to expand)</summary>
-
-\`\`\`yaml
-${platform_mesh_yaml}
+\`\`\`bash
+ocm get cv github.com/platform-mesh/platform-mesh:${version} --repo ghcr.io/platform-mesh -o yaml
 \`\`\`
 
-</details>
-
 EOF
-  fi
 
   cat << EOF
 ## Installation
@@ -394,9 +376,6 @@ To fetch the component using OCM CLI:
 \`\`\`bash
 ocm get component github.com/platform-mesh/platform-mesh:${version} --repo ghcr.io/platform-mesh
 \`\`\`
-
----
-*Generated with Claude Code*
 EOF
 }
 

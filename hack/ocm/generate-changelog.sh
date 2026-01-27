@@ -246,15 +246,11 @@ fetch_ocm_component_details() {
   local resources=$(echo "$result" | yq eval '.component.resources' -o=json 2>/dev/null || echo "[]")
   local sources=$(echo "$result" | yq eval '.component.sources' -o=json 2>/dev/null || echo "[]")
 
-  # Escape raw YAML for JSON (replace newlines with \n and escape quotes)
-  local raw_yaml=$(echo "$result" | jq -Rs . 2>/dev/null || echo '""')
-
   # Combine into single JSON object
   jq -n \
     --argjson resources "$resources" \
     --argjson sources "$sources" \
-    --argjson raw_yaml "$raw_yaml" \
-    '{resources: $resources, sources: $sources, raw_yaml: $raw_yaml}' 2>/dev/null || echo "{}"
+    '{resources: $resources, sources: $sources}' 2>/dev/null || echo "{}"
 }
 
 # Check if changelog indicates breaking changes
