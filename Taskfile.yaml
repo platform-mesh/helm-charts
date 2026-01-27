@@ -583,7 +583,31 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --latest --example-data"}
 
-  local-setup-remotedeployment:
+  local-setup-remotedeployment:fluxcd:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=fluxcd"}
+    cmds:
+      - |
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
+          read -r -p "Are you sure you want to delete the runtime cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh
+        fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the infra cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:fluxcd:iterate:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=fluxcd"}
+    cmds:
+      - |
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:argocd:
     deps:
       - task: setup:mkcert
     vars: {FLAGS: "--cached --latest --deployment-tech=argocd"}
@@ -599,7 +623,7 @@ tasks:
         fi
         local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
 
-  local-setup-remotedeployment:iterate:
+  local-setup-remotedeployment:argocd:iterate:
     deps:
       - task: setup:mkcert
     vars: {FLAGS: "--cached --latest --deployment-tech=argocd"}

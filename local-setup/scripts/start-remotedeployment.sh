@@ -296,8 +296,9 @@ kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace def
   --for=condition=Ready resourcegraphdefinition \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
-
-setup_argocd
+if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+  setup_argocd
+fi
 
 kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/infra
 kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime

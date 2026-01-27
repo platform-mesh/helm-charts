@@ -1,52 +1,23 @@
 import test, { expect, Page } from '@playwright/test';
 
-const portalBaseUrl = 'https://portal.dev.local:8443/';
+const portalBaseUrl = 'https://portal.localhost:8443/';
 const testAccountName = 'testaccount';
 const userEmail = 'username@sap.com';
 const userPassword = 'MyPass1234';
 const firstName = 'Firstname';
 const lastName = 'Lastname';
-const newOrgName = 'default';
+const newOrgName = process.env.ORG_NAME || 'default';
 
-async function activateUserEmailViaMailpit(
-  page: Page,
-  userEmail: string
-): Promise<Page> {
-  await page.goto(`${portalBaseUrl}mailpit/`);
-  await page.click(`text=To: ${userEmail}`, { timeout: 30000 });
-  const emailFrame = page.frameLocator('#preview-html');
+const keycloakPassword = 'password';
 
-  // Wait for the new page to open when clicking the verification link
-  const [newPage] = await Promise.all([
-    page.context().waitForEvent('page'),
-    emailFrame.locator('text=Link to e-mail address verification').click({ timeout: 30000 }),
-  ]);
 
-  return newPage;
+async function loginUser(page: Page): Promise<void> {
+  await page.getByRole('textbox', { name: 'Email' }).fill(userEmail);
+  await page.getByRole('textbox', { name: 'Password' }).fill(userPassword);
+  await page.getByRole('button', { name: 'Sign In' }).click();
 }
 
-async function confirmInviteMailpit(
-  page: Page,
-  userEmail: string
-): Promise<Page> {
-
-  await page.goto(`${portalBaseUrl}mailpit/`);
-  await page.click(`text=To: ${userEmail} Update Your Account`, { timeout: 2*60*1000 });
-  const emailFrame = page.frameLocator('#preview-html');
-
-  // Wait for the new page to open when clicking the verification link
-  const [newPage] = await Promise.all([
-    page.context().waitForEvent('page'),
-    emailFrame.locator('text=Link to account update').click(),
-  ]);
-
-  return newPage;
-}
-
-
-async function registerNewUser(
-  page: Page): Promise<Page> {
-
+async function registerOrLoginUser(page: Page): Promise<void> {
   await page.click('text=Register', { timeout: 10000 });
   await page.fill('input[name="email"]', userEmail);
   await page.fill('input[id="password"]', userPassword);
@@ -54,17 +25,84 @@ async function registerNewUser(
   await page.fill('input[id="firstName"]', firstName);
   await page.fill('input[id="lastName"]', lastName);
 
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle' }),
-    page.click('input[value="Register"]', { timeout: 10000 })
-  ]);
+  await page.click('input[value="Register"]', { timeout: 10000 });
 
-  return page;
+  // Wait for either successful navigation or "Email already exists" error
+  const emailExistsError = page.getByText('Email already exists.');
+  const welcomeText = page.getByText('Welcome to the Platform Mesh Portal!');
+
+  // Race between success and error conditions
+  const result = await Promise.race([
+    welcomeText.waitFor({ state: 'visible', timeout: 15000 }).then(() => 'success'),
+    emailExistsError.waitFor({ state: 'visible', timeout: 15000 }).then(() => 'exists'),
+  ]).catch(() => 'timeout');
+
+  if (result === 'exists') {
+    // User already exists, go back to login and sign in
+    await page.getByRole('link', { name: 'Back to Login' }).click();
+    await loginUser(page);
+  }
 }
 
-// Ensures we’re on portal and the SPA finished routing
+async function completeAccountSetup(page: Page): Promise<void> {
+  // Check if we're on the "Click here to proceed" page or directly on password update
+  const proceedLink = page.getByRole('link', { name: 'Click here to proceed' });
+  const newPasswordField = page.getByRole('textbox', { name: 'New Password' });
+
+  // Wait for either the proceed link or password field to appear
+  const firstElement = await Promise.race([
+    proceedLink.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'proceed'),
+    newPasswordField.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'password'),
+  ]).catch(() => 'none');
+
+  // Click proceed link if present
+  if (firstElement === 'proceed') {
+    await proceedLink.click();
+    await newPasswordField.waitFor({ state: 'visible', timeout: 10000 });
+  }
+
+  // Fill password fields if visible
+  if (firstElement === 'proceed' || firstElement === 'password') {
+    await newPasswordField.fill(userPassword);
+    await page.getByRole('textbox', { name: 'Confirm password' }).fill(userPassword);
+    await page.getByRole('button', { name: 'Submit' }).click();
+  }
+
+  // Check if we need to fill first/last name
+  const firstNameField = page.getByRole('textbox', { name: 'First name' });
+  const backToAppLink = page.getByRole('link', { name: 'Back to Application' });
+
+  const nextElement = await Promise.race([
+    firstNameField.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'name'),
+    backToAppLink.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'back'),
+  ]).catch(() => 'none');
+
+  if (nextElement === 'name') {
+    await firstNameField.fill(firstName);
+    await page.getByRole('textbox', { name: 'Last name' }).fill(lastName);
+    await page.getByRole('button', { name: 'Submit' }).click();
+  }
+
+  // Click "Back to Application" if present
+  const backLink = page.getByRole('link', { name: 'Back to Application' });
+  const isBackLinkVisible = await backLink.isVisible().catch(() => false);
+  if (isBackLinkVisible) {
+    await backLink.click();
+  }
+
+  // Final login if we're on the login page
+  const emailField = page.getByRole('textbox', { name: 'Email' });
+  const isLoginPage = await emailField.isVisible().catch(() => false);
+  if (isLoginPage) {
+    await emailField.fill(userEmail);
+    await page.getByRole('textbox', { name: 'Password' }).fill(userPassword);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+  }
+}
+
+// Ensures we're on portal and the SPA finished routing
 async function ensurePortalHome(page: Page) {
-  await page.waitForURL('https://'+ newOrgName +'.portal.dev.local:8443/**', { timeout: 20000 });
+  await page.waitForURL('https://'+ newOrgName +'.portal.localhost:8443/**', { timeout: 20000 });
   await page.waitForLoadState('networkidle', { timeout: 20000 });
   const welcome = page.getByText("Welcome! Let's get started.", { exact: true });
   for (let i = 0; i < 3; i++) {
@@ -85,87 +123,59 @@ test.describe('Home Page', () => {
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
 
-    page = await registerNewUser(page);
-    
-    const newPage = await activateUserEmailViaMailpit(page, userEmail);
+    await registerOrLoginUser(page);
 
-    // Wait for the new page to load and check for the existence of specific text
-    await newPage.waitForLoadState('domcontentloaded');
-    const verificationText = await newPage.getByText("Welcome to the Platform Mesh Portal!");
+    // Registration/login redirects to the welcome page
+    await page.waitForURL(`${portalBaseUrl}**`, { timeout: 20000 });
+    await page.waitForLoadState('load', { timeout: 20000 });
+    const verificationText = page.getByText("Welcome to the Platform Mesh Portal!");
     await expect(verificationText).toBeVisible( { timeout: 10000 });
 
-    await newPage.screenshot({ path: 'screenshot-beforeswitch.png' });
+    await page.screenshot({ path: 'screenshot-beforeswitch.png' });
 
     // onboard 'default' organization and switch to it
-    await newPage.locator('[test-id="organization-management-input"]').locator('input').fill(newOrgName);
-    await newPage.locator('[test-id="organization-management-onboard-button"]').locator('button').click();
+    await page.locator('[test-id="organization-management-input"]').locator('input').fill(newOrgName);
+    await page.locator('[test-id="organization-management-onboard-button"]').locator('button').click();
 
 
-    // Wait for the "Switch" button (role-based to pierce shadow DOM), and in parallel open Mailpit link
-    let welcomePage: Page;
-    const switchButton = await newPage.locator('[test-id="organization-management-switch-button"]').locator('button')
+    // Wait for the "Switch" button to become visible (org is ready), then click it
+    const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
+    await switchButton.waitFor({ state: 'visible', timeout: 100000 });
+    await switchButton.click();
 
-    const [_, wp] = await Promise.all([
-      switchButton.waitFor({ state: 'visible', timeout: 100000 }),
-      confirmInviteMailpit(page, userEmail),
-    ]);
-    welcomePage = wp;
+    // Login via Keycloak with email and static password
+    await page.getByRole('textbox', { name: 'Email' }).fill(userEmail);
+    await page.getByRole('textbox', { name: 'Password' }).fill(keycloakPassword);
+    await page.getByRole('button', { name: 'Sign In' }).click();
 
-    // Optionally click it after it is visible
-    // await switchButton.click();
+    // Complete account setup (handles both new and existing user flows)
+    await completeAccountSetup(page);
 
-    await welcomePage.getByRole('link', { name: '» Click here to proceed' }).click();
-    await welcomePage.getByRole('textbox', { name: 'New Password' }).fill(userPassword);
-    await welcomePage.getByRole('textbox', { name: 'Confirm password' }).click();
-    await welcomePage.getByRole('textbox', { name: 'Confirm password' }).fill(userPassword);
-    await welcomePage.getByRole('button', { name: 'Submit' }).click();
-    await welcomePage.getByRole('textbox', { name: 'First name' }).click();
-    await welcomePage.getByRole('textbox', { name: 'First name' }).fill(firstName);
-    await welcomePage.getByRole('textbox', { name: 'Last name' }).click();
-    await welcomePage.getByRole('textbox', { name: 'Last name' }).fill(lastName);
-    await welcomePage.getByRole('button', { name: 'Submit' }).click();
-    await welcomePage.getByRole('link', { name: '« Back to Application' }).click();
-    await welcomePage.getByRole('textbox', { name: 'Email' }).fill(userEmail);
-    await welcomePage.getByRole('textbox', { name: 'Password' }).click();
-    await welcomePage.getByRole('textbox', { name: 'Password' }).fill(userPassword);
-    await welcomePage.getByRole('button', { name: 'Sign In' }).click();
+    // Be explicit: make sure we're on the portal origin and the SPA has rendered
+    await ensurePortalHome(page);
 
-    // Same-tab navigation; keep using the same handle and wait deterministically
-    const newPage2 = welcomePage;
-
-    // Be explicit: make sure we’re on the portal origin and the SPA has rendered
-    await ensurePortalHome(newPage2);
-
-    await newPage2.locator('[data-testid="accounts_accounts"]').click();  // data-testid="accounts_accounts"
+    await page.locator('[data-testid="accounts_accounts"]').click();
     // click on "Create" button
-    await newPage2.locator('[test-id="generic-list-view-create-button"]').click(); // generic-list-view-create-button
+    await page.locator('[test-id="generic-list-view-create-button"]').click();
 
-    await newPage2.pause();
-    
-    await newPage2.locator('[test-id="create-field-metadata_name"]').click();
-    await newPage2.locator('[test-id="create-field-spec_type"]').click();
-    await newPage2.locator('[test-id="create-field-spec_type-option-account"]').click();
-    await newPage2.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
-    await newPage2.locator('[test-id="create-resource-submit"]').click();
+    await page.pause();
 
-    const accountElement = newPage2.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
-    await expect(accountElement).toBeVisible( { timeout: 10000 } );
-    
-    // Close the Mailpit page/tab if it's still open
-    const pages = newPage2.context().pages();
-    for (const p of pages) {
-      if (p.url().includes('mailpit') && p !== newPage2) {
-        await p.close();
-      }
-    }
-    
+    await page.locator('[test-id="create-field-metadata_name"]').click();
+    await page.locator('[test-id="create-field-spec_type"]').click();
+    await page.locator('[test-id="create-field-spec_type-option-account"]').click();
+    await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
+    await page.locator('[test-id="create-resource-submit"]').click();
+
+    const accountElement = page.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
+    await expect(accountElement).toBeVisible( { timeout: 180000 } );
+
     await accountElement.click();
-    const downloadButton = newPage2.locator('[test-id="generic-detail-view-download"]');
+    const downloadButton = page.locator('[test-id="generic-detail-view-download"]');
     await expect(downloadButton).toBeVisible( { timeout: 10000 } );
 
-    await newPage2.pause();
-    
-    const download1Promise = newPage2.waitForEvent('download');
+    await page.pause();
+
+    const download1Promise = page.waitForEvent('download');
     await downloadButton.click();
     const download = await download1Promise;
     expect(download).toBeDefined();

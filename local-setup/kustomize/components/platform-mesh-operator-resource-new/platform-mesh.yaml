@@ -8,6 +8,7 @@ spec:
     name: platform-mesh-profile
     namespace: platform-mesh-system
   wait:
+    # argocd wait configuration
     resourceTypes:
       - versions: ["v1alpha1"]
         group: argoproj.io
@@ -28,7 +29,11 @@ spec:
       name: platform-mesh
     referencePath: []
   featureToggles:
-   - name: "feature-enable-getting-started"
+   - name: feature-enable-getting-started
+   - name: feature-disable-email-verification
+   - name: feature-accounts-in-accounts
+   - name: feature-enable-marketplace-account
+   - name: feature-enable-marketplace-org
   values:
     keycloak:
       enabled: true
@@ -67,14 +72,6 @@ spec:
               hostnames:
                 - "localhost"
                 - "portal.localhost"
-        keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - "http://localhost:8000/callback*"
-                  - "http://localhost:4300/callback*"
-                  - "https://*"
     security-operator:
       values:
         baseDomain: "{{ .baseDomainPort }}"
@@ -85,9 +82,17 @@ spec:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.localhost
+            - --development-allow-unverified-emails
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
+        fga:
+          extraArgs:
+          - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+          - --idp-smtp-port=1025
+          - --idp-from-address=keycloak@portal.localhost
+          - --set-default-password
+          - --idp-registration-allowed
     portal:
       enabled: true
       values:
