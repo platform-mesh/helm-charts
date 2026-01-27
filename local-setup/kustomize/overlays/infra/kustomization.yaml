@@ -24,8 +24,8 @@ patches:
             entries:
               - ip: "172.18.0.6"
                 hostnames:
-                  - kcp.api.portal.dev.local
-                  - portal.dev.local
+                  - portal.localhost
+                  - localhost
           remoteRuntime:
             enabled: true
             secretName: "platform-mesh-kubeconfig"

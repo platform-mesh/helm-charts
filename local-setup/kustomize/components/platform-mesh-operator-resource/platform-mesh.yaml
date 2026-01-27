@@ -6,6 +6,7 @@ metadata:
 spec:
   exposure:
     port: 8443
+    baseDomain: "portal.localhost"
   ocm:
     repo:
       name: platform-mesh
@@ -13,8 +14,18 @@ spec:
       name: platform-mesh
     referencePath: []
   featureToggles:
-   - name: "feature-enable-getting-started"
+   - name: feature-enable-getting-started
+   - name: feature-disable-email-verification
+   - name: feature-accounts-in-accounts
+   - name: feature-enable-marketplace-account
+   - name: feature-enable-marketplace-org
   values:
+    account-operator:
+      values:
+        hostAliases:
+          enabled: true
+        log:
+          noJson: true
     keycloak:
       enabled: true
       values:
@@ -33,28 +44,11 @@ spec:
       values:
         cors:
           enabled: true
-          accessControlAllowOriginList:
-          - "http://localhost:4200"
-          - "http://localhost:4300"
-          - "http://*.localhost:4200"
-          - "http://*.localhost:4300"
-          - "https://portal.dev.local:8443"
-          - "https://*.portal.dev.local:8443"
-        mailpit:
-          enabled: true
         hostAliases:
           enabled: true
         kcp:
           frontProxy:
             clusterIP: "10.96.0.100"
-        keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - "http://localhost:8000/callback*"
-                  - "http://localhost:4300/callback*"
-                  - "https://*"
     security-operator:
       values:
         log:
@@ -63,14 +57,16 @@ spec:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
+            - --idp-from-address=keycloak@portal.localhost
+            - --set-default-password
         initializer:
           extraArgs:
             - --domain-ca-lookup
             # remove arguments below when the operator and the portal are ready
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
+            - --idp-from-address=keycloak@portal.localhost
+            - --development-allow-unverified-emails
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
@@ -95,6 +91,11 @@ spec:
             readOnly: true
         hostAliases:
           enabled: true
+          entries:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "localhost"
+                - "portal.localhost"
     openfga:
       enabled: true
       values:
@@ -106,6 +107,10 @@ spec:
             database: postgres
     marketplace-ui:
       enabled: true
+    rebac-authz-webhook:
+      values:
+        hostAliases:
+          enabled: true
     iam-service:
       values:
         extraArgs:

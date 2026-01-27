@@ -19,7 +19,7 @@ spec:
         statusValue: "Synced"
   exposure:
     port: 8443
-    baseDomain: portal.dev.local
+    baseDomain: localhost
     protocol: https
   ocm:
     repo:
@@ -46,6 +46,9 @@ spec:
             memory: 1Gi
     infra:
       values:
+        kcp:
+          external:
+            hostname: localhost
         cors:
           enabled: true
           accessControlAllowOriginList:
@@ -59,6 +62,11 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
+          entries:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "localhost"
+                - "portal.localhost"
         keycloak:
           crossplane:
             clients:
@@ -76,7 +84,7 @@ spec:
             # remove arguments below when the operator and the portal are ready
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
+            - --idp-from-address=keycloak@portal.localhost
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
@@ -115,8 +123,8 @@ spec:
       values:
         hostAliases:
           - hostnames:
-            - kcp.api.portal.dev.local
-            - portal.dev.local
+            - portal.localhost
+            - localhost
             ip: 10.96.188.4
         cors:
           enabled: true
@@ -150,16 +158,11 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-          # entries:
-          #   - ip: "10.96.188.4"
-          #     hostnames:
-          #       - "kcp.api.portal.dev.local"
-          #       - "portal.dev.local"
         tracing:
           enabled: false
         trust:
           default:
-            trustedIssuer: "https://{{ .baseDomainPort }}/keycloak/realms/default"
+            trustedIssuer: "https://portal.{{ .baseDomainPort }}/keycloak/realms/default"
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             audience: default
         kubeConfig:
