@@ -53,8 +53,9 @@ jobs:
       GARDENER_ETCD_DRUID_CHART_VERSION: "0.1.0"
       GARDENER_ETCD_DRUID_ETCD_WRAPPER_IMAGE_VERSION: "v0.6.0"
       GARDENER_ETCD_DRUID_ETCD_BRCTL_IMAGE_VERSION: "v0.40.0"
-      OPENFGA_VERSION: "0.2.38"
-      OPENFGA_IMAGE_VERSION: "v1.9.0"
+      PM_OPENFGA_VERSION: "0.2.38"
+      OPENFGA_VERSION: "0.2.51"
+      OPENFGA_IMAGE_VERSION: "v1.11.2"
       OPENFGA_POSTGRESQL_IMAGE_VERSION: "15.4.0-debian-11-r45"
       GATEWAY_API_VERSION: "v1.4.0"
       GATEWAY_API_COMMIT: "5e5891a5adad272363de782eb02a042166f1913c"
@@ -371,8 +372,8 @@ jobs:
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_OPENFGA" != "${{ env.OPENFGA_VERSION }}" ]; then
-            echo "OpenFGA: $CURRENT_OPENFGA -> ${{ env.OPENFGA_VERSION }}"
+          if [ "$CURRENT_OPENFGA" != "${{ env.PM_OPENFGA_VERSION }}" ]; then
+            echo "OpenFGA: $CURRENT_OPENFGA -> ${{ env.PM_OPENFGA_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
@@ -428,6 +429,7 @@ jobs:
             OPENFGA_VERSION=${{ env.OPENFGA_VERSION }} \
             OPENFGA_IMAGE_VERSION=${{ env.OPENFGA_IMAGE_VERSION }} \
             OPENFGA_POSTGRESQL_IMAGE_VERSION=${{ env.OPENFGA_POSTGRESQL_IMAGE_VERSION }} \
+            PM_OPENFGA_VERSION=${{ env.PM_OPENFGA_VERSION }} \
             GATEWAY_API_VERSION=${{ env.GATEWAY_API_VERSION }} \
             GATEWAY_API_COMMIT=${{ env.GATEWAY_API_COMMIT }} \
             TRAEFIK_VERSION=${{ env.TRAEFIK_VERSION }} \
