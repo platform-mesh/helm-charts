@@ -95,7 +95,7 @@ components:
         version: {{ .OPENFGA_POSTGRESQL_IMAGE_VERSION }}
         access:
           type: ociArtifact
-          imageReference: "ghcr.io/platform-mesh/images/postgresql:{{ .OPENFGA_POSTGRESQL_IMAGE_VERSION }}"
+          imageReference: "ghcr.io/platform-mesh/upstream-images/postgresql:{{ .OPENFGA_POSTGRESQL_IMAGE_VERSION }}"
   - name: github.com/kcp-dev/kcp-operator
     version: {{ .KCP_OPERATOR_CHART_VERSION }}
     provider:
