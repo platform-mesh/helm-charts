@@ -1,4 +1,4 @@
-/.DS_Store
+.DS_Store
 bin/*
 .idea
 .secret
@@ -25,4 +25,5 @@ registry-ca.pem
 local-setup/rootCA.pem
 local-setup/e2e/node_modules/
 local-setup/e2e/*.png
+local-setup/scripts/load-custom-images.sh
 /convo

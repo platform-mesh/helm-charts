@@ -17,6 +17,8 @@ spec:
    - name: feature-enable-getting-started
    - name: feature-disable-email-verification
    - name: feature-accounts-in-accounts
+   - name: feature-enable-marketplace-account
+   - name: feature-enable-marketplace-org
   values:
     account-operator:
       values:
@@ -42,23 +44,11 @@ spec:
       values:
         cors:
           enabled: true
-        mailpit:
-          enabled: true
         hostAliases:
           enabled: true
         kcp:
           frontProxy:
             clusterIP: "10.96.0.100"
-        keycloak:
-          crossplane:
-            realm:
-              verifyEmail: false
-            clients:
-              welcome:
-                validRedirectUris:
-                  - "http://localhost:8000/callback*"
-                  - "http://localhost:4300/callback*"
-                  - "https://*"
     security-operator:
       values:
         log:
@@ -68,6 +58,8 @@ spec:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.localhost
+            - --set-default-password
+            - --idp-registration-allowed
         initializer:
           extraArgs:
             - --domain-ca-lookup
@@ -75,6 +67,7 @@ spec:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.localhost
+            - --development-allow-unverified-emails
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
