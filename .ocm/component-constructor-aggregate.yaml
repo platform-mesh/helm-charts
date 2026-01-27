@@ -183,7 +183,7 @@ components:
         version: {{ .INFRA_VERSION }}
       - name: keycloak
         componentName: github.com/platform-mesh/keycloak
-        version: {{ .KEYCLOAK_VERSION }}
+        version: {{ .PM_KEYCLOAK_VERSION }}
       - name: kcp-operator
         componentName: github.com/kcp-dev/kcp-operator
         version: {{ .KCP_OPERATOR_CHART_VERSION }}
