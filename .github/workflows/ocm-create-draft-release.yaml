@@ -258,6 +258,17 @@ jobs:
           echo ""
           echo "✓ Release notes formatted successfully"
           echo ""
+          echo "=== Release Notes Size ==="
+          CHAR_COUNT=$(wc -c < dist/release-notes.md)
+          echo "Character count: $CHAR_COUNT / 125000 (GitHub limit)"
+          if [[ $CHAR_COUNT -gt 125000 ]]; then
+            echo "⚠ WARNING: Release notes exceed GitHub's 125,000 character limit!"
+          elif [[ $CHAR_COUNT -gt 100000 ]]; then
+            echo "⚠ WARNING: Release notes are approaching the limit"
+          else
+            echo "✓ Release notes are within the limit"
+          fi
+          echo ""
           echo "=== Release Notes Preview (first 50 lines) ==="
           head -50 dist/release-notes.md
 
@@ -306,3 +317,14 @@ jobs:
           echo "  1. Review the release notes in GitHub"
           echo "  2. Edit if needed"
           echo "  3. Publish when ready"
+
+      - name: Upload release artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-artifacts
+          path: |
+            dist/release-notes.md
+            generated/changelog.json
+            generated/component-versions.json
+          retention-days: 7
