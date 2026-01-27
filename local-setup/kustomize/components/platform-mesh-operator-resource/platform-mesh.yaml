@@ -42,6 +42,15 @@ spec:
             memory: 1Gi
     infra:
       values:
+        traefik:
+          accessControlAllowOriginList:
+            - "http://localhost:4200"
+            - "http://localhost:4300"
+            - "http://*.localhost:4200"
+            - "http://*.localhost:4300"
+            - "http://sub.localhost:4300"
+            - "https://portal.dev.local:8443"
+            - "https://*.portal.dev.local:8443"
         cors:
           enabled: true
         hostAliases:
@@ -60,6 +69,7 @@ spec:
             - --idp-from-address=keycloak@portal.localhost
             - --set-default-password
             - --idp-registration-allowed
+            - --idp-additional-redirect-urls="http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         initializer:
           extraArgs:
             - --domain-ca-lookup
