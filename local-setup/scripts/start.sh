@@ -14,7 +14,7 @@ YELLOW='\033[93m'
 COL_RES='\033[0m'
 
 KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
-KINDEST_VERSION="kindest/node:v1.34.0"
+ KINDEST_VERSION="kindest/node:v1.35.0"
 
 SCRIPT_DIR=$(dirname "$0")
 
