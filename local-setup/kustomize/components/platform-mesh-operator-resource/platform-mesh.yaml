@@ -117,7 +117,7 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
-      enabled: true
+      enabled: false
     rebac-authz-webhook:
       values:
         hostAliases:
