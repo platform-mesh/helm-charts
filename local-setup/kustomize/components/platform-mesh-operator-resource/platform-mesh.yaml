@@ -59,6 +59,7 @@ spec:
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.localhost
             - --set-default-password
+            - --idp-registration-allowed
         initializer:
           extraArgs:
             - --domain-ca-lookup
