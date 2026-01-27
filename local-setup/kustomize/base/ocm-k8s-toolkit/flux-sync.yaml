@@ -7,7 +7,7 @@ spec:
   interval: 1m
   url: https://github.com/open-component-model/open-component-model
   ref:
-    commit: b5053cf5c64d10a7410e6a41355c9b10098b2a7f
+    commit: 0342183af7aa4d532e1174ac00038a0134644b8c
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
@@ -32,7 +32,7 @@ spec:
             - --zap-log-level=4
         - op: replace
           path: /spec/template/spec/containers/0/image
-          value: ghcr.io/open-component-model/kubernetes/controller:0.0.0-b5053cf
+          value: ghcr.io/open-component-model/kubernetes/controller:0.0.0-0342183
       target:
         kind: Deployment
         name: controller-manager
