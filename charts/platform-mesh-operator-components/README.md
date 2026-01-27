@@ -65,16 +65,25 @@ A Helm chart for Kubernetes
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.keycloak.enabled | bool | `true` |  |
+| services.keycloak.imageResources[0].annotations.artifact | string | `"image"` |  |
+| services.keycloak.imageResources[0].annotations.for | string | `"keycloak"` |  |
+| services.keycloak.imageResources[0].annotations.repo | string | `"oci"` |  |
+| services.keycloak.imageResources[0].name | string | `"keycloak-image"` |  |
+| services.keycloak.imageResources[1].annotations.artifact | string | `"image"` |  |
+| services.keycloak.imageResources[1].annotations.for | string | `"keycloak"` |  |
+| services.keycloak.imageResources[1].annotations.path | string | `"postgresql.image.tag"` |  |
+| services.keycloak.imageResources[1].annotations.repo | string | `"oci"` |  |
+| services.keycloak.imageResources[1].name | string | `"keycloak-postgresql-image"` |  |
+| services.keycloak.imageResources[1].resource | string | `"postgresql-image"` |  |
 | services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
 | services.keycloak.values.auth.existingSecret | string | `"keycloak-admin"` | keycloak admin secret |
 | services.keycloak.values.auth.passwordSecretKey | string | `"secret"` | keycloak admin secret key |
 | services.keycloak.values.extraEnvVars | list | `[{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"},{"name":"KC_PROXY_HEADERS","value":"xforwarded"},{"name":"KC_HOSTNAME_STRICT","value":"false"}]` | keycloak environment variables (raw) For Arm64 arch (especially Apple M4), add -XX:UseSVE=0 to JAVA_OPTS_APPEND |
-| services.keycloak.values.global.imagePullSecrets[0].name | string | `"github"` |  |
 | services.keycloak.values.global.security.allowInsecureImages | bool | `true` |  |
 | services.keycloak.values.httpRelativePath | string | `"/keycloak/"` | keycloak http relative path |
 | services.keycloak.values.image.registry | string | `"ghcr.io/platform-mesh"` |  |
 | services.keycloak.values.image.repository | string | `"upstream-images/keycloak"` |  |
-| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"image":{"registry":"ghcr.io/platform-mesh","repository":"upstream-images/postgresql","tag":"17.6.0-debian-12-r4"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
+| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"image":{"registry":"ghcr.io/platform-mesh","repository":"upstream-images/postgresql"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
 | services.keycloak.values.postgresql.auth | object | `{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"}` | authorization configuration |
 | services.keycloak.values.postgresql.auth.existingSecret | string | `""` | existing secret name |
 | services.keycloak.values.postgresql.auth.secretKeys.adminPasswordKey | string | `"password"` | admin password key |

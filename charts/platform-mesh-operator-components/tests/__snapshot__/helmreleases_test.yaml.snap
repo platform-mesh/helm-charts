@@ -177,8 +177,6 @@ HelmRelease snapshots:
           - name: KC_HOSTNAME_STRICT
             value: "false"
         global:
-          imagePullSecrets:
-            - name: github
           security:
             allowInsecureImages: true
         httpRelativePath: /keycloak/
@@ -195,7 +193,6 @@ HelmRelease snapshots:
           image:
             registry: ghcr.io/platform-mesh
             repository: upstream-images/postgresql
-            tag: 17.6.0-debian-12-r4
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
@@ -611,8 +608,6 @@ enable remote deployment of helmreleases:
           - name: KC_HOSTNAME_STRICT
             value: "false"
         global:
-          imagePullSecrets:
-            - name: github
           security:
             allowInsecureImages: true
         httpRelativePath: /keycloak/
@@ -629,7 +624,6 @@ enable remote deployment of helmreleases:
           image:
             registry: ghcr.io/platform-mesh
             repository: upstream-images/postgresql
-            tag: 17.6.0-debian-12-r4
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
