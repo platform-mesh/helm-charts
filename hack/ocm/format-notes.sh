@@ -149,14 +149,34 @@ EOF
       local changes=$(jq -c '.changes[]' "$changelog_file")
       while IFS= read -r change; do
         local component=$(echo "$change" | jq -r '.component')
-        local pr_changelogs=$(echo "$change" | jq -r '.pr_changelogs[]? // empty' 2>/dev/null)
+        local pr_changelogs=$(echo "$change" | jq -c '.pr_changelogs[]?' 2>/dev/null)
 
         if [[ -n "$pr_changelogs" ]]; then
-          while IFS= read -r item; do
-            if [[ -n "$item" ]]; then
-              # Remove leading dash if present
-              item=$(echo "$item" | sed 's/^[-*+][[:space:]]*//')
-              echo "- **${component}**: ${item}"
+          while IFS= read -r item_json; do
+            if [[ -n "$item_json" ]] && [[ "$item_json" != "null" ]]; then
+              # Check if this is the new format (object with text, pr_number, pr_url, author) or old format (plain string)
+              local item_text=$(echo "$item_json" | jq -r 'if type == "object" then .text else . end' 2>/dev/null)
+              local pr_number=$(echo "$item_json" | jq -r 'if type == "object" then .pr_number else null end' 2>/dev/null)
+              local pr_url=$(echo "$item_json" | jq -r 'if type == "object" then .pr_url else null end' 2>/dev/null)
+              local pr_author=$(echo "$item_json" | jq -r 'if type == "object" then .author else null end' 2>/dev/null)
+              local pr_author_url=$(echo "$item_json" | jq -r 'if type == "object" then .author_url else null end' 2>/dev/null)
+
+              if [[ -n "$item_text" ]] && [[ "$item_text" != "null" ]]; then
+                # Remove leading dash if present
+                item_text=$(echo "$item_text" | sed 's/^[-*+][[:space:]]*//')
+
+                # Build the attribution string
+                local attribution=""
+                if [[ -n "$pr_number" ]] && [[ "$pr_number" != "null" ]] && [[ -n "$pr_url" ]] && [[ "$pr_url" != "null" ]]; then
+                  if [[ -n "$pr_author" ]] && [[ "$pr_author" != "null" ]] && [[ -n "$pr_author_url" ]] && [[ "$pr_author_url" != "null" ]]; then
+                    attribution=" ([#${pr_number}](${pr_url}) by [@${pr_author}](${pr_author_url}))"
+                  else
+                    attribution=" ([#${pr_number}](${pr_url}))"
+                  fi
+                fi
+
+                echo "- **${component}**: ${item_text}${attribution}"
+              fi
             fi
           done <<< "$pr_changelogs"
         fi
