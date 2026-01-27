@@ -205,16 +205,37 @@ fetch_pr_info_and_changelog() {
       ' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
 
       if [[ -n "$changelog_content" ]]; then
-        # Extract bullet points and convert to JSON array
-        local changelog_items
-        changelog_items=$(echo "$changelog_content" | grep -E '^[-*+][[:space:]]' | \
-          sed 's/^[-*+][[:space:]]*//; s/^[[:space:]]*//; s/[[:space:]]*$//' | \
-          jq -R . | jq -s . || echo "[]")
+        # Extract bullet points and convert to JSON array with PR info
+        local changelog_items_raw
+        changelog_items_raw=$(echo "$changelog_content" | grep -E '^[-*+][[:space:]]' | \
+          sed 's/^[-*+][[:space:]]*//; s/^[[:space:]]*//; s/[[:space:]]*$//' || echo "")
 
-        if [[ "$changelog_items" != "[]" ]]; then
-          local item_count=$(echo "$changelog_items" | jq 'length' 2>/dev/null || echo "0")
-          echo "        PR #${pr_num}: Found $item_count changelog item(s)" >&2
-          pr_changelogs=$(jq -n --argjson existing "$pr_changelogs" --argjson new "$changelog_items" '$existing + $new')
+        if [[ -n "$changelog_items_raw" ]]; then
+          # Get PR URL and author info for linking
+          local pr_url=$(echo "$pr_data" | jq -r '.html_url // ""')
+          local pr_author_url=$(echo "$pr_data" | jq -r '.user.html_url // ""')
+
+          # Convert each item to an object with text and PR info
+          local changelog_items_with_pr="[]"
+          while IFS= read -r item_text; do
+            if [[ -n "$item_text" ]]; then
+              changelog_items_with_pr=$(echo "$changelog_items_with_pr" | jq \
+                --arg text "$item_text" \
+                --arg pr_num "$pr_num" \
+                --arg pr_url "$pr_url" \
+                --arg author "$pr_author" \
+                --arg author_url "$pr_author_url" \
+                '. + [{text: $text, pr_number: ($pr_num | tonumber), pr_url: $pr_url, author: $author, author_url: $author_url}]')
+            fi
+          done <<< "$changelog_items_raw"
+
+          local item_count=$(echo "$changelog_items_with_pr" | jq 'length' 2>/dev/null || echo "0")
+          if [[ "$item_count" -gt 0 ]]; then
+            echo "        PR #${pr_num}: Found $item_count changelog item(s)" >&2
+            pr_changelogs=$(jq -n --argjson existing "$pr_changelogs" --argjson new "$changelog_items_with_pr" '$existing + $new')
+          else
+            echo "        PR #${pr_num}: No changelog entries" >&2
+          fi
         else
           echo "        PR #${pr_num}: No changelog entries" >&2
         fi
