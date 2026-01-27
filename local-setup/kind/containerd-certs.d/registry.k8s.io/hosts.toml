@@ -1,0 +1,4 @@
+server = "https://registry.k8s.io"
+
+[host."http://proxy-k8s-io:5000"]
+  capabilities = ["pull", "resolve"]
