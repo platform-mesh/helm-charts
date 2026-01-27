@@ -253,6 +253,7 @@ EOF
 
       # Extract and display PR details as collapsible list
       local pr_details=$(echo "$change" | jq -c '.pr_details[]? // empty' 2>/dev/null)
+      local skipped_renovate=$(echo "$change" | jq -r '.skipped_renovate_count // 0' 2>/dev/null)
 
       if [[ -n "$pr_details" ]]; then
         local pr_count=$(echo "$change" | jq '.pr_details | length' 2>/dev/null || echo "0")
@@ -278,6 +279,12 @@ EOF
             fi
           fi
         done <<< "$pr_details"
+
+        # Add note about skipped renovate PRs
+        if [[ "$skipped_renovate" -gt 0 ]]; then
+          echo ""
+          echo "_Note: ${skipped_renovate} renovate bot PR(s) omitted for brevity._"
+        fi
 
         echo ""
         echo "</details>"

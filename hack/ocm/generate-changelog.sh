@@ -132,7 +132,7 @@ fetch_component_prs() {
 }
 
 # Fetch PR info (details + changelog) in a single API call
-# Returns JSON object: {pr_details: [{number, title, url}], pr_changelogs: ["item1", "item2"]}
+# Returns JSON object: {pr_details: [{number, title, url}], pr_changelogs: ["item1", "item2"], skipped_renovate_count: N}
 fetch_pr_info_and_changelog() {
   local org=$1
   local repo=$2
@@ -140,6 +140,7 @@ fetch_pr_info_and_changelog() {
 
   local pr_details="[]"
   local pr_changelogs="[]"
+  local skipped_renovate_count=0
 
   echo "      Fetching PR details and changelogs..." >&2
 
@@ -165,6 +166,14 @@ fetch_pr_info_and_changelog() {
 
     if [[ "$pr_data" == "{}" ]] || [[ "$pr_data" == "null" ]]; then
       echo "        PR #${pr_num}: Empty response" >&2
+      continue
+    fi
+
+    # Skip renovate bot PRs
+    local pr_author=$(echo "$pr_data" | jq -r '.user.login // ""')
+    if [[ "$pr_author" == "renovate[bot]" ]] || [[ "$pr_author" == "renovate" ]]; then
+      echo "        PR #${pr_num}: Skipping (renovate bot)" >&2
+      skipped_renovate_count=$((skipped_renovate_count + 1))
       continue
     fi
 
@@ -216,11 +225,16 @@ fetch_pr_info_and_changelog() {
 
   done < <(echo "$pr_numbers_json" | jq -r '.[]' 2>/dev/null)
 
-  # Return both pr_details and pr_changelogs as a JSON object
+  if [[ $skipped_renovate_count -gt 0 ]]; then
+    echo "      Skipped $skipped_renovate_count renovate bot PR(s)" >&2
+  fi
+
+  # Return pr_details, pr_changelogs, and skipped_renovate_count as a JSON object
   jq -n \
     --argjson details "$pr_details" \
     --argjson changelogs "$pr_changelogs" \
-    '{pr_details: $details, pr_changelogs: $changelogs}'
+    --argjson skipped_renovate "$skipped_renovate_count" \
+    '{pr_details: $details, pr_changelogs: $changelogs, skipped_renovate_count: $skipped_renovate}'
 }
 
 # Fetch OCM component details (resources, sources, and raw YAML)
@@ -443,6 +457,7 @@ for component in "${!last_version[@]}"; do
   # Fetch PR info (details + changelog) in a single pass
   pr_details="[]"
   pr_changelogs="[]"
+  skipped_renovate_count=0
 
   if [[ "$pr_numbers" != "[]" ]] && [[ -n "$pr_numbers" ]] && [[ -n "$image_repo_org" ]] && [[ -n "$image_repo_name" ]]; then
     pr_count=$(echo "$pr_numbers" | jq 'length' 2>/dev/null || echo "0")
@@ -451,9 +466,10 @@ for component in "${!last_version[@]}"; do
     # Fetch everything in one pass
     pr_info=$(fetch_pr_info_and_changelog "$image_repo_org" "$image_repo_name" "$pr_numbers")
 
-    # Extract pr_details and pr_changelogs from result
+    # Extract pr_details, pr_changelogs, and skipped_renovate_count from result
     pr_details=$(echo "$pr_info" | jq '.pr_details')
     pr_changelogs=$(echo "$pr_info" | jq '.pr_changelogs')
+    skipped_renovate_count=$(echo "$pr_info" | jq '.skipped_renovate_count // 0')
 
     pr_details_count=$(echo "$pr_details" | jq 'length' 2>/dev/null || echo "0")
     changelog_count=$(echo "$pr_changelogs" | jq 'length' 2>/dev/null || echo "0")
@@ -486,6 +502,7 @@ for component in "${!last_version[@]}"; do
     --argjson ocm "$new_ocm_details" \
     --argjson pr_changelogs "$pr_changelogs" \
     --argjson pr_details "$pr_details" \
+    --argjson skipped_renovate "$skipped_renovate_count" \
     '.changes += [{
       component: $comp,
       old_version: $old_ver,
@@ -494,7 +511,8 @@ for component in "${!last_version[@]}"; do
       release_notes: $release,
       ocm_details: $ocm,
       pr_changelogs: $pr_changelogs,
-      pr_details: $pr_details
+      pr_details: $pr_details,
+      skipped_renovate_count: $skipped_renovate
     }]' \
     "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp"
   mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
