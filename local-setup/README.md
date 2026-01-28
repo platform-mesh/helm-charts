@@ -52,6 +52,20 @@ If you're using Windows Subsystem for Linux (WSL2):
 - Docker Desktop with WSL2 integration enabled
 - Update WSL if needed: `wsl --update`
 
+If Kubernetes is crashing because of a conflict between Cgroup v1 and v2 (a "hybrid" state), 
+you can force WSL2 to use **Cgroup v2 exclusively** (Unified Mode). 
+This is the modern standard starting from **Kubernetes v1.25**, where Cgroup v2 graduated to General Availability (GA). 
+- Open PowerShell on Windows.
+- Edit your `.wslconfig` file: `notepad $env:USERPROFILE\.wslconfig`
+- Add these lines:
+
+```
+[wsl2]
+# Disable Cgroup V1 to force the kernel into "unified" (v2 only) mode
+kernelCommandLine = cgroup_no_v1=all
+```
+
+
 ### Podman Specific Requirements for MacOS
 
 If you're using Podman on MacOS make sure to set the following env:
