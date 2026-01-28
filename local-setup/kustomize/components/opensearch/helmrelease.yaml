@@ -42,9 +42,16 @@ spec:
         network.host: 0.0.0.0
         plugins.security.disabled: true
         
-    # Disable security plugin completely
+    # Disable security plugin completely - prevent demo config installation
     securityConfig:
       enabled: false
+    
+    # Environment variables to disable security initialization
+    extraEnvs:
+      - name: DISABLE_INSTALL_DEMO_CONFIG
+        value: "true"
+      - name: DISABLE_SECURITY_PLUGIN
+        value: "true"
     
     # Resource limits for local development
     resources:
@@ -52,8 +59,8 @@ spec:
         cpu: 250m
         memory: 512Mi
       limits:
-        cpu: 500m
-        memory: 762Mi
+        cpu: 1000m
+        memory: 1Gi
     
     # Java heap settings
     opensearchJavaOpts: "-Xms512m -Xmx512m"
@@ -99,7 +106,6 @@ spec:
     replicaCount: 1
     
     # OpenSearch connection - security disabled
-    opensearchHosts: "http://opensearch-cluster-master:9200"
     
     # Disable security for local development
     config:
@@ -107,8 +113,6 @@ spec:
         server.host: "0.0.0.0"
         opensearch.hosts: ["http://opensearch-cluster-master:9200"]
         opensearch.ssl.verificationMode: none
-        opensearch_security.multitenancy.enabled: false
-        opensearch_security.readonly_mode.roles: []
         
     # Disable security plugin
     extraEnvs:
