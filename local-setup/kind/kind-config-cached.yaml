@@ -2,16 +2,14 @@ apiVersion: kind.x-k8s.io/v1alpha4
 kind: Cluster
 containerdConfigPatches:
   - |-
-    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."quay.io"]
-      endpoint = ["http://proxy-quay:5000"]
-  - |-
-    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."ghcr.io"]
-      endpoint = ["http://proxy-ghcr:5000"]
-  - |-
-    [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.k8s.io"]
-      endpoint = ["http://proxy-k8s-io:5000"]
+    [plugins."io.containerd.grpc.v1.cri".registry]
+      config_path = "/etc/containerd/certs.d"
 nodes:
 - role: control-plane
+  extraMounts:
+  - hostPath: ./containerd-certs.d
+    containerPath: /etc/containerd/certs.d
+    readOnly: true
   extraPortMappings:
   - containerPort: 31000
     hostPort: 8443

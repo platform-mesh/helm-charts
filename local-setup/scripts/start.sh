@@ -14,7 +14,7 @@ YELLOW='\033[93m'
 COL_RES='\033[0m'
 
 KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
-KINDEST_VERSION="kindest/node:v1.34.0"
+ KINDEST_VERSION="kindest/node:v1.35.0"
 
 SCRIPT_DIR=$(dirname "$0")
 
@@ -76,12 +76,24 @@ if ! check_kind_cluster; then
     fi
     $SCRIPT_DIR/../scripts/gen-certs.sh
 
+    KIND_QUIET_FLAG="--quiet"
+    if [ "$DEBUG" = "true" ]; then
+        KIND_QUIET_FLAG=""
+    fi
+
     if [ "$CACHED" = true ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached images ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
+
+        # Create temporary kind config with absolute path for containerd certs
+        TEMP_KIND_CONFIG=$(mktemp)
+        CERTS_DIR=$(cd "$SCRIPT_DIR/../kind/containerd-certs.d" && pwd)
+        sed "s|./containerd-certs.d|${CERTS_DIR}|" "$SCRIPT_DIR/../kind/kind-config-cached.yaml" > "$TEMP_KIND_CONFIG"
+
+        kind create cluster --config "$TEMP_KIND_CONFIG" --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
+        rm -f "$TEMP_KIND_CONFIG"
     else
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
+        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
     fi
 fi
 
@@ -97,12 +109,12 @@ fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.17.1 \
+  --version 2.17.2 \
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
   --set notificationController.create=false \
-  --set helmController.container.additionalArgs[0]="--concurrent=50" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
+  --set-json 'helmController.container.additionalArgs=["--concurrent=50"]' \
+  --set-json 'sourceController.container.additionalArgs=["--requeue-dependency=5s"]' > /dev/null 2>&1
 
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
@@ -188,11 +200,10 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${CO
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
 if [ "$EXAMPLE_DATA" = true ]; then
-  export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
-  kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
-  kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
-  kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
-  unset KUBECONFIG
+  
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 

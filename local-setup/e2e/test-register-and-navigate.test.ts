@@ -18,14 +18,14 @@ async function loginUser(page: Page): Promise<void> {
 }
 
 async function registerOrLoginUser(page: Page): Promise<void> {
-  await page.click('text=Register', { timeout: 10000 });
+  await page.click('text=Register', { timeout: 5000 });
   await page.fill('input[name="email"]', userEmail);
   await page.fill('input[id="password"]', userPassword);
   await page.fill('input[id="password-confirm"]', userPassword);
   await page.fill('input[id="firstName"]', firstName);
   await page.fill('input[id="lastName"]', lastName);
 
-  await page.click('input[value="Register"]', { timeout: 10000 });
+  await page.click('input[value="Register"]', { timeout: 5000 });
 
   // Wait for either successful navigation or "Email already exists" error
   const emailExistsError = page.getByText('Email already exists.');
@@ -33,8 +33,8 @@ async function registerOrLoginUser(page: Page): Promise<void> {
 
   // Race between success and error conditions
   const result = await Promise.race([
-    welcomeText.waitFor({ state: 'visible', timeout: 15000 }).then(() => 'success'),
-    emailExistsError.waitFor({ state: 'visible', timeout: 15000 }).then(() => 'exists'),
+    welcomeText.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'success'),
+    emailExistsError.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'exists'),
   ]).catch(() => 'timeout');
 
   if (result === 'exists') {
@@ -51,14 +51,14 @@ async function completeAccountSetup(page: Page): Promise<void> {
 
   // Wait for either the proceed link or password field to appear
   const firstElement = await Promise.race([
-    proceedLink.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'proceed'),
-    newPasswordField.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'password'),
+    proceedLink.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'proceed'),
+    newPasswordField.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'password'),
   ]).catch(() => 'none');
 
   // Click proceed link if present
   if (firstElement === 'proceed') {
     await proceedLink.click();
-    await newPasswordField.waitFor({ state: 'visible', timeout: 10000 });
+    await newPasswordField.waitFor({ state: 'visible', timeout: 5000 });
   }
 
   // Fill password fields if visible
@@ -102,12 +102,12 @@ async function completeAccountSetup(page: Page): Promise<void> {
 
 // Ensures we're on portal and the SPA finished routing
 async function ensurePortalHome(page: Page) {
-  await page.waitForURL('https://'+ newOrgName +'.portal.localhost:8443/**', { timeout: 20000 });
-  await page.waitForLoadState('networkidle', { timeout: 20000 });
+  await page.waitForURL('https://'+ newOrgName +'.portal.localhost:8443/**', { timeout: 10000 });
+  await page.waitForLoadState('networkidle', { timeout: 10000 });
   const welcome = page.getByText("Welcome! Let's get started.", { exact: true });
   for (let i = 0; i < 3; i++) {
     try {
-      await expect(welcome).toBeVisible({ timeout: 10000 });
+      await expect(welcome).toBeVisible({ timeout: 5000 });
       return;
     } catch (e) {
       if (i === 2) throw e;
@@ -118,7 +118,7 @@ async function ensurePortalHome(page: Page) {
 
 test.describe('Home Page', () => {
 
-  test.setTimeout(2*60*1000);  // 2 minutes test timeout
+  test.setTimeout(90000);  // 90 seconds test timeout
 
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
@@ -126,10 +126,10 @@ test.describe('Home Page', () => {
     await registerOrLoginUser(page);
 
     // Registration/login redirects to the welcome page
-    await page.waitForURL(`${portalBaseUrl}**`, { timeout: 20000 });
-    await page.waitForLoadState('load', { timeout: 20000 });
+    await page.waitForURL(`${portalBaseUrl}**`, { timeout: 10000 });
+    await page.waitForLoadState('load', { timeout: 10000 });
     const verificationText = page.getByText("Welcome to the Platform Mesh Portal!");
-    await expect(verificationText).toBeVisible( { timeout: 10000 });
+    await expect(verificationText).toBeVisible( { timeout: 5000 });
 
     await page.screenshot({ path: 'screenshot-beforeswitch.png' });
 
@@ -137,10 +137,14 @@ test.describe('Home Page', () => {
     await page.locator('[test-id="organization-management-input"]').locator('input').fill(newOrgName);
     await page.locator('[test-id="organization-management-onboard-button"]').locator('button').click();
 
+    // Verify the newly created org is selected in the combo box
+    const orgInput = page.locator('[test-id="organization-management-input"]').locator('input');
+    await expect(orgInput).toHaveValue(newOrgName, { timeout: 5000 });
 
-    // Wait for the "Switch" button to become visible (org is ready), then click it
+    // Wait for the "Switch" button to become visible and enabled (org is ready), then click it
     const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
-    await switchButton.waitFor({ state: 'visible', timeout: 100000 });
+    await switchButton.waitFor({ state: 'visible', timeout: 60000 });
+    await expect(switchButton).toBeEnabled({ timeout: 100000 });
     await switchButton.click();
 
     // Login via Keycloak with email and static password
@@ -158,8 +162,6 @@ test.describe('Home Page', () => {
     // click on "Create" button
     await page.locator('[test-id="generic-list-view-create-button"]').click();
 
-    await page.pause();
-
     await page.locator('[test-id="create-field-metadata_name"]').click();
     await page.locator('[test-id="create-field-spec_type"]').click();
     await page.locator('[test-id="create-field-spec_type-option-account"]').click();
@@ -167,13 +169,11 @@ test.describe('Home Page', () => {
     await page.locator('[test-id="create-resource-submit"]').click();
 
     const accountElement = page.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
-    await expect(accountElement).toBeVisible( { timeout: 180000 } );
+    await expect(accountElement).toBeVisible( { timeout: 30000 } );
 
     await accountElement.click();
     const downloadButton = page.locator('[test-id="generic-detail-view-download"]');
-    await expect(downloadButton).toBeVisible( { timeout: 10000 } );
-
-    await page.pause();
+    await expect(downloadButton).toBeVisible( { timeout: 5000 } );
 
     const download1Promise = page.waitForEvent('download');
     await downloadButton.click();

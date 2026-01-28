@@ -159,10 +159,21 @@ services:
               - "{{ .Values.baseDomain }}"
   keycloak:
     enabled: true
+    imageResources:
+      - name: keycloak-image
+        annotations:
+          repo: oci
+          artifact: image
+          for: keycloak
+      - name: keycloak-postgresql-image
+        resource: postgresql-image
+        annotations:
+          repo: oci
+          artifact: image
+          for: keycloak
+          path: postgresql.image.tag
     values:
       global:
-        imagePullSecrets:
-          - name: github
         security:
           allowInsecureImages: true
       resources:
@@ -201,7 +212,6 @@ services:
         image:
           registry: ghcr.io/platform-mesh
           repository: upstream-images/postgresql
-          tag: 17.6.0-debian-12-r4
         primary:
           # -- primary postgresql resources preset
           resourcesPreset: none

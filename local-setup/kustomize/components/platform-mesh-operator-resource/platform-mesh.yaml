@@ -17,8 +17,6 @@ spec:
    - name: feature-enable-getting-started
    - name: feature-disable-email-verification
    - name: feature-accounts-in-accounts
-   - name: feature-enable-marketplace-account
-   - name: feature-enable-marketplace-org
   values:
     account-operator:
       values:
@@ -42,6 +40,15 @@ spec:
             memory: 1Gi
     infra:
       values:
+        traefik:
+          accessControlAllowOriginList:
+            - "http://localhost:4200"
+            - "http://localhost:4300"
+            - "http://*.localhost:4200"
+            - "http://*.localhost:4300"
+            - "http://sub.localhost:4300"
+            - "https://portal.localhost:8443"
+            - "https://*.portal.localhost:8443"
         cors:
           enabled: true
         hostAliases:
@@ -68,6 +75,7 @@ spec:
             - --idp-smtp-port=1025
             - --idp-from-address=keycloak@portal.localhost
             - --development-allow-unverified-emails
+            - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
@@ -107,7 +115,7 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
-      enabled: true
+      enabled: false
     rebac-authz-webhook:
       values:
         hostAliases:
