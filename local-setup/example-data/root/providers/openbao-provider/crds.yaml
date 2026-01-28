@@ -1,0 +1,304 @@
+---
+# SecretStore CRD - represents a connection to an OpenBao instance
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: secretstores.secrets.platform-mesh.io
+spec:
+  group: secrets.platform-mesh.io
+  names:
+    kind: SecretStore
+    listKind: SecretStoreList
+    plural: secretstores
+    singular: secretstore
+    shortNames:
+      - ss
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          required:
+            - spec
+          properties:
+            spec:
+              type: object
+              required:
+                - provider
+              properties:
+                provider:
+                  type: object
+                  properties:
+                    openbao:
+                      type: object
+                      required:
+                        - server
+                      properties:
+                        server:
+                          type: string
+                          description: "OpenBao server URL"
+                        path:
+                          type: string
+                          description: "Path to the secrets engine"
+                          default: "secret"
+                        namespace:
+                          type: string
+                          description: "OpenBao namespace (if using namespaces)"
+                        caBundle:
+                          type: string
+                          description: "Base64 encoded CA bundle for TLS"
+                        auth:
+                          type: object
+                          properties:
+                            method:
+                              type: string
+                              enum: ["token", "kubernetes", "approle", "oidc"]
+                              default: "kubernetes"
+                            tokenSecretRef:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                key:
+                                  type: string
+                                  default: "token"
+                            kubernetes:
+                              type: object
+                              properties:
+                                mountPath:
+                                  type: string
+                                  default: "kubernetes"
+                                role:
+                                  type: string
+                                serviceAccountRef:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                            appRole:
+                              type: object
+                              properties:
+                                path:
+                                  type: string
+                                  default: "approle"
+                                roleId:
+                                  type: string
+                                secretRef:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                    key:
+                                      type: string
+            status:
+              type: object
+              properties:
+                ready:
+                  type: boolean
+                  description: "Whether the SecretStore is ready to serve secrets"
+                message:
+                  type: string
+                  description: "Human-readable status message"
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                      message:
+                        type: string
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Ready
+          type: boolean
+          jsonPath: .status.ready
+        - name: Server
+          type: string
+          jsonPath: .spec.provider.openbao.server
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+---
+# ExternalSecret CRD - represents a secret to be synced from OpenBao
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: externalsecrets.secrets.platform-mesh.io
+spec:
+  group: secrets.platform-mesh.io
+  names:
+    kind: ExternalSecret
+    listKind: ExternalSecretList
+    plural: externalsecrets
+    singular: externalsecret
+    shortNames:
+      - es
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          required:
+            - spec
+          properties:
+            spec:
+              type: object
+              required:
+                - secretStoreRef
+              properties:
+                secretStoreRef:
+                  type: object
+                  required:
+                    - name
+                  properties:
+                    name:
+                      type: string
+                      description: "Name of the SecretStore to use"
+                    kind:
+                      type: string
+                      enum: ["SecretStore", "ClusterSecretStore"]
+                      default: "SecretStore"
+                refreshInterval:
+                  type: string
+                  description: "How often to sync the secret"
+                  default: "1h"
+                target:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      description: "Name of the Kubernetes Secret to create"
+                    creationPolicy:
+                      type: string
+                      enum: ["Owner", "Orphan", "Merge", "None"]
+                      default: "Owner"
+                    deletionPolicy:
+                      type: string
+                      enum: ["Delete", "Merge", "Retain"]
+                      default: "Retain"
+                    template:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          default: "Opaque"
+                        metadata:
+                          type: object
+                          properties:
+                            labels:
+                              type: object
+                              additionalProperties:
+                                type: string
+                            annotations:
+                              type: object
+                              additionalProperties:
+                                type: string
+                        data:
+                          type: object
+                          additionalProperties:
+                            type: string
+                data:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - secretKey
+                      - remoteRef
+                    properties:
+                      secretKey:
+                        type: string
+                        description: "Key in the Kubernetes Secret"
+                      remoteRef:
+                        type: object
+                        required:
+                          - key
+                        properties:
+                          key:
+                            type: string
+                            description: "Path to the secret in OpenBao"
+                          property:
+                            type: string
+                            description: "Property within the secret"
+                          version:
+                            type: string
+                            description: "Specific version to fetch"
+                dataFrom:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      extract:
+                        type: object
+                        properties:
+                          key:
+                            type: string
+                          version:
+                            type: string
+                      find:
+                        type: object
+                        properties:
+                          name:
+                            type: object
+                            properties:
+                              regexp:
+                                type: string
+                          path:
+                            type: string
+            status:
+              type: object
+              properties:
+                ready:
+                  type: boolean
+                message:
+                  type: string
+                syncedResourceVersion:
+                  type: string
+                refreshTime:
+                  type: string
+                  format: date-time
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                      message:
+                        type: string
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Ready
+          type: boolean
+          jsonPath: .status.ready
+        - name: Store
+          type: string
+          jsonPath: .spec.secretStoreRef.name
+        - name: Refresh
+          type: string
+          jsonPath: .spec.refreshInterval
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp

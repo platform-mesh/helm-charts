@@ -1,0 +1,12 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIExport
+metadata:
+  name: secrets.platform-mesh.io
+  labels:
+    ui.platform-mesh.io/content-for: secrets.platform-mesh.io
+spec:
+  # You need to list the resource schemas you want to export.
+  # Note: When you apply CRDs to a KCP workspace, APIResourceSchemas are usually created automatically.
+  latestResourceSchemas:
+    - secretstores.secrets.platform-mesh.io
+    - externalsecrets.secrets.platform-mesh.io

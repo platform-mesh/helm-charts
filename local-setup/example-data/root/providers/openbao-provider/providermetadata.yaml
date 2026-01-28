@@ -1,0 +1,27 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ProviderMetadata
+metadata:
+  name: secrets.platform-mesh.io
+spec:
+  displayName: OpenBao Secrets Management
+  description: |
+    Enterprise-grade secrets management powered by OpenBao.
+    Securely store, access, and manage sensitive data including API keys, 
+    passwords, certificates, and encryption keys. Features include:
+    - Dynamic secret generation
+    - Secret leasing and automatic revocation
+    - Encryption as a service
+    - Identity-based access control
+  contacts:
+  - displayName: OpenBao Team
+    email: openbao-support@example.com
+    role: ["Technical Support", "Platform Engineering"]
+  preferredSupportChannels:
+  - displayName: OpenBao Support Portal
+  icon:
+    light:
+      # OpenBao-themed icon (vault/lock design) - light theme
+      data: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjkwIiBmaWxsPSIjMWExYTJlIi8+CiAgPHJlY3QgeD0iNjAiIHk9Ijg1IiB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHJ4PSI1IiBmaWxsPSIjZmZkNzAwIi8+CiAgPHBhdGggZD0iTTcwIDg1IEwxMDAgNTUgTDEzMCA4NSIgZmlsbD0iI2ZmZDcwMCIvPgogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjExMCIgcj0iMTIiIGZpbGw9IiMxYTFhMmUiLz4KICA8cmVjdCB4PSI5NiIgeT0iMTEwIiB3aWR0aD0iOCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzFhMWEyZSIvPgo8L3N2Zz4="
+    dark:
+      # OpenBao-themed icon (vault/lock design) - dark theme
+      data: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjkwIiBmaWxsPSIjMmQyZDQ0Ii8+CiAgPHJlY3QgeD0iNjAiIHk9Ijg1IiB3aWR0aD0iODAiIGhlaWdodD0iNjAiIHJ4PSI1IiBmaWxsPSIjZmZkNzAwIi8+CiAgPHBhdGggZD0iTTcwIDg1IEwxMDAgNTUgTDEzMCA4NSIgZmlsbD0iI2ZmZDcwMCIvPgogIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjExMCIgcj0iMTIiIGZpbGw9IiMyZDJkNDQiLz4KICA8cmVjdCB4PSI5NiIgeT0iMTEwIiB3aWR0aD0iOCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzJkMmQ0NCIvPgo8L3N2Zz4="

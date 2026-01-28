@@ -1,0 +1,261 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  labels:
+    ui.platform-mesh.io/entity: core_platform-mesh_io_account
+    ui.platform-mesh.io/content-for: secrets.platform-mesh.io
+  name: openbao-ui
+spec:
+  inlineConfiguration:
+    content: |-
+      {
+          "name": "secretstores",
+          "creationTimestamp": "2024-01-01T00:00:00Z",
+          "luigiConfigFragment": {
+              "data": {
+                  "nodes": [
+                      {
+                          "pathSegment": "secrets_platform-mesh_io_secretstores",
+                          "navigationContext": "secrets_platform-mesh_io_secretstores",
+                          "label": "Secret Stores",
+                          "icon": "locked",
+                          "order": 750,
+                          "entityType": "main.core_platform-mesh_io_account.core_namespace",
+                          "loadingIndicator": {
+                              "enabled": false
+                          },
+                          "keepSelectedForChildren": true,
+                          "url": "/assets/platform-mesh-portal-ui-wc.js#generic-list-view",
+                          "webcomponent": {
+                              "selfRegistered": true
+                          },
+                          "context": {
+                              "resourceDefinition": {
+                                  "group": "secrets.platform-mesh.io",
+                                  "plural": "secretstores",
+                                  "singular": "secretstore",
+                                  "kind": "SecretStore",
+                                  "scope": "Namespaced",
+                                  "namespace": null,
+                                  "readyCondition": {
+                                    "jsonPathExpression": "status.ready",
+                                    "property": ["status.ready"]
+                                  },
+                                  "ui": {
+                                      "logoUrl": "https://openbao.org/img/logo.svg",
+                                      "listView": {
+                                          "fields": [
+                                              {
+                                                  "label": "Name",
+                                                  "property": "metadata.name"
+                                              },
+                                              {
+                                                  "label": "Ready",
+                                                  "property": "status.ready",
+                                                  "uiSettings": {
+                                                    "displayAs": "boolIcon"
+                                                  }
+                                              },
+                                              {
+                                                  "label": "Vault Address",
+                                                  "property": "spec.provider.openbao.server"
+                                              },
+                                              {
+                                                  "label": "Auth Method",
+                                                  "property": "spec.provider.openbao.auth.method"
+                                              }
+                                          ]
+                                      },
+                                      "detailView": {
+                                          "tabs": [
+                                              {
+                                                  "label": "Overview",
+                                                  "fields": [
+                                                      {
+                                                          "label": "Name",
+                                                          "property": "metadata.name"
+                                                      },
+                                                      {
+                                                          "label": "Namespace",
+                                                          "property": "metadata.namespace"
+                                                      },
+                                                      {
+                                                          "label": "Server URL",
+                                                          "property": "spec.provider.openbao.server"
+                                                      },
+                                                      {
+                                                          "label": "Ready",
+                                                          "property": "status.ready"
+                                                      },
+                                                      {
+                                                          "label": "Message",
+                                                          "property": "status.message"
+                                                      }
+                                                  ]
+                                              }
+                                          ]
+                                      },
+                                      "createView": {
+                                          "fields": [
+                                              {
+                                                  "label": "Name",
+                                                  "property": "metadata.name",
+                                                  "required": true
+                                              },
+                                              {
+                                                  "label": "OpenBao Server URL",
+                                                  "property": "spec.provider.openbao.server",
+                                                  "required": true,
+                                                  "placeholder": "https://openbao.example.com:8200"
+                                              },
+                                              {
+                                                  "label": "Secret Path",
+                                                  "property": "spec.provider.openbao.path",
+                                                  "required": false,
+                                                  "placeholder": "secret"
+                                              }
+                                          ]
+                                      }
+                                  }
+                              }
+                          },
+                          "children": [
+                            {
+                                "pathSegment": ":secretstoreId",
+                                "hideFromNav": true,
+                                "keepSelectedForChildren": false,
+                                "defineEntity": {
+                                    "id": "secrets_platform-mesh_io_secretstore",
+                                    "contextKey": "secretstoreId",
+                                    "graphqlEntity": {
+                                        "group": "secrets_platform-mesh_io",
+                                        "kind": "SecretStore",
+                                        "query": "{ metadata { name } }"
+                                    }
+                                },
+                                "context": {
+                                    "accountId": ":accountId",
+                                    "namespaceId": ":namespaceId",
+                                    "resourceId": ":secretstoreId"
+                                }
+                            }
+                          ]
+                      },
+                      {
+                        "entityType": "main.core_platform-mesh_io_account.core_namespace.secrets_platform-mesh_io_secretstore",
+                        "pathSegment": "dashboard",
+                        "label": "Dashboard",
+                        "url": "/assets/platform-mesh-portal-ui-wc.js#generic-detail-view",
+                        "webcomponent": {
+                          "selfRegistered": true
+                        },
+                        "defineEntity": {
+                            "id": "dashboard"
+                        },
+                        "compound": {
+                            "children": []
+                        }
+                      },
+                      {
+                          "pathSegment": "secrets_platform-mesh_io_externalsecrets",
+                          "navigationContext": "secrets_platform-mesh_io_externalsecrets",
+                          "label": "External Secrets",
+                          "icon": "key",
+                          "order": 751,
+                          "entityType": "main.core_platform-mesh_io_account.core_namespace",
+                          "loadingIndicator": {
+                              "enabled": false
+                          },
+                          "keepSelectedForChildren": true,
+                          "url": "/assets/platform-mesh-portal-ui-wc.js#generic-list-view",
+                          "webcomponent": {
+                              "selfRegistered": true
+                          },
+                          "context": {
+                              "resourceDefinition": {
+                                  "group": "secrets.platform-mesh.io",
+                                  "plural": "externalsecrets",
+                                  "singular": "externalsecret",
+                                  "kind": "ExternalSecret",
+                                  "scope": "Namespaced",
+                                  "namespace": null,
+                                  "readyCondition": {
+                                    "jsonPathExpression": "status.ready",
+                                    "property": ["status.ready"]
+                                  },
+                                  "ui": {
+                                      "logoUrl": "https://openbao.org/img/logo.svg",
+                                      "listView": {
+                                          "fields": [
+                                              {
+                                                  "label": "Name",
+                                                  "property": "metadata.name"
+                                              },
+                                              {
+                                                  "label": "Ready",
+                                                  "property": "status.ready",
+                                                  "uiSettings": {
+                                                    "displayAs": "boolIcon"
+                                                  }
+                                              },
+                                              {
+                                                  "label": "Secret Store",
+                                                  "property": "spec.secretStoreRef.name"
+                                              },
+                                              {
+                                                  "label": "Target Secret",
+                                                  "property": "spec.target.name"
+                                              }
+                                          ]
+                                      },
+                                      "detailView": {},
+                                      "createView": {
+                                          "fields": [
+                                              {
+                                                  "label": "Name",
+                                                  "property": "metadata.name",
+                                                  "required": true
+                                              },
+                                              {
+                                                  "label": "Secret Store Reference",
+                                                  "property": "spec.secretStoreRef.name",
+                                                  "required": true
+                                              },
+                                              {
+                                                  "label": "Remote Key",
+                                                  "property": "spec.data[0].remoteRef.key",
+                                                  "required": true,
+                                                  "placeholder": "path/to/secret"
+                                              }
+                                          ]
+                                      }
+                                  }
+                              }
+                          },
+                          "children": [
+                            {
+                                "pathSegment": ":externalsecretId",
+                                "hideFromNav": true,
+                                "keepSelectedForChildren": false,
+                                "defineEntity": {
+                                    "id": "secrets_platform-mesh_io_externalsecret",
+                                    "contextKey": "externalsecretId",
+                                    "graphqlEntity": {
+                                        "group": "secrets_platform-mesh_io",
+                                        "kind": "ExternalSecret",
+                                        "query": "{ metadata { name } }"
+                                    }
+                                },
+                                "context": {
+                                    "accountId": ":accountId",
+                                    "namespaceId": ":namespaceId",
+                                    "resourceId": ":externalsecretId"
+                                }
+                            }
+                          ]
+                      }
+                  ]
+              }
+          }
+      }
+    contentType: json

@@ -13,6 +13,7 @@ RED='\033[91m'
 YELLOW='\033[93m'
 COL_RES='\033[0m'
 
+KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
 KINDEST_VERSION="kindest/node:v1.34.0"
 
 SCRIPT_DIR=$(dirname "$0")
@@ -62,19 +63,19 @@ if ! check_kind_cluster; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
         rm -rf "$SCRIPT_DIR/certs"
     fi
-    echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
     $SCRIPT_DIR/../scripts/gen-certs.sh
 
     if [ "$CACHED" = true ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached image ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached images ${COL_RES}"
+        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
     else
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
+        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
     fi
 fi
 
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local"
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
@@ -84,24 +85,24 @@ helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-comm
   --set imageReflectionController.create=false \
   --set notificationController.create=false \
   --set helmController.container.additionalArgs[0]="--concurrent=50" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
+  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
 
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s helm-controller
+  --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s source-controller
+  --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
-  --timeout=120s kustomize-controller
+  --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=480s kro
+  --timeout=$KUBECTL_WAIT_TIMEOUT kro
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 #kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
@@ -126,7 +127,7 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
 kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
-  --timeout=480s platform-mesh-operator
+  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
 if [ "$LATEST" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Using LATEST OCM Component version ${COL_RES}"
@@ -138,8 +139,8 @@ fi
 
 kubectl wait --namespace default \
   --for=condition=Ready PlatformMeshOperator \
-  --timeout=480s platform-mesh-operator
-kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
+  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
 if [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
@@ -153,26 +154,26 @@ fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
-  --timeout=580s platform-mesh
+  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s keycloak
+  --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
 kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s rebac-authz-webhook
+  --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s account-operator
+  --timeout=$KUBECTL_WAIT_TIMEOUT account-operator
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=480s portal
+  --timeout=$KUBECTL_WAIT_TIMEOUT portal
 kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
-  --timeout=280s security-operator
+  --timeout=$KUBECTL_WAIT_TIMEOUT security-operator
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
@@ -182,18 +183,24 @@ if [ "$EXAMPLE_DATA" = true ]; then
   kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root"
   kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers"
   kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers:httpbin-provider"
+
+  kubectl create-workspace openbao-provider --type=root:provider --ignore-existing --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers"
+  kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/openbao-provider --server="https://kcp.api.portal.dev.local:8443/clusters/root:providers:openbao-provider"
   unset KUBECONFIG
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
   kubectl wait --namespace default \
     --for=condition=Ready helmreleases \
-    --timeout=280s api-syncagent
+    --timeout=$KUBECTL_WAIT_TIMEOUT api-syncagent
 
   kubectl wait --namespace default \
     --for=condition=Ready helmreleases \
-    --timeout=280s example-httpbin-provider
+    --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
 
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT example-openbao-provider
 fi
 
 echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
