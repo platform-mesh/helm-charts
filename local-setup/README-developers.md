@@ -12,6 +12,9 @@ task local-setup:prerelease
 
 # With caching for faster image pulls
 task local-setup:cached:prerelease
+
+# With concurrent chart builds (faster on multi-core systems)
+task local-setup:cached:prerelease:concurrent
 ```
 
 This automatically:
@@ -30,6 +33,9 @@ task local-setup:prerelease:iterate
 
 # With caching
 task local-setup:cached:prerelease:iterate
+
+# With concurrent chart builds
+task local-setup:cached:prerelease:concurrent:iterate
 ```
 
 This is the recommended approach for iterative development as it:

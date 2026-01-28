@@ -81,7 +81,7 @@ While Platform-mesh can work with other virtualization frameworks like QEMU, it 
 
 ### 1. Bootstrap Local Environment
 
-The setup script automates the entire bootstrap process. By default, it uses the latest released OCM component. You can optionally use the `:latest` flag to deploy the latest release-candidate (RC) version from the registry.
+The setup script automates the entire bootstrap process. By default, it uses the current tested OCM component version pinned in the repository.
 
 **Using Task (recommended):**
 ```sh
@@ -90,10 +90,6 @@ task local-setup
 
 # Iterate on existing cluster (faster, preserves cluster state)
 task local-setup:iterate
-
-# Use latest release-candidate (RC)
-task local-setup:latest
-task local-setup:latest:iterate
 ```
 
 **Without Task (direct script execution):**
@@ -104,9 +100,6 @@ kind delete cluster --name platform-mesh
 
 # Iterate on existing cluster (faster, preserves cluster state)
 ./local-setup/scripts/start.sh
-
-# Use latest release-candidate (RC)
-./local-setup/scripts/start.sh --latest
 ```
 
 ### 2. Bootstrap with Example Data (Demo Setup)
@@ -122,10 +115,6 @@ task local-setup:example-data
 
 # Iterate on existing cluster
 task local-setup:example-data:iterate
-
-# With latest release-candidate (RC)
-task local-setup:latest:example-data
-task local-setup:latest:example-data:iterate
 ```
 
 **Without Task:**
@@ -136,9 +125,6 @@ kind delete cluster --name platform-mesh
 
 # Iterate on existing cluster
 ./local-setup/scripts/start.sh --example-data
-
-# With latest release-candidate (RC)
-./local-setup/scripts/start.sh --latest --example-data
 ```
 
 **What gets created:**
@@ -161,14 +147,6 @@ task local-setup:cached:iterate
 # With example data + caching
 task local-setup:cached:example-data
 task local-setup:cached:example-data:iterate
-
-# With latest release-candidate (RC) + caching
-task local-setup:cached:latest
-task local-setup:cached:latest:iterate
-
-# All flags combined (cached + latest + example-data)
-task local-setup:cached:latest:example-data
-task local-setup:cached:latest:example-data:iterate
 ```
 
 **Without Task:**
@@ -182,32 +160,30 @@ kind delete cluster --name platform-mesh
 
 # With example data + caching
 ./local-setup/scripts/start.sh --cached --example-data
-
-# With latest release-candidate (RC) + caching
-./local-setup/scripts/start.sh --cached --latest
-
-# All flags combined
-./local-setup/scripts/start.sh --cached --latest --example-data
 ```
 
 ### Understanding Version Options
 
-**Default (Released):** By default, the setup uses an officially released OCM component versions from the OCM registry. This is ideal for:
-- Local development and testing using a stable release
+**Default:** By default, the setup uses the current tested OCM component version from the OCM registry. This reflects the version pinned in the repository configuration and is ideal for:
+- Local development and testing with the current development version
 
-**Release Candidate (--latest flag):** When using the `--latest` flag, the setup deploys the latest release-candidate (RC) version from the OCM registry. This is useful for:
-- Testing against the most recent RC build
-- Validating release candidates before production
+**Released version:** For a stable environment based on an officially released version, checkout the appropriate git tag before running setup:
+```sh
+git checkout 0.2.0  # or any released tag like 0.1.1, 0.2, etc.
+task local-setup
+```
 
-**Prerelease (--prerelease flag):** When using the `--prerelease` flag, the setup deploys locally built OCM components instead of released versions. This is useful for:
+**Prerelease (--prerelease flag):** When using the `--prerelease` flag, the setup deploys locally built OCM components instead of versions from the registry. This is useful for:
 - Testing local chart changes without going through the official release process
 - Chart development and iteration workflows
 - Note: Requires the `task` CLI to be installed
 
+**Concurrent builds (--concurrent flag):** When using the `--concurrent` flag together with `--prerelease`, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
+
 **Task Naming Convention:**
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `cached`, `latest`, `example-data`, `prerelease`
+- Available flags: `cached`, `prerelease`, `example-data`, `concurrent`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
@@ -238,7 +214,7 @@ The `scripts/start.sh` script performs the following operations:
 
 2. **Cluster Management**
    - Creates Kind cluster named `platform-mesh` (if not exists)
-   - Uses Kubernetes v1.33.1 (`kindest/node:v1.33.1`)
+   - Uses Kubernetes v1.35.0 (`kindest/node:v1.35.0`)
    - Configures cluster with custom networking for local development
 
 3. **Certificate Generation**
@@ -343,7 +319,17 @@ After the local setup is running, you can run end-to-end tests to verify the por
 
 **Using Task:**
 ```sh
+# Run tests in headless mode
 task test:portal-e2e
+
+# Run tests with visible browser window
+task test:portal-e2e:headed
+
+# Run tests with video recording (saved to local-setup/e2e/test-results/)
+task test:portal-e2e:video
+
+# Specify organization name (default: "default")
+ORG_NAME=myorg task test:portal-e2e
 ```
 
 **Without Task:**
