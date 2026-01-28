@@ -22,3 +22,55 @@ rules:
       - patch
       - update
       - watch
+  - apiGroups:
+      - apis.kcp.io
+    resources:
+      - apibindings
+      - apiexports
+      - apiresourceschemas
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - core.kcp.io
+    resources:
+      - logicalclusters
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - core.platform-mesh.io
+    resources:
+      - accountinfos
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - core.platform-mesh.io
+    resources:
+      - searchindices
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - core.platform-mesh.io
+    resources:
+      - searchindices/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - core.platform-mesh.io
+    resources:
+      - searchindices/status
+    verbs:
+      - get
+      - patch
+      - update
