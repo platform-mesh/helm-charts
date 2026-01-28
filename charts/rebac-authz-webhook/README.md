@@ -18,6 +18,7 @@ A Helm chart for Kubernetes
 | image.tag | string | `""` |  |
 | istio.dnsNames | list | `[]` |  |
 | istio.enabled | bool | `false` |  |
+| kcp.apiExportEndpointSliceName | string | `""` | KCP APIExportEndpointSliceName to watch. Empty string means auto-discover all slices |
 | kcp.kubeconfig.secret | string | `"rebac-authz-webhook-kubeconfig"` |  |
 | openfga.url | string | `"openfga:8081"` |  |
 | service.annotations | object | `{}` |  |

@@ -14,17 +14,24 @@ YELLOW='\033[93m'
 COL_RES='\033[0m'
 
 KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
-KINDEST_VERSION="kindest/node:v1.34.0"
+ KINDEST_VERSION="kindest/node:v1.35.0"
 
 SCRIPT_DIR=$(dirname "$0")
 
 PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
-LATEST=false
+CONCURRENT=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--help]"
+  echo ""
+  echo "Options:"
+  echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
+  echo "  --cached        Use local Docker registry mirrors for faster image pulls"
+  echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
+  echo "  --concurrent    Run prerelease chart builds in parallel instead of sequentially"
+  echo "  --help          Show this help message"
   exit 1
 }
 
@@ -33,7 +40,7 @@ while [ $# -gt 0 ]; do
     --prerelease) PRERELEASE=true ;;
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
-    --latest) LATEST=true ;;
+    --concurrent) CONCURRENT=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -41,10 +48,14 @@ while [ $# -gt 0 ]; do
   shift
 done
 
+# Export CONCURRENT for prerelease build scripts
+export CONCURRENT
+
 # Source compatibility and environment checks
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
 source "$SCRIPT_DIR/check-environment.sh"
 source "$SCRIPT_DIR/setup-registry-proxies.sh"
+source "$SCRIPT_DIR/setup-prerelease.sh"
 
 # Run WSL compatibility checks
 check_wsl_compatibility
@@ -65,27 +76,45 @@ if ! check_kind_cluster; then
     fi
     $SCRIPT_DIR/../scripts/gen-certs.sh
 
+    KIND_QUIET_FLAG="--quiet"
+    if [ "$DEBUG" = "true" ]; then
+        KIND_QUIET_FLAG=""
+    fi
+
     if [ "$CACHED" = true ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached images ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
+
+        # Create temporary kind config with absolute path for containerd certs
+        TEMP_KIND_CONFIG=$(mktemp)
+        CERTS_DIR=$(cd "$SCRIPT_DIR/../kind/containerd-certs.d" && pwd)
+        sed "s|./containerd-certs.d|${CERTS_DIR}|" "$SCRIPT_DIR/../kind/kind-config-cached.yaml" > "$TEMP_KIND_CONFIG"
+
+        kind create cluster --config "$TEMP_KIND_CONFIG" --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
+        rm -f "$TEMP_KIND_CONFIG"
     else
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
+        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
     fi
 fi
 
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "*.dev.local" "*.portal.dev.local" "*.services.portal.dev.local" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
+
+# Load custom images if hook script exists
+if [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Loading custom images ${COL_RES}"
+    source "$SCRIPT_DIR/load-custom-images.sh"
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.17.1 \
+  --version 2.17.2 \
   --set imageAutomationController.create=false \
   --set imageReflectionController.create=false \
   --set notificationController.create=false \
-  --set helmController.container.additionalArgs[0]="--concurrent=50" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
+  --set-json 'helmController.container.additionalArgs=["--concurrent=50"]' \
+  --set-json 'sourceController.container.additionalArgs=["--requeue-dependency=5s"]' > /dev/null 2>&1
 
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
@@ -129,12 +158,14 @@ kubectl wait --namespace default \
   --for=condition=Ready resourcegraphdefinition \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
-if [ "$LATEST" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Using LATEST OCM Component version ${COL_RES}"
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default-latest
+# kind load image-archive image.tar --name platform-mesh
+# kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.41.9 --name platform-mesh
+if [ "$PRERELEASE" = true ]; then
+  run_prerelease_setup
 else
-  echo -e "${COL}[$(date '+%H:%M:%S')] Using RELEASED OCM Component version ${COL_RES}"
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/default
+  OCM_VERSION=$(yq '.spec.semver' "$SCRIPT_DIR/../kustomize/components/ocm/component.yaml")
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using OCM Component version: ${OCM_VERSION} ${COL_RES}"
+  kubectl apply -k "$SCRIPT_DIR/../kustomize/overlays/default"
 fi
 
 kubectl wait --namespace default \
@@ -142,7 +173,16 @@ kubectl wait --namespace default \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
-if [ "$EXAMPLE_DATA" = true ]; then
+if [ "$PRERELEASE" = true ]; then
+  if [ "$EXAMPLE_DATA" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
+    # TODO: Create example-data-prerelease overlay if needed
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+  else
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+  fi
+elif [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
 else
@@ -155,25 +195,6 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to 
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
-
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT keycloak
-kubectl delete pod -l pkg.crossplane.io/provider=provider-keycloak -n crossplane-system
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for helmreleases ${COL_RES}"
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT rebac-authz-webhook
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT account-operator
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT portal
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT security-operator
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
@@ -203,19 +224,16 @@ if [ "$EXAMPLE_DATA" = true ]; then
     --timeout=$KUBECTL_WAIT_TIMEOUT example-openbao-provider
 fi
 
-echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
+echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
+echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"
 show_wsl_hosts_guidance
-
-echo -e "${YELLOW}⚠️  WARNING: You need to add a hosts entry for every organization that is onboarded!${COL_RES}"
-echo -e "${YELLOW}   Each organization will require its own subdomain entry in /etc/hosts${COL_RES}"
-echo -e "${YELLOW}   Example: 127.0.0.1 <organization-name>.portal.dev.local${COL_RES}"
 
 echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
 
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
-echo -e "${COL}You can access the onboarding portal at: https://portal.dev.local:8443 , any send emails can be received here: https://portal.dev.local:8443/mailpit ${COL_RES}"
+echo -e "${COL}You can access the onboarding portal at: https://portal.localhost:8443 ${COL_RES}"
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"

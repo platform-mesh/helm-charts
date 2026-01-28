@@ -1,0 +1,62 @@
+# iam-service
+
+A Helm chart for Kubernetes
+
+## Values
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| caSecret | string | `""` |  |
+| exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
+| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/graphql","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only, no CORS) |
+| gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.pathPrefix | string | `"/iam/graphql"` |  |
+| health.port | int | `8080` |  |
+| hostAliases.enabled | bool | `false` |  |
+| hostAliases.items[0].hostnames[0] | string | `"portal.localhost"` |  |
+| hostAliases.items[0].hostnames[1] | string | `"localhost"` |  |
+| hostAliases.items[0].ip | string | `"10.96.188.4"` |  |
+| image.name | string | `"ghcr.io/platform-mesh/iam-service"` |  |
+| image.pullPolicy | string | `"IfNotPresent"` |  |
+| imagePullSecret | string | `"github"` |  |
+| jwt.userIdClaim | string | `"email"` |  |
+| kcp.kubeconfig.secretName | string | `"iam-service-kubeconfig"` |  |
+| keycloak.baseUrl | string | `"https://portal.localhost:8443/keycloak"` |  |
+| keycloak.client.id | string | `"iam-service"` |  |
+| keycloak.client.secret.key | string | `"client_secret"` |  |
+| keycloak.client.secret.name | string | `"iam-client-secret"` |  |
+| port | int | `8080` |  |
+| roles.raw.roles[0].groupResource | string | `"core.platform-mesh.io/Account"` |  |
+| roles.raw.roles[0].roles[0].description | string | `"Full access to all resources within the account."` |  |
+| roles.raw.roles[0].roles[0].displayName | string | `"Owner"` |  |
+| roles.raw.roles[0].roles[0].id | string | `"owner"` |  |
+| roles.raw.roles[0].roles[1].description | string | `"Limited access to resources within the account. Can view and interact with resources but cannot administrate them."` |  |
+| roles.raw.roles[0].roles[1].displayName | string | `"Member"` |  |
+| roles.raw.roles[0].roles[1].id | string | `"member"` |  |
+| roles.raw.roles[1].groupResource | string | `"Namespace"` |  |
+| roles.raw.roles[1].roles[0].description | string | `"Full access to all resources within the account."` |  |
+| roles.raw.roles[1].roles[0].displayName | string | `"Owner"` |  |
+| roles.raw.roles[1].roles[0].id | string | `"owner"` |  |
+| roles.raw.roles[1].roles[1].description | string | `"Limited access to resources within the account. Can view and interact with resources but cannot administrate them."` |  |
+| roles.raw.roles[1].roles[1].displayName | string | `"Member"` |  |
+| roles.raw.roles[1].roles[1].id | string | `"member"` |  |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
+
+## Overriding Values
+
+The values in the `defaults:` section can be reused from other charts by using the lookup function "common.getKeyValue". It implements lookup on three levels:
+
+1. Looks for `keyOverride` in the chart's values.yaml
+2. Looks for `global.key` in the chart's or parent chart's values.yaml
+3. Uses the `key` in the chart's values.yaml
+4. Uses the `common.defaults.key` value from the table below.
+
+1 has precedence over 2 over 3 over 4 respectively. This approach allows for individual charts to have minimal configuration, while still being able to override parameters locally.
+
+Example
+```
+1) .Values.deployment.resources.limits.memoryOverride = 4096MB
+2) .Values.global.deployment.resources.limits.memory = 2048MB
+3) .Values.deployment.resources.limits.memory = 1024MB
+4) .Values.common.defaults.deployment.resources.limits.memory = default 512MB
+```

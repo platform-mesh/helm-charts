@@ -49,7 +49,7 @@ match the Snapshot:
                 - name: GATEWAY_USERNAME_CLAIM
                   value: email
                 - name: GATEWAY_SHOULD_IMPERSONATE
-                  value: "true"
+                  value: "false"
                 - name: GATEWAY_INTROSPECTION_AUTHENTICATION
                   value: "true"
               image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0

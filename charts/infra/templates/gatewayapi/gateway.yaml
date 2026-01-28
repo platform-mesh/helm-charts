@@ -7,6 +7,40 @@ metadata:
 spec:
   gatewayClassName: {{ .Values.gatewayApi.gatewayClassName }}
   listeners:
+  {{- $mainHostnames := .Values.gatewayApi.main.gateway.hostnames | default list }}
+  {{- if $mainHostnames }}
+  {{- range $index, $hostname := $mainHostnames }}
+  {{- $listenerName := "" }}
+  {{- if eq $index 0 }}
+  {{- $listenerName = $.Values.gatewayApi.main.gateway.name }}
+  {{- else }}
+  {{- $listenerName = printf "%s-%s" $.Values.gatewayApi.main.gateway.name ($hostname | replace "." "-" | replace "*" "wildcard") }}
+  {{- end }}
+  - name: {{ $listenerName }}
+    port: {{ $.Values.gatewayApi.main.gateway.port }}
+    protocol: {{ $.Values.gatewayApi.main.gateway.protocol }}
+    hostname: {{ $hostname | quote }}
+    allowedRoutes:
+      namespaces:
+        from: All
+      kinds:
+        - group: gateway.networking.k8s.io
+          kind: HTTPRoute
+    {{- with $.Values.gatewayApi.main.gateway.tls }}
+    tls:
+      mode: {{ .mode | default "Terminate" }}
+      {{- if .credentialName }}
+      certificateRefs:
+        - group: ""
+          kind: Secret
+          name: {{ .credentialName }}
+          {{- if .credentialNamespace }}
+          namespace: {{ .credentialNamespace }}
+          {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- else }}
   - name: {{ .Values.gatewayApi.main.gateway.name }}
     port: {{ .Values.gatewayApi.main.gateway.port }}
     protocol: {{ .Values.gatewayApi.main.gateway.protocol }}
@@ -29,6 +63,7 @@ spec:
           {{- end }}
       {{- end }}
     {{- end }}
+  {{- end }}
   {{- if .Values.gatewayApi.passThrough.gateway.enabled }}
   - name: {{ .Values.gatewayApi.passThrough.gateway.name }}
     port: {{ .Values.gatewayApi.passThrough.gateway.port }}

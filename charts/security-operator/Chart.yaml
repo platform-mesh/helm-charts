@@ -2,13 +2,13 @@ apiVersion: v2
 name: security-operator
 description: A Helm chart for security-operator
 type: application
-version: 0.19.32
-appVersion: "v0.11.2"
+version: 0.23.5
+appVersion: "v0.17.3"
 dependencies:
   - name: security-operator-crds
     version: 0.3.0
     condition: crds.enabled
     repository: oci://ghcr.io/platform-mesh/helm-charts
   - name: common
-    version: 0.10.0
+    version: 0.11.2
     repository: oci://ghcr.io/platform-mesh/helm-charts

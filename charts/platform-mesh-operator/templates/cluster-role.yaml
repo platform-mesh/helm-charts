@@ -95,16 +95,14 @@ rules:
   resources: ["ocirepositories", "helmreleases","helmrepositories","gitrepositories"]
   verbs: ["get", "list", "create", "update", "patch", "delete", "watch"]
 - apiGroups:
-  - realm.keycloak.crossplane.io
+  - kustomize.toolkit.fluxcd.io
   resources:
-  - realms
+  - kustomizations
   verbs:
+  - create
+  - delete
   - get
   - list
-  - watch
-- apiGroups:
-  - realm.keycloak.crossplane.io
-  resources:
-  - realms/finalizers
-  verbs:
+  - patch
   - update
+  - watch

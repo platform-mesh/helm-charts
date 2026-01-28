@@ -1,39 +1,11 @@
 suite: Test service-mesh manifests
 templates:
-  - traefik/cors-middleware.yaml
   - keycloak/httproute.yaml
   - gatewayapi/gateway.yaml
 release:
   name: infra
   namespace: platform-mesh-system
 tests:
-- it: match snapshots
-  templates:
-    - traefik/cors-middleware.yaml
-  set:
-    cors:
-      enabled: true
-    gatewayApi:
-      enabled: true
-  asserts:
-  - matchSnapshot: {}
-- it: accessControlAllowOriginList test
-  templates:
-    - traefik/cors-middleware.yaml
-  set:
-    cors:
-      enabled: true
-      accessControlAllowOriginList:
-        - "https://example.com"
-        - "http://localhost:3000"
-    gatewayApi:
-      enabled: true
-  asserts:
-  - equal:
-      path: spec.headers.accessControlAllowOriginList
-      value:
-        - "https://example.com"
-        - "http://localhost:3000"
 - it: test HTTPRoutes
   templates: 
   - keycloak/httproute.yaml

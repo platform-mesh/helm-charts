@@ -13,6 +13,7 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 - **Kind**: [Kubernetes in Docker](https://kind.sigs.k8s.io/) for local Kubernetes clusters. [Installation](https://kind.sigs.k8s.io/docs/user/quick-start/)
 - **Helm**: Required for bootstrapping Flux and managing Helm releases. [Installation](https://helm.sh/docs/intro/install/)
 - **kubectl**: Kubernetes command-line tool (usually installed with Docker Desktop or Kind)
+- **kubectl-kcp plugin** (required only for `--example-data` setup): KCP kubectl plugin for workspace management. [Installation](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/)
 - **openssl**: Required for SSL certificate generation (typically pre-installed on Linux/macOS)
 - **base64**: Required for encoding/decoding operations (standard Unix utility, typically pre-installed)
 - **mkcert**: For generating local SSL certificates. [Installation](https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation)
@@ -58,6 +59,24 @@ If you're using Podman on MacOS make sure to set the following env:
 KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 ```
 
+### MacOS Virtualization Framework (Recommended)
+
+**macOS users**: For optimal performance and stability, we recommend using Apple's Virtualization Framework (VZ) with your container runtime:
+
+**Docker Desktop:**
+1. Open Docker Desktop
+2. Go to Settings → General
+3. Enable "Use Virtualization framework" or "VirtioFS"
+4. Restart Docker Desktop
+
+**Podman:**
+1. Stop the current machine: `podman machine stop`
+2. Remove the current machine: `podman machine rm`
+3. Create new machine with VZ: `podman machine init --vm-type=applehv`
+4. Start the machine: `podman machine start`
+
+While Platform-mesh can work with other virtualization frameworks like QEMU, it has been primarily tested with Apple's Virtualization Framework on macOS.
+
 ## Quick Start
 
 ### 1. Bootstrap Local Environment
@@ -93,6 +112,8 @@ kind delete cluster --name platform-mesh
 ### 2. Bootstrap with Example Data (Demo Setup)
 
 This setup includes an example provider ("httpbin") to showcase how provider integrations work in Platform Mesh. Perfect for demonstrations and learning.
+
+**Note**: The `--example-data` setup requires the [KCP kubectl plugin](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/) to be installed for workspace creation commands.
 
 **Using Task:**
 ```sh
@@ -178,32 +199,28 @@ kind delete cluster --name platform-mesh
 - Testing against the most recent RC build
 - Validating release candidates before production
 
+**Prerelease (--prerelease flag):** When using the `--prerelease` flag, the setup deploys locally built OCM components instead of released versions. This is useful for:
+- Testing local chart changes without going through the official release process
+- Chart development and iteration workflows
+- Note: Requires the `task` CLI to be installed
+
 **Task Naming Convention:**
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `cached`, `latest`, `example-data`
+- Available flags: `cached`, `latest`, `example-data`, `prerelease`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
 See [README-developers](./README-developers.md) for more detailed information related to chart developers.
 
-### 4. Configure Local DNS
+### 4. Access the Platform
 
-Add the following entries to your `/etc/hosts` file:
+Once the setup completes successfully, you can access:
 
-```
-127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local
-```
+- **Onboarding Portal**: https://portal.localhost:8443
+- **KCP API**: https://localhost:8443
 
-**WSL Users**: You may also need to add these entries to the Windows hosts file at:
-`C:\Windows\System32\drivers\etc\hosts`
-
-### 5. Access the Platform
-
-Once the setup completes successfully and DNS is configured, you can access:
-
-- **Onboarding Portal**: https://portal.dev.local:8443
-- **KCP API**: https://kcp.api.portal.dev.local:8443
+**Note**: Modern browsers automatically resolve `*.localhost` domains to `127.0.0.1`, so no `/etc/hosts` configuration is required for browser access. Organization subdomains like `myorg.portal.localhost` will also work automatically in browsers.
 
 **If you installed with example data:**
 - The HTTPBin provider is available in the `root:providers:httpbin-provider` workspace
@@ -227,7 +244,7 @@ The `scripts/start.sh` script performs the following operations:
 3. **Certificate Generation**
    - Generates local SSL certificates using mkcert
    - Creates CA certificates for webhook configurations
-   - Sets up domain certificates for `*.dev.local` and `*.portal.dev.local`
+   - Sets up domain certificates for `localhost`, `*.localhost`, and `*.portal.localhost`
 
 4. **Core Infrastructure Installation**
    - Installs Flux for GitOps workflow management
@@ -265,13 +282,7 @@ This gives you access to the root workspace and organization management.
 
 ### Adding New Organizations
 
-Each onboarded organization requires its own subdomain entry in `/etc/hosts`:
-
-```
-127.0.0.1 <organization-name>.portal.dev.local
-```
-
-**⚠️ Important**: Remember to add hosts entries for every organization that gets onboarded to the platform.
+Organization subdomains like `<organization-name>.portal.localhost` are automatically resolved by modern browsers. No `/etc/hosts` entries are needed for browser access.
 
 ### Debugging and Troubleshooting
 
@@ -309,6 +320,45 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
+#### Loading Custom Docker Images
+
+When developing locally built components, you can load custom Docker images into the Kind cluster by creating a hook script. This script is automatically ignored by git, so your local customizations won't be committed.
+
+**Create the hook script from the example:**
+```sh
+cp local-setup/scripts/load-custom-images.sh.example local-setup/scripts/load-custom-images.sh
+# Edit the script with your custom images
+```
+
+The script will be automatically sourced during cluster setup if it exists. You can add multiple `kind load` commands for all the images you need.
+
+**Typical workflow:**
+1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
+2. Add the load command to `load-custom-images.sh`
+3. Run `task local-setup:iterate` to reload the cluster with your custom images
+
+### Running E2E Tests
+
+After the local setup is running, you can run end-to-end tests to verify the portal functionality:
+
+**Using Task:**
+```sh
+task test:portal-e2e
+```
+
+**Without Task:**
+```sh
+cd local-setup/e2e
+npm install
+npm ci
+npx playwright install
+npx playwright test test-register-and-navigate.test.ts
+```
+
+**Prerequisites:**
+- Node.js and npm must be installed
+- The local setup cluster must be running (via `task local-setup` or similar)
+- Playwright browsers will be installed automatically on first run
 
 ## Files and Scripts
 
@@ -412,7 +462,7 @@ If you encounter issues:
 
 After successful setup:
 
-1. **Explore the Portal**: Visit https://portal.dev.local:8443
+1. **Explore the Portal**: Visit https://portal.localhost:8443
 2. **Set up Organizations**: Create and configure organizations for your use case
 3. **Development**: Start building on top of the Platform Mesh framework
 

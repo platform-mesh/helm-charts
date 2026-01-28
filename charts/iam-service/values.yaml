@@ -1,0 +1,86 @@
+image:
+  name: ghcr.io/platform-mesh/iam-service
+  pullPolicy: IfNotPresent
+
+imagePullSecret: "github"
+
+health:
+  port: 8080
+
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
+
+exposure:
+  # -- hostnames to be used for exposure
+  hostnames:
+    - "portal.localhost"
+    - "*.portal.localhost"
+
+gatewayApi:
+  httpRoute:
+    pathPrefix: /iam/graphql
+    parentRefs:
+      - name: k8sapi-gateway
+    # -- list of HTTPRoute filters (default: URLRewrite only, no CORS)
+    filters:
+      - type: URLRewrite
+        urlRewrite:
+          path:
+            type: ReplacePrefixMatch
+            replacePrefixMatch: /graphql
+    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
+    corsFilters:
+      - type: ExtensionRef
+        extensionRef:
+          group: traefik.io
+          kind: Middleware
+          name: cors-header
+
+port: 8080
+
+kcp:
+  kubeconfig:
+    secretName: iam-service-kubeconfig
+
+caSecret: ""
+
+hostAliases:
+  enabled: false
+  items:
+    - ip: 10.96.188.4
+      hostnames:
+        - portal.localhost
+        - localhost
+
+keycloak:
+  baseUrl: https://portal.localhost:8443/keycloak
+  client:
+    id: iam-service
+    secret:
+      name: iam-client-secret
+      key: client_secret
+
+# JWT configuration
+jwt:
+  userIdClaim: "email"
+
+roles:
+  raw:
+    roles:
+    - groupResource: core.platform-mesh.io/Account
+      roles:
+        - id: owner
+          displayName: Owner
+          description: Full access to all resources within the account.
+        - id: member
+          displayName: Member
+          description: Limited access to resources within the account. Can view and interact with resources but cannot administrate them.
+    - groupResource: Namespace
+      roles:
+        - id: owner
+          displayName: Owner
+          description: Full access to all resources within the account.
+        - id: member
+          displayName: Member
+          description: Limited access to resources within the account. Can view and interact with resources but cannot administrate them.

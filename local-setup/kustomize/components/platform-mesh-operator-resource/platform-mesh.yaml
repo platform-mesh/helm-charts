@@ -6,6 +6,7 @@ metadata:
 spec:
   exposure:
     port: 8443
+    baseDomain: "portal.localhost"
   ocm:
     repo:
       name: platform-mesh
@@ -13,9 +14,18 @@ spec:
       name: platform-mesh
     referencePath: []
   featureToggles:
-   - name: "feature-enable-getting-started"
-   - name: "feature-enable-marketplace-account"
+   - name: feature-enable-getting-started
+   - name: feature-disable-email-verification
+   - name: feature-accounts-in-accounts
+   - name: feature-enable-marketplace-account
+   - name: feature-enable-marketplace-org
   values:
+    account-operator:
+      values:
+        hostAliases:
+          enabled: true
+        log:
+          noJson: true
     keycloak:
       enabled: true
       values:
@@ -32,41 +42,42 @@ spec:
             memory: 1Gi
     infra:
       values:
-        cors:
-          enabled: true
+        traefik:
           accessControlAllowOriginList:
-          - "http://localhost:4200"
-          - "http://localhost:4300"
-          - "http://*.localhost:4200"
-          - "http://*.localhost:4300"
-          - "https://portal.dev.local:8443"
-          - "https://*.portal.dev.local:8443"
-        mailpit:
+            - "http://localhost:4200"
+            - "http://localhost:4300"
+            - "http://*.localhost:4200"
+            - "http://*.localhost:4300"
+            - "http://sub.localhost:4300"
+            - "https://portal.dev.local:8443"
+            - "https://*.portal.dev.local:8443"
+        cors:
           enabled: true
         hostAliases:
           enabled: true
         kcp:
           frontProxy:
             clusterIP: "10.96.0.100"
-        keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - "http://localhost:8000/callback*"
-                  - "http://localhost:4300/callback*"
-                  - "https://*"
     security-operator:
       values:
         log:
           noJson: true
-        initializer:
+        fga:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
             - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.dev.local
+            - --idp-from-address=keycloak@portal.localhost
+            - --set-default-password
+            - --idp-registration-allowed
+        initializer:
+          extraArgs:
             - --domain-ca-lookup
-            - --idp-additional-redirect-urls="https://default.portal.dev.local:3000/callback*"
+            # remove arguments below when the operator and the portal are ready
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.localhost
+            - --development-allow-unverified-emails
+            - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
@@ -91,6 +102,11 @@ spec:
             readOnly: true
         hostAliases:
           enabled: true
+          entries:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "localhost"
+                - "portal.localhost"
     openfga:
       enabled: true
       values:
@@ -101,4 +117,16 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
-      enabled: true
+      enabled: false
+    rebac-authz-webhook:
+      values:
+        hostAliases:
+          enabled: true
+    iam-service:
+      values:
+        extraArgs:
+          - --no-json
+        cors:
+          enabled: true
+        hostAliases:
+          enabled: true

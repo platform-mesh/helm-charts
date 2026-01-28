@@ -35,6 +35,8 @@ serviceAccount:
 kcp:
   kubeconfig:
     secret: rebac-authz-webhook-kubeconfig
+  # -- KCP APIExportEndpointSliceName to watch. Empty string means auto-discover all slices
+  apiExportEndpointSliceName: ""
 
 service:
   clusterIP: ""

@@ -35,49 +35,6 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: crossplane
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: crossplane
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: crossplane
-      dependsOn: null
-      interval: 1m
-      releaseName: crossplane
-      targetNamespace: crossplane-system
-      timeout: 30m
-      values:
-        provider:
-          packages:
-            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-  3: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: etcd-druid
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: charts
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: GitRepository
-            name: etcd-druid
-      dependsOn: null
-      interval: 1m
-      releaseName: etcd-druid
-      targetNamespace: etcd-druid-system
-      timeout: 30m
-      values: {}
-  4: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: extension-manager-operator
       namespace: default
     spec:
@@ -100,6 +57,41 @@ it should render the application manifests:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: false
+  3: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-service
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-service
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: iam-service
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        caSecret: domain-certificate-ca
+  4: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-ui
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-ui
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: iam-ui
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values: null
   5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -148,40 +140,15 @@ it should render the application manifests:
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.example.com:8443
+              - --shard-virtual-workspace-url=https://localhost:8443
           webhook:
             enabled: true
         keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - https://example.com:8443/callback*
           istio:
             virtualservice:
               hosts:
                 - example.com
   6: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: kcp-operator
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: kcp-operator
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: kcp-operator
-      dependsOn: null
-      interval: 1m
-      releaseName: kcp-operator
-      targetNamespace: kcp-operator
-      timeout: 30m
-      values: null
-  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -210,8 +177,6 @@ it should render the application manifests:
           - name: KC_HOSTNAME_STRICT
             value: "false"
         global:
-          imagePullSecrets:
-            - name: github
           security:
             allowInsecureImages: true
         httpRelativePath: /keycloak/
@@ -228,7 +193,6 @@ it should render the application manifests:
           image:
             registry: ghcr.io/platform-mesh
             repository: upstream-images/postgresql
-            tag: 17.6.0-debian-12-r4
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
@@ -241,7 +205,7 @@ it should render the application manifests:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  8: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -298,7 +262,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  9: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -364,7 +328,7 @@ it should render the application manifests:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  10: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -384,15 +348,11 @@ it should render the application manifests:
         certManager:
           createCA: true
           enabled: true
-        istio:
-          dnsNames:
-            - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
-          exposed: false
         log:
           level: debug
         openfga:
           url: openfga:8081
-  11: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -423,7 +383,7 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  12: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -445,7 +405,7 @@ it should render the application manifests:
           resourceSchemaWorkspace: root:platform-mesh-system
           serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
         virtualWorkspaceSecretName: virtual-workspaces-cert
-  13: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -470,32 +430,7 @@ it should render the application manifests:
             - name: account-operator
           resource:
             name: image
-  14: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      annotations:
-        artifact: image
-        for: etcd-druid
-        repo: oci
-      name: etcd-druid-image
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 1m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: etcd-druid
-          resource:
-            name: image
-  15: |
+  13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -518,6 +453,56 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: extension-manager-operator
+          resource:
+            name: image
+  14: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: iam-service
+        repo: oci
+      name: iam-service-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: iam-service
+          resource:
+            name: image
+  15: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: iam-ui
+        repo: oci
+      name: iam-ui-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: iam-ui
           resource:
             name: image
   16: |
@@ -551,9 +536,9 @@ it should render the application manifests:
     metadata:
       annotations:
         artifact: image
-        for: kcp-operator
+        for: keycloak
         repo: oci
-      name: kcp-operator-image
+      name: keycloak-image
     spec:
       componentRef:
         name: platform-mesh
@@ -567,10 +552,36 @@ it should render the application manifests:
         byReference:
           referencePath:
             - name: test
-            - name: kcp-operator
+            - name: keycloak
           resource:
             name: image
   18: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: keycloak
+        path: postgresql.image.tag
+        repo: oci
+      name: keycloak-postgresql-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: keycloak
+          resource:
+            name: postgresql-image
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -595,7 +606,7 @@ it should render the application manifests:
             - name: kubernetes-graphql-gateway
           resource:
             name: image
-  19: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -620,7 +631,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: image
-  20: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -646,7 +657,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: postgresql-image
-  21: |
+  22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -671,7 +682,7 @@ it should render the application manifests:
             - name: rebac-authz-webhook
           resource:
             name: image
-  22: |
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -696,7 +707,7 @@ it should render the application manifests:
             - name: security-operator
           resource:
             name: image
-  23: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -721,7 +732,7 @@ it should render the application manifests:
             - name: virtual-workspaces
           resource:
             name: image
-  24: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -746,57 +757,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  25: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: helm
-      name: crossplane
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: crossplane
-          resource:
-            name: chart
-      skipVerify: true
   26: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: git
-      name: etcd-druid
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: etcd-druid
-          resource:
-            name: chart
-      skipVerify: true
-  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -821,7 +782,57 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
+  27: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: iam-service
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: iam-service
+          resource:
+            name: chart
+      skipVerify: true
   28: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: iam-ui
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: iam-ui
+          resource:
+            name: chart
+      skipVerify: true
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -843,31 +854,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: infra
-          resource:
-            name: chart
-      skipVerify: true
-  29: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: helm
-      name: kcp-operator
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: kcp-operator
           resource:
             name: chart
       skipVerify: true
@@ -953,31 +939,6 @@ it should render the application manifests:
       labels:
         artifact: chart
         repo: oci
-      name: organization-idp
-    spec:
-      componentRef:
-        name: platform-mesh
-      interval: 3m
-      ocmConfig:
-        - apiVersion: delivery.ocm.software/v1alpha1
-          kind: Repository
-          name: platform-mesh
-          namespace: default
-      resource:
-        byReference:
-          referencePath:
-            - name: test
-            - name: organization-idp
-          resource:
-            name: chart
-      skipVerify: true
-  34: |
-    apiVersion: delivery.ocm.software/v1alpha1
-    kind: Resource
-    metadata:
-      labels:
-        artifact: chart
-        repo: oci
       name: rebac-authz-webhook
     spec:
       componentRef:
@@ -996,7 +957,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  35: |
+  34: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1021,7 +982,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  36: |
+  35: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

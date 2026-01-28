@@ -46,26 +46,6 @@ services:
       subroutines:
         fga:
           grpcAddr: openfga:8081
-  crossplane:
-    helmRepo: true
-    enabled: true
-    targetNamespace: crossplane-system
-    values:
-      provider:
-        packages:
-          - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-  etcd-druid:
-    # -- Allow the configuration of additional ocm resources
-    imageResources:
-      - annotations:
-          repo: oci
-          artifact: image
-          for: etcd-druid
-    enabled: true
-    gitRepo: true
-    path: charts
-    targetNamespace: etcd-druid-system
-    values: {}
   extension-manager-operator:
     enabled: true
     # -- Allow the configuration of additional ocm resources
@@ -120,10 +100,6 @@ services:
         level: debug
       openfga:
         url: openfga:8081
-      istio:
-        exposed: false
-        dnsNames:
-          - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
       certManager:
         enabled: true
         createCA: true
@@ -152,7 +128,7 @@ services:
         rootShard:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
-            - --shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}
+            - --shard-virtual-workspace-url=https://localhost:8443
         webhook:
           enabled: true
       istio:
@@ -181,27 +157,23 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
-        crossplane:
-          clients:
-            welcome:
-              validRedirectUris:
-                - "https://{{ .Values.baseDomainPort }}/callback*"
-  kcp-operator:
-    # -- Allow the configuration of additional ocm resources
-    imageResources:
-      - annotations:
-          repo: oci
-          artifact: image
-          for: kcp-operator
-    enabled: true
-    helmRepo: true
-    targetNamespace: kcp-operator
   keycloak:
     enabled: true
+    imageResources:
+      - name: keycloak-image
+        annotations:
+          repo: oci
+          artifact: image
+          for: keycloak
+      - name: keycloak-postgresql-image
+        resource: postgresql-image
+        annotations:
+          repo: oci
+          artifact: image
+          for: keycloak
+          path: postgresql.image.tag
     values:
       global:
-        imagePullSecrets:
-          - name: github
         security:
           allowInsecureImages: true
       resources:
@@ -240,7 +212,6 @@ services:
         image:
           registry: ghcr.io/platform-mesh
           repository: upstream-images/postgresql
-          tag: 17.6.0-debian-12-r4
         primary:
           # -- primary postgresql resources preset
           resourcesPreset: none
@@ -380,13 +351,6 @@ services:
           artifact: image
           for: portal
     values:
-      gatewayApi:
-        enabled: true
-        httpRoute:
-          parentRefs:
-            - name: k8sapi-gateway
-              sectionName: websecure
-              kind: Gateway
       kcp:
         kubeconfigSecret: portal-kubeconfig
       crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
@@ -441,14 +405,9 @@ services:
         serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
         resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
         resourceSchemaWorkspace: "root:platform-mesh-system"
-  organization-idp:
-    enabled: true
-    skipHelmRelease: true
-    dependsOn:
-      - name: keycloak
-        namespace: default
   iam-service:
-    enabled: false
+    # -- Enable IAM Service
+    enabled: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
       - annotations:
@@ -456,30 +415,16 @@ services:
           artifact: image
           for: iam-service
     values:
-      istio:
-        enabled: false
-        hosts:
-          - "*.{{ .Values.baseDomain }}"
-      cors:
-        enabled: true
-      hostAliases:
-        enabled: true
       caSecret: domain-certificate-ca
-      gatewayApi:
-        enabled: true
   iam-ui:
-    enabled: false
+    # -- Enable IAM UI
+    enabled: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
       - annotations:
           repo: oci
           artifact: image
           for: iam-ui
-    values:
-      gatewayApi:
-        enabled: true
-      istio:
-        enabled: false
   marketplace-ui:
     enabled: false
     # -- Allow the configuration of additional ocm resources

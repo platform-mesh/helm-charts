@@ -1,3 +1,144 @@
+disable all components:
+  1: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: etcd-druid
+    spec:
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: etcd-druid
+      targetNamespace: etcd-druid-system
+      timeout: 30m
+      values: null
+  2: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: etcd-druid
+        path: image.tag
+        repo: oci
+      name: etcd-druid-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: image
+      skipVerify: true
+  3: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: git
+      name: etcd-druid
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: chart
+      skipVerify: true
+  4: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+    spec:
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: kcp-operator
+      targetNamespace: kcp-operator
+      timeout: 30m
+      values: null
+  5: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: kcp-operator
+        path: image.tag
+        repo: oci
+      name: kcp-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: image
+      skipVerify: true
+  6: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: kcp-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: chart
+      skipVerify: true
 it should render the application manifests:
   1: |
     apiVersion: helm.toolkit.fluxcd.io/v2
@@ -9,9 +150,11 @@ it should render the application manifests:
         kind: OCIRepository
         name: cert-manager
         namespace: default
+      install:
+        createNamespace: true
       interval: 1m
       releaseName: cert-manager
-      targetNamespace: default
+      targetNamespace: cert-manager
       timeout: 30m
       values:
         crds:
@@ -118,6 +261,76 @@ it should render the application manifests:
             name: chart
       skipVerify: true
   6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: etcd-druid
+    spec:
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: etcd-druid
+      targetNamespace: etcd-druid-system
+      timeout: 30m
+      values: null
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: etcd-druid
+        path: image.tag
+        repo: oci
+      name: etcd-druid-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: image
+      skipVerify: true
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: git
+      name: etcd-druid
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: chart
+      skipVerify: true
+  9: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -132,7 +345,7 @@ it should render the application manifests:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  7: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -156,7 +369,77 @@ it should render the application manifests:
           resource:
             name: crds
       skipVerify: true
-  8: |
+  11: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+    spec:
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: kcp-operator
+      targetNamespace: kcp-operator
+      timeout: 30m
+      values: null
+  12: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: kcp-operator
+        path: image.tag
+        repo: oci
+      name: kcp-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: image
+      skipVerify: true
+  13: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: kcp-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: chart
+      skipVerify: true
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -174,7 +457,7 @@ it should render the application manifests:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  9: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -213,7 +496,7 @@ it should render the application manifests:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  10: |
+  16: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -237,7 +520,7 @@ it should render the application manifests:
           resource:
             name: crds
       skipVerify: true
-  11: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -263,7 +546,7 @@ it should render the application manifests:
           resource:
             name: image
       skipVerify: true
-  12: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

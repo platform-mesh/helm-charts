@@ -27,18 +27,39 @@ kubeconfigSecret: ""
 keycloakSecret: "keycloak-admin"
 caSecret: ""
 
-baseDomain: ""
+baseDomain: "portal.localhost:8443"
 
 keycloak:
   client:
     secret:
       name: security-operator-client-secret
-      key: attribute.client_secret
+      key: client_secret
 
 initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
   extraArgs: []
+
+# -- Init container configuration for bootstrapping Keycloak service account clients
+initContainer:
+  # -- Enable the init container
+  enabled: true
+  # -- Keycloak base URL (e.g., https://keycloak.example.com). If empty, derived from baseDomain.
+  keycloakBaseURL: ""
+  # -- Keycloak client ID for admin authentication
+  keycloakClientId: admin-cli
+  # -- Keycloak username for admin authentication
+  keycloakUser: keycloak-admin
+  # -- Service account clients to create (beyond the default one from keycloak.client.secret)
+  clients:
+  - name: security-operator
+    secretRef:
+      name: security-operator-client-secret
+      namespace: platform-mesh-system
+  - name: iam-service
+    secretRef:
+      name: iam-client-secret
+      namespace: platform-mesh-system
 
 generator:
   extraArgs: []
@@ -65,7 +86,7 @@ coreModule: |-
       define parent: [core_platform-mesh_io_account]
 
       define owner: [role#assignee] or owner from parent
-      define member: [role#assignee] or owner or member from parent
+      define member: [role#assignee] or owner
 
       define get: member
       define update: member
@@ -83,9 +104,8 @@ coreModule: |-
       define list_core_platform-mesh_io_accountinfos: member
       define watch_core_platform-mesh_io_accountinfos: member
 
-      define create_apis_kcp_io_apibindings: owner
-      define list_apis_kcp_io_apibindings: member
-      define watch_apis_kcp_io_apibindings: member
+      define list_core_kcp_io_logicalclusters: member
+      define watch_core_kcp_io_logicalclusters: member
 
       # IAM specific
       define manage_iam_roles: owner
@@ -107,20 +127,11 @@ coreModule: |-
       define get_iam_roles: member
       define get_iam_users: member
 
-  type apis_kcp_io_apibinding
+  type core_kcp_io_logicalcluster
     relations
       define parent: [core_platform-mesh_io_account]
 
       define member: member from parent
-      define owner: owner from parent
 
       define get: member
       define watch: member
-      define update: owner
-      define patch: owner
-      define delete: owner
-
-      # IAM specific
-      define manage_iam_roles: owner
-      define get_iam_roles: member
-      define get_iam_users: member

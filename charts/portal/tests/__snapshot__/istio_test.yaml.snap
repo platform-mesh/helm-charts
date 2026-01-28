@@ -57,9 +57,9 @@ matches the snapshot:
                 - name: TEST_TEST
                   value: test test
                 - name: DEMO_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-                  value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+                  value: https://${org-subdomain}portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
                 - name: DEMO_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-                  value: https://portal.dev.local:8443/iam/query
+                  value: https://portal.localhost:8443/iam/query
                 - name: DEMO_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
                   value: '{"account":{"contextProperty":"entityId"}}'
                 - name: KUBECONFIG
@@ -106,6 +106,28 @@ matches the snapshot:
               secret:
                 secretName: my-kcp-kubeconfig-secret
   2: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: portal
+    spec:
+      hostnames:
+        - portal.localhost
+        - '*.portal.localhost'
+      parentRefs:
+        - name: k8sapi-gateway
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: portal
+              namespace: NAMESPACE
+              port: 8080
+          matches:
+            - path:
+                type: PathPrefix
+                value: /
+  3: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: Role
     metadata:
@@ -120,7 +142,7 @@ matches the snapshot:
           - get
           - watch
           - list
-  3: |
+  4: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding
     metadata:
@@ -133,12 +155,12 @@ matches the snapshot:
       - kind: ServiceAccount
         name: portal
         namespace: NAMESPACE
-  4: |
+  5: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: portal
-  5: |
+  6: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -210,9 +232,9 @@ matches the snapshot with istio disabled:
                 - name: TEST_TEST
                   value: test test
                 - name: DEMO_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-                  value: https://${org-subdomain}portal.dev.local:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+                  value: https://${org-subdomain}portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
                 - name: DEMO_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-                  value: https://portal.dev.local:8443/iam/query
+                  value: https://portal.localhost:8443/iam/query
                 - name: DEMO_PORTAL_CONTEXT_IAM_ENTITY_CONFIG
                   value: '{"account":{"contextProperty":"entityId"}}'
                 - name: KUBECONFIG
@@ -259,6 +281,28 @@ matches the snapshot with istio disabled:
               secret:
                 secretName: my-kcp-kubeconfig-secret
   2: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: portal
+    spec:
+      hostnames:
+        - portal.localhost
+        - '*.portal.localhost'
+      parentRefs:
+        - name: k8sapi-gateway
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: portal
+              namespace: NAMESPACE
+              port: 8080
+          matches:
+            - path:
+                type: PathPrefix
+                value: /
+  3: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: Role
     metadata:
@@ -273,7 +317,7 @@ matches the snapshot with istio disabled:
           - get
           - watch
           - list
-  3: |
+  4: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding
     metadata:
@@ -286,12 +330,12 @@ matches the snapshot with istio disabled:
       - kind: ServiceAccount
         name: portal
         namespace: NAMESPACE
-  4: |
+  5: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: portal
-  5: |
+  6: |
     apiVersion: v1
     kind: Service
     metadata:

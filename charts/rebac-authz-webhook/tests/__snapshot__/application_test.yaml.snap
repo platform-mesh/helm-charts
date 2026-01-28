@@ -62,9 +62,10 @@ it should render the application manifests:
             - args:
                 - serve
                 - --openfga-addr=https://example.com
-                - --kcp-kubeconfig-path=/etc/kcp-kubeconfig/kubeconfig
                 - --health-probe-bind-address=:8081
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
@@ -95,15 +96,15 @@ it should render the application manifests:
               volumeMounts:
                 - mountPath: /config
                   name: certs
-                - mountPath: /etc/kcp-kubeconfig
-                  name: kcp-kubeconfig
+                - mountPath: /api-kubeconfig
+                  name: api-kubeconfig
                   readOnly: true
           serviceAccountName: rebac-authz-webhook
           volumes:
             - name: certs
               secret:
                 secretName: rebac-authz-webhook-cert
-            - name: kcp-kubeconfig
+            - name: api-kubeconfig
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
@@ -192,9 +193,10 @@ it should render the application manifests with service account:
             - args:
                 - serve
                 - --openfga-addr=https://example.com
-                - --kcp-kubeconfig-path=/etc/kcp-kubeconfig/kubeconfig
                 - --health-probe-bind-address=:8081
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
@@ -225,15 +227,15 @@ it should render the application manifests with service account:
               volumeMounts:
                 - mountPath: /config
                   name: certs
-                - mountPath: /etc/kcp-kubeconfig
-                  name: kcp-kubeconfig
+                - mountPath: /api-kubeconfig
+                  name: api-kubeconfig
                   readOnly: true
           serviceAccountName: rebac-authz-webhook
           volumes:
             - name: certs
               secret:
                 secretName: rebac-authz-webhook-cert
-            - name: kcp-kubeconfig
+            - name: api-kubeconfig
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
@@ -322,9 +324,10 @@ it should render the application manifests with service monitor:
             - args:
                 - serve
                 - --openfga-addr=https://example.com
-                - --kcp-kubeconfig-path=/etc/kcp-kubeconfig/kubeconfig
                 - --health-probe-bind-address=:8081
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
@@ -355,15 +358,15 @@ it should render the application manifests with service monitor:
               volumeMounts:
                 - mountPath: /config
                   name: certs
-                - mountPath: /etc/kcp-kubeconfig
-                  name: kcp-kubeconfig
+                - mountPath: /api-kubeconfig
+                  name: api-kubeconfig
                   readOnly: true
           serviceAccountName: rebac-authz-webhook
           volumes:
             - name: certs
               secret:
                 secretName: rebac-authz-webhook-cert
-            - name: kcp-kubeconfig
+            - name: api-kubeconfig
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
@@ -452,9 +455,10 @@ it should render the application manifests with useInClusterClient:
             - args:
                 - serve
                 - --openfga-addr=https://example.com
-                - --kcp-kubeconfig-path=/etc/kcp-kubeconfig/kubeconfig
                 - --health-probe-bind-address=:8081
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
@@ -485,15 +489,15 @@ it should render the application manifests with useInClusterClient:
               volumeMounts:
                 - mountPath: /config
                   name: certs
-                - mountPath: /etc/kcp-kubeconfig
-                  name: kcp-kubeconfig
+                - mountPath: /api-kubeconfig
+                  name: api-kubeconfig
                   readOnly: true
           serviceAccountName: rebac-authz-webhook
           volumes:
             - name: certs
               secret:
                 secretName: rebac-authz-webhook-cert
-            - name: kcp-kubeconfig
+            - name: api-kubeconfig
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |
@@ -582,9 +586,10 @@ it should render the cert-manager manifests with certManager enabled:
             - args:
                 - serve
                 - --openfga-addr=https://example.com
-                - --kcp-kubeconfig-path=/etc/kcp-kubeconfig/kubeconfig
                 - --health-probe-bind-address=:8081
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
               livenessProbe:
                 failureThreshold: 1
@@ -615,15 +620,15 @@ it should render the cert-manager manifests with certManager enabled:
               volumeMounts:
                 - mountPath: /config
                   name: certs
-                - mountPath: /etc/kcp-kubeconfig
-                  name: kcp-kubeconfig
+                - mountPath: /api-kubeconfig
+                  name: api-kubeconfig
                   readOnly: true
           serviceAccountName: rebac-authz-webhook
           volumes:
             - name: certs
               secret:
                 secretName: rebac-authz-webhook-cert
-            - name: kcp-kubeconfig
+            - name: api-kubeconfig
               secret:
                 secretName: rebac-authz-webhook-kubeconfig
   4: |

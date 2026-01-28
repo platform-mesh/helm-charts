@@ -95,3 +95,8 @@ tests:
   template: ocm-image-resources.yaml
   asserts:
     - matchSnapshot: {}
+
+- it: ocm resources
+  template: ocm-resources.yaml
+  asserts:
+    - matchSnapshot: {}

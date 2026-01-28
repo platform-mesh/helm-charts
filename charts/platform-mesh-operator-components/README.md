@@ -29,16 +29,6 @@ A Helm chart for Kubernetes
 | services.account-operator.values.subroutines.fga.grpcAddr | string | `"openfga:8081"` |  |
 | services.account-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.account-operator.values.tracing.enabled | bool | `false` |  |
-| services.crossplane.enabled | bool | `true` |  |
-| services.crossplane.helmRepo | bool | `true` |  |
-| services.crossplane.targetNamespace | string | `"crossplane-system"` |  |
-| services.crossplane.values.provider.packages[0] | string | `"xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2"` |  |
-| services.etcd-druid.enabled | bool | `true` |  |
-| services.etcd-druid.gitRepo | bool | `true` |  |
-| services.etcd-druid.imageResources | list | `[{"annotations":{"artifact":"image","for":"etcd-druid","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.etcd-druid.path | string | `"charts"` |  |
-| services.etcd-druid.targetNamespace | string | `"etcd-druid-system"` |  |
-| services.etcd-druid.values | object | `{}` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"extension-manager-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
@@ -46,18 +36,11 @@ A Helm chart for Kubernetes
 | services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `false` |  |
-| services.iam-service.enabled | bool | `false` |  |
+| services.iam-service.enabled | bool | `true` | Enable IAM Service |
 | services.iam-service.imageResources | list | `[{"annotations":{"artifact":"image","for":"iam-service","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.iam-service.values.caSecret | string | `"domain-certificate-ca"` |  |
-| services.iam-service.values.cors.enabled | bool | `true` |  |
-| services.iam-service.values.gatewayApi.enabled | bool | `true` |  |
-| services.iam-service.values.hostAliases.enabled | bool | `true` |  |
-| services.iam-service.values.istio.enabled | bool | `false` |  |
-| services.iam-service.values.istio.hosts[0] | string | `"*.{{ .Values.baseDomain }}"` |  |
-| services.iam-ui.enabled | bool | `false` |  |
+| services.iam-ui.enabled | bool | `true` | Enable IAM UI |
 | services.iam-ui.imageResources | list | `[{"annotations":{"artifact":"image","for":"iam-ui","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.iam-ui.values.gatewayApi.enabled | bool | `true` |  |
-| services.iam-ui.values.istio.enabled | bool | `false` |  |
 | services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
@@ -78,25 +61,29 @@ A Helm chart for Kubernetes
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
 | services.infra.values.kcp.image.tag | string | `"v0.29.0"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
-| services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://kcp.api.{{ .Values.baseDomainPort }}"` |  |
+| services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://localhost:8443"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
-| services.infra.values.keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"https://{{ .Values.baseDomainPort }}/callback*"` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.kcp-operator.enabled | bool | `true` |  |
-| services.kcp-operator.helmRepo | bool | `true` |  |
-| services.kcp-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"kcp-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.kcp-operator.targetNamespace | string | `"kcp-operator"` |  |
 | services.keycloak.enabled | bool | `true` |  |
+| services.keycloak.imageResources[0].annotations.artifact | string | `"image"` |  |
+| services.keycloak.imageResources[0].annotations.for | string | `"keycloak"` |  |
+| services.keycloak.imageResources[0].annotations.repo | string | `"oci"` |  |
+| services.keycloak.imageResources[0].name | string | `"keycloak-image"` |  |
+| services.keycloak.imageResources[1].annotations.artifact | string | `"image"` |  |
+| services.keycloak.imageResources[1].annotations.for | string | `"keycloak"` |  |
+| services.keycloak.imageResources[1].annotations.path | string | `"postgresql.image.tag"` |  |
+| services.keycloak.imageResources[1].annotations.repo | string | `"oci"` |  |
+| services.keycloak.imageResources[1].name | string | `"keycloak-postgresql-image"` |  |
+| services.keycloak.imageResources[1].resource | string | `"postgresql-image"` |  |
 | services.keycloak.values.auth.adminUser | string | `"keycloak-admin"` | keycloak admin user |
 | services.keycloak.values.auth.existingSecret | string | `"keycloak-admin"` | keycloak admin secret |
 | services.keycloak.values.auth.passwordSecretKey | string | `"secret"` | keycloak admin secret key |
 | services.keycloak.values.extraEnvVars | list | `[{"name":"JAVA_OPTS_APPEND","value":"-Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local"},{"name":"KC_PROXY_HEADERS","value":"xforwarded"},{"name":"KC_HOSTNAME_STRICT","value":"false"}]` | keycloak environment variables (raw) For Arm64 arch (especially Apple M4), add -XX:UseSVE=0 to JAVA_OPTS_APPEND |
-| services.keycloak.values.global.imagePullSecrets[0].name | string | `"github"` |  |
 | services.keycloak.values.global.security.allowInsecureImages | bool | `true` |  |
 | services.keycloak.values.httpRelativePath | string | `"/keycloak/"` | keycloak http relative path |
 | services.keycloak.values.image.registry | string | `"ghcr.io/platform-mesh"` |  |
 | services.keycloak.values.image.repository | string | `"upstream-images/keycloak"` |  |
-| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"image":{"registry":"ghcr.io/platform-mesh","repository":"upstream-images/postgresql","tag":"17.6.0-debian-12-r4"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
+| services.keycloak.values.postgresql | object | `{"auth":{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"},"image":{"registry":"ghcr.io/platform-mesh","repository":"upstream-images/postgresql"},"nameOverride":"postgresql-keycloak","primary":{"resourcesPreset":"none"}}` | configuration for the postgresql sub-chart |
 | services.keycloak.values.postgresql.auth | object | `{"existingSecret":"","secretKeys":{"adminPasswordKey":"password","userPasswordKey":"password"},"username":"keycloak"}` | authorization configuration |
 | services.keycloak.values.postgresql.auth.existingSecret | string | `""` | existing secret name |
 | services.keycloak.values.postgresql.auth.secretKeys.adminPasswordKey | string | `"password"` | admin password key |
@@ -175,10 +162,6 @@ A Helm chart for Kubernetes
 | services.openfga.values.telemetry.trace.enabled | bool | `false` |  |
 | services.openfga.values.telemetry.trace.otlp.endpoint | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.openfga.values.telemetry.trace.otlp.tls.enabled | bool | `false` |  |
-| services.organization-idp.dependsOn[0].name | string | `"keycloak"` |  |
-| services.organization-idp.dependsOn[0].namespace | string | `"default"` |  |
-| services.organization-idp.enabled | bool | `true` |  |
-| services.organization-idp.skipHelmRelease | bool | `true` |  |
 | services.portal.enabled | bool | `false` |  |
 | services.portal.imageResources | list | `[{"annotations":{"artifact":"image","for":"portal","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.portal.values.auth.default.baseDomain | string | `"{{ .Values.baseDomain }}"` |  |
@@ -194,10 +177,6 @@ A Helm chart for Kubernetes
 | services.portal.values.extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
 | services.portal.values.extraEnvVars[1].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
-| services.portal.values.gatewayApi.enabled | bool | `true` |  |
-| services.portal.values.gatewayApi.httpRoute.parentRefs[0].kind | string | `"Gateway"` |  |
-| services.portal.values.gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
-| services.portal.values.gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
 | services.portal.values.http.protocol | string | `"https"` |  |
 | services.portal.values.kcp.kubeconfigSecret | string | `"portal-kubeconfig"` |  |
 | services.portal.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
@@ -206,8 +185,6 @@ A Helm chart for Kubernetes
 | services.rebac-authz-webhook.imageResources | list | `[{"annotations":{"artifact":"image","for":"rebac-authz-webhook","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.rebac-authz-webhook.values.certManager.createCA | bool | `true` |  |
 | services.rebac-authz-webhook.values.certManager.enabled | bool | `true` |  |
-| services.rebac-authz-webhook.values.istio.dnsNames[0] | string | `"rebac-authz-webhook.platform-mesh-system.svc.cluster.local"` |  |
-| services.rebac-authz-webhook.values.istio.exposed | bool | `false` |  |
 | services.rebac-authz-webhook.values.log.level | string | `"debug"` |  |
 | services.rebac-authz-webhook.values.openfga.url | string | `"openfga:8081"` |  |
 | services.security-operator.enabled | bool | `true` |  |

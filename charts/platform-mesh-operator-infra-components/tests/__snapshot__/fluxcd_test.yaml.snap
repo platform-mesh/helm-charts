@@ -9,13 +9,15 @@ FluxCD enable remote deployment:
         kind: OCIRepository
         name: cert-manager
         namespace: default
+      install:
+        createNamespace: true
       interval: 1m
       kubeConfig:
         secretRef:
           key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: cert-manager
-      targetNamespace: default
+      targetNamespace: cert-manager
       timeout: 30m
       values:
         crds:
@@ -122,6 +124,80 @@ FluxCD enable remote deployment:
             name: chart
       skipVerify: true
   6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: etcd-druid
+    spec:
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
+      install:
+        createNamespace: true
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          key: kubeconfig
+          name: test-kubeconfig-secret
+      releaseName: etcd-druid
+      targetNamespace: etcd-druid-system
+      timeout: 30m
+      values: null
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: etcd-druid
+        path: image.tag
+        repo: oci
+      name: etcd-druid-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: image
+      skipVerify: true
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: git
+      name: etcd-druid
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: chart
+      skipVerify: true
+  9: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -140,7 +216,7 @@ FluxCD enable remote deployment:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  7: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -164,7 +240,81 @@ FluxCD enable remote deployment:
           resource:
             name: crds
       skipVerify: true
-  8: |
+  11: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+    spec:
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
+      install:
+        createNamespace: true
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          key: kubeconfig
+          name: test-kubeconfig-secret
+      releaseName: kcp-operator
+      targetNamespace: kcp-operator
+      timeout: 30m
+      values: null
+  12: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: kcp-operator
+        path: image.tag
+        repo: oci
+      name: kcp-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: image
+      skipVerify: true
+  13: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: kcp-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: chart
+      skipVerify: true
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -186,7 +336,7 @@ FluxCD enable remote deployment:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  9: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -229,7 +379,7 @@ FluxCD enable remote deployment:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  10: |
+  16: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -253,7 +403,7 @@ FluxCD enable remote deployment:
           resource:
             name: crds
       skipVerify: true
-  11: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -279,7 +429,7 @@ FluxCD enable remote deployment:
           resource:
             name: image
       skipVerify: true
-  12: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -314,9 +464,11 @@ FluxCD snapshots:
         kind: OCIRepository
         name: cert-manager
         namespace: default
+      install:
+        createNamespace: true
       interval: 1m
       releaseName: cert-manager
-      targetNamespace: default
+      targetNamespace: cert-manager
       timeout: 30m
       values:
         crds:
@@ -423,6 +575,76 @@ FluxCD snapshots:
             name: chart
       skipVerify: true
   6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: etcd-druid
+    spec:
+      chart:
+        spec:
+          chart: charts
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: GitRepository
+            name: etcd-druid
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: etcd-druid
+      targetNamespace: etcd-druid-system
+      timeout: 30m
+      values: null
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: etcd-druid
+        path: image.tag
+        repo: oci
+      name: etcd-druid-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: image
+      skipVerify: true
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: git
+      name: etcd-druid
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: etcd-druid
+          resource:
+            name: chart
+      skipVerify: true
+  9: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -437,7 +659,7 @@ FluxCD snapshots:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  7: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -461,7 +683,77 @@ FluxCD snapshots:
           resource:
             name: crds
       skipVerify: true
-  8: |
+  11: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: kcp-operator
+    spec:
+      chart:
+        spec:
+          chart: kcp-operator
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: kcp-operator
+      install:
+        createNamespace: true
+      interval: 1m
+      releaseName: kcp-operator
+      targetNamespace: kcp-operator
+      timeout: 30m
+      values: null
+  12: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: kcp-operator
+        path: image.tag
+        repo: oci
+      name: kcp-operator-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: image
+      skipVerify: true
+  13: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: kcp-operator
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: kcp-operator
+          resource:
+            name: chart
+      skipVerify: true
+  14: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -479,7 +771,7 @@ FluxCD snapshots:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  9: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -518,7 +810,7 @@ FluxCD snapshots:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  10: |
+  16: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -542,7 +834,7 @@ FluxCD snapshots:
           resource:
             name: crds
       skipVerify: true
-  11: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -568,7 +860,7 @@ FluxCD snapshots:
           resource:
             name: image
       skipVerify: true
-  12: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

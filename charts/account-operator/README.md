@@ -14,10 +14,10 @@ A Helm chart to deploy platform-mesh Account-Operator
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | crds.enabled | bool | `true` | Enable CRDs |
-| deployment.hostAliases | list | `[]` |  |
 | deployment.replicas | int | `1` |  |
 | deployment.specTemplate.annotations | object | `{}` | The annotations for the deployment |
 | deployment.specTemplate.labels | object | `{}` | The labels for the deployment |
+| hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/account-operator"` | The image repository |
 | istio.enabled | bool | `false` |  |
 | kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The KCP configuration |
@@ -36,7 +36,11 @@ A Helm chart to deploy platform-mesh Account-Operator
 | subroutines.fga.parentRelation | string | `"parent"` | The parent relation for FGA |
 | subroutines.fga.rootNamespace | string | `"platform-mesh-root"` | The root namespace for FGA |
 | subroutines.namespace.enabled | bool | `true` | Enable namespace subroutines |
+| webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
+| webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
 | webhooks.certDir | string | `"/certs"` | The directory for webhook certificates |
+| webhooks.certDuration | string | `"2160h"` | Serving certificate duration (default: 3 months) |
+| webhooks.certRenewBefore | string | `"720h"` | Serving certificate renewal time before expiration (default: 30 days) |
 | webhooks.denyList | list | `["admin","root","system","www"]` | List of denied organization names |
 | webhooks.enabled | bool | `true` | Enable webhooks |
 | webhooks.register | bool | `false` | Register webhooks, flag to toggle if webhooks should be registered on the runtime cluster |

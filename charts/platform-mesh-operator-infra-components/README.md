@@ -10,8 +10,13 @@ A Helm chart for Kubernetes
 | certManager.interval | string | `"1m"` |  |
 | certManager.name | string | `"cert-manager"` |  |
 | certManager.ocmResourceName | string | `"chart"` |  |
-| certManager.targetNamespace | string | `"default"` |  |
+| certManager.targetNamespace | string | `"cert-manager"` |  |
 | certManager.values.crds.enabled | bool | `true` |  |
+| etcdDruid.enabled | bool | `true` |  |
+| etcdDruid.interval | string | `"1m"` |  |
+| etcdDruid.name | string | `"etcd-druid"` |  |
+| etcdDruid.ocmResourceName | string | `"chart"` |  |
+| etcdDruid.targetNamespace | string | `"etcd-druid-system"` |  |
 | fluxCD.kubeConfig.enabled | bool | `false` | If set, all created FluxCD resources will deploy to a remote cluster using this kubeconfig. |
 | fluxCD.kubeConfig.secretRef.key | string | `"kubeconfig"` |  |
 | fluxCD.kubeConfig.secretRef.name | string | `"platform-mesh-kubeconfig"` | name of the secret containing the kubeconfig |
@@ -21,6 +26,11 @@ A Helm chart for Kubernetes
 | gatewayApi.kustomization.path | string | `"./config/crd/experimental"` |  |
 | gatewayApi.name | string | `"gateway-api"` |  |
 | gatewayApi.ocmResourceName | string | `"crds"` |  |
+| kcpOperator.enabled | bool | `true` |  |
+| kcpOperator.interval | string | `"1m"` |  |
+| kcpOperator.name | string | `"kcp-operator"` |  |
+| kcpOperator.ocmResourceName | string | `"chart"` |  |
+| kcpOperator.targetNamespace | string | `"kcp-operator"` |  |
 | ocm.component.name | string | `"platform-mesh"` |  |
 | ocm.interval | string | `"3m"` |  |
 | ocm.referencePath | list | `[]` |  |

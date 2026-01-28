@@ -6,42 +6,23 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cors.accessControlAllowOriginList | list | `["http://localhost:4200","http://localhost:4300","http://*.localhost:4200","http://*.localhost:4300","https://portal.dev.local:8443"]` | list of allowed origins |
-| cors.enabled | bool | `false` | toggle to enable CORS configuration |
-| crossplane.enabled | bool | `true` |  |
 | externalSecrets.enabled | bool | `false` |  |
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
-| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
-| gatewayApi.main | object | `{"gateway":{"infrastructure":null,"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","credentialNamespace":"platform-mesh-system","mode":"Terminate"}}}` | HTTPS Terminate configuration |
+| gatewayApi.main | object | `{"gateway":{"hostnames":["portal.localhost","*.portal.localhost"],"infrastructure":null,"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","credentialNamespace":"platform-mesh-system","mode":"Terminate"}}}` | HTTPS Terminate configuration |
+| gatewayApi.main.gateway.hostnames | list | `["portal.localhost","*.portal.localhost"]` | This is required when using passthrough on the same port to avoid conflicts. |
 | gatewayApi.main.gateway.tls.credentialName | string | `"domain-certificate"` | Name of the secret containing the TLS certificate |
 | gatewayApi.main.gateway.tls.credentialNamespace | string | `"platform-mesh-system"` | Set secret namespace if different from the gateway namespace |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | gatewayApi.passThrough.gateway.enabled | bool | `true` | Toggle to enable/disable the passthrough gateway |
-| gatewayApi.passThrough.gateway.hostname | string | `"kcp.api.portal.dev.local"` |  |
+| gatewayApi.passThrough.gateway.hostname | string | `"localhost"` |  |
 | gatewayApi.passThrough.gateway.name | string | `"https-passthrough"` |  |
 | gatewayApi.passThrough.gateway.port | int | `8443` |  |
 | gatewayApi.passThrough.gateway.protocol | string | `"TLS"` |  |
 | hostAliases.enabled | bool | `false` |  |
-| hostAliases.entries[0].hostnames[0] | string | `"kcp.api.portal.dev.local"` |  |
-| hostAliases.entries[0].hostnames[1] | string | `"portal.dev.local"` |  |
+| hostAliases.entries[0].hostnames[0] | string | `"localhost"` |  |
+| hostAliases.entries[0].hostnames[1] | string | `"portal.localhost"` |  |
 | hostAliases.entries[0].ip | string | `"10.96.188.4"` |  |
-| istio.enabled | bool | `false` |  |
-| istio.gateway.annotations | object | `{}` |  |
-| istio.gateway.apiVersion | string | `"networking.istio.io/v1"` |  |
-| istio.gateway.name | string | `"gateway"` |  |
-| istio.gateway.selector.istio | string | `"gateway"` |  |
-| istio.main.gateway.hosts[0] | string | `"*"` |  |
-| istio.main.gateway.name | string | `"http"` |  |
-| istio.main.gateway.port | int | `8000` |  |
-| istio.main.gateway.protocol | string | `"HTTP"` |  |
-| istio.networking.apiVersion | string | `"networking.istio.io/v1"` | The istio apiVersion used for networking resources in this chart eg. networking.istio.io/v1, networking.istio.io/v1beta1 |
-| istio.passThrough.gateway.enabled | bool | `false` |  |
-| istio.serviceEntries.https.enabled | bool | `false` | A toggle to enable the service entries for external https communication |
-| istio.serviceEntries.https.hosts | list | `[]` | The list of hosts to be added to the service entry |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
 | kcp.auth.adminCert.privateKey.size | int | `2048` |  |
@@ -73,7 +54,7 @@ A Helm chart for Kubernetes
 | kcp.etcd.service.port | int | `2379` |  |
 | kcp.etcd.sharedConfig.autoCompactionMode | string | `"periodic"` |  |
 | kcp.etcd.sharedConfig.autoCompactionRetention | string | `"30m"` |  |
-| kcp.external.hostname | string | `"kcp.api.portal.dev.local"` |  |
+| kcp.external.hostname | string | `"localhost"` |  |
 | kcp.external.port | int | `8443` |  |
 | kcp.frontProxy.additionalPathMappings[0].backend | string | `"https://virtual-workspaces.platform-mesh-system:8443"` |  |
 | kcp.frontProxy.additionalPathMappings[0].backend_server_ca | string | `"/etc/kcp/tls/ca/tls.crt"` |  |
@@ -91,7 +72,6 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.port | int | `8443` |  |
 | kcp.frontProxy.replicas | int | `1` |  |
 | kcp.image.tag | string | `""` |  |
-| kcp.istio.hosts[0] | string | `"kcp.api.portal.dev.local"` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.caFileRef.key | string | `"tls.crt"` |  |
 | kcp.oidc.caFileRef.name | string | `"domain-certificate-ca"` |  |
@@ -107,33 +87,13 @@ A Helm chart for Kubernetes
 | kcp.webhook.enabled | bool | `true` |  |
 | kcp.webhook.port | int | `9443` |  |
 | kcp.webhook.server | string | `"https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz"` |  |
-| keycloak.crossplane.clients.welcome.name | string | `"Welcome"` | name of the client |
-| keycloak.crossplane.clients.welcome.validRedirectUris | list | `["http://localhost:8000/callback*","http://localhost:4300/callback*"]` | valid redirect uris for the client |
-| keycloak.crossplane.clients.welcome.validRedirectUris[0] | string | `"http://localhost:8000/callback*"` | keycloak callback url |
-| keycloak.crossplane.enabled | bool | `true` | toggle to enable/disable crossplane |
-| keycloak.crossplane.identityProviders | object | `{}` |  |
-| keycloak.crossplane.managementClients[0].name | string | `"iam"` |  |
-| keycloak.crossplane.managementClients[1].name | string | `"security-operator"` |  |
-| keycloak.crossplane.providerConfig | object | `{"name":"keycloak-provider-config","namespace":"platform-mesh-system"}` | crossplane provider config |
-| keycloak.crossplane.providerConfig.name | string | `"keycloak-provider-config"` | name of the client |
-| keycloak.crossplane.providerConfig.namespace | string | `"platform-mesh-system"` | client namespace |
-| keycloak.crossplane.realm | object | `{"accessTokenLifespan":"8h","displayName":"welcome","name":"welcome","registrationAllowed":true,"smtpServer":[{"from":"noreply@portal.dev.local","host":"mailpit.platform-mesh-system.svc.cluster.local","port":"1025"}],"verifyEmail":true}` | crossplane realm config |
-| keycloak.crossplane.realm.accessTokenLifespan | string | `"8h"` | realm access token lifespan |
-| keycloak.crossplane.realm.displayName | string | `"welcome"` | realm display name |
-| keycloak.crossplane.realm.name | string | `"welcome"` | realm name |
-| keycloak.crossplane.realm.registrationAllowed | bool | `true` | realm registration allowed |
-| keycloak.crossplane.realm.verifyEmail | bool | `true` | realm email verification |
-| keycloak.crossplane.trustedAudiences | list | `[]` |  |
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
-| keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].name | string | `"Host"` |  |
-| keycloak.gatewayApi.filters[0].requestHeaderModifier.set[0].value | string | `"portal.dev.local"` |  |
-| keycloak.gatewayApi.filters[0].type | string | `"RequestHeaderModifier"` |  |
-| keycloak.gatewayApi.hostnames | list | `["portal.dev.local"]` | hostnames for the Keycloak HTTPRoute |
+| keycloak.gatewayApi.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| keycloak.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
+| keycloak.gatewayApi.hostnames | list | `["portal.localhost"]` | hostnames for the Keycloak HTTPRoute |
 | keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
-| keycloak.istio.https.port | int | `8443` |  |
-| keycloak.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
 | keycloak.keycloakConfig.admin | object | `{"password":{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},"username":{"value":"keycloak-admin"}}` | admin user configuration |
 | keycloak.keycloakConfig.admin.password | object | `{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}}` | admin password |
 | keycloak.keycloakConfig.admin.password.valueFrom.secretKeyRef.key | string | `"secret"` | key of the password in the secret |
@@ -153,15 +113,11 @@ A Helm chart for Kubernetes
 | keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
 | keycloak.service.name | string | `"keycloak"` | service name |
 | keycloak.service.port | int | `80` | service port |
-| mailpit.domain.pathPrefix | string | `"/mailpit"` | path prefix |
-| mailpit.enabled | bool | `false` |  |
-| mailpit.image.tag | string | `"v1.27.9"` |  |
-| mailpit.istio.virtualservice.hosts | list | `["*"]` | istio virtual service hosts |
-| mailpit.smtp.port | int | `1025` |  |
-| mailpit.ui.port | int | `8025` |  |
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
 | openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
+| traefik.accessControlAllowOriginList | list | `[]` | list of origins allowed for CORS (used by Traefik middleware) |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

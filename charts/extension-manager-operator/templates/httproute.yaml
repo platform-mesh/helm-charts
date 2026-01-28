@@ -10,13 +10,22 @@ spec:
     name: {{ .Values.gatewayApi.name }}
     sectionName: {{ .Values.gatewayApi.main.gateway.name }}
   rules:
-  - backendRefs:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: {{ .Values.pathPrefix }}
+    {{- if or .Values.gatewayApi.httpRoute.filters .Values.traefik.enabled }}
+    filters:
+    {{- with .Values.gatewayApi.httpRoute.filters }}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.traefik.enabled }}
+    {{ toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 4 }}
+    {{- end }}
+    {{- end }}
+    backendRefs:
     - group: ""
       kind: Service
       name: {{ include "common.entity.name" . }}-server
       port: {{ .Values.validationServer.port }}
-    matches:
-    - path:
-        type: PathPrefix
-        value: {{ .Values.pathPrefix }}
 {{- end }}

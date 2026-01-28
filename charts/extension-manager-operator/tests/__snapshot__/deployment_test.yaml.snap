@@ -94,7 +94,7 @@ enable Gateway API:
       name: extension-manager-operator
     rules:
       - apiGroups:
-          - core.platform-mesh.io
+          - ui.platform-mesh.io
         resources:
           - contentconfigurations
           - contentconfigurations/status
@@ -332,6 +332,12 @@ enable Gateway API:
               kind: Service
               name: extension-manager-operator-server
               port: 8088
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
@@ -350,7 +356,7 @@ operator match the snapshot:
       name: extension-manager-operator
     rules:
       - apiGroups:
-          - core.platform-mesh.io
+          - ui.platform-mesh.io
         resources:
           - contentconfigurations
           - contentconfigurations/status

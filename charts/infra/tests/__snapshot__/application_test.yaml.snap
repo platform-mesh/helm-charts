@@ -14,7 +14,25 @@ Gateway API enabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -30,7 +48,7 @@ Gateway API enabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -130,7 +148,7 @@ Gateway API enabled:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -184,7 +202,7 @@ Gateway API enabled:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -196,7 +214,7 @@ Gateway API enabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -211,236 +229,13 @@ Gateway API enabled:
               weight: 1
           name: https-passthrough
   8: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: welcome
-        enabled: true
-        name: Welcome
-        realmIdRef:
-          name: welcome
-        standardFlowEnabled: true
-        validRedirectUris:
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: portal-client-secret-welcome
-        namespace: platform-mesh-system
-  9: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientDefaultScopes
-    metadata:
-      name: welcome-default-scopes
-    spec:
-      forProvider:
-        clientIdRef:
-          name: welcome
-        defaultScopes:
-          - profile
-          - email
-          - basic
-          - acr
-          - groups
-          - trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  10: |
-    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
-    kind: DefaultGroups
-    metadata:
-      name: default
-    spec:
-      forProvider:
-        groupIdsRefs:
-          - name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  11: |
-    apiVersion: group.keycloak.crossplane.io/v1alpha1
-    kind: Group
-    metadata:
-      name: portal
-    spec:
-      forProvider:
-        name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  12: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: groups-client-scope
-    spec:
-      forProvider:
-        description: When requested, this scope will map a user's group memberships to a claim
-        includeInTokenScope: true
-        name: groups
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  13: |
-    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
-    kind: GroupMembershipProtocolMapper
-    metadata:
-      name: group-membership-mapper
-    spec:
-      forProvider:
-        claimName: groups
-        clientIdRef:
-          name: groups-client-scope
-        name: group-membership-mapper
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  14: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: iam
-        enabled: true
-        name: iam
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: iam-client-secret
-        namespace: platform-mesh-system
-  15: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: iam
-      providerConfigRef:
-        name: keycloak-provider-config
-  16: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: security-operator
-        enabled: true
-        name: security-operator
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: security-operator-client-secret
-        namespace: platform-mesh-system
-  17: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: security-operator
-      providerConfigRef:
-        name: keycloak-provider-config
-  18: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: trusted-platform-mesh-audiences
-    spec:
-      forProvider:
-        includeInTokenScope: true
-        name: trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  19: |
-    apiVersion: keycloak.crossplane.io/v1beta1
-    kind: ProviderConfig
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    spec:
-      credentials:
-        secretRef:
-          key: config
-          name: keycloak-provider-config
-          namespace: platform-mesh-system
-        source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
-    apiVersion: realm.keycloak.crossplane.io/v1alpha1
-    kind: Realm
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessTokenLifespan: 8h
-        displayName: welcome
-        displayNameHtml: <b>welcome</b>
-        enabled: true
-        loginWithEmailAllowed: true
-        organizationsEnabled: true
-        realm: welcome
-        registrationAllowed: true
-        registrationEmailAsUsername: true
-        smtpServer:
-          - from: noreply@portal.dev.local
-            host: mailpit.platform-mesh-system.svc.cluster.local
-            port: "1025"
-        ssoSessionIdleTimeout: 8h
-        verifyEmail: true
-      providerConfigRef:
-        name: keycloak-provider-config
-  22: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -463,34 +258,7 @@ Gateway API enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
-    apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
-    metadata:
-      name: mailpit
-    spec:
-      parentRefs:
-        - group: gateway.networking.k8s.io
-          kind: Gateway
-          name: k8sapi-gateway
-          sectionName: websecure
-      rules:
-        - backendRefs:
-            - group: ""
-              kind: Service
-              name: mailpit
-              port: 8025
-          filters:
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
-                name: cors-header
-              type: ExtensionRef
-          matches:
-            - path:
-                type: PathPrefix
-                value: /mailpit
-  24: |
+  9: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -505,12 +273,6 @@ Gateway API enabled:
           - GET
           - OPTIONS
           - POST
-        accessControlAllowOriginList:
-          - http://localhost:4200
-          - http://localhost:4300
-          - http://*.localhost:4200
-          - http://*.localhost:4300
-          - https://portal.dev.local:8443
         accessControlMaxAge: 100
         addVaryHeader: true
 Istio disabled:
@@ -529,7 +291,25 @@ Istio disabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -545,7 +325,7 @@ Istio disabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -645,7 +425,7 @@ Istio disabled:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -699,7 +479,7 @@ Istio disabled:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -711,7 +491,7 @@ Istio disabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -726,236 +506,13 @@ Istio disabled:
               weight: 1
           name: https-passthrough
   8: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: welcome
-        enabled: true
-        name: Welcome
-        realmIdRef:
-          name: welcome
-        standardFlowEnabled: true
-        validRedirectUris:
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: portal-client-secret-welcome
-        namespace: platform-mesh-system
-  9: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientDefaultScopes
-    metadata:
-      name: welcome-default-scopes
-    spec:
-      forProvider:
-        clientIdRef:
-          name: welcome
-        defaultScopes:
-          - profile
-          - email
-          - basic
-          - acr
-          - groups
-          - trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  10: |
-    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
-    kind: DefaultGroups
-    metadata:
-      name: default
-    spec:
-      forProvider:
-        groupIdsRefs:
-          - name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  11: |
-    apiVersion: group.keycloak.crossplane.io/v1alpha1
-    kind: Group
-    metadata:
-      name: portal
-    spec:
-      forProvider:
-        name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  12: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: groups-client-scope
-    spec:
-      forProvider:
-        description: When requested, this scope will map a user's group memberships to a claim
-        includeInTokenScope: true
-        name: groups
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  13: |
-    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
-    kind: GroupMembershipProtocolMapper
-    metadata:
-      name: group-membership-mapper
-    spec:
-      forProvider:
-        claimName: groups
-        clientIdRef:
-          name: groups-client-scope
-        name: group-membership-mapper
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  14: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: iam
-        enabled: true
-        name: iam
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: iam-client-secret
-        namespace: platform-mesh-system
-  15: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: iam
-      providerConfigRef:
-        name: keycloak-provider-config
-  16: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: security-operator
-        enabled: true
-        name: security-operator
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: security-operator-client-secret
-        namespace: platform-mesh-system
-  17: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: security-operator
-      providerConfigRef:
-        name: keycloak-provider-config
-  18: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: trusted-platform-mesh-audiences
-    spec:
-      forProvider:
-        includeInTokenScope: true
-        name: trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  19: |
-    apiVersion: keycloak.crossplane.io/v1beta1
-    kind: ProviderConfig
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    spec:
-      credentials:
-        secretRef:
-          key: config
-          name: keycloak-provider-config
-          namespace: platform-mesh-system
-        source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
-    apiVersion: realm.keycloak.crossplane.io/v1alpha1
-    kind: Realm
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessTokenLifespan: 8h
-        displayName: welcome
-        displayNameHtml: <b>welcome</b>
-        enabled: true
-        loginWithEmailAllowed: true
-        organizationsEnabled: true
-        realm: welcome
-        registrationAllowed: true
-        registrationEmailAsUsername: true
-        smtpServer:
-          - from: noreply@portal.dev.local
-            host: mailpit.platform-mesh-system.svc.cluster.local
-            port: "1025"
-        ssoSessionIdleTimeout: 8h
-        verifyEmail: true
-      providerConfigRef:
-        name: keycloak-provider-config
-  22: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -968,31 +525,33 @@ Istio disabled:
               name: keycloak
               namespace: platform-mesh-system
               port: 80
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
-    apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
+  9: |
+    apiVersion: traefik.io/v1alpha1
+    kind: Middleware
     metadata:
-      name: mailpit
+      name: cors-header
+      namespace: platform-mesh-system
     spec:
-      parentRefs:
-        - group: gateway.networking.k8s.io
-          kind: Gateway
-          name: k8sapi-gateway
-          sectionName: websecure
-      rules:
-        - backendRefs:
-            - group: ""
-              kind: Service
-              name: mailpit
-              port: 8025
-          matches:
-            - path:
-                type: PathPrefix
-                value: /mailpit
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - '*'
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+        accessControlMaxAge: 100
+        addVaryHeader: true
 Istio enabled:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -1009,7 +568,25 @@ Istio enabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -1025,7 +602,7 @@ Istio enabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -1125,7 +702,7 @@ Istio enabled:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -1179,7 +756,7 @@ Istio enabled:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -1191,7 +768,7 @@ Istio enabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1206,236 +783,13 @@ Istio enabled:
               weight: 1
           name: https-passthrough
   8: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: welcome
-        enabled: true
-        name: Welcome
-        realmIdRef:
-          name: welcome
-        standardFlowEnabled: true
-        validRedirectUris:
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: portal-client-secret-welcome
-        namespace: platform-mesh-system
-  9: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientDefaultScopes
-    metadata:
-      name: welcome-default-scopes
-    spec:
-      forProvider:
-        clientIdRef:
-          name: welcome
-        defaultScopes:
-          - profile
-          - email
-          - basic
-          - acr
-          - groups
-          - trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  10: |
-    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
-    kind: DefaultGroups
-    metadata:
-      name: default
-    spec:
-      forProvider:
-        groupIdsRefs:
-          - name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  11: |
-    apiVersion: group.keycloak.crossplane.io/v1alpha1
-    kind: Group
-    metadata:
-      name: portal
-    spec:
-      forProvider:
-        name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  12: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: groups-client-scope
-    spec:
-      forProvider:
-        description: When requested, this scope will map a user's group memberships to a claim
-        includeInTokenScope: true
-        name: groups
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  13: |
-    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
-    kind: GroupMembershipProtocolMapper
-    metadata:
-      name: group-membership-mapper
-    spec:
-      forProvider:
-        claimName: groups
-        clientIdRef:
-          name: groups-client-scope
-        name: group-membership-mapper
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  14: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: iam
-        enabled: true
-        name: iam
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: iam-client-secret
-        namespace: platform-mesh-system
-  15: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: iam
-      providerConfigRef:
-        name: keycloak-provider-config
-  16: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: security-operator
-        enabled: true
-        name: security-operator
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: security-operator-client-secret
-        namespace: platform-mesh-system
-  17: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: security-operator
-      providerConfigRef:
-        name: keycloak-provider-config
-  18: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: trusted-platform-mesh-audiences
-    spec:
-      forProvider:
-        includeInTokenScope: true
-        name: trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  19: |
-    apiVersion: keycloak.crossplane.io/v1beta1
-    kind: ProviderConfig
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    spec:
-      credentials:
-        secretRef:
-          key: config
-          name: keycloak-provider-config
-          namespace: platform-mesh-system
-        source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
-    apiVersion: realm.keycloak.crossplane.io/v1alpha1
-    kind: Realm
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessTokenLifespan: 8h
-        displayName: welcome
-        displayNameHtml: <b>welcome</b>
-        enabled: true
-        loginWithEmailAllowed: true
-        organizationsEnabled: true
-        realm: welcome
-        registrationAllowed: true
-        registrationEmailAsUsername: true
-        smtpServer:
-          - from: noreply@portal.dev.local
-            host: mailpit.platform-mesh-system.svc.cluster.local
-            port: "1025"
-        ssoSessionIdleTimeout: 8h
-        verifyEmail: true
-      providerConfigRef:
-        name: keycloak-provider-config
-  22: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1448,93 +802,33 @@ Istio enabled:
               name: keycloak
               namespace: platform-mesh-system
               port: 80
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
-    apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
+  9: |
+    apiVersion: traefik.io/v1alpha1
+    kind: Middleware
     metadata:
-      name: mailpit
-    spec:
-      parentRefs:
-        - group: gateway.networking.k8s.io
-          kind: Gateway
-          name: k8sapi-gateway
-          sectionName: websecure
-      rules:
-        - backendRefs:
-            - group: ""
-              kind: Service
-              name: mailpit
-              port: 8025
-          matches:
-            - path:
-                type: PathPrefix
-                value: /mailpit
-  24: |
-    apiVersion: security.istio.io/v1beta1
-    kind: AuthorizationPolicy
-    metadata:
-      name: openfga
+      name: cors-header
       namespace: platform-mesh-system
     spec:
-      action: ALLOW
-      rules:
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/sa/iam-service
-                  - cluster.local/ns/platform-mesh-system/sa/security-operator
-                  - cluster.local/ns/platform-mesh-system/sa/account-operator
-          to:
-            - operation:
-                methods:
-                  - POST
-                  - GET
-                  - PUT
-        - from:
-            - source:
-                principals:
-                  - cluster.local/ns/platform-mesh-system/*
-          to:
-            - operation:
-                methods:
-                  - GET
-                paths:
-                  - /stores*
-            - operation:
-                methods:
-                  - POST
-                paths:
-                  - /stores/{*}/read
-                  - /stores/{*}/write
-                  - /stores/{*}/check
-                  - /stores/{*}/batch-check
-                  - /stores/{*}/expand
-                  - /stores/{*}/list-objects
-                  - /stores/{*}/streamed-list-objects
-                  - /openfga.v1.OpenFGAService/Read*
-                  - /openfga.v1.OpenFGAService/Check*
-                  - /openfga.v1.OpenFGAService/BatchCheck*
-                  - /openfga.v1.OpenFGAService/Expand*
-                  - /openfga.v1.OpenFGAService/List*
-                  - /openfga.v1.OpenFGAService/StreamedList*
-      selector:
-        matchLabels:
-          app.kubernetes.io/name: openfga
-  25: |
-    apiVersion: networking.istio.io/v1alpha3
-    kind: DestinationRule
-    metadata:
-      name: openfga
-      namespace: platform-mesh-system
-    spec:
-      host: openfga.platform-mesh-system.svc.cluster.local
-      trafficPolicy:
-        tls:
-          mode: ISTIO_MUTUAL
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - '*'
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+        accessControlMaxAge: 100
+        addVaryHeader: true
 match snapshots:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -1551,7 +845,25 @@ match snapshots:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -1567,7 +879,7 @@ match snapshots:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -1667,7 +979,7 @@ match snapshots:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -1723,7 +1035,7 @@ match snapshots:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -1740,7 +1052,7 @@ match snapshots:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1755,236 +1067,13 @@ match snapshots:
               weight: 1
           name: https-passthrough
   8: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: welcome
-        enabled: true
-        name: Welcome
-        realmIdRef:
-          name: welcome
-        standardFlowEnabled: true
-        validRedirectUris:
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: portal-client-secret-welcome
-        namespace: platform-mesh-system
-  9: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientDefaultScopes
-    metadata:
-      name: welcome-default-scopes
-    spec:
-      forProvider:
-        clientIdRef:
-          name: welcome
-        defaultScopes:
-          - profile
-          - email
-          - basic
-          - acr
-          - groups
-          - trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  10: |
-    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
-    kind: DefaultGroups
-    metadata:
-      name: default
-    spec:
-      forProvider:
-        groupIdsRefs:
-          - name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  11: |
-    apiVersion: group.keycloak.crossplane.io/v1alpha1
-    kind: Group
-    metadata:
-      name: portal
-    spec:
-      forProvider:
-        name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  12: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: groups-client-scope
-    spec:
-      forProvider:
-        description: When requested, this scope will map a user's group memberships to a claim
-        includeInTokenScope: true
-        name: groups
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  13: |
-    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
-    kind: GroupMembershipProtocolMapper
-    metadata:
-      name: group-membership-mapper
-    spec:
-      forProvider:
-        claimName: groups
-        clientIdRef:
-          name: groups-client-scope
-        name: group-membership-mapper
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  14: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: iam
-        enabled: true
-        name: iam
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: iam-client-secret
-        namespace: platform-mesh-system
-  15: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: iam
-      providerConfigRef:
-        name: keycloak-provider-config
-  16: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: security-operator
-        enabled: true
-        name: security-operator
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: security-operator-client-secret
-        namespace: platform-mesh-system
-  17: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: security-operator
-      providerConfigRef:
-        name: keycloak-provider-config
-  18: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: trusted-platform-mesh-audiences
-    spec:
-      forProvider:
-        includeInTokenScope: true
-        name: trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  19: |
-    apiVersion: keycloak.crossplane.io/v1beta1
-    kind: ProviderConfig
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    spec:
-      credentials:
-        secretRef:
-          key: config
-          name: keycloak-provider-config
-          namespace: platform-mesh-system
-        source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
-    apiVersion: realm.keycloak.crossplane.io/v1alpha1
-    kind: Realm
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessTokenLifespan: 8h
-        displayName: welcome
-        displayNameHtml: <b>welcome</b>
-        enabled: true
-        loginWithEmailAllowed: true
-        organizationsEnabled: true
-        realm: welcome
-        registrationAllowed: true
-        registrationEmailAsUsername: true
-        smtpServer:
-          - from: noreply@portal.dev.local
-            host: mailpit.platform-mesh-system.svc.cluster.local
-            port: "1025"
-        ssoSessionIdleTimeout: 8h
-        verifyEmail: true
-      providerConfigRef:
-        name: keycloak-provider-config
-  22: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1997,31 +1086,33 @@ match snapshots:
               name: keycloak
               namespace: platform-mesh-system
               port: 80
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
-    apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
+  9: |
+    apiVersion: traefik.io/v1alpha1
+    kind: Middleware
     metadata:
-      name: mailpit
+      name: cors-header
+      namespace: platform-mesh-system
     spec:
-      parentRefs:
-        - group: gateway.networking.k8s.io
-          kind: Gateway
-          name: k8sapi-gateway
-          sectionName: websecure
-      rules:
-        - backendRefs:
-            - group: ""
-              kind: Service
-              name: mailpit
-              port: 8025
-          matches:
-            - path:
-                type: PathPrefix
-                value: /mailpit
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - '*'
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+        accessControlMaxAge: 100
+        addVaryHeader: true
 match snapshots w. hostAliases enabled:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -2038,7 +1129,25 @@ match snapshots w. hostAliases enabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -2054,7 +1163,7 @@ match snapshots w. hostAliases enabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -2159,11 +1268,11 @@ match snapshots w. hostAliases enabled:
             spec:
               hostAliases:
                 - hostnames:
-                    - kcp.api.portal.dev.local
-                    - portal.dev.local
+                    - localhost
+                    - portal.localhost
                   ip: 10.96.188.4
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -2216,14 +1325,14 @@ match snapshots w. hostAliases enabled:
             spec:
               hostAliases:
                 - hostnames:
-                    - kcp.api.portal.dev.local
-                    - portal.dev.local
+                    - localhost
+                    - portal.localhost
                   ip: 10.96.188.4
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -2235,7 +1344,7 @@ match snapshots w. hostAliases enabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2250,236 +1359,13 @@ match snapshots w. hostAliases enabled:
               weight: 1
           name: https-passthrough
   8: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: welcome
-        enabled: true
-        name: Welcome
-        realmIdRef:
-          name: welcome
-        standardFlowEnabled: true
-        validRedirectUris:
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: portal-client-secret-welcome
-        namespace: platform-mesh-system
-  9: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientDefaultScopes
-    metadata:
-      name: welcome-default-scopes
-    spec:
-      forProvider:
-        clientIdRef:
-          name: welcome
-        defaultScopes:
-          - profile
-          - email
-          - basic
-          - acr
-          - groups
-          - trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  10: |
-    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
-    kind: DefaultGroups
-    metadata:
-      name: default
-    spec:
-      forProvider:
-        groupIdsRefs:
-          - name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  11: |
-    apiVersion: group.keycloak.crossplane.io/v1alpha1
-    kind: Group
-    metadata:
-      name: portal
-    spec:
-      forProvider:
-        name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  12: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: groups-client-scope
-    spec:
-      forProvider:
-        description: When requested, this scope will map a user's group memberships to a claim
-        includeInTokenScope: true
-        name: groups
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  13: |
-    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
-    kind: GroupMembershipProtocolMapper
-    metadata:
-      name: group-membership-mapper
-    spec:
-      forProvider:
-        claimName: groups
-        clientIdRef:
-          name: groups-client-scope
-        name: group-membership-mapper
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  14: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: iam
-        enabled: true
-        name: iam
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: iam-client-secret
-        namespace: platform-mesh-system
-  15: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: iam
-      providerConfigRef:
-        name: keycloak-provider-config
-  16: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: security-operator
-        enabled: true
-        name: security-operator
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: security-operator-client-secret
-        namespace: platform-mesh-system
-  17: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: security-operator
-      providerConfigRef:
-        name: keycloak-provider-config
-  18: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: trusted-platform-mesh-audiences
-    spec:
-      forProvider:
-        includeInTokenScope: true
-        name: trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  19: |
-    apiVersion: keycloak.crossplane.io/v1beta1
-    kind: ProviderConfig
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    spec:
-      credentials:
-        secretRef:
-          key: config
-          name: keycloak-provider-config
-          namespace: platform-mesh-system
-        source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
-    apiVersion: realm.keycloak.crossplane.io/v1alpha1
-    kind: Realm
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessTokenLifespan: 8h
-        displayName: welcome
-        displayNameHtml: <b>welcome</b>
-        enabled: true
-        loginWithEmailAllowed: true
-        organizationsEnabled: true
-        realm: welcome
-        registrationAllowed: true
-        registrationEmailAsUsername: true
-        smtpServer:
-          - from: noreply@portal.dev.local
-            host: mailpit.platform-mesh-system.svc.cluster.local
-            port: "1025"
-        ssoSessionIdleTimeout: 8h
-        verifyEmail: true
-      providerConfigRef:
-        name: keycloak-provider-config
-  22: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2492,31 +1378,33 @@ match snapshots w. hostAliases enabled:
               name: keycloak
               namespace: platform-mesh-system
               port: 80
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
-    apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
+  9: |
+    apiVersion: traefik.io/v1alpha1
+    kind: Middleware
     metadata:
-      name: mailpit
+      name: cors-header
+      namespace: platform-mesh-system
     spec:
-      parentRefs:
-        - group: gateway.networking.k8s.io
-          kind: Gateway
-          name: k8sapi-gateway
-          sectionName: websecure
-      rules:
-        - backendRefs:
-            - group: ""
-              kind: Service
-              name: mailpit
-              port: 8025
-          matches:
-            - path:
-                type: PathPrefix
-                value: /mailpit
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - '*'
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+        accessControlMaxAge: 100
+        addVaryHeader: true
 match snapshots w. kcp version:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -2533,7 +1421,25 @@ match snapshots w. kcp version:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -2549,7 +1455,7 @@ match snapshots w. kcp version:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -2649,7 +1555,7 @@ match snapshots w. kcp version:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -2705,7 +1611,7 @@ match snapshots w. kcp version:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -2722,7 +1628,7 @@ match snapshots w. kcp version:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2737,236 +1643,13 @@ match snapshots w. kcp version:
               weight: 1
           name: https-passthrough
   8: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: welcome
-        enabled: true
-        name: Welcome
-        realmIdRef:
-          name: welcome
-        standardFlowEnabled: true
-        validRedirectUris:
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: portal-client-secret-welcome
-        namespace: platform-mesh-system
-  9: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientDefaultScopes
-    metadata:
-      name: welcome-default-scopes
-    spec:
-      forProvider:
-        clientIdRef:
-          name: welcome
-        defaultScopes:
-          - profile
-          - email
-          - basic
-          - acr
-          - groups
-          - trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  10: |
-    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
-    kind: DefaultGroups
-    metadata:
-      name: default
-    spec:
-      forProvider:
-        groupIdsRefs:
-          - name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  11: |
-    apiVersion: group.keycloak.crossplane.io/v1alpha1
-    kind: Group
-    metadata:
-      name: portal
-    spec:
-      forProvider:
-        name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  12: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: groups-client-scope
-    spec:
-      forProvider:
-        description: When requested, this scope will map a user's group memberships to a claim
-        includeInTokenScope: true
-        name: groups
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  13: |
-    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
-    kind: GroupMembershipProtocolMapper
-    metadata:
-      name: group-membership-mapper
-    spec:
-      forProvider:
-        claimName: groups
-        clientIdRef:
-          name: groups-client-scope
-        name: group-membership-mapper
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  14: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: iam
-        enabled: true
-        name: iam
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: iam-client-secret
-        namespace: platform-mesh-system
-  15: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: iam
-      providerConfigRef:
-        name: keycloak-provider-config
-  16: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: security-operator
-        enabled: true
-        name: security-operator
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: security-operator-client-secret
-        namespace: platform-mesh-system
-  17: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: security-operator
-      providerConfigRef:
-        name: keycloak-provider-config
-  18: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: trusted-platform-mesh-audiences
-    spec:
-      forProvider:
-        includeInTokenScope: true
-        name: trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  19: |
-    apiVersion: keycloak.crossplane.io/v1beta1
-    kind: ProviderConfig
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    spec:
-      credentials:
-        secretRef:
-          key: config
-          name: keycloak-provider-config
-          namespace: platform-mesh-system
-        source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
-    apiVersion: realm.keycloak.crossplane.io/v1alpha1
-    kind: Realm
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessTokenLifespan: 8h
-        displayName: welcome
-        displayNameHtml: <b>welcome</b>
-        enabled: true
-        loginWithEmailAllowed: true
-        organizationsEnabled: true
-        realm: welcome
-        registrationAllowed: true
-        registrationEmailAsUsername: true
-        smtpServer:
-          - from: noreply@portal.dev.local
-            host: mailpit.platform-mesh-system.svc.cluster.local
-            port: "1025"
-        ssoSessionIdleTimeout: 8h
-        verifyEmail: true
-      providerConfigRef:
-        name: keycloak-provider-config
-  22: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2979,31 +1662,33 @@ match snapshots w. kcp version:
               name: keycloak
               namespace: platform-mesh-system
               port: 80
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
-    apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
+  9: |
+    apiVersion: traefik.io/v1alpha1
+    kind: Middleware
     metadata:
-      name: mailpit
+      name: cors-header
+      namespace: platform-mesh-system
     spec:
-      parentRefs:
-        - group: gateway.networking.k8s.io
-          kind: Gateway
-          name: k8sapi-gateway
-          sectionName: websecure
-      rules:
-        - backendRefs:
-            - group: ""
-              kind: Service
-              name: mailpit
-              port: 8025
-          matches:
-            - path:
-                type: PathPrefix
-                value: /mailpit
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - '*'
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+        accessControlMaxAge: 100
+        addVaryHeader: true
 match snapshots with mailpit enabled:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -3020,7 +1705,25 @@ match snapshots with mailpit enabled:
                 kind: HTTPRoute
             namespaces:
               from: All
+          hostname: portal.localhost
           name: websecure
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            kinds:
+              - group: gateway.networking.k8s.io
+                kind: HTTPRoute
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
+          name: websecure-wildcard-portal-localhost
           port: 8443
           protocol: HTTPS
           tls:
@@ -3036,7 +1739,7 @@ match snapshots with mailpit enabled:
                 kind: TLSRoute
             namespaces:
               from: All
-          hostname: kcp.api.portal.dev.local
+          hostname: localhost
           name: https-passthrough
           port: 8443
           protocol: TLS
@@ -3136,7 +1839,7 @@ match snapshots with mailpit enabled:
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -3190,7 +1893,7 @@ match snapshots with mailpit enabled:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
       external:
-        hostname: kcp.api.portal.dev.local
+        hostname: localhost
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
@@ -3202,7 +1905,7 @@ match snapshots with mailpit enabled:
       name: kcp-front-proxy-tlsroute
     spec:
       hostnames:
-        - kcp.api.portal.dev.local
+        - localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -3217,236 +1920,13 @@ match snapshots with mailpit enabled:
               weight: 1
           name: https-passthrough
   8: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: welcome
-        enabled: true
-        name: Welcome
-        realmIdRef:
-          name: welcome
-        standardFlowEnabled: true
-        validRedirectUris:
-          - http://localhost:8000/callback*
-          - http://localhost:4300/callback*
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: portal-client-secret-welcome
-        namespace: platform-mesh-system
-  9: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientDefaultScopes
-    metadata:
-      name: welcome-default-scopes
-    spec:
-      forProvider:
-        clientIdRef:
-          name: welcome
-        defaultScopes:
-          - profile
-          - email
-          - basic
-          - acr
-          - groups
-          - trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  10: |
-    apiVersion: defaults.keycloak.crossplane.io/v1alpha1
-    kind: DefaultGroups
-    metadata:
-      name: default
-    spec:
-      forProvider:
-        groupIdsRefs:
-          - name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  11: |
-    apiVersion: group.keycloak.crossplane.io/v1alpha1
-    kind: Group
-    metadata:
-      name: portal
-    spec:
-      forProvider:
-        name: portal
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  12: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: groups-client-scope
-    spec:
-      forProvider:
-        description: When requested, this scope will map a user's group memberships to a claim
-        includeInTokenScope: true
-        name: groups
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  13: |
-    apiVersion: openidgroup.keycloak.crossplane.io/v1alpha1
-    kind: GroupMembershipProtocolMapper
-    metadata:
-      name: group-membership-mapper
-    spec:
-      forProvider:
-        claimName: groups
-        clientIdRef:
-          name: groups-client-scope
-        name: group-membership-mapper
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  14: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: iam
-        enabled: true
-        name: iam
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: iam-client-secret
-        namespace: platform-mesh-system
-  15: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: iam
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: iam
-      providerConfigRef:
-        name: keycloak-provider-config
-  16: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: Client
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        accessType: CONFIDENTIAL
-        clientId: security-operator
-        enabled: true
-        name: security-operator
-        realmId: master
-        serviceAccountsEnabled: true
-      providerConfigRef:
-        name: keycloak-provider-config
-      writeConnectionSecretToRef:
-        name: security-operator-client-secret
-        namespace: platform-mesh-system
-  17: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientServiceAccountRealmRole
-    metadata:
-      name: security-operator
-    spec:
-      forProvider:
-        realmId: master
-        role: admin
-        serviceAccountUserClientIdRef:
-          name: security-operator
-      providerConfigRef:
-        name: keycloak-provider-config
-  18: |
-    apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
-    kind: ClientScope
-    metadata:
-      name: trusted-platform-mesh-audiences
-    spec:
-      forProvider:
-        includeInTokenScope: true
-        name: trusted-platform-mesh-audiences
-        realmIdRef:
-          name: welcome
-      providerConfigRef:
-        name: keycloak-provider-config
-  19: |
-    apiVersion: keycloak.crossplane.io/v1beta1
-    kind: ProviderConfig
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    spec:
-      credentials:
-        secretRef:
-          key: config
-          name: keycloak-provider-config
-          namespace: platform-mesh-system
-        source: Secret
-  20: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-provider-config
-      namespace: platform-mesh-system
-    stringData:
-      config: |-
-        {
-          "client_id":"admin-cli",
-          "username": "keycloak-admin",
-          "password": "aesaeXaefu0x",
-          "url": "http://keycloak.platform-mesh-system.svc.cluster.local/keycloak",
-          "realm": "master"
-        }
-  21: |
-    apiVersion: realm.keycloak.crossplane.io/v1alpha1
-    kind: Realm
-    metadata:
-      name: welcome
-    spec:
-      forProvider:
-        accessTokenLifespan: 8h
-        displayName: welcome
-        displayNameHtml: <b>welcome</b>
-        enabled: true
-        loginWithEmailAllowed: true
-        organizationsEnabled: true
-        realm: welcome
-        registrationAllowed: true
-        registrationEmailAsUsername: true
-        smtpServer:
-          - from: noreply@portal.dev.local
-            host: mailpit.platform-mesh-system.svc.cluster.local
-            port: "1025"
-        ssoSessionIdleTimeout: 8h
-        verifyEmail: true
-      providerConfigRef:
-        name: keycloak-provider-config
-  22: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
       name: keycloak
     spec:
       hostnames:
-        - portal.dev.local
+        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -3459,76 +1939,30 @@ match snapshots with mailpit enabled:
               name: keycloak
               namespace: platform-mesh-system
               port: 80
+          filters:
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  23: |
-    apiVersion: apps/v1
-    kind: Deployment
+  9: |
+    apiVersion: traefik.io/v1alpha1
+    kind: Middleware
     metadata:
-      name: mailpit
+      name: cors-header
+      namespace: platform-mesh-system
     spec:
-      selector:
-        matchLabels:
-          app: mailpit
-      template:
-        metadata:
-          labels:
-            app: mailpit
-        spec:
-          containers:
-            - args:
-                - --webroot=/mailpit
-                - --smtp-auth-accept-any
-                - --smtp-auth-allow-insecure
-              image: axllent/mailpit:v1.27.9
-              name: mailpit
-              ports:
-                - containerPort: 8025
-                  name: ui
-                  protocol: TCP
-                - containerPort: 1025
-                  name: smtp
-                  protocol: TCP
-  24: |
-    apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
-    metadata:
-      name: mailpit
-    spec:
-      parentRefs:
-        - group: gateway.networking.k8s.io
-          kind: Gateway
-          name: k8sapi-gateway
-          sectionName: websecure
-      rules:
-        - backendRefs:
-            - group: ""
-              kind: Service
-              name: mailpit
-              port: 8025
-          matches:
-            - path:
-                type: PathPrefix
-                value: /mailpit
-  25: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      labels:
-        app: mailpit
-      name: mailpit
-    spec:
-      ports:
-        - name: ui
-          port: 8025
-          protocol: TCP
-          targetPort: ui
-        - appProtocol: tcp
-          name: smtp
-          port: 1025
-          protocol: TCP
-          targetPort: smtp
-      selector:
-        app: mailpit
+      headers:
+        accessControlAllowCredentials: true
+        accessControlAllowHeaders:
+          - '*'
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - POST
+        accessControlMaxAge: 100
+        addVaryHeader: true

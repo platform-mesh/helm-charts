@@ -1,16 +1,17 @@
-/.DS_Store
+.DS_Store
 bin/*
 .idea
 .secret
 .debug
 .claude
 oci/
+*.webm
 
 local-setup/webhook-config/*
 !local-setup/webhook-config/*.sh
 !local-setup/webhook-config/*.yaml
 !local-setup/webhook-config/*.conf
-local-setup/e2e/test-results/.last-run.json
+local-setup/e2e/test-results/*
 local-setup/scripts/certs
 .vscode/
 *.log
@@ -19,9 +20,11 @@ local-setup/scripts/certs
 ocm/.ocm/transport.ctf/
 .ocm/component-constructor-prerelease.yaml
 ./*.tgz
+prerelease/
 registry-ca.pem
 .ocm/.ocmconfig
 local-setup/rootCA.pem
 local-setup/e2e/node_modules/
 local-setup/e2e/*.png
+local-setup/scripts/load-custom-images.sh
 /convo

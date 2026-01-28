@@ -35,49 +35,6 @@ HelmRelease snapshots:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: crossplane
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: crossplane
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: crossplane
-      dependsOn: null
-      interval: 1m
-      releaseName: crossplane
-      targetNamespace: crossplane-system
-      timeout: 30m
-      values:
-        provider:
-          packages:
-            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-  3: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: etcd-druid
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: charts
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: GitRepository
-            name: etcd-druid
-      dependsOn: null
-      interval: 1m
-      releaseName: etcd-druid
-      targetNamespace: etcd-druid-system
-      timeout: 30m
-      values: {}
-  4: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: extension-manager-operator
       namespace: default
     spec:
@@ -100,6 +57,41 @@ HelmRelease snapshots:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: false
+  3: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-service
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-service
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: iam-service
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        caSecret: domain-certificate-ca
+  4: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-ui
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-ui
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: iam-ui
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values: null
   5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -148,40 +140,15 @@ HelmRelease snapshots:
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.
+              - --shard-virtual-workspace-url=https://localhost:8443
           webhook:
             enabled: true
         keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - https:///callback*
           istio:
             virtualservice:
               hosts:
                 - ""
   6: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: kcp-operator
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: kcp-operator
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: kcp-operator
-      dependsOn: null
-      interval: 1m
-      releaseName: kcp-operator
-      targetNamespace: kcp-operator
-      timeout: 30m
-      values: null
-  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -210,8 +177,6 @@ HelmRelease snapshots:
           - name: KC_HOSTNAME_STRICT
             value: "false"
         global:
-          imagePullSecrets:
-            - name: github
           security:
             allowInsecureImages: true
         httpRelativePath: /keycloak/
@@ -228,7 +193,6 @@ HelmRelease snapshots:
           image:
             registry: ghcr.io/platform-mesh
             repository: upstream-images/postgresql
-            tag: 17.6.0-debian-12-r4
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
@@ -241,7 +205,7 @@ HelmRelease snapshots:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  8: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -298,7 +262,7 @@ HelmRelease snapshots:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  9: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -364,7 +328,7 @@ HelmRelease snapshots:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  10: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -384,15 +348,11 @@ HelmRelease snapshots:
         certManager:
           createCA: true
           enabled: true
-        istio:
-          dnsNames:
-            - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
-          exposed: false
         log:
           level: debug
         openfga:
           url: openfga:8081
-  11: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -423,7 +383,7 @@ HelmRelease snapshots:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  12: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -486,57 +446,6 @@ enable remote deployment of helmreleases:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
-      name: crossplane
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: crossplane
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: crossplane
-      dependsOn: null
-      interval: 1m
-      kubeConfig:
-        secretRef:
-          key: kubeconfig
-          name: test-kubeconfig-secret
-      releaseName: crossplane
-      targetNamespace: crossplane-system
-      timeout: 30m
-      values:
-        provider:
-          packages:
-            - xpkg.upbound.io/crossplane-contrib/provider-keycloak:v2.7.2
-  3: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: etcd-druid
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: charts
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: GitRepository
-            name: etcd-druid
-      dependsOn: null
-      interval: 1m
-      kubeConfig:
-        secretRef:
-          key: kubeconfig
-          name: test-kubeconfig-secret
-      releaseName: etcd-druid
-      targetNamespace: etcd-druid-system
-      timeout: 30m
-      values: {}
-  4: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
       name: extension-manager-operator
       namespace: default
     spec:
@@ -563,6 +472,49 @@ enable remote deployment of helmreleases:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
           enabled: false
+  3: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-service
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-service
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          key: kubeconfig
+          name: test-kubeconfig-secret
+      releaseName: iam-service
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        caSecret: domain-certificate-ca
+  4: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: iam-ui
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: iam-ui
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          key: kubeconfig
+          name: test-kubeconfig-secret
+      releaseName: iam-ui
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values: null
   5: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -615,44 +567,15 @@ enable remote deployment of helmreleases:
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://kcp.api.
+              - --shard-virtual-workspace-url=https://localhost:8443
           webhook:
             enabled: true
         keycloak:
-          crossplane:
-            clients:
-              welcome:
-                validRedirectUris:
-                  - https:///callback*
           istio:
             virtualservice:
               hosts:
                 - ""
   6: |
-    apiVersion: helm.toolkit.fluxcd.io/v2
-    kind: HelmRelease
-    metadata:
-      name: kcp-operator
-      namespace: default
-    spec:
-      chart:
-        spec:
-          chart: kcp-operator
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: HelmRepository
-            name: kcp-operator
-      dependsOn: null
-      interval: 1m
-      kubeConfig:
-        secretRef:
-          key: kubeconfig
-          name: test-kubeconfig-secret
-      releaseName: kcp-operator
-      targetNamespace: kcp-operator
-      timeout: 30m
-      values: null
-  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -685,8 +608,6 @@ enable remote deployment of helmreleases:
           - name: KC_HOSTNAME_STRICT
             value: "false"
         global:
-          imagePullSecrets:
-            - name: github
           security:
             allowInsecureImages: true
         httpRelativePath: /keycloak/
@@ -703,7 +624,6 @@ enable remote deployment of helmreleases:
           image:
             registry: ghcr.io/platform-mesh
             repository: upstream-images/postgresql
-            tag: 17.6.0-debian-12-r4
           nameOverride: postgresql-keycloak
           primary:
             resourcesPreset: none
@@ -716,7 +636,7 @@ enable remote deployment of helmreleases:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  8: |
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -777,7 +697,7 @@ enable remote deployment of helmreleases:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  9: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -847,7 +767,7 @@ enable remote deployment of helmreleases:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  10: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -871,15 +791,11 @@ enable remote deployment of helmreleases:
         certManager:
           createCA: true
           enabled: true
-        istio:
-          dnsNames:
-            - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
-          exposed: false
         log:
           level: debug
         openfga:
           url: openfga:8081
-  11: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -914,7 +830,7 @@ enable remote deployment of helmreleases:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
-  12: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
