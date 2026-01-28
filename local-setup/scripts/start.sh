@@ -206,6 +206,7 @@ if [ "$EXAMPLE_DATA" = true ]; then
   kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
   unset KUBECONFIG
 
+  kind export kubeconfig --name platform-mesh
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
   kubectl wait --namespace default \
