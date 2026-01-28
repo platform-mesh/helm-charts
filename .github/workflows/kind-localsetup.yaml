@@ -94,13 +94,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          task test:portal-e2e
+          task test:portal-e2e:video
 
       - name: Upload Playwright artefacts
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: playwright-artifacts
           path: |
             local-setup/e2e/test-results/
             local-setup/e2e/*.png
+          retention-days: 5

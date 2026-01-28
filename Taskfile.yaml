@@ -237,6 +237,30 @@ tasks:
           ORG_NAME={{.ORG_NAME}} npx playwright test test-register-and-navigate.test.ts {{if .HEADED}}--headed{{end}}
           popd
 
+  test:portal-e2e:headed:
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+    cmds:
+      - |
+          pushd local-setup/e2e
+          npm install
+          npm ci
+          npx playwright install
+          ORG_NAME={{.ORG_NAME}} npx playwright test test-register-and-navigate.test.ts --headed
+          popd
+
+  test:portal-e2e:video:
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+    cmds:
+      - |
+          pushd local-setup/e2e
+          npm install
+          npm ci
+          npx playwright install
+          VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test test-register-and-navigate.test.ts
+          popd
+
   local-setup:
     deps:
       - task: setup:mkcert
