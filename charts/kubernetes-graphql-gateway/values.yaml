@@ -68,6 +68,10 @@ kubeConfig:
   enabled: false
   secretName: "kcp-root-kubeconfig"
 
+rbac:
+  # -- Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token)
+  createServiceAccountRules: false
+
 extraEnvs: []
 extraVolumes: []
 extraVolumeMounts: []

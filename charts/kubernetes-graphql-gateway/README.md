@@ -69,6 +69,7 @@ kubeConfig:
 | listener.virtualWorkspacesConfig.content.virtualWorkspaces | list | `[]` |  |
 | listener.virtualWorkspacesConfig.enabled | bool | `false` |  |
 | listener.virtualWorkspacesConfig.path | string | `"/app/config/virtual-workspaces.yaml"` |  |
+| rbac.createServiceAccountRules | bool | `false` | Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token) |
 | sentry.environment | string | `"dev"` |  |
 | tracing.enabled | bool | `true` |  |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
