@@ -49,6 +49,10 @@ spec:
     leaderElection:
       reelectionPeriod: {{ .Values.kcp.etcd.backup.leaderElection.reelectionPeriod | default "5s" }}
       etcdConnectionTimeout: {{ .Values.kcp.etcd.backup.leaderElection.etcdConnectionTimeout | default "5s" }}
+{{- if .Values.kcp.etcd.backup.store }}
+    store:
+{{ toYaml .Values.kcp.etcd.backup.store | indent 6 }}
+{{- end }}
 
   sharedConfig:
     autoCompactionMode: {{ .Values.kcp.etcd.sharedConfig.autoCompactionMode | default "periodic" }}
