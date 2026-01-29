@@ -69,6 +69,8 @@ kubeConfig:
   secretName: "kcp-root-kubeconfig"
 
 rbac:
+  # -- Enables RBAC rules for clusteraccesses (get, list, watch, update, patch on clusteraccesses and clusteraccesses/status)
+  createClusterAccessRules: false
   # -- Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token)
   createServiceAccountRules: false
 

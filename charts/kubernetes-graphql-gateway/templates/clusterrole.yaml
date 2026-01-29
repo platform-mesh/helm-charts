@@ -27,6 +27,7 @@ rules:
       - get
       - list
       - watch
+  {{- if .Values.rbac.createClusterAccessRules }}
   - apiGroups:
       - gateway.platform-mesh.io
     resources:
@@ -38,6 +39,7 @@ rules:
       - watch
       - update
       - patch
+  {{- end }}
   {{- if .Values.rbac.createServiceAccountRules }}
   - apiGroups:
       - ""
