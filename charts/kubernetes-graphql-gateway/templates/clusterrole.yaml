@@ -27,7 +27,7 @@ rules:
       - get
       - list
       - watch
-  {{- if .Values.rbac.createClusterAccessRules }}
+  {{- if .Values.crds.enabled }}
   - apiGroups:
       - gateway.platform-mesh.io
     resources:
