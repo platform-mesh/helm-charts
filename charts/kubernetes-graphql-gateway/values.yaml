@@ -98,6 +98,7 @@ traefik:
 gatewayApi:
   # -- configuration for the HTTPRoute resource
   httpRoute:
+    enabled: true
     pathPrefix: /api/kubernetes-graphql-gateway/
     hostnames:
     - "portal.localhost"
