@@ -103,7 +103,7 @@ spec:
                                 },
                                 "context": {
                                     "accountId": ":accountId",
-                                    "httpbinId": ":namespaceId",
+                                    "httpbinId": ":httpbinId",
                                     "resourceId": ":httpbinId"
                                 }
                             }
