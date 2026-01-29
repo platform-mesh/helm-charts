@@ -1,0 +1,7 @@
+suite: operator
+values:
+  - ../test-values.yaml
+tests:
+  - it: operator match the snapshot
+    asserts:
+      - matchSnapshot: {}

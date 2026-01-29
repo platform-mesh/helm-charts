@@ -1,0 +1,36 @@
+image:
+  name: ghcr.io/platform-mesh/search-operator
+
+# -- environment indicator, used for logging and observability
+environment: local
+# -- region indicator, used for logging and observability
+region: local
+
+deployment:
+  revisionHistoryLimit: 3
+  resources:
+    limits:
+      cpu: 260m
+      memory: 512Mi
+    requests:
+      cpu: 150m
+      memory: 128Mi
+
+crds:
+  enabled: false
+
+logLevel: info
+
+# -- The kubeconfig secret for the operator
+kubeconfigSecret: ""
+
+# OpenSearch connection configuration
+opensearch:
+  # -- OpenSearch service URL
+  url: "http://opensearch.platform-mesh-system.svc.cluster.local:9200"
+  # -- OpenSearch username (optional, for authenticated clusters)
+  username: ""
+  # -- OpenSearch password secret name (optional)
+  passwordSecretName: ""
+  # -- Key in the password secret
+  passwordSecretKey: "password"
