@@ -38,7 +38,7 @@ kubeConfig:
 | gateway.resources.requests.memory | string | `"1000Mi"` |  |
 | gateway.shouldImpersonate | bool | `false` |  |
 | gateway.usernameClaim | string | `"email"` |  |
-| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}}],"hostnames":["portal.localhost","*.portal.localhost"],"parentRefs":[{"name":"k8sapi-gateway"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
+| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"enabled":true,"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}}],"hostnames":["portal.localhost","*.portal.localhost"],"parentRefs":[{"name":"k8sapi-gateway"}],"pathPrefix":"/api/kubernetes-graphql-gateway/"}` | configuration for the HTTPRoute resource |
 | gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only, no CORS) |
 | health.liveness.failureThreshold | int | `1` |  |
