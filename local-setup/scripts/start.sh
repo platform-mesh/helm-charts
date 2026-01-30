@@ -109,12 +109,12 @@ fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.17.1 \
-  --set imageAutomationController.create=false \
-  --set imageReflectionController.create=false \
-  --set notificationController.create=false \
-  --set helmController.container.additionalArgs[0]="--concurrent=50" \
-  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
+--version 2.17.2 \
+--set imageAutomationController.create=false \
+--set imageReflectionController.create=false \
+--set notificationController.create=false \
+--set-json 'helmController.container.additionalArgs=["--concurrent=50"]' \
+--set-json 'sourceController.container.additionalArgs=["--requeue-dependency=5s"]'
 
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
