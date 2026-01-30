@@ -69,6 +69,8 @@ kubeConfig:
 | listener.virtualWorkspacesConfig.content.virtualWorkspaces | list | `[]` |  |
 | listener.virtualWorkspacesConfig.enabled | bool | `false` |  |
 | listener.virtualWorkspacesConfig.path | string | `"/app/config/virtual-workspaces.yaml"` |  |
+| rbac.createServiceAccountRules | bool | `false` | Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token). Uses namespace-scoped Roles when serviceAccounts list is provided. |
+| rbac.serviceAccounts | list | [] | List of service accounts with name and namespace to allow access to. Creates a Role and RoleBinding per namespace. Example: serviceAccounts:   - name: my-service-account     namespace: my-namespace   - name: another-sa     namespace: another-namespace |
 | sentry.environment | string | `"dev"` |  |
 | tracing.enabled | bool | `true` |  |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
