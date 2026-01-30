@@ -36,8 +36,6 @@ services:
         collector:
           host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
       kubeconfigSecret: account-operator-kubeconfig
-      log:
-        level: debug
       crds:
         enabled: false
       kcp:
@@ -56,10 +54,11 @@ services:
           for: extension-manager-operator
     values:
       crds:
-        enabled: false
+        enabled: true
       kcp:
         enabled: true
-        kubeconfigSecret: extension-manager-operator-kubeconfig
+        kubeconfig:
+          secret: extension-manager-operator-kubeconfig
       tracing:
         enabled: false
         collector:
@@ -82,8 +81,6 @@ services:
         kubeconfigSecret: security-initializer-kubeconfig
       baseDomain: "{{ .Values.baseDomainPort }}"
       kubeconfigSecret: security-operator-kubeconfig
-      log:
-        level: debug
       operator:
         shutdownTimeout: 1m
         maxConcurrentReconciles: 1
@@ -96,8 +93,6 @@ services:
           artifact: image
           for: rebac-authz-webhook
     values:
-      log:
-        level: debug
       openfga:
         url: openfga:8081
       certManager:

@@ -31,9 +31,10 @@ A Helm chart for Kubernetes
 | services.account-operator.values.tracing.enabled | bool | `false` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"extension-manager-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
-| services.extension-manager-operator.values.kcp.enabled | bool | `true` |  |
-| services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
+| services.extension-manager-operator.values.crds.enabled | bool | `true` | Install ContentConfiguration CRDs with the operator |
+| services.extension-manager-operator.values.kcp.enabled | bool | `true` | Enable KCP mode (APIExportEndpointSlice discovery) |
+| services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` | Secret name for KCP API kubeconfig (sets KUBECONFIG in pod) |
+| services.extension-manager-operator.values.log.level | string | `"debug"` | Log level so KCP discovery and slice logs are visible (like rebac-authz-webhook) |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `false` |  |
 | services.iam-service.enabled | bool | `true` | Enable IAM Service |
