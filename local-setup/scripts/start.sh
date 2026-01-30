@@ -24,7 +24,7 @@ EXAMPLE_DATA=false
 CONCURRENT=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--search] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
@@ -40,7 +40,8 @@ while [ $# -gt 0 ]; do
     --prerelease) PRERELEASE=true ;;
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
-    --concurrent) CONCURRENT=true ;;
+    --latest) LATEST=true ;;
+    --search) SEARCH=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -173,18 +174,16 @@ kubectl wait --namespace default \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
-if [ "$PRERELEASE" = true ]; then
-  if [ "$EXAMPLE_DATA" = true ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
-    # TODO: Create example-data-prerelease overlay if needed
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
-  else
-    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
-  fi
+if [ "$EXAMPLE_DATA" = true ] && [ "$SEARCH" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data and search) ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/search
 elif [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+elif [ "$SEARCH" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with search) ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/search
 else
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
@@ -217,8 +216,15 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
 fi
 
-echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
-echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"
+if [ "$SEARCH" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for OpenSearch ${COL_RES}"
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=480s opensearch
+  echo -e "${COL}[$(date '+%H:%M:%S')] OpenSearch is ready! ${COL_RES}"
+fi
+
+echo -e "${COL}Please create an entry in your /etc/hosts with the following line: \"127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local\" ${COL_RES}"
 show_wsl_hosts_guidance
 
 echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
