@@ -69,8 +69,17 @@ kubeConfig:
   secretName: "kcp-root-kubeconfig"
 
 rbac:
-  # -- Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token)
+  # -- Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token). Uses namespace-scoped Roles when serviceAccounts list is provided.
   createServiceAccountRules: false
+  # -- List of service accounts with name and namespace to allow access to. Creates a Role and RoleBinding per namespace.
+  # @default -- []
+  # Example:
+  # serviceAccounts:
+  #   - name: my-service-account
+  #     namespace: my-namespace
+  #   - name: another-sa
+  #     namespace: another-namespace
+  serviceAccounts: []
 
 extraEnvs: []
 extraVolumes: []

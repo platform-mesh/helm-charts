@@ -10,6 +10,8 @@ chart:
 templates:
   - clusterrole.yaml
   - clusterrolebinding.yaml
+  - role.yaml
+  - rolebinding.yaml
 tests:
   - it: matches the Snapshot
     asserts:
@@ -18,5 +20,26 @@ tests:
     set:
       kubeConfig.enabled: false
       kcp.enabled: false
+    asserts:
+      - matchSnapshot: {}
+  - it: matches the Snapshot with service account RBAC rules enabled
+    set:
+      kubeConfig.enabled: false
+      kcp.enabled: false
+      rbac.createServiceAccountRules: true
+    asserts:
+      - matchSnapshot: {}
+  - it: matches the Snapshot with namespace-scoped service account roles
+    set:
+      kubeConfig.enabled: false
+      kcp.enabled: false
+      rbac.createServiceAccountRules: true
+      rbac.serviceAccounts:
+        - name: my-service-account
+          namespace: my-namespace
+        - name: another-sa
+          namespace: another-namespace
+        - name: second-sa
+          namespace: my-namespace
     asserts:
       - matchSnapshot: {}
