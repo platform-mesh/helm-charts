@@ -75,8 +75,6 @@ KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 
 ### MacOS Virtualization Framework (Recommended)
 
-**macOS users**: For optimal performance and stability, we recommend using Apple's Virtualization Framework (VZ) with your container runtime:
-
 **Docker Desktop:**
 1. Open Docker Desktop
 2. Go to Settings → General
@@ -86,8 +84,10 @@ KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 **Podman:**
 1. Stop the current machine: `podman machine stop`
 2. Remove the current machine: `podman machine rm`
-3. Create new machine with VZ: `podman machine init --vm-type=applehv`
-4. Start the machine: `podman machine start`
+3. Create new machine with VZ: `podman machine init --cpus 4 --memory 8192`
+4. Set rootful: `podman machine set --rootful`
+5. Start the machine: `podman machine start`
+6. Create kind network: `podman network create kind`
 
 While Platform-mesh can work with other virtualization frameworks like QEMU, it has been primarily tested with Apple's Virtualization Framework on macOS.
 
@@ -382,6 +382,10 @@ npx playwright test test-register-and-navigate.test.ts
 1. **Docker/Podman not running**
    - Ensure Docker Desktop or Podman is started
    - For WSL2: Verify Docker Desktop WSL integration is enabled
+   - On Macs, if script fails to create KIND cluster due to missing network, create it with:
+     ```sh
+     podman network create kind
+     ```
 
 2. **Port conflicts**
    - Ensure ports 8443, 80, and 443 are not in use by other applications
