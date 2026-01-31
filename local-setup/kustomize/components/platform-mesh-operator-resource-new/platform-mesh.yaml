@@ -20,7 +20,7 @@ spec:
         statusValue: "Synced"
   exposure:
     port: 8443
-    baseDomain: localhost
+    baseDomain: portal.localhost
     protocol: https
   ocm:
     repo:
@@ -51,27 +51,8 @@ spec:
             memory: 1Gi
     infra:
       values:
-        kcp:
-          external:
-            hostname: localhost
-        cors:
-          enabled: true
-          accessControlAllowOriginList:
-          - "http://localhost:4200"
-          - "http://localhost:4300"
-          - "http://*.localhost:4200"
-          - "http://*.localhost:4300"
-          - "https://portal.dev.local:8443"
-          - "https://*.portal.dev.local:8443"
         mailpit:
           enabled: true
-        hostAliases:
-          enabled: true
-          entries:
-            - ip: "10.96.188.4"
-              hostnames:
-                - "localhost"
-                - "portal.localhost"
     security-operator:
       values:
         baseDomain: "{{ .baseDomainPort }}"
@@ -165,11 +146,6 @@ spec:
           enabled: true
         tracing:
           enabled: false
-        trust:
-          default:
-            trustedIssuer: "https://portal.{{ .baseDomainPort }}/keycloak/realms/default"
-            jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-            audience: default
         kubeConfig:
           enabled: true
           secretName: kubernetes-graphql-gateway-kubeconfig

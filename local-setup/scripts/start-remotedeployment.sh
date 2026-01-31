@@ -23,12 +23,21 @@ CACHED=false
 EXAMPLE_DATA=false
 LATEST=false
 DEPLOYMENT_TECH="fluxcd"
+CONCURRENT=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--latest] [--deployment-tech=fluxcd|argocd] [--help]"
-  echo "  --deployment-tech: Choose deployment technology (fluxcd or argocd). Default: fluxcd"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--deployment-tech=fluxcd|argocd] [--help]"
+  echo ""
+  echo "Options:"
+  echo "  --prerelease       Deploy with locally built OCM components instead of released versions"
+  echo "  --cached           Use local Docker registry mirrors for faster image pulls"
+  echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
+  echo "  --concurrent       Run prerelease chart builds in parallel instead of sequentially"
+  echo "  --deployment-tech  Choose deployment technology (fluxcd or argocd). Default: fluxcd"
+  echo "  --help             Show this help message"
   exit 1
 }
+
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -36,6 +45,7 @@ while [ $# -gt 0 ]; do
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --latest) LATEST=true ;;
+    --concurrent) CONCURRENT=true ;;
     --deployment-tech=*)
       DEPLOYMENT_TECH="${1#*=}"
       if [ "$DEPLOYMENT_TECH" != "fluxcd" ] && [ "$DEPLOYMENT_TECH" != "argocd" ]; then
@@ -54,12 +64,13 @@ done
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
 source "$SCRIPT_DIR/check-environment.sh"
 source "$SCRIPT_DIR/setup-registry-proxies.sh"
+source "$SCRIPT_DIR/setup-prerelease.sh"
 
 # Run WSL compatibility checks
-check_wsl_compatibility
+# check_wsl_compatibility
 
 # Run environment checks
-run_environment_checks
+# run_environment_checks
 
 # Start registry proxies if using cached mode
 if [ "$CACHED" = true ]; then
@@ -105,10 +116,13 @@ if ! check_kind_infra_cluster; then
 
 fi
 
+### TODO: remove this once the operator is released
 kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11 --name platform-mesh-infra
+echo "Loaded platform-mesh-operator:v0.27.0-rc.11"
 
+MKCERT_CMD="bin/mkcert"
 mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "portal.localhost" "*.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
 install_fluxcd() {
@@ -362,19 +376,16 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
 fi
 
-echo -e "${COL}NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers. ${COL_RES}"
+echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
+echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"
 show_wsl_hosts_guidance
-
-echo -e "${YELLOW}⚠️  WARNING: You need to add a hosts entry for every organization that is onboarded!${COL_RES}"
-echo -e "${YELLOW}   Each organization will require its own subdomain entry in /etc/hosts${COL_RES}"
-echo -e "${YELLOW}   Example: 127.0.0.1 <organization-name>.portal.localhost${COL_RES}"
 
 echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
 
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
-echo -e "${COL}You can access the onboarding portal at: https://portal.localhost:8443 , any send emails can be received here: https://portal.localhost:8443/mailpit ${COL_RES}"
+echo -e "${COL}You can access the onboarding portal at: https://portal.localhost:8443 ${COL_RES}"
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"

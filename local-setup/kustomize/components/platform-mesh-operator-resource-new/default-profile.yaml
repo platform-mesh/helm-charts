@@ -133,6 +133,8 @@ data:
             namespace: platform-mesh-system
           enabled: true
           values:
+            cors:
+              enabled: true
             gatewayApi:
               enabled: true
               passThrough:
@@ -163,6 +165,15 @@ data:
                 virtualservice:
                   hosts:
                   - portal.localhost
+            traefik:
+              accessControlAllowOriginList:
+              - http://localhost:4200
+              - http://localhost:4300
+              - http://*.localhost:4200
+              - http://*.localhost:4300
+              - http://sub.localhost:4300
+              - https://portal.dev.local:8443
+              - https://*.portal.dev.local:8443
         kcp-operator:
           syncWave: 1
           enabled: true
@@ -257,7 +268,7 @@ data:
               default:
                 audience: default
                 jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
-                trustedIssuer: https://portal.{{ .baseDomainPort }}/keycloak/realms/default
+                trustedIssuer: https://{{ .baseDomainPort }}/keycloak/realms/default
         observability:
           syncWave: 4
           enabled: false
@@ -346,19 +357,19 @@ data:
           values:
             auth:
               default:
-                baseDomain: 'portal.{{ .baseDomain }}'
+                baseDomain: '{{ .baseDomain }}'
                 clientId: welcome
                 clientSecretKey: attribute.client_secret
                 clientSecretName: portal-client-secret-welcome
-                discoveryUrl: https://portal.{{ .baseDomainPort }}/keycloak/realms/${org-name}/.well-known/openid-configuration
-            cookieDomain: 'portal.{{ .baseDomain }}'
-            crdGatewayApiUrl: https://${org-subdomain}portal.{{ .baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+                discoveryUrl: https://{{ .baseDomainPort }}/keycloak/realms/${org-name}/.well-known/openid-configuration
+            cookieDomain: '{{ .baseDomain }}'
+            crdGatewayApiUrl: https://${org-subdomain}{{ .baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
             environment: kind
             extraEnvVars:
             - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-              value: https://${org-subdomain}portal.{{ .baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+              value: https://${org-subdomain}{{ .baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
             - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-              value: https://${org-subdomain}portal.{{ .baseDomainPort }}/iam/graphql
+              value: https://${org-subdomain}{{ .baseDomainPort }}/iam/graphql
             frontendPort: '8443'
             http:
               protocol: https
@@ -373,6 +384,8 @@ data:
           syncWave: 4
           enabled: true
           values:
+            hostAliases:
+              enabled: true
             certManager:
               createCA: true
               enabled: true
@@ -394,11 +407,11 @@ data:
           syncWave: 4
           enabled: true
           values:
-            baseDomain: 'portal.{{ .baseDomainPort }}'
+            baseDomain: '{{ .baseDomainPort }}'
             crds:
               enabled: false
             fga:
-              inviteKeycloakBaseUrl: "https://portal.{{ .baseDomainPort }}/keycloak"
+              inviteKeycloakBaseUrl: "https://{{ .baseDomainPort }}/keycloak"
               target: openfga.platform-mesh-system.svc.cluster.local:8081
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig

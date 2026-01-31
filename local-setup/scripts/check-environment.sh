@@ -162,6 +162,48 @@ check_kcp_plugin() {
     return 0
 }
 
+
+check_hosts_entry() {
+    local hostname="$1"
+    local expected_ip="127.0.0.1"
+
+    # Detect OS and use appropriate resolution method
+    case "$(uname -s)" in
+        Darwin)
+            # macOS: Use dscacheutil
+            local result=$(dscacheutil -q host -a name "$hostname" 2>/dev/null | grep "ip_address:" | grep -v "ipv6" | awk '{print $2}' | head -1)
+            ;;
+        Linux)
+            # Linux: Check if getent is available (most distros)
+            if command -v getent &> /dev/null; then
+                local result=$(getent hosts "$hostname" 2>/dev/null | awk '{print $1}' | head -1)
+            else
+                # Fallback: Direct /etc/hosts parsing
+                local result=$(grep -E "^[^#]*\s+$hostname(\s|$)" /etc/hosts 2>/dev/null | awk '{print $1}' | head -1)
+            fi
+            ;;
+        *)
+            # Fallback for unknown systems
+            local result=$(grep -E "^[^#]*\s+$hostname(\s|$)" /etc/hosts 2>/dev/null | awk '{print $1}' | head -1)
+            ;;
+    esac
+
+    # Check if we got the expected IP
+    if [ "$result" = "$expected_ip" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+check_hosts_entries() {
+    # With localhost-based domains, no custom DNS entries are required
+    # localhost and *.localhost are resolved automatically by modern browsers
+    # and localhost is resolved by the system
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Using localhost-based domains - no custom DNS entries required${COL_RES}"
+    return 0
+}
+
 # Run all environment checks
 run_environment_checks() {
     echo -e "${COL}🔍 Checking environment dependencies...${COL_RES}"
@@ -192,6 +234,11 @@ run_environment_checks() {
         echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Architecture: $ARCH${COL_RES}"
     fi
 
+    # Check hosts entries (always run - KCP is always deployed)
+    if ! check_hosts_entries; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
     # Check KCP plugin if example-data mode is enabled
     if [ "$EXAMPLE_DATA" = true ]; then
         if ! check_kcp_plugin; then
@@ -217,4 +264,6 @@ export -f check_container_runtime_dependency
 export -f setup_mkcert_command
 export -f check_architecture
 export -f check_kcp_plugin
+export -f check_hosts_entry
+export -f check_hosts_entries
 export -f run_environment_checks

@@ -17,3 +17,5 @@ spec:
           hostnames:
             - portal.localhost
             - localhost
+    extraArgs:
+      - --kcp-url=https://localhost:8443
