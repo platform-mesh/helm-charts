@@ -20,13 +20,12 @@ A Helm chart for extension-manager-operator which manages resources like Content
 | gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
 | gatewayApi.main | object | `{"gateway":{"name":"websecure","port":8443}}` | HTTPS Terminate configuration |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
-| image.name | string | `"ghcr.io/platform-mesh/extension-manager-operator"` | Image repository for the operator |
-| image.tag | string | (chart appVersion) | Image tag; omit to use chart appVersion |
-| istio.enabled | bool | `false` | Enable Istio VirtualService |
-| kcp.enabled | bool | `false` | Enable KCP mode (multicluster discovery via APIExportEndpointSlice) |
-| kcp.kubeconfig.secret | string | `"extension-manager-operator-kubeconfig"` | Secret name for KCP API kubeconfig (sets KUBECONFIG in pod; same structure as rebac-authz-webhook) |
-| kcp.apiExportEndpointSliceName | string | `""` | KCP APIExportEndpointSlice name to watch. Empty = omit flag / auto-discover (same as rebac-authz-webhook) |
-| kubeconfigSecret | string | `""` | Secret containing the kubeconfig when not using KCP |
+| image.name | string | `"ghcr.io/platform-mesh/extension-manager-operator"` |  |
+| istio.enabled | bool | `false` | enable Istio VirtualService |
+| kcp.apiExportEndpointSliceName | string | `""` | KCP APIExportEndpointSliceName to watch. Empty string = omit flag / auto-discover (same as rebac-authz-webhook) |
+| kcp.enabled | bool | `false` | enable the kcp mode of the operator |
+| kcp.kubeconfig | object | `{"secret":"extension-manager-operator-kubeconfig"}` | secret that holds the kubeconfig for the KCP API server (same structure as rebac-authz-webhook) |
+| kubeconfigSecret | string | `""` |  |
 | pathPrefix | string | `"/validate"` | Path prefix for routing rules in Gateway API and Istio VirtualService |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 | validationServer.host | string | `"*"` | host for the validation VirtualService |

@@ -48,7 +48,7 @@ spec:
         {{- end }}
         volumeMounts:
           {{- include "common.extraVolumeMounts" . | nindent 10 }}
-          {{- if .Values.kcp.kubeconfig.secret }}
+          {{- with .Values.kcp.kubeconfig.secret }}
           - name: kcp-api-server
             mountPath: /api-kubeconfig
             readOnly: true

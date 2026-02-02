@@ -338,11 +338,11 @@ deployment with external kubeconfig:
                   port: 8090
                 periodSeconds: 10
               volumeMounts:
+                - mountPath: /test
+                  name: test
                 - mountPath: /api-kubeconfig
                   name: kcp-api-server
                   readOnly: true
-                - mountPath: /test
-                  name: test
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -350,12 +350,12 @@ deployment with external kubeconfig:
           serviceAccountName: extension-manager-operator
           terminationGracePeriodSeconds: 10
           volumes:
-            - name: kcp-api-server
-              secret:
-                secretName: test-kubeconfig
             - name: test
               secret:
                 secretName: test
+            - name: kcp-api-server
+              secret:
+                secretName: test-kubeconfig
 enable Gateway API:
   1: |
     apiVersion: rbac.authorization.k8s.io/v1
