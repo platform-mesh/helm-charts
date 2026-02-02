@@ -23,6 +23,7 @@ spec:
         hostAliases:
           enabled: true
         log:
+          level: debug
           noJson: true
     keycloak:
       enabled: true
@@ -59,6 +60,7 @@ spec:
     security-operator:
       values:
         log:
+          level: debug
           noJson: true
         fga:
           extraArgs:
@@ -118,6 +120,8 @@ spec:
       enabled: false
     rebac-authz-webhook:
       values:
+        log:
+          level: debug
         hostAliases:
           enabled: true
     iam-service:
@@ -126,5 +130,14 @@ spec:
           - --no-json
         cors:
           enabled: true
+        hostAliases:
+          enabled: true
+    extension-manager-operator:
+      values:
+        log:
+          level: debug
+        # klog verbosity for APIExportEndpointSlice / cluster discovery logs (e.g. "added APIExportEndpointSlice")
+        extraArgs:
+          - "-v=2"
         hostAliases:
           enabled: true

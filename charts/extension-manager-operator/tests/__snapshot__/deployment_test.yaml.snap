@@ -33,7 +33,9 @@ deployment with external kubeconfig:
                 - --image-name="ghcr.io/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/extension-manager-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -76,6 +78,9 @@ deployment with external kubeconfig:
               volumeMounts:
                 - mountPath: /test
                   name: test
+                - mountPath: /api-kubeconfig
+                  name: kcp-api-server
+                  readOnly: true
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -86,6 +91,9 @@ deployment with external kubeconfig:
             - name: test
               secret:
                 secretName: test
+            - name: kcp-api-server
+              secret:
+                secretName: test-kubeconfig
 enable Gateway API:
   1: |
     apiVersion: rbac.authorization.k8s.io/v1
@@ -267,7 +275,9 @@ enable Gateway API:
                 - --image-name="ghcr.io/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/extension-manager-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -307,14 +317,20 @@ enable Gateway API:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
-              volumeMounts: null
+              volumeMounts:
+                - mountPath: /api-kubeconfig
+                  name: kcp-api-server
+                  readOnly: true
           securityContext:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
           serviceAccountName: extension-manager-operator
           terminationGracePeriodSeconds: 10
-          volumes: null
+          volumes:
+            - name: kcp-api-server
+              secret:
+                secretName: extension-manager-operator-kubeconfig
   5: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -527,7 +543,9 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/extension-manager-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -565,14 +583,20 @@ operator match the snapshot:
                   path: /readyz
                   port: 8081
                 periodSeconds: 10
-              volumeMounts: null
+              volumeMounts:
+                - mountPath: /api-kubeconfig
+                  name: kcp-api-server
+                  readOnly: true
           securityContext:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
           serviceAccountName: extension-manager-operator
           terminationGracePeriodSeconds: 10
-          volumes: null
+          volumes:
+            - name: kcp-api-server
+              secret:
+                secretName: extension-manager-operator-kubeconfig
   5: |
     apiVersion: v1
     kind: ServiceAccount
@@ -721,7 +745,9 @@ operator match the snapshot with tracing:
                 - --tracing-config-service-name=extension-manager-operator.NAMESPACE
                 - --tracing-config-service-version=1.0.0
                 - --tracing-config-collector-endpoint=test:1234
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/extension-manager-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -758,11 +784,17 @@ operator match the snapshot with tracing:
                   path: /readyz
                   port: 8090
                 periodSeconds: 10
-              volumeMounts: null
+              volumeMounts:
+                - mountPath: /api-kubeconfig
+                  name: kcp-api-server
+                  readOnly: true
           securityContext:
             runAsNonRoot: true
             seccompProfile:
               type: RuntimeDefault
           serviceAccountName: extension-manager-operator
           terminationGracePeriodSeconds: 10
-          volumes: null
+          volumes:
+            - name: kcp-api-server
+              secret:
+                secretName: extension-manager-operator-kubeconfig
