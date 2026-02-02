@@ -66,6 +66,10 @@ spec:
         - name: {{ .name }}
           value: {{ .value | toJson }}
         {{ end }}
+        {{- if .Values.kcp.url }}
+        - name: KCP_URL
+          value: {{ .Values.kcp.url | quote }}
+        {{- end }}
         {{- if .Values.kubeconfigSecret }}
         - name: KUBECONFIG
           value: /kubeconfig/kubeconfig
