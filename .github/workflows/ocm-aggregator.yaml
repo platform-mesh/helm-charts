@@ -8,11 +8,12 @@ on:
         default: false
         type: boolean
       version_increment:
-        description: 'Version component to increment (only applies when force_version_upgrade is true)'
+        description: 'Version component to increment (only applies when force_version_upgrade is true, use none to keep version and only change release type)'
         required: false
         default: 'minor'
         type: choice
         options:
+          - none
           - minor
           - major
           - patch
@@ -157,6 +158,16 @@ jobs:
               BASE_VERSION=${PM_VERSION%-*.*}
               IFS='.' read -r major minor patch <<< "$BASE_VERSION"
               case "${{ inputs.version_increment }}" in
+                "none")
+                  # Keep base version, only change release type
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.$patch"
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
+                    NEXT_VERSION="$major.$minor.$patch-rc.1"
+                  else
+                    NEXT_VERSION="$major.$minor.$patch-build.1"
+                  fi
+                  ;;
                 "major")
                   major=$((major + 1))
                   if [ "${{ inputs.release_type }}" = "full" ]; then
