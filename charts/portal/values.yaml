@@ -24,6 +24,8 @@ cookieDomain: "localhost"
 # -- allows the configuration of a kubeconfig secret for external api servers
 kubeconfigSecret: ""
 kcp:
+  # -- KCP API URL (e.g. https://localhost:8443 for local setup)
+  url: ""
   kubeconfigSecret: ""
 
 auth:

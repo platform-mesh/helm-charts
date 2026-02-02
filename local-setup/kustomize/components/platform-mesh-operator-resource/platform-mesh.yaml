@@ -82,6 +82,8 @@ spec:
     portal:
       enabled: true
       values:
+        kcp:
+          url: "https://localhost:8443"
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
             value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
