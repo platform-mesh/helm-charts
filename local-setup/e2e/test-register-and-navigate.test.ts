@@ -171,6 +171,9 @@ test.describe('Home Page', () => {
     const accountElement = page.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
     await expect(accountElement).toBeVisible( { timeout: 30000 } );
 
+    // Wait briefly before navigating to simulate realistic user behavior
+    await page.waitForTimeout(2000);
+
     await accountElement.click();
     const downloadButton = page.locator('[test-id="generic-detail-view-download"]');
     await expect(downloadButton).toBeVisible( { timeout: 5000 } );
