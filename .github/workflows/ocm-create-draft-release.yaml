@@ -19,7 +19,7 @@ concurrency:
 jobs:
   create-draft-release:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Validate version format
         run: |
@@ -86,21 +86,23 @@ jobs:
 
           echo "=== Finding latest pre-release for $TARGET_VERSION ==="
 
-          # Query OCM for all versions matching the target version pattern
-          # This includes -rc.X, -build.X, etc.
-          PRERELEASE_VERSIONS=$(ocm get componentversions github.com/platform-mesh/platform-mesh \
-            --repo ghcr.io/platform-mesh -o json 2>/dev/null | \
-            jq -r ".items[] | select(.component.version | startswith(\"${TARGET_VERSION}-\")) | .component.version" | \
-            sort -V || echo "")
+          # Parse version to construct next patch version for upper bound
+          IFS='.' read -r major minor patch <<< "${TARGET_VERSION%%-*}"
+          NEXT_PATCH="$major.$minor.$((patch + 1))"
 
-          if [[ -n "$PRERELEASE_VERSIONS" ]]; then
-            # Get the latest (last in sorted list)
-            LATEST_PRERELEASE=$(echo "$PRERELEASE_VERSIONS" | tail -1)
+          # Use semver constraint to filter at the source instead of fetching all versions
+          # Constraint ">=${TARGET_VERSION}-0, <${NEXT_PATCH}" matches all prereleases of TARGET_VERSION
+          # --latest returns only the highest matching version
+          LATEST_PRERELEASE=$(ocm get componentversions github.com/platform-mesh/platform-mesh \
+            --repo ghcr.io/platform-mesh \
+            --constraints ">=${TARGET_VERSION}-0, <${NEXT_PATCH}" \
+            --latest \
+            -o json 2>/dev/null | \
+            jq -r '.items[0].component.version // empty' || echo "")
+
+          if [[ -n "$LATEST_PRERELEASE" ]]; then
             echo "prerelease_version=$LATEST_PRERELEASE" >> $GITHUB_OUTPUT
             echo "✓ Found latest pre-release: $LATEST_PRERELEASE"
-            echo ""
-            echo "All matching pre-releases:"
-            echo "$PRERELEASE_VERSIONS" | sed 's/^/  - /'
           else
             echo "prerelease_version=$TARGET_VERSION" >> $GITHUB_OUTPUT
             echo "⚠ No pre-release versions found for $TARGET_VERSION"
