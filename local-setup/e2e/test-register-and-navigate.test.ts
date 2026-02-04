@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import test, { expect, Page } from '@playwright/test';
 
 const portalBaseUrl = 'https://portal.localhost:8443/';
@@ -7,6 +8,8 @@ const userPassword = 'MyPass1234';
 const firstName = 'Firstname';
 const lastName = 'Lastname';
 const newOrgName = process.env.ORG_NAME || 'default';
+const inviteUserName = 'inviteusername@sap.com';
+const testHttpBinName = 'test';
 
 const keycloakPassword = 'password';
 
@@ -116,6 +119,44 @@ async function ensurePortalHome(page: Page) {
   }
 }
 
+async function inviteUser(page: Page, userEmailToInvite: string): Promise<void> {
+  // navigate to members page
+  await page.locator('[data-testid="members_members"]').click();
+  await page.waitForLoadState('networkidle', { timeout: 10000 });
+
+  // click on add button to add a new member to the account
+  const membersFrame = page.frameLocator('iframe[src*="organization/members"]');
+  const addButton = membersFrame.locator('[data-testid="app-iam-member-list-add-button"]');
+  await addButton.waitFor({ state: 'visible', timeout: 10000 });
+  await expect(addButton).toBeEnabled({ timeout: 10000 });
+  await addButton.scrollIntoViewIfNeeded();
+  await addButton.click();
+
+  // invite the user email by email 
+  const addMembersFrame = page.frameLocator('iframe[src*="organization/add-members"]');
+  const userInput = addMembersFrame.locator('[data-testid="app-iam-member-add-dialog-user-search-input"]').locator('input');
+  await userInput.waitFor({ state: 'visible', timeout: 10000 });
+  await userInput.fill(userEmailToInvite);
+  await addMembersFrame.getByRole('button', { name: 'Select Options' }).click();
+  await page.waitForTimeout(1000);
+
+  // press add button to add a new member
+  const inviteInFrame = addMembersFrame.locator('li.fd-combobox-list-item').filter({ hasText: 'Invite' }).filter({ hasText: userEmailToInvite });
+  const inviteInPage = page.locator('li.fd-combobox-list-item').filter({ hasText: 'Invite' }).filter({ hasText: userEmailToInvite });
+  const inviteOption = inviteInFrame.or(inviteInPage);
+  const inviteVisible = await inviteOption.isVisible().catch(() => false);
+  if (inviteVisible) {
+    await inviteOption.click();
+    await expect(addMembersFrame.getByRole('row').filter({ hasText: userEmailToInvite })).toBeVisible({ timeout: 15000 });
+  }
+  await addMembersFrame.locator('[data-testid="app-iam-member-add-dialog-add-button"]').click();
+
+  // verify invited user appears in the members list
+  const memberEmailInList = membersFrame.locator('span.member-extra-information').filter({ hasText: userEmailToInvite });
+  await expect(memberEmailInList).toBeVisible({ timeout: 15000 });
+  await expect(memberEmailInList).toHaveText(userEmailToInvite);
+}
+
 test.describe('Home Page', () => {
 
   test.setTimeout(90000);  // 90 seconds test timeout
@@ -158,6 +199,9 @@ test.describe('Home Page', () => {
     // Be explicit: make sure we're on the portal origin and the SPA has rendered
     await ensurePortalHome(page);
 
+    // verify user invite on organization level
+    await inviteUser(page, inviteUserName);
+
     await page.locator('[data-testid="accounts_accounts"]').click();
     // click on "Create" button
     await page.locator('[test-id="generic-list-view-create-button"]').click();
@@ -183,5 +227,46 @@ test.describe('Home Page', () => {
     const download = await download1Promise;
     expect(download).toBeDefined();
 
+    // verify that kubeconfig works by getting namespaces
+    const kubeconfigPath = await download.path();
+    expect(kubeconfigPath).toBeTruthy();
+    const kubectlOut = execSync('kubectl get namespaces', {
+      encoding: 'utf-8',
+      env: { ...process.env, KUBECONFIG: kubeconfigPath },
+      timeout: 10000,
+    });
+   
+    expect(kubectlOut.trim().split('\n').length).toBeGreaterThan(1);
+    expect(kubectlOut).toContain('default');
+
+    // verify user invite on account level
+    await inviteUser(page, inviteUserName);
+ 
+    // Navigate to Namespaces view 
+    await page.locator('[data-testid="namespaces_namespaces"]').click();
+    await page.waitForLoadState('networkidle', { timeout: 10000 });
+
+    // Navigate to default namespace
+    const defaultNamespaceCell = page.locator('[test-id^="generic-list-cell-"]').filter({ hasText: 'default' }).nth(0);
+    await expect(defaultNamespaceCell).toBeVisible({ timeout: 15000 });
+    await defaultNamespaceCell.click();
+
+    // Navigate to Http Bins view
+    await page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').click();
+    await page.waitForLoadState('networkidle', { timeout: 10000 });
+
+    // Create http bin resource
+    await page.getByRole('button', { name: 'Create' }).click();
+    await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'visible', timeout: 10000 });
+    await page.locator('[test-id="create-field-metadata_name"]').click();
+    await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testHttpBinName);
+    await page.locator('[test-id="create-resource-submit"]').click();
+
+    // Ensure http bin resource was created
+    const httpBinNameCell = page.locator('[test-id="generic-list-cell-0-metadata.name"]').filter({ hasText: testHttpBinName });
+    await expect(httpBinNameCell).toBeVisible({ timeout: 30000 });
+    const statusReadyCell = page.locator('[test-id="generic-list-cell-0-status.ready"]');
+    await expect(statusReadyCell).toBeVisible({ timeout: 15000 });
+    await expect(statusReadyCell.locator('[test-id="value-cell-status.ready-boolean"]')).toBeVisible({ timeout: 10000 });
   });
 });

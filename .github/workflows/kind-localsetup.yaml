@@ -56,10 +56,10 @@ jobs:
         with:
           version: 3.44.1
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run local-setup
+      - name: Run local-setup with example data
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
-          task local-setup
+          task local-setup:example-data
       - name: Check/wait for all components to be ready
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
