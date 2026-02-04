@@ -81,6 +81,12 @@ jobs:
           kubectl wait --for=condition=ready --timeout=10m hr --all -A
           kubectl wait --for=condition=Available --timeout=10m deployment --all -A
 
+      - name: Trust local-setup CA for kubectl oidc plugin
+        if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
+        run: |
+          sudo cp local-setup/scripts/certs/ca.crt /usr/local/share/ca-certificates/platform-mesh-local-ca.crt
+          sudo update-ca-certificates
+
       # Step 7: Prepare the NodeJS/playwright environment
       - name: Cache node modules
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
