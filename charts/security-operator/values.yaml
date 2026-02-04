@@ -23,10 +23,10 @@ logLevel: info
 
 webhooks:
   # -- Enable validating admission webhooks
-  enabled: false
+  enabled: true
 
   # -- Register the ValidatingWebhookConfiguration resources
-  register: true
+  register: false
 
   # -- Webhook server port (must match controller-runtime webhook server)
   port: 9443

@@ -49,9 +49,9 @@ spec:
         ports:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         {{- if .Values.webhooks.enabled }}
-        - name: webhook
-          containerPort: {{ .Values.webhooks.port }}
-          protocol: TCP
+          - name: webhook
+            containerPort: {{ .Values.webhooks.port }}
+            protocol: TCP
         {{- end }}
         args:
           - fga
