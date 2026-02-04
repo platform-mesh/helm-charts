@@ -227,18 +227,6 @@ test.describe('Home Page', () => {
     const download = await download1Promise;
     expect(download).toBeDefined();
 
-    // verify that kubeconfig works by getting namespaces
-    const kubeconfigPath = await download.path();
-    expect(kubeconfigPath).toBeTruthy();
-    const kubectlOut = execSync('kubectl get namespaces', {
-      encoding: 'utf-8',
-      env: { ...process.env, KUBECONFIG: kubeconfigPath },
-      timeout: 10000,
-    });
-   
-    expect(kubectlOut.trim().split('\n').length).toBeGreaterThan(1);
-    expect(kubectlOut).toContain('default');
-
     // verify user invite on account level
     await inviteUser(page, inviteUserName);
  

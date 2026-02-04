@@ -56,14 +56,13 @@ jobs:
         with:
           version: 3.44.1
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install kubectl plugins (kcp, oidc-login)
+      - name: Install kubectl plugins kcp
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
           set -e
           ( set -x; cd "$(mktemp -d)" && curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-linux_amd64.tar.gz" && tar zxvf krew-linux_amd64.tar.gz && KREW_ROOT="$HOME/.krew" ./krew-linux_amd64 install krew )
           echo "$HOME/.krew/bin" >> $GITHUB_PATH
           export PATH="$HOME/.krew/bin:$PATH"
-          kubectl krew install oidc-login
           kubectl krew index add kcp-dev https://github.com/kcp-dev/krew-index.git
           kubectl krew install kcp-dev/kcp
           kubectl krew install kcp-dev/ws
@@ -80,12 +79,6 @@ jobs:
           kubectl wait --for=condition=ready --timeout=10m resource --all -A
           kubectl wait --for=condition=ready --timeout=10m hr --all -A
           kubectl wait --for=condition=Available --timeout=10m deployment --all -A
-
-      - name: Trust local-setup CA for kubectl oidc plugin
-        if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
-        run: |
-          sudo cp local-setup/scripts/certs/ca.crt /usr/local/share/ca-certificates/platform-mesh-local-ca.crt
-          sudo update-ca-certificates
 
       # Step 7: Prepare the NodeJS/playwright environment
       - name: Cache node modules
