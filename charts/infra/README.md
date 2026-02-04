@@ -71,6 +71,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.name | string | `"frontproxy"` |  |
 | kcp.frontProxy.port | int | `8443` |  |
 | kcp.frontProxy.replicas | int | `1` |  |
+| kcp.frontProxy.resources | object | `{}` | Optional resource requests and limits for the front proxy |
 | kcp.image.tag | string | `""` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.oidc.caFileRef.key | string | `"tls.crt"` |  |
@@ -82,6 +83,7 @@ A Helm chart for Kubernetes
 | kcp.oidc.usernameClaim | string | `"email"` |  |
 | kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | kcp.rootShard.replicas | int | `1` |  |
+| kcp.rootShard.resources | object | `{}` | Optional resource requests and limits for the root shard |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
 | kcp.webhook.caData | string | `""` |  |
 | kcp.webhook.enabled | bool | `true` |  |
