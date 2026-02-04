@@ -893,6 +893,92 @@ configure etcd backup store:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
+configure frontproxy resources:
+  1: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+configure rootshard resources:
+  1: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: RootShard
+    metadata:
+      name: root
+      namespace: platform-mesh-system
+    spec:
+      authorization:
+        webhook:
+          configSecretName: kcp-webhook-secret
+      cache:
+        embedded:
+          enabled: true
+      certificates:
+        issuerRef:
+          group: cert-manager.io
+          kind: Issuer
+          name: selfsigned
+      deploymentTemplate:
+        spec:
+          template:
+            metadata:
+              annotations:
+                traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+            spec: null
+      etcd:
+        endpoints:
+          - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 256Mi
 match snapshots:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
