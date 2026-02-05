@@ -53,6 +53,10 @@ spec:
   image:
     tag: {{ . }}
   {{- end }}
+  {{- with .Values.kcp.rootShard.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   deploymentTemplate:
     spec:
       template:
@@ -61,6 +65,6 @@ spec:
             # this excludes webhook traffic from the istio sidecar
             traffic.sidecar.istio.io/excludeOutboundPorts: "{{ .Values.kcp.webhook.port }}"
         spec:
-        {{ include "common.hostAliases" $ | nindent 10 }}
+          {{- include "common.hostAliases" $ | nindent 10 }}
   extraArgs:
 {{ toYaml .Values.kcp.rootShard.extraArgs | indent 4 }}
