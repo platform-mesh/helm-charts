@@ -56,7 +56,7 @@ jobs:
         with:
           version: 3.44.1
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install kubectl plugins kcp
+      - name: Install kubectl kcp plugins
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
           set -e
