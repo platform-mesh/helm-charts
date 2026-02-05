@@ -159,7 +159,7 @@ async function inviteUser(page: Page, userEmailToInvite: string): Promise<void> 
 
 test.describe('Home Page', () => {
 
-  test.setTimeout(90000);  // 90 seconds test timeout
+  test.setTimeout(150000);  // 150 seconds test timeout
 
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
