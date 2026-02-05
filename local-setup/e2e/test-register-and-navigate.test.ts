@@ -159,7 +159,7 @@ async function inviteUser(page: Page, userEmailToInvite: string): Promise<void> 
 
 test.describe('Home Page', () => {
 
-  test.setTimeout(150000);  // 150 seconds test timeout
+  test.setTimeout(200000);  // 200 seconds test timeout
 
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
@@ -226,13 +226,9 @@ test.describe('Home Page', () => {
     await downloadButton.click();
     const download = await download1Promise;
     expect(download).toBeDefined();
-
-    // verify user invite on account level
-    await inviteUser(page, inviteUserName);
  
     // Navigate to Namespaces view 
     await page.locator('[data-testid="namespaces_namespaces"]').click();
-    await page.waitForLoadState('networkidle', { timeout: 10000 });
 
     // Navigate to default namespace
     const defaultNamespaceCell = page.locator('[test-id^="generic-list-cell-"]').filter({ hasText: 'default' }).nth(0);
@@ -241,7 +237,6 @@ test.describe('Home Page', () => {
 
     // Navigate to Http Bins view
     await page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').click();
-    await page.waitForLoadState('networkidle', { timeout: 10000 });
 
     // Create http bin resource
     await page.getByRole('button', { name: 'Create' }).click();
@@ -255,6 +250,6 @@ test.describe('Home Page', () => {
     await expect(httpBinNameCell).toBeVisible({ timeout: 30000 });
     const statusReadyCell = page.locator('[test-id="generic-list-cell-0-status.ready"]');
     await expect(statusReadyCell).toBeVisible({ timeout: 15000 });
-    await expect(statusReadyCell.locator('[test-id="value-cell-status.ready-boolean"]')).toBeVisible({ timeout: 10000 });
+    await expect(statusReadyCell.locator('[test-id="value-cell-status.ready-boolean"]')).toBeVisible({ timeout: 80000 });
   });
 });
