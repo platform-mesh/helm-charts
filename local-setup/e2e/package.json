@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "@playwright/test": "1.58.1",
-    "playwright": "1.58.1"
+    "@playwright/test": "1.58.2",
+    "playwright": "1.58.2"
   },
   "devDependencies": {
     "@types/node": "25.2.1"
