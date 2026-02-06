@@ -247,9 +247,13 @@ test.describe('Home Page', () => {
     await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('[test-id="create-field-metadata_name"]').click();
     await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testHttpBinName);
+    await page.waitForTimeout(2000);
     await page.locator('[test-id="create-resource-submit"]').click();
 
-    // Ensure http bin resource was created
+    // Wait for dialog view to close
+    await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
+
+    // Ensure http bin resource was created and appears in the list
     const httpBinNameCell = page.locator('[test-id="generic-list-cell-0-metadata.name"]').filter({ hasText: testHttpBinName });
     await expect(httpBinNameCell).toBeVisible({ timeout: 30000 });
     const statusReadyCell = page.locator('[test-id="generic-list-cell-0-status.ready"]');
