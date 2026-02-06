@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import test, { expect, Page } from '@playwright/test';
 
 const portalBaseUrl = 'https://portal.localhost:8443/';
