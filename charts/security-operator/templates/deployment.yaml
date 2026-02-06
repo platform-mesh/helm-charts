@@ -50,6 +50,7 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - fga
+          - --core-module-path=/data/coreModule.fga
           {{- with .Values.fga.inviteKeycloakBaseUrl }}
           - --invite-keycloak-base-url={{ . }}
           {{- end }}
@@ -89,6 +90,8 @@ spec:
             subPath: tls.crt
             readOnly: true
           {{- end }}
+          - name: core-module
+            mountPath: /data
           {{- include "common.extraVolumeMounts" . | nindent 10 }}
       volumes:
         {{- if .Values.initContainer.enabled }}
@@ -117,4 +120,7 @@ spec:
           secret:
             secretName: {{ .Values.caSecret }}
         {{- end }}
+        - name: core-module
+          configMap:
+            name: {{ include "common.entity.name" . }}-core-module
         {{- include "common.extraVolumes" . | nindent 8 }}
