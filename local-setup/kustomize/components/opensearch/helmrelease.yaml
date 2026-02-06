@@ -104,16 +104,8 @@ spec:
   values:
     # Single replica for local development
     replicaCount: 1
+    opensearchHosts: "http://opensearch-cluster-master:9200"
     
-    # OpenSearch connection - security disabled
-    
-    # Disable security for local development
-    config:
-      opensearch_dashboards.yml: |
-        server.host: "0.0.0.0"
-        opensearch.hosts: ["http://opensearch-cluster-master:9200"]
-        opensearch.ssl.verificationMode: none
-        
     # Disable security plugin
     extraEnvs:
       - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
