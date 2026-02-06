@@ -1,0 +1,14 @@
+apiVersion: v2
+name: search-operator
+description: A Helm chart for search-operator
+type: application
+version: 0.1.0
+appVersion: "v0.1.0"
+dependencies:
+  - name: search-operator-crds
+    version: 0.1.0
+    condition: crds.enabled
+    repository: oci://ghcr.io/platform-mesh/helm-charts
+  - name: common
+    version: 0.10.0
+    repository: oci://ghcr.io/platform-mesh/helm-charts
