@@ -28,13 +28,8 @@ spec:
       {{- toYaml . | nindent 6 }}
       {{- end }}
       containers:
-      - name: {{ .Chart.Name }}
+      - {{- include "common.podBasics" . | indent 8 }}
         {{- include "common.operatorHealthAndReadyness" . | indent 8 }}
-        image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
         volumeMounts:
           - name: certs
             mountPath: /config

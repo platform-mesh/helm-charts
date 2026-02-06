@@ -60,6 +60,13 @@ kcp:
       leaderElection:
         reelectionPeriod: 5s
         etcdConnectionTimeout: 5s
+      # store:
+      #   container: etcd-bucket
+      #   prefix: etcd-test
+      #   provider: S3
+      #   endpointOverride: http://localstack.default:4566
+      #   secretRef:
+      #     name: etcd-backup-aws
     sharedConfig:
       autoCompactionMode: periodic
       autoCompactionRetention: "30m"
@@ -84,6 +91,15 @@ kcp:
 
   rootShard:
     replicas: 1
+    # -- Optional resource requests and limits for the root shard
+    resources: {}
+    # resources:
+    #   limits:
+    #     cpu: "2"
+    #     memory: "2Gi"
+    #   requests:
+    #     cpu: "1"
+    #     memory: "1Gi"
     extraArgs:
     - --feature-gates=WorkspaceAuthentication=true
   frontProxy:
@@ -91,6 +107,15 @@ kcp:
     name: frontproxy
     clusterIP: ""
     port: 8443
+    # -- Optional resource requests and limits for the front proxy
+    resources: {}
+    # resources:
+    #   limits:
+    #     cpu: 500m
+    #     memory: 512Mi
+    #   requests:
+    #     cpu: 100m
+    #     memory: 128Mi
     additionalPathMappings:
       - path: /services/contentconfigurations
         backend: https://virtual-workspaces.platform-mesh-system:8443

@@ -67,6 +67,7 @@ it should render the application manifests:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -87,6 +88,9 @@ it should render the application manifests:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
               startupProbe:
                 failureThreshold: 30
                 httpGet:
@@ -198,6 +202,7 @@ it should render the application manifests with service account:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -218,6 +223,9 @@ it should render the application manifests with service account:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
               startupProbe:
                 failureThreshold: 30
                 httpGet:
@@ -329,6 +337,7 @@ it should render the application manifests with service monitor:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -349,6 +358,9 @@ it should render the application manifests with service monitor:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
               startupProbe:
                 failureThreshold: 30
                 httpGet:
@@ -460,6 +472,7 @@ it should render the application manifests with useInClusterClient:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -480,6 +493,9 @@ it should render the application manifests with useInClusterClient:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
               startupProbe:
                 failureThreshold: 30
                 httpGet:
@@ -591,6 +607,7 @@ it should render the cert-manager manifests with certManager enabled:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
@@ -611,6 +628,9 @@ it should render the cert-manager manifests with certManager enabled:
                 limits:
                   cpu: 500m
                   memory: 128Mi
+                requests:
+                  cpu: 40m
+                  memory: 50Mi
               startupProbe:
                 failureThreshold: 30
                 httpGet:

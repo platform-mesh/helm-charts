@@ -27,6 +27,35 @@ rules:
       - get
       - list
       - watch
+  {{- if .Values.crds.enabled }}
+  - apiGroups:
+      - gateway.platform-mesh.io
+    resources:
+      - clusteraccesses
+      - clusteraccesses/status
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  {{- end }}
+  {{- if and .Values.rbac.createServiceAccountRules (not .Values.rbac.serviceAccounts) }}
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts/token
+    verbs:
+      - create
+  {{- end }}
 {{ end }}
 {{ end }}
 
