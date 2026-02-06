@@ -10,7 +10,7 @@ webhooks:
   - v1
   clientConfig:
     service:
-      name: {{ include "common.entity.name" . }}-webhook-service
+      name: {{ include "common.entity.name" . }}-webhook
       namespace: {{ .Release.Namespace }}
       path: "/validate-core-platform-mesh-io-v1alpha1-identityproviderconfiguration"
       port: {{ .Values.webhooks.port }}

@@ -509,8 +509,8 @@ operator match the snapshot:
       name: RELEASE-NAME-security-operator-serving-cert
     spec:
       dnsNames:
-        - RELEASE-NAME-security-operator-webhook-service.NAMESPACE.svc
-        - RELEASE-NAME-security-operator-webhook-service.NAMESPACE.svc.cluster.local
+        - RELEASE-NAME-security-operator-webhook.NAMESPACE.svc
+        - RELEASE-NAME-security-operator-webhook.NAMESPACE.svc.cluster.local
       duration: 2160h
       issuerRef:
         kind: Issuer
@@ -521,7 +521,7 @@ operator match the snapshot:
     apiVersion: v1
     kind: Service
     metadata:
-      name: RELEASE-NAME-security-operator-webhook-service
+      name: RELEASE-NAME-security-operator-webhook
       namespace: NAMESPACE
     spec:
       ports:
@@ -1078,8 +1078,8 @@ operator match the snapshot w. sentry:
       name: RELEASE-NAME-security-operator-serving-cert
     spec:
       dnsNames:
-        - RELEASE-NAME-security-operator-webhook-service.NAMESPACE.svc
-        - RELEASE-NAME-security-operator-webhook-service.NAMESPACE.svc.cluster.local
+        - RELEASE-NAME-security-operator-webhook.NAMESPACE.svc
+        - RELEASE-NAME-security-operator-webhook.NAMESPACE.svc.cluster.local
       duration: 2160h
       issuerRef:
         kind: Issuer
@@ -1090,7 +1090,7 @@ operator match the snapshot w. sentry:
     apiVersion: v1
     kind: Service
     metadata:
-      name: RELEASE-NAME-security-operator-webhook-service
+      name: RELEASE-NAME-security-operator-webhook
       namespace: NAMESPACE
     spec:
       ports:

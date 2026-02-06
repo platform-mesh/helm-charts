@@ -38,8 +38,8 @@ metadata:
   name: {{ include "common.entity.name" . }}-serving-cert
 spec:
   dnsNames:
-  - {{ include "common.entity.name" . }}-webhook-service.{{ .Release.Namespace }}.svc
-  - {{ include "common.entity.name" . }}-webhook-service.{{ .Release.Namespace }}.svc.cluster.local
+  - {{ include "common.entity.name" . }}-webhook.{{ .Release.Namespace }}.svc
+  - {{ include "common.entity.name" . }}-webhook.{{ .Release.Namespace }}.svc.cluster.local
   duration: {{ .Values.webhooks.certDuration }}
   renewBefore: {{ .Values.webhooks.certRenewBefore }}
   issuerRef:
