@@ -182,6 +182,10 @@ test.describe('Home Page', () => {
     const orgInput = page.locator('[test-id="organization-management-input"]').locator('input');
     await expect(orgInput).toHaveValue(newOrgName, { timeout: 5000 });
 
+    // Verify the org select contains the option for current org and it is selected
+    const orgOption = page.locator(`[test-id="organization-management-option-${newOrgName}"]`);
+    await expect(orgOption).toHaveAttribute('value', newOrgName);
+
     // Wait for the "Switch" button to become visible and enabled (org is ready), then click it
     const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
     await switchButton.waitFor({ state: 'visible', timeout: 60000 });
