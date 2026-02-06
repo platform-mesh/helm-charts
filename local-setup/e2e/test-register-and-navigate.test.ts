@@ -143,11 +143,9 @@ async function inviteUser(page: Page, userEmailToInvite: string): Promise<void> 
   const inviteInFrame = addMembersFrame.locator('li.fd-combobox-list-item').filter({ hasText: 'Invite' }).filter({ hasText: userEmailToInvite });
   const inviteInPage = page.locator('li.fd-combobox-list-item').filter({ hasText: 'Invite' }).filter({ hasText: userEmailToInvite });
   const inviteOption = inviteInFrame.or(inviteInPage);
-  const inviteVisible = await inviteOption.isVisible().catch(() => false);
-  if (inviteVisible) {
-    await inviteOption.click();
-    await expect(addMembersFrame.getByRole('row').filter({ hasText: userEmailToInvite })).toBeVisible({ timeout: 15000 });
-  }
+  await inviteOption.waitFor({ state: 'visible', timeout: 10000 });
+  await inviteOption.click();
+  await expect(addMembersFrame.getByRole('row').filter({ hasText: userEmailToInvite })).toBeVisible({ timeout: 15000 });
   await addMembersFrame.locator('[data-testid="app-iam-member-add-dialog-add-button"]').click();
 
   // verify invited user appears in the members list
