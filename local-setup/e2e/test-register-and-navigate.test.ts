@@ -236,7 +236,7 @@ test.describe('Home Page', () => {
     await expect(defaultNamespaceCell).toBeVisible({ timeout: 15000 });
     await defaultNamespaceCell.click();
 
-    // Navigate to Http Bins view
+    // Navigate to http bin view
     await page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').click();
 
     // Create http bin resource
@@ -244,7 +244,7 @@ test.describe('Home Page', () => {
     await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('[test-id="create-field-metadata_name"]').click();
     await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testHttpBinName);
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
     await page.locator('[test-id="create-resource-submit"]').click();
 
     // Wait for dialog view to close
