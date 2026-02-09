@@ -84,3 +84,27 @@ tests:
       pathPrefix: /custom-validate
     asserts:
       - matchSnapshot: {}
+  - it: custom certs
+    set:
+      crds:
+        enabled: false
+      extraVolumeMounts:
+        - mountPath: /etc/ssl/certs/domain-ca.crt
+          name: domain-ca
+          readOnly: true
+          subPath: tls.crt
+      extraVolumes:
+        - name: domain-ca
+          secret:
+            secretName: domain-certificate-ca
+      hostAliases:
+        enabled: true
+      kcp:
+        enabled: true
+        kubeconfigSecret: extension-manager-operator-kubeconfig
+      tracing:
+        collector:
+          host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
+        enabled: false
+    asserts:
+      - matchSnapshot: {}
