@@ -49,6 +49,9 @@ spec:
           {{- if .Values.webhooks.denyList }}
           - --webhooks-deny-list={{ join "," .Values.webhooks.denyList }}
           {{- end }}
+          {{- with .Values.webhooks.additionalAccountTypes }}
+          - --webhooks-additional-account-types={{ join "," . }}
+          {{- end }}
           {{- end }}
         env:
           {{- include "common.basicEnvironment" . | nindent 10 }}

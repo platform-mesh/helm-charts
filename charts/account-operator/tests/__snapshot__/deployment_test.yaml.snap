@@ -1213,6 +1213,7 @@ operator match the snapshot:
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=my-type,my-other-type
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"

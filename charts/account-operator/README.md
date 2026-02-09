@@ -36,6 +36,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 | subroutines.fga.parentRelation | string | `"parent"` | The parent relation for FGA |
 | subroutines.fga.rootNamespace | string | `"platform-mesh-root"` | The root namespace for FGA |
 | subroutines.namespace.enabled | bool | `true` | Enable namespace subroutines |
+| webhooks.additionalAccountTypes | list | `[]` |  |
 | webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
 | webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
 | webhooks.certDir | string | `"/certs"` | The directory for webhook certificates |
