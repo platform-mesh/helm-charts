@@ -152,6 +152,7 @@ operator match the snapshot:
           containers:
             - args:
                 - fga
+                - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
                 - --leader-elect
                 - --metrics-bind-address=:9090
@@ -219,6 +220,8 @@ operator match the snapshot:
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
                   readOnly: true
+                - mountPath: /data
+                  name: core-module
           initContainers:
             - args:
                 - init-container
@@ -260,6 +263,9 @@ operator match the snapshot:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
+            - configMap:
+                name: RELEASE-NAME-security-operator-core-module
+              name: core-module
   5: |
     apiVersion: apps/v1
     kind: Deployment
@@ -615,6 +621,7 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - fga
+                - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
                 - --leader-elect
                 - --metrics-bind-address=:9090
@@ -685,6 +692,8 @@ operator match the snapshot w. sentry:
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
                   readOnly: true
+                - mountPath: /data
+                  name: core-module
                 - mountPath: /etc/kcp-kubeconfig
                   name: kcp-kubeconfig
                   readOnly: true
@@ -726,6 +735,9 @@ operator match the snapshot w. sentry:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
+            - configMap:
+                name: RELEASE-NAME-security-operator-core-module
+              name: core-module
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig
