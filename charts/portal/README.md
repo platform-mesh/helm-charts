@@ -32,6 +32,7 @@ Helm Chart for the Platform Mesh Portal
 | image.name | string | `"ghcr.io/platform-mesh/portal"` |  |
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | kcp.kubeconfigSecret | string | `""` |  |
+| kcp.url | string | `""` | KCP API URL (e.g. https://localhost:8443 for local setup) |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 | validWebcomponentUrls | string | `".?"` |  |

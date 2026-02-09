@@ -6,6 +6,8 @@ release:
 tests:
   - it: operator match the snapshot
     set:
+      webhooks:
+        additionalAccountTypes: my-type,my-other-type
       # health:
       #   portOverride: 8080
       deployment:

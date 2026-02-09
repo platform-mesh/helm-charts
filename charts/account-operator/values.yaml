@@ -18,6 +18,7 @@ webhooks:
   certDir: /certs
   # -- List of denied organization names
   denyList: ["admin", "root", "system", "www"]
+  additionalAccountTypes: []
 
   # -- CA certificate duration (default: 1 year)
   caDuration: 8760h

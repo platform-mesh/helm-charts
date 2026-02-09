@@ -1,0 +1,38 @@
+{{- if not .Values.kubeConfig.enabled }}
+{{- if not .Values.kcp.enabled }}
+{{- if and .Values.rbac.createServiceAccountRules .Values.rbac.serviceAccounts }}
+{{- $root := . }}
+{{- $namespaces := dict }}
+{{- range .Values.rbac.serviceAccounts }}
+{{- $_ := set $namespaces .namespace (append (get $namespaces .namespace | default list) .name) }}
+{{- end }}
+{{- range $namespace, $names := $namespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "common.entity.name" $root }}-sa-access
+  namespace: {{ $namespace }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    resourceNames:
+      {{- toYaml $names | nindent 6 }}
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts/token
+    resourceNames:
+      {{- toYaml $names | nindent 6 }}
+    verbs:
+      - create
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
