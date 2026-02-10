@@ -9,7 +9,7 @@ This guide covers backing up and restoring the platform-mesh data stores: **etcd
 - etcd-backup-restore Docker image from [gardener/etcd-backup-restore](https://github.com/gardener/etcd-backup-restore):
 
   ```text
-  europe-docker.pkg.dev/gardener-project/snapshots/gardener/etcdbrctl:v0.41.0-dev
+  europe-docker.pkg.dev/gardener-project/public/gardener/etcdbrctl:v0.41.0
   ```
 
 ## Backup
@@ -29,7 +29,7 @@ mkdir -p backup/keycloak/postgres
 Load the etcd-backup-restore image into the cluster and port-forward the OpenFGA service:
 
 ```shell
-kind load docker-image europe-docker.pkg.dev/gardener-project/snapshots/gardener/etcdbrctl:v0.41.0-dev --name platform-mesh
+kind load docker-image europe-docker.pkg.dev/gardener-project/public/gardener/etcdbrctl:v0.41.0 --name platform-mesh
 kubectl -n platform-mesh-system port-forward svc/openfga 3000 8080 8081
 ```
 
@@ -87,7 +87,7 @@ metadata:
 spec:
   containers:
   - name: restore
-    image: europe-docker.pkg.dev/gardener-project/snapshots/gardener/etcdbrctl:v0.41.0-dev
+    image: europe-docker.pkg.dev/gardener-project/public/gardener/etcdbrctl:v0.41.0
     command: ["sleep", "3600"]
     volumeMounts:
     - name: etcd-data

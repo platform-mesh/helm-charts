@@ -5,7 +5,7 @@ set -e
 NAMESPACE="platform-mesh-system"
 POD="etcd-kcp-0"
 DEBUG_CONTAINER_NAME="debug-backup-bot" # Unique name to avoid conflicts with existing 'debug' containers
-IMAGE="europe-docker.pkg.dev/gardener-project/snapshots/gardener/etcdbrctl:v0.41.0-dev"
+IMAGE="europe-docker.pkg.dev/gardener-project/public/gardener/etcdbrctl:v0.41.0"
 LOCAL_BACKUP_DIR="./backup/etcd"
 SNAPSHOT_DURATION="15s" # How long to run the snapshotter (simulates waiting before Ctrl+C)
 
