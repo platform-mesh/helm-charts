@@ -354,9 +354,9 @@ tasks:
         vars: {FLAGS: "--cached --prerelease --example-data"}
 
   local-setup:gardener:
+    desc: Bootstrap a local Gardener environment (separate from platform-mesh)
     cmds:
-      - task: local-setup
-        vars: {FLAGS: "--gardener"}
+      - ./local-setup/scripts/start-gardener.sh
 
   local-setup:cached:prerelease:concurrent:
     cmds:
