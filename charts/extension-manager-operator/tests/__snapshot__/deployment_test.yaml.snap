@@ -188,7 +188,7 @@ custom certs:
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
-                - name: KCP_KUBECONFIG
+                - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/extension-manager-operator:1.0.0
               imagePullPolicy: IfNotPresent
@@ -236,6 +236,7 @@ custom certs:
                   subPath: tls.crt
                 - mountPath: /api-kubeconfig
                   name: kcp-api-server
+                  readOnly: true
           hostAliases:
             - hostnames:
                 - localhost
