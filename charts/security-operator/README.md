@@ -30,6 +30,11 @@ A Helm chart for security-operator
 | initContainer.keycloakUser | string | `"keycloak-admin"` | Keycloak username for admin authentication |
 | initializer.extraArgs | list | `[]` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
+| initializer.subroutines | object | `{"idpEnabled":true,"inviteEnabled":true,"workspaceAuthEnabled":true,"workspaceEnabled":true}` | Subroutine toggles for workspace initialization |
+| initializer.subroutines.idpEnabled | bool | `true` | Enable IDPSubroutine (Keycloak identity provider configuration) |
+| initializer.subroutines.inviteEnabled | bool | `true` | Enable InviteSubroutine (creates Invite resources for org creator) |
+| initializer.subroutines.workspaceAuthEnabled | bool | `true` | Enable WorkspaceAuthConfigurationSubroutine (JWT authentication setup) |
+| initializer.subroutines.workspaceEnabled | bool | `true` | Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup) |
 | keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"security-operator-client-secret"` |  |
 | keycloakSecret | string | `"keycloak-admin"` |  |
