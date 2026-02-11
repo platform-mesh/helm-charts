@@ -39,7 +39,6 @@ initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
   extraArgs: []
-  # -- Subroutine toggles for workspace initialization
   subroutines:
     # -- Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup)
     workspaceEnabled: true
