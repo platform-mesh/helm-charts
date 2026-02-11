@@ -64,5 +64,5 @@ spec:
         {{- include "common.basicEnvironment" . | nindent 10 }}
       volumeMounts:
         {{- include "common.extraVolumeMounts" . | nindent 8 }}
-      volumes:
-        {{- include "common.extraVolumes" . | nindent 8 }}
+    volumes:
+      {{- include "common.extraVolumes" . | nindent 8 }}
