@@ -1,10 +1,7 @@
 #!/bin/bash
 #
-# Script to fix old WorkspaceAuthenticationConfiguration resources
-# Updates username claim mapping from claim-based to expression-based
-# Adds claimValidationRules if missing
+# Script to update WorkspaceAuthenticationConfiguration resources
 # Updates audiences with client IDs from Keycloak
-# Updates issuer URL from portal.dev.local to portal.localhost
 #
 
 set -euo pipefail
@@ -14,10 +11,6 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
-
-# Issuer URL migration
-OLD_ISSUER_HOST="portal.dev.local"
-NEW_ISSUER_HOST="portal.localhost"
 
 # Keycloak configuration (KEYCLOAK_URL derived from PlatformMesh if not set)
 KEYCLOAK_URL="${KEYCLOAK_URL:-}"
@@ -161,25 +154,8 @@ needs_update() {
     local resource
     resource=$(kubectl get workspaceauthenticationconfiguration "$name" -o yaml)
 
-    # Check if using old claim-based username mapping
-    if echo "$resource" | yq -e '.spec.jwt[0].claimMappings.username.claim' &> /dev/null; then
-        return 0
-    fi
-
-    # Check if claimValidationRules is missing
-    if ! echo "$resource" | yq -e '.spec.jwt[0].claimValidationRules' &> /dev/null; then
-        return 0
-    fi
-
     # Check if audiences contain old-style names instead of UUIDs
     if has_old_style_audiences "$resource"; then
-        return 0
-    fi
-
-    # Check if issuer URL contains old host
-    local issuer_url
-    issuer_url=$(echo "$resource" | yq -r '.spec.jwt[0].issuer.url' 2>/dev/null || echo "")
-    if echo "$issuer_url" | grep -q "$OLD_ISSUER_HOST"; then
         return 0
     fi
 
@@ -197,33 +173,8 @@ fix_resource() {
     local resource
     resource=$(kubectl get workspaceauthenticationconfiguration "$name" -o yaml)
 
-    # Check if using old claim-based username mapping
-    local has_claim_based_username=false
-    if echo "$resource" | yq -e '.spec.jwt[0].claimMappings.username.claim' &> /dev/null; then
-        has_claim_based_username=true
-    fi
-
-    # Check if claimValidationRules is missing
-    local missing_validation_rules=false
-    if ! echo "$resource" | yq -e '.spec.jwt[0].claimValidationRules' &> /dev/null; then
-        missing_validation_rules=true
-    fi
-
     # Check if audiences need updating
-    local needs_audience_update=false
-    if has_old_style_audiences "$resource"; then
-        needs_audience_update=true
-    fi
-
-    # Check if issuer URL needs updating
-    local needs_issuer_update=false
-    local issuer_url
-    issuer_url=$(echo "$resource" | yq -r '.spec.jwt[0].issuer.url' 2>/dev/null || echo "")
-    if echo "$issuer_url" | grep -q "$OLD_ISSUER_HOST"; then
-        needs_issuer_update=true
-    fi
-
-    if [ "$has_claim_based_username" = "false" ] && [ "$missing_validation_rules" = "false" ] && [ "$needs_audience_update" = "false" ] && [ "$needs_issuer_update" = "false" ]; then
+    if ! has_old_style_audiences "$resource"; then
         log_info "Resource $name is already up to date, skipping."
         return 0
     fi
@@ -231,73 +182,43 @@ fix_resource() {
     # Create the updated resource
     local updated_resource="$resource"
 
-    # Update username mapping from claim-based to expression-based
-    if [ "$has_claim_based_username" = "true" ]; then
-        log_info "  - Updating username mapping to expression-based"
-        updated_resource=$(echo "$updated_resource" | yq '
-            .spec.jwt[0].claimMappings.username = {"expression": "claims.email"}
-        ')
-    fi
-
-    # Add claimValidationRules if missing
-    if [ "$missing_validation_rules" = "true" ]; then
-        log_info "  - Adding claimValidationRules"
-        updated_resource=$(echo "$updated_resource" | yq '
-            .spec.jwt[0].claimValidationRules = [
-                {
-                    "expression": "claims.?email_verified.orValue(true) == true || claims.?email_verified.orValue(true) == false",
-                    "message": "Allowing both verified and unverified emails"
-                }
-            ]
-        ')
-    fi
-
     # Update audiences with client UUIDs from Keycloak
-    if [ "$needs_audience_update" = "true" ]; then
-        log_info "  - Updating audiences with client UUIDs from Keycloak"
+    log_info "  - Updating audiences with client UUIDs from Keycloak"
 
-        # Extract realm from issuer URL
-        local issuer_url
-        issuer_url=$(echo "$resource" | yq -r '.spec.jwt[0].issuer.url')
-        local realm
-        realm=$(extract_realm_from_url "$issuer_url")
-        log_info "    Realm: $realm"
+    # Extract realm from issuer URL
+    local issuer_url
+    issuer_url=$(echo "$resource" | yq -r '.spec.jwt[0].issuer.url')
+    local realm
+    realm=$(extract_realm_from_url "$issuer_url")
+    log_info "    Realm: $realm"
 
-        # Fetch custom client IDs from Keycloak
-        # Custom clients have UUID-style clientId values (the clientId IS the audience)
-        local client_ids
-        client_ids=$(get_custom_client_ids "$ADMIN_TOKEN" "$realm")
+    # Fetch custom client IDs from Keycloak
+    # Custom clients have UUID-style clientId values (the clientId IS the audience)
+    local client_ids
+    client_ids=$(get_custom_client_ids "$ADMIN_TOKEN" "$realm")
 
-        if [ -z "$client_ids" ]; then
-            log_warn "    No custom clients found in Keycloak realm '$realm'"
-        else
-            log_info "    Found custom client IDs:"
-            for cid in $client_ids; do
-                log_info "      - $cid"
-            done
-        fi
-
-        # Build new audiences array from client IDs
-        local new_audiences="[]"
+    if [ -z "$client_ids" ]; then
+        log_warn "    No custom clients found in Keycloak realm '$realm'"
+    else
+        log_info "    Found custom client IDs:"
         for cid in $client_ids; do
-            new_audiences=$(echo "$new_audiences" | jq --arg uuid "$cid" '. + [$uuid]')
+            log_info "      - $cid"
         done
-
-        if [ "$new_audiences" != "[]" ]; then
-            # Convert YAML to JSON, update with jq, then back to YAML
-            updated_resource=$(echo "$updated_resource" | yq -o=json | jq --argjson audiences "$new_audiences" '
-                .spec.jwt[0].issuer.audiences = $audiences
-            ' | yq -P)
-        else
-            log_warn "    No client UUIDs found, keeping existing audiences"
-        fi
     fi
 
-    # Update issuer URL from old host to new host
-    if [ "$needs_issuer_update" = "true" ]; then
-        local new_issuer_url="${issuer_url//$OLD_ISSUER_HOST/$NEW_ISSUER_HOST}"
-        log_info "  - Updating issuer URL: $issuer_url -> $new_issuer_url"
-        updated_resource=$(echo "$updated_resource" | yq ".spec.jwt[0].issuer.url = \"$new_issuer_url\"")
+    # Build new audiences array from client IDs
+    local new_audiences="[]"
+    for cid in $client_ids; do
+        new_audiences=$(echo "$new_audiences" | jq --arg uuid "$cid" '. + [$uuid]')
+    done
+
+    if [ "$new_audiences" != "[]" ]; then
+        # Convert YAML to JSON, update with jq, then back to YAML
+        updated_resource=$(echo "$updated_resource" | yq -o=json | jq --argjson audiences "$new_audiences" '
+            .spec.jwt[0].issuer.audiences = $audiences
+        ' | yq -P)
+    else
+        log_warn "    No client UUIDs found, keeping existing audiences"
     fi
 
     # Remove resourceVersion and other server-managed fields for apply
@@ -367,11 +288,8 @@ main() {
             -h|--help)
                 echo "Usage: $0 [OPTIONS]"
                 echo ""
-                echo "Fix old WorkspaceAuthenticationConfiguration resources by:"
-                echo "  - Converting username claim mapping to expression-based"
-                echo "  - Adding claimValidationRules if missing"
+                echo "Update WorkspaceAuthenticationConfiguration resources by:"
                 echo "  - Updating audiences with client UUIDs from Keycloak"
-                echo "  - Updating issuer URL from portal.dev.local to portal.localhost"
                 echo ""
                 echo "Options:"
                 echo "  --debug              Enable debug output"
