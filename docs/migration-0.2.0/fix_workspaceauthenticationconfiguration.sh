@@ -19,14 +19,16 @@ NC='\033[0m' # No Color
 OLD_ISSUER_HOST="portal.dev.local"
 NEW_ISSUER_HOST="portal.localhost"
 
-# Keycloak configuration
-KEYCLOAK_URL="${KEYCLOAK_URL:-https://portal.localhost:8443/keycloak}"
+# Keycloak configuration (KEYCLOAK_URL derived from PlatformMesh if not set)
+KEYCLOAK_URL="${KEYCLOAK_URL:-}"
 KEYCLOAK_USER="${KEYCLOAK_USER:-keycloak-admin}"
 KEYCLOAK_PASSWORD="${KEYCLOAK_PASSWORD:-admin}"
 
 # Global variables
 ADMIN_TOKEN=""
 DEBUG="${DEBUG:-false}"
+KUBECONFIG_KCP="${KUBECONFIG_KCP:-}"
+KUBECONFIG_K8S="${KUBECONFIG_K8S:-}"
 
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
@@ -38,6 +40,27 @@ log_warn() {
 
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Derive Keycloak URL from the PlatformMesh resource in the regular k8s cluster.
+# Uses KUBECONFIG_K8S when set so the lookup targets the host cluster, not kcp.
+get_keycloak_url_from_cluster() {
+    local kc_args=()
+    if [ -n "$KUBECONFIG_K8S" ]; then
+        kc_args+=(--kubeconfig "$KUBECONFIG_K8S")
+    fi
+
+    local base_domain port
+    base_domain=$(kubectl "${kc_args[@]}" -n platform-mesh-system get platformmesh platform-mesh \
+        -o jsonpath='{.spec.exposure.baseDomain}' 2>/dev/null) || return 1
+    port=$(kubectl "${kc_args[@]}" -n platform-mesh-system get platformmesh platform-mesh \
+        -o jsonpath='{.spec.exposure.port}' 2>/dev/null) || return 1
+
+    if [ -z "$base_domain" ] || [ -z "$port" ]; then
+        return 1
+    fi
+
+    echo "https://${base_domain}:${port}/keycloak"
 }
 
 # Check for required tools
@@ -325,16 +348,20 @@ main() {
                 export BACKUP_DIR="$2"
                 shift 2
                 ;;
-            --keycloak-url)
-                KEYCLOAK_URL="$2"
-                shift 2
-                ;;
             --keycloak-user)
                 KEYCLOAK_USER="$2"
                 shift 2
                 ;;
             --keycloak-password)
                 KEYCLOAK_PASSWORD="$2"
+                shift 2
+                ;;
+            --kubeconfig)
+                KUBECONFIG_K8S="$2"
+                shift 2
+                ;;
+            --kubeconfig-kcp)
+                KUBECONFIG_KCP="$2"
                 shift 2
                 ;;
             -h|--help)
@@ -351,15 +378,18 @@ main() {
                 echo "  --dry-run            Show what would be changed without applying"
                 echo "  --name NAME          Only process a specific resource"
                 echo "  --backup-dir DIR     Directory for backups (default: ./wac-backups)"
-                echo "  --keycloak-url URL   Keycloak base URL (default: \$KEYCLOAK_URL or https://portal.localhost:8443/keycloak)"
                 echo "  --keycloak-user USER Keycloak admin username (default: \$KEYCLOAK_USER or keycloak-admin)"
                 echo "  --keycloak-password  Keycloak admin password (default: \$KEYCLOAK_PASSWORD or admin)"
+                echo "  --kubeconfig PATH    Kubeconfig for the Kubernetes cluster (default: \$KUBECONFIG_K8S or \$KUBECONFIG)"
+                echo "  --kubeconfig-kcp PATH Kubeconfig for kcp (default: \$KUBECONFIG_KCP or \$KUBECONFIG)"
                 echo "  -h, --help           Show this help message"
                 echo ""
                 echo "Environment variables:"
                 echo "  KEYCLOAK_URL         Keycloak base URL"
                 echo "  KEYCLOAK_USER        Keycloak admin username"
                 echo "  KEYCLOAK_PASSWORD    Keycloak admin password"
+                echo "  KUBECONFIG_K8S       Kubeconfig for the Kubernetes cluster"
+                echo "  KUBECONFIG_KCP       Kubeconfig for kcp"
                 echo "  BACKUP_DIR           Directory for backups"
                 exit 0
                 ;;
@@ -372,8 +402,32 @@ main() {
 
     check_dependencies
 
+    if [ -n "$KUBECONFIG_K8S" ]; then
+        log_info "Using k8s kubeconfig: $KUBECONFIG_K8S"
+    fi
+
     if [ "$dry_run" = "true" ]; then
         log_warn "Running in dry-run mode - no changes will be applied"
+    fi
+
+    # Derive Keycloak URL from PlatformMesh resource if not explicitly set.
+    # This must happen before switching to the kcp kubeconfig because
+    # PlatformMesh lives in the regular Kubernetes cluster.
+    if [ -z "$KEYCLOAK_URL" ]; then
+        log_info "KEYCLOAK_URL not set, reading from PlatformMesh resource..."
+        KEYCLOAK_URL=$(get_keycloak_url_from_cluster) || true
+        if [ -z "$KEYCLOAK_URL" ]; then
+            log_error "Failed to derive Keycloak URL from PlatformMesh resource."
+            log_error "Set KEYCLOAK_URL explicitly."
+            exit 1
+        fi
+        log_info "Derived Keycloak URL: $KEYCLOAK_URL"
+    fi
+
+    # Switch to kcp kubeconfig for all subsequent kubectl commands
+    if [ -n "$KUBECONFIG_KCP" ]; then
+        export KUBECONFIG="$KUBECONFIG_KCP"
+        log_info "Using kcp kubeconfig: $KUBECONFIG_KCP"
     fi
 
     # Get Keycloak admin token

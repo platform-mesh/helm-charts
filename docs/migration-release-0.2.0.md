@@ -98,14 +98,10 @@ Restore the OpenFGA PostgreSQL database from the backup. See the [Restore OpenFG
 
 ### 3.7 Fix the APIExport
 
-The operator may fail to update the APIExport in `root:platform-mesh-system`. Delete it and restart the operator so it gets recreated.
-
-Ensure you have a valid kcp admin kubeconfig, then run:
+The operator may fail to update the APIExport in `root:platform-mesh-system`. Delete it and restart the operator so it gets recreated:
 
 ```shell
-KUBECONFIG=<kcp-admin-kubeconfig> kubectl ws :root:platform-mesh-system
-KUBECONFIG=<kcp-admin-kubeconfig> kubectl delete apiexport core.platform-mesh.io
-kubectl delete pod -l app=platform-mesh-operator -n platform-mesh-system
+docs/migration-0.2.0/fix_apiexport.sh
 ```
 
 ### 3.8 Patch APIBindings
@@ -113,7 +109,7 @@ kubectl delete pod -l app=platform-mesh-operator -n platform-mesh-system
 Fix stale APIBindings across workspaces:
 
 ```shell
-KUBECONFIG_PATH=<kcp-admin-kubeconfig> docs/migration-0.2.0/patch-apibindings.sh
+KUBECONFIG_PATH=<kcp-admin-kubeconfig> docs/migration-0.2.0/fix_apibindings.sh
 ```
 
 ### 3.9 Create the IdentityProviderConfiguration resource
@@ -156,48 +152,39 @@ EOF
 Delete the `default` and `kubectl` clients from user-created realms in Keycloak, then restart the security-operator pods so they re-create them with the updated configuration:
 
 ```shell
-kubectl -n platform-mesh-system delete pod -l app=security-operator
-kubectl -n platform-mesh-system delete pod -l service=security-operator-generator
-kubectl -n platform-mesh-system delete pod -l service=security-operator-initializer
+docs/migration-0.2.0/reconcile_keycloak_clients.sh
 ```
 
 ### 3.11 Patch AccountInfo OIDC fields
 
-Update the `spec.oidc` field on AccountInfo objects:
+Update the `spec.oidc` field and client IDs on AccountInfo objects to match the ones currently in Keycloak:
 
 ```shell
-docs/migration-0.2.0/patch_accountinfo_oidc.sh
+docs/migration-0.2.0/fix_accountinfo.sh
 ```
 
 ### 3.12 Update FGA store models
 
-Edit the user-created store FGA models to match the one from the `security-operator` chart.
+Edit the user-created store FGA models to match the one from the `security-operator` chart and clear stale `authorizationModelId` from their status:
+
+```shell
+docs/migration-0.2.0/fix_stores.sh
+```
 
 ### 3.13 Fix WorkspaceAuthenticationConfiguration
 
 ```shell
-docs/migration-0.2.0/fix_workspace_auth_config.sh
+docs/migration-0.2.0/fix_workspaceauthenticationconfiguration.sh
 ```
 
-### 3.14 Update AccountInfo client IDs
+! NOTE: Make sure the `orgs-authentication` WorkspaceAuthenticationConfiguration resource is also updated in the `:root` workspace!
 
-Update the client IDs in AccountInfo objects in each workspace to match the ones currently in Keycloak.
-
-### 3.15 Restart security-operator
+### 3.14 Restart security-operator
 
 ```shell
 kubectl -n platform-mesh-system delete pod -l app=security-operator
 kubectl -n platform-mesh-system delete pod -l service=security-operator-generator
 kubectl -n platform-mesh-system delete pod -l service=security-operator-initializer
-```
-
-### 3.16 Clear stale FGA authorization model IDs
-
-Remove the `authorizationModelId` field from the status of Store resources so the security-operator can reconcile them cleanly:
-
-```shell
-kubectl patch store <store-name> --type=json \
-  -p '[{"op": "remove", "path": "/status/authorizationModelId"}]' --subresource=status
 ```
 
 ### 3.17 Final deployment pass
@@ -215,7 +202,7 @@ Re-run the deployment procedure for your environment and wait for the PlatformMe
 - Users can onboard new organisations, accounts, and managed resources
 - Browser GraphQL requests to the gateway return no errors
 - New FGA stores for onboarded organisations contain 27 (not 22) types
-- Store resources in kcp are READY
+- Store, Account resources in kcp are READY
 
 ---
 
@@ -253,7 +240,7 @@ KUBECONFIG=<kcp-admin-kubeconfig> kubectl delete apiexportendpointslice <name>
 
 **Cause:** The `authorizationModelId` field in a Store resource's status does not match the current model in OpenFGA.
 
-**Fix:** Remove the stale field and let the security-operator reconcile it (see [step 3.16](#316-clear-stale-fga-authorization-model-ids)):
+**Fix:** Remove the stale field and let the security-operator reconcile it (see [step 3.12](#312-update-fga-store-models)):
 
 ```shell
 kubectl patch store <store-name> --type=json \
@@ -264,7 +251,7 @@ kubectl patch store <store-name> --type=json \
 
 **Cause:** Incorrect client IDs in the `audiences` field of `WorkspaceAuthenticationConfiguration` resources.
 
-**Fix:** Run `docs/migration-0.2.0/fix_workspace_auth_config.sh` or manually patch the `audiences` to use the correct client IDs from Keycloak (see [step 3.13](#313-fix-workspaceauthenticationconfiguration)).
+**Fix:** Run `docs/migration-0.2.0/fix_workspaceauthenticationconfiguration.sh` or manually patch the `audiences` to use the correct client IDs from Keycloak (see [step 3.13](#313-fix-workspaceauthenticationconfiguration)).
 
 ### Cannot query Accounts via GraphQL
 
@@ -287,3 +274,17 @@ If issues persist, inspect the following resource types in the relevant kcp work
 - `APIBinding` -- ensure bindings point to the updated APIExport
 - `WorkspaceAuthenticationConfiguration` -- ensure `audiences` contain the correct client IDs
 - `ContentConfiguration` -- ensure no stale entries with an invalid `VALID` flag exist in `root:platform-mesh-system`
+
+### domain-certificate-ca secret not found by the operator
+
+If it doesn't exist, create the secret using existing orchestration tools.
+
+### Keycloak not sending emails
+
+Missing configuration for realm.
+
+
+### kcp 'failed to verify' keycloak endpoint
+
+Wrong data in the `domain-certificate-ca` 'tls.key' must actually contain to CA!
+
