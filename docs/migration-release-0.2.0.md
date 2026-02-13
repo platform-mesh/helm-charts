@@ -114,40 +114,45 @@ KUBECONFIG_PATH=<kcp-admin-kubeconfig> docs/migration-0.2.0/fix_apibindings.sh
 
 ### 3.9 Create the IdentityProviderConfiguration resource
 
-Create the IDP resource in the `:root:orgs:default` workspace. Adjust the redirect URIs and secret references to match your environment:
+Create the IDP resource in all org workspaces. Adjust the redirect URIs and secret references to match your environment:
 
 ```shell
-KUBECONFIG=<kcp-admin-kubeconfig> kubectl ws :root:orgs:default
-cat <<EOF | KUBECONFIG=<kcp-admin-kubeconfig> kubectl apply -f -
-apiVersion: core.platform-mesh.io/v1alpha1
-kind: IdentityProviderConfiguration
-metadata:
-  name: default
-spec:
-  clients:
-  - clientName: default
-    clientType: confidential
-    postLogoutRedirectUris:
-    - https://<portal-host>/logout*
-    redirectUris:
-    - http://localhost:8000/callback*
-    - http://localhost:4300/callback*
-    - https://<portal-host>/*
-    secretRef:
-      name: portal-client-secret-default-default
-      namespace: default
-  - clientName: kubectl
-    clientType: public
-    redirectUris:
-    - http://localhost:8000
-    - http://localhost:18000
-    secretRef:
-      name: portal-client-secret-default-kubectl
-      namespace: default
-EOF
+KUBECONFIG_KCP=<kcp-admin-kubeconfig> PORTAL_HOST=<portal-host> docs/migration-0.2.0/create_identityprovider_config.sh
 ```
 
-### 3.10 Reconcile Keycloak clients
+For a dry run to preview the changes:
+
+```shell
+KUBECONFIG_KCP=<kcp-admin-kubeconfig> PORTAL_HOST=<portal-host> docs/migration-0.2.0/create_identityprovider_config.sh --dry-run
+```
+
+For more options:
+
+```shell
+docs/migration-0.2.0/create_identityprovider_config.sh --help
+```
+
+### 3.10 Invite organization owners
+
+Create Invite resources for organization owners in their respective org workspaces. The script looks up the creator email from the Account resources and creates Invites:
+
+```shell
+KUBECONFIG_KCP=<kcp-admin-kubeconfig> docs/migration-0.2.0/invite_org_owners.sh
+```
+
+For a dry run to preview the invites:
+
+```shell
+KUBECONFIG_KCP=<kcp-admin-kubeconfig> docs/migration-0.2.0/invite_org_owners.sh --dry-run
+```
+
+For more options:
+
+```shell
+docs/migration-0.2.0/invite_org_owners.sh --help
+```
+
+### 3.11 Reconcile Keycloak clients
 
 Delete the `default` and `kubectl` clients from user-created realms in Keycloak, then restart the security-operator pods so they re-create them with the updated configuration:
 
@@ -155,7 +160,7 @@ Delete the `default` and `kubectl` clients from user-created realms in Keycloak,
 docs/migration-0.2.0/reconcile_keycloak_clients.sh
 ```
 
-### 3.11 Patch AccountInfo OIDC fields
+### 3.12 Patch AccountInfo OIDC fields
 
 Update the `spec.oidc` field and client IDs on AccountInfo objects to match the ones currently in Keycloak:
 
@@ -163,7 +168,7 @@ Update the `spec.oidc` field and client IDs on AccountInfo objects to match the 
 docs/migration-0.2.0/fix_accountinfo.sh
 ```
 
-### 3.12 Update FGA store models
+### 3.13 Update FGA store models
 
 Edit the user-created store FGA models to match the one from the `security-operator` chart and clear stale `authorizationModelId` from their status:
 
@@ -171,7 +176,7 @@ Edit the user-created store FGA models to match the one from the `security-opera
 docs/migration-0.2.0/fix_stores.sh
 ```
 
-### 3.13 Fix WorkspaceAuthenticationConfiguration
+### 3.14 Fix WorkspaceAuthenticationConfiguration
 
 ```shell
 docs/migration-0.2.0/fix_workspaceauthenticationconfiguration.sh
@@ -179,7 +184,7 @@ docs/migration-0.2.0/fix_workspaceauthenticationconfiguration.sh
 
 ! NOTE: Make sure the `orgs-authentication` WorkspaceAuthenticationConfiguration resource is also updated in the `:root` workspace!
 
-### 3.14 Restart security-operator
+### 3.15 Restart security-operator
 
 ```shell
 kubectl -n platform-mesh-system delete pod -l app=security-operator
@@ -240,7 +245,7 @@ KUBECONFIG=<kcp-admin-kubeconfig> kubectl delete apiexportendpointslice <name>
 
 **Cause:** The `authorizationModelId` field in a Store resource's status does not match the current model in OpenFGA.
 
-**Fix:** Remove the stale field and let the security-operator reconcile it (see [step 3.12](#312-update-fga-store-models)):
+**Fix:** Remove the stale field and let the security-operator reconcile it (see [step 3.13](#313-update-fga-store-models)):
 
 ```shell
 kubectl patch store <store-name> --type=json \
@@ -251,7 +256,7 @@ kubectl patch store <store-name> --type=json \
 
 **Cause:** Incorrect client IDs in the `audiences` field of `WorkspaceAuthenticationConfiguration` resources.
 
-**Fix:** Run `docs/migration-0.2.0/fix_workspaceauthenticationconfiguration.sh` or manually patch the `audiences` to use the correct client IDs from Keycloak (see [step 3.13](#313-fix-workspaceauthenticationconfiguration)).
+**Fix:** Run `docs/migration-0.2.0/fix_workspaceauthenticationconfiguration.sh` or manually patch the `audiences` to use the correct client IDs from Keycloak (see [step 3.14](#314-fix-workspaceauthenticationconfiguration)).
 
 ### Cannot query Accounts via GraphQL
 
@@ -288,3 +293,16 @@ Missing configuration for realm.
 
 Wrong data in the `domain-certificate-ca` 'tls.key' must actually contain to CA!
 
+### invite users to orgnization
+
+Create Invite resources in the respective org workspace:
+```yaml
+apiVersion: core.platform-mesh.io/v1alpha1
+kind: Invite
+metadata:
+  name: username
+spec:
+  email: username@sap.com
+```
+
+Then set password, verify email and remove 'Required user actions' in keycloak.
