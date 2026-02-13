@@ -22,6 +22,11 @@ setup_registry_proxies() {
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Using container runtime: $CONTAINER_RUNTIME ${COL_RES}"
 
+    if ! $CONTAINER_RUNTIME network ls --format '{{.Name}}' | grep -q '^kind$'; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Creating network 'kind' ${COL_RES}"
+        $CONTAINER_RUNTIME network create kind
+    fi
+
     # Start proxy-quay if not already running
     if ! $CONTAINER_RUNTIME ps --format '{{.Names}}' | grep -q '^proxy-quay$'; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Starting proxy-quay registry ${COL_RES}"
