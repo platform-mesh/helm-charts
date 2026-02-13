@@ -12,6 +12,7 @@ The helm-charts repository contains helm charts used for the deployment of platf
 - .ocm - OCM component constructor files for individual component references
 - charts - a folder containing the HELM charts
 - doc-templates - templates used to generate charts documentation
+- docs - operational guides including [Backup and Restore](docs/backup-restore.md)
 - local-setup - scripts and manifest used to bootstrap a local developer instance of platform-mesh
 - Taskfile.yaml - script automation used by the [Taskfile](https://taskfile.dev/) cli
 
