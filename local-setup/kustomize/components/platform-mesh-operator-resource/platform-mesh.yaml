@@ -22,6 +22,8 @@ spec:
       values:
         hostAliases:
           enabled: true
+        log:
+          noJson: true
     keycloak:
       enabled: true
       values:
@@ -56,6 +58,8 @@ spec:
             clusterIP: "10.96.0.100"
     security-operator:
       values:
+        log:
+          noJson: true
         fga:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
