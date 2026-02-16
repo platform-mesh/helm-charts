@@ -3,7 +3,11 @@ name: extension-manager-operator
 description: A Helm chart for extension-manager-operator which manages resources like ContentConfigurations and exposes REST `/validate` endpoint
 type: application
 version: 0.34.119
+<<<<<<< feat/extension-manager-operator-auto-endpoint-slice
 appVersion: "v0.4.239"
+=======
+appVersion: "v0.4.240"
+>>>>>>> main
 dependencies:
   - name: extension-manager-operator-crds
     version: 0.3.1
