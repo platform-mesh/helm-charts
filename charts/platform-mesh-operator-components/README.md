@@ -25,6 +25,7 @@ A Helm chart for Kubernetes
 | services.account-operator.values.kcp.apiExportEndpointSliceName | string | `""` |  |
 | services.account-operator.values.kcp.enabled | bool | `true` |  |
 | services.account-operator.values.kubeconfigSecret | string | `"account-operator-kubeconfig"` |  |
+| services.account-operator.values.log.level | string | `"debug"` |  |
 | services.account-operator.values.subroutines.fga.grpcAddr | string | `"openfga:8081"` |  |
 | services.account-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.account-operator.values.tracing.enabled | bool | `false` |  |
@@ -184,6 +185,7 @@ A Helm chart for Kubernetes
 | services.rebac-authz-webhook.imageResources | list | `[{"annotations":{"artifact":"image","for":"rebac-authz-webhook","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.rebac-authz-webhook.values.certManager.createCA | bool | `true` |  |
 | services.rebac-authz-webhook.values.certManager.enabled | bool | `true` |  |
+| services.rebac-authz-webhook.values.log.level | string | `"debug"` |  |
 | services.rebac-authz-webhook.values.openfga.url | string | `"openfga:8081"` |  |
 | services.security-operator.enabled | bool | `true` |  |
 | services.security-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"security-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
@@ -193,6 +195,7 @@ A Helm chart for Kubernetes
 | services.security-operator.values.fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | services.security-operator.values.initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |
 | services.security-operator.values.kubeconfigSecret | string | `"security-operator-kubeconfig"` |  |
+| services.security-operator.values.log.level | string | `"debug"` |  |
 | services.security-operator.values.operator.maxConcurrentReconciles | int | `1` |  |
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |

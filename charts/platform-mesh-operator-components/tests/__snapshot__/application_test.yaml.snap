@@ -22,6 +22,8 @@ it should render the application manifests:
           apiExportEndpointSliceName: ""
           enabled: true
         kubeconfigSecret: account-operator-kubeconfig
+        log:
+          level: debug
         subroutines:
           fga:
             grpcAddr: openfga:8081
@@ -347,6 +349,8 @@ it should render the application manifests:
         certManager:
           createCA: true
           enabled: true
+        log:
+          level: debug
         openfga:
           url: openfga:8081
   10: |
@@ -375,6 +379,8 @@ it should render the application manifests:
         initializer:
           kubeconfigSecret: security-initializer-kubeconfig
         kubeconfigSecret: security-operator-kubeconfig
+        log:
+          level: debug
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
