@@ -22,8 +22,6 @@ HelmRelease snapshots:
           apiExportEndpointSliceName: ""
           enabled: true
         kubeconfigSecret: account-operator-kubeconfig
-        log:
-          level: debug
         subroutines:
           fga:
             grpcAddr: openfga:8081
@@ -349,8 +347,6 @@ HelmRelease snapshots:
         certManager:
           createCA: true
           enabled: true
-        log:
-          level: debug
         openfga:
           url: openfga:8081
   10: |
@@ -379,8 +375,6 @@ HelmRelease snapshots:
         initializer:
           kubeconfigSecret: security-initializer-kubeconfig
         kubeconfigSecret: security-operator-kubeconfig
-        log:
-          level: debug
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
@@ -434,8 +428,6 @@ enable remote deployment of helmreleases:
           apiExportEndpointSliceName: ""
           enabled: true
         kubeconfigSecret: account-operator-kubeconfig
-        log:
-          level: debug
         subroutines:
           fga:
             grpcAddr: openfga:8081
@@ -793,8 +785,6 @@ enable remote deployment of helmreleases:
         certManager:
           createCA: true
           enabled: true
-        log:
-          level: debug
         openfga:
           url: openfga:8081
   10: |
@@ -827,8 +817,6 @@ enable remote deployment of helmreleases:
         initializer:
           kubeconfigSecret: security-initializer-kubeconfig
         kubeconfigSecret: security-operator-kubeconfig
-        log:
-          level: debug
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
