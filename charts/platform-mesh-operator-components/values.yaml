@@ -36,6 +36,8 @@ services:
         collector:
           host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
       kubeconfigSecret: account-operator-kubeconfig
+      log:
+        level: debug
       crds:
         enabled: false
       kcp:
@@ -81,6 +83,8 @@ services:
         kubeconfigSecret: security-initializer-kubeconfig
       baseDomain: "{{ .Values.baseDomainPort }}"
       kubeconfigSecret: security-operator-kubeconfig
+      log:
+        level: debug
       operator:
         shutdownTimeout: 1m
         maxConcurrentReconciles: 1
@@ -93,6 +97,8 @@ services:
           artifact: image
           for: rebac-authz-webhook
     values:
+      log:
+        level: debug
       openfga:
         url: openfga:8081
       certManager:
