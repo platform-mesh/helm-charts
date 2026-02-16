@@ -22,9 +22,6 @@ spec:
       values:
         hostAliases:
           enabled: true
-        log:
-          level: debug
-          noJson: true
     keycloak:
       enabled: true
       values:
@@ -59,9 +56,6 @@ spec:
             clusterIP: "10.96.0.100"
     security-operator:
       values:
-        log:
-          level: debug
-          noJson: true
         fga:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
@@ -122,8 +116,6 @@ spec:
       enabled: false
     rebac-authz-webhook:
       values:
-        log:
-          level: debug
         hostAliases:
           enabled: true
     iam-service:
@@ -136,10 +128,5 @@ spec:
           enabled: true
     extension-manager-operator:
       values:
-        log:
-          level: debug
-        # klog verbosity for APIExportEndpointSlice / cluster discovery logs (e.g. "added APIExportEndpointSlice")
-        extraArgs:
-          - "-v=2"
         hostAliases:
           enabled: true
