@@ -75,7 +75,7 @@ generate_manifest() {
     fi
 
     # Generate workspace-specific secret names
-    local secret_name_default="portal-client-secret-${workspace_name}-default"
+    local secret_name_default="portal-client-secret-${workspace_name}-${workspace_name}"
     local secret_name_kubectl="portal-client-secret-${workspace_name}-kubectl"
 
     cat <<EOF
