@@ -31,9 +31,9 @@ A Helm chart for Kubernetes
 | services.account-operator.values.tracing.enabled | bool | `false` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"extension-manager-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
+| services.extension-manager-operator.values.crds.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.enabled | bool | `true` |  |
-| services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
+| services.extension-manager-operator.values.kcp.kubeconfig.secret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `false` |  |
 | services.iam-service.enabled | bool | `true` | Enable IAM Service |

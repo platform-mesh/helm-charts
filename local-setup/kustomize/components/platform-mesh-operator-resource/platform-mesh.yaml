@@ -130,3 +130,7 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
+    extension-manager-operator:
+      values:
+        hostAliases:
+          enabled: true

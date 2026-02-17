@@ -49,10 +49,11 @@ it should render the application manifests:
       timeout: 30m
       values:
         crds:
-          enabled: false
+          enabled: true
         kcp:
           enabled: true
-          kubeconfigSecret: extension-manager-operator-kubeconfig
+          kubeconfig:
+            secret: extension-manager-operator-kubeconfig
         tracing:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
