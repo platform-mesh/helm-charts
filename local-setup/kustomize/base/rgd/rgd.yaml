@@ -109,3 +109,5 @@ spec:
               noJson: true
             image:
               tag: ${resourceImage.status.?resource.?version}
+            idp:
+              registrationAllowed: true
