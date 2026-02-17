@@ -208,6 +208,7 @@ Re-run the deployment procedure for your environment and wait for the PlatformMe
 - Browser GraphQL requests to the gateway return no errors
 - New FGA stores for onboarded organisations contain 27 (not 22) types
 - Store, Account resources in kcp are READY
+- For additional checks run `docs/validate_kcp_resources.sh`
 
 ---
 
