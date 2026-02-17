@@ -385,7 +385,7 @@ HelmRelease snapshots:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
         terminator:
-          kubeconfigSecret: security-initializer-kubeconfig
+          kubeconfigSecret: security-terminator-kubeconfig
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -835,7 +835,7 @@ enable remote deployment of helmreleases:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
         terminator:
-          kubeconfigSecret: security-initializer-kubeconfig
+          kubeconfigSecret: security-terminator-kubeconfig
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
