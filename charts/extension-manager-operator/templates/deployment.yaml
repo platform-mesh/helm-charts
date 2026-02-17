@@ -36,23 +36,27 @@ spec:
           {{- if .Values.kcp.enabled }}
           - --kcp-enabled
           {{- end }}
+          {{- if .Values.kcp.apiExportEndpointSliceName }}
+          - --kcp-api-export-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}
+          {{- end }}
         {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
-        {{- if .Values.kcp.kubeconfigSecret }}
-          - name: KCP_KUBECONFIG
+        {{- with .Values.kcp.kubeconfig.secret }}
+          - name: KUBECONFIG
             value: /api-kubeconfig/kubeconfig
         {{- end }}
         volumeMounts:
           {{- include "common.extraVolumeMounts" . | nindent 10 }}
-          {{- if .Values.kcp.kubeconfigSecret }}
+          {{- with .Values.kcp.kubeconfig.secret }}
           - name: kcp-api-server
             mountPath: /api-kubeconfig
+            readOnly: true
           {{- end }}
       volumes:
         {{- include "common.extraVolumes" . | nindent 8 }}
-        {{- if .Values.kcp.kubeconfigSecret }}
+        {{- with .Values.kcp.kubeconfig.secret }}
         - name: kcp-api-server
           secret:
-            secretName: {{ .Values.kcp.kubeconfigSecret }}
+            secretName: {{ . }}
         {{- end }}

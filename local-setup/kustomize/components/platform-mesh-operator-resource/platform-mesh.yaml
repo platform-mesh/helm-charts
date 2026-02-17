@@ -70,10 +70,7 @@ spec:
         initializer:
           extraArgs:
             - --domain-ca-lookup
-            # remove arguments below when the operator and the portal are ready
-            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-            - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.localhost
+            - --idp-registration-allowed
             - --development-allow-unverified-emails
             - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         caSecret: domain-certificate-ca
@@ -128,5 +125,9 @@ spec:
           - --no-json
         cors:
           enabled: true
+        hostAliases:
+          enabled: true
+    extension-manager-operator:
+      values:
         hostAliases:
           enabled: true

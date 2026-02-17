@@ -39,6 +39,15 @@ initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
   extraArgs: []
+  subroutines:
+    # -- Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup)
+    workspaceEnabled: true
+    # -- Enable IDPSubroutine (Keycloak identity provider configuration)
+    idpEnabled: true
+    # -- Enable InviteSubroutine (creates Invite resources for org creator)
+    inviteEnabled: true
+    # -- Enable WorkspaceAuthConfigurationSubroutine (JWT authentication setup)
+    workspaceAuthEnabled: true
 
 terminator:
   # -- The kubeconfig secret for the terminator
