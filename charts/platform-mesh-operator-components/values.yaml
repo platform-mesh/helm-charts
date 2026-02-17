@@ -56,10 +56,11 @@ services:
           for: extension-manager-operator
     values:
       crds:
-        enabled: false
+        enabled: true
       kcp:
         enabled: true
-        kubeconfigSecret: extension-manager-operator-kubeconfig
+        kubeconfig:
+          secret: extension-manager-operator-kubeconfig
       tracing:
         enabled: false
         collector:
