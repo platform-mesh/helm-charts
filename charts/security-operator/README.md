@@ -36,6 +36,8 @@ A Helm chart for security-operator
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |
 | region | string | `"local"` | region indicator, used for logging and observability |
+| terminator.extraArgs | list | `[]` |  |
+| terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
 
 ## Overriding Values
 

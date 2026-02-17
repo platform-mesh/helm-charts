@@ -198,6 +198,7 @@ A Helm chart for Kubernetes
 | services.security-operator.values.log.level | string | `"debug"` |  |
 | services.security-operator.values.operator.maxConcurrentReconciles | int | `1` |  |
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
+| services.security-operator.values.terminator.kubeconfigSecret | string | `"security-initializer-kubeconfig"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
 | services.virtual-workspaces.imageResources | list | `[{"annotations":{"artifact":"image","for":"virtual-workspaces","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.virtual-workspaces.values.deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
