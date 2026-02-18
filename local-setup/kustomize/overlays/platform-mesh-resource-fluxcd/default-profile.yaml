@@ -2,8 +2,7 @@ apiVersion: v1
 data:
   profile.yaml: |
     components:
-      # deploymentTechnology: fluxcd
-      deploymentTechnology: argocd
+      deploymentTechnology: fluxcd
       destinationServer: https://172.18.0.6:6443
       iamWebhookCA: null
       ocm:
@@ -321,8 +320,6 @@ data:
             global:
               imagePullSecrets:
               - name: github
-            image:
-              tag: ""
             log:
               level: info
             migrate:
@@ -336,6 +333,7 @@ data:
               image:
                 registry: ghcr.io/platform-mesh
                 repository: images/postgresql
+                tag: 17.6.0-debian-12-r4
               nameOverride: postgres
             replicaCount: 1
             telemetry:
@@ -413,6 +411,12 @@ data:
             fga:
               inviteKeycloakBaseUrl: "https://{{ .baseDomainPort }}/keycloak"
               target: openfga.platform-mesh-system.svc.cluster.local:8081
+              extraArgs:
+                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+                - --idp-smtp-port=1025
+                - --idp-from-address=keycloak@portal.localhost
+                - --idp-registration-allowed
+                - --set-default-password
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
               extraArgs:
@@ -440,8 +444,7 @@ data:
           enabled: true
           targetNamespace: platform-mesh-system
     infra:
-      # deploymentTechnology: fluxcd
-      deploymentTechnology: argocd
+      deploymentTechnology: fluxcd
       destinationServer: https://172.18.0.6:6443
       ocm:
         component:

@@ -1,21 +1,124 @@
-apiVersion: kro.run/v1alpha1
-kind: PlatformMeshOperator
+apiVersion: v1
+kind: ServiceAccount
 metadata:
   name: platform-mesh-operator
+  namespace: platform-mesh-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-mesh-operator
+  namespace: platform-mesh-system
 spec:
-  referencePath:
-    - name: platform-mesh-operator
-  resource:
-    name: chart
-  values:
-    log:
-      level: debug
-    hostAliases:
-      enabled: true
-      entries:
-        - ip: "172.18.0.6"
-          hostnames:
-            - portal.localhost
-            - localhost
-    extraArgs:
-      - --kcp-url=https://localhost:8443
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: platform-mesh-operator
+  strategy:
+    rollingUpdate:
+      maxSurge: 5
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: platform-mesh-operator
+        control-plane: controller-manager
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - operator
+        - --leader-elect
+        - --metrics-bind-address=:9090
+        - --health-probe-bind-address=:8090
+        - --log-level=debug
+        - --region=local
+        - --environment=local
+        - --image-tag=v0.27.0-rc.11
+        - --image-name="ghcr.io/platform-mesh/platform-mesh-operator"
+        - --shutdown-timeout=1m
+        - --max-concurrent-reconciles=10
+        - --kcp-url=https://localhost:8443
+        - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
+        - --subroutines-deployment-enable-istio=false
+        - --remote-runtime-infra-secret-name=platform-mesh-kubeconfig
+        - --remote-runtime-infra-secret-key=kubeconfig
+        - --subroutines-feature-toggles-enabled=true
+        image: ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 1
+          httpGet:
+            path: /healthz
+            port: 8090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: platform-mesh-operator
+        ports:
+        - containerPort: 9090
+          name: metrics
+          protocol: TCP
+        - containerPort: 8090
+          name: health-port
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readyz
+            port: 8090
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            cpu: 40m
+            memory: 50Mi
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /readyz
+            port: 8090
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/platformmesh
+          name: external-platformmesh-deployment
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      hostAliases:
+      - hostnames:
+        - portal.localhost
+        - localhost
+        ip: 172.18.0.6
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: platform-mesh-operator
+      serviceAccountName: platform-mesh-operator
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: external-platformmesh-deployment
+        secret:
+          defaultMode: 420
+          secretName: platform-mesh-kubeconfig

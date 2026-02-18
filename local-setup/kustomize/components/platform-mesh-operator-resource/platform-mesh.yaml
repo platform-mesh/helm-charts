@@ -53,20 +53,6 @@ spec:
       values:
         log:
           noJson: true
-        fga:
-          extraArgs:
-            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-            - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.localhost
-            - --set-default-password
-        initializer:
-          extraArgs:
-            - --domain-ca-lookup
-            # remove arguments below when the operator and the portal are ready
-            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-            - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.localhost
-            - --development-allow-unverified-emails
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
@@ -107,6 +93,11 @@ spec:
             database: postgres
     marketplace-ui:
       enabled: true
+      values:
+        istio:
+          enabled: false
+        gatewayApi:
+          enabled: true
     rebac-authz-webhook:
       values:
         hostAliases:

@@ -246,8 +246,7 @@ if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
   install_argocd .secret/platform-mesh.kubeconfig
 fi
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/kro
+echo -e "${COL}[$(date '+%H:%M:%S')] Install OCM ${COL_RES}"
 kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
 
@@ -302,13 +301,9 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Install port-fixer on platform-mesh cluster
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/port-fixer
 
 kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
-kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-new
+kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/rgd
-kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
-  --for=condition=Ready resourcegraphdefinition \
-  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
 if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
   setup_argocd
@@ -317,18 +312,14 @@ fi
 kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/infra
 kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
 
-kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
-  --for=condition=Ready PlatformMeshOperator \
-  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+# kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
+#   --for=condition=Available deployment \
+#   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
 patch_platform_mesh_operator_roles() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Patching Platform-Mesh Operator roles to include ArgoCD permissions ${COL_RES}"
   # Temporary: patch the ClusterRole until the chart is updated
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch clusterrole platform-mesh-operator --type='json' -p='[
-    {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["appprojects"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}},
-    {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["applications"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}}
-  ]'
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch role platform-mesh-operator -n platform-mesh-system --type='json' -p='[
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch clusterrole platform-mesh-operator-argocd --type='json' -p='[
     {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["appprojects"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}},
     {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["applications"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}}
   ]'
@@ -340,7 +331,7 @@ patch_platform_mesh_operator_roles
 
 # Install Platform-Mesh Runtime
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
-kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource-new
+kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
 
 
 # wait for kind: PlatformMesh resource to become ready
