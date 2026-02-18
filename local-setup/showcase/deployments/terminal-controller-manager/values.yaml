@@ -1,0 +1,34 @@
+image:
+  name: terminal-controller-manager
+  tag: local
+  pullPolicy: Never
+
+terminal:
+  image: terminal:local
+  imagePullPolicy: Never
+  namespace: terminal-sessions
+  lifetime: 2h
+  # Host alias for local development to resolve portal.localhost
+  hostAliasIP: "10.96.188.4"
+  # The terminal pod only needs localhost
+  hostAliasNames:
+    - "localhost"
+
+hostAliases:
+  enabled: true
+  entries:
+    - ip: "10.96.188.4"
+      hostnames:
+        - "localhost"
+        - "portal.localhost"
+
+kcp:
+  apiExportEndpointSliceName: core.platform-mesh.io
+  kubeconfigSecret: "terminal-controller-manager-kubeconfig"
+
+gateway:
+  name: k8sapi-gateway
+  namespace: platform-mesh-system
+  hostnames:
+    - "portal.localhost"
+    - "*.portal.localhost"

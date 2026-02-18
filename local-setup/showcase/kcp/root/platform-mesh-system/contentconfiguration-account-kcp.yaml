@@ -1,0 +1,120 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  labels:
+    ui.platform-mesh.io/entity: core_platform-mesh_io_account
+  name: account-kcp
+spec:
+  inlineConfiguration:
+    content: |-
+      {
+        "name": "kcp-resources",
+        "luigiConfigFragment": {
+          "data": {
+            "nodes": [
+              {
+                "pathSegment": "apibindings",
+                "navigationContext": "apibindings",
+                "label": "APIBindings",
+                "icon": "connected",
+                "order": 100,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": {
+                  "id": "kcp",
+                  "isGroup": true,
+                  "label": "KCP",
+                  "order": 200
+                },
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "apis.kcp.io",
+                    "version": "v1alpha2",
+                    "kind": "APIBinding",
+                    "plural": "APIBindings",
+                    "singular": "apibinding",
+                    "scope": "Cluster"
+                  }
+                }
+              },
+              {
+                "pathSegment": "apiexports",
+                "navigationContext": "apiexports",
+                "label": "APIExports",
+                "icon": "outbox",
+                "order": 110,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kcp",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "apis.kcp.io",
+                    "version": "v1alpha2",
+                    "kind": "APIExport",
+                    "plural": "APIExports",
+                    "singular": "apiexport",
+                    "scope": "Cluster"
+                  }
+                }
+              },
+              {
+                "pathSegment": "apiexportendpointslices",
+                "navigationContext": "apiexportendpointslices",
+                "label": "APIExportEndpointSlices",
+                "icon": "expand-group",
+                "order": 120,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kcp",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "apis.kcp.io",
+                    "version": "v1alpha1",
+                    "kind": "APIExportEndpointSlice",
+                    "plural": "APIExportEndpointSlices",
+                    "singular": "apiexportendpointslice",
+                    "scope": "Cluster"
+                  }
+                }
+              },
+              {
+                "pathSegment": "apiresourceschemas",
+                "navigationContext": "apiresourceschemas",
+                "label": "APIResourceSchemas",
+                "icon": "tree",
+                "order": 130,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kcp",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "apis.kcp.io",
+                    "version": "v1alpha1",
+                    "kind": "APIResourceSchema",
+                    "plural": "APIResourceSchemas",
+                    "singular": "apiresourceschema",
+                    "scope": "Cluster"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    contentType: json

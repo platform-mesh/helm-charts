@@ -362,3 +362,23 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --prerelease --concurrent"}
+
+  local-setup:showcase:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--showcase"}
+
+  local-setup:showcase:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--showcase"}
+
+  local-setup:cached:showcase:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --showcase"}
+
+  local-setup:cached:showcase:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --showcase"}

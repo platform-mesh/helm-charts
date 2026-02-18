@@ -21,15 +21,17 @@ SCRIPT_DIR=$(dirname "$0")
 PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
+SHOWCASE=false
 CONCURRENT=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--showcase] [--concurrent] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
   echo "  --cached        Use local Docker registry mirrors for faster image pulls"
   echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
+  echo "  --showcase      Install showcase components (generic-resource-ui, terminal-controller-manager)"
   echo "  --concurrent    Run prerelease chart builds in parallel instead of sequentially"
   echo "  --help          Show this help message"
   exit 1
@@ -40,6 +42,7 @@ while [ $# -gt 0 ]; do
     --prerelease) PRERELEASE=true ;;
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
+    --showcase) SHOWCASE=true ;;
     --concurrent) CONCURRENT=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
@@ -105,6 +108,12 @@ cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 if [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Loading custom images ${COL_RES}"
     source "$SCRIPT_DIR/load-custom-images.sh"
+fi
+
+# Load showcase images if showcase mode is enabled
+if [ "$SHOWCASE" = true ] && [ -f "$SCRIPT_DIR/load-showcase-images.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Loading showcase images ${COL_RES}"
+    source "$SCRIPT_DIR/load-showcase-images.sh"
 fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
@@ -185,6 +194,9 @@ if [ "$PRERELEASE" = true ]; then
 elif [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+elif [ "$SHOWCASE" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with showcase) ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/showcase
 else
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
@@ -215,6 +227,12 @@ if [ "$EXAMPLE_DATA" = true ]; then
     --for=condition=Ready helmreleases \
     --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
 
+fi
+
+# Install showcase components if showcase mode is enabled
+if [ "$SHOWCASE" = true ] && [ -f "$SCRIPT_DIR/install-showcase-components.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Installing showcase components ${COL_RES}"
+    source "$SCRIPT_DIR/install-showcase-components.sh"
 fi
 
 echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
