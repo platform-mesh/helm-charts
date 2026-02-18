@@ -22,19 +22,6 @@ helm upgrade -i generic-resource-ui "${SCRIPT_DIR}/../../charts/generic-resource
 echo "Updating helm dependencies for terminal-controller-manager..."
 helm dependency update "${SCRIPT_DIR}/../../charts/terminal-controller-manager"
 
-# Create KCP kubeconfig secret for terminal-controller-manager
-echo "Creating KCP kubeconfig secret for terminal-controller-manager..."
-KCP_ADMIN_KUBECONFIG="${SCRIPT_DIR}/../../.secret/kcp/admin.kubeconfig"
-if [ -f "${KCP_ADMIN_KUBECONFIG}" ]; then
-    kubectl create secret generic terminal-controller-manager-kubeconfig \
-      -n platform-mesh-system \
-      --from-file=kubeconfig="${KCP_ADMIN_KUBECONFIG}" \
-      --dry-run=client -o yaml | kubectl apply -f -
-else
-    echo "Warning: KCP admin kubeconfig not found at ${KCP_ADMIN_KUBECONFIG}"
-    echo "Terminal controller manager may not work correctly without KCP access."
-fi
-
 # Deploy terminal-controller-manager via helm
 echo "Deploying terminal-controller-manager..."
 helm upgrade -i terminal-controller-manager "${SCRIPT_DIR}/../../charts/terminal-controller-manager" \

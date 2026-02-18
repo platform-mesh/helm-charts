@@ -22,3 +22,93 @@ patches:
             secret: terminal-controller-manager-kubeconfig
             namespace: platform-mesh-system
             external: false
+        values:
+          rebac-authz-webhook:
+            values:
+              extraArgs:
+              - --webhook-allowed-nonresource-prefixes=/api,/openapi,/version
+          security-operator:
+            values:
+              coreModule: |-
+                module core
+        
+                type user
+        
+                type role
+                  relations
+                    define assignee: [user,user:*]
+        
+                type core_platform-mesh_io_account
+                  relations
+                    define parent: [core_platform-mesh_io_account]
+        
+                    define owner: [role#assignee] or owner from parent
+                    define member: [role#assignee] or owner
+        
+                    define get: member
+                    define update: member
+                    define patch: member
+                    define delete: owner
+        
+                    define create_core_platform-mesh_io_accounts: member
+                    define list_core_platform-mesh_io_accounts: member
+                    define watch_core_platform-mesh_io_accounts: member
+        
+                    # org and account specific
+                    define watch: member
+        
+                    define create_core_platform-mesh_io_accountinfos: member
+                    define list_core_platform-mesh_io_accountinfos: member
+                    define watch_core_platform-mesh_io_accountinfos: member
+        
+                    define create_terminal_platform-mesh_io_terminals: member
+                    define list_terminal_platform-mesh_io_terminals: member
+                    define watch_terminal_platform-mesh_io_terminals: member
+        
+                    define list_core_kcp_io_logicalclusters: member
+                    define watch_core_kcp_io_logicalclusters: member
+        
+                    # IAM specific
+                    define manage_iam_roles: owner
+                    define get_iam_roles: member
+                    define get_iam_users: member
+        
+                type core_platform-mesh_io_accountinfo
+                  relations
+                    define parent: [core_platform-mesh_io_account]
+        
+                    define member: member from parent
+                    define owner: owner from parent
+        
+                    define get: member
+                    define watch: member
+        
+                    # IAM specific
+                    define manage_iam_roles: owner
+                    define get_iam_roles: member
+                    define get_iam_users: member
+        
+                type terminal_platform-mesh_io_terminal
+                  relations
+                    define parent: [core_platform-mesh_io_account]
+        
+                    define member: member from parent
+                    define owner: owner from parent
+        
+                    define get: member
+                    define watch: member
+                    define delete: member
+        
+                    # IAM specific
+                    define manage_iam_roles: owner
+                    define get_iam_roles: member
+                    define get_iam_users: member
+        
+                type core_kcp_io_logicalcluster
+                  relations
+                    define parent: [core_platform-mesh_io_account]
+        
+                    define member: member from parent
+        
+                    define get: member
+                    define watch: member

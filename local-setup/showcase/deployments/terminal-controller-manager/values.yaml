@@ -3,6 +3,10 @@ image:
   tag: local
   pullPolicy: Never
 
+log:
+  noJson: true
+  level: debug
+
 terminal:
   image: terminal:local
   imagePullPolicy: Never
