@@ -11,6 +11,8 @@ tests:
           - --test=myval
           - --test2=myval
         kubeconfigSecret: kcp-initializer-kubeconfig
+      terminator:
+        kubeconfigSecret: kcp-terminator-kubeconfig
     asserts:
       - matchSnapshot: {}
   - it: operator match the snapshot w. sentry
