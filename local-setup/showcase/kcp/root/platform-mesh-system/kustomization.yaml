@@ -11,7 +11,6 @@ resources:
   - contentconfiguration-account-home.yaml
   - contentconfiguration-account-accounts.yaml
   - contentconfiguration-account-iam-ui.yaml
-  - contentconfiguration-account-workspace-dashboard.yaml
   - contentconfiguration-account-platform-mesh.yaml
   - contentconfiguration-account-kcp.yaml
   - contentconfiguration-account-kubernetes.yaml
