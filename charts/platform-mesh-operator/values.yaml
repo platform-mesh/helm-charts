@@ -21,6 +21,9 @@ tracing:
 extraArgs:
   - --subroutines-feature-toggles-enabled=true
 
+idp:
+  registrationAllowed: false
+
 istio:
   enabled: false
 

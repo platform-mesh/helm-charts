@@ -29,6 +29,18 @@ spec:
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
+          {{- if not .Values.initializer.subroutines.workspaceEnabled }}
+          - --initializer-workspace-enabled=false
+          {{- end }}
+          {{- if not .Values.initializer.subroutines.idpEnabled }}
+          - --initializer-idp-enabled=false
+          {{- end }}
+          {{- if not .Values.initializer.subroutines.inviteEnabled }}
+          - --initializer-invite-enabled=false
+          {{- end }}
+          {{- if not .Values.initializer.subroutines.workspaceAuthEnabled }}
+          - --initializer-workspace-auth-enabled=false
+          {{- end }}
           {{- with .Values.initializer.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}
