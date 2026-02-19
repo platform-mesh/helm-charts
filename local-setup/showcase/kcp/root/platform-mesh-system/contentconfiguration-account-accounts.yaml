@@ -19,7 +19,7 @@ spec:
                           "label": "Accounts",
                           "icon": "product",
                           "order": 300,
-                          "entityType": "core_platform-mesh_io_account",
+                          "entityType": "main.core_platform-mesh_io_account",
                           "loadingIndicator": {
                               "enabled": false
                           },

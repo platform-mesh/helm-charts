@@ -22,6 +22,12 @@ patches:
             secret: terminal-controller-manager-kubeconfig
             namespace: platform-mesh-system
             external: false
+        featureToggles:
+          - name: feature-enable-getting-started
+          - name: feature-disable-email-verification
+          - name: feature-accounts-in-accounts
+          - name: feature-enable-marketplace-account
+          - name: feature-disable-contentconfigurations
         values:
           rebac-authz-webhook:
             values:
