@@ -53,7 +53,6 @@ gatewayApi:
   main:
     gateway:
       port: 8443
-      name: websecure
   httpRoute:
     # -- list of HTTPRoute filters (default: none)
     filters: []

@@ -220,28 +220,35 @@ gatewayApi:
   # -- GatewayClass name
   gatewayClassName: traefik
   # -- HTTPS Terminate configuration
-  main:
-    gateway:
+  infrastructure: {}
+  listeners:
+    - name: terminate
+      hostname: portal.localhost
       port: 8443
-      name: websecure
       protocol: HTTPS
-      # -- Hostnames for the main gateway listener. If set, creates separate listeners per hostname.
-      # -- This is required when using passthrough on the same port to avoid conflicts.
-      hostnames:
-        - "portal.localhost"
-        - "*.portal.localhost"
       tls:
         mode: Terminate
-        # -- Name of the secret containing the TLS certificate
-        credentialName: domain-certificate
-        # -- Set secret namespace if different from the gateway namespace
-        credentialNamespace: platform-mesh-system
-      infrastructure: null
-  passThrough:
-    gateway:
-      # -- Toggle to enable/disable the passthrough gateway
-      enabled: true
-      hostname: localhost
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: domain-certificate
+            namespace: platform-mesh-system
+    - name: terminate-wildstar
+      hostname: '*.portal.localhost'
       port: 8443
-      name: https-passthrough
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: domain-certificate
+            namespace: platform-mesh-system
+    - name: passthrough
+      port: 8443
       protocol: TLS
+      tls:
+        mode: Passthrough
+      allowedRoutes:
+        namespaces:
+          from: All

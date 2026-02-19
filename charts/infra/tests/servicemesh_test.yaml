@@ -7,7 +7,7 @@ release:
   namespace: platform-mesh-system
 tests:
 - it: test HTTPRoutes
-  templates: 
+  templates:
   - keycloak/httproute.yaml
   set:
     gatewayApi:
@@ -17,16 +17,14 @@ tests:
   asserts:
   - matchSnapshot: {}
 - it: configure Gateway infrastructure
-  templates: 
+  templates:
   - gatewayapi/gateway.yaml
   set:
     gatewayApi:
       enabled: true
-      main:
-        gateway:
-          infrastructure:
-            annotations:
-              dns.gardener.cloud/class: garden
+      infrastructure:
+        annotations:
+          dns.gardener.cloud/class: garden
   asserts:
   - equal:
       path: spec.infrastructure.annotations
