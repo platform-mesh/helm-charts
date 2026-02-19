@@ -29,10 +29,8 @@ patches:
           - name: feature-enable-marketplace-account
           - name: feature-disable-contentconfigurations
         values:
-          rebac-authz-webhook:
-            values:
-              extraArgs:
-              - --webhook-allowed-nonresource-prefixes=/api,/openapi,/version
+          marketplace-ui:
+            enabled: true
           security-operator:
             values:
               coreModule: |-
