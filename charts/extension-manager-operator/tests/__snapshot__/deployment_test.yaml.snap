@@ -604,7 +604,7 @@ enable Gateway API:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
+          sectionName: terminate
       rules:
         - backendRefs:
             - group: ""
