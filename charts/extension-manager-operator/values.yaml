@@ -31,8 +31,11 @@ kubeconfigSecret: ""
 kcp:
   # -- enable the kcp mode of the operator
   enabled: false
-  # -- name the secret that holds the kubeconfig for the kcp mode
-  kubeconfigSecret: ""
+  # -- secret that holds the kubeconfig for the KCP API server (same structure as rebac-authz-webhook)
+  kubeconfig:
+    secret: extension-manager-operator-kubeconfig
+  # -- KCP APIExportEndpointSliceName to watch. Empty string = omit flag / auto-discover (same as rebac-authz-webhook)
+  apiExportEndpointSliceName: ""
 
 # -- Path prefix for routing rules in Gateway API and Istio VirtualService
 pathPrefix: /validate
@@ -50,7 +53,6 @@ gatewayApi:
   main:
     gateway:
       port: 8443
-      name: websecure
   httpRoute:
     # -- list of HTTPRoute filters (default: none)
     filters: []

@@ -10,7 +10,7 @@ spec:
   - group: gateway.networking.k8s.io
     kind: Gateway
     name: {{ .Values.gatewayApi.name }}
-    sectionName: {{ .Values.gatewayApi.passThrough.gateway.name }}
+    sectionName: passthrough
   rules:
   - backendRefs:
     - group: ""
@@ -18,5 +18,4 @@ spec:
       name: frontproxy-front-proxy
       port: 6443
       weight: 1
-    name: {{ .Values.gatewayApi.passThrough.gateway.name }}
 {{- end }}
