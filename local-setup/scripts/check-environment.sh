@@ -200,6 +200,11 @@ run_environment_checks() {
 
     local checks_failed=0
 
+    # Check yq command
+    if ! check_yq_dependency; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
     # Check container runtime dependency (Docker or Podman)
     if ! check_container_runtime_dependency; then
         checks_failed=$((checks_failed + 1))
@@ -245,6 +250,19 @@ run_environment_checks() {
     echo ""
 }
 
+check_yq_dependency() {
+    if ! command -v yq &> /dev/null; then
+        echo -e "${RED}❌ Error: 'yq' is not installed${COL_RES}"
+        echo -e "${COL}📦 yq is required for YAML processing.${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://github.com/mikefarah/yq#install${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ yq is available${COL_RES}"
+    return 0
+}
+
 # Export functions so they can be used by the main script
 export -f check_kind_cluster
 export -f check_kind_dependency
@@ -252,6 +270,7 @@ export -f check_docker_dependency
 export -f check_container_runtime_dependency
 export -f setup_mkcert_command
 export -f check_architecture
+export -f check_yq_dependency
 export -f check_kcp_plugin
 export -f check_hosts_entry
 export -f check_hosts_entries
