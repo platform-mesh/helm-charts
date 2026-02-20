@@ -175,7 +175,11 @@ test.describe('Home Page', () => {
 
     await page.pause();
 
-    const download1Promise = page.waitForEvent('download');
+    const download1Promise = page.waitForEvent('download', {
+      predicate: (download) => download.suggestedFilename().endsWith('.yaml'),
+      timeout: 30000,
+    });
+
     await downloadButton.click();
     const download = await download1Promise;
     expect(download).toBeDefined();

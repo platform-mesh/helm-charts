@@ -316,18 +316,6 @@ kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../k
 #   --for=condition=Available deployment \
 #   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 
-patch_platform_mesh_operator_roles() {
-  echo -e "${COL}[$(date '+%H:%M:%S')] Patching Platform-Mesh Operator roles to include ArgoCD permissions ${COL_RES}"
-  # Temporary: patch the ClusterRole until the chart is updated
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch clusterrole platform-mesh-operator-argocd --type='json' -p='[
-    {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["appprojects"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}},
-    {"op": "add", "path": "/rules/-", "value": {"apiGroups": ["argoproj.io"], "resources": ["applications"], "verbs": ["create", "delete", "get", "list", "patch", "update", "watch"]}}
-  ]'
-
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig delete pod -l app=platform-mesh-operator -n platform-mesh-system
-}
-
-patch_platform_mesh_operator_roles
 
 # Install Platform-Mesh Runtime
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"

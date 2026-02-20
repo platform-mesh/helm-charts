@@ -210,21 +210,14 @@ See [README-developers](./README-developers.md) for more detailed information re
 
 ### 4. Configure Local DNS
 
-Add the following entries to your `/etc/hosts` file:
-
-```
-127.0.0.1 default.portal.dev.local portal.dev.local kcp.api.portal.dev.local
-```
-
-**WSL Users**: You may also need to add these entries to the Windows hosts file at:
-`C:\Windows\System32\drivers\etc\hosts`
+No configuration required.
 
 ### 5. Access the Platform
 
 Once the setup completes successfully and DNS is configured, you can access:
 
-- **Onboarding Portal**: https://portal.dev.local:8443
-- **KCP API**: https://kcp.api.portal.dev.local:8443
+- **Onboarding Portal**: https://portal.localhost:8443
+- **KCP API**: https://kcp.api.portal.localhost:8443
 
 **If you installed with example data:**
 - The HTTPBin provider is available in the `root:providers:httpbin-provider` workspace
@@ -248,7 +241,7 @@ The `scripts/start.sh` script performs the following operations:
 3. **Certificate Generation**
    - Generates local SSL certificates using mkcert
    - Creates CA certificates for webhook configurations
-   - Sets up domain certificates for `*.dev.local` and `*.portal.dev.local`
+   - Sets up domain certificates for `*.localhost` and `*.portal.localhost`
 
 4. **Core Infrastructure Installation**
    - Installs Flux for GitOps workflow management
@@ -289,7 +282,7 @@ This gives you access to the root workspace and organization management.
 Each onboarded organization requires its own subdomain entry in `/etc/hosts`:
 
 ```
-127.0.0.1 <organization-name>.portal.dev.local
+127.0.0.1 <organization-name>.portal.localhost
 ```
 
 **⚠️ Important**: Remember to add hosts entries for every organization that gets onboarded to the platform.
@@ -433,7 +426,7 @@ If you encounter issues:
 
 After successful setup:
 
-1. **Explore the Portal**: Visit https://portal.dev.local:8443
+1. **Explore the Portal**: Visit https://portal.localhost:8443
 2. **Set up Organizations**: Create and configure organizations for your use case
 3. **Development**: Start building on top of the Platform Mesh framework
 

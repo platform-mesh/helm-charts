@@ -104,8 +104,7 @@ data:
           enabled: false
           values:
             istio:
-              hosts:
-              - '*.{{ .baseDomain }}'
+              enabled: false
         infra:
           # -- Allow the configuration of additional ocm resources
           imageResources:
@@ -136,21 +135,11 @@ data:
               enabled: true
             gatewayApi:
               enabled: true
-              passThrough:
-                gateway:
-                  # -- Toggle to enable/disable the passthrough gateway
-                  enabled: true
-                  hostname: localhost
-                  port: 8443
-                  name: https-passthrough
-                  protocol: TLS
             hostAliases:
               enabled: true
             istio:
               enabled: false
             kcp:
-              image:
-                tag: v0.29.0
               rootShard:
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true
@@ -171,8 +160,8 @@ data:
               - http://*.localhost:4200
               - http://*.localhost:4300
               - http://sub.localhost:4300
-              - https://portal.dev.local:8443
-              - https://*.portal.dev.local:8443
+              - https://portal.localhost:8443
+              - https://*.portal.localhost:8443
         kcp-operator:
           syncWave: 1
           enabled: true
@@ -210,10 +199,8 @@ data:
               repository: upstream-images/keycloak
             postgresql:
               auth:
-                existingSecret: ""
-                secretKeys:
-                  adminPasswordKey: password
-                  userPasswordKey: password
+                password: password
+                postgresPassword: password
                 username: keycloak
               image:
                 registry: ghcr.io/platform-mesh
@@ -387,10 +374,6 @@ data:
             certManager:
               createCA: true
               enabled: true
-            istio:
-              dnsNames:
-              - rebac-authz-webhook.platform-mesh-system.svc.cluster.local
-              exposed: false
             log:
               level: debug
             openfga:
