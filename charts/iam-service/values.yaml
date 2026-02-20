@@ -47,11 +47,6 @@ caSecret: ""
 
 hostAliases:
   enabled: false
-  items:
-    - ip: 10.96.188.4
-      hostnames:
-        - portal.localhost
-        - localhost
 
 keycloak:
   baseUrl: https://portal.localhost:8443/keycloak
