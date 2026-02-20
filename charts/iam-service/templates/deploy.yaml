@@ -53,16 +53,7 @@ spec:
             subPath: tls.crt
             readOnly: true
           {{- end }}
-      hostAliases:
-      {{- if .Values.hostAliases.enabled }}
-      {{- range .Values.hostAliases.items }}
-        - ip: {{ .ip }}
-          hostnames:
-        {{- range .hostnames }}
-            - {{ . }}
-        {{- end }}
-      {{- end }}
-      {{- end }}
+      {{- include "common.hostAliases" $ | nindent 6 }}
       volumes:
         {{- include "common.extraVolumes" . | nindent 8 }}
         - name: external-api-server
