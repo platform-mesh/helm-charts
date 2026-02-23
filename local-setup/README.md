@@ -35,7 +35,7 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
    ```sh
    # In WSL2, after installing mkcert:
    mkcert -install
-   
+
    # Copy the CA to Windows (adjust path as needed):
    cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
    ```
@@ -52,9 +52,9 @@ If you're using Windows Subsystem for Linux (WSL2):
 - Docker Desktop with WSL2 integration enabled
 - Update WSL if needed: `wsl --update`
 
-If Kubernetes is crashing because of a conflict between Cgroup v1 and v2 (a "hybrid" state), 
-you can force WSL2 to use **Cgroup v2 exclusively** (Unified Mode). 
-This is the modern standard starting from **Kubernetes v1.25**, where Cgroup v2 graduated to General Availability (GA). 
+If Kubernetes is crashing because of a conflict between Cgroup v1 and v2 (a "hybrid" state),
+you can force WSL2 to use **Cgroup v2 exclusively** (Unified Mode).
+This is the modern standard starting from **Kubernetes v1.25**, where Cgroup v2 graduated to General Availability (GA).
 - Open PowerShell on Windows.
 - Edit your `.wslconfig` file: `notepad $env:USERPROFILE\.wslconfig`
 - Add these lines:
@@ -201,7 +201,7 @@ task local-setup
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
-See [README-developers](./README-developers.md) for more detailed information related to chart developers.
+See [DEVELOPERS](./DEVELOPERS.md) for more detailed information related to chart developers.
 
 ### 4. Access the Platform
 
@@ -394,7 +394,7 @@ npx playwright test test-register-and-navigate.test.ts
      ```sh
      # In WSL2: Install CA in Linux certificate store
      mkcert -install
-     
+
      # Copy CA to Windows and install there too
      cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
      ```
@@ -418,7 +418,7 @@ npx playwright test test-register-and-navigate.test.ts
      ```sh
      # Install the local CA in the system trust store
      mkcert -install
-     
+
      # For Firefox users: manually import CA certificate
      # 1. Open Firefox → Settings → Privacy & Security → Certificates → View Certificates
      # 2. Go to "Authorities" tab → Import

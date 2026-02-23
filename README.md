@@ -41,7 +41,7 @@ The following is required to work with the helm charts in this repository:
 
 Please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file in this repository for instructions on how to contribute to platform-mesh.
 
-For detailed instructions regarding local development see local-setup [README.md](local-setup/README.md) and [README-developers.md](local-setup/README-developers.md)
+For detailed instructions regarding local development see local-setup [README.md](local-setup/README.md) and [DEVELOPERS.md](local-setup/DEVELOPERS.md)
 
 ## Code of Conduct
 
