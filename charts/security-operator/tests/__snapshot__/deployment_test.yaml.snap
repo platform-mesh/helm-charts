@@ -153,6 +153,9 @@ operator match the snapshot:
             - args:
                 - fga
                 - --base-domain=portal.localhost:8443
+                - --webhooks-enabled=true
+                - --webhooks-port=9443
+                - --webhooks-cert-dir=/certs
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -189,6 +192,9 @@ operator match the snapshot:
                 - containerPort: 8090
                   name: health-port
                   protocol: TCP
+                - containerPort: 9443
+                  name: webhook
+                  protocol: TCP
               readinessProbe:
                 httpGet:
                   path: /readyz
@@ -218,6 +224,9 @@ operator match the snapshot:
                   name: external-api-server
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
+                  readOnly: true
+                - mountPath: /certs
+                  name: webhook-certs
                   readOnly: true
           initContainers:
             - args:
@@ -260,6 +269,9 @@ operator match the snapshot:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
+            - name: webhook-certs
+              secret:
+                secretName: RELEASE-NAME-security-operator-webhook-server-cert
   5: |
     apiVersion: apps/v1
     kind: Deployment
@@ -461,6 +473,63 @@ operator match the snapshot:
     metadata:
       name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
+  9: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: RELEASE-NAME-security-operator-selfsigned-issuer
+    spec:
+      selfSigned: {}
+  10: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: RELEASE-NAME-security-operator-ca-cert
+    spec:
+      commonName: RELEASE-NAME-security-operator-ca
+      duration: 8760h
+      isCA: true
+      issuerRef:
+        kind: Issuer
+        name: RELEASE-NAME-security-operator-selfsigned-issuer
+      renewBefore: 720h
+      secretName: RELEASE-NAME-security-operator-ca-secret
+  11: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: RELEASE-NAME-security-operator-ca-issuer
+    spec:
+      ca:
+        secretName: RELEASE-NAME-security-operator-ca-secret
+  12: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: RELEASE-NAME-security-operator-serving-cert
+    spec:
+      dnsNames:
+        - RELEASE-NAME-security-operator-webhook.NAMESPACE.svc
+        - RELEASE-NAME-security-operator-webhook.NAMESPACE.svc.cluster.local
+      duration: 2160h
+      issuerRef:
+        kind: Issuer
+        name: RELEASE-NAME-security-operator-ca-issuer
+      renewBefore: 720h
+      secretName: RELEASE-NAME-security-operator-webhook-server-cert
+  13: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: RELEASE-NAME-security-operator-webhook
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - port: 9443
+          protocol: TCP
+          targetPort: webhook
+      selector:
+        app: RELEASE-NAME-security-operator
 operator match the snapshot w. sentry:
   1: |
     apiVersion: rbac.authorization.k8s.io/v1
@@ -616,6 +685,9 @@ operator match the snapshot w. sentry:
             - args:
                 - fga
                 - --base-domain=portal.localhost:8443
+                - --webhooks-enabled=true
+                - --webhooks-port=9443
+                - --webhooks-cert-dir=/certs
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -657,6 +729,9 @@ operator match the snapshot w. sentry:
                 - containerPort: 8090
                   name: health-port
                   protocol: TCP
+                - containerPort: 9443
+                  name: webhook
+                  protocol: TCP
               readinessProbe:
                 httpGet:
                   path: /readyz
@@ -684,6 +759,9 @@ operator match the snapshot w. sentry:
               volumeMounts:
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
+                  readOnly: true
+                - mountPath: /certs
+                  name: webhook-certs
                   readOnly: true
                 - mountPath: /etc/kcp-kubeconfig
                   name: kcp-kubeconfig
@@ -726,6 +804,9 @@ operator match the snapshot w. sentry:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
+            - name: webhook-certs
+              secret:
+                secretName: RELEASE-NAME-security-operator-webhook-server-cert
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig
@@ -961,3 +1042,60 @@ operator match the snapshot w. sentry:
     metadata:
       name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
+  10: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: RELEASE-NAME-security-operator-selfsigned-issuer
+    spec:
+      selfSigned: {}
+  11: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: RELEASE-NAME-security-operator-ca-cert
+    spec:
+      commonName: RELEASE-NAME-security-operator-ca
+      duration: 8760h
+      isCA: true
+      issuerRef:
+        kind: Issuer
+        name: RELEASE-NAME-security-operator-selfsigned-issuer
+      renewBefore: 720h
+      secretName: RELEASE-NAME-security-operator-ca-secret
+  12: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: RELEASE-NAME-security-operator-ca-issuer
+    spec:
+      ca:
+        secretName: RELEASE-NAME-security-operator-ca-secret
+  13: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: RELEASE-NAME-security-operator-serving-cert
+    spec:
+      dnsNames:
+        - RELEASE-NAME-security-operator-webhook.NAMESPACE.svc
+        - RELEASE-NAME-security-operator-webhook.NAMESPACE.svc.cluster.local
+      duration: 2160h
+      issuerRef:
+        kind: Issuer
+        name: RELEASE-NAME-security-operator-ca-issuer
+      renewBefore: 720h
+      secretName: RELEASE-NAME-security-operator-webhook-server-cert
+  14: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: RELEASE-NAME-security-operator-webhook
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - port: 9443
+          protocol: TCP
+          targetPort: webhook
+      selector:
+        app: RELEASE-NAME-security-operator
