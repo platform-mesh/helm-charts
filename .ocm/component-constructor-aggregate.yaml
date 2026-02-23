@@ -88,7 +88,7 @@ components:
         version: {{ .OPENFGA_IMAGE_VERSION }}
         access:
           type: ociArtifact
-          imageReference: "openfga/openfga:{{ .OPENFGA_IMAGE_VERSION }}"
+          imageReference: "docker.io/openfga/openfga:{{ .OPENFGA_IMAGE_VERSION }}"
       - name: postgresql-image
         type: ociImage
         relation: external
