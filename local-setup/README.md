@@ -24,7 +24,6 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
   - Provides convenient command aliases (e.g., `task local-setup`)
   - Not required - you can run scripts directly (see examples below)
 
-
 ### WSL2 + Windows mkcert Setup Guide
 
 **Important for WSL2 users**: You need to set up mkcert to work across both WSL2 and Windows for proper certificate trust.
@@ -32,6 +31,7 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 1. **Install mkcert in WSL2** (follow Linux instructions above)
 2. **Install mkcert on Windows** using Chocolatey or download from releases
 3. **Share CA between WSL2 and Windows**:
+
    ```sh
    # In WSL2, after installing mkcert:
    mkcert -install
@@ -39,7 +39,9 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
    # Copy the CA to Windows (adjust path as needed):
    cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
    ```
+
 4. **Install CA in Windows**:
+
    ```powershell
    # In PowerShell as Administrator:
    Import-Certificate -FilePath "C:\Users\$env:USERNAME\mkcert-rootCA.pem" -CertStoreLocation Cert:\LocalMachine\Root
@@ -48,6 +50,7 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 ### WSL2 Specific Requirements
 
 If you're using Windows Subsystem for Linux (WSL2):
+
 - WSL version 2.1.5 or higher is required
 - Docker Desktop with WSL2 integration enabled
 - Update WSL if needed: `wsl --update`
@@ -55,20 +58,21 @@ If you're using Windows Subsystem for Linux (WSL2):
 If Kubernetes is crashing because of a conflict between Cgroup v1 and v2 (a "hybrid" state),
 you can force WSL2 to use **Cgroup v2 exclusively** (Unified Mode).
 This is the modern standard starting from **Kubernetes v1.25**, where Cgroup v2 graduated to General Availability (GA).
+
 - Open PowerShell on Windows.
 - Edit your `.wslconfig` file: `notepad $env:USERPROFILE\.wslconfig`
 - Add these lines:
 
-```
+```text
 [wsl2]
 # Disable Cgroup V1 to force the kernel into "unified" (v2 only) mode
 kernelCommandLine = cgroup_no_v1=all
 ```
 
-
 ### Podman Specific Requirements for MacOS
 
 If you're using Podman on MacOS make sure to set the following env:
+
 ```sh
 KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 ```
@@ -78,12 +82,14 @@ KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
 **macOS users**: For optimal performance and stability, we recommend using Apple's Virtualization Framework (VZ) with your container runtime:
 
 **Docker Desktop:**
+
 1. Open Docker Desktop
 2. Go to Settings → General
 3. Enable "Use Virtualization framework" or "VirtioFS"
 4. Restart Docker Desktop
 
 **Podman:**
+
 1. Stop the current machine: `podman machine stop`
 2. Remove the current machine: `podman machine rm`
 3. Create new machine with VZ: `podman machine init --vm-type=applehv`
@@ -98,6 +104,7 @@ While Platform-mesh can work with other virtualization frameworks like QEMU, it 
 The setup script automates the entire bootstrap process. By default, it uses the current tested OCM component version pinned in the repository.
 
 **Using Task (recommended):**
+
 ```sh
 # Full setup (deletes existing cluster and creates new one)
 task local-setup
@@ -107,6 +114,7 @@ task local-setup:iterate
 ```
 
 **Without Task (direct script execution):**
+
 ```sh
 # Full setup (deletes existing cluster and creates new one)
 kind delete cluster --name platform-mesh
@@ -123,6 +131,7 @@ This setup includes an example provider ("httpbin") to showcase how provider int
 **Note**: The `--example-data` setup requires the [KCP kubectl plugin](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/) to be installed for workspace creation commands.
 
 **Using Task:**
+
 ```sh
 # Full setup with example data
 task local-setup:example-data
@@ -132,6 +141,7 @@ task local-setup:example-data:iterate
 ```
 
 **Without Task:**
+
 ```sh
 # Full setup with example data
 kind delete cluster --name platform-mesh
@@ -142,6 +152,7 @@ kind delete cluster --name platform-mesh
 ```
 
 **What gets created:**
+
 - Standard Platform Mesh installation
 - Example provider workspace: `root:providers:httpbin-provider`
 - HTTPBin provider configuration demonstrating provider integration patterns
@@ -151,6 +162,7 @@ kind delete cluster --name platform-mesh
 Image caching speeds up cluster recreation by using local Docker registry mirrors. The registry setup is automatically handled by the script.
 
 **Using Task:**
+
 ```sh
 # Full setup with caching
 task local-setup:cached
@@ -164,6 +176,7 @@ task local-setup:cached:example-data:iterate
 ```
 
 **Without Task:**
+
 ```sh
 # Full setup with caching
 kind delete cluster --name platform-mesh
@@ -179,15 +192,18 @@ kind delete cluster --name platform-mesh
 ### Understanding Version Options
 
 **Default:** By default, the setup uses the current tested OCM component version from the OCM registry. This reflects the version pinned in the repository configuration and is ideal for:
+
 - Local development and testing with the current development version
 
 **Released version:** For a stable environment based on an officially released version, checkout the appropriate git tag before running setup:
+
 ```sh
 git checkout 0.2.0  # or any released tag like 0.1.1, 0.2, etc.
 task local-setup
 ```
 
 **Prerelease (--prerelease flag):** When using the `--prerelease` flag, the setup deploys locally built OCM components instead of versions from the registry. This is useful for:
+
 - Testing local chart changes without going through the official release process
 - Chart development and iteration workflows
 - Note: Requires the `task` CLI to be installed
@@ -195,24 +211,27 @@ task local-setup
 **Concurrent builds (--concurrent flag):** When using the `--concurrent` flag together with `--prerelease`, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
 
 **Task Naming Convention:**
+
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
 - Available flags: `cached`, `prerelease`, `example-data`, `concurrent`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
+
 See [DEVELOPERS](./DEVELOPERS.md) for more detailed information related to chart developers.
 
 ### 4. Access the Platform
 
 Once the setup completes successfully, you can access:
 
-- **Onboarding Portal**: https://portal.localhost:8443
-- **KCP API**: https://localhost:8443
+- **Onboarding Portal**: <https://portal.localhost:8443>
+- **KCP API**: <https://localhost:8443>
 
 **Note**: Modern browsers automatically resolve `*.localhost` domains to `127.0.0.1`, so no `/etc/hosts` configuration is required for browser access. Organization subdomains like `myorg.portal.localhost` will also work automatically in browsers.
 
 **If you installed with example data:**
+
 - The HTTPBin provider is available in the `root:providers:httpbin-provider` workspace
 - Use the KCP admin kubeconfig to explore: `export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig`
 
@@ -277,6 +296,7 @@ Organization subdomains like `<organization-name>.portal.localhost` are automati
 ### Debugging and Troubleshooting
 
 #### Enable Debug Mode
+
 ```sh
 # With Task
 DEBUG=true task local-setup:iterate
@@ -286,6 +306,7 @@ DEBUG=true ./local-setup/scripts/start.sh
 ```
 
 #### Check Component Status
+
 ```sh
 # Check all Helm releases
 kubectl get helmreleases -A
@@ -298,7 +319,9 @@ kubectl get pods -A
 ```
 
 #### Clean Start
+
 Recreate the kind cluster from scratch:
+
 ```sh
 # With Task
 task local-setup
@@ -315,6 +338,7 @@ kind delete cluster --name platform-mesh
 When developing locally built components, you can load custom Docker images into the Kind cluster by creating a hook script. This script is automatically ignored by git, so your local customizations won't be committed.
 
 **Create the hook script from the example:**
+
 ```sh
 cp local-setup/scripts/load-custom-images.sh.example local-setup/scripts/load-custom-images.sh
 # Edit the script with your custom images
@@ -323,6 +347,7 @@ cp local-setup/scripts/load-custom-images.sh.example local-setup/scripts/load-cu
 The script will be automatically sourced during cluster setup if it exists. You can add multiple `kind load` commands for all the images you need.
 
 **Typical workflow:**
+
 1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
 2. Add the load command to `load-custom-images.sh`
 3. Run `task local-setup:iterate` to reload the cluster with your custom images
@@ -332,6 +357,7 @@ The script will be automatically sourced during cluster setup if it exists. You 
 After the local setup is running, you can run end-to-end tests to verify the portal functionality:
 
 **Using Task:**
+
 ```sh
 # Run tests in headless mode
 task test:portal-e2e
@@ -347,6 +373,7 @@ ORG_NAME=myorg task test:portal-e2e
 ```
 
 **Without Task:**
+
 ```sh
 cd local-setup/e2e
 npm install
@@ -356,6 +383,7 @@ npx playwright test test-register-and-navigate.test.ts
 ```
 
 **Prerequisites:**
+
 - Node.js and npm must be installed
 - The local setup cluster must be running (via `task local-setup` or similar)
 - Playwright browsers will be installed automatically on first run
@@ -363,6 +391,7 @@ npx playwright test test-register-and-navigate.test.ts
 ## Files and Scripts
 
 ### Main Scripts
+
 - `scripts/start.sh`: Main bootstrap script
 - `scripts/check-environment.sh`: Dependency validation
 - `scripts/check-wsl-compatibility.sh`: WSL2 compatibility checks
@@ -370,6 +399,7 @@ npx playwright test test-register-and-navigate.test.ts
 - `scripts/createKcpAdminKubeconfig.sh`: KCP workspace access setup
 
 ### Configuration
+
 - `kind/kind-config.yaml`: Kind cluster configuration
 - `kind/kind-config-cached.yaml`: Kind cluster configuration with cached images
 - `kustomize/`: Kubernetes manifests and overlays
@@ -391,6 +421,7 @@ npx playwright test test-register-and-navigate.test.ts
    - Run `mkcert -install` to install the local CA
    - Check that mkcert is properly installed and accessible
    - **WSL2 users**: Certificate trust issues require setup in both WSL2 and Windows:
+
      ```sh
      # In WSL2: Install CA in Linux certificate store
      mkcert -install
@@ -398,10 +429,13 @@ npx playwright test test-register-and-navigate.test.ts
      # Copy CA to Windows and install there too
      cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
      ```
+
      Then in Windows PowerShell as Administrator:
+
      ```powershell
      Import-Certificate -FilePath "C:\Users\$env:USERNAME\mkcert-rootCA.pem" -CertStoreLocation Cert:\LocalMachine\Root
      ```
+
    - **Native Windows users**: If mkcert doesn't work properly, manually trust the CA:
      1. The CA certificate is generated at `local-setup/scripts/certs/ca.crt`
      2. Double-click the `ca.crt` file to open it
@@ -411,10 +445,13 @@ npx playwright test test-register-and-navigate.test.ts
      6. Click "Browse..." and select "Trusted Root Certification Authorities"
      7. Click "Next" and then "Finish"
      8. Alternatively, use PowerShell as Administrator:
+
         ```powershell
         Import-Certificate -FilePath "local-setup\scripts\certs\ca.crt" -CertStoreLocation Cert:\LocalMachine\Root
         ```
+
    - **Linux users**: After installing mkcert, ensure CA is trusted:
+
      ```sh
      # Install the local CA in the system trust store
      mkcert -install
@@ -462,7 +499,7 @@ If you encounter issues:
 
 After successful setup:
 
-1. **Explore the Portal**: Visit https://portal.localhost:8443
+1. **Explore the Portal**: Visit <https://portal.localhost:8443>
 2. **Set up Organizations**: Create and configure organizations for your use case
 3. **Development**: Start building on top of the Platform Mesh framework
 

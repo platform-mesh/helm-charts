@@ -1,13 +1,14 @@
+# platform-mesh - helm-charts
+
 > [!WARNING]
 > This Repository is under development and not ready for productive use. It is in an alpha stage. That means APIs and concepts may change on short notice including breaking changes or complete removal of apis.
-
-# platform-mesh - helm-charts
 
 ## Description
 
 The helm-charts repository contains helm charts used for the deployment of platform-mesh instance on Kubernetes. It also contains CI/CD scripts for buildidng and publishing relevant artefacts like charts and OCM components.
 
 ## Directory structure
+
 - .github/workflows - GHA workflows to test, build and publish charts
 - .ocm - OCM component constructor files for individual component references
 - charts - a folder containing the HELM charts
@@ -32,6 +33,7 @@ All the released versions will be available through access to GitHub (as any oth
 ## Requirements
 
 The following is required to work with the helm charts in this repository:
+
 - [helm](https://helm.sh) to work with the helm charts
 - [ct](https://helm.sh/docs/topics/chart_testing/) to run the tests for the charts
 - [Taskfile](https://taskfile.dev/) to run the tasks in Taskfile.yaml
