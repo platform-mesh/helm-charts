@@ -1,0 +1,4 @@
+# Test values for helm unittest
+image:
+  name: ghcr.io/platform-mesh/search-operator
+  tag: latest
