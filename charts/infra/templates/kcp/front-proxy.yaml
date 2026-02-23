@@ -52,14 +52,10 @@ spec:
   resources:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- if .Values.hostAliases.enabled }}
-  {{- with .Values.hostAliases.entries }}
   deploymentTemplate:
     spec:
       template:
         spec:
-          {{- include "common.hostAliases" $ | nindent 10 -}}
-  {{- end }}
-  {{- end }}
+          {{- include "common.hostAliases" $ | nindent 10 }}
   extraArgs:
 {{ toYaml .Values.kcp.frontProxy.extraArgs | indent 4 }}
