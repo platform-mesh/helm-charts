@@ -62,6 +62,7 @@ spec:
   resources:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  shardBaseURL: https://root.kcp.localhost:8443
   deploymentTemplate:
     spec:
       template:
@@ -71,5 +72,34 @@ spec:
             traffic.sidecar.istio.io/excludeOutboundPorts: "{{ .Values.kcp.webhook.port }}"
         spec:
           {{- include "common.hostAliases" $ | nindent 10 }}
+  certificateTemplates:
+    server:
+      spec:
+        dnsNames:
+          - root-kcp
+          - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}
+          - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}.svc.cluster.local
+          - root.kcp.localhost
   extraArgs:
 {{ toYaml .Values.kcp.rootShard.extraArgs | indent 4 }}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TLSRoute
+metadata:
+  name: kcp-root-shard-tlsroute
+  namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
+spec:
+  hostnames:
+  - root.kcp.localhost
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.gatewayApi.name }}
+    sectionName: passthrough
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: root-kcp
+      namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
+      port: 6443
