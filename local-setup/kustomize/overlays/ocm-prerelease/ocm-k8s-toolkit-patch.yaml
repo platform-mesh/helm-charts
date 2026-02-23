@@ -4,23 +4,6 @@ metadata:
   name: ocm-k8s-toolkit
   namespace: default
 spec:
-  releaseName: ocm-k8s-toolkit
-  interval: 1m
-  timeout: 15m
-  targetNamespace: ocm-system
-  chart:
-    spec:
-      chart: ocm-k8s-toolkit
-      version: "0.1.0"
-      sourceRef:
-        kind: HelmRepository
-        name: ocm-k8s-toolkit
-  values:
-    manager:
-      concurrency:
-        resource: 21
-      logging:
-        level: "4"
   postRenderers:
     - kustomize:
         patches:
