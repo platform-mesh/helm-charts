@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: port-fixer
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: port-fixer
+  template:
+    metadata:
+      labels:
+        app: port-fixer
+    spec:
+      hostNetwork: true # This binds directly to the Node's interface
+      containers:
+      - name: socat
+        image: alpine/socat
+        # Forward Node:8443 -> Node:31000 (Localhost)
+        args: ["TCP-LISTEN:8443,fork", "TCP:127.0.0.1:31000"]

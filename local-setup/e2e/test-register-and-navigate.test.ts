@@ -219,7 +219,10 @@ test.describe('Home Page', () => {
     const downloadButton = page.locator('[test-id="generic-detail-view-download"]');
     await expect(downloadButton).toBeVisible( { timeout: 5000 } );
 
-    const download1Promise = page.waitForEvent('download');
+    const download1Promise = page.waitForEvent('download', {
+      predicate: (download) => download.suggestedFilename().endsWith('.yaml'),
+      timeout: 30000,
+    });
     await downloadButton.click();
     const download = await download1Promise;
     expect(download).toBeDefined();

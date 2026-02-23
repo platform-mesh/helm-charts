@@ -117,7 +117,7 @@ tasks:
     internal: true
     cmds:
       - |
-        kind export kubeconfig -n platform-mesh
+        kind export kubeconfig -n platform-mesh-infra
         # docs: https://github.com/twuni/docker-registry.helm
         helm repo add twuni https://twuni.github.io/docker-registry.helm || true
         helm repo update
@@ -155,6 +155,7 @@ tasks:
   ocm:deploy:transfer-pod:
     internal: true
     cmds:
+      - kind export kubeconfig -n platform-mesh-infra
       - |
         set -e
         echo "Transferring OCM transport archive to local registry from a pod..."
@@ -272,6 +273,10 @@ tasks:
           read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
           kind delete cluster --name platform-mesh
         fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
         ./local-setup/scripts/start.sh {{.FLAGS}}
 
   local-setup:iterate:
@@ -351,7 +356,103 @@ tasks:
   local-setup:cached:prerelease:example-data:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--cached --prerelease --example-data"}
+        vars: {FLAGS: "--cached --latest --example-data"}
+
+  local-setup-remotedeployment:fluxcd:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=fluxcd"}
+    cmds:
+      - |
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
+          read -r -p "Are you sure you want to delete the runtime cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh
+        fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the infra cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:fluxcd:iterate:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=fluxcd"}
+    cmds:
+      - |
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:argocd:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=argocd"}
+    cmds:
+      - |
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
+          read -r -p "Are you sure you want to delete the runtime cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh
+        fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the infra cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:argocd:iterate:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=argocd"}
+    cmds:
+      - |
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:fluxcd:example-data:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=fluxcd --example-data"}
+    cmds:
+      - |
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
+          read -r -p "Are you sure you want to delete the runtime cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh
+        fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the infra cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:fluxcd:example-data:iterate:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=fluxcd --example-data"}
+    cmds:
+      - |
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:argocd:example-data:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=argocd --example-data"}
+    cmds:
+      - |
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
+          read -r -p "Are you sure you want to delete the runtime cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh
+        fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the infra cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
+
+  local-setup-remotedeployment:argocd:example-data:iterate:
+    deps:
+      - task: setup:mkcert
+    vars: {FLAGS: "--cached --latest --deployment-tech=argocd --example-data"}
+    cmds:
+      - |
+        local-setup/scripts/start-remotedeployment.sh {{.FLAGS}}
 
   local-setup:cached:prerelease:concurrent:
     cmds:
