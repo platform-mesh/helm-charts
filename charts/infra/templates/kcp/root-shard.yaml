@@ -5,8 +5,13 @@ metadata:
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   replicas: {{ .Values.kcp.rootShard.replicas }}
-  {{ with .Values.kcp.image.tag }}
   proxy:
+    deploymentTemplate:
+      spec:
+        template:
+          spec:
+            {{- include "common.hostAliases" $ | nindent 12 }}
+  {{ with .Values.kcp.image.tag }}
     image:
       tag: {{ . }}
   {{- end }}
