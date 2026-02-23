@@ -6,31 +6,24 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | caSecret | string | `""` |  |
-| cors.enabled | bool | `false` |  |
-| exposure.hostnames | list | `["portal.dev.local","*.portal.dev.local"]` | hostnames to be used for exposure |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
-| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
-| gatewayApi.httpRoute.filters[0].type | string | `"URLRewrite"` |  |
-| gatewayApi.httpRoute.filters[0].urlRewrite.path.replacePrefixMatch | string | `"/graphql"` |  |
-| gatewayApi.httpRoute.filters[0].urlRewrite.path.type | string | `"ReplacePrefixMatch"` |  |
+| exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
+| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/graphql","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only, no CORS) |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
-| gatewayApi.httpRoute.parentRefs[0].sectionName | string | `"websecure"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/iam/graphql"` |  |
 | health.port | int | `8080` |  |
 | hostAliases.enabled | bool | `false` |  |
-| hostAliases.items[0].hostnames[0] | string | `"portal.dev.local"` |  |
-| hostAliases.items[0].hostnames[1] | string | `"kcp.api.portal.dev.local"` |  |
+| hostAliases.items[0].hostnames[0] | string | `"portal.localhost"` |  |
+| hostAliases.items[0].hostnames[1] | string | `"localhost"` |  |
 | hostAliases.items[0].ip | string | `"10.96.188.4"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/iam-service"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | imagePullSecret | string | `"github"` |  |
 | jwt.userIdClaim | string | `"email"` |  |
 | kcp.kubeconfig.secretName | string | `"iam-service-kubeconfig"` |  |
-| keycloak.baseUrl | string | `"https://portal.dev.local:8443/keycloak"` |  |
-| keycloak.client.id | string | `"iam"` |  |
-| keycloak.client.secret.key | string | `"attribute.client_secret"` |  |
+| keycloak.baseUrl | string | `"https://portal.localhost:8443/keycloak"` |  |
+| keycloak.client.id | string | `"iam-service"` |  |
+| keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"iam-client-secret"` |  |
 | port | int | `8080` |  |
 | roles.raw.roles[0].groupResource | string | `"core.platform-mesh.io/Account"` |  |
@@ -47,6 +40,7 @@ A Helm chart for Kubernetes
 | roles.raw.roles[1].roles[1].description | string | `"Limited access to resources within the account. Can view and interact with resources but cannot administrate them."` |  |
 | roles.raw.roles[1].roles[1].displayName | string | `"Member"` |  |
 | roles.raw.roles[1].roles[1].id | string | `"member"` |  |
+| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

@@ -1,0 +1,27 @@
+{{- if .Values.etcdDruid.enabled }}
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: {{ .Values.etcdDruid.name }}
+spec:
+  chart:
+    spec:
+      chart: charts
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: GitRepository
+        name: {{ .Values.etcdDruid.name }}
+  interval: {{ .Values.etcdDruid.interval }}
+  releaseName: {{ .Values.etcdDruid.name }}
+  targetNamespace: {{ .Values.etcdDruid.targetNamespace }}
+  install:
+    createNamespace: true
+  timeout: {{ .Values.timeout }}
+  values:
+    {{- toYaml .Values.etcdDruid.values | nindent 4 }}
+  {{- if .Values.fluxCD.kubeConfig.enabled }}
+  kubeConfig:
+    secretRef: 
+    {{ .Values.fluxCD.kubeConfig.secretRef | toYaml | nindent 6 }}
+  {{- end }}
+{{- end }}

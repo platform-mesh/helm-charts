@@ -12,12 +12,17 @@ A Helm chart for Kubernetes
 | certManager.enabled | bool | `true` |  |
 | certManager.ipAddresses[0] | string | `"10.96.86.219"` |  |
 | certificates.create | bool | `false` |  |
+| deployment.resources.limits.cpu | string | `"500m"` |  |
+| deployment.resources.limits.memory | string | `"128Mi"` |  |
+| deployment.resources.requests.cpu | string | `"40m"` |  |
+| deployment.resources.requests.memory | string | `"50Mi"` |  |
 | health.port | int | `8081` |  |
 | healthProbeBindAddress | string | `":8081"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/rebac-authz-webhook"` |  |
 | image.tag | string | `""` |  |
 | istio.dnsNames | list | `[]` |  |
 | istio.enabled | bool | `false` |  |
+| kcp.apiExportEndpointSliceName | string | `""` | KCP APIExportEndpointSliceName to watch. Empty string means auto-discover all slices |
 | kcp.kubeconfig.secret | string | `"rebac-authz-webhook-kubeconfig"` |  |
 | openfga.url | string | `"openfga:8081"` |  |
 | service.annotations | object | `{}` |  |

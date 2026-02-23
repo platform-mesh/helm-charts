@@ -4,10 +4,10 @@ operator match the snapshot:
     kind: CustomResourceDefinition
     metadata:
       annotations:
-        controller-gen.kubebuilder.io/version: v0.16.3
-      name: contentconfigurations.core.platform-mesh.io
+        controller-gen.kubebuilder.io/version: v0.18.0
+      name: contentconfigurations.ui.platform-mesh.io
     spec:
-      group: core.platform-mesh.io
+      group: ui.platform-mesh.io
       names:
         kind: ContentConfiguration
         listKind: ContentConfigurationList
@@ -15,7 +15,7 @@ operator match the snapshot:
         shortNames:
           - cc
         singular: contentconfiguration
-      scope: Namespaced
+      scope: Cluster
       versions:
         - additionalPrinterColumns:
             - jsonPath: .status.conditions[?(@.type=="Ready")].status

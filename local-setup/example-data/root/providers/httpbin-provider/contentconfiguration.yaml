@@ -20,7 +20,7 @@ spec:
                           "label": "Http Bins",
                           "icon": "paint-bucket",
                           "order": 800,
-                          "entityType": "main.core_platform-mesh_io_account.core_namespace",
+                          "entityType": "main.core_platform-mesh_io_account.namespace",
                           "loadingIndicator": {
                               "enabled": false
                           },
@@ -32,8 +32,9 @@ spec:
                           "context": {
                               "resourceDefinition": {
                                   "group": "orchestrate.platform-mesh.io",
-                                  "plural": "httpbins",
-                                  "singular": "httpbin",
+                                  "plural": "httpBins",
+                                  "singular": "httpBin", 
+                                  "version": "v1alpha1",
                                   "kind": "HttpBin",
                                   "scope": "Namespaced",
                                   "namespace": null,
@@ -65,7 +66,14 @@ spec:
                                               }
                                           ]
                                       },
-                                      "detailView": {},
+                                      "detailView": {
+                                        "fields": [
+                                          {
+                                            "label": "Name",
+                                            "property": "metadata.name"
+                                          }
+                                        ]
+                                      },
                                       "createView": {
                                           "fields": [
                                               {
@@ -88,20 +96,21 @@ spec:
                                     "contextKey": "httpbinId",
                                     "graphqlEntity": {
                                         "group": "orchestrate_platform-mesh_io",
+                                        "version": "v1alpha1",
                                         "kind": "HttpBin",
                                         "query": "{ metadata { name } }"
                                     }
                                 },
                                 "context": {
                                     "accountId": ":accountId",
-                                    "namespaceId": ":namespaceId",
+                                    "httpbinId": ":httpbinId",
                                     "resourceId": ":httpbinId"
                                 }
                             }
                           ]
                       },
                       {
-                        "entityType": "main.core_platform-mesh_io_account.core_namespace.orchestrate_platform-mesh_io_httpbin",
+                        "entityType": "main.core_platform-mesh_io_account.namespace.orchestrate_platform-mesh_io_httpbin",
                         "pathSegment": "dashboard",
                         "label": "Dashboard",
                         "url": "/assets/platform-mesh-portal-ui-wc.js#generic-detail-view",

@@ -52,6 +52,20 @@ If you're using Windows Subsystem for Linux (WSL2):
 - Docker Desktop with WSL2 integration enabled
 - Update WSL if needed: `wsl --update`
 
+If Kubernetes is crashing because of a conflict between Cgroup v1 and v2 (a "hybrid" state), 
+you can force WSL2 to use **Cgroup v2 exclusively** (Unified Mode). 
+This is the modern standard starting from **Kubernetes v1.25**, where Cgroup v2 graduated to General Availability (GA). 
+- Open PowerShell on Windows.
+- Edit your `.wslconfig` file: `notepad $env:USERPROFILE\.wslconfig`
+- Add these lines:
+
+```
+[wsl2]
+# Disable Cgroup V1 to force the kernel into "unified" (v2 only) mode
+kernelCommandLine = cgroup_no_v1=all
+```
+
+
 ### Podman Specific Requirements for MacOS
 
 If you're using Podman on MacOS make sure to set the following env:
@@ -81,7 +95,7 @@ While Platform-mesh can work with other virtualization frameworks like QEMU, it 
 
 ### 1. Bootstrap Local Environment
 
-The setup script automates the entire bootstrap process. By default, it uses the latest released OCM component. You can optionally use the `:latest` flag to deploy the latest release-candidate (RC) version from the registry.
+The setup script automates the entire bootstrap process. By default, it uses the current tested OCM component version pinned in the repository.
 
 **Using Task (recommended):**
 ```sh
@@ -90,10 +104,6 @@ task local-setup
 
 # Iterate on existing cluster (faster, preserves cluster state)
 task local-setup:iterate
-
-# Use latest release-candidate (RC)
-task local-setup:latest
-task local-setup:latest:iterate
 ```
 
 **Without Task (direct script execution):**
@@ -104,9 +114,6 @@ kind delete cluster --name platform-mesh
 
 # Iterate on existing cluster (faster, preserves cluster state)
 ./local-setup/scripts/start.sh
-
-# Use latest release-candidate (RC)
-./local-setup/scripts/start.sh --latest
 ```
 
 ### 2. Bootstrap with Example Data (Demo Setup)
@@ -122,10 +129,6 @@ task local-setup:example-data
 
 # Iterate on existing cluster
 task local-setup:example-data:iterate
-
-# With latest release-candidate (RC)
-task local-setup:latest:example-data
-task local-setup:latest:example-data:iterate
 ```
 
 **Without Task:**
@@ -136,9 +139,6 @@ kind delete cluster --name platform-mesh
 
 # Iterate on existing cluster
 ./local-setup/scripts/start.sh --example-data
-
-# With latest release-candidate (RC)
-./local-setup/scripts/start.sh --latest --example-data
 ```
 
 **What gets created:**
@@ -161,14 +161,6 @@ task local-setup:cached:iterate
 # With example data + caching
 task local-setup:cached:example-data
 task local-setup:cached:example-data:iterate
-
-# With latest release-candidate (RC) + caching
-task local-setup:cached:latest
-task local-setup:cached:latest:iterate
-
-# All flags combined (cached + latest + example-data)
-task local-setup:cached:latest:example-data
-task local-setup:cached:latest:example-data:iterate
 ```
 
 **Without Task:**
@@ -182,42 +174,43 @@ kind delete cluster --name platform-mesh
 
 # With example data + caching
 ./local-setup/scripts/start.sh --cached --example-data
-
-# With latest release-candidate (RC) + caching
-./local-setup/scripts/start.sh --cached --latest
-
-# All flags combined
-./local-setup/scripts/start.sh --cached --latest --example-data
 ```
 
 ### Understanding Version Options
 
-**Default (Released):** By default, the setup uses an officially released OCM component versions from the OCM registry. This is ideal for:
-- Local development and testing using a stable release
+**Default:** By default, the setup uses the current tested OCM component version from the OCM registry. This reflects the version pinned in the repository configuration and is ideal for:
+- Local development and testing with the current development version
 
-**Release Candidate (--latest flag):** When using the `--latest` flag, the setup deploys the latest release-candidate (RC) version from the OCM registry. This is useful for:
-- Testing against the most recent RC build
-- Validating release candidates before production
+**Released version:** For a stable environment based on an officially released version, checkout the appropriate git tag before running setup:
+```sh
+git checkout 0.2.0  # or any released tag like 0.1.1, 0.2, etc.
+task local-setup
+```
+
+**Prerelease (--prerelease flag):** When using the `--prerelease` flag, the setup deploys locally built OCM components instead of versions from the registry. This is useful for:
+- Testing local chart changes without going through the official release process
+- Chart development and iteration workflows
+- Note: Requires the `task` CLI to be installed
+
+**Concurrent builds (--concurrent flag):** When using the `--concurrent` flag together with `--prerelease`, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
 
 **Task Naming Convention:**
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `cached`, `latest`, `example-data`
+- Available flags: `cached`, `prerelease`, `example-data`, `concurrent`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
 See [README-developers](./README-developers.md) for more detailed information related to chart developers.
 
-### 4. Configure Local DNS
+### 4. Access the Platform
 
-No configuration required.
-
-### 5. Access the Platform
-
-Once the setup completes successfully and DNS is configured, you can access:
+Once the setup completes successfully, you can access:
 
 - **Onboarding Portal**: https://portal.localhost:8443
-- **KCP API**: https://kcp.api.portal.localhost:8443
+- **KCP API**: https://localhost:8443
+
+**Note**: Modern browsers automatically resolve `*.localhost` domains to `127.0.0.1`, so no `/etc/hosts` configuration is required for browser access. Organization subdomains like `myorg.portal.localhost` will also work automatically in browsers.
 
 **If you installed with example data:**
 - The HTTPBin provider is available in the `root:providers:httpbin-provider` workspace
@@ -235,13 +228,13 @@ The `scripts/start.sh` script performs the following operations:
 
 2. **Cluster Management**
    - Creates Kind cluster named `platform-mesh` (if not exists)
-   - Uses Kubernetes v1.33.1 (`kindest/node:v1.33.1`)
+   - Uses Kubernetes v1.35.0 (`kindest/node:v1.35.0`)
    - Configures cluster with custom networking for local development
 
 3. **Certificate Generation**
    - Generates local SSL certificates using mkcert
    - Creates CA certificates for webhook configurations
-   - Sets up domain certificates for `*.localhost` and `*.portal.localhost`
+   - Sets up domain certificates for `localhost`, `*.localhost`, and `*.portal.localhost`
 
 4. **Core Infrastructure Installation**
    - Installs Flux for GitOps workflow management
@@ -279,13 +272,7 @@ This gives you access to the root workspace and organization management.
 
 ### Adding New Organizations
 
-Each onboarded organization requires its own subdomain entry in `/etc/hosts`:
-
-```
-127.0.0.1 <organization-name>.portal.localhost
-```
-
-**⚠️ Important**: Remember to add hosts entries for every organization that gets onboarded to the platform.
+Organization subdomains like `<organization-name>.portal.localhost` are automatically resolved by modern browsers. No `/etc/hosts` entries are needed for browser access.
 
 ### Debugging and Troubleshooting
 
@@ -323,6 +310,55 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
+#### Loading Custom Docker Images
+
+When developing locally built components, you can load custom Docker images into the Kind cluster by creating a hook script. This script is automatically ignored by git, so your local customizations won't be committed.
+
+**Create the hook script from the example:**
+```sh
+cp local-setup/scripts/load-custom-images.sh.example local-setup/scripts/load-custom-images.sh
+# Edit the script with your custom images
+```
+
+The script will be automatically sourced during cluster setup if it exists. You can add multiple `kind load` commands for all the images you need.
+
+**Typical workflow:**
+1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
+2. Add the load command to `load-custom-images.sh`
+3. Run `task local-setup:iterate` to reload the cluster with your custom images
+
+### Running E2E Tests
+
+After the local setup is running, you can run end-to-end tests to verify the portal functionality:
+
+**Using Task:**
+```sh
+# Run tests in headless mode
+task test:portal-e2e
+
+# Run tests with visible browser window
+task test:portal-e2e:headed
+
+# Run tests with video recording (saved to local-setup/e2e/test-results/)
+task test:portal-e2e:video
+
+# Specify organization name (default: "default")
+ORG_NAME=myorg task test:portal-e2e
+```
+
+**Without Task:**
+```sh
+cd local-setup/e2e
+npm install
+npm ci
+npx playwright install
+npx playwright test test-register-and-navigate.test.ts
+```
+
+**Prerequisites:**
+- Node.js and npm must be installed
+- The local setup cluster must be running (via `task local-setup` or similar)
+- Playwright browsers will be installed automatically on first run
 
 ## Files and Scripts
 

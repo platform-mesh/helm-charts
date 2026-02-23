@@ -6,6 +6,15 @@ certManager:
   caSecretName: rebac-authz-webhook-webhook-ca
   createCA: false
 
+deployment:
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "128Mi"
+    requests:
+      cpu: "40m"
+      memory: "50Mi"
+
 image:
   name: ghcr.io/platform-mesh/rebac-authz-webhook
   # Overrides the image tag whose default is the chart appVersion.
@@ -35,6 +44,8 @@ serviceAccount:
 kcp:
   kubeconfig:
     secret: rebac-authz-webhook-kubeconfig
+  # -- KCP APIExportEndpointSliceName to watch. Empty string means auto-discover all slices
+  apiExportEndpointSliceName: ""
 
 service:
   clusterIP: ""

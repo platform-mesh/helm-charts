@@ -7,21 +7,8 @@ release:
 chart:
   appVersion: 1.0.0
 templates:
-  - gatewayapi-httproute.yaml
-  - istio-destination-rule.yaml
-  - istio-peerauthentication.yaml
-  - istio-virtual-service.yaml
+  - httproute.yaml
 tests:
-  - it: enable Istio, disable Gateway API - match the Snapshot
-    set:
-      istio.enabled: true
-      gatewayApi.enabled: false
-    asserts:
-    - matchSnapshot: {}
-  - it: disable Istio, enable Gateway API - match the Snapshot
-    set:
-      istio.enabled: false
-      gatewayApi.enabled: true
-      cors.enabled: true
+  - it: match the Snapshot
     asserts:
       - matchSnapshot: {}

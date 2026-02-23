@@ -40,6 +40,7 @@ deployment with tracing:
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=account
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -596,6 +597,7 @@ disable istio:
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=account
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -696,16 +698,40 @@ disable istio:
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
+      name: account-operator-ca-cert
+    spec:
+      commonName: account-operator-ca
+      duration: 8760h
+      isCA: true
+      issuerRef:
+        kind: Issuer
+        name: account-operator-selfsigned-issuer
+      renewBefore: 720h
+      secretName: account-operator-ca-secret
+  11: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: account-operator-ca-issuer
+    spec:
+      ca:
+        secretName: account-operator-ca-secret
+  12: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
       name: account-operator-serving-cert
     spec:
       dnsNames:
         - account-operator-webhook.NAMESPACE.svc
         - account-operator-webhook.NAMESPACE.svc.cluster.local
+      duration: 2160h
       issuerRef:
         kind: Issuer
-        name: account-operator-selfsigned-issuer
+        name: account-operator-ca-issuer
+      renewBefore: 720h
       secretName: account-operator-webhook-server-cert
-  11: |
+  13: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -1189,6 +1215,7 @@ operator match the snapshot:
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=my-type,my-other-type
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -1263,10 +1290,6 @@ operator match the snapshot:
                 - mountPath: /certs
                   name: cert
                   readOnly: true
-          hostAliases:
-            - hostnames:
-                - kcp.dev.local
-              ip: 10.96.0.100
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -1294,16 +1317,40 @@ operator match the snapshot:
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
+      name: account-operator-ca-cert
+    spec:
+      commonName: account-operator-ca
+      duration: 8760h
+      isCA: true
+      issuerRef:
+        kind: Issuer
+        name: account-operator-selfsigned-issuer
+      renewBefore: 720h
+      secretName: account-operator-ca-secret
+  11: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: account-operator-ca-issuer
+    spec:
+      ca:
+        secretName: account-operator-ca-secret
+  12: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
       name: account-operator-serving-cert
     spec:
       dnsNames:
         - account-operator-webhook.NAMESPACE.svc
         - account-operator-webhook.NAMESPACE.svc.cluster.local
+      duration: 2160h
       issuerRef:
         kind: Issuer
-        name: account-operator-selfsigned-issuer
+        name: account-operator-ca-issuer
+      renewBefore: 720h
       secretName: account-operator-webhook-server-cert
-  11: |
+  13: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -1787,6 +1834,7 @@ operator match the snapshot (with kubeconfigSecret):
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=account
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -1894,16 +1942,40 @@ operator match the snapshot (with kubeconfigSecret):
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
+      name: account-operator-ca-cert
+    spec:
+      commonName: account-operator-ca
+      duration: 8760h
+      isCA: true
+      issuerRef:
+        kind: Issuer
+        name: account-operator-selfsigned-issuer
+      renewBefore: 720h
+      secretName: account-operator-ca-secret
+  11: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: account-operator-ca-issuer
+    spec:
+      ca:
+        secretName: account-operator-ca-secret
+  12: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
       name: account-operator-serving-cert
     spec:
       dnsNames:
         - account-operator-webhook.NAMESPACE.svc
         - account-operator-webhook.NAMESPACE.svc.cluster.local
+      duration: 2160h
       issuerRef:
         kind: Issuer
-        name: account-operator-selfsigned-issuer
+        name: account-operator-ca-issuer
+      renewBefore: 720h
       secretName: account-operator-webhook-server-cert
-  11: |
+  13: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -2387,6 +2459,7 @@ operator match the snapshot with webhook enabled:
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=account
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -2488,16 +2561,40 @@ operator match the snapshot with webhook enabled:
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
+      name: account-operator-ca-cert
+    spec:
+      commonName: account-operator-ca
+      duration: 8760h
+      isCA: true
+      issuerRef:
+        kind: Issuer
+        name: account-operator-selfsigned-issuer
+      renewBefore: 720h
+      secretName: account-operator-ca-secret
+  11: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: account-operator-ca-issuer
+    spec:
+      ca:
+        secretName: account-operator-ca-secret
+  12: |
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
       name: account-operator-serving-cert
     spec:
       dnsNames:
         - account-operator-webhook.NAMESPACE.svc
         - account-operator-webhook.NAMESPACE.svc.cluster.local
+      duration: 2160h
       issuerRef:
         kind: Issuer
-        name: account-operator-selfsigned-issuer
+        name: account-operator-ca-issuer
+      renewBefore: 720h
       secretName: account-operator-webhook-server-cert
-  11: |
+  13: |
     apiVersion: v1
     kind: Service
     metadata:

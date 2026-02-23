@@ -62,4 +62,4 @@ spec:
       values:
         - ip: "10.96.188.4"
           hostnames:
-          - "kcp.api.portal.localhost"
+          - "localhost"

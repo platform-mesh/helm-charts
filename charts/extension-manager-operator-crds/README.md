@@ -6,6 +6,7 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| crds.scope | string | `"Cluster"` |  |
 
 ## Overriding Values
 

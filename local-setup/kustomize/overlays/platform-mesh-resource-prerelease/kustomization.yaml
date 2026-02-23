@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../components/platform-mesh-operator-resource
+patches:
+  - target:
+      kind: PlatformMesh
+      name: platform-mesh
+    patch: |
+      - op: replace
+        path: /spec/ocm/repo/name
+        value: platform-mesh
+      - op: replace
+        path: /spec/ocm/component/name
+        value: platform-mesh

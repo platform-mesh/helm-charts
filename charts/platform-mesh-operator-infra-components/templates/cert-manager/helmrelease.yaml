@@ -11,6 +11,8 @@ spec:
   interval: {{ .Values.certManager.interval }}
   releaseName: {{ .Values.certManager.name }}
   targetNamespace: {{ .Values.certManager.targetNamespace }}
+  install:
+    createNamespace: true
   timeout: {{ .Values.timeout }}
   values:
     {{- toYaml .Values.certManager.values | nindent 4 }}

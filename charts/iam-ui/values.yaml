@@ -15,26 +15,17 @@ health:
   readiness:
     path: /healthz
 
-
-cors:
-  # -- toggle to enable CORS support
-  enabled: false
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
 
 gatewayApi:
   httpRoute:
     pathPrefix: /ui/iam
     parentRefs:
     - name: k8sapi-gateway
-      sectionName: websecure
-    corsFilters:
-    - extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header
-      type: ExtensionRef
-
 exposure:
   # -- hostnames to be used for exposure
   hostnames:
-    - "portal.dev.local"
-    - "*.portal.dev.local"
+    - "portal.localhost"
+    - "*.portal.localhost"

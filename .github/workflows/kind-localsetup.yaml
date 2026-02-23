@@ -18,7 +18,7 @@ jobs:
       local_setup_changed: ${{ steps.local_setup.outputs.changed }}
 
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
 
@@ -37,7 +37,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
 
@@ -56,14 +56,21 @@ jobs:
         with:
           version: 3.44.1
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: etc hosts update
+      - name: Install kubectl kcp plugins
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
-          echo "127.0.0.1       kcp.api.portal.dev.local api.portal.dev.local portal.dev.local default.portal.dev.local" | sudo tee -a /etc/hosts
-      - name: Run local-setup:latest
+          set -e
+          ( set -x; cd "$(mktemp -d)" && curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-linux_amd64.tar.gz" && tar zxvf krew-linux_amd64.tar.gz && KREW_ROOT="$HOME/.krew" ./krew-linux_amd64 install krew )
+          echo "$HOME/.krew/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.krew/bin:$PATH"
+          kubectl krew index add kcp-dev https://github.com/kcp-dev/krew-index.git
+          kubectl krew install kcp-dev/kcp
+          kubectl krew install kcp-dev/ws
+          kubectl krew install kcp-dev/create-workspace
+      - name: Run local-setup with example data
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
-          task local-setup:latest
+          task local-setup:example-data
       - name: Check/wait for all components to be ready
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |
@@ -76,7 +83,7 @@ jobs:
       # Step 7: Prepare the NodeJS/playwright environment
       - name: Cache node modules
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
         with:
           path: ~/node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -86,7 +93,7 @@ jobs:
       # Step 8: Install NodeJS and dependencies
       - name: Node ${{ matrix.node-version }}
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -98,13 +105,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          task test:portal-e2e
+          task test:portal-e2e:video
 
       - name: Upload Playwright artefacts
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: playwright-artifacts
           path: |
             local-setup/e2e/test-results/
             local-setup/e2e/*.png
+          retention-days: 5

@@ -1,6 +1,6 @@
 suite: operator
 templates:
-  - core.platform-mesh.io_contentconfigurations.yaml
+  - ui.platform-mesh.io_contentconfigurations.yaml
 values:
   - ../test-values.yaml
 chart:

@@ -7,25 +7,12 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "OCM Component with release-candidate tag",
-      "managerFilePatterns": [
-        "/(^|/)local-setup/kustomize/components/ocm-latest/component\\.yaml$/"
-      ],
-      "matchStrings": [
-        "semver:\\s*(?<currentValue>[\\d\\.]+-[\\w\\.-]+)"
-      ],
-      "versioningTemplate": "semver",
-      "depNameTemplate": "ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
-      "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
-      "description": "OCM Component released version",
+      "description": "OCM Component version",
       "managerFilePatterns": [
         "/(^|/)local-setup/kustomize/components/ocm/component\\.yaml$/"
       ],
       "matchStrings": [
-        "semver:\\s*(?<currentValue>[\\d\\.]+)"
+        "semver:\\s*(?<currentValue>[\\d\\.]+-[\\w\\.-]+)"
       ],
       "versioningTemplate": "semver",
       "depNameTemplate": "ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
@@ -34,30 +21,14 @@
   ],
   "packageRules": [
     {
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "ignoreUnstable": false
-    },
-    {
-      "description": "Pre-release updates for ocm-latest",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchFileNames": [
-        "**/ocm-latest/component.yaml"
-      ],
-      "ignoreUnstable": false
-    },
-    {
-      "description": "Stable-only updates for ocm",
+      "description": "Allow pre-release updates for OCM component",
       "matchManagers": [
         "custom.regex"
       ],
       "matchFileNames": [
         "**/ocm/component.yaml"
       ],
-      "ignoreUnstable": true
+      "ignoreUnstable": false
     }
   ]
 }

@@ -168,14 +168,6 @@ tests:
           path: spec.template.spec.hostAliases[1].hostnames[0]
           value: "my.test"
   - it: test enable default hostAliases
-    #   defaults:
-    #     hostAliases:
-    #       enabled: false
-    #       entries:
-    #         - ip: "10.96.188.4"
-    #           hostnames:
-    #             - "kcp.api.portal.dev.local"
-    #             - "portal.dev.local"
     set:
       hostAliases:
         enabled: true
@@ -185,7 +177,7 @@ tests:
           value: "10.96.188.4"
       - equal:
           path: spec.template.spec.hostAliases[0].hostnames[0]
-          value: "kcp.api.portal.dev.local"
+          value: "localhost"
       - equal:
           path: spec.template.spec.hostAliases[0].hostnames[1]
-          value: "portal.dev.local"
+          value: "portal.localhost"

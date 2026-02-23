@@ -27,7 +27,7 @@ cert:
   # -- Secret name to store the certificate
   secretName: virtual-workspaces-cert
   # -- Extra DNS names for the certificate
-  extraDnsNames: [kcp.api.portal.dev.local]
+  extraDnsNames: [localhost]
   # -- Certificate duration
   duration: 8760h0m0s
   # -- Certificate renew before

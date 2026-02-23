@@ -106,4 +106,10 @@ spec:
             kind: OCIRepository
             name: ${ocirepository.metadata.name}
             namespace: default
-          values: ${schema.spec.values}
+          values:
+            log:
+              noJson: true
+            image:
+              tag: ${resourceImage.status.?resource.?version}
+            idp:
+              registrationAllowed: true

@@ -7,6 +7,8 @@ const userPassword = 'MyPass1234';
 const firstName = 'Firstname';
 const lastName = 'Lastname';
 const newOrgName = process.env.ORG_NAME || 'default';
+const inviteUserName = 'inviteusername@sap.com';
+const testHttpBinName = 'test';
 
 const keycloakPassword = 'password';
 
@@ -18,14 +20,14 @@ async function loginUser(page: Page): Promise<void> {
 }
 
 async function registerOrLoginUser(page: Page): Promise<void> {
-  await page.click('text=Register', { timeout: 10000 });
+  await page.click('text=Register', { timeout: 5000 });
   await page.fill('input[name="email"]', userEmail);
   await page.fill('input[id="password"]', userPassword);
   await page.fill('input[id="password-confirm"]', userPassword);
   await page.fill('input[id="firstName"]', firstName);
   await page.fill('input[id="lastName"]', lastName);
 
-  await page.click('input[value="Register"]', { timeout: 10000 });
+  await page.click('input[value="Register"]', { timeout: 5000 });
 
   // Wait for either successful navigation or "Email already exists" error
   const emailExistsError = page.getByText('Email already exists.');
@@ -33,8 +35,8 @@ async function registerOrLoginUser(page: Page): Promise<void> {
 
   // Race between success and error conditions
   const result = await Promise.race([
-    welcomeText.waitFor({ state: 'visible', timeout: 15000 }).then(() => 'success'),
-    emailExistsError.waitFor({ state: 'visible', timeout: 15000 }).then(() => 'exists'),
+    welcomeText.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'success'),
+    emailExistsError.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'exists'),
   ]).catch(() => 'timeout');
 
   if (result === 'exists') {
@@ -51,14 +53,14 @@ async function completeAccountSetup(page: Page): Promise<void> {
 
   // Wait for either the proceed link or password field to appear
   const firstElement = await Promise.race([
-    proceedLink.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'proceed'),
-    newPasswordField.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'password'),
+    proceedLink.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'proceed'),
+    newPasswordField.waitFor({ state: 'visible', timeout: 5000 }).then(() => 'password'),
   ]).catch(() => 'none');
 
   // Click proceed link if present
   if (firstElement === 'proceed') {
     await proceedLink.click();
-    await newPasswordField.waitFor({ state: 'visible', timeout: 10000 });
+    await newPasswordField.waitFor({ state: 'visible', timeout: 5000 });
   }
 
   // Fill password fields if visible
@@ -102,12 +104,12 @@ async function completeAccountSetup(page: Page): Promise<void> {
 
 // Ensures we're on portal and the SPA finished routing
 async function ensurePortalHome(page: Page) {
-  await page.waitForURL('https://'+ newOrgName +'.portal.localhost:8443/**', { timeout: 20000 });
-  await page.waitForLoadState('networkidle', { timeout: 20000 });
+  await page.waitForURL('https://'+ newOrgName +'.portal.localhost:8443/**', { timeout: 10000 });
+  await page.waitForLoadState('networkidle', { timeout: 10000 });
   const welcome = page.getByText("Welcome! Let's get started.", { exact: true });
   for (let i = 0; i < 3; i++) {
     try {
-      await expect(welcome).toBeVisible({ timeout: 10000 });
+      await expect(welcome).toBeVisible({ timeout: 5000 });
       return;
     } catch (e) {
       if (i === 2) throw e;
@@ -116,9 +118,45 @@ async function ensurePortalHome(page: Page) {
   }
 }
 
+async function inviteUser(page: Page, userEmailToInvite: string): Promise<void> {
+  // navigate to members page
+  await page.locator('[data-testid="members_members"]').click();
+  await page.waitForLoadState('networkidle', { timeout: 10000 });
+
+  // click on add button to add a new member to the account
+  const membersFrame = page.frameLocator('iframe[src*="organization/members"]');
+  const addButton = membersFrame.locator('[data-testid="app-iam-member-list-add-button"]');
+  await addButton.waitFor({ state: 'visible', timeout: 10000 });
+  await expect(addButton).toBeEnabled({ timeout: 10000 });
+  await addButton.scrollIntoViewIfNeeded();
+  await addButton.click();
+
+  // invite the user email by email 
+  const addMembersFrame = page.frameLocator('iframe[src*="organization/add-members"]');
+  const userInput = addMembersFrame.locator('[data-testid="app-iam-member-add-dialog-user-search-input"]').locator('input');
+  await userInput.waitFor({ state: 'visible', timeout: 10000 });
+  await userInput.fill(userEmailToInvite);
+  await addMembersFrame.getByRole('button', { name: 'Select Options' }).click();
+  await page.waitForTimeout(1000);
+
+  // press add button to add a new member
+  const inviteInFrame = addMembersFrame.locator('li.fd-combobox-list-item').filter({ hasText: 'Invite' }).filter({ hasText: userEmailToInvite });
+  const inviteInPage = page.locator('li.fd-combobox-list-item').filter({ hasText: 'Invite' }).filter({ hasText: userEmailToInvite });
+  const inviteOption = inviteInFrame.or(inviteInPage);
+  await inviteOption.waitFor({ state: 'visible', timeout: 10000 });
+  await inviteOption.click();
+  await expect(addMembersFrame.getByRole('row').filter({ hasText: userEmailToInvite })).toBeVisible({ timeout: 15000 });
+  await addMembersFrame.locator('[data-testid="app-iam-member-add-dialog-add-button"]').click();
+
+  // verify invited user appears in the members list
+  const memberEmailInList = membersFrame.locator('span.member-extra-information').filter({ hasText: userEmailToInvite });
+  await expect(memberEmailInList).toBeVisible({ timeout: 15000 });
+  await expect(memberEmailInList).toHaveText(userEmailToInvite);
+}
+
 test.describe('Home Page', () => {
 
-  test.setTimeout(2*60*1000);  // 2 minutes test timeout
+  test.setTimeout(200000);  // 200 seconds test timeout
 
   test('Register and navigate to portal', async ({ page }) => {
     await page.goto(portalBaseUrl);
@@ -126,10 +164,10 @@ test.describe('Home Page', () => {
     await registerOrLoginUser(page);
 
     // Registration/login redirects to the welcome page
-    await page.waitForURL(`${portalBaseUrl}**`, { timeout: 20000 });
-    await page.waitForLoadState('load', { timeout: 20000 });
+    await page.waitForURL(`${portalBaseUrl}**`, { timeout: 10000 });
+    await page.waitForLoadState('load', { timeout: 10000 });
     const verificationText = page.getByText("Welcome to the Platform Mesh Portal!");
-    await expect(verificationText).toBeVisible( { timeout: 10000 });
+    await expect(verificationText).toBeVisible( { timeout: 5000 });
 
     await page.screenshot({ path: 'screenshot-beforeswitch.png' });
 
@@ -137,10 +175,14 @@ test.describe('Home Page', () => {
     await page.locator('[test-id="organization-management-input"]').locator('input').fill(newOrgName);
     await page.locator('[test-id="organization-management-onboard-button"]').locator('button').click();
 
+    // Verify the newly created org is selected in the combo box
+    const orgInput = page.locator('[test-id="organization-management-input"]').locator('input');
+    await expect(orgInput).toHaveValue(newOrgName, { timeout: 5000 });
 
-    // Wait for the "Switch" button to become visible (org is ready), then click it
+    // Wait for the "Switch" button to become visible and enabled (org is ready), then click it
     const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
-    await switchButton.waitFor({ state: 'visible', timeout: 100000 });
+    await switchButton.waitFor({ state: 'visible', timeout: 60000 });
+    await expect(switchButton).toBeEnabled({ timeout: 100000 });
     await switchButton.click();
 
     // Login via Keycloak with email and static password
@@ -154,11 +196,12 @@ test.describe('Home Page', () => {
     // Be explicit: make sure we're on the portal origin and the SPA has rendered
     await ensurePortalHome(page);
 
+    // verify user invite on organization level
+    await inviteUser(page, inviteUserName);
+
     await page.locator('[data-testid="accounts_accounts"]').click();
     // click on "Create" button
     await page.locator('[test-id="generic-list-view-create-button"]').click();
-
-    await page.pause();
 
     await page.locator('[test-id="create-field-metadata_name"]').click();
     await page.locator('[test-id="create-field-spec_type"]').click();
@@ -167,22 +210,50 @@ test.describe('Home Page', () => {
     await page.locator('[test-id="create-resource-submit"]').click();
 
     const accountElement = page.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
-    await expect(accountElement).toBeVisible( { timeout: 180000 } );
+    await expect(accountElement).toBeVisible( { timeout: 30000 } );
+
+    // Wait briefly before navigating to simulate realistic user behavior
+    await page.waitForTimeout(2000);
 
     await accountElement.click();
     const downloadButton = page.locator('[test-id="generic-detail-view-download"]');
-    await expect(downloadButton).toBeVisible( { timeout: 10000 } );
-
-    await page.pause();
+    await expect(downloadButton).toBeVisible( { timeout: 5000 } );
 
     const download1Promise = page.waitForEvent('download', {
       predicate: (download) => download.suggestedFilename().endsWith('.yaml'),
       timeout: 30000,
     });
-
     await downloadButton.click();
     const download = await download1Promise;
     expect(download).toBeDefined();
+ 
+    // Navigate to Namespaces view 
+    await page.locator('[data-testid="namespaces_namespaces"]').click();
 
+    // Navigate to default namespace
+    const defaultNamespaceCell = page.locator('[test-id^="generic-list-cell-"]').filter({ hasText: 'default' }).nth(0);
+    await expect(defaultNamespaceCell).toBeVisible({ timeout: 15000 });
+    await defaultNamespaceCell.click();
+
+    // Navigate to http bin view
+    await page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').click();
+
+    // Create http bin resource
+    await page.getByRole('button', { name: 'Create' }).click();
+    await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'visible', timeout: 10000 });
+    await page.locator('[test-id="create-field-metadata_name"]').click();
+    await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testHttpBinName);
+    await page.waitForTimeout(1000);
+    await page.locator('[test-id="create-resource-submit"]').click();
+
+    // Wait for dialog view to close
+    await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
+
+    // Ensure http bin resource was created and appears in the list
+    const httpBinNameCell = page.locator('[test-id="generic-list-cell-0-metadata.name"]').filter({ hasText: testHttpBinName });
+    await expect(httpBinNameCell).toBeVisible({ timeout: 30000 });
+    const statusReadyCell = page.locator('[test-id="generic-list-cell-0-status.ready"]');
+    await expect(statusReadyCell).toBeVisible({ timeout: 15000 });
+    await expect(statusReadyCell.locator('[test-id="value-cell-status.ready-boolean"]')).toBeVisible({ timeout: 80000 });
   });
 });
