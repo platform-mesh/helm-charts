@@ -91,9 +91,8 @@ swap_common_to_local() {
 # Copy constructor templates to transfer pod
 copy_templates_to_pod() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Copying OCM constructor templates to transfer pod...${COL_RES}"
-    for template in "$OCM_DIR"/component-constructor*.yaml; do
-        kubectl cp "$template" -n default ocm-transfer-pod:.ocm/"$(basename "$template")"
-    done
+    kubectl cp "$OCM_DIR/component-constructor.yaml" -n default ocm-transfer-pod:.ocm/component-constructor.yaml
+    kubectl cp "$OCM_DIR/component-constructor-chart-only.yaml" -n default ocm-transfer-pod:.ocm/component-constructor-chart-only.yaml
 }
 
 # Configuration for parallel execution
@@ -201,35 +200,31 @@ add_chart_to_ctf() {
 
     echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Adding component: $COMPONENT_NAME version $VERSION${COL_RES}"
 
-    # Determine which constructor template to use:
-    # 1. Component-specific constructor (e.g. component-constructor-example-httpbin-operator.yaml) takes priority,
-    #    but only if it has no 'input:' blocks — constructors with input blocks reference local files that only
-    #    exist in CI/CD (e.g. component-constructor-platform-mesh-operator.yaml embeds a local rgd blob).
-    # 2. Chart-only constructor for components without an image
-    # 3. Generic constructor as fallback
-    local constructor
-    local specific="$OCM_DIR/component-constructor-${comp}.yaml"
-    if [ -f "$specific" ] && ! grep -q '^\s*input:' "$specific"; then
-        constructor=".ocm/component-constructor-${comp}.yaml"
-        echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Using component-specific constructor for $comp${COL_RES}"
-    elif [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
-        constructor=".ocm/component-constructor-chart-only.yaml"
-    else
-        constructor=".ocm/component-constructor.yaml"
-    fi
-
     # Add component to OCM transport archive
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" "$constructor" -- \
-        VERSION="$VERSION" \
-        APP_VERSION="$APP_VERSION" \
-        IMAGE_NAME="$IMAGE_NAME" \
-        IMAGE_REPO="$COMPONENT_NAME" \
-        COMMIT="$COMMIT" \
-        IMAGE_REPO_SHA="$COMMIT" \
-        CHART_REPO="$COMPONENT_NAME" \
-        COMPONENT_NAME="$COMPONENT_NAME" \
-        CHART_OCI_PATH="$CHART_OCI_PATH" \
-        LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
+    if [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor-chart-only.yaml -- \
+            VERSION="$VERSION" \
+            APP_VERSION="$APP_VERSION" \
+            IMAGE_NAME="$IMAGE_NAME" \
+            COMMIT="$COMMIT" \
+            IMAGE_REPO_SHA="$COMMIT" \
+            CHART_REPO="$COMPONENT_NAME" \
+            COMPONENT_NAME="$COMPONENT_NAME" \
+            CHART_OCI_PATH="$CHART_OCI_PATH" \
+            LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
+    else
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" .ocm/component-constructor.yaml -- \
+            VERSION="$VERSION" \
+            APP_VERSION="$APP_VERSION" \
+            IMAGE_NAME="$IMAGE_NAME" \
+            IMAGE_REPO="$COMPONENT_NAME" \
+            COMMIT="$COMMIT" \
+            IMAGE_REPO_SHA="$COMMIT" \
+            CHART_REPO="$COMPONENT_NAME" \
+            COMPONENT_NAME="$COMPONENT_NAME" \
+            CHART_OCI_PATH="$CHART_OCI_PATH" \
+            LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
+    fi
 
     echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Done: $COMPONENT_NAME${COL_RES}"
 }

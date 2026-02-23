@@ -178,7 +178,6 @@ if [ "$PRERELEASE" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
     # TODO: Create example-data-prerelease overlay if needed
     kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
   else
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
     kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
