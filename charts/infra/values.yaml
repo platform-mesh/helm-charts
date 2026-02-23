@@ -1,10 +1,5 @@
 hostAliases:
   enabled: false
-  entries:
-    - ip: "10.96.188.4"
-      hostnames:
-        - "localhost"
-        - "portal.localhost"
 
 externalSecrets:
   enabled: false
