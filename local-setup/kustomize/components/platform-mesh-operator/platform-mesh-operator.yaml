@@ -47,6 +47,7 @@ spec:
         - --remote-runtime-infra-secret-name=platform-mesh-kubeconfig
         - --remote-runtime-infra-secret-key=kubeconfig
         - --subroutines-feature-toggles-enabled=true
+        - --idp-registration-allowed=true
         image: ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11
         imagePullPolicy: IfNotPresent
         livenessProbe:

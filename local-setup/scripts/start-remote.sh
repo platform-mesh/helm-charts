@@ -1,79 +1,12 @@
 #!/bin/bash
-
-DEBUG=${DEBUG:-false}
-
-if [ "${DEBUG}" = "true" ]; then
-  set -x
-fi
-
-set -e
-
-COL='\033[92m'
-RED='\033[91m'
-YELLOW='\033[93m'
-COL_RES='\033[0m'
-
-KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
-KINDEST_VERSION="kindest/node:v1.34.0"
-
-SCRIPT_DIR=$(dirname "$0")
-
-PRERELEASE=false
-CACHED=false
-EXAMPLE_DATA=false
-LATEST=false
-DEPLOYMENT_TECH="fluxcd"
-CONCURRENT=false
-
-usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--deployment-tech=fluxcd|argocd] [--help]"
-  echo ""
-  echo "Options:"
-  echo "  --prerelease       Deploy with locally built OCM components instead of released versions"
-  echo "  --cached           Use local Docker registry mirrors for faster image pulls"
-  echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
-  echo "  --concurrent       Run prerelease chart builds in parallel instead of sequentially"
-  echo "  --deployment-tech  Choose deployment technology (fluxcd or argocd). Default: fluxcd"
-  echo "  --help             Show this help message"
-  exit 1
-}
-
-
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --prerelease) PRERELEASE=true ;;
-    --cached) CACHED=true ;;
-    --example-data) EXAMPLE_DATA=true ;;
-    --latest) LATEST=true ;;
-    --concurrent) CONCURRENT=true ;;
-    --deployment-tech=*)
-      DEPLOYMENT_TECH="${1#*=}"
-      if [ "$DEPLOYMENT_TECH" != "fluxcd" ] && [ "$DEPLOYMENT_TECH" != "argocd" ]; then
-        echo "Error: --deployment-tech must be either 'fluxcd' or 'argocd'" >&2
-        usage
-      fi
-      ;;
-    --help|-h) usage ;;
-    --*) echo "Unknown option: $1" >&2; usage ;;
-    *) echo "Ignoring positional arg: $1" ;;
-  esac
-  shift
-done
-
-# Export CONCURRENT for prerelease build scripts
-export CONCURRENT
-
-# Source compatibility and environment checks
-source "$SCRIPT_DIR/check-wsl-compatibility.sh"
-source "$SCRIPT_DIR/check-environment.sh"
-source "$SCRIPT_DIR/setup-registry-proxies.sh"
-source "$SCRIPT_DIR/setup-prerelease.sh"
+# Remote deployment logic (2 kind clusters: infra + runtime)
+# Sourced by start.sh when --remote is specified
 
 # Run WSL compatibility checks
-# check_wsl_compatibility
+check_wsl_compatibility
 
 # Run environment checks
-# run_environment_checks
+run_environment_checks
 
 # Start registry proxies if using cached mode
 if [ "$CACHED" = true ]; then
@@ -90,12 +23,24 @@ if ! check_kind_cluster; then
     fi
     $SCRIPT_DIR/../scripts/gen-certs.sh
 
+    KIND_QUIET_FLAG="--quiet"
+    if [ "$DEBUG" = "true" ]; then
+        KIND_QUIET_FLAG=""
+    fi
+
     if [ "$CACHED" = true ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached images ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-cached.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
+
+        # Create temporary kind config with absolute path for containerd certs
+        TEMP_KIND_CONFIG=$(mktemp)
+        CERTS_DIR=$(cd "$SCRIPT_DIR/../kind/containerd-certs.d" && pwd)
+        sed "s|./containerd-certs.d|${CERTS_DIR}|" "$SCRIPT_DIR/../kind/kind-config-cached.yaml" > "$TEMP_KIND_CONFIG"
+
+        kind create cluster --config "$TEMP_KIND_CONFIG" --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
+        rm -f "$TEMP_KIND_CONFIG"
     else
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION --quiet
+        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
     fi
     kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
 fi
@@ -111,7 +56,14 @@ if ! check_kind_infra_cluster; then
 
     if [ "$CACHED" = true ]; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind infra cluster with cached image ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config-infra-cached.yaml --name platform-mesh-infra --image=$KINDEST_VERSION
+
+        # Create temporary kind config with absolute path for containerd certs
+        TEMP_KIND_CONFIG_INFRA=$(mktemp)
+        CERTS_DIR=$(cd "$SCRIPT_DIR/../kind/containerd-certs.d" && pwd)
+        sed "s|./containerd-certs.d|${CERTS_DIR}|" "$SCRIPT_DIR/../kind/kind-config-infra-cached.yaml" > "$TEMP_KIND_CONFIG_INFRA"
+
+        kind create cluster --config "$TEMP_KIND_CONFIG_INFRA" --name platform-mesh-infra --image=$KINDEST_VERSION
+        rm -f "$TEMP_KIND_CONFIG_INFRA"
     else
         kind create cluster --config $SCRIPT_DIR/../kind/kind-config-infra.yaml --name platform-mesh-infra --image=$KINDEST_VERSION
     fi
@@ -119,9 +71,8 @@ if ! check_kind_infra_cluster; then
 
 fi
 
-### TODO: remove this once the operator is released
+### Remove this when operator is published
 kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11 --name platform-mesh-infra
-echo "Loaded platform-mesh-operator:v0.27.0-rc.11"
 
 MKCERT_CMD="bin/mkcert"
 mkdir -p $SCRIPT_DIR/certs
@@ -132,7 +83,7 @@ install_fluxcd() {
   local kubeconfig=$1
   local concurrent=$2
   local namespace="flux-system"
-  
+
   echo -e "${COL}[$(date '+%H:%M:%S')] Installing FluxCD ${COL_RES}"
   HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig "$kubeconfig" -i -n "$namespace" --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
     --version 2.17.1 \
@@ -156,7 +107,7 @@ install_fluxcd() {
 install_argocd() {
   local kubeconfig=$1
   local namespace="argocd"
-  
+
   echo -e "${COL}[$(date '+%H:%M:%S')] Installing ArgoCD ${COL_RES}"
   HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig "$kubeconfig" -i -n "$namespace" --create-namespace argo-cd oci://ghcr.io/argoproj/argo-helm/argo-cd \
     --version 9.2.4 \
@@ -210,14 +161,25 @@ EOF
     | .stringData.config style="literal"
   ' local-setup/kustomize/overlays/infra/platform-mesh-cluster-secret.yml
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f local-setup/kustomize/overlays/infra/platform-mesh-cluster-secret.yml
-  kubectl delete pod -n argocd -l app.kubernetes.io/instance=argo-cd
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig delete pod -n argocd -l app.kubernetes.io/instance=argo-cd
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for ArgoCD to restart after configuration update ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace argocd \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-repo-server > /dev/null 2>&1
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace argocd \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-server > /dev/null 2>&1
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace argocd \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-applicationset-controller > /dev/null 2>&1
 }
 
 wait_for_deployment_resource() {
   local kubeconfig=$1
   local namespace=$2
   local resource_name=$3
-  
+
   if [ "$DEPLOYMENT_TECH" = "fluxcd" ]; then
     kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
       --for=condition=Ready helmreleases \
@@ -311,8 +273,13 @@ kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../ku
 if [ "$PRERELEASE" = true ]; then
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
 elif [ "$EXAMPLE_DATA" = true ]; then
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
+  if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
+  else
+    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
+  fi
 else
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
 fi
@@ -326,18 +293,18 @@ fi
 kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/infra
 kubectl  --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
 
-# kubectl  --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
-#   --for=condition=Available deployment \
-#   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
-
-
 # Install Platform-Mesh Runtime
 echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
 if [ "$PRERELEASE" = true ]; then
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
 elif [ "$EXAMPLE_DATA" = true ]; then
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
+  if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
+  else
+    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
+  fi
 else
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
 fi
@@ -363,16 +330,41 @@ $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
 if [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data resources. ${COL_RES}"
-  
+
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
 
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for httpbin-kubeconfig secret on runtime cluster ${COL_RES}"
+  until kubectl --kubeconfig .secret/platform-mesh.kubeconfig get secret httpbin-kubeconfig -n example-httpbin-provider > /dev/null 2>&1; do
+    sleep 2
+  done
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Transferring httpbin-kubeconfig to infra cluster ${COL_RES}"
+  # Extract kubeconfig from runtime cluster secret, modify server URL, and apply to infra cluster
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig get secret httpbin-kubeconfig -n example-httpbin-provider -o jsonpath='{.data.kubeconfig}' \
+    | base64 -d > .secret/httpbin-kubeconfig.tmp
+
+  # Update the server URL to point to the KCP workspace for httpbin-provider
+  kubectl config set-cluster --kubeconfig=.secret/httpbin-kubeconfig.tmp \
+    "$(kubectl config get-clusters --kubeconfig=.secret/httpbin-kubeconfig.tmp | tail -1)" \
+    --server=https://localhost:8443/clusters/root:providers:httpbin-provider
+
+  kubectl create secret generic httpbin-kubeconfig -n example-httpbin-provider \
+    --from-file=kubeconfig=.secret/httpbin-kubeconfig.tmp --dry-run=client -o yaml \
+    | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
+
+  rm -f .secret/httpbin-kubeconfig.tmp
+
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
-  wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default api-syncagent
-
-  wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default example-httpbin-provider
+  if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+    wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd api-syncagent
+    wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd example-httpbin-provider
+  else
+    wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default api-syncagent
+    wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default example-httpbin-provider
+  fi
 
 fi
 
@@ -391,5 +383,3 @@ if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"
   echo -e "${COL}[$(date '+%H:%M:%S')] You may need to run task local-setup:iterate to apply them.${COL_RES}"
 fi
-
-exit 0

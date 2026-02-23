@@ -45,6 +45,7 @@ spec:
   chart:
     spec:
       chart: api-syncagent
+      version: "0.4.4"
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
@@ -60,6 +61,6 @@ spec:
     hostAliases:
       enabled: true
       values:
-        - ip: "10.96.188.4"
+        - ip: "172.18.0.6"
           hostnames:
           - "localhost"

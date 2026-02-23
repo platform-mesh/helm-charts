@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: example-httpbin-provider
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: api-syncagent
+  namespace: argocd
+spec:
+  destination:
+    namespace: example-httpbin-provider
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: api-syncagent
+    repoURL: https://kcp-dev.github.io/helm-charts
+    targetRevision: "0.4.4"
+    helm:
+      values: |
+        apiExportName: orchestrate.platform-mesh.io
+        agentName: kcp-api-syncagent
+        kcpKubeconfig: httpbin-kubeconfig
+        hostAliases:
+          enabled: true
+          values:
+            - ip: "172.18.0.6"
+              hostnames:
+              - "localhost"
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: example-httpbin-provider
+  namespace: argocd
+spec:
+  destination:
+    namespace: example-httpbin-provider
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    chart: example-httpbin-operator
+    repoURL: ghcr.io/platform-mesh/helm-charts
+    targetRevision: 0.5.10
+    helm:
+      values: |
+        operator:
+          args:
+            - --local-http-route
+            - --local-http-route-port=8443
+            - --local-http-route-gateway-name=k8sapi-gateway
+            - --local-http-route-gateway-namespace=platform-mesh-system
+            - --domain=httpbin.services.portal.localhost
+        apiSyncagent:
+          rbac:
+            enable: true
+          publishedResources:
+            enable: true
+          serviceAccount:
+            name: api-syncagent
+            namespace: example-httpbin-provider
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 5m

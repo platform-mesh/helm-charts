@@ -258,6 +258,7 @@ run_environment_checks() {
 
 # Export functions so they can be used by the main script
 export -f check_kind_cluster
+export -f check_kind_infra_cluster
 export -f check_kind_dependency
 export -f check_docker_dependency
 export -f check_container_runtime_dependency

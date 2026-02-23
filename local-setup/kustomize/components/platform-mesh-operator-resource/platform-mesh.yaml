@@ -120,10 +120,6 @@ spec:
         hostAliases:
           enabled: true
     iam-service:
-      values:
-        hostAliases:
-          enabled: true
-    iam-service:
       enabled: true
       values:
         caSecret: domain-certificate-ca
