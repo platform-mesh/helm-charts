@@ -207,8 +207,8 @@ EOF
   yq -i '
     .stringData.config = (strenv(CERTCONFIG) + "\n")
     | .stringData.config style="literal"
-  ' local-setup/kustomize/overlays/infra/platform-mesh-cluster-secret.yml
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f local-setup/kustomize/overlays/infra/platform-mesh-cluster-secret.yml
+  ' local-setup/platform-mesh-cluster-secret.yml
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f local-setup/platform-mesh-cluster-secret.yml
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig delete pod -n argocd -l app.kubernetes.io/instance=argo-cd
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for ArgoCD to restart after configuration update ${COL_RES}"
