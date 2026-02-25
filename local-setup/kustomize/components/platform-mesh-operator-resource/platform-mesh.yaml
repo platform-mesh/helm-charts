@@ -56,42 +56,6 @@ spec:
         kcp:
           frontProxy:
             clusterIP: "10.96.0.100"
-        gatewayApi:
-          listeners:
-            - name: terminate
-              hostname: portal.localhost
-              port: 8443
-              protocol: HTTPS
-              tls:
-                mode: Terminate
-                certificateRefs:
-                  - group: ""
-                    kind: Secret
-                    name: domain-certificate
-                    namespace: platform-mesh-system
-            - name: terminate-wildstar
-              hostname: '*.portal.localhost'
-              port: 8443
-              protocol: HTTPS
-              tls:
-                mode: Terminate
-                certificateRefs:
-                  - group: ""
-                    kind: Secret
-                    name: domain-certificate
-                    namespace: platform-mesh-system
-              allowedRoutes:
-                namespaces:
-                  from: All
-            - name: passthrough
-              port: 8443
-              protocol: TLS
-              tls:
-                mode: Passthrough
-              allowedRoutes:
-                namespaces:
-                  from: All
-
     security-operator:
       values:
         log:
