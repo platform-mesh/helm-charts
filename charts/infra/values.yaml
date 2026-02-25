@@ -244,9 +244,6 @@ gatewayApi:
             kind: Secret
             name: domain-certificate
             namespace: platform-mesh-system
-      allowedRoutes:
-        namespaces:
-          from: All
     - name: passthrough
       port: 8443
       protocol: TLS
