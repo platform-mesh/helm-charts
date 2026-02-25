@@ -1,0 +1,9 @@
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Repository
+metadata:
+  name: gardener-releases
+spec:
+  repositorySpec:
+    baseUrl: europe-docker.pkg.dev/gardener-project/releases
+    type: OCIRegistry
+  interval: 1m

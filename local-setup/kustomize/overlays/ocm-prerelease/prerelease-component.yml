@@ -13,6 +13,11 @@ spec:
       name: platform-mesh
       namespace: default
       policy: Propagate
+    - apiVersion: delivery.ocm.software/v1alpha1
+      kind: Repository
+      name: gardener-releases
+      namespace: default
+      policy: Propagate
   repositoryRef:
     name: platform-mesh
   semver: 1.0.0

@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - ../../base/ocm-k8s-toolkit
   - prerelease-repository.yml
+  - gardener-repository.yaml
   - prerelease-component.yml
   - ../../components/platform-mesh-operator
 patches:

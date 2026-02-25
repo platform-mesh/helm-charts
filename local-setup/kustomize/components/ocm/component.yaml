@@ -13,3 +13,7 @@ spec:
       apiVersion: delivery.ocm.software/v1alpha1
       name: platform-mesh
       namespace: default
+    - kind: Repository
+      apiVersion: delivery.ocm.software/v1alpha1
+      name: gardener-releases
+      namespace: default
