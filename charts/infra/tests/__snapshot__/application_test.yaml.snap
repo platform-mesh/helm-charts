@@ -19,7 +19,10 @@ Gateway API enabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -278,7 +281,10 @@ Istio disabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -537,7 +543,10 @@ Istio enabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -946,7 +955,10 @@ match snapshots:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -1212,7 +1224,10 @@ match snapshots w. hostAliases enabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -1486,7 +1501,10 @@ match snapshots w. kcp version:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -1752,7 +1770,10 @@ match snapshots with mailpit enabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.portal.localhost'
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
