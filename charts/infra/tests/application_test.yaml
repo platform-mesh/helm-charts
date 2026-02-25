@@ -59,11 +59,18 @@ tests:
   set:
     gatewayApi:
       enabled: true
-      main:
-        gateway:
+      listeners:
+        - name: terminate
+          hostname: portal.localhost
+          port: 8443
+          protocol: HTTPS
           tls:
-            credentialName: domain-certificate
-            credentialNamespace: default2
+            mode: Terminate
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: default2
   asserts:
   - equal:
       path: spec.listeners[0].tls.certificateRefs[0].namespace

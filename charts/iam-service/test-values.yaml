@@ -21,3 +21,5 @@ redirectToOpenFGA:
   list:
     path: openfga.v1.OpenFGAService/List
 
+hostAliases:
+  enabled: true

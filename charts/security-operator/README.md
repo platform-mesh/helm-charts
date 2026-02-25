@@ -42,6 +42,14 @@ A Helm chart for security-operator
 | region | string | `"local"` | region indicator, used for logging and observability |
 | terminator.extraArgs | list | `[]` |  |
 | terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
+| webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
+| webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
+| webhooks.certDir | string | `"/certs"` | The directory for webhook certificates (mounted from the serving cert secret) |
+| webhooks.certDuration | string | `"2160h"` | Serving certificate duration (default: 3 months) |
+| webhooks.certRenewBefore | string | `"720h"` | Serving certificate renewal time before expiration (default: 30 days) |
+| webhooks.enabled | bool | `true` | Enable validating admission webhooks |
+| webhooks.port | int | `9443` | Webhook server port (must match controller-runtime webhook server) |
+| webhooks.register | bool | `false` | Register the ValidatingWebhookConfiguration resources |
 
 ## Overriding Values
 

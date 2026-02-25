@@ -133,6 +133,10 @@ kubectl wait --namespace default \
   --for=condition=Ready helmreleases \
   --timeout=$KUBECTL_WAIT_TIMEOUT kro
 
+kubectl wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
+
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 #kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
@@ -178,6 +182,7 @@ if [ "$PRERELEASE" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
     # TODO: Create example-data-prerelease overlay if needed
     kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
   else
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
     kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
