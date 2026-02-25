@@ -307,3 +307,12 @@ spec:
 ```
 
 Then set password, verify email and remove 'Required user actions' in keycloak.
+
+## kubernetes-graphql-gateway Unauthorized responses
+
+Cause: missing or incorrect `audiences` in orgs-authentication WorkspaceAuthenticationConfiguration resource in the ':root' kcp workspace.
+
+## kubernetes-graphql-gateway certificate verifycation issue
+https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz?timeout=30s\\\": tls: failed to verify certificate: x509: certificate signed by unknown authority\") has prevented the request from succeeding (get accounts.core.platform-mesh.io
+
+Fix: restart the `kubernetes-graphql-gateway` and `root-kcp` pod
