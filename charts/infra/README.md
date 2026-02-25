@@ -19,6 +19,7 @@ A Helm chart for Kubernetes
 | gatewayApi.listeners[0].tls.certificateRefs[0].name | string | `"domain-certificate"` |  |
 | gatewayApi.listeners[0].tls.certificateRefs[0].namespace | string | `"platform-mesh-system"` |  |
 | gatewayApi.listeners[0].tls.mode | string | `"Terminate"` |  |
+| gatewayApi.listeners[1].allowedRoutes.namespaces.from | string | `"All"` |  |
 | gatewayApi.listeners[1].hostname | string | `"*.portal.localhost"` |  |
 | gatewayApi.listeners[1].name | string | `"terminate-wildstar"` |  |
 | gatewayApi.listeners[1].port | int | `8443` |  |
