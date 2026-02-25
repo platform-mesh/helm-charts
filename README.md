@@ -47,4 +47,4 @@ For detailed instructions regarding local development see local-setup [README.md
 
 ## Code of Conduct
 
-Please refer to the [CODE_OF_CONDUCT.md](https://github.com/platform-mesh/.github/blob/main/CODE_OF_CONDUCT.md) file in this repository information on the expected Code of Conduct for contributing to platform-mesh.
+Please refer to our [Code of Conduct](https://github.com/platform-mesh/.github/blob/main/CODE_OF_CONDUCT.md) for information on the expected conduct for contributing to Platform Mesh.
