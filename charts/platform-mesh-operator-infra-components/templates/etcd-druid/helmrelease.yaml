@@ -4,13 +4,10 @@ kind: HelmRelease
 metadata:
   name: {{ .Values.etcdDruid.name }}
 spec:
-  chart:
-    spec:
-      chart: charts
-      reconcileStrategy: ChartVersion
-      sourceRef:
-        kind: GitRepository
-        name: {{ .Values.etcdDruid.name }}
+  chartRef:
+    kind: OCIRepository
+    name: {{ .Values.etcdDruid.name }}
+    namespace: {{ .Release.Namespace }}
   interval: {{ .Values.etcdDruid.interval }}
   releaseName: {{ .Values.etcdDruid.name }}
   targetNamespace: {{ .Values.etcdDruid.targetNamespace }}

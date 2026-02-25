@@ -72,8 +72,13 @@ etcdDruid:
   enabled: true
   targetNamespace: etcd-druid-system
   name: etcd-druid
-  ocmResourceName: chart
+  ocmResourceName: etcd-druid
+  ocmImageResourceName: etcd-druid
   interval: 1m
+  ocm:
+    repo:
+      name: gardener-releases
+      baseUrl: europe-docker.pkg.dev/gardener-project/releases
 
 kcpOperator:
   enabled: true

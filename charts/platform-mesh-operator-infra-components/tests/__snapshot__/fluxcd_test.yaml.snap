@@ -129,13 +129,10 @@ FluxCD enable remote deployment:
     metadata:
       name: etcd-druid
     spec:
-      chart:
-        spec:
-          chart: charts
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: GitRepository
-            name: etcd-druid
+      chartRef:
+        kind: OCIRepository
+        name: etcd-druid
+        namespace: default
       install:
         createNamespace: true
       interval: 1m
@@ -148,6 +145,16 @@ FluxCD enable remote deployment:
       timeout: 30m
       values: null
   7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Repository
+    metadata:
+      name: gardener-releases
+    spec:
+      interval: 1m
+      repositorySpec:
+        baseUrl: europe-docker.pkg.dev/gardener-project/releases
+        type: OCIRegistry
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -164,22 +171,22 @@ FluxCD enable remote deployment:
       ocmConfig:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
-          name: platform-mesh
+          name: gardener-releases
           namespace: default
       resource:
         byReference:
           referencePath:
             - name: etcd-druid
           resource:
-            name: image
+            name: etcd-druid
       skipVerify: true
-  8: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
       labels:
         artifact: chart
-        repo: git
+        repo: oci
       name: etcd-druid
     spec:
       componentRef:
@@ -188,16 +195,17 @@ FluxCD enable remote deployment:
       ocmConfig:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
-          name: platform-mesh
+          name: gardener-releases
           namespace: default
       resource:
         byReference:
           referencePath:
             - name: etcd-druid
           resource:
-            name: chart
+            name: etcd-druid
+            type: helmChart
       skipVerify: true
-  9: |
+  10: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -216,7 +224,7 @@ FluxCD enable remote deployment:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  10: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -240,7 +248,7 @@ FluxCD enable remote deployment:
           resource:
             name: crds
       skipVerify: true
-  11: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -264,7 +272,7 @@ FluxCD enable remote deployment:
       targetNamespace: kcp-operator
       timeout: 30m
       values: null
-  12: |
+  13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -290,7 +298,7 @@ FluxCD enable remote deployment:
           resource:
             name: image
       skipVerify: true
-  13: |
+  14: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -314,7 +322,7 @@ FluxCD enable remote deployment:
           resource:
             name: chart
       skipVerify: true
-  14: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -336,7 +344,7 @@ FluxCD enable remote deployment:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  15: |
+  16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -379,7 +387,7 @@ FluxCD enable remote deployment:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  16: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -403,7 +411,7 @@ FluxCD enable remote deployment:
           resource:
             name: crds
       skipVerify: true
-  17: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -429,7 +437,7 @@ FluxCD enable remote deployment:
           resource:
             name: image
       skipVerify: true
-  18: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -580,13 +588,10 @@ FluxCD snapshots:
     metadata:
       name: etcd-druid
     spec:
-      chart:
-        spec:
-          chart: charts
-          reconcileStrategy: ChartVersion
-          sourceRef:
-            kind: GitRepository
-            name: etcd-druid
+      chartRef:
+        kind: OCIRepository
+        name: etcd-druid
+        namespace: default
       install:
         createNamespace: true
       interval: 1m
@@ -595,6 +600,16 @@ FluxCD snapshots:
       timeout: 30m
       values: null
   7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Repository
+    metadata:
+      name: gardener-releases
+    spec:
+      interval: 1m
+      repositorySpec:
+        baseUrl: europe-docker.pkg.dev/gardener-project/releases
+        type: OCIRegistry
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -611,22 +626,22 @@ FluxCD snapshots:
       ocmConfig:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
-          name: platform-mesh
+          name: gardener-releases
           namespace: default
       resource:
         byReference:
           referencePath:
             - name: etcd-druid
           resource:
-            name: image
+            name: etcd-druid
       skipVerify: true
-  8: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
       labels:
         artifact: chart
-        repo: git
+        repo: oci
       name: etcd-druid
     spec:
       componentRef:
@@ -635,16 +650,17 @@ FluxCD snapshots:
       ocmConfig:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
-          name: platform-mesh
+          name: gardener-releases
           namespace: default
       resource:
         byReference:
           referencePath:
             - name: etcd-druid
           resource:
-            name: chart
+            name: etcd-druid
+            type: helmChart
       skipVerify: true
-  9: |
+  10: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -659,7 +675,7 @@ FluxCD snapshots:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  10: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -683,7 +699,7 @@ FluxCD snapshots:
           resource:
             name: crds
       skipVerify: true
-  11: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -703,7 +719,7 @@ FluxCD snapshots:
       targetNamespace: kcp-operator
       timeout: 30m
       values: null
-  12: |
+  13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -729,7 +745,7 @@ FluxCD snapshots:
           resource:
             name: image
       skipVerify: true
-  13: |
+  14: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -753,7 +769,7 @@ FluxCD snapshots:
           resource:
             name: chart
       skipVerify: true
-  14: |
+  15: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -771,7 +787,7 @@ FluxCD snapshots:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  15: |
+  16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -810,7 +826,7 @@ FluxCD snapshots:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  16: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -834,7 +850,7 @@ FluxCD snapshots:
           resource:
             name: crds
       skipVerify: true
-  17: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -860,7 +876,7 @@ FluxCD snapshots:
           resource:
             name: image
       skipVerify: true
-  18: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
