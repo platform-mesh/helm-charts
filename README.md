@@ -47,8 +47,4 @@ For detailed instructions regarding local development see local-setup [README.md
 
 ## Code of Conduct
 
-Please refer to the [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) file in this repository informations on the expected Code of Conduct for contributing to platform-mesh.
-
-## Licensing
-
-Copyright 2025 SAP SE or an SAP affiliate company and platform-mesh contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/platform-mesh/helm-charts).
+Please refer to the [CODE_OF_CONDUCT.md](https://github.com/platform-mesh/.github/blob/main/CODE_OF_CONDUCT.md) file in this repository information on the expected Code of Conduct for contributing to platform-mesh.
