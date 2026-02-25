@@ -384,6 +384,8 @@ it should render the application manifests:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
+        terminator:
+          kubeconfigSecret: security-terminator-kubeconfig
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
