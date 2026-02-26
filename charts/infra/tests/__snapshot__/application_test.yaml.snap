@@ -145,6 +145,9 @@ Gateway API enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -418,6 +421,9 @@ Istio disabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -691,6 +697,9 @@ Istio enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -900,6 +909,9 @@ configure frontproxy resources:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -1114,6 +1126,9 @@ match snapshots:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -1394,6 +1409,9 @@ match snapshots w. hostAliases enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -1682,6 +1700,9 @@ match snapshots w. kcp version:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -1962,6 +1983,9 @@ match snapshots with mailpit enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443

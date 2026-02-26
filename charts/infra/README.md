@@ -43,6 +43,14 @@ A Helm chart for Kubernetes
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
 | kcp.auth.adminCert.privateKey.size | int | `2048` |  |
 | kcp.auth.adminCert.subject.organizations[0] | string | `"system:kcp:admin"` |  |
+| kcp.auth.oidc.caFileRef.key | string | `"tls.crt"` |  |
+| kcp.auth.oidc.caFileRef.name | string | `"domain-certificate-ca"` |  |
+| kcp.auth.oidc.clientID | string | `""` |  |
+| kcp.auth.oidc.enabled | bool | `false` |  |
+| kcp.auth.oidc.groupsClaim | string | `"groups"` |  |
+| kcp.auth.oidc.issuerUrl | string | `""` |  |
+| kcp.auth.oidc.usernameClaim | string | `"email"` |  |
+| kcp.auth.serviceAccounts.enabled | bool | `true` |  |
 | kcp.etcd.backup.compression.enabled | bool | `false` |  |
 | kcp.etcd.backup.compression.policy | string | `"gzip"` |  |
 | kcp.etcd.backup.deltaSnapshotMemoryLimit | string | `"1Gi"` |  |
@@ -90,13 +98,6 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.resources | object | `{}` | Optional resource requests and limits for the front proxy |
 | kcp.image.tag | string | `""` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
-| kcp.oidc.caFileRef.key | string | `"tls.crt"` |  |
-| kcp.oidc.caFileRef.name | string | `"domain-certificate-ca"` |  |
-| kcp.oidc.clientID | string | `""` |  |
-| kcp.oidc.enabled | bool | `false` |  |
-| kcp.oidc.groupsClaim | string | `"groups"` |  |
-| kcp.oidc.issuerUrl | string | `""` |  |
-| kcp.oidc.usernameClaim | string | `"email"` |  |
 | kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.rootShard.resources | object | `{}` | Optional resource requests and limits for the root shard |

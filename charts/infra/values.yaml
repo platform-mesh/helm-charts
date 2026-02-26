@@ -25,6 +25,17 @@ kcp:
       subject:
         organizations:
           - system:kcp:admin
+    serviceAccounts:
+      enabled: true
+    oidc:
+      enabled: false
+      issuerUrl: ""
+      clientID: ""
+      groupsClaim: groups
+      usernameClaim: email
+      caFileRef:
+        name: domain-certificate-ca
+        key: tls.crt
   etcd:
     name: etcd-kcp
     service:
@@ -71,16 +82,6 @@ kcp:
       autoCompactionMode: periodic
       autoCompactionRetention: "30m"
     replicas: 1
-
-  oidc:
-    enabled: false
-    issuerUrl: ""
-    clientID: ""
-    groupsClaim: groups
-    usernameClaim: email
-    caFileRef:
-      name: domain-certificate-ca
-      key: tls.crt
 
   webhook:
     enabled: true

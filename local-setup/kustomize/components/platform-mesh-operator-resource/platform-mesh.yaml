@@ -39,7 +39,13 @@ spec:
             ephemeral-storage: 50Mi
             memory: 1Gi
     infra:
+      imageResources: []  # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
+        kcp:
+          image:
+            tag: "f84f29435" # override image to have VW identity parsing fix
+          frontProxy:
+            clusterIP: "10.96.0.100"
         traefik:
           accessControlAllowOriginList:
             - "http://localhost:4200"
@@ -53,9 +59,6 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-        kcp:
-          frontProxy:
-            clusterIP: "10.96.0.100"
     security-operator:
       values:
         log:

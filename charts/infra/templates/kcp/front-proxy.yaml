@@ -5,11 +5,14 @@ metadata:
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   replicas: {{ .Values.kcp.frontProxy.replicas }}
-  {{- if .Values.kcp.oidc.enabled }}
+  {{- if or .Values.kcp.auth.serviceAccounts.enabled .Values.kcp.auth.oidc.enabled }}
   auth:
-    {{ with .Values.kcp.oidc }}
+    {{- if .Values.kcp.auth.serviceAccounts.enabled }}
     serviceAccount:
       enabled: true
+    {{- end }}
+    {{- if .Values.kcp.auth.oidc.enabled }}
+    {{- with .Values.kcp.auth.oidc }}
     oidc:
       enabled: true
       issuerURL: {{ .issuerUrl }}
@@ -19,6 +22,7 @@ spec:
       clientID: {{ .clientID }}
       groupsClaim: {{ .groupsClaim }}
       usernameClaim: {{ .usernameClaim }}
+    {{- end }}
     {{- end }}
   {{- end }}
   {{ with .Values.kcp.image.tag }}
