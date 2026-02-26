@@ -10,9 +10,9 @@ spec:
     image:
       tag: {{ . }}
   {{- end }}
-  {{- if .Values.kcp.oidc.enabled }}
+  {{- if .Values.kcp.auth.oidc.enabled }}
   auth:
-    {{ with .Values.kcp.oidc }}
+    {{- with .Values.kcp.auth.oidc }}
     oidc:
       enabled: true
       issuerURL: {{ .issuerUrl }}
