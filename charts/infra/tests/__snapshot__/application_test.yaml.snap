@@ -149,6 +149,9 @@ Gateway API enabled:
         spec:
           template:
             spec: null
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -460,6 +463,9 @@ Istio disabled:
         spec:
           template:
             spec: null
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -771,6 +777,9 @@ Istio enabled:
         spec:
           template:
             spec: null
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -1018,6 +1027,9 @@ configure frontproxy resources:
         spec:
           template:
             spec: null
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -1270,6 +1282,9 @@ match snapshots:
         spec:
           template:
             spec: null
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -1583,6 +1598,9 @@ match snapshots w. hostAliases enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -1914,6 +1932,9 @@ match snapshots w. kcp version:
         spec:
           template:
             spec: null
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
@@ -2231,6 +2252,9 @@ match snapshots with mailpit enabled:
         spec:
           template:
             spec: null
+      auth:
+        serviceAccount:
+          enabled: true
       external:
         hostname: localhost
         port: 8443
