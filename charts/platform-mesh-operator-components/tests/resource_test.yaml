@@ -40,10 +40,13 @@ tests:
   asserts:
     - equal:
         path: spec.resource.byReference.referencePath[0].name
+        value: platform-mesh
+    - equal:
+        path: spec.resource.byReference.referencePath[1].name
         value: test
     - lengthEqual:
         path: spec.resource.byReference.referencePath
-        count: 1
+        count: 2
     - equal:
         path: spec.componentRef.name
         value: comp-vw
@@ -100,3 +103,53 @@ tests:
   template: ocm-resources.yaml
   asserts:
     - matchSnapshot: {}
+
+- it: default referencePath oci-image-resources
+  templates: 
+    - ocm-image-resources.yaml
+  documentSelector:
+    path: metadata.name
+    value: kcp-image
+  set:
+    componentVersion:
+      semver: 0.0.0
+    ocm:
+      interval: 3m
+      referencePath:
+       - name: platform-mesh
+      component:
+        create: true
+        name: apeiro
+      repo:
+        create: true
+        name: apeirorepo
+    services:
+      infra:
+        enabled: true
+        imageResources:
+          - name: kcp-image
+            annotations:
+              path: kcp.image.tag
+              for: infra
+              repo: oci
+              artifact: image
+            resource: image
+            referencePath:
+              - name: kcp
+
+  asserts:
+    - equal:
+        path: spec.resource.byReference.referencePath[0].name
+        value: platform-mesh
+    - equal:
+        path: spec.resource.byReference.referencePath[1].name
+        value: kcp
+    - lengthEqual:
+        path: spec.resource.byReference.referencePath
+        count: 2
+    - equal:
+        path: spec.componentRef.name
+        value: apeiro
+    - equal:
+        path: spec.ocmConfig[0].name
+        value: apeirorepo

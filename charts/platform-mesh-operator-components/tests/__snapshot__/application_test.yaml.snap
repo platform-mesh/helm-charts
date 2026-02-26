@@ -530,6 +530,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
+            - name: test
             - name: kcp
           resource:
             name: image

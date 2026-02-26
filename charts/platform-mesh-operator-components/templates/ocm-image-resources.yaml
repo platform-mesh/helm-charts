@@ -29,8 +29,14 @@ spec:
         name: {{ .resource | default "image"}}
       referencePath:
         {{- if .referencePath }}
+        {{- with $values.ocm.referencePath }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- toYaml .referencePath | nindent 8 }}
         {{- else if $config.referencePath }}
+        {{- with $values.ocm.referencePath }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- toYaml $config.referencePath | nindent 8 }}
         {{- else }}
         {{- with $values.ocm.referencePath }}
