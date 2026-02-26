@@ -4,6 +4,7 @@ resources:
   - ../../base/ocm-k8s-toolkit
   - prerelease-repository.yml
   - gardener-repository.yaml
+  - ocm-resolver-config.yaml
   - prerelease-component.yml
   - ../../components/platform-mesh-operator
 patches:

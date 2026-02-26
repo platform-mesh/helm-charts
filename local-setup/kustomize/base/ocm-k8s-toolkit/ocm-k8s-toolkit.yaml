@@ -1,34 +1,36 @@
 apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
+kind: GitRepository
 metadata:
   name: ocm-k8s-toolkit
   namespace: default
 spec:
-  type: oci
-  interval: 5m
-  url: oci://ghcr.io/open-component-model/charts
+  interval: 1m
+  url: https://github.com/open-component-model/open-component-model
+  ref:
+    commit: 2a57af1b9a829f8d563113fcc157e4afeb53561e
 ---
-
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: ocm-k8s-toolkit
   namespace: default
 spec:
-  releaseName: ocm-k8s-toolkit
   interval: 1m
-  timeout: 15m
   targetNamespace: ocm-system
   chart:
     spec:
-      chart: ocm-k8s-toolkit
-      version: "0.1.0"
+      chart: ./kubernetes/controller/chart
       sourceRef:
-        kind: HelmRepository
+        kind: GitRepository
         name: ocm-k8s-toolkit
   values:
     manager:
+      image:
+        repository: ghcr.io/open-component-model/kubernetes/controller
+        tag: "0.0.0-2a57af1"
       concurrency:
         resource: 21
       logging:
-        level: "4"
+        level: "debug"
+      healthProbe:
+        bindAddress: ":8081"

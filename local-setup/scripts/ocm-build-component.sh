@@ -55,7 +55,7 @@ update_constructor() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Downloading component-constructor-prerelease.yaml...${COL_RES}"
 
     curl -o "$OCM_DIR/component-constructor-prerelease.yaml" \
-        https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
+        https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/feat/etcd-druid-component/constructor/component-constructor.yaml
 
     # Rename the component from platform-mesh to prerelease
     sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' \
@@ -126,14 +126,11 @@ get_ocm_resource_version() {
     "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get resources "oci://ghcr.io/platform-mesh//$component" --latest -o json | jq -r "$query"
 }
 
-# Get component version from an external (non-platform-mesh) registry and transfer it into the transport archive
+# Get component version from an external registry (resolved via .ocm/config resolvers)
 get_external_component_version() {
     local component="$1"
     local repo="$2"
-    local val
-    val=$("$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get componentversions --latest "$component" --repo "$repo" -o json | jq -r '.items[0].component.version')
-    #kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --copy-resources --overwrite "$repo//$component:$val" .ocm/transport.ctf
-    echo "$val"
+    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get componentversions --latest "$component" --repo "$repo" -o json | jq -r '.items[0].component.version'
 }
 
 # Resolve all component versions

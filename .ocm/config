@@ -1,2 +1,9 @@
 type: generic.config.ocm.software/v1
-configurations: []
+configurations:
+  - type: resolvers.config.ocm.software
+    resolvers:
+      - repository:
+          type: OCIRegistry/v1
+          baseUrl: europe-docker.pkg.dev
+          subPath: gardener-project/releases
+        componentNamePattern: "github.com/gardener/*"
