@@ -38,6 +38,20 @@ Gateway API enabled:
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -297,6 +311,20 @@ Istio disabled:
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -556,6 +584,20 @@ Istio enabled:
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -965,6 +1007,20 @@ match snapshots:
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -1231,6 +1287,20 @@ match snapshots w. hostAliases enabled:
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -1505,6 +1575,20 @@ match snapshots w. kcp version:
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -1771,6 +1855,20 @@ match snapshots with mailpit enabled:
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate

@@ -252,3 +252,19 @@ gatewayApi:
       allowedRoutes:
         namespaces:
           from: All
+  # -- Additional listeners to be added to the Gateway resource (e.g. for HTTPBin)
+  listenersExtra:
+    - name: terminate-services
+      hostname: '*.services.portal.localhost'
+      port: 8443
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: domain-certificate
+            namespace: platform-mesh-system
+      allowedRoutes:
+        namespaces:
+          from: All
