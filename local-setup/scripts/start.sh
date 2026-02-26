@@ -555,27 +555,6 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
 
-  if [ "$REMOTE" = true ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for httpbin-kubeconfig secret on runtime cluster ${COL_RES}"
-    until kubectl --kubeconfig .secret/platform-mesh.kubeconfig get secret httpbin-kubeconfig -n example-httpbin-provider > /dev/null 2>&1; do
-      sleep 2
-    done
-
-    echo -e "${COL}[$(date '+%H:%M:%S')] Updating httpbin-kubeconfig server URL on runtime cluster ${COL_RES}"
-    kubectl --kubeconfig .secret/platform-mesh.kubeconfig get secret httpbin-kubeconfig -n example-httpbin-provider -o jsonpath='{.data.kubeconfig}' \
-      | base64 -d > .secret/httpbin-kubeconfig.tmp
-
-    kubectl config set-cluster --kubeconfig=.secret/httpbin-kubeconfig.tmp \
-      "$(kubectl config get-clusters --kubeconfig=.secret/httpbin-kubeconfig.tmp | tail -1)" \
-      --server=https://localhost:8443/clusters/root:providers:httpbin-provider
-
-    kubectl create secret generic httpbin-kubeconfig -n example-httpbin-provider \
-      --from-file=kubeconfig=.secret/httpbin-kubeconfig.tmp --dry-run=client -o yaml \
-      | kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f -
-
-    rm -f .secret/httpbin-kubeconfig.tmp
-  fi
-
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
   if [ "$REMOTE" = true ]; then
