@@ -169,6 +169,7 @@ services:
           artifact: image
           for: init-agent
     values:
+      configWorkspace: root:platform-mesh-system
       kcpKubeconfig: init-agent-kubeconfig
   keycloak:
     enabled: true

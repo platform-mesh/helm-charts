@@ -221,6 +221,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.init-agent.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.init-agent.imageResources[0].annotations.for | string | `"init-agent"` |  |
 | services.init-agent.imageResources[0].annotations.repo | string | `"oci"` |  |
+| services.init-agent.values.configWorkspace | string | `"root:platform-mesh-system"` |  |
 | services.init-agent.values.kcpKubeconfig | string | `"init-agent-kubeconfig"` |  |
 | services.keycloak.enabled | bool | `true` |  |
 | services.keycloak.imageResources[0].annotations.artifact | string | `"image"` |  |
