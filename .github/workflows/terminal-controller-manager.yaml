@@ -10,7 +10,7 @@ on:
     paths:
       - 'charts/terminal-controller-manager/**'
       - '.github/workflows/terminal-controller-manager.yaml'
-      - '.ocm/component-constructor.yaml'
+      - '.ocm/component-constructor-terminal-controller-manager.yaml'
   pull_request:
     paths:
       - 'charts/terminal-controller-manager/**'
@@ -27,4 +27,5 @@ jobs:
       chartName: terminal-controller-manager
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-terminal-controller-manager.yaml
     secrets: inherit
