@@ -55,7 +55,7 @@ update_constructor() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Downloading component-constructor-prerelease.yaml...${COL_RES}"
 
     curl -o "$OCM_DIR/component-constructor-prerelease.yaml" \
-        https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/feat/etcd-druid-component/constructor/component-constructor.yaml
+        https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
 
     # Rename the component from platform-mesh to prerelease
     sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' \
