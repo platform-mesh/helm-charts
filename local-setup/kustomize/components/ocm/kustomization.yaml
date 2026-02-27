@@ -3,5 +3,5 @@ kind: Kustomization
 resources:
   - repository.yaml
   - gardener-repository.yaml
-  - ocm-resolver-config.yaml
+  - resolver-config
   - component.yaml
