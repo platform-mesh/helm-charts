@@ -126,7 +126,7 @@ get_ocm_resource_version() {
     "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get resources "oci://ghcr.io/platform-mesh//$component" --latest -o json | jq -r "$query"
 }
 
-# Get component version from an external registry (resolved via .ocm/config resolvers)
+# Get component version from an external registry, probably might be deleted after platform-mesh component update
 get_external_component_version() {
     local component="$1"
     local repo="$2"
