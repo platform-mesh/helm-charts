@@ -71,6 +71,11 @@ initializer:
     # -- Enable WorkspaceAuthConfigurationSubroutine (JWT authentication setup)
     workspaceAuthEnabled: true
 
+terminator:
+  # -- The kubeconfig secret for the terminator
+  kubeconfigSecret: ""
+  extraArgs: []
+
 # -- Init container configuration for bootstrapping Keycloak service account clients
 initContainer:
   # -- Enable the init container
