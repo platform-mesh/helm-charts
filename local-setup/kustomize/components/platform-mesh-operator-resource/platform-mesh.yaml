@@ -73,6 +73,7 @@ spec:
         initializer:
           extraArgs:
             - --domain-ca-lookup
+            - --idp-registration-allowed
             - --development-allow-unverified-emails
             - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         caSecret: domain-certificate-ca
@@ -127,5 +128,9 @@ spec:
           - --no-json
         cors:
           enabled: true
+        hostAliases:
+          enabled: true
+    extension-manager-operator:
+      values:
         hostAliases:
           enabled: true

@@ -1,0 +1,17 @@
+{{- if .Values.etcdDruid.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.etcdDruid.ocm.resolverConfig.name }}
+data:
+  .ocmconfig: |
+    type: generic.config.ocm.software/v1
+    configurations:
+      - type: resolvers.config.ocm.software
+        resolvers:
+          - repository:
+              type: OCIRegistry/v1
+              baseUrl: europe-docker.pkg.dev
+              subPath: gardener-project/releases
+            componentNamePattern: "github.com/gardener/*"
+{{- end }}

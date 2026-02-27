@@ -1,8 +1,8 @@
 apiVersion: v2
 name: iam-service
 description: A Helm chart for Kubernetes
-version: 0.15.15
-appVersion: v0.12.58
+version: 0.15.36
+appVersion: v0.12.80
 dependencies:
   - name: common
     version: 0.11.2

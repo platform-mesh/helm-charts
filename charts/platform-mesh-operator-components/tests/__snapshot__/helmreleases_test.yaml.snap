@@ -49,10 +49,11 @@ HelmRelease snapshots:
       timeout: 30m
       values:
         crds:
-          enabled: false
+          enabled: true
         kcp:
           enabled: true
-          kubeconfigSecret: extension-manager-operator-kubeconfig
+          kubeconfig:
+            secret: extension-manager-operator-kubeconfig
         tracing:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
@@ -383,6 +384,8 @@ HelmRelease snapshots:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
+        terminator:
+          kubeconfigSecret: security-terminator-kubeconfig
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -464,10 +467,11 @@ enable remote deployment of helmreleases:
       timeout: 30m
       values:
         crds:
-          enabled: false
+          enabled: true
         kcp:
           enabled: true
-          kubeconfigSecret: extension-manager-operator-kubeconfig
+          kubeconfig:
+            secret: extension-manager-operator-kubeconfig
         tracing:
           collector:
             host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
@@ -830,6 +834,8 @@ enable remote deployment of helmreleases:
         operator:
           maxConcurrentReconciles: 1
           shutdownTimeout: 1m
+        terminator:
+          kubeconfigSecret: security-terminator-kubeconfig
   11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease

@@ -30,12 +30,26 @@ A Helm chart for security-operator
 | initContainer.keycloakUser | string | `"keycloak-admin"` | Keycloak username for admin authentication |
 | initializer.extraArgs | list | `[]` |  |
 | initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
+| initializer.subroutines.idpEnabled | bool | `true` | Enable IDPSubroutine (Keycloak identity provider configuration) |
+| initializer.subroutines.inviteEnabled | bool | `true` | Enable InviteSubroutine (creates Invite resources for org creator) |
+| initializer.subroutines.workspaceAuthEnabled | bool | `true` | Enable WorkspaceAuthConfigurationSubroutine (JWT authentication setup) |
+| initializer.subroutines.workspaceEnabled | bool | `true` | Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup) |
 | keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"security-operator-client-secret"` |  |
 | keycloakSecret | string | `"keycloak-admin"` |  |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |
 | region | string | `"local"` | region indicator, used for logging and observability |
+| terminator.extraArgs | list | `[]` |  |
+| terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
+| webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
+| webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
+| webhooks.certDir | string | `"/certs"` | The directory for webhook certificates (mounted from the serving cert secret) |
+| webhooks.certDuration | string | `"2160h"` | Serving certificate duration (default: 3 months) |
+| webhooks.certRenewBefore | string | `"720h"` | Serving certificate renewal time before expiration (default: 30 days) |
+| webhooks.enabled | bool | `true` | Enable validating admission webhooks |
+| webhooks.port | int | `9443` | Webhook server port (must match controller-runtime webhook server) |
+| webhooks.register | bool | `false` | Register the ValidatingWebhookConfiguration resources |
 
 ## Overriding Values
 

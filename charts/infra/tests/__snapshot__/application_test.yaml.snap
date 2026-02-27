@@ -8,14 +8,19 @@ Gateway API enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
-            namespaces:
-              from: All
-          hostname: portal.localhost
-          name: websecure
+        - hostname: portal.localhost
+          name: terminate
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - hostname: '*.portal.localhost'
+          name: terminate-wildstar
           port: 8443
           protocol: HTTPS
           tls:
@@ -26,34 +31,27 @@ Gateway API enabled:
                 namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
             namespaces:
               from: All
-          hostname: '*.portal.localhost'
-          name: websecure-wildcard-portal-localhost
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: TLSRoute
-            namespaces:
-              from: All
-          hostname: localhost
-          name: https-passthrough
+          name: passthrough
           port: 8443
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -219,7 +217,7 @@ Gateway API enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: https-passthrough
+          sectionName: passthrough
       rules:
         - backendRefs:
             - group: ""
@@ -227,7 +225,6 @@ Gateway API enabled:
               name: frontproxy-front-proxy
               port: 6443
               weight: 1
-          name: https-passthrough
   8: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -240,7 +237,6 @@ Gateway API enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
       rules:
         - backendRefs:
             - group: ""
@@ -285,14 +281,19 @@ Istio disabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
-            namespaces:
-              from: All
-          hostname: portal.localhost
-          name: websecure
+        - hostname: portal.localhost
+          name: terminate
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - hostname: '*.portal.localhost'
+          name: terminate-wildstar
           port: 8443
           protocol: HTTPS
           tls:
@@ -303,34 +304,27 @@ Istio disabled:
                 namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
             namespaces:
               from: All
-          hostname: '*.portal.localhost'
-          name: websecure-wildcard-portal-localhost
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: TLSRoute
-            namespaces:
-              from: All
-          hostname: localhost
-          name: https-passthrough
+          name: passthrough
           port: 8443
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -496,7 +490,7 @@ Istio disabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: https-passthrough
+          sectionName: passthrough
       rules:
         - backendRefs:
             - group: ""
@@ -504,7 +498,6 @@ Istio disabled:
               name: frontproxy-front-proxy
               port: 6443
               weight: 1
-          name: https-passthrough
   8: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -517,7 +510,6 @@ Istio disabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
       rules:
         - backendRefs:
             - group: ""
@@ -562,14 +554,19 @@ Istio enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
-            namespaces:
-              from: All
-          hostname: portal.localhost
-          name: websecure
+        - hostname: portal.localhost
+          name: terminate
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - hostname: '*.portal.localhost'
+          name: terminate-wildstar
           port: 8443
           protocol: HTTPS
           tls:
@@ -580,34 +577,27 @@ Istio enabled:
                 namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
             namespaces:
               from: All
-          hostname: '*.portal.localhost'
-          name: websecure-wildcard-portal-localhost
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: TLSRoute
-            namespaces:
-              from: All
-          hostname: localhost
-          name: https-passthrough
+          name: passthrough
           port: 8443
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -773,7 +763,7 @@ Istio enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: https-passthrough
+          sectionName: passthrough
       rules:
         - backendRefs:
             - group: ""
@@ -781,7 +771,6 @@ Istio enabled:
               name: frontproxy-front-proxy
               port: 6443
               weight: 1
-          name: https-passthrough
   8: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -794,7 +783,6 @@ Istio enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
       rules:
         - backendRefs:
             - group: ""
@@ -989,14 +977,19 @@ match snapshots:
     spec:
       gatewayClassName: traefik
       listeners:
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
-            namespaces:
-              from: All
-          hostname: portal.localhost
-          name: websecure
+        - hostname: portal.localhost
+          name: terminate
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - hostname: '*.portal.localhost'
+          name: terminate-wildstar
           port: 8443
           protocol: HTTPS
           tls:
@@ -1007,34 +1000,27 @@ match snapshots:
                 namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
             namespaces:
               from: All
-          hostname: '*.portal.localhost'
-          name: websecure-wildcard-portal-localhost
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: TLSRoute
-            namespaces:
-              from: All
-          hostname: localhost
-          name: https-passthrough
+          name: passthrough
           port: 8443
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -1207,7 +1193,7 @@ match snapshots:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: https-passthrough
+          sectionName: passthrough
       rules:
         - backendRefs:
             - group: ""
@@ -1215,7 +1201,6 @@ match snapshots:
               name: frontproxy-front-proxy
               port: 6443
               weight: 1
-          name: https-passthrough
   8: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1228,7 +1213,6 @@ match snapshots:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
       rules:
         - backendRefs:
             - group: ""
@@ -1273,14 +1257,19 @@ match snapshots w. hostAliases enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
-            namespaces:
-              from: All
-          hostname: portal.localhost
-          name: websecure
+        - hostname: portal.localhost
+          name: terminate
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - hostname: '*.portal.localhost'
+          name: terminate-wildstar
           port: 8443
           protocol: HTTPS
           tls:
@@ -1291,34 +1280,27 @@ match snapshots w. hostAliases enabled:
                 namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
             namespaces:
               from: All
-          hostname: '*.portal.localhost'
-          name: websecure-wildcard-portal-localhost
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: TLSRoute
-            namespaces:
-              from: All
-          hostname: localhost
-          name: https-passthrough
+          name: passthrough
           port: 8443
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -1499,7 +1481,7 @@ match snapshots w. hostAliases enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: https-passthrough
+          sectionName: passthrough
       rules:
         - backendRefs:
             - group: ""
@@ -1507,7 +1489,6 @@ match snapshots w. hostAliases enabled:
               name: frontproxy-front-proxy
               port: 6443
               weight: 1
-          name: https-passthrough
   8: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1520,7 +1501,6 @@ match snapshots w. hostAliases enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
       rules:
         - backendRefs:
             - group: ""
@@ -1565,14 +1545,19 @@ match snapshots w. kcp version:
     spec:
       gatewayClassName: traefik
       listeners:
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
-            namespaces:
-              from: All
-          hostname: portal.localhost
-          name: websecure
+        - hostname: portal.localhost
+          name: terminate
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - hostname: '*.portal.localhost'
+          name: terminate-wildstar
           port: 8443
           protocol: HTTPS
           tls:
@@ -1583,34 +1568,27 @@ match snapshots w. kcp version:
                 namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
             namespaces:
               from: All
-          hostname: '*.portal.localhost'
-          name: websecure-wildcard-portal-localhost
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: TLSRoute
-            namespaces:
-              from: All
-          hostname: localhost
-          name: https-passthrough
+          name: passthrough
           port: 8443
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -1783,7 +1761,7 @@ match snapshots w. kcp version:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: https-passthrough
+          sectionName: passthrough
       rules:
         - backendRefs:
             - group: ""
@@ -1791,7 +1769,6 @@ match snapshots w. kcp version:
               name: frontproxy-front-proxy
               port: 6443
               weight: 1
-          name: https-passthrough
   8: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1804,7 +1781,6 @@ match snapshots w. kcp version:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
       rules:
         - backendRefs:
             - group: ""
@@ -1849,14 +1825,19 @@ match snapshots with mailpit enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
-            namespaces:
-              from: All
-          hostname: portal.localhost
-          name: websecure
+        - hostname: portal.localhost
+          name: terminate
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - hostname: '*.portal.localhost'
+          name: terminate-wildstar
           port: 8443
           protocol: HTTPS
           tls:
@@ -1867,34 +1848,27 @@ match snapshots with mailpit enabled:
                 namespace: platform-mesh-system
             mode: Terminate
         - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: HTTPRoute
             namespaces:
               from: All
-          hostname: '*.portal.localhost'
-          name: websecure-wildcard-portal-localhost
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - allowedRoutes:
-            kinds:
-              - group: gateway.networking.k8s.io
-                kind: TLSRoute
-            namespaces:
-              from: All
-          hostname: localhost
-          name: https-passthrough
+          name: passthrough
           port: 8443
           protocol: TLS
           tls:
             mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: '*.services.portal.localhost'
+          name: terminate-services
+          port: 8443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
   2: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
@@ -2060,7 +2034,7 @@ match snapshots with mailpit enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: https-passthrough
+          sectionName: passthrough
       rules:
         - backendRefs:
             - group: ""
@@ -2068,7 +2042,6 @@ match snapshots with mailpit enabled:
               name: frontproxy-front-proxy
               port: 6443
               weight: 1
-          name: https-passthrough
   8: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -2081,7 +2054,6 @@ match snapshots with mailpit enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
       rules:
         - backendRefs:
             - group: ""

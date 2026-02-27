@@ -40,6 +40,7 @@ deployment with tracing:
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=account
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -596,6 +597,7 @@ disable istio:
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=account
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -1832,6 +1834,7 @@ operator match the snapshot (with kubeconfigSecret):
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=account
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"
@@ -2456,6 +2459,7 @@ operator match the snapshot with webhook enabled:
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
+                - --webhooks-additional-account-types=account
               env:
                 - name: SUBROUTINES_NAMESPACE_ENABLED
                   value: "true"

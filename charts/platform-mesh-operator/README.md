@@ -9,6 +9,7 @@ A Helm chart to automate bootstrapping of new environment
 | crds.enabled | bool | `true` |  |
 | deployment.replicas | int | `1` |  |
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |
+| idp.registrationAllowed | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/platform-mesh-operator"` |  |
 | istio.enabled | bool | `false` |  |
 | log.level | string | `"debug"` |  |

@@ -13,9 +13,6 @@ A Helm chart for Kubernetes
 | gatewayApi.httpRoute.pathPrefix | string | `"/iam/graphql"` |  |
 | health.port | int | `8080` |  |
 | hostAliases.enabled | bool | `false` |  |
-| hostAliases.items[0].hostnames[0] | string | `"portal.localhost"` |  |
-| hostAliases.items[0].hostnames[1] | string | `"localhost"` |  |
-| hostAliases.items[0].ip | string | `"10.96.188.4"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/iam-service"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | imagePullSecret | string | `"github"` |  |

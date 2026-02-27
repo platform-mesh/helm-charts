@@ -21,6 +21,28 @@ crds:
 
 logLevel: info
 
+webhooks:
+  # -- Enable validating admission webhooks
+  enabled: true
+
+  # -- Register the ValidatingWebhookConfiguration resources
+  register: false
+
+  # -- Webhook server port (must match controller-runtime webhook server)
+  port: 9443
+
+  # -- The directory for webhook certificates (mounted from the serving cert secret)
+  certDir: /certs
+
+  # -- CA certificate duration (default: 1 year)
+  caDuration: 8760h
+  # -- CA certificate renewal time before expiration (default: 30 days)
+  caRenewBefore: 720h
+  # -- Serving certificate duration (default: 3 months)
+  certDuration: 2160h
+  # -- Serving certificate renewal time before expiration (default: 30 days)
+  certRenewBefore: 720h
+
 # -- The kubeconfig secret for operator and generator
 kubeconfigSecret: ""
 
@@ -37,6 +59,20 @@ keycloak:
 
 initializer:
   # -- The kubeconfig secret for the initializer
+  kubeconfigSecret: ""
+  extraArgs: []
+  subroutines:
+    # -- Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup)
+    workspaceEnabled: true
+    # -- Enable IDPSubroutine (Keycloak identity provider configuration)
+    idpEnabled: true
+    # -- Enable InviteSubroutine (creates Invite resources for org creator)
+    inviteEnabled: true
+    # -- Enable WorkspaceAuthConfigurationSubroutine (JWT authentication setup)
+    workspaceAuthEnabled: true
+
+terminator:
+  # -- The kubeconfig secret for the terminator
   kubeconfigSecret: ""
   extraArgs: []
 

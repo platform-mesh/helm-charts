@@ -3,6 +3,158 @@
 A Helm chart for Kubernetes
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+## OCM Resources
+
+This chart generates [OCM](https://ocm.software/) `Resource` objects for each enabled service. There are two kinds of resource templates:
+
+- **`ocm-resources.yaml`** — one chart `Resource` per enabled service
+- **`ocm-image-resources.yaml`** — one image `Resource` per entry in a service's `imageResources` list
+
+Both templates are driven by the top-level `ocm` values and per-service configuration under `services.<name>`.
+
+---
+
+### Chart Resources (`ocm-resources.yaml`)
+
+For every service where `services.<name>.enabled: true`, a `delivery.ocm.software/v1alpha1` `Resource` is created with `metadata.name` set to the service name.
+
+#### Component reference
+
+`spec.componentRef.name` resolves in order:
+
+1. `services.<name>.ocm.component.name` — per-service override
+2. `ocm.component.name` — chart-wide default
+
+#### Repository config
+
+`spec.ocmConfig[0].name` resolves in order:
+
+1. `services.<name>.ocm.repo.name` — per-service override
+2. `ocm.repo.name` — chart-wide default
+
+#### `referencePath` resolution
+
+`spec.resource.byReference.referencePath` is built according to the following priority:
+
+| Condition | Resulting `referencePath` |
+|---|---|
+| `services.<name>.absoluteReferencePath` is set | Exactly the entries in `absoluteReferencePath` — the top-level `ocm.referencePath` is **not** prepended |
+| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` entries |
+| Neither is set (default) | `ocm.referencePath` entries followed by `- name: <service-name>` |
+
+**Example — default path:**
+
+```yaml
+ocm:
+  referencePath:
+    - name: platform-mesh
+services:
+  tracing:
+    enabled: true
+```
+
+Produces:
+```yaml
+referencePath:
+- name: platform-mesh
+- name: tracing
+```
+
+**Example — per-service `referencePath`:**
+
+```yaml
+ocm:
+  referencePath:
+    - name: platform-mesh
+services:
+  virtual-workspaces:
+    enabled: true
+    referencePath:
+      - name: vw-component
+```
+
+Produces:
+```yaml
+referencePath:
+- name: platform-mesh
+- name: vw-component
+```
+
+**Example — `absoluteReferencePath` (no top-level prepend):**
+
+```yaml
+ocm:
+  referencePath:
+    - name: platform-mesh   # ignored when absoluteReferencePath is used
+services:
+  infra:
+    enabled: true
+    absoluteReferencePath:
+      - name: compref1
+      - name: compref2
+```
+
+Produces:
+```yaml
+referencePath:
+- name: compref1
+- name: compref2
+```
+
+---
+
+### Image Resources (`ocm-image-resources.yaml`)
+
+For every enabled service that has an `imageResources` list, one `Resource` is generated per list entry. The resource type is `image` by default and can be overridden with `imageResources[].resource`.
+
+`metadata.name` uses `imageResources[].name` if provided, otherwise falls back to `<service-name>-image`.
+
+#### `referencePath` resolution for image resources
+
+Image resources follow a four-level priority:
+
+| Condition | Resulting `referencePath` |
+|---|---|
+| `imageResources[].absoluteReferencePath` is set | Exactly those entries — top-level `ocm.referencePath` is **not** prepended |
+| `imageResources[].referencePath` is set | `ocm.referencePath` + `imageResources[].referencePath` |
+| `services.<name>.referencePath` is set | `ocm.referencePath` + `services.<name>.referencePath` |
+| None of the above (default) | `ocm.referencePath` + `[{name: <service-name>}]` |
+
+**Example — per-image `referencePath`:**
+
+```yaml
+ocm:
+  referencePath:
+    - name: platform-mesh
+services:
+  infra:
+    enabled: true
+    imageResources:
+      - name: kcp-image
+        resource: image
+        referencePath:
+          - name: kcp
+```
+
+Produces `referencePath: [{name: platform-mesh}, {name: kcp}]`.
+
+**Example — absolute path for image resource:**
+
+```yaml
+services:
+  infra:
+    enabled: true
+    imageResources:
+      - name: kcp-image
+        absoluteReferencePath:
+          - name: compref1
+          - name: compref2
+```
+
+Produces `referencePath: [{name: compref1}, {name: compref2}]`.
+
+---
+
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
@@ -31,9 +183,9 @@ A Helm chart for Kubernetes
 | services.account-operator.values.tracing.enabled | bool | `false` |  |
 | services.extension-manager-operator.enabled | bool | `true` |  |
 | services.extension-manager-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"extension-manager-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
-| services.extension-manager-operator.values.crds.enabled | bool | `false` |  |
+| services.extension-manager-operator.values.crds.enabled | bool | `true` |  |
 | services.extension-manager-operator.values.kcp.enabled | bool | `true` |  |
-| services.extension-manager-operator.values.kcp.kubeconfigSecret | string | `"extension-manager-operator-kubeconfig"` |  |
+| services.extension-manager-operator.values.kcp.kubeconfig.secret | string | `"extension-manager-operator-kubeconfig"` |  |
 | services.extension-manager-operator.values.tracing.collector.host | string | `"observability-opentelemetry-collector.observability.svc.cluster.local:4317"` |  |
 | services.extension-manager-operator.values.tracing.enabled | bool | `false` |  |
 | services.iam-service.enabled | bool | `true` | Enable IAM Service |
@@ -198,6 +350,7 @@ A Helm chart for Kubernetes
 | services.security-operator.values.log.level | string | `"debug"` |  |
 | services.security-operator.values.operator.maxConcurrentReconciles | int | `1` |  |
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
+| services.security-operator.values.terminator.kubeconfigSecret | string | `"security-terminator-kubeconfig"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
 | services.virtual-workspaces.imageResources | list | `[{"annotations":{"artifact":"image","for":"virtual-workspaces","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.virtual-workspaces.values.deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |

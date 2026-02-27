@@ -9,16 +9,32 @@ A Helm chart for Kubernetes
 | externalSecrets.enabled | bool | `false` |  |
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
-| gatewayApi.main | object | `{"gateway":{"hostnames":["portal.localhost","*.portal.localhost"],"infrastructure":null,"name":"websecure","port":8443,"protocol":"HTTPS","tls":{"credentialName":"domain-certificate","credentialNamespace":"platform-mesh-system","mode":"Terminate"}}}` | HTTPS Terminate configuration |
-| gatewayApi.main.gateway.hostnames | list | `["portal.localhost","*.portal.localhost"]` | This is required when using passthrough on the same port to avoid conflicts. |
-| gatewayApi.main.gateway.tls.credentialName | string | `"domain-certificate"` | Name of the secret containing the TLS certificate |
-| gatewayApi.main.gateway.tls.credentialNamespace | string | `"platform-mesh-system"` | Set secret namespace if different from the gateway namespace |
+| gatewayApi.infrastructure | object | `{}` | HTTPS Terminate configuration |
+| gatewayApi.listenersExtra | list | `[{"allowedRoutes":{"namespaces":{"from":"All"}},"hostname":"*.services.portal.localhost","name":"terminate-services","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}}]` | Additional listeners to be added to the Gateway resource (e.g. for HTTPBin) |
+| gatewayApi.listeners[0].hostname | string | `"portal.localhost"` |  |
+| gatewayApi.listeners[0].name | string | `"terminate"` |  |
+| gatewayApi.listeners[0].port | int | `8443` |  |
+| gatewayApi.listeners[0].protocol | string | `"HTTPS"` |  |
+| gatewayApi.listeners[0].tls.certificateRefs[0].group | string | `""` |  |
+| gatewayApi.listeners[0].tls.certificateRefs[0].kind | string | `"Secret"` |  |
+| gatewayApi.listeners[0].tls.certificateRefs[0].name | string | `"domain-certificate"` |  |
+| gatewayApi.listeners[0].tls.certificateRefs[0].namespace | string | `"platform-mesh-system"` |  |
+| gatewayApi.listeners[0].tls.mode | string | `"Terminate"` |  |
+| gatewayApi.listeners[1].hostname | string | `"*.portal.localhost"` |  |
+| gatewayApi.listeners[1].name | string | `"terminate-wildstar"` |  |
+| gatewayApi.listeners[1].port | int | `8443` |  |
+| gatewayApi.listeners[1].protocol | string | `"HTTPS"` |  |
+| gatewayApi.listeners[1].tls.certificateRefs[0].group | string | `""` |  |
+| gatewayApi.listeners[1].tls.certificateRefs[0].kind | string | `"Secret"` |  |
+| gatewayApi.listeners[1].tls.certificateRefs[0].name | string | `"domain-certificate"` |  |
+| gatewayApi.listeners[1].tls.certificateRefs[0].namespace | string | `"platform-mesh-system"` |  |
+| gatewayApi.listeners[1].tls.mode | string | `"Terminate"` |  |
+| gatewayApi.listeners[2].allowedRoutes.namespaces.from | string | `"All"` |  |
+| gatewayApi.listeners[2].name | string | `"passthrough"` |  |
+| gatewayApi.listeners[2].port | int | `8443` |  |
+| gatewayApi.listeners[2].protocol | string | `"TLS"` |  |
+| gatewayApi.listeners[2].tls.mode | string | `"Passthrough"` |  |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
-| gatewayApi.passThrough.gateway.enabled | bool | `true` | Toggle to enable/disable the passthrough gateway |
-| gatewayApi.passThrough.gateway.hostname | string | `"localhost"` |  |
-| gatewayApi.passThrough.gateway.name | string | `"https-passthrough"` |  |
-| gatewayApi.passThrough.gateway.port | int | `8443` |  |
-| gatewayApi.passThrough.gateway.protocol | string | `"TLS"` |  |
 | hostAliases.enabled | bool | `false` |  |
 | hostAliases.entries[0].hostnames[0] | string | `"localhost"` |  |
 | hostAliases.entries[0].hostnames[1] | string | `"portal.localhost"` |  |

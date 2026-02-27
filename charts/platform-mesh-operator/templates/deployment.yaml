@@ -41,6 +41,9 @@ spec:
           - --remote-infra-enabled
           - --remote-infra-kubeconfig=/etc/infra/kubeconfig
           {{- end }}
+          {{- if .Values.idp.registrationAllowed }}
+          - --idp-registration-allowed
+          {{- end }}
           {{- include "common.extraArgs" . | nindent 10 }}
         ports:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}

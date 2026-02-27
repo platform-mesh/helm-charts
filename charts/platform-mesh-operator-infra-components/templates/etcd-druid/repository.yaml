@@ -1,0 +1,17 @@
+{{- if .Values.etcdDruid.enabled }}
+apiVersion: delivery.ocm.software/v1alpha1
+kind: Repository
+metadata:
+  name: {{ .Values.etcdDruid.ocm.repo.name }}
+spec:
+  repositorySpec:
+    baseUrl: {{ .Values.etcdDruid.ocm.repo.baseUrl }}
+    type: OCIRegistry
+  ocmConfig:
+    - apiVersion: v1
+      kind: ConfigMap
+      name: {{ .Values.etcdDruid.ocm.resolverConfig.name }}
+      namespace: {{ .Release.Namespace }}
+      policy: Propagate
+  interval: 1m
+{{- end }}

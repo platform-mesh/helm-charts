@@ -56,10 +56,11 @@ services:
           for: extension-manager-operator
     values:
       crds:
-        enabled: false
+        enabled: true
       kcp:
         enabled: true
-        kubeconfigSecret: extension-manager-operator-kubeconfig
+        kubeconfig:
+          secret: extension-manager-operator-kubeconfig
       tracing:
         enabled: false
         collector:
@@ -80,6 +81,8 @@ services:
         inviteKeycloakBaseUrl: "https://{{ .Values.baseDomainPort }}/keycloak"
       initializer:
         kubeconfigSecret: security-initializer-kubeconfig
+      terminator:
+        kubeconfigSecret: security-terminator-kubeconfig
       baseDomain: "{{ .Values.baseDomainPort }}"
       kubeconfigSecret: security-operator-kubeconfig
       log:

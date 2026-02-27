@@ -11,7 +11,6 @@ test HTTPRoutes:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: websecure
       rules:
         - backendRefs:
             - group: ""
