@@ -220,6 +220,9 @@ components:
       - name: traefik
         componentName: github.com/traefik/traefik
         version: {{ .TRAEFIK_VERSION }}
+      - name: terminal-controller-manager
+        componentName: github.com/platform-mesh/terminal-controller-manager
+        version: {{ .TERMINAL_CONTROLLER_MANAGER_VERSION }}
       - name: cert-manager
         componentName: github.com/cert-manager/cert-manager
         version: {{ .CERT_MANAGER_VERSION }}
