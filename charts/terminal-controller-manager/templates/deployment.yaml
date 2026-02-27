@@ -42,7 +42,7 @@ spec:
           - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
             value: "{{ .Values.kcp.apiExportEndpointSliceName }}"
           - name: TERMINAL_IMAGE
-            value: "{{ .Values.terminal.image }}"
+            value: "{{ .Values.terminal.image.name }}:{{ .Values.terminal.image.tag }}"
           - name: TERMINAL_NAMESPACE
             value: "{{ .Values.terminal.namespace }}"
           - name: TERMINAL_LIFETIME
