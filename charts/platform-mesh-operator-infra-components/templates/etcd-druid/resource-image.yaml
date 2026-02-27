@@ -15,7 +15,7 @@ spec:
   ocmConfig:
     - apiVersion: delivery.ocm.software/v1alpha1
       kind: Repository
-      name: {{ .Values.ocm.repo.name }}
+      name: {{ .Values.etcdDruid.ocm.repo.name }}
       namespace: {{ .Release.Namespace }}
   resource:
     byReference:
@@ -25,6 +25,6 @@ spec:
       {{- end }}
         - name: {{   .Values.etcdDruid.name }}
       resource:
-        name: image
+        name: {{ .Values.etcdDruid.ocmImageResourceName }}
   skipVerify: {{ .Values.ocm.skipVerify }}
 {{- end }}
