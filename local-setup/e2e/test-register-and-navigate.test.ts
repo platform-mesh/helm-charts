@@ -228,7 +228,11 @@ test.describe('Home Page', () => {
 
     const scopeCombobox = page.locator('[data-testid="namespace-selection-combobox"]').first();
     await expect(scopeCombobox).toBeVisible({ timeout: 15000 });
+
     await scopeCombobox.click();
+    await scopeCombobox.press('F4');
+    await expect(scopeCombobox).toHaveAttribute('open', '');
+
     const defaultScopeItem = page.locator('[data-testid="namespace-selection-combobox-item-default"]');
     await defaultScopeItem.waitFor({ state: 'visible', timeout: 10000 });
     await defaultScopeItem.click();
