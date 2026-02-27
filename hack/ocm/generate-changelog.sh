@@ -325,6 +325,7 @@ declare -A THIRD_PARTY_COMPONENTS=(
   ["cert-manager"]=1
   ["openfga"]=1
   ["kcp-operator"]=1
+  ["init-agent"]=1
   ["etcd-druid"]=1
 )
 
