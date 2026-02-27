@@ -7,5 +7,11 @@ spec:
   repositorySpec:
     baseUrl: {{ .Values.etcdDruid.ocm.repo.baseUrl }}
     type: OCIRegistry
+  ocmConfig:
+    - apiVersion: v1
+      kind: ConfigMap
+      name: ocm-resolver-config
+      namespace: default
+      policy: Propagate
   interval: 1m
 {{- end }}

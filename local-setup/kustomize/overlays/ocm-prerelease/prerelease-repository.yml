@@ -8,3 +8,10 @@ spec:
   repositorySpec:
     baseUrl: oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
     type: OCIRegistry
+  ocmConfig:
+    - apiVersion: v1
+      kind: ConfigMap
+      name: ocm-resolver-config
+      namespace: default
+      policy: Propagate
+  

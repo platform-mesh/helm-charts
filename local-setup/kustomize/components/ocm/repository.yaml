@@ -6,4 +6,10 @@ spec:
   repositorySpec:
     baseUrl: ghcr.io/platform-mesh
     type: OCIRegistry
+  ocmConfig:
+    - apiVersion: v1
+      kind: ConfigMap
+      name: ocm-resolver-config
+      namespace: default
+      policy: Propagate
   interval: 1m

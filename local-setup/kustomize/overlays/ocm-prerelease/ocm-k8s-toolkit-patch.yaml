@@ -9,11 +9,13 @@ spec:
         patches:
           - target:
               kind: Deployment
+              name: ocm-k8s-toolkit-controller-manager
+              namespace: ocm-system
             patch: |
               apiVersion: apps/v1
               kind: Deployment
               metadata:
-                name: controller-manager
+                name: ocm-k8s-toolkit-controller-manager
               spec:
                 template:
                   spec:
