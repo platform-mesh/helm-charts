@@ -160,6 +160,16 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
+  init-agent:
+    enabled: false
+    helmRepo: true
+    imageResources:
+      - annotations:
+          repo: oci
+          artifact: image
+          for: init-agent
+    values:
+      kcpKubeconfig: init-agent-kubeconfig
   keycloak:
     enabled: true
     imageResources:

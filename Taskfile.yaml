@@ -42,6 +42,10 @@ vars:
       fi
 
 tasks:
+  default:
+    cmds:
+      - task --list-all
+
   ## Setup
   setup:kube-lint:
     internal: true
