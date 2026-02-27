@@ -28,7 +28,9 @@ spec:
       resource:
         name: {{ .resource | default "image"}}
       referencePath:
-        {{- if .referencePath }}
+        {{- if .absoluteReferencePath }}
+        {{- toYaml .absoluteReferencePath | nindent 8 }}
+        {{- else if .referencePath }}
         {{- with $values.ocm.referencePath }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
