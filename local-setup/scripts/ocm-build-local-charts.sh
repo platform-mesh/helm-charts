@@ -32,6 +32,7 @@ platform-mesh-operator:charts/platform-mesh-operator
     "portal:charts/portal"
     "rebac-authz-webhook:charts/rebac-authz-webhook"
     "security-operator:charts/security-operator"
+    "terminal-controller-manager:charts/terminal-controller-manager"
     "virtual-workspaces:charts/virtual-workspaces"
 )
 

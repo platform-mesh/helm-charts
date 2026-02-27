@@ -216,6 +216,13 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://localhost:8443"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
+| services.init-agent.enabled | bool | `false` |  |
+| services.init-agent.helmRepo | bool | `true` |  |
+| services.init-agent.imageResources[0].annotations.artifact | string | `"image"` |  |
+| services.init-agent.imageResources[0].annotations.for | string | `"init-agent"` |  |
+| services.init-agent.imageResources[0].annotations.repo | string | `"oci"` |  |
+| services.init-agent.values.configWorkspace | string | `"root:platform-mesh-system"` |  |
+| services.init-agent.values.kcpKubeconfig | string | `"init-agent-kubeconfig"` |  |
 | services.keycloak.enabled | bool | `true` |  |
 | services.keycloak.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.keycloak.imageResources[0].annotations.for | string | `"keycloak"` |  |
@@ -351,6 +358,18 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.security-operator.values.operator.maxConcurrentReconciles | int | `1` |  |
 | services.security-operator.values.operator.shutdownTimeout | string | `"1m"` |  |
 | services.security-operator.values.terminator.kubeconfigSecret | string | `"security-terminator-kubeconfig"` |  |
+| services.terminal-controller-manager.enabled | bool | `false` |  |
+| services.terminal-controller-manager.imageResources[0].annotations.artifact | string | `"image"` |  |
+| services.terminal-controller-manager.imageResources[0].annotations.for | string | `"terminal-controller-manager"` |  |
+| services.terminal-controller-manager.imageResources[0].annotations.repo | string | `"oci"` |  |
+| services.terminal-controller-manager.imageResources[1].annotations.artifact | string | `"image"` |  |
+| services.terminal-controller-manager.imageResources[1].annotations.for | string | `"terminal-controller-manager"` |  |
+| services.terminal-controller-manager.imageResources[1].annotations.path | string | `"terminal.image.tag"` |  |
+| services.terminal-controller-manager.imageResources[1].annotations.repo | string | `"oci"` |  |
+| services.terminal-controller-manager.imageResources[1].name | string | `"terminal-image"` |  |
+| services.terminal-controller-manager.imageResources[1].referencePath[0].name | string | `"terminal-controller-manager"` |  |
+| services.terminal-controller-manager.imageResources[1].resource | string | `"terminal-image"` |  |
+| services.terminal-controller-manager.values.kcp.kubeconfigSecret | string | `"terminal-controller-manager-kubeconfig"` |  |
 | services.virtual-workspaces.enabled | bool | `true` |  |
 | services.virtual-workspaces.imageResources | list | `[{"annotations":{"artifact":"image","for":"virtual-workspaces","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.virtual-workspaces.values.deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |

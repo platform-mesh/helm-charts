@@ -160,6 +160,17 @@ services:
           virtualservice:
             hosts:
               - "{{ .Values.baseDomain }}"
+  init-agent:
+    enabled: false
+    helmRepo: true
+    imageResources:
+      - annotations:
+          repo: oci
+          artifact: image
+          for: init-agent
+    values:
+      configWorkspace: root:platform-mesh-system
+      kcpKubeconfig: init-agent-kubeconfig
   keycloak:
     enabled: true
     imageResources:
@@ -394,6 +405,25 @@ services:
         ports:
           metrics:
             enabled: true
+  terminal-controller-manager:
+    enabled: false
+    imageResources:
+      - annotations:
+          repo: oci
+          artifact: image
+          for: terminal-controller-manager
+      - name: terminal-image
+        annotations:
+          path: terminal.image.tag
+          for: terminal-controller-manager
+          repo: oci
+          artifact: image
+        resource: terminal-image
+        referencePath:
+          - name: terminal-controller-manager
+    values:
+      kcp:
+        kubeconfigSecret: terminal-controller-manager-kubeconfig
   virtual-workspaces:
     enabled: true
     # -- Allow the configuration of additional ocm resources

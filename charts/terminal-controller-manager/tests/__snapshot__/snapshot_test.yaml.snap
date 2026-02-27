@@ -35,7 +35,7 @@ match the default snapshot:
                 - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
                   value: terminal.platform-mesh.io
                 - name: TERMINAL_IMAGE
-                  value: ghcr.io/platform-mesh/terminal:latest
+                  value: ghcr.io/platform-mesh/terminal:0.0.0
                 - name: TERMINAL_NAMESPACE
                   value: terminal-sessions
                 - name: TERMINAL_LIFETIME

@@ -28,6 +28,7 @@ vars:
     - portal: charts/portal
     - rebac-authz-webhook: charts/rebac-authz-webhook
     - security-operator: charts/security-operator
+    - terminal-controller-manager: charts/terminal-controller-manager
     - virtual-workspaces: charts/virtual-workspaces
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
@@ -41,6 +42,10 @@ vars:
       fi
 
 tasks:
+  default:
+    cmds:
+      - task --list-all
+
   ## Setup
   setup:kube-lint:
     internal: true

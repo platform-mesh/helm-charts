@@ -35,7 +35,8 @@ A Helm chart to deploy platform-mesh Terminal Controller Manager
 | subroutines.service.enabled | bool | `true` | Enable service subroutine |
 | terminal.hostAliasIP | string | `""` | Host alias IP for local development (optional) |
 | terminal.hostAliasNames | list | `[]` | Host alias names for local development (optional) |
-| terminal.image | string | `"ghcr.io/platform-mesh/terminal:latest"` | The terminal pod image |
+| terminal.image.name | string | `"ghcr.io/platform-mesh/terminal"` | The terminal pod image repository |
+| terminal.image.tag | string | `""` | Override terminal image tag (defaults to appVersion) |
 | terminal.lifetime | string | `"2h"` | The terminal session lifetime (Go duration format) |
 | terminal.namespace | string | `"terminal-sessions"` | The namespace where terminal pods are created |
 
