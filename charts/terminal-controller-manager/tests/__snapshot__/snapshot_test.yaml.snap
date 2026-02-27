@@ -1,82 +1,5 @@
 match the default snapshot:
   1: |
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRole
-    metadata:
-      name: terminal-controller-manager
-    rules:
-      - apiGroups:
-          - ""
-        resources:
-          - pods
-        verbs:
-          - create
-          - delete
-          - get
-          - list
-          - watch
-      - apiGroups:
-          - ""
-        resources:
-          - services
-        verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-      - apiGroups:
-          - gateway.networking.k8s.io
-        resources:
-          - httproutes
-        verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-      - apiGroups:
-          - ""
-        resources:
-          - namespaces
-          - events
-        verbs:
-          - get
-          - list
-          - watch
-          - create
-          - update
-          - patch
-      - apiGroups:
-          - coordination.k8s.io
-        resources:
-          - leases
-        verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-  2: |
-    apiVersion: rbac.authorization.k8s.io/v1
-    kind: ClusterRoleBinding
-    metadata:
-      name: terminal-controller-manager
-    roleRef:
-      apiGroup: rbac.authorization.k8s.io
-      kind: ClusterRole
-      name: terminal-controller-manager
-    subjects:
-      - kind: ServiceAccount
-        name: terminal-controller-manager
-        namespace: platform-mesh-system
-  3: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -176,14 +99,108 @@ match the default snapshot:
           serviceAccountName: terminal-controller-manager
           terminationGracePeriodSeconds: 10
           volumes: null
-  4: |
+  2: |
     apiVersion: v1
     kind: Namespace
     metadata:
       labels:
         app.kubernetes.io/managed-by: terminal-controller-manager
       name: terminal-sessions
+  3: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: terminal-controller-manager
+      namespace: terminal-sessions
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - pods
+        verbs:
+          - create
+          - delete
+          - get
+          - list
+          - watch
+      - apiGroups:
+          - ""
+        resources:
+          - services
+        verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+      - apiGroups:
+          - gateway.networking.k8s.io
+        resources:
+          - httproutes
+        verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+      - apiGroups:
+          - ""
+        resources:
+          - events
+        verbs:
+          - create
+          - update
+          - patch
+  4: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: terminal-controller-manager-leader-election
+    rules:
+      - apiGroups:
+          - coordination.k8s.io
+        resources:
+          - leases
+        verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
   5: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: terminal-controller-manager
+      namespace: terminal-sessions
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: terminal-controller-manager
+    subjects:
+      - kind: ServiceAccount
+        name: terminal-controller-manager
+        namespace: platform-mesh-system
+  6: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: terminal-controller-manager-leader-election
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: terminal-controller-manager-leader-election
+    subjects:
+      - kind: ServiceAccount
+        name: terminal-controller-manager
+        namespace: platform-mesh-system
+  7: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
