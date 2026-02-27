@@ -1,3 +1,4 @@
+{{- if .Values.etcdDruid.enabled }}
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Repository
 metadata:
@@ -10,6 +11,7 @@ spec:
     - apiVersion: v1
       kind: ConfigMap
       name: ocm-resolver-config
-      namespace: default
+      namespace: {{ .Release.Namespace }}
       policy: Propagate
   interval: 1m
+{{- end }}

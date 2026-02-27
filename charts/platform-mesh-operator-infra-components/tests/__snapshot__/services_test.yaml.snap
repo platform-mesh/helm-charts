@@ -17,6 +17,38 @@ disable all components:
       timeout: 30m
       values: null
   2: |
+    apiVersion: v1
+    data:
+      .ocmconfig: |
+        type: generic.config.ocm.software/v1
+        configurations:
+          - type: resolvers.config.ocm.software
+            resolvers:
+              - repository:
+                  type: OCIRegistry/v1
+                  baseUrl: europe-docker.pkg.dev
+                  subPath: gardener-project/releases
+                componentNamePattern: "github.com/gardener/*"
+    kind: ConfigMap
+    metadata:
+      name: ocm-resolver-config
+  3: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Repository
+    metadata:
+      name: gardener-releases
+    spec:
+      interval: 1m
+      ocmConfig:
+        - apiVersion: v1
+          kind: ConfigMap
+          name: ocm-resolver-config
+          namespace: default
+          policy: Propagate
+      repositorySpec:
+        baseUrl: europe-docker.pkg.dev/gardener-project/releases
+        type: OCIRegistry
+  4: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -42,7 +74,7 @@ disable all components:
           resource:
             name: etcd-druid
       skipVerify: true
-  3: |
+  5: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -67,7 +99,7 @@ disable all components:
             name: etcd-druid
             type: helmChart
       skipVerify: true
-  4: |
+  6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -87,7 +119,7 @@ disable all components:
       targetNamespace: kcp-operator
       timeout: 30m
       values: null
-  5: |
+  7: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -113,7 +145,7 @@ disable all components:
           resource:
             name: image
       skipVerify: true
-  6: |
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -276,6 +308,38 @@ it should render the application manifests:
       timeout: 30m
       values: null
   7: |
+    apiVersion: v1
+    data:
+      .ocmconfig: |
+        type: generic.config.ocm.software/v1
+        configurations:
+          - type: resolvers.config.ocm.software
+            resolvers:
+              - repository:
+                  type: OCIRegistry/v1
+                  baseUrl: europe-docker.pkg.dev
+                  subPath: gardener-project/releases
+                componentNamePattern: "github.com/gardener/*"
+    kind: ConfigMap
+    metadata:
+      name: ocm-resolver-config
+  8: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Repository
+    metadata:
+      name: gardener-releases
+    spec:
+      interval: 1m
+      ocmConfig:
+        - apiVersion: v1
+          kind: ConfigMap
+          name: ocm-resolver-config
+          namespace: default
+          policy: Propagate
+      repositorySpec:
+        baseUrl: europe-docker.pkg.dev/gardener-project/releases
+        type: OCIRegistry
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -301,7 +365,7 @@ it should render the application manifests:
           resource:
             name: etcd-druid
       skipVerify: true
-  8: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -326,7 +390,7 @@ it should render the application manifests:
             name: etcd-druid
             type: helmChart
       skipVerify: true
-  9: |
+  11: |
     apiVersion: kustomize.toolkit.fluxcd.io/v1
     kind: Kustomization
     metadata:
@@ -341,7 +405,7 @@ it should render the application manifests:
       sourceRef:
         kind: GitRepository
         name: gateway-api
-  10: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -365,7 +429,7 @@ it should render the application manifests:
           resource:
             name: crds
       skipVerify: true
-  11: |
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -385,7 +449,7 @@ it should render the application manifests:
       targetNamespace: kcp-operator
       timeout: 30m
       values: null
-  12: |
+  14: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -411,7 +475,7 @@ it should render the application manifests:
           resource:
             name: image
       skipVerify: true
-  13: |
+  15: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -435,7 +499,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  14: |
+  16: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -453,7 +517,7 @@ it should render the application manifests:
       releaseName: traefik-crds
       targetNamespace: default
       timeout: 30m
-  15: |
+  17: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -492,7 +556,7 @@ it should render the application manifests:
           spec:
             clusterIP: 10.96.188.4
           type: NodePort
-  16: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -516,7 +580,7 @@ it should render the application manifests:
           resource:
             name: crds
       skipVerify: true
-  17: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -542,7 +606,7 @@ it should render the application manifests:
           resource:
             name: image
       skipVerify: true
-  18: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
