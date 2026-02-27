@@ -15,7 +15,6 @@ A Helm chart for Kubernetes
 | etcdDruid.enabled | bool | `true` |  |
 | etcdDruid.interval | string | `"1m"` |  |
 | etcdDruid.name | string | `"etcd-druid"` |  |
-| etcdDruid.ocm.repo.baseUrl | string | `"europe-docker.pkg.dev/gardener-project/releases"` |  |
 | etcdDruid.ocm.repo.name | string | `"gardener-releases"` |  |
 | etcdDruid.ocmImageResourceName | string | `"etcd-druid"` |  |
 | etcdDruid.ocmResourceName | string | `"etcd-druid"` |  |

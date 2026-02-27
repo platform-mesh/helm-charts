@@ -78,7 +78,6 @@ etcdDruid:
   ocm:
     repo:
       name: gardener-releases
-      baseUrl: europe-docker.pkg.dev/gardener-project/releases
 
 kcpOperator:
   enabled: true
