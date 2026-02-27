@@ -3,7 +3,7 @@ data:
   profile.yaml: |
     components:
       deploymentTechnology: fluxcd
-      destinationServer: https://172.18.0.6:6443
+      destinationServer: https://RUNTIME_CLUSTER_IP:6443
       iamWebhookCA: null
       ocm:
         component:
@@ -428,7 +428,7 @@ data:
           targetNamespace: platform-mesh-system
     infra:
       deploymentTechnology: fluxcd
-      destinationServer: https://172.18.0.6:6443
+      destinationServer: https://RUNTIME_CLUSTER_IP:6443
       ocm:
         component:
           name: platform-mesh

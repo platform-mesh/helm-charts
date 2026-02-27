@@ -125,6 +125,25 @@ create_domain_secrets() {
     --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl "${kc[@]}" apply -f -
 }
 
+substitute_runtime_ip() {
+  local ip=$1
+  local files=(
+    "$SCRIPT_DIR/../platform-mesh-cluster-secret.yml"
+    "$SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-argocd/default-profile.yaml"
+    "$SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-fluxcd/default-profile.yaml"
+    "$SCRIPT_DIR/../kustomize/components/platform-mesh-operator/platform-mesh-operator.yaml"
+    "$SCRIPT_DIR/../kustomize/components/example-httpbin-provider/helmreleases.yaml"
+    "$SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd/applications.yaml"
+  )
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Substituting runtime cluster IP: ${ip} ${COL_RES}"
+  for file in "${files[@]}"; do
+    if [ -f "$file" ]; then
+      sed -i "s/RUNTIME_CLUSTER_IP/$ip/g" "$file"
+    fi
+  done
+}
+
 # Remote-only helper functions
 
 install_fluxcd() {
@@ -389,6 +408,7 @@ if [ "$REMOTE" = true ]; then
   # Add platform-mesh kubeconfig to the infra cluster as a secret
   cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
   IP_ADDR=$(docker inspect platform-mesh-control-plane|jq '.[0] | .NetworkSettings | .Networks | .kind | .IPAddress' -r)
+  substitute_runtime_ip "$IP_ADDR"
   kubectl config set-cluster kind-platform-mesh \
     --server=https://$IP_ADDR:6443 \
     --kubeconfig=.secret/platform-mesh.kubeconfig.tmp

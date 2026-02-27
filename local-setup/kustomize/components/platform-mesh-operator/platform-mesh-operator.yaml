@@ -108,7 +108,7 @@ spec:
       - hostnames:
         - portal.localhost
         - localhost
-        ip: 172.18.0.6
+        ip: RUNTIME_CLUSTER_IP
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext:

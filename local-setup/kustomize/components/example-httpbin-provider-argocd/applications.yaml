@@ -25,7 +25,7 @@ spec:
         hostAliases:
           enabled: true
           values:
-            - ip: "172.18.0.6"
+            - ip: "RUNTIME_CLUSTER_IP"
               hostnames:
               - "localhost"
   syncPolicy:
