@@ -1,0 +1,31 @@
+permissions:
+  contents: read
+  packages: write
+
+name: Build terminal-controller-manager Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/terminal-controller-manager/**'
+      - '.github/workflows/terminal-controller-manager.yaml'
+      - '.ocm/component-constructor-terminal-controller-manager.yaml'
+  pull_request:
+    paths:
+      - 'charts/terminal-controller-manager/**'
+      - '.github/workflows/terminal-controller-manager.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: terminal-controller-manager-${{ github.ref }}
+      cancel-in-progress: true
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    with:
+      chartFolder: charts
+      chartName: terminal-controller-manager
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-terminal-controller-manager.yaml
+    secrets: inherit
