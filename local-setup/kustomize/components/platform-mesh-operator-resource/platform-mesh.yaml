@@ -67,6 +67,9 @@ spec:
             - --idp-from-address=keycloak@portal.localhost
             - --set-default-password
             - --idp-registration-allowed
+            - --domain-ca-lookup
+            - --development-allow-unverified-emails
+            - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         initializer:
           extraArgs:
             - --domain-ca-lookup

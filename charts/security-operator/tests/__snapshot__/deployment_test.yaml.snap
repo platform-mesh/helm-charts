@@ -152,6 +152,7 @@ operator match the snapshot:
           containers:
             - args:
                 - fga
+                - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
@@ -225,6 +226,8 @@ operator match the snapshot:
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
                   readOnly: true
+                - mountPath: /data
+                  name: core-module
                 - mountPath: /certs
                   name: webhook-certs
                   readOnly: true
@@ -269,6 +272,9 @@ operator match the snapshot:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
+            - configMap:
+                name: RELEASE-NAME-security-operator-core-module
+              name: core-module
             - name: webhook-certs
               secret:
                 secretName: RELEASE-NAME-security-operator-webhook-server-cert
@@ -780,6 +786,7 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - fga
+                - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
@@ -856,6 +863,8 @@ operator match the snapshot w. sentry:
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
                   readOnly: true
+                - mountPath: /data
+                  name: core-module
                 - mountPath: /certs
                   name: webhook-certs
                   readOnly: true
@@ -900,6 +909,9 @@ operator match the snapshot w. sentry:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
+            - configMap:
+                name: RELEASE-NAME-security-operator-core-module
+              name: core-module
             - name: webhook-certs
               secret:
                 secretName: RELEASE-NAME-security-operator-webhook-server-cert
