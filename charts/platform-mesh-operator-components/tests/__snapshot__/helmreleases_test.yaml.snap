@@ -153,6 +153,31 @@ HelmRelease snapshots:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: init-agent
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: init-agent
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: init-agent
+      dependsOn: null
+      interval: 1m
+      releaseName: init-agent
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        configWorkspace: root:platform-mesh-system
+        kcpKubeconfig: init-agent-kubeconfig
+        leaderElection:
+          enabled: false
+        replicas: 1
+  7: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: keycloak
       namespace: default
     spec:
@@ -206,7 +231,7 @@ HelmRelease snapshots:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  7: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -263,7 +288,7 @@ HelmRelease snapshots:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  8: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -329,7 +354,7 @@ HelmRelease snapshots:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  9: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -353,7 +378,7 @@ HelmRelease snapshots:
           level: debug
         openfga:
           url: openfga:8081
-  10: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -386,7 +411,7 @@ HelmRelease snapshots:
           shutdownTimeout: 1m
         terminator:
           kubeconfigSecret: security-terminator-kubeconfig
-  11: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -583,6 +608,35 @@ enable remote deployment of helmreleases:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: init-agent
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: init-agent
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: init-agent
+      dependsOn: null
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          key: kubeconfig
+          name: test-kubeconfig-secret
+      releaseName: init-agent
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        configWorkspace: root:platform-mesh-system
+        kcpKubeconfig: init-agent-kubeconfig
+        leaderElection:
+          enabled: false
+        replicas: 1
+  7: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: keycloak
       namespace: default
     spec:
@@ -640,7 +694,7 @@ enable remote deployment of helmreleases:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  7: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -701,7 +755,7 @@ enable remote deployment of helmreleases:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  8: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -771,7 +825,7 @@ enable remote deployment of helmreleases:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  9: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -799,7 +853,7 @@ enable remote deployment of helmreleases:
           level: debug
         openfga:
           url: openfga:8081
-  10: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -836,7 +890,7 @@ enable remote deployment of helmreleases:
           shutdownTimeout: 1m
         terminator:
           kubeconfigSecret: security-terminator-kubeconfig
-  11: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:

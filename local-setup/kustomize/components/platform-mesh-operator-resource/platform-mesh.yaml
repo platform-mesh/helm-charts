@@ -17,6 +17,13 @@ spec:
    - name: feature-enable-getting-started
    - name: feature-disable-email-verification
    - name: feature-accounts-in-accounts
+#  kcp:
+#    extraProviderConnections:
+#       - endpointSliceName: ""
+#         path: root:platform-mesh-system
+#         secret: terminal-controller-manager-kubeconfig
+#         namespace: platform-mesh-system
+#         external: false
   values:
     account-operator:
       values:
@@ -114,6 +121,8 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
+      enabled: false
+    terminal-controller-manager:
       enabled: false
     rebac-authz-webhook:
       values:

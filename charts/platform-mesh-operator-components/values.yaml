@@ -161,7 +161,7 @@ services:
             hosts:
               - "{{ .Values.baseDomain }}"
   init-agent:
-    enabled: false
+    enabled: true
     helmRepo: true
     imageResources:
       - annotations:
@@ -171,6 +171,9 @@ services:
     values:
       configWorkspace: root:platform-mesh-system
       kcpKubeconfig: init-agent-kubeconfig
+      replicas: 1
+      leaderElection:
+        enabled: false
   keycloak:
     enabled: true
     imageResources:

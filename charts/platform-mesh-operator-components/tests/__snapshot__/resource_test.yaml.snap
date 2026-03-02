@@ -126,6 +126,30 @@ image enabled resource:
     metadata:
       annotations:
         artifact: image
+        for: init-agent
+        repo: oci
+      name: init-agent-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: init-agent
+          resource:
+            name: image
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
         for: keycloak
         repo: oci
       name: keycloak-image
@@ -144,7 +168,7 @@ image enabled resource:
             - name: keycloak
           resource:
             name: image
-  7: |
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -169,7 +193,7 @@ image enabled resource:
             - name: keycloak
           resource:
             name: postgresql-image
-  8: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -193,7 +217,7 @@ image enabled resource:
             - name: kubernetes-graphql-gateway
           resource:
             name: image
-  9: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -217,7 +241,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: image
-  10: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -242,7 +266,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: postgresql-image
-  11: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -266,7 +290,7 @@ image enabled resource:
             - name: rebac-authz-webhook
           resource:
             name: image
-  12: |
+  13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -290,7 +314,7 @@ image enabled resource:
             - name: security-operator
           resource:
             name: image
-  13: |
+  14: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -441,6 +465,30 @@ ocm resources:
     metadata:
       labels:
         artifact: chart
+        repo: helm
+      name: init-agent
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: init-agent
+          resource:
+            name: chart
+      skipVerify: true
+  7: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
         repo: oci
       name: keycloak
     spec:
@@ -459,7 +507,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  7: |
+  8: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -483,7 +531,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  8: |
+  9: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -507,7 +555,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  9: |
+  10: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -531,7 +579,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  10: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -555,7 +603,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  11: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
