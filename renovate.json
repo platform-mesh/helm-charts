@@ -17,6 +17,19 @@
       "versioningTemplate": "semver",
       "depNameTemplate": "ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
       "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "OCM toolkit version",
+      "managerFilePatterns": [
+        "/(^|/)local-setup/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit\\.yaml$/"
+      ],
+      "matchStrings": [
+        "version:\\s*\"?(?<currentValue>[\\d\\.]+)\"?"
+      ],
+      "versioningTemplate": "semver",
+      "depNameTemplate": "ghcr.io/open-component-model/charts/ocm-k8s-toolkit",
+      "datasourceTemplate": "docker"
     }
   ],
   "packageRules": [

@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}
+spec:
+  revisionHistoryLimit: {{ include "common.getKeyValue" (dict "Values" .Values "key" "deployment.revisionHistoryLimit") }}
+  selector:
+    matchLabels:
+      {{- include "common.labelMatcher" . | indent 6 }}
+  replicas: {{ .Values.deployment.replicas }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.labelMatcher" . | indent 8 }}
+        {{- with .Values.deployment.specTemplate.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        control-plane: controller-manager
+      annotations:
+        {{- with .Values.deployment.specTemplate.annotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- include "common.imagePullSecret" . | indent 6 }}
+      {{- include "common.pod.securityContext" . | indent 6 }}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+{{ include "common.hostAliases" $ | nindent 6 }}
+      containers:
+      - {{- include "common.podBasics" . | indent 8 }}
+        {{- include "common.container.securityContext" . | indent 8 }}
+        {{- include "common.operatorHealthAndReadyness" . | indent 8}}
+        ports:
+        {{- include "common.PortsMetricsHealth" . | nindent 10 }}
+        args:
+          - operator
+          {{- include "common.commonOperatorArgs" . | indent 8 }}
+          {{- if .Values.kcp.kubeconfigSecret }}
+          - --kcp-kubeconfig=/kcp-kubeconfig/kubeconfig
+          {{- end }}
+        env:
+          {{- include "common.basicEnvironment" . | nindent 10 }}
+          - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
+            value: "{{ .Values.kcp.apiExportEndpointSliceName }}"
+          - name: TERMINAL_IMAGE
+            value: "{{ .Values.terminal.image }}"
+          - name: TERMINAL_NAMESPACE
+            value: "{{ .Values.terminal.namespace }}"
+          - name: TERMINAL_LIFETIME
+            value: "{{ .Values.terminal.lifetime }}"
+          {{- if .Values.terminal.hostAliasIP }}
+          - name: TERMINAL_HOST_ALIAS_IP
+            value: "{{ .Values.terminal.hostAliasIP }}"
+          {{- end }}
+          {{- if .Values.terminal.hostAliasNames }}
+          - name: TERMINAL_HOST_ALIAS_NAMES
+            value: "{{ join "," .Values.terminal.hostAliasNames }}"
+          {{- end }}
+          - name: GATEWAY_NAME
+            value: "{{ .Values.gateway.name }}"
+          - name: GATEWAY_NAMESPACE
+            value: "{{ .Values.gateway.namespace }}"
+          {{- if .Values.gateway.hostnames }}
+          - name: GATEWAY_HOSTNAMES
+            value: "{{ join "," .Values.gateway.hostnames }}"
+          {{- end }}
+          - name: SUBROUTINES_LIFETIME_ENABLED
+            value: "{{ .Values.subroutines.lifetime.enabled }}"
+          - name: SUBROUTINES_POD_ENABLED
+            value: "{{ .Values.subroutines.pod.enabled }}"
+          - name: SUBROUTINES_SERVICE_ENABLED
+            value: "{{ .Values.subroutines.service.enabled }}"
+          - name: SUBROUTINES_HTTPROUTE_ENABLED
+            value: "{{ .Values.subroutines.httproute.enabled }}"
+          {{- if .Values.kubeconfigSecret }}
+          - name: KUBECONFIG
+            value: /runtime-kubeconfig/kubeconfig
+          {{- end }}
+        volumeMounts:
+          {{- include "common.extraVolumeMounts" . | nindent 8 }}
+        {{- if .Values.kcp.kubeconfigSecret }}
+        - name: kcp-kubeconfig
+          mountPath: /kcp-kubeconfig
+          readOnly: true
+        {{- end }}
+        {{- if .Values.kubeconfigSecret }}
+        - name: runtime-kubeconfig
+          mountPath: /runtime-kubeconfig
+          readOnly: true
+        {{- end }}
+      volumes:
+        {{- include "common.extraVolumes" . | nindent 8 }}
+        {{- if .Values.kcp.kubeconfigSecret }}
+        - name: kcp-kubeconfig
+          secret:
+            secretName: {{ .Values.kcp.kubeconfigSecret }}
+        {{- end }}
+        {{- if .Values.kubeconfigSecret }}
+        - name: runtime-kubeconfig
+          secret:
+            secretName: {{ .Values.kubeconfigSecret }}
+        {{- end }}

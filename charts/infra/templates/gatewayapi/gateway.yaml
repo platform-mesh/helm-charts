@@ -8,6 +8,7 @@ spec:
   gatewayClassName: {{ .Values.gatewayApi.gatewayClassName }}
   listeners:
     {{- .Values.gatewayApi.listeners | default list | toYaml | nindent 4 }}
+    {{- .Values.gatewayApi.listenersExtra | default list | toYaml | nindent 4 }}
 {{- with .Values.gatewayApi.infrastructure }}
   infrastructure:
     {{- toYaml . | nindent 4 }}

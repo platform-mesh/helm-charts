@@ -474,13 +474,109 @@ operator match the snapshot:
       name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
   9: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: RELEASE-NAME-security-operator-terminator
+      namespace: NAMESPACE
+    spec:
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          service: RELEASE-NAME-security-operator-terminator
+      template:
+        metadata:
+          labels:
+            control-plane: controller-manager
+            service: RELEASE-NAME-security-operator-terminator
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - terminator
+                - --core-module-path=/data/coreModule.fga
+                - --base-domain=portal.localhost:8443
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=warn
+                - --region=local
+                - --environment=local
+                - --image-tag=1.0.0
+                - --image-name="ghcr.io/platform-mesh/security-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
+              env:
+                - name: FGA_TARGET
+                  value: openfga.platform-mesh-system.svc.cluster.local:8081
+                - name: KCP_KUBECONFIG
+                  value: /api-kubeconfig/kubeconfig
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: RELEASE-NAME-security-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 260m
+                  memory: 512Mi
+                requests:
+                  cpu: 150m
+                  memory: 128Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /api-kubeconfig
+                  name: external-api-server
+                - mountPath: /data
+                  name: core-module
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: RELEASE-NAME-security-operator
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: external-api-server
+              secret:
+                secretName: kcp-terminator-kubeconfig
+            - configMap:
+                name: RELEASE-NAME-security-operator-core-module
+              name: core-module
+  10: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: RELEASE-NAME-security-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  10: |
+  11: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -494,7 +590,7 @@ operator match the snapshot:
         name: RELEASE-NAME-security-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-ca-secret
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -502,7 +598,7 @@ operator match the snapshot:
     spec:
       ca:
         secretName: RELEASE-NAME-security-operator-ca-secret
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -517,7 +613,7 @@ operator match the snapshot:
         name: RELEASE-NAME-security-operator-ca-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  13: |
+  14: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -1043,13 +1139,115 @@ operator match the snapshot w. sentry:
       name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
   10: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: RELEASE-NAME-security-operator-terminator
+      namespace: NAMESPACE
+    spec:
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          service: RELEASE-NAME-security-operator-terminator
+      template:
+        metadata:
+          labels:
+            control-plane: controller-manager
+            service: RELEASE-NAME-security-operator-terminator
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - terminator
+                - --core-module-path=/data/coreModule.fga
+                - --base-domain=portal.localhost:8443
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=warn
+                - --region=local
+                - --environment=local
+                - --image-tag=1.0.0
+                - --image-name="ghcr.io/platform-mesh/security-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
+              env:
+                - name: SENTRY_DSN
+                  valueFrom:
+                    secretKeyRef:
+                      key: dsn
+                      name: RELEASE-NAME-security-operator-sentry
+                - name: TEST_ENV
+                  value: test
+                - name: FGA_TARGET
+                  value: openfga.platform-mesh-system.svc.cluster.local:8081
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: RELEASE-NAME-security-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 260m
+                  memory: 512Mi
+                requests:
+                  cpu: 150m
+                  memory: 128Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /etc/kcp-kubeconfig
+                  name: kcp-kubeconfig
+                  readOnly: true
+                - mountPath: /data
+                  name: core-module
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: RELEASE-NAME-security-operator
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: kcp-kubeconfig
+              secret:
+                secretName: kcp-kubeconfig
+            - configMap:
+                name: RELEASE-NAME-security-operator-core-module
+              name: core-module
+  11: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: RELEASE-NAME-security-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1063,7 +1261,7 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-ca-secret
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1071,7 +1269,7 @@ operator match the snapshot w. sentry:
     spec:
       ca:
         secretName: RELEASE-NAME-security-operator-ca-secret
-  13: |
+  14: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1086,7 +1284,7 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-ca-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  14: |
+  15: |
     apiVersion: v1
     kind: Service
     metadata:

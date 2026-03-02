@@ -359,14 +359,19 @@ else
     --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
 fi
 
-###############################################################################
-# Install base components (OCM / KRO)
-###############################################################################
-
 if [ "$REMOTE" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Install OCM ${COL_RES}"
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install OCM and namespaces ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
+
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace default \
+  --for=condition=Ready helmreleases \
+  --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
 else
   echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
   kubectl apply -k $SCRIPT_DIR/../kustomize/base
@@ -401,10 +406,6 @@ fi
 ###############################################################################
 
 if [ "$REMOTE" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Creating namespaces ${COL_RES}"
-  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
-
   # Add platform-mesh kubeconfig to the infra cluster as a secret
   cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
   IP_ADDR=$(docker inspect platform-mesh-control-plane|jq '.[0] | .NetworkSettings | .Networks | .kind | .IPAddress' -r)
@@ -431,6 +432,7 @@ fi
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
 
 create_domain_secrets "${RUNTIME_KC[@]}"
+
 
 ###############################################################################
 # Local: Platform-Mesh Operator (RGD) setup
@@ -476,12 +478,13 @@ if [ "$REMOTE" = true ]; then
   if [ "$PRERELEASE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
+    # Apply default profile to runtime cluster
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
+    # Apply example-httpbin-provider resources to INFRA cluster (targeting runtime)
     if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
-      kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-      kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
+      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
     else
-      kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
     fi
   else
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
@@ -501,12 +504,14 @@ if [ "$REMOTE" = true ]; then
   if [ "$PRERELEASE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
+    # Apply default profile and example-data (PlatformMesh patch) to runtime cluster
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
+    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+    # Apply example-httpbin-provider resources to INFRA cluster (targeting runtime)
     if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
-      kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-      kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
+      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
     else
-      kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
     fi
   else
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
@@ -578,12 +583,13 @@ if [ "$EXAMPLE_DATA" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
   if [ "$REMOTE" = true ]; then
+    # Resources are on infra cluster, targeting runtime cluster
     if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
-      wait_for_deployment_resource .secret/platform-mesh.kubeconfig argocd api-syncagent
-      wait_for_deployment_resource .secret/platform-mesh.kubeconfig argocd example-httpbin-provider
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd api-syncagent
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd example-httpbin-provider
     else
-      wait_for_deployment_resource .secret/platform-mesh.kubeconfig default api-syncagent
-      wait_for_deployment_resource .secret/platform-mesh.kubeconfig default example-httpbin-provider
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default api-syncagent
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default example-httpbin-provider
     fi
   else
     kubectl wait --namespace default \

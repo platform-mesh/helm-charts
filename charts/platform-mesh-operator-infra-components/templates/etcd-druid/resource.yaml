@@ -4,7 +4,7 @@ kind: Resource
 metadata:
   labels:
     artifact: chart
-    repo: git
+    repo: oci
   name: {{ .Values.etcdDruid.name }}
 spec:
   componentRef:
@@ -13,7 +13,7 @@ spec:
   ocmConfig:
     - apiVersion: delivery.ocm.software/v1alpha1
       kind: Repository
-      name: {{ .Values.ocm.repo.name }}
+      name: {{ .Values.etcdDruid.ocm.repo.name }}
       namespace: {{ .Release.Namespace }}
   resource:
     byReference:
@@ -24,5 +24,6 @@ spec:
         - name: {{   .Values.etcdDruid.name }}
       resource:
         name: {{   .Values.etcdDruid.ocmResourceName }}
+        type: helmChart
   skipVerify: {{ .Values.ocm.skipVerify }}
 {{- end }}

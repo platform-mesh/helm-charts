@@ -30,7 +30,12 @@ spec:
       resource:
         name: chart
       referencePath:
-        {{- if $config.referencePath }}
+        {{- if $config.absoluteReferencePath }}
+        {{- toYaml $config.absoluteReferencePath | nindent 8 }}
+        {{- else if $config.referencePath }}
+        {{- with $values.ocm.referencePath }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- toYaml $config.referencePath | nindent 8 }}
         {{- else }}
         {{- with $values.ocm.referencePath }}

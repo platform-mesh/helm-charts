@@ -10,6 +10,7 @@ A Helm chart for Kubernetes
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
 | gatewayApi.infrastructure | object | `{}` | HTTPS Terminate configuration |
+| gatewayApi.listenersExtra | list | `[{"allowedRoutes":{"namespaces":{"from":"All"}},"hostname":"*.services.portal.localhost","name":"terminate-services","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}}]` | Additional listeners to be added to the Gateway resource (e.g. for HTTPBin) |
 | gatewayApi.listeners[0].hostname | string | `"portal.localhost"` |  |
 | gatewayApi.listeners[0].name | string | `"terminate"` |  |
 | gatewayApi.listeners[0].port | int | `8443` |  |

@@ -40,6 +40,8 @@ A Helm chart for security-operator
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |
 | region | string | `"local"` | region indicator, used for logging and observability |
+| terminator.extraArgs | list | `[]` |  |
+| terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
 | webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
 | webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
 | webhooks.certDir | string | `"/certs"` | The directory for webhook certificates (mounted from the serving cert secret) |
