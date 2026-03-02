@@ -125,23 +125,22 @@ create_domain_secrets() {
     --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl "${kc[@]}" apply -f -
 }
 
-substitute_runtime_ip() {
-  local ip=$1
-  local files=(
-    "$SCRIPT_DIR/../platform-mesh-cluster-secret.yml"
-    "$SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-argocd/default-profile.yaml"
-    "$SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-fluxcd/default-profile.yaml"
-    "$SCRIPT_DIR/../kustomize/components/platform-mesh-operator/platform-mesh-operator.yaml"
-    "$SCRIPT_DIR/../kustomize/components/example-httpbin-provider/helmreleases.yaml"
-    "$SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd/applications.yaml"
-  )
+# Helper to apply kustomize with envsubst for RUNTIME_CLUSTER_IP substitution
+kustomize_apply() {
+  local kubeconfig_args=("$@")
+  local kustomize_path="${kubeconfig_args[-1]}"
+  unset 'kubeconfig_args[-1]'
 
-  echo -e "${COL}[$(date '+%H:%M:%S')] Substituting runtime cluster IP: ${ip} ${COL_RES}"
-  for file in "${files[@]}"; do
-    if [ -f "$file" ]; then
-      sed -i "s/RUNTIME_CLUSTER_IP/$ip/g" "$file"
-    fi
-  done
+  kubectl kustomize "$kustomize_path" | envsubst '$RUNTIME_CLUSTER_IP' | kubectl "${kubeconfig_args[@]}" apply -f -
+}
+
+# Helper to apply a file with envsubst for RUNTIME_CLUSTER_IP substitution
+envsubst_apply() {
+  local kubeconfig_args=("$@")
+  local file_path="${kubeconfig_args[-1]}"
+  unset 'kubeconfig_args[-1]'
+
+  envsubst '$RUNTIME_CLUSTER_IP' < "$file_path" | kubectl "${kubeconfig_args[@]}" apply -f -
 }
 
 # Remote-only helper functions
@@ -227,7 +226,7 @@ EOF
     .stringData.config = (strenv(CERTCONFIG) + "\n")
     | .stringData.config style="literal"
   ' local-setup/platform-mesh-cluster-secret.yml
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f local-setup/platform-mesh-cluster-secret.yml
+  envsubst_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig local-setup/platform-mesh-cluster-secret.yml
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig delete pod -n argocd -l app.kubernetes.io/instance=argo-cd
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for ArgoCD to restart after configuration update ${COL_RES}"
@@ -408,10 +407,10 @@ fi
 if [ "$REMOTE" = true ]; then
   # Add platform-mesh kubeconfig to the infra cluster as a secret
   cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
-  IP_ADDR=$(docker inspect platform-mesh-control-plane|jq '.[0] | .NetworkSettings | .Networks | .kind | .IPAddress' -r)
-  substitute_runtime_ip "$IP_ADDR"
+  export RUNTIME_CLUSTER_IP=$(docker inspect platform-mesh-control-plane|jq '.[0] | .NetworkSettings | .Networks | .kind | .IPAddress' -r)
+  echo -e "${COL}[$(date '+%H:%M:%S')] Runtime cluster IP: ${RUNTIME_CLUSTER_IP} ${COL_RES}"
   kubectl config set-cluster kind-platform-mesh \
-    --server=https://$IP_ADDR:6443 \
+    --server=https://$RUNTIME_CLUSTER_IP:6443 \
     --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
   kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
     --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
@@ -479,15 +478,15 @@ if [ "$REMOTE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
     # Apply default profile to runtime cluster
-    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
+    envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
     # Apply example-httpbin-provider resources to INFRA cluster (targeting runtime)
     if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
-      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
+      kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
     else
-      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
+      kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
     fi
   else
-    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
+    kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
   fi
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
@@ -496,7 +495,7 @@ if [ "$REMOTE" = true ]; then
     setup_argocd
   fi
 
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/infra
+  kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/overlays/infra
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
 
   # Re-apply Platform-Mesh Runtime resource after operator setup
@@ -505,16 +504,16 @@ if [ "$REMOTE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
     # Apply default profile and example-data (PlatformMesh patch) to runtime cluster
-    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
+    envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
     # Apply example-httpbin-provider resources to INFRA cluster (targeting runtime)
     if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
-      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
+      kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
     else
-      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
+      kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
     fi
   else
-    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
+    kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
   fi
 else
   if [ "$PRERELEASE" = true ]; then

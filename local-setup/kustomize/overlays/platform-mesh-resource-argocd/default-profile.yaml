@@ -3,7 +3,7 @@ data:
   profile.yaml: |
     components:
       deploymentTechnology: argocd
-      destinationServer: https://RUNTIME_CLUSTER_IP:6443
+      destinationServer: https://${RUNTIME_CLUSTER_IP}:6443
       iamWebhookCA: null
       ocm:
         component:
@@ -438,7 +438,7 @@ data:
           targetNamespace: platform-mesh-system
     infra:
       deploymentTechnology: argocd
-      destinationServer: https://RUNTIME_CLUSTER_IP:6443
+      destinationServer: https://${RUNTIME_CLUSTER_IP}:6443
       ocm:
         component:
           name: platform-mesh

@@ -20,7 +20,7 @@ spec:
         hostAliases:
           enabled: true
           values:
-            - ip: "RUNTIME_CLUSTER_IP"
+            - ip: "${RUNTIME_CLUSTER_IP}"
               hostnames:
               - "localhost"
   syncPolicy:
