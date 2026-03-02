@@ -55,6 +55,7 @@ spec:
         {{- end }}
         args:
           - fga
+          - --core-module-path=/data/coreModule.fga
           {{- with .Values.fga.inviteKeycloakBaseUrl }}
           - --invite-keycloak-base-url={{ . }}
           {{- end }}
@@ -99,6 +100,8 @@ spec:
             subPath: tls.crt
             readOnly: true
           {{- end }}
+          - name: core-module
+            mountPath: /data
           {{- if .Values.webhooks.enabled }}
           - name: webhook-certs
             mountPath: {{ .Values.webhooks.certDir }}
@@ -132,6 +135,9 @@ spec:
           secret:
             secretName: {{ .Values.caSecret }}
         {{- end }}
+        - name: core-module
+          configMap:
+            name: {{ include "common.entity.name" . }}-core-module
         {{- if .Values.webhooks.enabled }}
         - name: webhook-certs
           secret:
