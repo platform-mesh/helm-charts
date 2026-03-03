@@ -36,9 +36,6 @@ A Helm chart for Kubernetes
 | gatewayApi.listeners[2].tls.mode | string | `"Passthrough"` |  |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | hostAliases.enabled | bool | `false` |  |
-| hostAliases.entries[0].hostnames[0] | string | `"localhost"` |  |
-| hostAliases.entries[0].hostnames[1] | string | `"portal.localhost"` |  |
-| hostAliases.entries[0].ip | string | `"10.96.188.4"` |  |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |
 | kcp.auth.adminCert.privateKey.size | int | `2048` |  |
