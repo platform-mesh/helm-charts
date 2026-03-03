@@ -145,6 +145,10 @@ Gateway API enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
       external:
         hostname: localhost
         port: 8443
@@ -204,6 +208,11 @@ Gateway API enabled:
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
+      proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec: null
       replicas: 1
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
@@ -418,6 +427,10 @@ Istio disabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
       external:
         hostname: localhost
         port: 8443
@@ -477,6 +490,11 @@ Istio disabled:
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
+      proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec: null
       replicas: 1
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
@@ -691,6 +709,10 @@ Istio enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
       external:
         hostname: localhost
         port: 8443
@@ -750,6 +772,11 @@ Istio enabled:
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
+      proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec: null
       replicas: 1
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
@@ -900,6 +927,10 @@ configure frontproxy resources:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
       external:
         hostname: localhost
         port: 8443
@@ -959,6 +990,11 @@ configure rootshard resources:
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
+      proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec: null
       replicas: 1
       resources:
         limits:
@@ -1114,6 +1150,10 @@ match snapshots:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
       external:
         hostname: localhost
         port: 8443
@@ -1178,6 +1218,10 @@ match snapshots:
       image:
         tag: 0.0.0
       proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec: null
         image:
           tag: 0.0.0
       replicas: 1
@@ -1468,6 +1512,16 @@ match snapshots w. hostAliases enabled:
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
+      proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec:
+                hostAliases:
+                  - hostnames:
+                      - localhost
+                      - portal.localhost
+                    ip: 10.96.188.4
       replicas: 1
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
@@ -1682,6 +1736,10 @@ match snapshots w. kcp version:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
       external:
         hostname: localhost
         port: 8443
@@ -1746,6 +1804,10 @@ match snapshots w. kcp version:
       image:
         tag: v0.1.0
       proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec: null
         image:
           tag: v0.1.0
       replicas: 1
@@ -1962,6 +2024,10 @@ match snapshots with mailpit enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
       external:
         hostname: localhost
         port: 8443
@@ -2021,6 +2087,11 @@ match snapshots with mailpit enabled:
         port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true
+      proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec: null
       replicas: 1
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
