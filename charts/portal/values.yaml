@@ -69,4 +69,3 @@ gatewayApi:
     - name: k8sapi-gateway
     # -- list of HTTPRoute filters (default: none)
     filters: []
-
