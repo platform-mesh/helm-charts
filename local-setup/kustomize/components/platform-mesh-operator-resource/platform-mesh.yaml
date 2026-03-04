@@ -46,6 +46,7 @@ spec:
             ephemeral-storage: 50Mi
             memory: 1Gi
     infra:
+      imageResources: []
       values:
         traefik:
           accessControlAllowOriginList:
@@ -63,6 +64,8 @@ spec:
         kcp:
           frontProxy:
             clusterIP: "10.96.0.100"
+          image:
+            tag: 12d78971a
     security-operator:
       values:
         log:
