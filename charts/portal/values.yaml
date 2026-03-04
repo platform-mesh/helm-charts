@@ -25,7 +25,7 @@ cookieDomain: "localhost"
 kubeconfigSecret: ""
 kcp:
   # -- KCP API URL (e.g. https://localhost:8443 for local setup)
-  url: ""
+  url: "kcp.localhost"
   kubeconfigSecret: ""
 
 auth:
