@@ -9,9 +9,11 @@ kcp:
     tag: ""
   namespace: platform-mesh-system
   external:
-    hostname: localhost
+    hostname: kcp.localhost
     port: 8443
   auth:
+    serviceAccounts:
+      enabled: true
     adminCert:
       enabled: true
       privateKey:

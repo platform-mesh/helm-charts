@@ -46,6 +46,7 @@ spec:
             ephemeral-storage: 50Mi
             memory: 1Gi
     infra:
+      imageResources: []
       values:
         traefik:
           accessControlAllowOriginList:
@@ -63,6 +64,8 @@ spec:
         kcp:
           frontProxy:
             clusterIP: "10.96.0.100"
+          image:
+            tag: 12d78971a
     security-operator:
       values:
         log:
@@ -87,7 +90,7 @@ spec:
       enabled: true
       values:
         kcp:
-          url: "https://localhost:8443"
+          url: "https://kcp.localhost:8443"
         extraEnvVars:
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
             value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
@@ -111,6 +114,8 @@ spec:
               hostnames:
                 - "localhost"
                 - "portal.localhost"
+                - "kcp.portal.localhost"
+                - "root.kcp.portal.localhost"
     openfga:
       enabled: true
       values:

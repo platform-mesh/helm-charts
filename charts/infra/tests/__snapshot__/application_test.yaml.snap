@@ -149,6 +149,14 @@ Gateway API enabled:
         spec:
           template:
             spec: null
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - frontproxy-front-proxy
+              - frontproxy-front-proxy.platform-mesh-system
+              - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+              - localhost
       external:
         hostname: localhost
         port: 8443
@@ -188,6 +196,14 @@ Gateway API enabled:
       cache:
         embedded:
           enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
       certificates:
         issuerRef:
           group: cert-manager.io
@@ -214,11 +230,34 @@ Gateway API enabled:
             template:
               spec: null
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
+  8: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -232,9 +271,9 @@ Gateway API enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -263,7 +302,7 @@ Gateway API enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  9: |
+  10: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -431,6 +470,14 @@ Istio disabled:
         spec:
           template:
             spec: null
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - frontproxy-front-proxy
+              - frontproxy-front-proxy.platform-mesh-system
+              - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+              - localhost
       external:
         hostname: localhost
         port: 8443
@@ -470,6 +517,14 @@ Istio disabled:
       cache:
         embedded:
           enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
       certificates:
         issuerRef:
           group: cert-manager.io
@@ -496,11 +551,34 @@ Istio disabled:
             template:
               spec: null
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
+  8: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -514,9 +592,9 @@ Istio disabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -545,7 +623,7 @@ Istio disabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  9: |
+  10: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -709,10 +787,21 @@ Istio enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+<<<<<<< HEAD
       deploymentTemplate:
         spec:
           template:
             spec: null
+=======
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - frontproxy-front-proxy
+              - frontproxy-front-proxy.platform-mesh-system
+              - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+              - localhost
+>>>>>>> 709ed4bb (temp)
       external:
         hostname: localhost
         port: 8443
@@ -752,6 +841,14 @@ Istio enabled:
       cache:
         embedded:
           enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
       certificates:
         issuerRef:
           group: cert-manager.io
@@ -778,11 +875,34 @@ Istio enabled:
             template:
               spec: null
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
+  8: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -796,9 +916,9 @@ Istio enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -827,7 +947,7 @@ Istio enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  9: |
+  10: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -927,10 +1047,21 @@ configure frontproxy resources:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+<<<<<<< HEAD
       deploymentTemplate:
         spec:
           template:
             spec: null
+=======
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - frontproxy-front-proxy
+              - frontproxy-front-proxy.platform-mesh-system
+              - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+              - localhost
+>>>>>>> 709ed4bb (temp)
       external:
         hostname: localhost
         port: 8443
@@ -970,6 +1101,14 @@ configure rootshard resources:
       cache:
         embedded:
           enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
       certificates:
         issuerRef:
           group: cert-manager.io
@@ -1003,6 +1142,28 @@ configure rootshard resources:
         requests:
           cpu: 200m
           memory: 256Mi
+      shardBaseURL: https://root.kcp.localhost:8443
+  2: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
 match snapshots:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -1150,10 +1311,21 @@ match snapshots:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+<<<<<<< HEAD
       deploymentTemplate:
         spec:
           template:
             spec: null
+=======
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - frontproxy-front-proxy
+              - frontproxy-front-proxy.platform-mesh-system
+              - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+              - localhost
+>>>>>>> 709ed4bb (temp)
       external:
         hostname: localhost
         port: 8443
@@ -1195,6 +1367,14 @@ match snapshots:
       cache:
         embedded:
           enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
       certificates:
         issuerRef:
           group: cert-manager.io
@@ -1225,11 +1405,34 @@ match snapshots:
         image:
           tag: 0.0.0
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
+  8: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1243,9 +1446,9 @@ match snapshots:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1274,7 +1477,7 @@ match snapshots:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  9: |
+  10: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -1438,15 +1641,14 @@ match snapshots w. hostAliases enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      deploymentTemplate:
-        spec:
-          template:
-            spec:
-              hostAliases:
-                - hostnames:
-                    - localhost
-                    - portal.localhost
-                  ip: 10.96.188.4
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - frontproxy-front-proxy
+              - frontproxy-front-proxy.platform-mesh-system
+              - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+              - localhost
       external:
         hostname: localhost
         port: 8443
@@ -1487,6 +1689,14 @@ match snapshots w. hostAliases enabled:
       cache:
         embedded:
           enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
       certificates:
         issuerRef:
           group: cert-manager.io
@@ -1523,11 +1733,34 @@ match snapshots w. hostAliases enabled:
                       - portal.localhost
                     ip: 10.96.188.4
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
+  8: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1541,9 +1774,9 @@ match snapshots w. hostAliases enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1572,7 +1805,7 @@ match snapshots w. hostAliases enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  9: |
+  10: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -1736,10 +1969,21 @@ match snapshots w. kcp version:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+<<<<<<< HEAD
       deploymentTemplate:
         spec:
           template:
             spec: null
+=======
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - frontproxy-front-proxy
+              - frontproxy-front-proxy.platform-mesh-system
+              - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+              - localhost
+>>>>>>> 709ed4bb (temp)
       external:
         hostname: localhost
         port: 8443
@@ -1781,6 +2025,14 @@ match snapshots w. kcp version:
       cache:
         embedded:
           enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
       certificates:
         issuerRef:
           group: cert-manager.io
@@ -1811,11 +2063,34 @@ match snapshots w. kcp version:
         image:
           tag: v0.1.0
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
+  8: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1829,9 +2104,9 @@ match snapshots w. kcp version:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1860,7 +2135,7 @@ match snapshots w. kcp version:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  9: |
+  10: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -2024,10 +2299,21 @@ match snapshots with mailpit enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+<<<<<<< HEAD
       deploymentTemplate:
         spec:
           template:
             spec: null
+=======
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - frontproxy-front-proxy
+              - frontproxy-front-proxy.platform-mesh-system
+              - frontproxy-front-proxy.platform-mesh-system.svc.cluster.local
+              - localhost
+>>>>>>> 709ed4bb (temp)
       external:
         hostname: localhost
         port: 8443
@@ -2067,6 +2353,14 @@ match snapshots with mailpit enabled:
       cache:
         embedded:
           enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
       certificates:
         issuerRef:
           group: cert-manager.io
@@ -2093,11 +2387,34 @@ match snapshots with mailpit enabled:
             template:
               spec: null
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443
   7: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
+  8: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -2111,9 +2428,9 @@ match snapshots with mailpit enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -2142,7 +2459,7 @@ match snapshots with mailpit enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  9: |
+  10: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:

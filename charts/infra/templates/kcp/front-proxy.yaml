@@ -5,11 +5,11 @@ metadata:
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   replicas: {{ .Values.kcp.frontProxy.replicas }}
-  {{- if .Values.kcp.oidc.enabled }}
   auth:
-    {{ with .Values.kcp.oidc }}
     serviceAccount:
-      enabled: true
+      enabled: {{ .Values.kcp.auth.serviceAccounts.enabled }}
+  {{- if .Values.kcp.oidc.enabled }}
+    {{ with .Values.kcp.oidc }}
     oidc:
       enabled: true
       issuerURL: {{ .issuerUrl }}
@@ -52,6 +52,14 @@ spec:
   resources:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  certificateTemplates:
+    server:
+      spec:
+        dnsNames:
+          - {{ .Values.kcp.frontProxy.name }}-front-proxy
+          - {{ .Values.kcp.frontProxy.name }}-front-proxy.{{ .Values.kcp.namespace | default "kcp-system" }}
+          - {{ .Values.kcp.frontProxy.name }}-front-proxy.{{ .Values.kcp.namespace | default "kcp-system" }}.svc.cluster.local
+          - {{ .Values.kcp.external.hostname }}
   deploymentTemplate:
     spec:
       template:

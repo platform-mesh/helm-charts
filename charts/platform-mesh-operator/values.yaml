@@ -11,7 +11,8 @@ operator:
   leaderElect: true
 
 image:
-  name: ghcr.io/platform-mesh/platform-mesh-operator
+  name: nwallus308/pm-operator
+  tag: v10.0.1
 
 tracing:
   enabled: false
