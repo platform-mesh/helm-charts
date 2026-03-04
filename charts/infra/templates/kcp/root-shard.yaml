@@ -15,8 +15,10 @@ spec:
     image:
       tag: {{ . }}
   {{- end }}
-  {{- if .Values.kcp.oidc.enabled }}
   auth:
+    serviceAccount:
+      enabled: {{ .Values.kcp.auth.serviceAccounts.enabled }}
+  {{- if .Values.kcp.oidc.enabled }}
     {{ with .Values.kcp.oidc }}
     oidc:
       enabled: true

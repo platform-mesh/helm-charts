@@ -12,6 +12,8 @@ kcp:
     hostname: kcp.localhost
     port: 8443
   auth:
+    serviceAccounts:
+      enabled: true
     adminCert:
       enabled: true
       privateKey:
