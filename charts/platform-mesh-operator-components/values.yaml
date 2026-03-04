@@ -127,7 +127,7 @@ services:
         enabled: true
       kcp:
         image:
-          tag: v0.29.0
+          tag: 12d78971a
         rootShard:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
