@@ -199,12 +199,21 @@ derive_config_from_cluster() {
 ###############################################################################
 
 keycloak_get_admin_token() {
-    curl -sk -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
+    curl -sk --max-time 3000 -X POST "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" \
         -H "Content-Type: application/x-www-form-urlencoded" \
         -d "username=${KEYCLOAK_USER}" \
         -d "password=${KEYCLOAK_PASSWORD}" \
         -d "grant_type=password" \
         -d "client_id=admin-cli" | jq -r '.access_token'
+}
+
+keycloak_refresh_token() {
+    if [ -n "$KEYCLOAK_URL" ]; then
+        ADMIN_TOKEN=$(keycloak_get_admin_token 2>/dev/null || echo "")
+        if [ -z "$ADMIN_TOKEN" ] || [ "$ADMIN_TOKEN" = "null" ]; then
+            ADMIN_TOKEN=""
+        fi
+    fi
 }
 
 keycloak_get_realms() {
@@ -542,6 +551,9 @@ validate_accountinfo_in_workspace() {
 
     # Cross-check with Keycloak if token is available
     if [ -n "$ADMIN_TOKEN" ] && [ -n "$issuer_url" ]; then
+        # Refresh token to prevent expiration during long-running validation
+        keycloak_refresh_token
+
         local realm
         realm=$(echo "$issuer_url" | sed -E 's|.*/realms/([^/]+).*|\1|')
 
@@ -982,6 +994,9 @@ validate_keycloak_realms() {
         log_skip "Keycloak token not available -- skipping"
         return
     fi
+
+    # Refresh token to ensure it's valid for the duration of this check
+    keycloak_refresh_token
 
     # Get KCP orgs
     kcp_kubectl ws :root:orgs &>/dev/null || {
