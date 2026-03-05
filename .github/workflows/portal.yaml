@@ -20,10 +20,11 @@ jobs:
     concurrency:
       group: portal-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@feat/sbom
     with:
       chartFolder: charts
       chartName: portal
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
     secrets: inherit
