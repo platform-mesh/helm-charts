@@ -6,7 +6,7 @@ metadata:
 spec:
   type: oci
   interval: 5m
-  url: oci://ghcr.io/open-component-model/charts
+  url: oci://ghcr.io/open-component-model/kubernetes/controller
 ---
 
 apiVersion: helm.toolkit.fluxcd.io/v2
@@ -21,8 +21,8 @@ spec:
   targetNamespace: ocm-system
   chart:
     spec:
-      chart: ocm-k8s-toolkit
-      version: "0.1.0"
+      chart: chart
+      version: "0.0.0-5f5c53f"
       sourceRef:
         kind: HelmRepository
         name: ocm-k8s-toolkit
