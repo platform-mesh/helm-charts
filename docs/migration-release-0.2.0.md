@@ -344,7 +344,7 @@ GraphQL response:
 ```
 
 Fixes:
-- update iam-service version
+- update iam-service version to `v0.13.3`
 
 
 ## add marketplace feature toggles to platform-mesh
