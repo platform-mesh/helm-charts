@@ -56,7 +56,7 @@ spec:
         args:
           - fga
           {{- with .Values.fga.inviteKeycloakBaseUrl }}
-          - --invite-keycloak-base-url={{ . }}
+          - --keycloak-base-url={{ . }}
           {{- end }}
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
@@ -65,7 +65,6 @@ spec:
           {{- if .Values.kubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}
-          - --invite-keycloak-client-secret-file=/secrets/invite-client-secret/{{ .Values.keycloak.client.secret.key }}
           {{- with .Values.fga.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}
@@ -77,10 +76,12 @@ spec:
           {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
+          - name: KEYCLOAK_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.keycloak.client.secret.name }}
+                key: {{ .Values.keycloak.client.secret.key }}
         volumeMounts:
-          - name: invite-keycloak-client-secret
-            mountPath: /secrets/invite-client-secret
-            readOnly: true
           {{- if .Values.kubeconfigSecret }}
           - name: external-api-server
             mountPath: /api-kubeconfig
@@ -103,9 +104,6 @@ spec:
           {{- end }}
           {{- include "common.extraVolumeMounts" . | nindent 10 }}
       volumes:
-        - name: invite-keycloak-client-secret
-          secret:
-            secretName: {{ .Values.keycloak.client.secret.name }}
         {{- if .Values.initContainer.enabled }}
         - name: init-container-config
           configMap:
