@@ -25,18 +25,16 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - model-generator
+          - --fga-target={{ .Values.fga.target }}
+          {{- if .Values.kubeconfigSecret }}
+          - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+          {{- end }}
           {{- with .Values.generator.extraArgs }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
           {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
-          - name: FGA_TARGET
-            value: {{ .Values.fga.target }}
-          {{- if .Values.kubeconfigSecret }}
-          - name: KCP_KUBECONFIG
-            value: /api-kubeconfig/kubeconfig
-          {{- end }}
         volumeMounts:
           {{- include "common.extraVolumeMounts" . | nindent 10 }}
           {{- if .Values.kubeconfigSecret }}
