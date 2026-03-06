@@ -153,6 +153,9 @@ operator match the snapshot:
             - args:
                 - fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+                - --invite-keycloak-client-secret-file=/secrets/invite-client-secret/client_secret
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
                 - --webhooks-cert-dir=/certs
@@ -166,16 +169,7 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
-                - name: INVITE_KEYCLOAK_CLIENT_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      key: client_secret
-                      name: security-operator-client-secret
+              env: null
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -220,6 +214,9 @@ operator match the snapshot:
                   port: 8090
                 periodSeconds: 10
               volumeMounts:
+                - mountPath: /secrets/invite-client-secret
+                  name: invite-keycloak-client-secret
+                  readOnly: true
                 - mountPath: /api-kubeconfig
                   name: external-api-server
                 - mountPath: /keycloak-credentials
@@ -254,6 +251,9 @@ operator match the snapshot:
           serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
+            - name: invite-keycloak-client-secret
+              secret:
+                secretName: security-operator-client-secret
             - configMap:
                 name: RELEASE-NAME-security-operator-init-container-config
               name: init-container-config
@@ -781,6 +781,8 @@ operator match the snapshot w. sentry:
             - args:
                 - fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --invite-keycloak-client-secret-file=/secrets/invite-client-secret/client_secret
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
                 - --webhooks-cert-dir=/certs
@@ -802,13 +804,6 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: INVITE_KEYCLOAK_CLIENT_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      key: client_secret
-                      name: security-operator-client-secret
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -853,6 +848,9 @@ operator match the snapshot w. sentry:
                   port: 8090
                 periodSeconds: 10
               volumeMounts:
+                - mountPath: /secrets/invite-client-secret
+                  name: invite-keycloak-client-secret
+                  readOnly: true
                 - mountPath: /keycloak-credentials
                   name: keycloak-credentials
                   readOnly: true
@@ -888,6 +886,9 @@ operator match the snapshot w. sentry:
           serviceAccountName: RELEASE-NAME-security-operator
           terminationGracePeriodSeconds: 10
           volumes:
+            - name: invite-keycloak-client-secret
+              secret:
+                secretName: security-operator-client-secret
             - configMap:
                 name: RELEASE-NAME-security-operator-init-container-config
               name: init-container-config
