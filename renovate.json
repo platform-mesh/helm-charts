@@ -25,10 +25,10 @@
         "/(^|/)local-setup/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit\\.yaml$/"
       ],
       "matchStrings": [
-        "version:\\s*\"?(?<currentValue>[\\d\\.]+)\"?"
+        "version:\\s*\"?(?<currentValue>[\\d\\.]+-?[\\w\\.-]*)\"?"
       ],
       "versioningTemplate": "semver",
-      "depNameTemplate": "ghcr.io/open-component-model/charts/ocm-k8s-toolkit",
+      "depNameTemplate": "ghcr.io/open-component-model/kubernetes/controller/chart",
       "datasourceTemplate": "docker"
     }
   ],
@@ -39,7 +39,8 @@
         "custom.regex"
       ],
       "matchFileNames": [
-        "**/ocm/component.yaml"
+        "**/ocm/component.yaml",
+        "**/ocm-k8s-toolkit/ocm-k8s-toolkit.yaml"
       ],
       "ignoreUnstable": false
     }
