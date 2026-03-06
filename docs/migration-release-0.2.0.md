@@ -209,6 +209,8 @@ Re-run the deployment procedure for your environment and wait for the PlatformMe
 - New FGA stores for onboarded organisations contain 27 (not 22) types
 - Store, Account resources in kcp are READY
 - For additional checks run `docs/validate_kcp_resources.sh`
+- check logs in security-operator
+- check if accounts and members UIs in the portal are working
 
 ---
 
@@ -316,3 +318,54 @@ Cause: missing or incorrect `audiences` in orgs-authentication WorkspaceAuthenti
 https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz?timeout=30s\\\": tls: failed to verify certificate: x509: certificate signed by unknown authority\") has prevented the request from succeeding (get accounts.core.platform-mesh.io
 
 Fix: restart the `kubernetes-graphql-gateway` and `root-kcp` pod
+
+## store resources not ready
+## security-operator logs: duplicate type definitions
+
+Symptop: Some APIBindings exist which have errors in status. Should be deleted or fixed, otherwise store reconcile issues remain with duplicate type definitions.
+
+Solution: Resolved by removing duplicate AuthorizationModels and APIResourceSchemas from kcp provider workspaces.
+
+## iam-service UI missing
+
+GraphQL response:
+```gql
+{
+    "errors": [
+        {
+            "message": "failed to test if action is allowed: failed to check permission with openfga: rpc error: code = Code(2000) desc = relation 'core_platform-mesh_io_account#get_iam_users' not found",
+            "path": [
+                "users"
+            ]
+        }
+    ],
+    "data": null
+}
+```
+
+Fixes:
+- update iam-service version
+
+
+## add marketplace feature toggles to platform-mesh
+
+```yaml
+  featureToggles:
+  - name: feature-enable-marketplace-account
+  - name: feature-enable-marketplace-org
+```
+
+## remove Kustomization which overrides the ContentConfigurations
+
+Issue: externally deployed ContentConfiguration are overriding the ones deployed by the operator.
+Symptop: UI issues.
+
+Fix: remove Kustomization resource `ui-configs` from the showroom-mcp chart.
+
+## remove store-tuples which grant access to every logged in user to the org (owner should invite them explicitely)
+
+Previously, all logged-in users were members in any org, due to tuples configured in the `Store` resource.
+
+Fix: remove the tuples from store resources.
+
+After that, all new users must be explicitely added via the Members UI.
