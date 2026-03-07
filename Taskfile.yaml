@@ -593,3 +593,23 @@ tasks:
     cmds:
       - task: local-setup:single-shard:iterate
         vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
+
+  local-setup:showcase:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--showcase"}
+
+  local-setup:showcase:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--showcase"}
+
+  local-setup:example-data:showcase:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--example-data --showcase"}
+
+  local-setup:example-data:showcase:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--example-data --showcase"}

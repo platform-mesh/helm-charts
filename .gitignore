@@ -32,3 +32,4 @@ local-setup/scripts/load-custom-images.sh
 docs/migration-0.3/kcp-exports
 local-setup/backup
 tmp/
+local-setup/src/

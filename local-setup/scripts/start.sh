@@ -26,6 +26,7 @@ SCRIPT_DIR=$(dirname "$0")
 
 PRERELEASE=false
 EXAMPLE_DATA=false
+SHOWCASE=false
 CONCURRENT=false
 SHARDED=false
 REMOTE=false
@@ -41,11 +42,12 @@ if [ -z "$PLATFORM_MESH_VERSION" ]; then
 fi
 
 usage() {
-  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--help]"
+  echo "Usage: $0 [--example-data] [--showcase] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--help]"
 
   echo ""
   echo "Options:"
   echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
+  echo "  --showcase         Install showcase components (generic-resource-ui, terminal-controller-manager)"
 
   echo "  --concurrent       Run chart builds in parallel instead of sequentially"
   echo "  --sharded          Deploy additional kcp shards"
@@ -63,6 +65,7 @@ usage() {
 while [ $# -gt 0 ]; do
   case "$1" in
     --example-data) EXAMPLE_DATA=true ;;
+    --showcase) SHOWCASE=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
     --remote) REMOTE=true ;;
@@ -357,6 +360,12 @@ if [ "$REMOTE" != true ] && [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
   source "$SCRIPT_DIR/load-custom-images.sh"
 fi
 
+# Local: load showcase images if showcase mode is enabled
+if [ "$REMOTE" != true ] && [ "$SHOWCASE" = true ] && [ -f "$SCRIPT_DIR/load-showcase-images.sh" ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Loading showcase images ${COL_RES}"
+  source "$SCRIPT_DIR/load-showcase-images.sh"
+fi
+
 ###############################################################################
 # Install deployment tooling (Flux / ArgoCD)
 ###############################################################################
@@ -604,6 +613,13 @@ else
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
     fi
   fi
+
+  # Apply showcase overlay on top (patches PlatformMesh with terminal-controller-manager
+  # provider connection and event-related feature toggles). Local mode only.
+  if [ "$SHOWCASE" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Applying showcase overlay ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/showcase
+  fi
 fi
 
 ###############################################################################
@@ -724,6 +740,12 @@ fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Verifying backend resources ${COL_RES}"
 WAIT_TIMEOUT=120s "$SCRIPT_DIR/check-backend-resources.sh"
+
+# Install showcase components if showcase mode is enabled
+if [ "$SHOWCASE" = true ] && [ -f "$SCRIPT_DIR/install-showcase-components.sh" ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Installing showcase components ${COL_RES}"
+  source "$SCRIPT_DIR/install-showcase-components.sh"
+fi
 
 echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
 echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"
