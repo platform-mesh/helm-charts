@@ -1,0 +1,294 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  name: learning
+  labels:
+    ui.platform-mesh.io/entity: main
+spec:
+  inlineConfiguration:
+    contentType: json
+    content: |-
+      {
+        "name": "learning",
+        "luigiConfigFragment": {
+          "data": {
+            "nodes": [
+              {
+                "entityType": "global",
+                "pathSegment": "learning",
+                "testId": "dxp-frame-navigation-global-learning",
+                "label": "{{learning}}",
+                "icon": "education",
+                "hideSideNav": true,
+                "order": 600,
+                "tabNav": true,
+                "showBreadcrumbs": false,
+                "children": [
+                  {
+                    "pathSegment": "home",
+                    "label": "{{home}}",
+                    "icon": "home",
+                    "url": "about:blank",
+                    "compound": {
+                      "renderer": {
+                        "use": "grid",
+                        "config": {
+                          "columns": "repeat(3, minmax(0,1fr))",
+                          "rows": "repeat(4, auto)",
+                          "layouts": [
+                            {
+                              "minWidth": 0,
+                              "maxWidth": 1200,
+                              "columns": "1fr",
+                              "rows": "repeat(10, auto)"
+                            }
+                          ]
+                        }
+                      },
+                      "children": [
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/feature.js",
+                          "context": {
+                            "title": "Hyperspace Portal Documentation",
+                            "content": "Learn how to use the various functionalities of the Hyperspace Portal.",
+                            "alt_label": "{{hero_alt}}",
+                            "gradientColor1": "#02172D",
+                            "gradientColor2": "#203046",
+                            "build_button_label": "Read the documentation",
+                            "feature_link": "/learning/documentation"
+                          },
+                          "layoutConfig": {
+                            "slot": "content"
+                          }
+                        },
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/feature.js",
+                          "context": {
+                            "title": "Hyperspace Academy",
+                            "content": "Learn how to use Hyperspace Paved Roads, tools, services, and apply community best practices.",
+                            "alt_label": "{{hero_alt}}",
+                            "gradientColor1": "#DB1F77",
+                            "gradientColor2": "#29313A",
+                            "build_button_label": "Visit the Hyperspace Academy",
+                            "feature_link": "https://pages.github.tools.sap/hyperspace/academy/"
+                          },
+                          "layoutConfig": {
+                            "slot": "content"
+                          }
+                        },
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/feature.js",
+                          "context": {
+                            "title": "Hyperspace SharePoint",
+                            "content": "Get an overview of what Hyperspace is all about and stay informed about recent updates.",
+                            "alt_label": "{{hero_alt}}",
+                            "gradientColor1": "#57CC99",
+                            "gradientColor2": "#29313A",
+                            "build_button_label": "Visit the Hyperspace SharePoint",
+                            "feature_link": "https://sap.sharepoint.com/sites/124706"
+                          },
+                          "layoutConfig": {
+                            "slot": "content"
+                          }
+                        },
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/quicklinks.js",
+                          "context": {
+                            "title": "Get Going",
+                            "description": "Helpful links in the context of the Hyperspace Portal",
+                            "links": [
+                              {
+                                "label": "User guide",
+                                "url": "https://portal.hyperspace.tools.sap/learning/documentation/User-Guide/Getting-Started/Overview"
+                              },
+                              {
+                                "label": "Marketplace / Extension catalog",
+                                "url": "https://portal.hyperspace.tools.sap/learning/documentation/Marketplace"
+                              },
+                              {
+                                "label": "How to contribute",
+                                "url": "https://portal.hyperspace.tools.sap/learning/documentation/Extend-&-Contribute/Contribution-Guidelines/Overview"
+                              }
+                            ]
+                          },
+                          "layoutConfig": {
+                            "slot": "content"
+                          }
+                        },
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/quicklinks.js",
+                          "context": {
+                            "title": "Find Guidance",
+                            "description": "Relevant links within the Hyperspace Academy",
+                            "links": [
+                              {
+                                "label": "Paved Roads",
+                                "url": "https://pages.github.tools.sap/hyperspace/academy/pavedroad/"
+                              },
+                              {
+                                "label": "Tools documentation",
+                                "url": "https://pages.github.tools.sap/hyperspace/academy/tools/"
+                              },
+                              {
+                                "label": "Service documentations",
+                                "url": "https://pages.github.tools.sap/hyperspace/academy/services/"
+                              },
+                              {
+                                "label": "Community-driven content",
+                                "url": "https://pages.github.tools.sap/hyperspace/academy/communitycontent/"
+                              }
+                            ]
+                          },
+                          "layoutConfig": {
+                            "slot": "content"
+                          }
+                        },
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/quicklinks.js",
+                          "context": {
+                            "title": "Learn More",
+                            "description": "Relevant links within the Hyperspace SharePoint",
+                            "links": [
+                              {
+                                "label": "Development Platform offerings",
+                                "url": "https://sap.sharepoint.com/sites/124706/SitePages/Hyperspace-Development-Platform.aspx"
+                              },
+                              {
+                                "label": "What's next (roadmap)",
+                                "url": "https://sap.sharepoint.com/sites/124706/SitePages/What's-next-(roadmap).aspx"
+                              },
+                              {
+                                "label": "What's new (release notes)",
+                                "url": "https://sap.sharepoint.com/sites/124706/SitePages/What's-new-(release-notes).aspx"
+                              },
+                              {
+                                "label": "Join events & communities",
+                                "url": "https://sap.sharepoint.com/sites/124706/SitePages/Join-Events.aspx"
+                              }
+                            ]
+                          },
+                          "layoutConfig": {
+                            "slot": "content"
+                          }
+                        },
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/quicklinks.js",
+                          "context": {
+                            "title": "Ask a Question",
+                            "description": "Link to Help Center Menu",
+                            "links": [
+                              {
+                                "label": "Help Center",
+                                "url": "https://portal.hyperspace.tools.sap/home?modal=%2Fhelp&modalParams=%7B%22size%22:%22fullscreen%22%7D"
+                              }
+                            ]
+                          },
+                          "layoutConfig": {
+                            "slot": "content"
+                          }
+                        },
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/quicklinks.js",
+                          "context": {
+                            "title": "Get Support",
+                            "description": "Links to the tools support channels",
+                            "links": [
+                              {
+                                "label": "Tool support channels",
+                                "url": "https://pages.github.tools.sap/hyperspace/academy/tools/"
+                              }
+                            ]
+                          },
+                          "layoutConfig": {
+                            "slot": "content"
+                          }
+                        },
+                        {
+                          "urlSuffix": "",
+                          "context": { },
+                          "layoutConfig": { "slot": "content" }
+                        },
+                        {
+                          "url": "https://learning-dev.dfabj.sites.dxp.k8s.ondemand.com/microfrontends/banner.js",
+                          "context": {
+                            "title": "Feeling stuck?",
+                            "content": "Are you looking for guidance on how to best leverage Hyperspace, either starting from scratch or enhancing your current CI/CD set-up?",
+                            "build_button_label": "Contact our Success Team",
+                            "build_button_link": "mailto:sap_hyperspace_enablement_and_adoption@global.corp.sap"
+                          },
+                          "layoutConfig": {
+                            "slot": "content",
+                            "column": "1 / span 3"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "pathSegment": "documentation",
+                    "hideFromNav": true,
+                    "url": "https://md-html.portal.{context.serviceProviderConfig.clusterHost}/#/",
+                    "context": {
+                      "projectId": "dxp"
+                    },
+                    "virtualTree": true
+                  }
+                ]
+              }
+            ],
+            "texts": [
+              {
+                "locale": "",
+                "textDictionary": {
+                  "home": "Learning Home",
+                  "hero_title": "Learn how Hyperspace Portal can help you build solutions",
+                  "hero_content": "Explore projects, re-use templates and deploy your first components.",
+                  "hero_alt": "Or you can...",
+                  "hero_button_build": "Let's go build something",
+                  "hero_button_docs": "Read Docs",
+                  "learning": "Learning",
+                  "dxp": "Hyperspace Portal",
+                  "hyperspace": "Hyperspace",
+                  "introduction": "Introduction",
+                  "academy": "Academy",
+                  "goldenPath": "Golden Path"
+                }
+              },
+              {
+                "locale": "en",
+                "textDictionary": {
+                  "home": "Learning Home",
+                  "hero_title": "Learn how Hyperspace Portal can help you build solutions",
+                  "hero_content": "Explore projects, re-use templates and deploy your first components.",
+                  "hero_alt": "Or you can...",
+                  "hero_button_build": "Let's go build something",
+                  "hero_button_docs": "Read Docs",
+                  "learning": "Learning",
+                  "dxp": "Hyperspace Portal",
+                  "hyperspace": "Hyperspace",
+                  "introduction": "Introduction",
+                  "academy": "Academy",
+                  "goldenPath": "Golden Path"
+                }
+              },
+              {
+                "locale": "de",
+                "textDictionary": {
+                  "home": "Lernen",
+                  "hero_title": "Lerne, wie Hyperspace Portal bei der Erstellung von Lösungen helfen kann",
+                  "hero_content": "Erkunde Projekte, verwende Templates und entwickle Deine ersten Komponenten",
+                  "hero_alt": "oder...",
+                  "hero_button_build": "Erschaffe etwas",
+                  "hero_button_docs": "Lies die Dokumentation",
+                  "learning": "Learning",
+                  "dxp": "Hyperspace Portal",
+                  "hyperspace": "Hyperspace",
+                  "introduction": "Einführung",
+                  "academy": "Akademie",
+                  "goldenPath": "Golden Path"
+                }
+              }
+            ]
+          }
+        }
+      }

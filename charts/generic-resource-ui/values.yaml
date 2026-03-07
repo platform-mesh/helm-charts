@@ -1,0 +1,35 @@
+image:
+  name: ghcr.io/platform-mesh/generic-resource-ui
+  # -- optional image tag override (defaults to Chart.AppVersion)
+  tag: ""
+  pullPolicy: IfNotPresent
+
+deployment:
+  maxUnavailable: 0
+  maxSurge: 5
+
+port: 8080
+
+health:
+  port: 8080
+  liveness:
+    path: /healthz
+  startup:
+    path: /ui/generic-resource/
+  readiness:
+    path: /ui/generic-resource/
+
+traefik:
+  # -- toggle to enable traefik CORS filter in HTTPRoute
+  enabled: true
+
+gatewayApi:
+  httpRoute:
+    pathPrefix: /ui/generic-resource
+    parentRefs:
+    - name: k8sapi-gateway
+exposure:
+  # -- hostnames to be used for exposure
+  hostnames:
+    - "portal.localhost"
+    - "*.portal.localhost"

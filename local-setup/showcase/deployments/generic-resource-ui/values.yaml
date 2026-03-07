@@ -1,0 +1,10 @@
+image:
+  name: generic-resource-ui
+  tag: local
+  pullPolicy: Never
+
+gatewayApi:
+  httpRoute:
+    parentRefs:
+    - name: k8sapi-gateway
+      namespace: platform-mesh-system
