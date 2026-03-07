@@ -1,0 +1,219 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  labels:
+    ui.platform-mesh.io/entity: core_platform-mesh_io_account
+  name: account-kubernetes
+spec:
+  inlineConfiguration:
+    content: |-
+      {
+        "name": "kubernetes-resources",
+        "luigiConfigFragment": {
+          "data": {
+            "nodes": [
+              {
+                "pathSegment": "configmaps",
+                "navigationContext": "configmaps",
+                "label": "ConfigMaps",
+                "icon": "document",
+                "order": 100,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": {
+                  "id": "kubernetes",
+                  "isGroup": true,
+                  "label": "Kubernetes",
+                  "order": 300
+                },
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "",
+                    "version": "v1",
+                    "kind": "ConfigMap",
+                    "plural": "ConfigMaps",
+                    "singular": "configmap",
+                    "scope": "Namespaced"
+                  },
+                  "namespaceId": "default"
+                }
+              },
+              {
+                "pathSegment": "namespaces",
+                "navigationContext": "namespaces",
+                "label": "Namespaces",
+                "icon": "folder-blank",
+                "order": 110,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kubernetes",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "",
+                    "version": "v1",
+                    "kind": "Namespace",
+                    "plural": "Namespaces",
+                    "singular": "namespace",
+                    "scope": "Cluster"
+                  }
+                }
+              },
+              {
+                "pathSegment": "secrets",
+                "navigationContext": "secrets",
+                "label": "Secrets",
+                "icon": "locked",
+                "order": 120,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kubernetes",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "",
+                    "version": "v1",
+                    "kind": "Secret",
+                    "plural": "Secrets",
+                    "singular": "secret",
+                    "scope": "Namespaced"
+                  },
+                  "namespaceId": "default"
+                }
+              },
+              {
+                "pathSegment": "serviceaccounts",
+                "navigationContext": "serviceaccounts",
+                "label": "ServiceAccounts",
+                "icon": "person-placeholder",
+                "order": 130,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kubernetes",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "",
+                    "version": "v1",
+                    "kind": "ServiceAccount",
+                    "plural": "ServiceAccounts",
+                    "singular": "serviceaccount",
+                    "scope": "Namespaced"
+                  },
+                  "namespaceId": "default"
+                }
+              },
+              {
+                "pathSegment": "clusterroles",
+                "navigationContext": "clusterroles",
+                "label": "ClusterRoles",
+                "icon": "role",
+                "order": 140,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kubernetes",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "rbac.authorization.k8s.io",
+                    "version": "v1",
+                    "kind": "ClusterRole",
+                    "plural": "ClusterRoles",
+                    "singular": "clusterrole",
+                    "scope": "Cluster"
+                  }
+                }
+              },
+              {
+                "pathSegment": "clusterrolebindings",
+                "navigationContext": "clusterrolebindings",
+                "label": "ClusterRoleBindings",
+                "icon": "chain-link",
+                "order": 150,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kubernetes",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "rbac.authorization.k8s.io",
+                    "version": "v1",
+                    "kind": "ClusterRoleBinding",
+                    "plural": "ClusterRoleBindings",
+                    "singular": "clusterrolebinding",
+                    "scope": "Cluster"
+                  }
+                }
+              },
+              {
+                "pathSegment": "roles",
+                "navigationContext": "roles",
+                "label": "Roles",
+                "icon": "role",
+                "order": 160,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kubernetes",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "rbac.authorization.k8s.io",
+                    "version": "v1",
+                    "kind": "Role",
+                    "plural": "Roles",
+                    "singular": "role",
+                    "scope": "Namespaced"
+                  }
+                }
+              },
+              {
+                "pathSegment": "rolebindings",
+                "navigationContext": "rolebindings",
+                "label": "RoleBindings",
+                "icon": "chain-link",
+                "order": 170,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "kubernetes",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "rbac.authorization.k8s.io",
+                    "version": "v1",
+                    "kind": "RoleBinding",
+                    "plural": "RoleBindings",
+                    "singular": "rolebinding",
+                    "scope": "Namespaced"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    contentType: json

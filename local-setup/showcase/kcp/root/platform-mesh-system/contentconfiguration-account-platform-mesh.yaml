@@ -1,0 +1,96 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  labels:
+    ui.platform-mesh.io/entity: core_platform-mesh_io_account
+  name: account-platform-mesh
+spec:
+  inlineConfiguration:
+    content: |-
+      {
+        "name": "platform-mesh-resources",
+        "luigiConfigFragment": {
+          "data": {
+            "nodes": [
+              {
+                "pathSegment": "accounts",
+                "navigationContext": "accounts",
+                "label": "Accounts",
+                "icon": "customer",
+                "order": 100,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": {
+                  "id": "platform-mesh",
+                  "isGroup": true,
+                  "label": "Platform Mesh",
+                  "order": 100
+                },
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "core.platform-mesh.io",
+                    "version": "v1alpha1",
+                    "kind": "Account",
+                    "plural": "Accounts",
+                    "singular": "account",
+                    "scope": "Cluster"
+                  }
+                }
+              },
+              {
+                "pathSegment": "contentconfigurations",
+                "navigationContext": "contentconfigurations",
+                "label": "ContentConfigurations",
+                "icon": "customize",
+                "order": 110,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "platform-mesh",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "ui.platform-mesh.io",
+                    "version": "v1alpha1",
+                    "kind": "ContentConfiguration",
+                    "plural": "ContentConfigurations",
+                    "singular": "contentconfiguration",
+                    "scope": "Cluster"
+                  }
+                }
+              },
+              {
+                "pathSegment": "providermetadatas",
+                "navigationContext": "providermetadatas",
+                "label": "ProviderMetadatas",
+                "icon": "supplier",
+                "order": 120,
+                "hideSideNav": false,
+                "keepSelectedForChildren": true,
+                "virtualTree": true,
+                "entityType": "main.core_platform-mesh_io_account",
+                "loadingIndicator": { "enabled": false },
+                "category": "platform-mesh",
+                "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
+                "context": {
+                  "resourceDefinition": {
+                    "group": "ui.platform-mesh.io",
+                    "version": "v1alpha1",
+                    "kind": "ProviderMetadata",
+                    "plural": "ProviderMetadatas",
+                    "singular": "providermetadata",
+                    "scope": "Cluster"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    contentType: json
