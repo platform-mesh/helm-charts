@@ -1,0 +1,101 @@
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  labels:
+    ui.platform-mesh.io/entity: core_platform-mesh_io_account
+  name: account-iam-ui
+spec:
+  inlineConfiguration:
+    content: |-
+      {
+              "name": "iam-ui",
+              "luigiConfigFragment": {
+                "data": {
+                  "nodes": [
+                    {
+                      "pathSegment": "members",
+                      "label": "Members",
+                      "icon": "company-view",
+                      "order": 800,
+                      "entityType": "main.core_platform-mesh_io_account",
+                      "url": "https://{context.organization}.portal.localhost:8443/ui/iam/ui/#/organization/members",
+                      "viewGroup": "members",
+                      "category": {
+                          "id": "settings",
+                          "isGroup": true,
+                          "label": "Settings & Access",
+                          "order": 1000
+                      },
+                      "context": {
+                        "entityType": "main.core_platform-mesh_io_account",
+                        "entityContext": {
+                          "account": {
+                            "policies": ["iamAdmin", "projectAdmin", "projectMember"]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "pathSegment": "add-members",
+                      "entityType": "main.core_platform-mesh_io_account",
+                      "label": "members",
+                      "hideFromNav": true,
+                      "url": "https://{context.organization}.portal.localhost:8443/ui/iam/ui/#/organization/add-members",
+                      "viewGroup": "members"
+                    },
+                    {
+                      "pathSegment": "members",
+                      "label": "Members",
+                      "icon": "company-view",
+                      "order": 800,
+                      "entityType": "teams.team",
+                      "url": "https://{context.organization}.portal.localhost:8443/ui/iam/ui/#/organization/members",
+                      "viewGroup": "members",
+                      "category": {
+                          "id": "settings",
+                          "isGroup": true,
+                          "label": "Settings & Access",
+                          "order": 1000
+                      },
+                      "context": {
+                        "entityType": "teams.team",
+                        "entityContext": {
+                          "account": {
+                            "policies": ["iamAdmin", "projectAdmin", "projectMember"]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "pathSegment": "add-members",
+                      "entityType": "teams.team",
+                      "label": "members",
+                      "hideFromNav": true,
+                      "url": "https://{context.organization}.portal.localhost:8443/ui/iam/ui/#/organization/add-members",
+                      "viewGroup": "members"
+                    }
+                  ],
+                  "texts": [
+                    {
+                      "locale": "",
+                      "textDictionary": {
+                        "members": "Members"
+                      }
+                    },
+                    {
+                      "locale": "en",
+                      "textDictionary": {
+                        "members": "Members"
+                      }
+                    },
+                    {
+                      "locale": "de",
+                      "textDictionary": {
+                        "members": "Mitglieder"
+                      }
+                    }
+                  ]
+                }
+              }
+          }
+    contentType: json

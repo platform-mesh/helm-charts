@@ -1,0 +1,104 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "common.entity.name" . }}
+rules:
+# Terminal CRD permissions (KCP workspaces)
+- apiGroups:
+  - terminal.platform-mesh.io
+  resources:
+  - terminals
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - terminal.platform-mesh.io
+  resources:
+  - terminals/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - terminal.platform-mesh.io
+  resources:
+  - terminals/status
+  verbs:
+  - get
+  - patch
+  - update
+# AccountInfo permissions (KCP workspaces)
+- apiGroups:
+  - core.platform-mesh.io
+  resources:
+  - accountinfos
+  verbs:
+  - get
+  - list
+  - watch
+# Pod permissions (runtime cluster)
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+# Service permissions (runtime cluster)
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+# HTTPRoute permissions (runtime cluster)
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - httproutes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+# Namespace and events permissions
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+# Leader election
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
