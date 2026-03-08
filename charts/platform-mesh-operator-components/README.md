@@ -222,9 +222,8 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.init-agent.imageResources[0].annotations.for | string | `"init-agent"` |  |
 | services.init-agent.imageResources[0].annotations.repo | string | `"oci"` |  |
 | services.init-agent.values.configWorkspace | string | `"root:platform-mesh-system"` |  |
-| services.init-agent.values.hostAliases.enabled | bool | `false` |  |
-| services.init-agent.values.hostAliases.values[0].hostnames[0] | string | `"localhost"` |  |
-| services.init-agent.values.hostAliases.values[0].ip | string | `"10.96.188.4"` |  |
+| services.init-agent.values.hostAliases.enabled | bool | `false` | enable hostAliases to resolve services via ClusterIP, enable this for the local setup |
+| services.init-agent.values.hostAliases.values | list | `[{"hostnames":["localhost"],"ip":"10.96.188.4"}]` | list of host alias entries |
 | services.init-agent.values.kcpKubeconfig | string | `"init-agent-kubeconfig"` |  |
 | services.init-agent.values.leaderElection.enabled | bool | `false` |  |
 | services.init-agent.values.replicas | int | `1` |  |

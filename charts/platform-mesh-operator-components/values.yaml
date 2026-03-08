@@ -175,7 +175,9 @@ services:
       leaderElection:
         enabled: false
       hostAliases:
+        # -- enable hostAliases to resolve services via ClusterIP, enable this for the local setup
         enabled: false
+        # -- list of host alias entries
         values:
           - ip: "10.96.188.4"
             hostnames:
