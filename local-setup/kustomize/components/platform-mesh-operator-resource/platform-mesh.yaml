@@ -136,10 +136,6 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-    init-agent:
-      values:
-        hostAliases:
-          enabled: true
     extension-manager-operator:
       values:
         hostAliases:
