@@ -170,6 +170,12 @@ HelmRelease snapshots:
       timeout: 30m
       values:
         configWorkspace: root:platform-mesh-system
+        hostAliases:
+          enabled: false
+          values:
+            - hostnames:
+                - localhost
+              ip: 10.96.188.4
         kcpKubeconfig: init-agent-kubeconfig
         leaderElection:
           enabled: false
@@ -629,6 +635,12 @@ enable remote deployment of helmreleases:
       timeout: 30m
       values:
         configWorkspace: root:platform-mesh-system
+        hostAliases:
+          enabled: false
+          values:
+            - hostnames:
+                - localhost
+              ip: 10.96.188.4
         kcpKubeconfig: init-agent-kubeconfig
         leaderElection:
           enabled: false
