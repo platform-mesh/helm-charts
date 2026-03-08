@@ -63,7 +63,8 @@ spec:
         kcp:
           rootShard:
             extraArgs:
-              - --feature-gates=WorkspaceAuthentication=true,CachedAPIs=true
+              - --feature-gates=WorkspaceAuthentication=true
+              - --feature-gates=CachedAPIs=true
               - --shard-virtual-workspace-url=https://localhost:8443
           frontProxy:
             clusterIP: "10.96.0.100"
