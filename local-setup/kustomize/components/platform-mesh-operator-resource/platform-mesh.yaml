@@ -136,6 +136,14 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
+    init-agent:
+      values:
+        hostAliases:
+          enabled: true
+          values:
+            - ip: "10.96.188.4"
+              hostnames:
+                - "localhost"
     extension-manager-operator:
       values:
         hostAliases:
