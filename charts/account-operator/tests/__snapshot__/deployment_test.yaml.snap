@@ -37,6 +37,11 @@ deployment with tracing:
                 - --tracing-config-service-name=account-operator.NAMESPACE
                 - --tracing-config-service-version=0.0.0
                 - --tracing-config-collector-endpoint=test:4317
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
                 - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
@@ -569,6 +574,11 @@ disable istio:
                 - --image-name="ghcr.io/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
                 - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
@@ -1162,6 +1172,11 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
                 - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
@@ -1756,6 +1771,11 @@ operator match the snapshot (with kubeconfigSecret):
                 - --image-name="ghcr.io/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
                 - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
@@ -2356,6 +2376,11 @@ operator match the snapshot with webhook enabled:
                 - --image-name="ghcr.io/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
                 - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
