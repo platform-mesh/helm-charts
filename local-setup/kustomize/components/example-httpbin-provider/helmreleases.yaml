@@ -62,4 +62,5 @@ spec:
       values:
         - ip: "10.96.188.4"
           hostnames:
-          - "localhost"
+          - "kcp.localhost"
+          - "root.kcp.localhost"
