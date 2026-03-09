@@ -248,6 +248,7 @@ Gateway API enabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -261,8 +262,8 @@ Gateway API enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -559,6 +560,7 @@ Istio disabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -572,8 +574,8 @@ Istio disabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -870,6 +872,7 @@ Istio enabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -883,8 +886,8 @@ Istio enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1375,6 +1378,7 @@ match snapshots:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1388,8 +1392,8 @@ match snapshots:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1702,6 +1706,7 @@ match snapshots w. hostAliases enabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1715,8 +1720,8 @@ match snapshots w. hostAliases enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -2019,6 +2024,7 @@ match snapshots w. kcp version:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -2032,8 +2038,8 @@ match snapshots w. kcp version:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -2330,6 +2336,7 @@ match snapshots with mailpit enabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -2343,8 +2350,8 @@ match snapshots with mailpit enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   9: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
