@@ -27,7 +27,7 @@ spec:
                     "order": 1000
                 },
                 "context": {
-                  "entityType": "core_platform-mesh_io_account",
+                  "entityType": "main",
                   "entityContext": {
                     "account": {
                       "policies": ["iamAdmin", "projectAdmin", "projectMember"]
@@ -43,7 +43,7 @@ spec:
                 "url": "https://{context.organization}.portal.dev.local:8443/ui/iam/ui/#/organization/add-members",
                 "viewGroup": "members",
                 "context": {
-                  "entityType": "core_platform-mesh_io_account"
+                  "entityType": "main"
                 }
               }
             ],
