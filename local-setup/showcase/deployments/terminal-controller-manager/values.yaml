@@ -1,6 +1,6 @@
 image:
   name: ghcr.io/platform-mesh/terminal-controller-manager
-  tag: v0.2.0
+  tag: v0.3.0
 
 log:
   noJson: true
@@ -9,7 +9,7 @@ log:
 terminal:
   image:
     name: ghcr.io/platform-mesh/terminal
-    tag: v0.2.0
+    tag: v0.3.0
   namespace: terminal-sessions
   lifetime: 2h
   # Host alias for local development to resolve portal.localhost
