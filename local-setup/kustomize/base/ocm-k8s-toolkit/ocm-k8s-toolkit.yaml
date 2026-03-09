@@ -22,7 +22,7 @@ spec:
   chart:
     spec:
       chart: chart
-      version: "0.0.0-f9d7d2f"
+      version: "0.0.0-main"
       sourceRef:
         kind: HelmRepository
         name: ocm-k8s-toolkit
