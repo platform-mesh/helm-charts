@@ -21,7 +21,6 @@ match the snapshots:
                 - serve
                 - --keycloak-base-url=https://portal.localhost:8443/keycloak
                 - --keycloak-client-id=iam-service
-                - --keycloak-client-secret=$(KEYCLOAK_CLIENT_SECRET)
                 - --roles-file-path=/roles/roles.yaml
                 - --jwt-user-id-claim=email
                 - --test=abc
