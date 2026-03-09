@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - test/sbom
     paths:
       - 'charts/portal/**'
       - '.github/workflows/portal.yaml'
@@ -28,4 +29,5 @@ jobs:
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
+      release_branch: test/sbom
     secrets: inherit
