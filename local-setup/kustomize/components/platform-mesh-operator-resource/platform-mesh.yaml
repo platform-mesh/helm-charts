@@ -115,6 +115,8 @@ spec:
               hostnames:
                 - "localhost"
                 - "portal.localhost"
+                - "kcp.localhost"
+                - "root.kcp.localhost"
     openfga:
       enabled: true
       values:
