@@ -9,12 +9,37 @@ SCRIPT_DIR=$(dirname "$0")
 #   # Edit load-custom-images.sh with your custom images
 #   task local-setup:iterate
 
-# Example: Load a locally built platform-mesh-operator image
-docker build -t ghcr.io/platform-mesh/marketplace-ui:v0.8.0 ../../marketplace-ui/
-kind load docker-image ghcr.io/platform-mesh/marketplace-ui:v0.8.0 -n platform-mesh
+chart_app_version() {
+    local chart="$1"
+    local chartYaml="$SCRIPT_DIR/../../charts/$chart/Chart.yaml"
+    if ! test -f "$chartYaml"; then
+        echo "Chart.yaml '$chartYaml' not found"
+        exit 1
+    fi
+    awk '/^appVersion:/ { print $2 }' "$chartYaml" | sed -e 's#"##g'
+}
 
-docker build -t ghcr.io/platform-mesh/portal:v0.16.169 ../../portal/
-kind load docker-image ghcr.io/platform-mesh/portal:v0.16.169 -n platform-mesh
+build_and_load() {
+    local app="$1"
+    local version="$(chart_app_version "$app")"
+    local image="ghcr.io/platform-mesh/$app:$version"
+    ( cd "$SCRIPT_DIR/../../../$app" && docker build -t "$image" . )
+    kind load docker-image "$image" -n platform-mesh
+}
+
+# Example: Load a locally built platform-mesh-operator image
+docker build -t ghcr.io/platform-mesh/platform-mesh-operator:v0.58.11 ../../../portal/
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.58.11 -n platform-mesh
+# or
+build_and_load platform-mesh-operator
+
+# Example: Load a locally built marketplace-ui image
+docker build -t ghcr.io/platform-mesh/marketplace-ui:v0.8.0 ../../../marketplace-ui/
+kind load docker-image ghcr.io/platform-mesh/marketplace-ui:v0.8.0 -n platform-mesh
+# marketplace-ui needs a specific build step, so:
+marketplace_app_version="$(chart_app_version marketplace-ui)"
+( cd "$SCRIPT_DIR/../../../$app" && IMAGE_TAG="$marketplace_app_version" task docker:build )
+kind load docker-iamge "ghcr.io/platform-mesh/marketplace-ui:$marketplace_app_version" -n platform-mesh
 
 # Example: Load multiple images
 # kind load docker-image ghcr.io/platform-mesh/portal:dev -n platform-mesh
