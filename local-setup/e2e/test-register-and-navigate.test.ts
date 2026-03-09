@@ -209,7 +209,7 @@ test.describe('Home Page', () => {
     await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
     await page.locator('[test-id="create-resource-submit"]').click();
 
-    const accountElement = page.locator('[test-id="generic-list-cell-0-metadata.name"]').getByText(testAccountName);
+    const accountElement = page.locator('[test-id="generic-table-cell-0-metadata.name"]').getByText(testAccountName);
     await expect(accountElement).toBeVisible( { timeout: 30000 } );
 
     // Wait for the rebac-authz-webhook cluster cache to populate for the new workspace.
@@ -263,9 +263,12 @@ test.describe('Home Page', () => {
     await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
 
     // Ensure http bin resource was created and appears in the list
-    const httpBinNameCell = page.locator('[test-id="generic-list-cell-0-metadata.name"]').filter({ hasText: testHttpBinName });
+    const httpBinNameCell = page.locator('[test-id="generic-table-cell-0-metadata.name"]').filter({ hasText: testHttpBinName });
     await expect(httpBinNameCell).toBeVisible({ timeout: 30000 });
-    const statusReadyCell = page.locator('[test-id="generic-list-cell-0-status.ready"]');
+    // Get the second element since there are duplicate status.ready cells
+    // first status.ready element means that httpbin is ready on k8s side
+    // second status.ready element means that we see Ready message in the table
+    const statusReadyCell = page.locator('[test-id="generic-table-cell-0-status.ready"]').nth(1);
     await expect(statusReadyCell).toBeVisible({ timeout: 15000 });
     await expect(statusReadyCell.locator('[test-id="value-cell-status.ready-boolean"]')).toBeVisible({ timeout: 80000 });
   });
