@@ -29,6 +29,7 @@ spec:
           - serve
           - --keycloak-base-url={{ .Values.keycloak.baseUrl }}
           - --keycloak-client-id={{ .Values.keycloak.client.id }}
+          - --keycloak-client-secret=$(KEYCLOAK_CLIENT_SECRET)
           - --roles-file-path=/roles/roles.yaml
           - --jwt-user-id-claim={{ .Values.jwt.userIdClaim  }}
           {{- include "common.extraArgs" . | indent 10 }}
@@ -67,5 +68,4 @@ spec:
           secret:
             secretName: {{ .Values.caSecret }}
         {{- end }}
-
 
