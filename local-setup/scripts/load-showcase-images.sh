@@ -37,8 +37,8 @@ if kubectl get deployment generic-resource-ui -n platform-mesh-system &>/dev/nul
 fi
 
 # terminal-controller-manager and terminal images are published to GHCR.
-# No local build needed — the chart uses ghcr.io/platform-mesh/terminal-controller-manager:v0.2.0
-# and ghcr.io/platform-mesh/terminal:v0.2.0 directly.
+# No local build needed — the chart uses ghcr.io/platform-mesh/terminal-controller-manager:v0.3.0
+# and ghcr.io/platform-mesh/terminal:v0.3.0 directly.
 
 # Clone or update portal
 PORTAL_DIR="${SCRIPT_DIR}/../src/portal"
