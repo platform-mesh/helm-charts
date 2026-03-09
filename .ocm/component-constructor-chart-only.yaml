@@ -2,7 +2,7 @@ components:
   - name: {{ .COMPONENT_NAME }}
     version: {{ .VERSION }}
     provider:
-      name: The Platform Mesh Team
+      name: Platform Mesh Team
     resources:
       - name: chart
         type: helmChart
@@ -12,7 +12,7 @@ components:
           type: ociArtifact
           imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
     sources:
-      - name: chart
+      - name: source
         type: git
         version: {{ .VERSION }}
         access:
