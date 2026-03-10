@@ -57,6 +57,11 @@ service:
 openfga:
   url: openfga:8081
 
+webhook:
+  cacheMissMaxRetries: 1
+  cacheMissTTL: 5m
+  cacheMissCleanupInterval: 2m
+
 istio:
   enabled: false
   dnsNames: []
