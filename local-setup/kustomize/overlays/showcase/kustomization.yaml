@@ -29,6 +29,9 @@ patches:
           - name: feature-enable-marketplace-account
           - name: feature-disable-contentconfigurations
         values:
+          portal:
+            values:
+              featureToggles: "enableSessionAutoRefresh=true,terminal=true"
           marketplace-ui:
             enabled: true
           security-operator:
