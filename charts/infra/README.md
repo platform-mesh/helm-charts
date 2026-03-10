@@ -47,7 +47,7 @@ A Helm chart for Kubernetes
 | kcp.auth.oidc.groupsClaim | string | `"groups"` |  |
 | kcp.auth.oidc.issuerUrl | string | `""` |  |
 | kcp.auth.oidc.usernameClaim | string | `"email"` |  |
-| kcp.auth.serviceAccounts.enabled | bool | `true` |  |
+| kcp.auth.serviceAccount.enabled | bool | `true` |  |
 | kcp.etcd.backup.compression.enabled | bool | `false` |  |
 | kcp.etcd.backup.compression.policy | string | `"gzip"` |  |
 | kcp.etcd.backup.deltaSnapshotMemoryLimit | string | `"1Gi"` |  |
