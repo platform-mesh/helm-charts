@@ -46,7 +46,20 @@ spec:
             ephemeral-storage: 50Mi
             memory: 1Gi
     infra:
+      imageResources: []  # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
+        kcp:
+          rootShard:
+            extraArgs:
+              - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
+              - --shard-virtual-workspace-url=https://localhost:8443
+          auth:
+            serviceAccount:
+              enabled: true
+          image:
+            tag: "f84f29435" # override image to have VW identity parsing fix
+          frontProxy:
+            clusterIP: "10.96.0.100"
         traefik:
           accessControlAllowOriginList:
             - "http://localhost:4200"
@@ -60,13 +73,6 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-        kcp:
-          rootShard:
-            extraArgs:
-              - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
-              - --shard-virtual-workspace-url=https://localhost:8443
-          frontProxy:
-            clusterIP: "10.96.0.100"
     security-operator:
       values:
         log:

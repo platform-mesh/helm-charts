@@ -145,6 +145,9 @@ Gateway API enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -456,6 +459,9 @@ Istio disabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -767,6 +773,9 @@ Istio enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -1014,6 +1023,9 @@ configure frontproxy resources:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -1266,6 +1278,9 @@ match snapshots:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -1583,6 +1598,9 @@ match snapshots w. hostAliases enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -1910,6 +1928,9 @@ match snapshots w. kcp version:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
@@ -2227,6 +2248,9 @@ match snapshots with mailpit enabled:
           path: /services/marketplace
           proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
           proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
       deploymentTemplate:
         spec:
           template:
