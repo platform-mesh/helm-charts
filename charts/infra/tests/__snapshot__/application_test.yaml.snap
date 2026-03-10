@@ -1609,6 +1609,8 @@ match snapshots w. hostAliases enabled:
                 - hostnames:
                     - localhost
                     - portal.localhost
+                    - kcp.localhost
+                    - root.kcp.localhost
                   ip: 10.96.188.4
       external:
         hostname: localhost
@@ -1674,6 +1676,8 @@ match snapshots w. hostAliases enabled:
                 - hostnames:
                     - localhost
                     - portal.localhost
+                    - kcp.localhost
+                    - root.kcp.localhost
                   ip: 10.96.188.4
       etcd:
         endpoints:
@@ -1692,6 +1696,8 @@ match snapshots w. hostAliases enabled:
                   - hostnames:
                       - localhost
                       - portal.localhost
+                      - kcp.localhost
+                      - root.kcp.localhost
                     ip: 10.96.188.4
       replicas: 1
   7: |
