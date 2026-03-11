@@ -148,6 +148,10 @@ coreModule: |-
       define get_iam_roles: member
       define get_iam_users: member
 
+      # APIExport binding control
+      define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent
+      define bind: [apis_kcp_io_apiexport] or bind_inherited
+
   type core_platform-mesh_io_accountinfo
     relations
       define parent: [core_platform-mesh_io_account]
@@ -171,3 +175,4 @@ coreModule: |-
 
       define get: member
       define watch: member
+      

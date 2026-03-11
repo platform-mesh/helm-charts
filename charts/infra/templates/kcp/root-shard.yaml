@@ -37,6 +37,7 @@ spec:
   authorization:
     webhook:
       configSecretName: {{ .Values.kcp.webhook.authorizationWebhookSecretName }}
+      version: {{ .Values.kcp.webhook.version | default "v1" }}
   {{- end }}
   certificates:
     # this references the issuer created above
