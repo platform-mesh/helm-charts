@@ -369,3 +369,7 @@ Previously, all logged-in users were members in any org, due to tuples configure
 Fix: remove the tuples from store resources.
 
 After that, all new users must be explicitely added via the Members UI.
+
+## graphql unauthorized
+
+cause: stale secrets. In kcp's `:root:orgs` the WorkspaceAuthenticationConfiguration orgs-authentication should have '.spec.jwt[0].issuer.certificateAuthority' matching the **domain-certificate** ca.crt field. It usually get's it from **domain-certificate-ca** tls.crt. Those must be up-to-date. With newer versions of the operator this will be configurable not not neceserrily to sync.
