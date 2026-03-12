@@ -175,4 +175,3 @@ coreModule: |-
 
       define get: member
       define watch: member
-      
