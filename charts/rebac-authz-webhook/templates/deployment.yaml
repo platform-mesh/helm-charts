@@ -56,6 +56,7 @@ spec:
           - "--webhook-cache-miss-max-retries={{ .Values.webhook.cacheMissMaxRetries }}"
           - "--webhook-cache-miss-ttl={{ .Values.webhook.cacheMissTTL }}"
           - "--webhook-cache-miss-cleanup-interval={{ .Values.webhook.cacheMissCleanupInterval }}"
+          - "--webhook-cache-miss-retry-after={{ .Values.webhook.cacheMissRetryAfter }}"
           {{- include "common.extraArgs" . | nindent 10 }}
         env:
           {{- with .Values.kcp.kubeconfig.secret }}

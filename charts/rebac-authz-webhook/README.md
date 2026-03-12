@@ -35,6 +35,7 @@ A Helm chart for Kubernetes
 | serviceAccount.create | bool | `true` |  |
 | webhook.cacheMissCleanupInterval | string | `"2m"` |  |
 | webhook.cacheMissMaxRetries | int | `1` |  |
+| webhook.cacheMissRetryAfter | string | `"1s"` |  |
 | webhook.cacheMissTTL | string | `"5m"` |  |
 
 ## Overriding Values

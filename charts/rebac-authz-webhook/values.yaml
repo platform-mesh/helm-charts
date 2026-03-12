@@ -61,6 +61,7 @@ webhook:
   cacheMissMaxRetries: 1
   cacheMissTTL: 5m
   cacheMissCleanupInterval: 2m
+  cacheMissRetryAfter: 1s
 
 istio:
   enabled: false

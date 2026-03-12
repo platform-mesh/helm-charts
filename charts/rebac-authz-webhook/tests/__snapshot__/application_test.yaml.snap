@@ -66,6 +66,7 @@ it should render the application manifests:
                 - --webhook-cache-miss-max-retries=1
                 - --webhook-cache-miss-ttl=5m
                 - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
@@ -204,6 +205,7 @@ it should render the application manifests with service account:
                 - --webhook-cache-miss-max-retries=1
                 - --webhook-cache-miss-ttl=5m
                 - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
@@ -342,6 +344,7 @@ it should render the application manifests with service monitor:
                 - --webhook-cache-miss-max-retries=1
                 - --webhook-cache-miss-ttl=5m
                 - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
@@ -480,6 +483,7 @@ it should render the application manifests with useInClusterClient:
                 - --webhook-cache-miss-max-retries=1
                 - --webhook-cache-miss-ttl=5m
                 - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
@@ -618,6 +622,7 @@ it should render the cert-manager manifests with certManager enabled:
                 - --webhook-cache-miss-max-retries=1
                 - --webhook-cache-miss-ttl=5m
                 - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
