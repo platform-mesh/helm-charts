@@ -39,6 +39,9 @@ spec:
           {{- if .Values.kcp.apiExportEndpointSliceName }}
           - --kcp-api-export-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}
           {{- end }}
+          {{- if .Values.entityTypeValidation.enabled }}
+          - --entity-type-validation-enabled
+          {{- end }}
         {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}

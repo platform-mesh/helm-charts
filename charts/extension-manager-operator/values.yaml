@@ -21,6 +21,10 @@ validationServer:
   # -- host for the validation VirtualService
   host: "*"
 
+entityTypeValidation:
+  # -- enable entityType validation for ContentConfigurations
+  enabled: false
+
 istio:
   # -- enable Istio VirtualService
   enabled: false
