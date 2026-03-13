@@ -47,8 +47,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Third-party dependency versions
-      KCP_OPERATOR_CHART_VERSION: "0.4.0"
-      KCP_OPERATOR_IMAGE_VERSION: "v0.4.0"
+      KCP_OPERATOR_CHART_VERSION: "0.5.1"
+      KCP_OPERATOR_IMAGE_VERSION: "v0.5.1"
       KCP_VERSION: "v0.30.0"
       INIT_AGENT_CHART_VERSION: "0.1.1"
       INIT_AGENT_IMAGE_VERSION: "v0.1.1"
@@ -140,7 +140,7 @@ jobs:
           echo IAM_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo MARKETPLACE_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/marketplace-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo TERMINAL_CONTROLLER_MANAGER_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/terminal-controller-manager --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          # Fetch etcd-druid version from Gardener registry 
+          # Fetch etcd-druid version from Gardener registry
           echo GARDENER_ETCD_DRUID_VERSION=$(./ocm get componentversions --latest github.com/gardener/etcd-druid --repo europe-docker.pkg.dev/gardener-project/releases -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # Get current platform-mesh version
           PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
