@@ -13,9 +13,9 @@ import {
 } from './helpers/portal';
 
 test.describe('Portal Authorization with Multiple Users', () => {
-  test.setTimeout(600000);
+  test.setTimeout(60000);
 
-  test('Second user is denied account access', async ({ page, browser }) => {
+  test('Second user is denied initial user account access', async ({ page, browser }) => {
     logStep('test:authorization:start');
     await ensureWelcomePage(page, primaryUser);
     await switchToOrganization(page, primaryUser, true);
