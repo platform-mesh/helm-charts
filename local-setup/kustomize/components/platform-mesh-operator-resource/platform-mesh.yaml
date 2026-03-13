@@ -53,7 +53,7 @@ spec:
             serviceAccount:
               enabled: true
           image:
-            tag: "f84f29435" # override image to have VW identity parsing fix
+            tag: "a45a66683" # override image to have VW identity parsing fix and schema VW present
           frontProxy:
             clusterIP: "10.96.0.100"
         traefik:
