@@ -226,7 +226,7 @@ See [DEVELOPERS](./DEVELOPERS.md) for more detailed information related to chart
 Once the setup completes successfully, you can access:
 
 - **Onboarding Portal**: <https://portal.localhost:8443>
-- **KCP API**: <https://localhost:8443>
+- **KCP API**: <https://kcp.localhost:8443>
 
 **Note**: Modern browsers automatically resolve `*.localhost` domains to `127.0.0.1`, so no `/etc/hosts` configuration is required for browser access. Organization subdomains like `myorg.portal.localhost` will also work automatically in browsers.
 
