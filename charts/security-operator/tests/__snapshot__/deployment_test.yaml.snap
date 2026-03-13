@@ -1,5 +1,92 @@
 operator match the snapshot:
   1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: RELEASE-NAME-security-operator-authorization
+      namespace: NAMESPACE
+    spec:
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          service: RELEASE-NAME-security-operator-authorization
+      template:
+        metadata:
+          labels:
+            control-plane: controller-manager
+            service: RELEASE-NAME-security-operator-authorization
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - authorization
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=warn
+                - --region=local
+                - --environment=local
+                - --image-tag=1.0.0
+                - --image-name="ghcr.io/platform-mesh/security-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
+              env: null
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: RELEASE-NAME-security-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 260m
+                  memory: 512Mi
+                requests:
+                  cpu: 150m
+                  memory: 128Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /api-kubeconfig
+                  name: external-api-server
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: RELEASE-NAME-security-operator
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: external-api-server
+              secret:
+                secretName: kcp-kubeconfig
+  2: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
     metadata:
@@ -49,7 +136,7 @@ operator match the snapshot:
           - patch
           - delete
           - watch
-  2: |
+  3: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
@@ -62,7 +149,7 @@ operator match the snapshot:
       - kind: ServiceAccount
         name: RELEASE-NAME-security-operator
         namespace: NAMESPACE
-  3: |
+  4: |
     apiVersion: v1
     data:
       coreModule.fga: |-
@@ -105,6 +192,10 @@ operator match the snapshot:
             define get_iam_roles: member
             define get_iam_users: member
 
+            # APIExport binding control
+            define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent
+            define bind: [apis_kcp_io_apiexport] or bind_inherited
+
         type core_platform-mesh_io_accountinfo
           relations
             define parent: [core_platform-mesh_io_account]
@@ -131,7 +222,7 @@ operator match the snapshot:
     kind: ConfigMap
     metadata:
       name: RELEASE-NAME-security-operator-core-module
-  4: |
+  5: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -270,7 +361,7 @@ operator match the snapshot:
             - name: webhook-certs
               secret:
                 secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  5: |
+  6: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -357,7 +448,7 @@ operator match the snapshot:
             - name: external-api-server
               secret:
                 secretName: kcp-kubeconfig
-  6: |
+  7: |
     apiVersion: v1
     data:
       config.yaml: "keycloakBaseURL: \nkeycloakClientID: \"admin-cli\"\nkeycloakUser: \"keycloak-admin\"\npasswordFile: \"/secrets/keycloak-password\"\nclients:\n  - name: \"security-operator\"\n    secretRef:\n      name: \"security-operator-client-secret\"\n      namespace: \"platform-mesh-system\"\n  - name: \"iam-service\"\n    secretRef:\n      name: \"iam-client-secret\"\n      namespace: \"platform-mesh-system\"\n"
@@ -365,7 +456,7 @@ operator match the snapshot:
     metadata:
       name: RELEASE-NAME-security-operator-init-container-config
       namespace: NAMESPACE
-  7: |
+  8: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -461,13 +552,13 @@ operator match the snapshot:
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
-  8: |
+  9: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
-  9: |
+  10: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -561,14 +652,14 @@ operator match the snapshot:
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
-  10: |
+  11: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: RELEASE-NAME-security-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -582,7 +673,7 @@ operator match the snapshot:
         name: RELEASE-NAME-security-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-ca-secret
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -590,7 +681,7 @@ operator match the snapshot:
     spec:
       ca:
         secretName: RELEASE-NAME-security-operator-ca-secret
-  13: |
+  14: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -605,7 +696,7 @@ operator match the snapshot:
         name: RELEASE-NAME-security-operator-ca-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  14: |
+  15: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -620,6 +711,100 @@ operator match the snapshot:
         app: RELEASE-NAME-security-operator
 operator match the snapshot w. sentry:
   1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: RELEASE-NAME-security-operator-authorization
+      namespace: NAMESPACE
+    spec:
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          service: RELEASE-NAME-security-operator-authorization
+      template:
+        metadata:
+          labels:
+            control-plane: controller-manager
+            service: RELEASE-NAME-security-operator-authorization
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - authorization
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=warn
+                - --region=local
+                - --environment=local
+                - --image-tag=1.0.0
+                - --image-name="ghcr.io/platform-mesh/security-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
+              env:
+                - name: SENTRY_DSN
+                  valueFrom:
+                    secretKeyRef:
+                      key: dsn
+                      name: RELEASE-NAME-security-operator-sentry
+                - name: TEST_ENV
+                  value: test
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: RELEASE-NAME-security-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 260m
+                  memory: 512Mi
+                requests:
+                  cpu: 150m
+                  memory: 128Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /etc/kcp-kubeconfig
+                  name: kcp-kubeconfig
+                  readOnly: true
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: RELEASE-NAME-security-operator
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: kcp-kubeconfig
+              secret:
+                secretName: kcp-kubeconfig
+  2: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
     metadata:
@@ -669,7 +854,7 @@ operator match the snapshot w. sentry:
           - patch
           - delete
           - watch
-  2: |
+  3: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
@@ -682,7 +867,7 @@ operator match the snapshot w. sentry:
       - kind: ServiceAccount
         name: RELEASE-NAME-security-operator
         namespace: NAMESPACE
-  3: |
+  4: |
     apiVersion: v1
     data:
       coreModule.fga: |-
@@ -725,6 +910,10 @@ operator match the snapshot w. sentry:
             define get_iam_roles: member
             define get_iam_users: member
 
+            # APIExport binding control
+            define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent
+            define bind: [apis_kcp_io_apiexport] or bind_inherited
+
         type core_platform-mesh_io_accountinfo
           relations
             define parent: [core_platform-mesh_io_account]
@@ -751,7 +940,7 @@ operator match the snapshot w. sentry:
     kind: ConfigMap
     metadata:
       name: RELEASE-NAME-security-operator-core-module
-  4: |
+  5: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -897,7 +1086,7 @@ operator match the snapshot w. sentry:
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig
-  5: |
+  6: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -991,7 +1180,7 @@ operator match the snapshot w. sentry:
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig
-  6: |
+  7: |
     apiVersion: v1
     data:
       config.yaml: "keycloakBaseURL: \nkeycloakClientID: \"admin-cli\"\nkeycloakUser: \"keycloak-admin\"\npasswordFile: \"/secrets/keycloak-password\"\nclients:\n  - name: \"security-operator\"\n    secretRef:\n      name: \"security-operator-client-secret\"\n      namespace: \"platform-mesh-system\"\n  - name: \"iam-service\"\n    secretRef:\n      name: \"iam-client-secret\"\n      namespace: \"platform-mesh-system\"\n"
@@ -999,7 +1188,7 @@ operator match the snapshot w. sentry:
     metadata:
       name: RELEASE-NAME-security-operator-init-container-config
       namespace: NAMESPACE
-  7: |
+  8: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -1100,7 +1289,7 @@ operator match the snapshot w. sentry:
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
-  8: |
+  9: |
     apiVersion: external-secrets.io/v1beta1
     kind: ExternalSecret
     metadata:
@@ -1121,13 +1310,13 @@ operator match the snapshot w. sentry:
         creationPolicy: Owner
         deletionPolicy: Retain
         name: RELEASE-NAME-security-operator-sentry
-  9: |
+  10: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
-  10: |
+  11: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -1228,14 +1417,14 @@ operator match the snapshot w. sentry:
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: RELEASE-NAME-security-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1249,7 +1438,7 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-ca-secret
-  13: |
+  14: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1257,7 +1446,7 @@ operator match the snapshot w. sentry:
     spec:
       ca:
         secretName: RELEASE-NAME-security-operator-ca-secret
-  14: |
+  15: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1272,7 +1461,7 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-ca-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  15: |
+  16: |
     apiVersion: v1
     kind: Service
     metadata:

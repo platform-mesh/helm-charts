@@ -2,8 +2,8 @@ apiVersion: v2
 name: security-operator
 description: A Helm chart for security-operator
 type: application
-version: 0.26.12
-appVersion: "v0.23.24"
+version: 0.27.0
+appVersion: "v0.23.22"
 dependencies:
   - name: security-operator-crds
     version: 0.3.0

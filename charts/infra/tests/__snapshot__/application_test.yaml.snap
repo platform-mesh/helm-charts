@@ -204,6 +204,7 @@ Gateway API enabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -534,6 +535,7 @@ Istio disabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -864,6 +866,7 @@ Istio enabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -1114,6 +1117,7 @@ configure rootshard resources:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -1387,6 +1391,7 @@ match snapshots:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -1727,6 +1732,7 @@ match snapshots w. hostAliases enabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -2069,6 +2075,7 @@ match snapshots w. kcp version:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -2403,6 +2410,7 @@ match snapshots with mailpit enabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
