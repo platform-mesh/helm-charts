@@ -298,7 +298,7 @@ tasks:
           npm install
           npm ci
           npx playwright install
-          VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test portal-*.test.ts
+          VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test portal-*.test.ts --workers=1
           popd
 
   test:portal-e2e:deletion:
