@@ -38,7 +38,7 @@ function waitForAccountExists(): void {
     'wait',
     '--server',
     `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
-    '--for=create',
+    '--for=jsonpath={.metadata.name}',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `accounts.core.platform-mesh.io/${testAccountName}`,
   ]);
