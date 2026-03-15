@@ -5,7 +5,7 @@ vars:
   CHARTS:
     sh: "printf '%s' $(ls -d charts/*/ | paste -sd ',' -)"
   CHANGED_CHARTS:
-    sh: "git status --porcelain | grep '^M  charts/' | cut -d'/' -f2 | sort -u | sed 's|^|charts/|' | paste -sd ',' -"
+    sh: "( git diff --name-only main..@ ; git diff --name-only ) | grep '^charts/' | cut -d/ -f1-2 | sort | uniq | paste -sd ','"
   PACKAGED_CHARTS:
     sh: "mkdir -p oci/ && ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
   GOOS:
@@ -28,6 +28,7 @@ vars:
     - portal: charts/portal
     - rebac-authz-webhook: charts/rebac-authz-webhook
     - security-operator: charts/security-operator
+    - terminal-controller-manager: charts/terminal-controller-manager
     - virtual-workspaces: charts/virtual-workspaces
   COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
     # - keycloak: 24.8.1
@@ -41,6 +42,10 @@ vars:
       fi
 
 tasks:
+  default:
+    cmds:
+      - task --list-all
+
   ## Setup
   setup:kube-lint:
     internal: true
@@ -129,7 +134,7 @@ tasks:
           --from-file=tls.key=./local-setup/scripts/certs/cert.key \
           --from-file=ca.crt=./local-setup/scripts/certs/ca.crt \
           --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
-        
+
         kubectl wait --namespace registry \
           --for=condition=available deployment \
           --timeout=120s oci-registry-docker-registry
@@ -219,7 +224,7 @@ tasks:
     cmds:
       - task: ocm:build:component
       - task: ocm:kustomize:apply
-  
+
   ocm:update:constructor:
     cmds:
       - curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml

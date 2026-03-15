@@ -13,6 +13,7 @@ A Helm chart containing reuse templates
 | defaults.deployment.resources.requests | object | `{"cpu":"40m","memory":"50Mi"}` | cpu and memory requests for the deployment |
 | defaults.deployment.revisionHistoryLimit | int | `3` | deployment revision history limit |
 | defaults.deployment.strategy | string | `"RollingUpdate"` | deployment strategy |
+| defaults.enableHttp2 | bool | `true` | enable HTTP/2 for metrics and webhook servers |
 | defaults.environment | string | `"local"` | default environment, this value is primarily used for observability, e.g. logs |
 | defaults.externalSecrets.enabled | bool | `false` | toggle to enable/disable external-secrets |
 | defaults.externalSecrets.secretStore.kind | string | `"SecretStore"` | the default kind to be used in external secrets |
@@ -24,7 +25,7 @@ A Helm chart containing reuse templates
 | defaults.health.readiness | object | `{"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10}` | readiness probe parameters |
 | defaults.health.startup | object | `{"failureThreshold":30,"path":"/readyz"}` | startup probe parameters |
 | defaults.hostAliases.enabled | bool | `false` | toggle to enable/disable hostAliases configuration |
-| defaults.hostAliases.entries | list | `[{"hostnames":["localhost","portal.localhost"],"ip":"10.96.188.4"}]` | host aliases |
+| defaults.hostAliases.entries | list | `[{"hostnames":["localhost","portal.localhost","kcp.localhost","root.kcp.localhost"],"ip":"10.96.188.4"}]` | host aliases |
 | defaults.imagePullPolicy | string | `"IfNotPresent"` | imagePullPolicy is the policy to use when pulling images for all charts |
 | defaults.istio.enabled | bool | `false` | toggle to enable/disable istio |
 | defaults.istio.gateway.name | string | `"gateway"` | name of the gateway |

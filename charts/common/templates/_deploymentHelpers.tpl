@@ -87,31 +87,19 @@ resources:
 - --image-name="{{ include "common.image.name" . }}"
 - --shutdown-timeout={{ include "common.getKeyValue" (dict "Values" .Values "key" "operator.shutdownTimeout") }}
 - --max-concurrent-reconciles={{ include "common.getKeyValue" (dict "Values" .Values "key" "operator.maxConcurrentReconciles") }}
+{{- $enableHttp2 := include "common.getKeyValue" (dict "Values" .Values "key" "enableHttp2") }}
+{{- if eq $enableHttp2 "false" }}
+- --enable-http2=false
+{{- end }}
 {{- end }}
 
 {{- define "common.basicEnvironment" }}
 {{ include "common.sentryEnv" . }}
 {{ include "common.extraEnvs" . }}
 {{- end }}
-{{- define "common.basicService" }}
-- name: PORT
-  value: "{{ .Values.port }}"
-{{- end }}
 {{- define "common.basicJob" }}
 - name: ISTIO_QUIT_API
   value: http://127.0.0.1:15020
-{{- end }}
-{{- define "common.collectorEnvironment" }}
-- name: COLLECTOR_SERVICE_NAME
-  value: {{ .Release.Name }}.{{ .Release.Namespace }}
-- name: COLLECTOR_SERVICE_VERSION
-  value: {{ .Release.Revision | quote }}
-- name: COLLECTOR_ENDPOINT
-  value: "{{ (and .Values.otel .Values.otel.collectorEndpoint) | default "localhost:4317" }}"
-{{- end }}
-{{- define "common.healthEnvironment" }}
-- name: HEALTH_PORT
-  value: "{{ (.Values.health).port | default 3389 }}"
 {{- end }}
 {{- define "common.healthAndReadiness" }}
 {{ include "common.operatorHealthAndReadyness" . }}

@@ -5,8 +5,11 @@ image:
   #  tag: latest
 
 terminal:
-  # -- The terminal pod image
-  image: ghcr.io/platform-mesh/terminal:latest
+  image:
+    # -- The terminal pod image repository
+    name: ghcr.io/platform-mesh/terminal
+    # -- Override terminal image tag (defaults to appVersion)
+    tag: ""
   # -- The namespace where terminal pods are created
   namespace: terminal-sessions
   # -- The terminal session lifetime (Go duration format)

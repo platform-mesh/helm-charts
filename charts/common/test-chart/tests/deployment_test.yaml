@@ -167,6 +167,11 @@ tests:
       - equal:
           path: spec.template.spec.hostAliases[1].hostnames[0]
           value: "my.test"
+  - it: test disable http2
+    set:
+      enableHttp2: false
+    asserts:
+      - matchSnapshot: {}
   - it: test enable default hostAliases
     set:
       hostAliases:
