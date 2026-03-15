@@ -79,12 +79,6 @@ create_kind_cluster() {
   local cached_config_file=$3
   local use_quiet=${4:-true}
 
-  if [ -d "$SCRIPT_DIR/certs" ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
-    rm -rf "$SCRIPT_DIR/certs"
-  fi
-  $SCRIPT_DIR/../scripts/gen-certs.sh
-
   local quiet_flag=""
   if [ "$use_quiet" = true ]; then
     quiet_flag="--quiet"
@@ -152,7 +146,7 @@ install_fluxcd() {
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Installing FluxCD ${COL_RES}"
   HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig "$kubeconfig" -i -n "$namespace" --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-    --version 2.17.1 \
+    --version 2.17.2 \
     --set imageAutomationController.create=false \
     --set imageReflectionController.create=false \
     --set notificationController.create=false \
@@ -200,9 +194,9 @@ install_argocd() {
 
 setup_argocd() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Setting up ArgoCD clusters ${COL_RES}"
-  kind export kubeconfig --name platform-mesh-infra
-  argocd login --core
-  kubectl config set-context --current --namespace=argocd
+  KUBECONFIG=.secret/platform-mesh-infra.kubeconfig argocd login --core --kube-context kind-platform-mesh-infra
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig \
+    config set-context kind-platform-mesh-infra --namespace=argocd
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch configmap argocd-cmd-params-cm -n argocd \
   --type merge \
   -p '{"data": {"application.namespaces": "argocd,platform-mesh-system"}}'
@@ -211,7 +205,7 @@ setup_argocd() {
   CERT_DATA=$(yq '.users[0].user["client-certificate-data"]' .secret/platform-mesh.kubeconfig.tmp)
   CERT_KEY=$(yq '.users[0].user["client-key-data"]' .secret/platform-mesh.kubeconfig.tmp)
 
-export CERTCONFIG="$(cat <<EOF
+  export CERTCONFIG="$(cat <<EOF
 {
   "tlsClientConfig": {
     "insecure": false,
@@ -222,11 +216,13 @@ export CERTCONFIG="$(cat <<EOF
 }
 EOF
 )"
+  CLUSTER_SECRET_FILE=".secret/platform-mesh-cluster-secret.yml"
+  cp local-setup/kustomize/base/argocd-cluster-secret/platform-mesh-cluster-secret.yml "$CLUSTER_SECRET_FILE"
   yq -i '
     .stringData.config = (strenv(CERTCONFIG) + "\n")
     | .stringData.config style="literal"
-  ' local-setup/platform-mesh-cluster-secret.yml
-  envsubst_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig local-setup/platform-mesh-cluster-secret.yml
+  ' "$CLUSTER_SECRET_FILE"
+  envsubst_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig "$CLUSTER_SECRET_FILE"
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig delete pod -n argocd -l app.kubernetes.io/instance=argo-cd
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for ArgoCD to restart after configuration update ${COL_RES}"
@@ -283,6 +279,17 @@ if [ "$REMOTE" = true ]; then
 fi
 
 ###############################################################################
+# Generate certificates
+###############################################################################
+
+mkdir -p $SCRIPT_DIR/certs
+if [ "$REMOTE" = true ]; then
+  MKCERT_CMD="bin/mkcert"
+fi
+$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
+cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
+
+###############################################################################
 # Create kind cluster(s)
 ###############################################################################
 
@@ -308,17 +315,6 @@ if [ "$REMOTE" = true ]; then
   RUNTIME_KC=(--kubeconfig .secret/platform-mesh.kubeconfig)
 fi
 
-###############################################################################
-# Generate certificates
-###############################################################################
-
-mkdir -p $SCRIPT_DIR/certs
-if [ "$REMOTE" = true ]; then
-  MKCERT_CMD="bin/mkcert"
-fi
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
-cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
-
 # Local: load custom images if hook script exists
 if [ "$REMOTE" != true ] && [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Loading custom images ${COL_RES}"
@@ -335,7 +331,6 @@ if [ "$REMOTE" = true ]; then
 
   if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
     install_argocd .secret/platform-mesh-infra.kubeconfig
-    install_argocd .secret/platform-mesh.kubeconfig
   fi
 else
   echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"

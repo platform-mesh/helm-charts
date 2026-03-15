@@ -19,9 +19,9 @@ check_kind_cluster() {
 
 check_kind_infra_cluster() {
     # Check if kind cluster is already running
-    if [ $(kind get clusters | grep -c platform-mesh-infra) -gt 0 ]; then
+    if kind get clusters 2>/dev/null | grep -qx 'platform-mesh-infra'; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Kind infra cluster already running, using existing ${COL_RES}"
-        kind export kubeconfig --name platform-mesh-infra
+        kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
         return 0  # Return 0 to indicate cluster exists
     fi
     return 1  # Return 1 to indicate cluster doesn't exist
