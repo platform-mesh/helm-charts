@@ -1,6 +1,6 @@
 import { expect, Page } from '@playwright/test';
 
-import { newOrgName, portalBaseUrl, type TestUser } from './constants';
+import { newOrgName, orgReadyTimeoutSeconds, portalBaseUrl, type TestUser } from './constants';
 import { logStep } from './log';
 
 async function loginUser(page: Page, user: TestUser): Promise<void> {
@@ -168,15 +168,28 @@ async function switchToOrganization(page: Page, user: TestUser, createIfMissing:
 
   if (createIfMissing) {
     const onboardButton = page.locator('[test-id="organization-management-onboard-button"]').locator('button');
+    const onboardInput = page
+      .locator('[test-id="organization-management-onboard-input"] input')
+      .or(page.locator('ui5-input[placeholder="Enter organization name"] input'))
+      .first();
     const switchReady = await switchButton.isEnabled().catch(() => false);
     if (!switchReady && await onboardButton.isVisible().catch(() => false)) {
+      if (await onboardInput.isVisible().catch(() => false)) {
+        await onboardInput.fill(newOrgName);
+      }
       await onboardButton.click();
-      await expect(orgInput).toHaveValue(newOrgName, { timeout: 5000 });
+      await expect.poll(async () => ({
+        enabled: await switchButton.isEnabled().catch(() => false),
+        title: await switchButton.getAttribute('title').catch(() => ''),
+      }), { timeout: Number(orgReadyTimeoutSeconds) * 1000 }).toMatchObject({ enabled: true });
     }
   }
 
   await switchButton.waitFor({ state: 'visible', timeout: 60000 });
-  await expect(switchButton).toBeEnabled({ timeout: 100000 });
+  await expect.poll(async () => ({
+    enabled: await switchButton.isEnabled().catch(() => false),
+    title: await switchButton.getAttribute('title').catch(() => ''),
+  }), { timeout: Number(orgReadyTimeoutSeconds) * 1000 }).toMatchObject({ enabled: true });
   await switchButton.click();
 
   await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
