@@ -42,24 +42,19 @@ subroutines:
   namespace:
     # -- Enable namespace subroutines
     enabled: true
-  fga:
-    # -- Enable FGA subroutines
+  accountInfo:
+    # -- Enable AccountInfo subroutine
     enabled: true
-    # -- The gRPC address for FGA
-    grpcAddr: platform-mesh-openfga:8081
-    # -- The root namespace for FGA
-    rootNamespace: platform-mesh-root
-    # -- The object type for FGA
-    objectType: core_platform-mesh_io_account
-    # -- The parent relation for FGA
-    parentRelation: parent
-    # -- The creator relation for FGA
-    creatorRelation: owner
   extension:
     # -- Enable extension subroutines
     enabled: true
   extensionReady:
     # -- Enable extension ready subroutines
+    enabled: true
+
+controllers:
+  accountInfo:
+    # -- Enable AccountInfo controller
     enabled: true
 
 # -- The secret for kubeconfig
