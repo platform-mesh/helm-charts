@@ -7,11 +7,6 @@ KCP_URL="${KCP_URL:-https://localhost:8443}"
 ADMIN_KUBECONFIG="${ADMIN_KUBECONFIG:-$ROOT_DIR/.secret/kcp/admin.kubeconfig}"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-30s}"
 
-if ! command -v kubectl >/dev/null 2>&1; then
-  echo "kubectl is required" >&2
-  exit 1
-fi
-
 if [[ ! -f "$ADMIN_KUBECONFIG" ]]; then
   echo "Admin kubeconfig not found at $ADMIN_KUBECONFIG" >&2
   exit 1
