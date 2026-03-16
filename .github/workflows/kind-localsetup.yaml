@@ -67,6 +67,7 @@ jobs:
           kubectl krew install kcp-dev/kcp
           kubectl krew install kcp-dev/ws
           kubectl krew install kcp-dev/create-workspace
+          kubectl krew install oidc-login
       - name: Run local-setup with example data
         if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
         run: |

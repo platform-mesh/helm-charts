@@ -13,6 +13,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| controllers.accountInfo.enabled | bool | `true` | Enable AccountInfo controller |
 | crds.enabled | bool | `true` | Enable CRDs |
 | deployment.replicas | int | `1` |  |
 | deployment.specTemplate.annotations | object | `{}` | The annotations for the deployment |
@@ -27,14 +28,9 @@ A Helm chart to deploy platform-mesh Account-Operator
 | kubeconfigSecret | string | `""` | The secret for kubeconfig |
 | operator.leaderElect | bool | `true` |  |
 | security.mountServiceAccountToken | bool | `true` | Mount the service account token |
+| subroutines.accountInfo.enabled | bool | `true` | Enable AccountInfo subroutine |
 | subroutines.extension.enabled | bool | `true` | Enable extension subroutines |
 | subroutines.extensionReady.enabled | bool | `true` | Enable extension ready subroutines |
-| subroutines.fga.creatorRelation | string | `"owner"` | The creator relation for FGA |
-| subroutines.fga.enabled | bool | `true` | Enable FGA subroutines |
-| subroutines.fga.grpcAddr | string | `"platform-mesh-openfga:8081"` | The gRPC address for FGA |
-| subroutines.fga.objectType | string | `"core_platform-mesh_io_account"` | The object type for FGA |
-| subroutines.fga.parentRelation | string | `"parent"` | The parent relation for FGA |
-| subroutines.fga.rootNamespace | string | `"platform-mesh-root"` | The root namespace for FGA |
 | subroutines.namespace.enabled | bool | `true` | Enable namespace subroutines |
 | webhooks.additionalAccountTypes[0] | string | `"account"` |  |
 | webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
