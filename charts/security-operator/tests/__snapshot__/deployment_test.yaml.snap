@@ -153,6 +153,8 @@ operator match the snapshot:
             - args:
                 - fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
                 - --webhooks-cert-dir=/certs
@@ -167,11 +169,7 @@ operator match the snapshot:
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
-                - name: INVITE_KEYCLOAK_CLIENT_SECRET
+                - name: KEYCLOAK_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:
                       key: client_secret
@@ -293,6 +291,8 @@ operator match the snapshot:
           containers:
             - args:
                 - model-generator
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -303,11 +303,7 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
+              env: null
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -392,6 +388,8 @@ operator match the snapshot:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --test=myval
                 - --test2=myval
                 - --leader-elect
@@ -404,11 +402,7 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
+              env: null
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -496,6 +490,8 @@ operator match the snapshot:
                 - terminator
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -506,11 +502,7 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
+              env: null
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -781,6 +773,7 @@ operator match the snapshot w. sentry:
             - args:
                 - fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
                 - --webhooks-cert-dir=/certs
@@ -802,9 +795,7 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: INVITE_KEYCLOAK_CLIENT_SECRET
+                - name: KEYCLOAK_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:
                       key: client_secret
@@ -927,6 +918,7 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - model-generator
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -945,8 +937,6 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1032,6 +1022,7 @@ operator match the snapshot w. sentry:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -1050,8 +1041,6 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1161,6 +1150,7 @@ operator match the snapshot w. sentry:
                 - terminator
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -1179,8 +1169,6 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:

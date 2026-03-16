@@ -46,7 +46,16 @@ spec:
             ephemeral-storage: 50Mi
             memory: 1Gi
     infra:
+      imageResources: []  # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
+        kcp:
+          auth:
+            serviceAccount:
+              enabled: true
+          image:
+            tag: "affd3cef6" # override image to have VW identity parsing fix
+          frontProxy:
+            clusterIP: "10.96.0.100"
         traefik:
           accessControlAllowOriginList:
             - "http://localhost:4200"
@@ -60,9 +69,6 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-        kcp:
-          frontProxy:
-            clusterIP: "10.96.0.100"
     security-operator:
       values:
         log:
@@ -111,6 +117,8 @@ spec:
               hostnames:
                 - "localhost"
                 - "portal.localhost"
+                - "kcp.localhost"
+                - "root.kcp.localhost"
     openfga:
       enabled: true
       values:
@@ -134,6 +142,10 @@ spec:
           - --no-json
         cors:
           enabled: true
+        hostAliases:
+          enabled: true
+    init-agent:
+      values:
         hostAliases:
           enabled: true
     extension-manager-operator:
