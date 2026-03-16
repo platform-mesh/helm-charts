@@ -110,6 +110,7 @@ data:
           syncWave: 4
           enabled: false
           values:
+            caSecret: domain-certificate-ca
             istio:
               enabled: false
         infra:
@@ -180,6 +181,27 @@ data:
               infra: "true"
             name: kcp-image
           targetNamespace: kcp-operator
+        init-agent:
+          enabled: true
+          helmRepo: true
+          syncWave: 4
+          imageResources:
+          - annotations:
+              repo: oci
+              artifact: image
+              for: init-agent
+          values:
+            configWorkspace: root:platform-mesh-system
+            kcpKubeconfig: init-agent-kubeconfig
+            replicas: 1
+            leaderElection:
+              enabled: false
+            hostAliases:
+              enabled: true
+              values:
+              - ip: "10.96.188.4"
+                hostnames:
+                - "localhost"
         keycloak:
           syncWave: 2
           enabled: true
@@ -206,8 +228,10 @@ data:
               repository: upstream-images/keycloak
             postgresql:
               auth:
-                password: password
-                postgresPassword: password
+                existingSecret: ""
+                secretKeys:
+                  userPasswordKey: password
+                  adminPasswordKey: password
                 username: keycloak
               image:
                 registry: ghcr.io/platform-mesh
@@ -243,7 +267,7 @@ data:
               enabled: false
             kubeConfig:
               enabled: true
-              secretName: kubernetes-graphql-gateway-kubeconfig
+              secretName: kubernetes-grapqhl-gateway-kubeconfig
             listener:
               virtualWorkspacesConfig:
                 content:
@@ -436,6 +460,12 @@ data:
           syncWave: 4
           enabled: true
           targetNamespace: platform-mesh-system
+          values:
+            virtualWorkspaceSecretName: virtual-workspaces-cert
+            deployment:
+              serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
+              resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
+              resourceSchemaWorkspace: "root:platform-mesh-system"
     infra:
       deploymentTechnology: argocd
       destinationServer: https://${RUNTIME_CLUSTER_IP}:6443

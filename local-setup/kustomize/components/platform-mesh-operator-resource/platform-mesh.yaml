@@ -154,3 +154,7 @@ spec:
       values:
         hostAliases:
           enabled: true
+    kubernetes-graphql-gateway:
+      values:
+        kubeConfig:
+          secretName: kubernetes-graphql-gateway-kubeconfig
