@@ -18,6 +18,7 @@ A Helm chart for security-operator
 | environment | string | `"local"` | environment indicator, used for logging and observability |
 | fga.extraArgs | list | `[]` |  |
 | fga.inviteKeycloakBaseUrl | string | `""` |  |
+| fga.storeIDCacheTTL | string | `""` | TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m). |
 | fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | generator.extraArgs | list | `[]` |  |
 | hostAliases.enabled | bool | `false` |  |

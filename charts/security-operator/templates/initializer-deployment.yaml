@@ -41,6 +41,9 @@ spec:
           {{- if not .Values.initializer.subroutines.workspaceAuthEnabled }}
           - --initializer-workspace-auth-enabled=false
           {{- end }}
+          {{- with .Values.fga.storeIDCacheTTL }}
+          - --fga-store-id-cache-ttl={{ . }}
+          {{- end }}
           {{- with .Values.initializer.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}
