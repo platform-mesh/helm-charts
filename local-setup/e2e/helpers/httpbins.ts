@@ -194,6 +194,8 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
     await page.getByRole('button', { name: 'Create' }).click();
     await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(httpBinName);
+    await page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items"]').click();
+    await page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items-option-default"]').click();
     await page.locator('[test-id="create-resource-submit"]').click();
     await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
   }
