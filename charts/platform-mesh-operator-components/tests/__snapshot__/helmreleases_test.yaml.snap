@@ -19,7 +19,6 @@ HelmRelease snapshots:
         crds:
           enabled: false
         kcp:
-          apiExportEndpointSliceName: ""
           enabled: true
         kubeconfigSecret: account-operator-kubeconfig
         log:
@@ -464,7 +463,6 @@ enable remote deployment of helmreleases:
         crds:
           enabled: false
         kcp:
-          apiExportEndpointSliceName: ""
           enabled: true
         kubeconfigSecret: account-operator-kubeconfig
         log:

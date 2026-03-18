@@ -19,7 +19,6 @@ it should render the application manifests:
         crds:
           enabled: false
         kcp:
-          apiExportEndpointSliceName: ""
           enabled: true
         kubeconfigSecret: account-operator-kubeconfig
         log:
