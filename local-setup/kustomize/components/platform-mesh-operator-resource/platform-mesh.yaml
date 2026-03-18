@@ -74,7 +74,10 @@ spec:
         hostAliases:
           enabled: true
     security-operator:
+      imageResources: []
       values:
+        image:
+          tag: v0.24.2
         log:
           noJson: true
         fga:
