@@ -174,7 +174,6 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.account-operator.enabled | bool | `true` |  |
 | services.account-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"account-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.account-operator.values.crds.enabled | bool | `false` |  |
-| services.account-operator.values.kcp.apiExportEndpointSliceName | string | `""` |  |
 | services.account-operator.values.kcp.enabled | bool | `true` |  |
 | services.account-operator.values.kubeconfigSecret | string | `"account-operator-kubeconfig"` |  |
 | services.account-operator.values.log.level | string | `"debug"` |  |

@@ -42,7 +42,6 @@ services:
         enabled: false
       kcp:
         enabled: true
-        apiExportEndpointSliceName: ""
       subroutines:
         fga:
           grpcAddr: openfga:8081
