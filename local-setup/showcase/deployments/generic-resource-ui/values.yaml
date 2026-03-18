@@ -1,6 +1,6 @@
 image:
   name: ghcr.io/platform-mesh/generic-resource-ui
-  tag: v0.2.0
+  tag: v0.2.1
   pullPolicy: IfNotPresent
 
 gatewayApi:
