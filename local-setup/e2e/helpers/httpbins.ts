@@ -195,9 +195,11 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
     await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(httpBinName);
     await page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items"]').click();
-    await page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items-option-default"]').click();
-    await page.locator('[test-id="create-resource-submit"]').click();
-    await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
+    await page.locator(`[test-id="pm-dynamic-select-v1.Namespaces.items-option-${namespaceName}"]`).click();
+    if(await page.locator('[test-id="create-resource-submit"]').isEnabled({ timeout: 1000 })) {
+      await page.locator('[test-id="create-resource-submit"]').click();
+      await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 10000 });
+    }
   }
 
   const nameCell = page.getByRole('row').filter({ hasText: httpBinName }).first();
@@ -228,14 +230,11 @@ async function assertHttpBinLinkWorks(page: Page, namespaceName: string, httpBin
 }
 
 export {
-  defaultHttpBinName,
-  testNamespaceHttpBinName,
-  testNamespaceName,
   assertHttpBinLinkWorks,
-  clickRobust,
-  ensureExampleHttpbinProviderWorkspace,
+  clickRobust, defaultHttpBinName, ensureExampleHttpbinProviderWorkspace,
   ensureHttpBinExists,
   ensureNamespaceExists,
   openHttpBinsView,
-  selectNamespaceScope,
+  selectNamespaceScope, testNamespaceHttpBinName,
+  testNamespaceName
 };
