@@ -53,7 +53,7 @@ spec:
             serviceAccount:
               enabled: true
           image:
-            tag: "affd3cef6" # override image to have VW identity parsing fix
+            tag: "097afc12c" # bump kcp image to work around WatchList issues
           frontProxy:
             clusterIP: "10.96.0.100"
         traefik:

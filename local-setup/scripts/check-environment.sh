@@ -30,6 +30,19 @@ check_kind_dependency() {
     return 0
 }
 
+check_kubectl_dependency() {
+    if ! command -v kubectl &> /dev/null; then
+        echo -e "${RED}❌ Error: 'kubectl' is not installed${COL_RES}"
+        echo -e "${COL}☸️ kubectl is required to interact with the local cluster and KCP.${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://kubernetes.io/docs/tasks/tools/${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ kubectl is available${COL_RES}"
+    return 0
+}
+
 check_container_runtime_dependency() {
     local docker_available=false
     local podman_available=false
@@ -210,6 +223,11 @@ run_environment_checks() {
         checks_failed=$((checks_failed + 1))
     fi
 
+    # Check kubectl dependency
+    if ! check_kubectl_dependency; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
     # Check mkcert dependency
     if ! setup_mkcert_command; then
         checks_failed=$((checks_failed + 1))
@@ -248,6 +266,7 @@ run_environment_checks() {
 # Export functions so they can be used by the main script
 export -f check_kind_cluster
 export -f check_kind_dependency
+export -f check_kubectl_dependency
 export -f check_docker_dependency
 export -f check_container_runtime_dependency
 export -f setup_mkcert_command
