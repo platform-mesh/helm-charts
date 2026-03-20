@@ -596,9 +596,8 @@ if [ "$EXAMPLE_DATA" = true ]; then
   fi
 fi
 
-###############################################################################
-# Done
-###############################################################################
+echo -e "${COL}[$(date '+%H:%M:%S')] Verifying backend resources ${COL_RES}"
+"$SCRIPT_DIR/check-backend-resources.sh"
 
 echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
 echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"

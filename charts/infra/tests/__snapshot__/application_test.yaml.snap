@@ -77,7 +77,7 @@ Gateway API enabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -241,6 +241,7 @@ Gateway API enabled:
             template:
               spec: null
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443/
   8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -267,6 +268,7 @@ Gateway API enabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -280,8 +282,8 @@ Gateway API enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -407,7 +409,7 @@ Istio disabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -571,6 +573,7 @@ Istio disabled:
             template:
               spec: null
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443/
   8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -597,6 +600,7 @@ Istio disabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -610,8 +614,8 @@ Istio disabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -737,7 +741,7 @@ Istio enabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -901,6 +905,7 @@ Istio enabled:
             template:
               spec: null
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443/
   8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -927,6 +932,7 @@ Istio enabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -940,8 +946,8 @@ Istio enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1158,6 +1164,7 @@ configure rootshard resources:
         requests:
           cpu: 200m
           memory: 256Mi
+      shardBaseURL: https://root.kcp.localhost:8443/
   2: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -1258,7 +1265,7 @@ match snapshots:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -1428,6 +1435,7 @@ match snapshots:
         image:
           tag: 0.0.0
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443/
   8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -1454,6 +1462,7 @@ match snapshots:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1467,8 +1476,8 @@ match snapshots:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1594,7 +1603,7 @@ match snapshots w. hostAliases enabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -1689,6 +1698,8 @@ match snapshots w. hostAliases enabled:
                 - hostnames:
                     - localhost
                     - portal.localhost
+                    - kcp.localhost
+                    - root.kcp.localhost
                   ip: 10.96.188.4
       external:
         hostname: localhost
@@ -1754,6 +1765,8 @@ match snapshots w. hostAliases enabled:
                 - hostnames:
                     - localhost
                     - portal.localhost
+                    - kcp.localhost
+                    - root.kcp.localhost
                   ip: 10.96.188.4
       etcd:
         endpoints:
@@ -1772,8 +1785,11 @@ match snapshots w. hostAliases enabled:
                   - hostnames:
                       - localhost
                       - portal.localhost
+                      - kcp.localhost
+                      - root.kcp.localhost
                     ip: 10.96.188.4
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443/
   8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -1800,6 +1816,7 @@ match snapshots w. hostAliases enabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1813,8 +1830,8 @@ match snapshots w. hostAliases enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1940,7 +1957,7 @@ match snapshots w. kcp version:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -2110,6 +2127,7 @@ match snapshots w. kcp version:
         image:
           tag: v0.1.0
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443/
   8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -2136,6 +2154,7 @@ match snapshots w. kcp version:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -2149,8 +2168,8 @@ match snapshots w. kcp version:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -2276,7 +2295,7 @@ match snapshots with mailpit enabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -2440,6 +2459,7 @@ match snapshots with mailpit enabled:
             template:
               spec: null
       replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443/
   8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -2466,6 +2486,7 @@ match snapshots with mailpit enabled:
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -2479,8 +2500,8 @@ match snapshots with mailpit enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
   10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute

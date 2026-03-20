@@ -359,11 +359,32 @@ After the local setup is running, you can run end-to-end tests to verify the por
 **Using Task:**
 
 ```sh
+# Run the full local-setup integration suite
+task test:local-setup
+
+# Run CLI checks for backend resource readiness
+task test:backend-resources
+
 # Run tests in headless mode
 task test:portal-e2e
 
+# Run the HTTPBin flow
+task test:portal-e2e:httpbins
+
+# Run the account kubeconfig flow
+task test:portal-e2e:account-kubeconfig
+
+# Run the authorization flow
+task test:portal-e2e:authorization
+
+# Run the account deletion flow
+task test:portal-e2e:deletion
+
 # Run tests with visible browser window
 task test:portal-e2e:headed
+
+# Run tests more slowly to watch each browser action
+SLOW_MO=500 task test:portal-e2e:headed
 
 # Run tests with video recording (saved to local-setup/e2e/test-results/)
 task test:portal-e2e:video
@@ -375,6 +396,10 @@ ORG_NAME=myorg task test:portal-e2e
 **Without Task:**
 
 ```sh
+# Backend readiness checks
+./local-setup/scripts/check-backend-resources.sh
+
+# Browser-driven portal checks
 cd local-setup/e2e
 npm install
 npm ci
@@ -387,6 +412,19 @@ npx playwright test test-register-and-navigate.test.ts
 - Node.js and npm must be installed
 - The local setup cluster must be running (via `task local-setup` or similar)
 - Playwright browsers will be installed automatically on first run
+- `kubectl` must be available for both the browser flow and the backend readiness checks
+- `kubectl oidc-login` must be installed for the downloaded kubeconfig smoke test
+- `portal.localhost` must resolve locally for CLI tools, for example via `/etc/hosts`
+
+**What the tests cover:**
+
+- Portal onboarding and organization switching
+- Inviting a second user and verifying unauthorized account access
+- Account kubeconfig download plus a `kubectl` smoke test against the workspace
+- Account deletion
+- Namespace creation and HTTPBin creation in both `default` and `test`
+- Opening the HTTPBin endpoint and verifying it responds
+- Ready-condition checks for ContentConfigurations, Stores, IdentityProviderConfigurations, and WorkspaceTypes
 
 ## Files and Scripts
 
