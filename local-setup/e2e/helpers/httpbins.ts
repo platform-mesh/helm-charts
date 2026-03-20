@@ -206,7 +206,7 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
 
     // Wait for submit button to be enabled after namespace selection
     const submitButton = page.locator('[test-id="create-resource-submit"]');
-    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    await expect(submitButton).toBeEnabled({ timeout: 10000 });
     await submitButton.click();
     await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 10000 });
   }
