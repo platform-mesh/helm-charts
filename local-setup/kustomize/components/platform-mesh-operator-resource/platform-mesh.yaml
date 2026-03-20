@@ -73,6 +73,13 @@ spec:
       values:
         log:
           noJson: true
+        system:
+          extraArgs:
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.localhost
+            - --set-default-password
+            - --idp-registration-allowed
         fga:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local

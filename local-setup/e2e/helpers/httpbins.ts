@@ -194,12 +194,21 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
     await page.getByRole('button', { name: 'Create' }).click();
     await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(httpBinName);
-    await page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items"]').click();
-    await page.locator(`[test-id="pm-dynamic-select-v1.Namespaces.items-option-${namespaceName}"]`).click();
-    if(await page.locator('[test-id="create-resource-submit"]').isEnabled({ timeout: 1000 })) {
-      await page.locator('[test-id="create-resource-submit"]').click();
-      await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 10000 });
-    }
+
+    // Select namespace from dropdown
+    const namespaceDropdown = page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items"]');
+    await namespaceDropdown.waitFor({ state: 'visible', timeout: 10000 });
+    await namespaceDropdown.click();
+
+    const namespaceOption = page.locator(`[test-id="pm-dynamic-select-v1.Namespaces.items-option-${namespaceName}"]`);
+    await namespaceOption.waitFor({ state: 'visible', timeout: 10000 });
+    await namespaceOption.click();
+
+    // Wait for submit button to be enabled after namespace selection
+    const submitButton = page.locator('[test-id="create-resource-submit"]');
+    await expect(submitButton).toBeEnabled({ timeout: 10000 });
+    await submitButton.click();
+    await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 10000 });
   }
 
   const nameCell = page.getByRole('row').filter({ hasText: httpBinName }).first();
