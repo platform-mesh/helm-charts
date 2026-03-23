@@ -70,4 +70,7 @@ spec:
       values:
         - ip: "${RUNTIME_CLUSTER_IP}"
           hostnames:
-          - "localhost"
+           - "localhost"
+           - "portal.localhost"
+           - "kcp.localhost"
+           - "root.kcp.localhost"
