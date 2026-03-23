@@ -31,6 +31,13 @@ spec:
           enabled: true
         log:
           noJson: true
+        kcp:
+          # -- Enable KCP
+          enabled: true
+          # -- The URL for the virtual workspace
+          virtualWorkspaceUrl: ""
+          # -- KCP APIExportEndpointSliceName
+          apiExportEndpointSliceName: "core.platform-mesh.io"
     keycloak:
       enabled: true
       values:
