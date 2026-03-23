@@ -122,8 +122,8 @@ create_domain_secrets() {
 # Helper to apply kustomize with envsubst for RUNTIME_CLUSTER_IP substitution
 kustomize_apply() {
   local kubeconfig_args=("$@")
-  local kustomize_path="${kubeconfig_args[-1]}"
-  unset 'kubeconfig_args[-1]'
+  local kustomize_path="${kubeconfig_args[${#kubeconfig_args[@]}-1]}"
+  unset 'kubeconfig_args[${#kubeconfig_args[@]}-1]'
 
   kubectl kustomize "$kustomize_path" | envsubst '$RUNTIME_CLUSTER_IP' | kubectl "${kubeconfig_args[@]}" apply -f -
 }
@@ -131,8 +131,8 @@ kustomize_apply() {
 # Helper to apply a file with envsubst for RUNTIME_CLUSTER_IP substitution
 envsubst_apply() {
   local kubeconfig_args=("$@")
-  local file_path="${kubeconfig_args[-1]}"
-  unset 'kubeconfig_args[-1]'
+  local file_path="${kubeconfig_args[${#kubeconfig_args[@]}-1]}"
+  unset 'kubeconfig_args[${#kubeconfig_args[@]}-1]'
 
   envsubst '$RUNTIME_CLUSTER_IP' < "$file_path" | kubectl "${kubeconfig_args[@]}" apply -f -
 }
