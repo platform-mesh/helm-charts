@@ -306,7 +306,18 @@ if [ "$REMOTE" = true ]; then
   fi
 
   ### Remove this when operator is published
-  kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11 --name platform-mesh-infra
+      IMAGE_NAME="ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11"
+      if [ "${CONTAINER_RUNTIME}" = "podman" ]; then
+          # With podman, we need to save the image to a tar file and load it
+          echo "Saving ${IMAGE_NAME} to tar archive..."
+          podman save -o /tmp/kind-image.tar "${IMAGE_NAME}"
+          echo "Loading ${IMAGE_NAME} into kind cluster from archive..."
+          kind load image-archive /tmp/kind-image.tar -n "${cluster_name}"
+          rm -f /tmp/kind-image.tar
+      else
+          # With docker, use the standard command
+         kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11 --name platform-mesh-infra
+      fi
 fi
 
 # Kubeconfig args for kubectl targeting the runtime cluster (empty for local)
