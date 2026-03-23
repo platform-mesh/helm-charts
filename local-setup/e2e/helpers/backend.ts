@@ -127,6 +127,16 @@ function extractOidcClientId(kubeconfigPath: string): string {
   return match[1].trim();
 }
 
+function extractOidcRealm(kubeconfigPath: string): string {
+  const kubeconfig = readFileSync(kubeconfigPath, 'utf8');
+  const match = kubeconfig.match(/--oidc-issuer-url=.*\/realms\/([^\s\n]+)/);
+  if (!match) {
+    throw new Error(`Unable to find OIDC realm in ${kubeconfigPath}`);
+  }
+
+  return match[1].trim();
+}
+
 async function ensurePortalHostnameResolves(): Promise<void> {
   try {
     await dns.lookup('portal.localhost');
@@ -169,21 +179,35 @@ function getKeycloakAdminToken(): string {
   return parsed.access_token;
 }
 
-function ensureKubectlClientAllowsDirectGrants(clientId: string): void {
+function ensureKubectlClientAllowsDirectGrants(clientId: string, realm: string): void {
   const token = getKeycloakAdminToken();
-  const response = keycloakApiRequest(
-    'GET',
-    `${keycloakBaseUrl}/admin/realms/default/clients?clientId=${encodeURIComponent(clientId)}`,
-    undefined,
-    token,
-  );
-  const clients = JSON.parse(response);
+  let client: Record<string, unknown> | undefined;
 
-  if (!Array.isArray(clients) || clients.length === 0) {
-    throw new Error(`Unable to find Keycloak client ${clientId}`);
+  try {
+    const response = keycloakApiRequest(
+      'GET',
+      `${keycloakBaseUrl}/admin/realms/${realm}/clients/${encodeURIComponent(clientId)}`,
+      undefined,
+      token,
+    );
+    client = JSON.parse(response);
+  } catch {
+    const response = keycloakApiRequest(
+      'GET',
+      `${keycloakBaseUrl}/admin/realms/${realm}/clients?clientId=${encodeURIComponent(clientId)}`,
+      undefined,
+      token,
+    );
+    const clients = JSON.parse(response);
+    if (Array.isArray(clients) && clients.length > 0) {
+      client = clients[0];
+    }
   }
 
-  const client = clients[0];
+  if (!client || typeof client !== 'object') {
+    throw new Error(`Unable to find Keycloak client ${clientId} in realm ${realm}`);
+  }
+
   if (client.directAccessGrantsEnabled === true) {
     return;
   }
@@ -191,7 +215,7 @@ function ensureKubectlClientAllowsDirectGrants(clientId: string): void {
   client.directAccessGrantsEnabled = true;
   keycloakApiRequest(
     'PUT',
-    `${keycloakBaseUrl}/admin/realms/default/clients/${client.id}`,
+    `${keycloakBaseUrl}/admin/realms/${realm}/clients/${String(client.id)}`,
     JSON.stringify(client),
     token,
   );
@@ -200,7 +224,10 @@ function ensureKubectlClientAllowsDirectGrants(clientId: string): void {
 async function verifyDownloadedKubeconfig(kubeconfigPath: string): Promise<void> {
   logStep(`verifyDownloadedKubeconfig:start path=${kubeconfigPath}`);
   await ensurePortalHostnameResolves();
-  ensureKubectlClientAllowsDirectGrants(extractOidcClientId(kubeconfigPath));
+  ensureKubectlClientAllowsDirectGrants(
+    extractOidcClientId(kubeconfigPath),
+    extractOidcRealm(kubeconfigPath),
+  );
 
   const manifest = [
     'apiVersion: v1',
