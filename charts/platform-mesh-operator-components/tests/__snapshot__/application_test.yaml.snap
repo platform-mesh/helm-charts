@@ -19,7 +19,6 @@ it should render the application manifests:
         crds:
           enabled: false
         kcp:
-          apiExportEndpointSliceName: ""
           enabled: true
         kubeconfigSecret: account-operator-kubeconfig
         log:
@@ -141,7 +140,6 @@ it should render the application manifests:
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://localhost:8443
           webhook:
             enabled: true
         keycloak:

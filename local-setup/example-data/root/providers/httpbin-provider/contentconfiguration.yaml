@@ -31,11 +31,10 @@ spec:
                           },
                           "context": {
                               "resourceDefinition": {
-                                  "group": "orchestrate.platform-mesh.io",
-                                  "plural": "httpBins",
-                                  "singular": "httpBin",
+                                  "apiGroup": "orchestrate_platform_mesh_io",
+                                  "entityCollection": "HttpBins",
                                   "version": "v1alpha1",
-                                  "kind": "HttpBin",
+                                  "entity": "HttpBin",
                                   "scope": "Namespaced",
                                   "namespace": null,
                                   "readyCondition": {

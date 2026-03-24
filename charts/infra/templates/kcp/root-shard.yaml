@@ -5,6 +5,7 @@ metadata:
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   replicas: {{ .Values.kcp.rootShard.replicas }}
+  shardBaseURL: {{ .Values.kcp.rootShard.shardBaseURL }}
   proxy:
     deploymentTemplate:
       spec:

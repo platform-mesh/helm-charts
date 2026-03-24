@@ -88,6 +88,7 @@ kcp:
 
   rootShard:
     replicas: 1
+    shardBaseURL: https://root.kcp.localhost:8443/
     # -- Optional resource requests and limits for the root shard
     resources: {}
     # resources:
