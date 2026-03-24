@@ -99,6 +99,8 @@ initContainer:
 
 generator:
   extraArgs: []
+system:
+  extraArgs: []
 fga:
   target: openfga.platform-mesh-system.svc.cluster.local:8081
   # -- TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m).
