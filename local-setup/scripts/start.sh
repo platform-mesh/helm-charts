@@ -14,6 +14,7 @@ YELLOW='\033[93m'
 COL_RES='\033[0m'
 
 KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
+CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-docker}"
  KINDEST_VERSION="kindest/node:v1.35.0"
 
 SCRIPT_DIR=$(dirname "$0")
@@ -413,7 +414,7 @@ fi
 if [ "$REMOTE" = true ]; then
   # Add platform-mesh kubeconfig to the infra cluster as a secret
   cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
-  export RUNTIME_CLUSTER_IP=$(docker inspect platform-mesh-control-plane|jq '.[0] | .NetworkSettings | .Networks | .kind | .IPAddress' -r)
+  export RUNTIME_CLUSTER_IP=$(${CONTAINER_RUNTIME} inspect platform-mesh-control-plane | jq '.[0].NetworkSettings.Networks.kind.IPAddress' -r)
   echo -e "${COL}[$(date '+%H:%M:%S')] Runtime cluster IP: ${RUNTIME_CLUSTER_IP} ${COL_RES}"
   kubectl config set-cluster kind-platform-mesh \
     --server=https://$RUNTIME_CLUSTER_IP:6443 \
