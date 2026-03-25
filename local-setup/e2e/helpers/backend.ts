@@ -93,10 +93,16 @@ function ensureInvitedUserExists(user: TestUser): void {
 
 function normalizeDownloadedKubeconfig(kubeconfigPath: string): void {
   const original = readFileSync(kubeconfigPath, 'utf8');
-  let normalized = original.replace(
-    /\n(\s+)certificate-authority-data: .+\n/,
-    '\n$1insecure-skip-tls-verify: true\n',
-  );
+  let normalized = original
+    .replace(/\n(\s+)certificate-authority-data: .+\n/g, '\n$1insecure-skip-tls-verify: true\n')
+    .replace(/\n(\s+)certificate-authority: .+\n/g, '\n$1insecure-skip-tls-verify: true\n');
+
+  if (!/\n\s+insecure-skip-tls-verify:\s*true\s*\n/.test(normalized)) {
+    normalized = normalized.replace(
+      /(\n\s+server: .+\n)/,
+      `$1      insecure-skip-tls-verify: true\n`,
+    );
+  }
 
   if (!normalized.includes('--insecure-skip-tls-verify')) {
     normalized = normalized.replace(
@@ -221,6 +227,17 @@ function ensureKubectlClientAllowsDirectGrants(clientId: string, realm: string):
   );
 }
 
+function isKubeconfigBootstrapError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return [
+    'certificate signed by unknown authority',
+    'certificate is not trusted',
+    "server doesn't have a resource type 'configmaps'",
+    'Unable to connect to the server',
+    "couldn't get current server API group list",
+  ].some((pattern) => message.includes(pattern));
+}
+
 async function verifyDownloadedKubeconfig(kubeconfigPath: string): Promise<void> {
   logStep(`verifyDownloadedKubeconfig:start path=${kubeconfigPath}`);
   await ensurePortalHostnameResolves();
@@ -240,14 +257,38 @@ async function verifyDownloadedKubeconfig(kubeconfigPath: string): Promise<void>
     '',
   ].join('\n');
 
-  runKubectlWithKubeconfig(kubeconfigPath, ['auth', 'can-i', 'create', 'configmaps', '-n', 'default']);
-  runKubectlWithKubeconfig(kubeconfigPath, ['apply', '-f', '-'], manifest);
+  const deadline = Date.now() + 120_000;
+  let lastError: unknown;
 
-  const configMapName = runKubectlWithKubeconfig(kubeconfigPath, ['get', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '-o', 'jsonpath={.metadata.name}']);
-  expect(configMapName).toBe(kubeconfigSmokeConfigMapName);
+  while (Date.now() < deadline) {
+    try {
+      runKubectlWithKubeconfig(kubeconfigPath, ['auth', 'can-i', 'create', 'configmaps', '-n', 'default']);
+      runKubectlWithKubeconfig(kubeconfigPath, ['apply', '-f', '-'], manifest);
 
-  runKubectlWithKubeconfig(kubeconfigPath, ['delete', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '--ignore-not-found=true']);
-  logStep(`verifyDownloadedKubeconfig:done path=${kubeconfigPath}`);
+      const configMapName = runKubectlWithKubeconfig(kubeconfigPath, ['get', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '-o', 'jsonpath={.metadata.name}']);
+      expect(configMapName).toBe(kubeconfigSmokeConfigMapName);
+
+      runKubectlWithKubeconfig(kubeconfigPath, ['delete', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '--ignore-not-found=true']);
+      logStep(`verifyDownloadedKubeconfig:done path=${kubeconfigPath}`);
+      return;
+    } catch (error) {
+      lastError = error;
+
+      if (!isKubeconfigBootstrapError(error)) {
+        throw error;
+      }
+
+      logStep(`verifyDownloadedKubeconfig:retry path=${kubeconfigPath}`);
+      try {
+        runKubectlWithKubeconfig(kubeconfigPath, ['delete', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '--ignore-not-found=true']);
+      } catch {
+        // Ignore cleanup failures while the cluster auth/bootstrap is still settling.
+      }
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
 }
 
 export {
