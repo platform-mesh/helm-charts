@@ -93,6 +93,69 @@ async function completeAccountSetup(page: Page, user: TestUser): Promise<void> {
   }
 }
 
+async function settleKeycloakFlow(page: Page, user: TestUser, orgPortalUrl: string): Promise<void> {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    if (page.url().startsWith(orgPortalUrl)) {
+      return;
+    }
+
+    const loginEmail = page.getByRole('textbox', { name: 'Email' });
+    if (await loginEmail.isVisible().catch(() => false)) {
+      logStep(`settleKeycloakFlow:login attempt=${attempt + 1} url=${page.url()}`);
+      await loginEmail.fill(user.email);
+      await page.getByRole('textbox', { name: 'Password' }).fill(user.password);
+      await page.getByRole('button', { name: 'Sign In' }).click();
+
+      const invalidCredentials = page.getByText(/invalid username or password/i).first();
+      if (await invalidCredentials.isVisible().catch(() => false)) {
+        await loginEmail.fill(user.email);
+        await page.getByRole('textbox', { name: 'Password' }).fill(user.keycloakPassword);
+        await page.getByRole('button', { name: 'Sign In' }).click();
+      }
+    }
+
+    const newPasswordField = page.getByRole('textbox', { name: 'New Password' });
+    if (await newPasswordField.isVisible().catch(() => false)) {
+      logStep(`settleKeycloakFlow:update-password attempt=${attempt + 1} url=${page.url()}`);
+      await newPasswordField.fill(user.password);
+      await page.getByRole('textbox', { name: 'Confirm password' }).fill(user.password);
+      await page.getByRole('button', { name: 'Submit' }).click();
+    }
+
+    const firstNameField = page.getByRole('textbox', { name: 'First name' });
+    if (await firstNameField.isVisible().catch(() => false)) {
+      logStep(`settleKeycloakFlow:update-profile attempt=${attempt + 1} url=${page.url()}`);
+      await firstNameField.fill(user.firstName);
+      await page.getByRole('textbox', { name: 'Last name' }).fill(user.lastName);
+      await page.getByRole('button', { name: 'Submit' }).click();
+    }
+
+    const proceedLink = page.getByRole('link', { name: 'Click here to proceed' });
+    if (await proceedLink.isVisible().catch(() => false)) {
+      logStep(`settleKeycloakFlow:proceed attempt=${attempt + 1} url=${page.url()}`);
+      await proceedLink.click();
+    }
+
+    const backToApplication = page.getByRole('link', { name: 'Back to Application' });
+    if (await backToApplication.isVisible().catch(() => false)) {
+      logStep(`settleKeycloakFlow:back-to-app attempt=${attempt + 1} url=${page.url()}`);
+      await backToApplication.click();
+    }
+
+    await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+
+    if (page.url().startsWith(orgPortalUrl)) {
+      return;
+    }
+
+    if (!page.url().includes('/keycloak/')) {
+      await gotoWithRetry(page, orgPortalUrl);
+    }
+
+    await page.waitForTimeout(1000);
+  }
+}
+
 async function waitForAuthUsableState(page: Page): Promise<void> {
   for (let attempt = 0; attempt < 3; attempt++) {
     const registerLink = page.getByText('Register', { exact: true });
@@ -184,10 +247,30 @@ async function fillSwitchOrganizationField(page: Page, value: string): Promise<v
   const nativeInput = host.locator('input').first();
   logStep(`fillSwitchOrganizationField:start value=${value}`);
 
+  const selectMatchingOption = async (): Promise<boolean> => {
+    const option = page.locator(`ui5-cb-item:text-is("${value}")`).first()
+      .or(page.getByRole('option', { name: value, exact: true }).first())
+      .or(page.getByText(value, { exact: true }).locator('..').first());
+
+    if (await option.isVisible().catch(() => false)) {
+      logStep(`fillSwitchOrganizationField:select-option value=${value}`);
+      await option.click().catch(() => {});
+      return true;
+    }
+
+    return false;
+  };
+
   if (await nativeInput.isVisible().catch(() => false)) {
     logStep('fillSwitchOrganizationField:using-native-input');
     await nativeInput.click();
     await nativeInput.fill(value);
+    await expect(nativeInput).toHaveValue(value, { timeout: 5000 });
+    await page.keyboard.press('ArrowDown').catch(() => {});
+    await page.waitForTimeout(300);
+    if (!await selectMatchingOption()) {
+      await page.keyboard.press('Enter').catch(() => {});
+    }
     await expect(nativeInput).toHaveValue(value, { timeout: 5000 });
     return;
   }
@@ -198,6 +281,96 @@ async function fillSwitchOrganizationField(page: Page, value: string): Promise<v
   await page.keyboard.press('Control+A').catch(() => {});
   await page.keyboard.press('Backspace').catch(() => {});
   await page.keyboard.type(value, { delay: 100 });
+  await page.keyboard.press('ArrowDown').catch(() => {});
+  await page.waitForTimeout(300);
+  if (!await selectMatchingOption()) {
+    await page.keyboard.press('Enter').catch(() => {});
+  }
+  await expect.poll(
+    async () => await host.evaluate((element) => (element as HTMLElement & { value?: string }).value ?? ''),
+    { timeout: 5000 },
+  ).toBe(value);
+}
+
+async function openOrganizationSwitchDropdown(page: Page): Promise<void> {
+  const selectRoot = page.locator('.ui5-select-root').first();
+  const opener = selectRoot.locator('[part="icon-wrapper"]').first();
+  const option = page.getByRole('option').first();
+
+  logStep('openOrganizationSwitchDropdown:start');
+  await selectRoot.click({ force: true }).catch(() => {});
+  await page.waitForTimeout(300);
+
+  if (!await option.isVisible().catch(() => false)) {
+    await opener.click({ force: true }).catch(() => {});
+    await page.waitForTimeout(300);
+  }
+
+  if (!await option.isVisible().catch(() => false)) {
+    await page.evaluate(() => {
+      const root = document.querySelector('.ui5-select-root') as HTMLElement | null;
+      const icon = root?.querySelector('[part="icon-wrapper"]') as HTMLElement | null;
+      icon?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: true }));
+      icon?.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
+      icon?.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+      root?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: true }));
+      root?.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
+      root?.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+    }).catch(() => {});
+    await page.waitForTimeout(300);
+  }
+  logStep('openOrganizationSwitchDropdown:done');
+}
+
+async function selectExistingOrganization(page: Page, value: string): Promise<boolean> {
+  logStep(`selectExistingOrganization:start value=${value}`);
+
+  await openOrganizationSwitchDropdown(page);
+
+  const option = page
+    .locator('ui5-option')
+    .filter({ hasText: new RegExp(`^${value}$`) })
+    .locator('.option')
+    .first();
+
+  const visible = await option.waitFor({ state: 'visible', timeout: 5000 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (!visible) {
+    const visibleOptions = await page.locator('ui5-option')
+      .evaluateAll((elements) =>
+        elements
+          .map((element) => (element.textContent ?? '').trim())
+          .filter(Boolean),
+      )
+      .catch(() => []);
+    logStep(`selectExistingOrganization:not-found value=${value} options=${visibleOptions.join(',') || 'none'}`);
+    await page.keyboard.press('Escape').catch(() => {});
+    return false;
+  }
+
+  logStep(`selectExistingOrganization:click value=${value}`);
+  await option.click({ force: true });
+  await page.waitForTimeout(500);
+
+  return true;
+}
+
+async function waitForOrganizationSwitchReady(page: Page, orgName: string): Promise<void> {
+  const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
+
+  await expect.poll(async () => {
+    const enabled = await switchButton.isEnabled().catch(() => false);
+    const title = await switchButton.getAttribute('title').catch(() => '');
+
+    return {
+      enabled,
+      title,
+    };
+  }, { timeout: Number(orgReadyTimeoutSeconds) * 1000 }).toMatchObject({
+    enabled: true,
+  });
 }
 
 async function ensureWelcomePage(page: Page, user: TestUser): Promise<void> {
@@ -268,35 +441,63 @@ async function ensurePortalHome(page: Page, user?: TestUser): Promise<void> {
 
 async function switchToOrganization(page: Page, user: TestUser, createIfMissing: boolean): Promise<void> {
   const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
+  const orgPortalUrl = `https://${newOrgName}.portal.localhost:8443/home`;
+  const orgPortalBaseUrl = `https://${newOrgName}.portal.localhost:8443/`;
+  const existingOrgAlert = page.getByText(new RegExp(`organization.*${newOrgName}.*already exists|${newOrgName}.*already exists`, 'i')).first();
+  const alertCloseButton = page.getByRole('button', { name: 'Close' }).first();
 
-  if (createIfMissing) {
-    const onboardButton = page.locator('[test-id="organization-management-onboard-button"]').locator('button');
-    const switchReady = await switchButton.isEnabled().catch(() => false);
-    if (!switchReady && await onboardButton.isVisible().catch(() => false)) {
-      await fillOrganizationField(page, newOrgName);
-      await onboardButton.click();
-      await expect.poll(async () => ({
-        enabled: await switchButton.isEnabled().catch(() => false),
-        title: await switchButton.getAttribute('title').catch(() => ''),
-      }), { timeout: Number(orgReadyTimeoutSeconds) * 1000 }).toMatchObject({ enabled: true });
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let orgSelected = await selectExistingOrganization(page, newOrgName);
+
+    if (createIfMissing) {
+      const onboardButton = page.locator('[test-id="organization-management-onboard-button"]').locator('button');
+      if (!orgSelected && await onboardButton.isVisible().catch(() => false)) {
+        logStep(`switchToOrganization:onboard-missing-org org=${newOrgName}`);
+        await fillOrganizationField(page, newOrgName);
+        await onboardButton.click();
+
+        if (await existingOrgAlert.isVisible().catch(() => false)) {
+          logStep(`switchToOrganization:org-already-exists org=${newOrgName}`);
+          if (await alertCloseButton.isVisible().catch(() => false)) {
+            await alertCloseButton.click().catch(() => {});
+          }
+        }
+
+        orgSelected = await selectExistingOrganization(page, newOrgName);
+        await waitForOrganizationSwitchReady(page, newOrgName);
+      }
     }
+
+    if (!orgSelected) {
+      throw new Error(`Organization ${newOrgName} was not found in the switch dropdown`);
+    }
+    await switchButton.waitFor({ state: 'visible', timeout: 60000 });
+    await waitForOrganizationSwitchReady(page, newOrgName);
+    await switchButton.click();
+
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
+    await waitForAuthUsableState(page);
+    await loginToInitialKeycloak(page, user);
+
+    await completeAccountSetup(page, user);
+    await settleKeycloakFlow(page, user, orgPortalUrl);
+    await gotoWithRetry(page, orgPortalUrl);
+    await settleKeycloakFlow(page, user, orgPortalUrl);
+
+    if (page.url().startsWith(orgPortalBaseUrl)) {
+      await ensurePortalHome(page, user);
+      return;
+    }
+
+    logStep(`switchToOrganization:retry-selection attempt=${attempt + 1} final-url=${page.url()}`);
+    if (attempt === 2) {
+      await ensurePortalHome(page, user);
+      return;
+    }
+
+    await gotoWithRetry(page, portalBaseUrl);
+    await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
   }
-
-  await fillSwitchOrganizationField(page, newOrgName);
-  await switchButton.waitFor({ state: 'visible', timeout: 60000 });
-  await expect.poll(async () => ({
-    enabled: await switchButton.isEnabled().catch(() => false),
-    title: await switchButton.getAttribute('title').catch(() => ''),
-  }), { timeout: Number(orgReadyTimeoutSeconds) * 1000 }).toMatchObject({ enabled: true });
-  await switchButton.click();
-
-  await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
-  await waitForAuthUsableState(page);
-  await loginToInitialKeycloak(page, user);
-
-  await completeAccountSetup(page, user);
-  await gotoWithRetry(page, `https://${newOrgName}.portal.localhost:8443/home`);
-  await ensurePortalHome(page, user);
 }
 
 export { ensurePortalHome, ensureWelcomePage, switchToOrganization };
