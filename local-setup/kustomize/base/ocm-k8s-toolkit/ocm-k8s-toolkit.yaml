@@ -22,14 +22,14 @@ spec:
   chart:
     spec:
       chart: chart
-      version: "0.0.0-main"
+      version: "0.0.0-ce04d94"
       sourceRef:
         kind: HelmRepository
         name: ocm-k8s-toolkit
   values:
     manager:
       image:
-        tag: "0.0.0-5f5c53f"
+        tag: "0.0.0-ce04d94"
       concurrency:
         resource: 21
       logging:
