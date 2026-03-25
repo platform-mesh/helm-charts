@@ -23,6 +23,9 @@ spec:
             - ip: "${RUNTIME_CLUSTER_IP}"
               hostnames:
               - "localhost"
+              - "portal.localhost"
+              - "kcp.localhost"
+              - "root.kcp.localhost"
   syncPolicy:
     automated:
       prune: true

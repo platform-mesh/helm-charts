@@ -41,7 +41,7 @@ spec:
         - --image-name="ghcr.io/platform-mesh/platform-mesh-operator"
         - --shutdown-timeout=1m
         - --max-concurrent-reconciles=10
-        - --kcp-url=https://localhost:8443
+        - --kcp-url=https://root.kcp.localhost:8443
         - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
         - --subroutines-deployment-enable-istio=false
         - --remote-runtime-infra-secret-name=platform-mesh-kubeconfig
@@ -108,6 +108,7 @@ spec:
       - hostnames:
         - portal.localhost
         - localhost
+        - root.kcp.localhost
         ip: ${RUNTIME_CLUSTER_IP}
       restartPolicy: Always
       schedulerName: default-scheduler

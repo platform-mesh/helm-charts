@@ -157,7 +157,6 @@ data:
               rootShard:
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true
-                - --shard-virtual-workspace-url=https://localhost:8443
               webhook:
                 enabled: true
               external:
@@ -187,6 +186,9 @@ data:
               infra: "true"
             name: kcp-image
           targetNamespace: kcp-operator
+          values:
+            image:
+              tag: v0.5.1
         init-agent:
           enabled: true
           helmRepo: true

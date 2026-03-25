@@ -32,11 +32,6 @@ spec:
         log:
           noJson: true
         kcp:
-          # -- Enable KCP
-          enabled: true
-          # -- The URL for the virtual workspace
-          virtualWorkspaceUrl: ""
-          # -- KCP APIExportEndpointSliceName
           apiExportEndpointSliceName: "core.platform-mesh.io"
     keycloak:
       enabled: true
@@ -116,13 +111,13 @@ spec:
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
-          - name: domain-ca
+          - name: portal-ca-bundle
             secret:
-              secretName: domain-certificate-ca
+              secretName: portal-ca-bundle
         extraVolumeMounts:
-          - name: domain-ca
+          - name: portal-ca-bundle
             mountPath: /etc/ssl/certs/domain-ca.crt
-            subPath: tls.crt
+            subPath: ca.crt
             readOnly: true
         hostAliases:
           enabled: true
