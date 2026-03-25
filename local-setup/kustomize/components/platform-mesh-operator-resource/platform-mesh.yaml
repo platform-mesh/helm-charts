@@ -111,13 +111,13 @@ spec:
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
-          - name: portal-ca-bundle
+          - name: domain-ca
             secret:
-              secretName: portal-ca-bundle
+              secretName: domain-certificate-ca
         extraVolumeMounts:
-          - name: portal-ca-bundle
+          - name: domain-ca
             mountPath: /etc/ssl/certs/domain-ca.crt
-            subPath: ca.crt
+            subPath: tls.crt
             readOnly: true
         hostAliases:
           enabled: true
