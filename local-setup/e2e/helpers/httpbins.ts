@@ -91,7 +91,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
     waitForArgoApplication('api-syncagent', 'argocd', 120);
     waitForArgoApplication('example-httpbin-provider', 'argocd', 120);
   } else {
-    runRuntimeKubectl([
+    runInfraKubectl([
       'wait',
       '--namespace',
       'default',
@@ -101,7 +101,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
       'api-syncagent',
     ]);
 
-    runRuntimeKubectl([
+    runInfraKubectl([
       'wait',
       '--namespace',
       'default',
