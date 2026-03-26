@@ -1,11 +1,8 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 import { defaultHttpBinName, exampleDataOverlayPath, httpbinProviderManifestPath, newOrgName, testAccountName, testNamespaceHttpBinName, testNamespaceName } from './constants';
-import { logStep } from './log';
+import { logStep, portalOrgUrl } from './log';
 import { runAdminKubectl, runRuntimeKubectl } from './runtime';
-
-const HTTPBIN_NAV_APPEAR_ATTEMPTS = 12;
-const NAMESPACE_SCOPE_SELECTION_ATTEMPTS = 3;
 
 async function clickRobust(locator: Locator): Promise<void> {
   try {
@@ -129,18 +126,8 @@ function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: strin
 
 async function ensureExampleHttpbinProvider(page: Page): Promise<void> {
   ensureExampleHttpbinProviderWorkspace();
-
-  for (let attempt = 0; attempt < HTTPBIN_NAV_APPEAR_ATTEMPTS; attempt++) {
-    await page.goto(`https://${newOrgName}.portal.localhost:8443/home`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
-    const navItem = page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]');
-    if (await navItem.isVisible().catch(() => false)) {
-      return;
-    }
-    await page.waitForTimeout(10000);
-  }
-
-  throw new Error('HTTPBin navigation item did not appear after bootstrapping example data');
+  await page.goto(portalOrgUrl(`/home/accounts/${testAccountName}/orchestrate_platform-mesh_io_httpbins`), { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
 }
 
 async function openNamespacesView(page: Page): Promise<void> {
@@ -206,10 +193,7 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
 }
 
 async function openHttpBinsView(page: Page): Promise<void> {
-  if (!await page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').isVisible().catch(() => false)) {
-    await ensureExampleHttpbinProvider(page);
-  }
-  await page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').click();
+  await ensureExampleHttpbinProvider(page);
 
   const httpBinsReadyLocators = [
     page.locator('[data-testid="namespace-selection-combobox"]').first(),
@@ -227,33 +211,29 @@ async function selectNamespaceScope(page: Page, namespaceName: string): Promise<
     return;
   }
 
-  for (let attempt = 0; attempt < NAMESPACE_SCOPE_SELECTION_ATTEMPTS; attempt++) {
-    await scopeCombobox.click();
-    await scopeCombobox.press('F4').catch(() => {});
-    await page.waitForTimeout(500);
+  await scopeCombobox.click();
+  await scopeCombobox.press('F4').catch(() => {});
+  await page.waitForTimeout(500);
 
-    const namespaceItem = page.locator(`[data-testid="namespace-selection-combobox-item-${namespaceName}"]`).or(
-      page.getByRole('option', { name: namespaceName, exact: true }),
-    ).first();
+  const namespaceItem = page.locator(`[data-testid="namespace-selection-combobox-item-${namespaceName}"]`).or(
+    page.getByRole('option', { name: namespaceName, exact: true }),
+  ).first();
 
-    if (await namespaceItem.isVisible().catch(() => false)) {
-      await namespaceItem.click();
-      await expect(scopeCombobox).toContainText(namespaceName);
+  if (await namespaceItem.isVisible().catch(() => false)) {
+    await namespaceItem.click();
+    await expect(scopeCombobox).toContainText(namespaceName);
+    return;
+  }
+
+  const comboInput = scopeCombobox.locator('input').first();
+  if (await comboInput.isVisible().catch(() => false)) {
+    await comboInput.click();
+    await comboInput.fill(namespaceName);
+    await comboInput.press('Enter');
+    if ((await scopeCombobox.textContent().catch(() => ''))?.includes(namespaceName)) {
       return;
     }
-
-    const comboInput = scopeCombobox.locator('input').first();
-    if (await comboInput.isVisible().catch(() => false)) {
-      await comboInput.click();
-      await comboInput.fill(namespaceName);
-      await comboInput.press('Enter');
-      if ((await scopeCombobox.textContent().catch(() => ''))?.includes(namespaceName)) {
-        return;
-      }
-    }
-
     await page.keyboard.press('Escape').catch(() => {});
-    await page.waitForTimeout(1000);
   }
 
   throw new Error(`Unable to select namespace scope ${namespaceName}`);

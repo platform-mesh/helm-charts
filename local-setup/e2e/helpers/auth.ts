@@ -3,12 +3,6 @@ import { expect, Page } from '@playwright/test';
 import { newOrgName, orgReadyTimeoutSeconds, portalBaseUrl, type TestUser } from './constants';
 import { logStep } from './log';
 
-const KEYCLOAK_SETTLE_ATTEMPTS = 8;
-const AUTH_STATE_RELOAD_ATTEMPTS = 3;
-const GOTO_RETRY_ATTEMPTS = 5;
-const WELCOME_PAGE_ATTEMPTS = 4;
-const PORTAL_HOME_ATTEMPTS = 6;
-
 async function loginUser(page: Page, user: TestUser): Promise<void> {
   await page.getByRole('textbox', { name: 'Email' }).fill(user.email);
   await page.getByRole('textbox', { name: 'Password' }).fill(user.password);
@@ -100,104 +94,78 @@ async function completeAccountSetup(page: Page, user: TestUser): Promise<void> {
 }
 
 async function settleKeycloakFlow(page: Page, user: TestUser, orgPortalUrl: string): Promise<void> {
-  for (let attempt = 0; attempt < KEYCLOAK_SETTLE_ATTEMPTS; attempt++) {
-    if (page.url().startsWith(orgPortalUrl)) {
-      return;
-    }
+  if (page.url().startsWith(orgPortalUrl)) {
+    return;
+  }
 
-    const loginEmail = page.getByRole('textbox', { name: 'Email' });
-    if (await loginEmail.isVisible().catch(() => false)) {
-      logStep(`settleKeycloakFlow:login attempt=${attempt + 1} url=${page.url()}`);
+  const loginEmail = page.getByRole('textbox', { name: 'Email' });
+  if (await loginEmail.isVisible().catch(() => false)) {
+    logStep(`settleKeycloakFlow:login url=${page.url()}`);
+    await loginEmail.fill(user.email);
+    await page.getByRole('textbox', { name: 'Password' }).fill(user.password);
+    await page.getByRole('button', { name: 'Sign In' }).click();
+
+    const invalidCredentials = page.getByText(/invalid username or password/i).first();
+    if (await invalidCredentials.isVisible().catch(() => false)) {
       await loginEmail.fill(user.email);
-      await page.getByRole('textbox', { name: 'Password' }).fill(user.password);
+      await page.getByRole('textbox', { name: 'Password' }).fill(user.keycloakPassword);
       await page.getByRole('button', { name: 'Sign In' }).click();
-
-      const invalidCredentials = page.getByText(/invalid username or password/i).first();
-      if (await invalidCredentials.isVisible().catch(() => false)) {
-        await loginEmail.fill(user.email);
-        await page.getByRole('textbox', { name: 'Password' }).fill(user.keycloakPassword);
-        await page.getByRole('button', { name: 'Sign In' }).click();
-      }
     }
+  }
 
-    const newPasswordField = page.getByRole('textbox', { name: 'New Password' });
-    if (await newPasswordField.isVisible().catch(() => false)) {
-      logStep(`settleKeycloakFlow:update-password attempt=${attempt + 1} url=${page.url()}`);
-      await newPasswordField.fill(user.password);
-      await page.getByRole('textbox', { name: 'Confirm password' }).fill(user.password);
-      await page.getByRole('button', { name: 'Submit' }).click();
-    }
+  const newPasswordField = page.getByRole('textbox', { name: 'New Password' });
+  if (await newPasswordField.isVisible().catch(() => false)) {
+    logStep(`settleKeycloakFlow:update-password url=${page.url()}`);
+    await newPasswordField.fill(user.password);
+    await page.getByRole('textbox', { name: 'Confirm password' }).fill(user.password);
+    await page.getByRole('button', { name: 'Submit' }).click();
+  }
 
-    const firstNameField = page.getByRole('textbox', { name: 'First name' });
-    if (await firstNameField.isVisible().catch(() => false)) {
-      logStep(`settleKeycloakFlow:update-profile attempt=${attempt + 1} url=${page.url()}`);
-      await firstNameField.fill(user.firstName);
-      await page.getByRole('textbox', { name: 'Last name' }).fill(user.lastName);
-      await page.getByRole('button', { name: 'Submit' }).click();
-    }
+  const firstNameField = page.getByRole('textbox', { name: 'First name' });
+  if (await firstNameField.isVisible().catch(() => false)) {
+    logStep(`settleKeycloakFlow:update-profile url=${page.url()}`);
+    await firstNameField.fill(user.firstName);
+    await page.getByRole('textbox', { name: 'Last name' }).fill(user.lastName);
+    await page.getByRole('button', { name: 'Submit' }).click();
+  }
 
-    const proceedLink = page.getByRole('link', { name: 'Click here to proceed' });
-    if (await proceedLink.isVisible().catch(() => false)) {
-      logStep(`settleKeycloakFlow:proceed attempt=${attempt + 1} url=${page.url()}`);
-      await proceedLink.click();
-    }
+  const proceedLink = page.getByRole('link', { name: 'Click here to proceed' });
+  if (await proceedLink.isVisible().catch(() => false)) {
+    logStep(`settleKeycloakFlow:proceed url=${page.url()}`);
+    await proceedLink.click();
+  }
 
-    const backToApplication = page.getByRole('link', { name: 'Back to Application' });
-    if (await backToApplication.isVisible().catch(() => false)) {
-      logStep(`settleKeycloakFlow:back-to-app attempt=${attempt + 1} url=${page.url()}`);
-      await backToApplication.click();
-    }
+  const backToApplication = page.getByRole('link', { name: 'Back to Application' });
+  if (await backToApplication.isVisible().catch(() => false)) {
+    logStep(`settleKeycloakFlow:back-to-app url=${page.url()}`);
+    await backToApplication.click();
+  }
 
-    await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+  await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
 
-    if (page.url().startsWith(orgPortalUrl)) {
-      return;
-    }
-
-    if (!page.url().includes('/keycloak/')) {
-      await gotoWithRetry(page, orgPortalUrl);
-    }
-
-    await page.waitForTimeout(1000);
+  if (!page.url().startsWith(orgPortalUrl) && !page.url().includes('/keycloak/')) {
+    await gotoWithRetry(page, orgPortalUrl);
   }
 }
 
 async function waitForAuthUsableState(page: Page): Promise<void> {
-  for (let attempt = 0; attempt < AUTH_STATE_RELOAD_ATTEMPTS; attempt++) {
-    const registerLink = page.getByText('Register', { exact: true });
-    const loginEmail = page.getByRole('textbox', { name: 'Email' });
-    const welcomeText = page.getByText('Welcome to the Platform Mesh Portal!');
+  const registerLink = page.getByText('Register', { exact: true });
+  const loginEmail = page.getByRole('textbox', { name: 'Email' });
+  const welcomeText = page.getByText('Welcome to the Platform Mesh Portal!');
 
-    const state = await Promise.race([
-      registerLink.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'register'),
-      loginEmail.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'login'),
-      welcomeText.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'welcome'),
-    ]).catch(() => 'retry');
+  const state = await Promise.race([
+    registerLink.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'register'),
+    loginEmail.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'login'),
+    welcomeText.waitFor({ state: 'visible', timeout: 10000 }).then(() => 'welcome'),
+  ]).catch(() => 'none');
 
-    if (state !== 'retry') {
-      break;
-    }
-
-    if (attempt === AUTH_STATE_RELOAD_ATTEMPTS - 1) {
-      throw new Error('Portal landing page did not reach a usable auth state');
-    }
-
-    await page.reload({ waitUntil: 'domcontentloaded' });
+  if (state === 'none') {
+    throw new Error('Portal landing page did not reach a usable auth state');
   }
 }
 
 async function gotoWithRetry(page: Page, url: string): Promise<void> {
-  for (let attempt = 0; attempt < GOTO_RETRY_ATTEMPTS; attempt++) {
-    try {
-      await page.goto(url, { waitUntil: 'load', timeout: 15000 });
-      return;
-    } catch (error) {
-      if (attempt === GOTO_RETRY_ATTEMPTS - 1) {
-        throw error;
-      }
-      await page.waitForTimeout(5000);
-    }
-  }
+  await page.goto(url, { waitUntil: 'load', timeout: 15000 });
 }
 
 async function fillOrganizationField(page: Page, value: string): Promise<void> {
@@ -326,26 +294,17 @@ async function ensureWelcomePage(page: Page, user: TestUser): Promise<void> {
   await waitForAuthUsableState(page);
 
   await registerOrLoginUser(page, user);
+  await page.waitForURL(`${portalBaseUrl}**`, { timeout: 10000 }).catch(() => {});
+  await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
 
-  for (let attempt = 0; attempt < WELCOME_PAGE_ATTEMPTS; attempt++) {
-    await page.waitForURL(`${portalBaseUrl}**`, { timeout: 10000 }).catch(() => {});
-    await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
+  const landingState = await Promise.race([
+    page.getByText('Welcome to the Platform Mesh Portal!').waitFor({ state: 'visible', timeout: 5000 }).then(() => 'welcome'),
+    page.locator('[test-id="organization-management-input"]').waitFor({ state: 'visible', timeout: 5000 }).then(() => 'org-management'),
+    page.getByText("Welcome! Let's get started.", { exact: true }).waitFor({ state: 'visible', timeout: 5000 }).then(() => 'home'),
+  ]).catch(() => 'none');
 
-    const landingState = await Promise.race([
-      page.getByText('Welcome to the Platform Mesh Portal!').waitFor({ state: 'visible', timeout: 5000 }).then(() => 'welcome'),
-      page.locator('[test-id="organization-management-input"]').waitFor({ state: 'visible', timeout: 5000 }).then(() => 'org-management'),
-      page.getByText("Welcome! Let's get started.", { exact: true }).waitFor({ state: 'visible', timeout: 5000 }).then(() => 'home'),
-    ]).catch(() => 'retry');
-
-    if (landingState !== 'retry') {
-      return;
-    }
-
-    if (attempt === WELCOME_PAGE_ATTEMPTS - 1) {
-      throw new Error(`Portal welcome page did not reach a usable post-login state, final URL=${page.url()}`);
-    }
-
-    await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+  if (landingState === 'none') {
+    throw new Error(`Portal welcome page did not reach a usable post-login state, final URL=${page.url()}`);
   }
 }
 
@@ -353,36 +312,23 @@ async function ensurePortalHome(page: Page, user?: TestUser): Promise<void> {
   const welcome = page.getByText("Welcome! Let's get started.", { exact: true });
   const orgPortalBaseUrl = `https://${newOrgName}.portal.localhost:8443/`;
 
-  for (let attempt = 0; attempt < PORTAL_HOME_ATTEMPTS; attempt++) {
-    try {
-      logStep(`ensurePortalHome:attempt=${attempt + 1} url=${page.url()}`);
-      if (!page.url().startsWith(orgPortalBaseUrl)) {
-        await gotoWithRetry(page, `${orgPortalBaseUrl}home`);
-      }
-      await page.waitForLoadState('networkidle', { timeout: 15000 });
-      await expect(welcome).toBeVisible({ timeout: 5000 });
-      logStep(`ensurePortalHome:done url=${page.url()}`);
-      return;
-    } catch (error) {
-      logStep(`ensurePortalHome:retry attempt=${attempt + 1} url=${page.url()}`);
-      if (attempt === PORTAL_HOME_ATTEMPTS - 1) {
-        throw error;
-      }
+  logStep(`ensurePortalHome:start url=${page.url()}`);
+  if (!page.url().startsWith(orgPortalBaseUrl)) {
+    await gotoWithRetry(page, `${orgPortalBaseUrl}home`);
+  }
 
-      const loginButton = page.getByRole('button', { name: 'Sign In' });
-      if (page.url().includes('/keycloak/') && await loginButton.isVisible().catch(() => false)) {
-        if (user) {
-          await loginUser(page, user).catch(() => {});
-        } else {
-          await loginButton.click().catch(() => {});
-        }
-      } else if (page.url().startsWith(`https://${newOrgName}.portal.localhost:8443/`)) {
-        await page.reload({ waitUntil: 'networkidle' }).catch(() => {});
-      }
-
-      await page.waitForTimeout(5000);
+  const loginButton = page.getByRole('button', { name: 'Sign In' });
+  if (page.url().includes('/keycloak/') && await loginButton.isVisible().catch(() => false)) {
+    if (user) {
+      await loginUser(page, user);
+    } else {
+      await loginButton.click();
     }
   }
+
+  await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+  await expect(welcome).toBeVisible({ timeout: 5000 });
+  logStep(`ensurePortalHome:done url=${page.url()}`);
 }
 
 async function switchToOrganization(page: Page, user: TestUser, createIfMissing: boolean): Promise<void> {
