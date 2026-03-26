@@ -3,6 +3,12 @@ import { expect, Page } from '@playwright/test';
 import { newOrgName, orgReadyTimeoutSeconds, portalBaseUrl, type TestUser } from './constants';
 import { logStep } from './log';
 
+const KEYCLOAK_SETTLE_ATTEMPTS = 8;
+const AUTH_STATE_RELOAD_ATTEMPTS = 3;
+const GOTO_RETRY_ATTEMPTS = 5;
+const WELCOME_PAGE_ATTEMPTS = 4;
+const PORTAL_HOME_ATTEMPTS = 6;
+
 async function loginUser(page: Page, user: TestUser): Promise<void> {
   await page.getByRole('textbox', { name: 'Email' }).fill(user.email);
   await page.getByRole('textbox', { name: 'Password' }).fill(user.password);
@@ -94,7 +100,7 @@ async function completeAccountSetup(page: Page, user: TestUser): Promise<void> {
 }
 
 async function settleKeycloakFlow(page: Page, user: TestUser, orgPortalUrl: string): Promise<void> {
-  for (let attempt = 0; attempt < 8; attempt++) {
+  for (let attempt = 0; attempt < KEYCLOAK_SETTLE_ATTEMPTS; attempt++) {
     if (page.url().startsWith(orgPortalUrl)) {
       return;
     }
@@ -157,7 +163,7 @@ async function settleKeycloakFlow(page: Page, user: TestUser, orgPortalUrl: stri
 }
 
 async function waitForAuthUsableState(page: Page): Promise<void> {
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < AUTH_STATE_RELOAD_ATTEMPTS; attempt++) {
     const registerLink = page.getByText('Register', { exact: true });
     const loginEmail = page.getByRole('textbox', { name: 'Email' });
     const welcomeText = page.getByText('Welcome to the Platform Mesh Portal!');
@@ -172,7 +178,7 @@ async function waitForAuthUsableState(page: Page): Promise<void> {
       break;
     }
 
-    if (attempt === 2) {
+    if (attempt === AUTH_STATE_RELOAD_ATTEMPTS - 1) {
       throw new Error('Portal landing page did not reach a usable auth state');
     }
 
@@ -181,12 +187,12 @@ async function waitForAuthUsableState(page: Page): Promise<void> {
 }
 
 async function gotoWithRetry(page: Page, url: string): Promise<void> {
-  for (let attempt = 0; attempt < 5; attempt++) {
+  for (let attempt = 0; attempt < GOTO_RETRY_ATTEMPTS; attempt++) {
     try {
       await page.goto(url, { waitUntil: 'load', timeout: 15000 });
       return;
     } catch (error) {
-      if (attempt === 4) {
+      if (attempt === GOTO_RETRY_ATTEMPTS - 1) {
         throw error;
       }
       await page.waitForTimeout(5000);
@@ -239,59 +245,6 @@ async function fillOrganizationField(page: Page, value: string): Promise<void> {
   logStep('fillOrganizationField:ui5-host-filled');
 }
 
-async function fillSwitchOrganizationField(page: Page, value: string): Promise<void> {
-  const host = page
-    .locator('[test-id="organization-management-input"]')
-    .or(page.locator('ui5-combobox'))
-    .first();
-  const nativeInput = host.locator('input').first();
-  logStep(`fillSwitchOrganizationField:start value=${value}`);
-
-  const selectMatchingOption = async (): Promise<boolean> => {
-    const option = page.locator(`ui5-cb-item:text-is("${value}")`).first()
-      .or(page.getByRole('option', { name: value, exact: true }).first())
-      .or(page.getByText(value, { exact: true }).locator('..').first());
-
-    if (await option.isVisible().catch(() => false)) {
-      logStep(`fillSwitchOrganizationField:select-option value=${value}`);
-      await option.click().catch(() => {});
-      return true;
-    }
-
-    return false;
-  };
-
-  if (await nativeInput.isVisible().catch(() => false)) {
-    logStep('fillSwitchOrganizationField:using-native-input');
-    await nativeInput.click();
-    await nativeInput.fill(value);
-    await expect(nativeInput).toHaveValue(value, { timeout: 5000 });
-    await page.keyboard.press('ArrowDown').catch(() => {});
-    await page.waitForTimeout(300);
-    if (!await selectMatchingOption()) {
-      await page.keyboard.press('Enter').catch(() => {});
-    }
-    await expect(nativeInput).toHaveValue(value, { timeout: 5000 });
-    return;
-  }
-
-  logStep('fillSwitchOrganizationField:using-host-keyboard');
-  await host.click();
-  await page.keyboard.press('Meta+A').catch(() => {});
-  await page.keyboard.press('Control+A').catch(() => {});
-  await page.keyboard.press('Backspace').catch(() => {});
-  await page.keyboard.type(value, { delay: 100 });
-  await page.keyboard.press('ArrowDown').catch(() => {});
-  await page.waitForTimeout(300);
-  if (!await selectMatchingOption()) {
-    await page.keyboard.press('Enter').catch(() => {});
-  }
-  await expect.poll(
-    async () => await host.evaluate((element) => (element as HTMLElement & { value?: string }).value ?? ''),
-    { timeout: 5000 },
-  ).toBe(value);
-}
-
 async function openOrganizationSwitchDropdown(page: Page): Promise<void> {
   const selectRoot = page.locator('.ui5-select-root').first();
   const opener = selectRoot.locator('[part="icon-wrapper"]').first();
@@ -327,29 +280,22 @@ async function selectExistingOrganization(page: Page, value: string): Promise<bo
 
   await openOrganizationSwitchDropdown(page);
 
-  const option = page
-    .locator('ui5-option')
-    .filter({ hasText: new RegExp(`^${value}$`) })
-    .locator('.option')
-    .first();
+  const optionTexts = await page.locator('ui5-option')
+    .evaluateAll((elements) =>
+      elements
+        .map((element) => (element.textContent ?? '').trim())
+        .filter(Boolean),
+    )
+    .catch(() => []);
+  const optionIndex = optionTexts.findIndex((text) => text === value);
 
-  const visible = await option.waitFor({ state: 'visible', timeout: 5000 })
-    .then(() => true)
-    .catch(() => false);
-
-  if (!visible) {
-    const visibleOptions = await page.locator('ui5-option')
-      .evaluateAll((elements) =>
-        elements
-          .map((element) => (element.textContent ?? '').trim())
-          .filter(Boolean),
-      )
-      .catch(() => []);
-    logStep(`selectExistingOrganization:not-found value=${value} options=${visibleOptions.join(',') || 'none'}`);
+  if (optionIndex === -1) {
+    logStep(`selectExistingOrganization:not-found value=${value} options=${optionTexts.join(',') || 'none'}`);
     await page.keyboard.press('Escape').catch(() => {});
     return false;
   }
 
+  const option = page.locator('ui5-option').nth(optionIndex).locator('.option').first();
   logStep(`selectExistingOrganization:click value=${value}`);
   await option.click({ force: true });
   await page.waitForTimeout(500);
@@ -357,7 +303,7 @@ async function selectExistingOrganization(page: Page, value: string): Promise<bo
   return true;
 }
 
-async function waitForOrganizationSwitchReady(page: Page, orgName: string): Promise<void> {
+async function waitForOrganizationSwitchReady(page: Page): Promise<void> {
   const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
 
   await expect.poll(async () => {
@@ -381,7 +327,7 @@ async function ensureWelcomePage(page: Page, user: TestUser): Promise<void> {
 
   await registerOrLoginUser(page, user);
 
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < WELCOME_PAGE_ATTEMPTS; attempt++) {
     await page.waitForURL(`${portalBaseUrl}**`, { timeout: 10000 }).catch(() => {});
     await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
 
@@ -395,7 +341,7 @@ async function ensureWelcomePage(page: Page, user: TestUser): Promise<void> {
       return;
     }
 
-    if (attempt === 3) {
+    if (attempt === WELCOME_PAGE_ATTEMPTS - 1) {
       throw new Error(`Portal welcome page did not reach a usable post-login state, final URL=${page.url()}`);
     }
 
@@ -407,7 +353,7 @@ async function ensurePortalHome(page: Page, user?: TestUser): Promise<void> {
   const welcome = page.getByText("Welcome! Let's get started.", { exact: true });
   const orgPortalBaseUrl = `https://${newOrgName}.portal.localhost:8443/`;
 
-  for (let attempt = 0; attempt < 6; attempt++) {
+  for (let attempt = 0; attempt < PORTAL_HOME_ATTEMPTS; attempt++) {
     try {
       logStep(`ensurePortalHome:attempt=${attempt + 1} url=${page.url()}`);
       if (!page.url().startsWith(orgPortalBaseUrl)) {
@@ -419,7 +365,7 @@ async function ensurePortalHome(page: Page, user?: TestUser): Promise<void> {
       return;
     } catch (error) {
       logStep(`ensurePortalHome:retry attempt=${attempt + 1} url=${page.url()}`);
-      if (attempt === 5) {
+      if (attempt === PORTAL_HOME_ATTEMPTS - 1) {
         throw error;
       }
 
@@ -446,58 +392,47 @@ async function switchToOrganization(page: Page, user: TestUser, createIfMissing:
   const existingOrgAlert = page.getByText(new RegExp(`organization.*${newOrgName}.*already exists|${newOrgName}.*already exists`, 'i')).first();
   const alertCloseButton = page.getByRole('button', { name: 'Close' }).first();
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    let orgSelected = await selectExistingOrganization(page, newOrgName);
+  let orgSelected = await selectExistingOrganization(page, newOrgName);
 
-    if (createIfMissing) {
-      const onboardButton = page.locator('[test-id="organization-management-onboard-button"]').locator('button');
-      if (!orgSelected && await onboardButton.isVisible().catch(() => false)) {
-        logStep(`switchToOrganization:onboard-missing-org org=${newOrgName}`);
-        await fillOrganizationField(page, newOrgName);
-        await onboardButton.click();
+  if (createIfMissing) {
+    const onboardButton = page.locator('[test-id="organization-management-onboard-button"]').locator('button');
+    if (!orgSelected && await onboardButton.isVisible().catch(() => false)) {
+      logStep(`switchToOrganization:onboard-missing-org org=${newOrgName}`);
+      await fillOrganizationField(page, newOrgName);
+      await onboardButton.click();
 
-        if (await existingOrgAlert.isVisible().catch(() => false)) {
-          logStep(`switchToOrganization:org-already-exists org=${newOrgName}`);
-          if (await alertCloseButton.isVisible().catch(() => false)) {
-            await alertCloseButton.click().catch(() => {});
-          }
+      if (await existingOrgAlert.isVisible().catch(() => false)) {
+        logStep(`switchToOrganization:org-already-exists org=${newOrgName}`);
+        if (await alertCloseButton.isVisible().catch(() => false)) {
+          await alertCloseButton.click().catch(() => {});
         }
-
-        orgSelected = await selectExistingOrganization(page, newOrgName);
-        await waitForOrganizationSwitchReady(page, newOrgName);
       }
+
+      orgSelected = await selectExistingOrganization(page, newOrgName);
+      await waitForOrganizationSwitchReady(page);
     }
-
-    if (!orgSelected) {
-      throw new Error(`Organization ${newOrgName} was not found in the switch dropdown`);
-    }
-    await switchButton.waitFor({ state: 'visible', timeout: 60000 });
-    await waitForOrganizationSwitchReady(page, newOrgName);
-    await switchButton.click();
-
-    await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
-    await waitForAuthUsableState(page);
-    await loginToInitialKeycloak(page, user);
-
-    await completeAccountSetup(page, user);
-    await settleKeycloakFlow(page, user, orgPortalUrl);
-    await gotoWithRetry(page, orgPortalUrl);
-    await settleKeycloakFlow(page, user, orgPortalUrl);
-
-    if (page.url().startsWith(orgPortalBaseUrl)) {
-      await ensurePortalHome(page, user);
-      return;
-    }
-
-    logStep(`switchToOrganization:retry-selection attempt=${attempt + 1} final-url=${page.url()}`);
-    if (attempt === 2) {
-      await ensurePortalHome(page, user);
-      return;
-    }
-
-    await gotoWithRetry(page, portalBaseUrl);
-    await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
   }
+
+  if (!orgSelected) {
+    throw new Error(`Organization ${newOrgName} was not found in the switch dropdown`);
+  }
+
+  await switchButton.waitFor({ state: 'visible', timeout: 60000 });
+  await waitForOrganizationSwitchReady(page);
+  await switchButton.click();
+
+  await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
+  await waitForAuthUsableState(page);
+  await loginToInitialKeycloak(page, user);
+  await completeAccountSetup(page, user);
+  await gotoWithRetry(page, orgPortalUrl);
+  await settleKeycloakFlow(page, user, orgPortalUrl);
+
+  if (!page.url().startsWith(orgPortalBaseUrl)) {
+    throw new Error(`Organization switch did not land on ${orgPortalBaseUrl}, final URL=${page.url()}`);
+  }
+
+  await ensurePortalHome(page, user);
 }
 
 export { ensurePortalHome, ensureWelcomePage, switchToOrganization };

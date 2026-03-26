@@ -4,6 +4,9 @@ import { defaultHttpBinName, exampleDataOverlayPath, httpbinProviderManifestPath
 import { logStep } from './log';
 import { runAdminKubectl, runRuntimeKubectl } from './runtime';
 
+const HTTPBIN_NAV_APPEAR_ATTEMPTS = 12;
+const NAMESPACE_SCOPE_SELECTION_ATTEMPTS = 3;
+
 async function clickRobust(locator: Locator): Promise<void> {
   try {
     await locator.click({ force: true, timeout: 5000 });
@@ -127,7 +130,7 @@ function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: strin
 async function ensureExampleHttpbinProvider(page: Page): Promise<void> {
   ensureExampleHttpbinProviderWorkspace();
 
-  for (let attempt = 0; attempt < 12; attempt++) {
+  for (let attempt = 0; attempt < HTTPBIN_NAV_APPEAR_ATTEMPTS; attempt++) {
     await page.goto(`https://${newOrgName}.portal.localhost:8443/home`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
     const navItem = page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]');
@@ -224,7 +227,7 @@ async function selectNamespaceScope(page: Page, namespaceName: string): Promise<
     return;
   }
 
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < NAMESPACE_SCOPE_SELECTION_ATTEMPTS; attempt++) {
     await scopeCombobox.click();
     await scopeCombobox.press('F4').catch(() => {});
     await page.waitForTimeout(500);
