@@ -1,11 +1,11 @@
-apiVersion: authorization.platform-mesh.io/v1alpha1
+apiVersion: core.platform-mesh.io/v1alpha1
 kind: APIExportPolicy
 metadata:
   name: orchestrate.platform-mesh.io
 spec:
   apiExportRef:
     name: orchestrate.platform-mesh.io
-    clusterName: root:providers:httpbin-provider
+    clusterPath: root:providers:httpbin-provider
 
   allowPathExpressions:
     - :root:orgs:*
