@@ -5,7 +5,7 @@ vars:
   CHARTS:
     sh: "printf '%s' $(ls -d charts/*/ | paste -sd ',' -)"
   CHANGED_CHARTS:
-    sh: "( git diff --name-only main..@ ; git diff --name-only ) | grep '^charts/' | cut -d/ -f1-2 | sort | uniq | paste -sd ','"
+    sh: "( git diff --name-only main..@ ; git diff --name-only ) | grep '^charts/' | cut -d/ -f1-2 | sort | uniq | paste -sd ',' - "
   PACKAGED_CHARTS:
     sh: "mkdir -p oci/ && ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
   GOOS:
@@ -122,7 +122,7 @@ tasks:
     internal: true
     cmds:
       - |
-        kind export kubeconfig -n platform-mesh
+        kind export kubeconfig -n platform-mesh-infra
         # docs: https://github.com/twuni/docker-registry.helm
         helm repo add twuni https://twuni.github.io/docker-registry.helm || true
         helm repo update
@@ -160,6 +160,7 @@ tasks:
   ocm:deploy:transfer-pod:
     internal: true
     cmds:
+      - kind export kubeconfig -n platform-mesh-infra
       - |
         set -e
         echo "Transferring OCM transport archive to local registry from a pod..."
@@ -335,6 +336,10 @@ tasks:
           read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
           kind delete cluster --name platform-mesh
         fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
         ./local-setup/scripts/start.sh {{.FLAGS}}
 
   local-setup:iterate:
@@ -414,7 +419,88 @@ tasks:
   local-setup:cached:prerelease:example-data:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--cached --prerelease --example-data"}
+        vars: {FLAGS: "--cached --latest --example-data"}
+
+  local-setup:remote:fluxcd:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+
+  local-setup:remote:fluxcd:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+
+  local-setup:remote:argocd:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+
+  local-setup:remote:argocd:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+
+  local-setup:remote:fluxcd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:remote:fluxcd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:remote:argocd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
+
+  local-setup:remote:argocd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
+
+  # Cached remote variants
+  local-setup:remote:cached:fluxcd:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --cached --deployment-tech=fluxcd"}
+
+  local-setup:remote:cached:fluxcd:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --cached --deployment-tech=fluxcd"}
+
+  local-setup:remote:cached:argocd:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --cached --deployment-tech=argocd"}
+
+  local-setup:remote:cached:argocd:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --cached --deployment-tech=argocd"}
+
+  local-setup:remote:cached:fluxcd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --cached --deployment-tech=fluxcd --example-data"}
+
+  local-setup:remote:cached:fluxcd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --cached --deployment-tech=fluxcd --example-data"}
+
+  local-setup:remote:cached:argocd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --cached --deployment-tech=argocd --example-data"}
+
+  local-setup:remote:cached:argocd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --cached --deployment-tech=argocd --example-data"}
 
   local-setup:cached:prerelease:concurrent:
     cmds:

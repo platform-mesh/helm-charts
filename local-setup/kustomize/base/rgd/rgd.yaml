@@ -8,6 +8,8 @@ spec:
     kind: PlatformMeshOperator
     spec:
       referencePath: "[]map[string]string | required=false"
+      resource: "object | required=true"
+      values: "object | required=false"
   resources:
     - id: resourceChart
       readyWhen:

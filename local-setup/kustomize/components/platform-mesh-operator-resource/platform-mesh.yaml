@@ -31,6 +31,8 @@ spec:
           enabled: true
         log:
           noJson: true
+        kcp:
+          apiExportEndpointSliceName: "core.platform-mesh.io"
     keycloak:
       enabled: true
       values:
@@ -144,7 +146,9 @@ spec:
         hostAliases:
           enabled: true
     iam-service:
+      enabled: true
       values:
+        caSecret: domain-certificate-ca
         extraArgs:
           - --no-json
         cors:
@@ -159,3 +163,7 @@ spec:
       values:
         hostAliases:
           enabled: true
+    kubernetes-graphql-gateway:
+      values:
+        kubeConfig:
+          secretName: kubernetes-graphql-gateway-kubeconfig
