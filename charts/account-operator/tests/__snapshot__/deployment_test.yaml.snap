@@ -37,37 +37,17 @@ deployment with tracing:
                 - --tracing-config-service-name=account-operator.NAMESPACE
                 - --tracing-config-service-version=0.0.0
                 - --tracing-config-collector-endpoint=test:4317
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=account
-              env:
-                - name: SUBROUTINES_NAMESPACE_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_GRPC_ADDR
-                  value: platform-mesh-openfga:8081
-                - name: SUBROUTINES_FGA_ROOT_NAMESPACE
-                  value: platform-mesh-root
-                - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: core_platform-mesh_io_account
-                - name: SUBROUTINES_FGA_PARENT_RELATION
-                  value: parent
-                - name: SUBROUTINES_FGA_CREATOR_RELATION
-                  value: owner
-                - name: SUBROUTINES_EXTENSION_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_EXTENSION_READY_ENABLED
-                  value: "true"
-                - name: KCP_ENABLED
-                  value: "false"
-                - name: KCP_VIRTUAL_WORKSPACE_URL
-                  value: ""
-                - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
-                  value: core.platform-mesh.io
-                - name: WEBHOOKS_DENY_LIST
-                  value: admin,root,system,www
+              env: null
               image: ghcr.io/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -594,37 +574,17 @@ disable istio:
                 - --image-name="ghcr.io/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=account
-              env:
-                - name: SUBROUTINES_NAMESPACE_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_GRPC_ADDR
-                  value: platform-mesh-openfga:8081
-                - name: SUBROUTINES_FGA_ROOT_NAMESPACE
-                  value: platform-mesh-root
-                - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: core_platform-mesh_io_account
-                - name: SUBROUTINES_FGA_PARENT_RELATION
-                  value: parent
-                - name: SUBROUTINES_FGA_CREATOR_RELATION
-                  value: owner
-                - name: SUBROUTINES_EXTENSION_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_EXTENSION_READY_ENABLED
-                  value: "true"
-                - name: KCP_ENABLED
-                  value: "false"
-                - name: KCP_VIRTUAL_WORKSPACE_URL
-                  value: ""
-                - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
-                  value: core.platform-mesh.io
-                - name: WEBHOOKS_DENY_LIST
-                  value: admin,root,system,www
+              env: null
               image: ghcr.io/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1212,37 +1172,17 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=my-type,my-other-type
-              env:
-                - name: SUBROUTINES_NAMESPACE_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_GRPC_ADDR
-                  value: platform-mesh-openfga:8081
-                - name: SUBROUTINES_FGA_ROOT_NAMESPACE
-                  value: platform-mesh-root
-                - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: core_platform-mesh_io_account
-                - name: SUBROUTINES_FGA_PARENT_RELATION
-                  value: parent
-                - name: SUBROUTINES_FGA_CREATOR_RELATION
-                  value: owner
-                - name: SUBROUTINES_EXTENSION_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_EXTENSION_READY_ENABLED
-                  value: "true"
-                - name: KCP_ENABLED
-                  value: "false"
-                - name: KCP_VIRTUAL_WORKSPACE_URL
-                  value: ""
-                - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
-                  value: core.platform-mesh.io
-                - name: WEBHOOKS_DENY_LIST
-                  value: admin,root,system,www
+              env: null
               image: ghcr.io/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1831,37 +1771,17 @@ operator match the snapshot (with kubeconfigSecret):
                 - --image-name="ghcr.io/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=account
               env:
-                - name: SUBROUTINES_NAMESPACE_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_GRPC_ADDR
-                  value: platform-mesh-openfga:8081
-                - name: SUBROUTINES_FGA_ROOT_NAMESPACE
-                  value: platform-mesh-root
-                - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: core_platform-mesh_io_account
-                - name: SUBROUTINES_FGA_PARENT_RELATION
-                  value: parent
-                - name: SUBROUTINES_FGA_CREATOR_RELATION
-                  value: owner
-                - name: SUBROUTINES_EXTENSION_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_EXTENSION_READY_ENABLED
-                  value: "true"
-                - name: KCP_ENABLED
-                  value: "false"
-                - name: KCP_VIRTUAL_WORKSPACE_URL
-                  value: ""
-                - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
-                  value: core.platform-mesh.io
-                - name: WEBHOOKS_DENY_LIST
-                  value: admin,root,system,www
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/account-operator:0.0.0
@@ -2456,37 +2376,17 @@ operator match the snapshot with webhook enabled:
                 - --image-name="ghcr.io/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
+                - --subroutines-workspace-type-enabled=true
+                - --subroutines-workspace-enabled=true
+                - --subroutines-workspace-ready-enabled=true
+                - --subroutines-account-info-enabled=true
+                - --controllers-account-info-enabled=true
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --webhooks-enabled
                 - --webhooks-cert-dir=/certs
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=account
-              env:
-                - name: SUBROUTINES_NAMESPACE_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_FGA_GRPC_ADDR
-                  value: platform-mesh-openfga:8081
-                - name: SUBROUTINES_FGA_ROOT_NAMESPACE
-                  value: platform-mesh-root
-                - name: SUBROUTINES_FGA_OBJECT_TYPE
-                  value: core_platform-mesh_io_account
-                - name: SUBROUTINES_FGA_PARENT_RELATION
-                  value: parent
-                - name: SUBROUTINES_FGA_CREATOR_RELATION
-                  value: owner
-                - name: SUBROUTINES_EXTENSION_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_EXTENSION_READY_ENABLED
-                  value: "true"
-                - name: KCP_ENABLED
-                  value: "false"
-                - name: KCP_VIRTUAL_WORKSPACE_URL
-                  value: ""
-                - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
-                  value: core.platform-mesh.io
-                - name: WEBHOOKS_DENY_LIST
-                  value: admin,root,system,www
+              env: null
               image: ghcr.io/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:

@@ -234,37 +234,95 @@ tasks:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
     cmds:
+      - task: test:portal-e2e:httpbins
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+      - task: test:portal-e2e:account-kubeconfig
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+      - task: test:portal-e2e:authorization
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+      - task: test:portal-e2e:deletion
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+
+  test:portal-e2e:httpbins:
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      HEADED: '{{.HEADED | default ""}}'
+    cmds:
       - |
           pushd local-setup/e2e
           npm install
           npm ci
           npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test test-register-and-navigate.test.ts {{if .HEADED}}--headed{{end}}
+          ORG_NAME={{.ORG_NAME}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
+          popd
+
+  test:portal-e2e:account-kubeconfig:
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      HEADED: '{{.HEADED | default ""}}'
+    cmds:
+      - |
+          pushd local-setup/e2e
+          npm install
+          npm ci
+          npx playwright install
+          ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
+          popd
+
+  test:portal-e2e:authorization:
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      HEADED: '{{.HEADED | default ""}}'
+    cmds:
+      - |
+          pushd local-setup/e2e
+          npm install
+          npm ci
+          npx playwright install
+          ORG_NAME={{.ORG_NAME}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
           popd
 
   test:portal-e2e:headed:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm install
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test test-register-and-navigate.test.ts --headed
-          popd
+      - task: test:portal-e2e
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: 'true' }
 
   test:portal-e2e:video:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS | default ""}}'
     cmds:
       - |
           pushd local-setup/e2e
           npm install
           npm ci
           npx playwright install
-          VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test test-register-and-navigate.test.ts
+          VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test portal-*.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
           popd
+
+  test:portal-e2e:deletion:
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      HEADED: '{{.HEADED | default ""}}'
+    cmds:
+      - |
+          pushd local-setup/e2e
+          npm install
+          npm ci
+          npx playwright install
+          ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
+          popd
+
+  test:backend-resources:
+    cmds:
+      - ./local-setup/scripts/check-backend-resources.sh
+
+  test:local-setup:
+    cmds:
+      - task: test:backend-resources
+      - task: test:portal-e2e
 
   local-setup:
     deps:

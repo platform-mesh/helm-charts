@@ -63,6 +63,10 @@ it should render the application manifests:
                 - serve
                 - --openfga-addr=https://example.com
                 - --health-probe-bind-address=:8081
+                - --webhook-cache-miss-max-retries=1
+                - --webhook-cache-miss-ttl=5m
+                - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
@@ -198,6 +202,10 @@ it should render the application manifests with service account:
                 - serve
                 - --openfga-addr=https://example.com
                 - --health-probe-bind-address=:8081
+                - --webhook-cache-miss-max-retries=1
+                - --webhook-cache-miss-ttl=5m
+                - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
@@ -333,6 +341,10 @@ it should render the application manifests with service monitor:
                 - serve
                 - --openfga-addr=https://example.com
                 - --health-probe-bind-address=:8081
+                - --webhook-cache-miss-max-retries=1
+                - --webhook-cache-miss-ttl=5m
+                - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
@@ -468,6 +480,10 @@ it should render the application manifests with useInClusterClient:
                 - serve
                 - --openfga-addr=https://example.com
                 - --health-probe-bind-address=:8081
+                - --webhook-cache-miss-max-retries=1
+                - --webhook-cache-miss-ttl=5m
+                - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
@@ -603,6 +619,10 @@ it should render the cert-manager manifests with certManager enabled:
                 - serve
                 - --openfga-addr=https://example.com
                 - --health-probe-bind-address=:8081
+                - --webhook-cache-miss-max-retries=1
+                - --webhook-cache-miss-ttl=5m
+                - --webhook-cache-miss-cleanup-interval=2m
+                - --webhook-cache-miss-retry-after=1s
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig

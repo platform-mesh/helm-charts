@@ -53,6 +53,22 @@ Gateway API enabled:
                 namespace: platform-mesh-system
             mode: Terminate
   2: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: Kubeconfig
+    metadata:
+      name: kubeconfig-kcp-admin
+      namespace: platform-mesh-system
+    spec:
+      groups:
+        - system:kcp:admin
+      secretRef:
+        name: kubeconfig-kcp-admin
+      target:
+        rootShardRef:
+          name: root
+      username: kcp-admin
+      validity: 8766h
+  3: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -61,7 +77,7 @@ Gateway API enabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -71,7 +87,7 @@ Gateway API enabled:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  4: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -127,7 +143,7 @@ Gateway API enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -170,7 +186,7 @@ Gateway API enabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  6: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -178,7 +194,7 @@ Gateway API enabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
+  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -188,6 +204,7 @@ Gateway API enabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -225,7 +242,8 @@ Gateway API enabled:
             template:
               spec: null
       replicas: 1
-  7: |
+      shardBaseURL: https://root.kcp.localhost:8443/
+  8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
@@ -246,11 +264,12 @@ Gateway API enabled:
               name: root-kcp
               namespace: platform-mesh-system
               port: 6443
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -264,9 +283,9 @@ Gateway API enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  9: |
+  10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -295,7 +314,7 @@ Gateway API enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  10: |
+  11: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -367,6 +386,22 @@ Istio disabled:
                 namespace: platform-mesh-system
             mode: Terminate
   2: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: Kubeconfig
+    metadata:
+      name: kubeconfig-kcp-admin
+      namespace: platform-mesh-system
+    spec:
+      groups:
+        - system:kcp:admin
+      secretRef:
+        name: kubeconfig-kcp-admin
+      target:
+        rootShardRef:
+          name: root
+      username: kcp-admin
+      validity: 8766h
+  3: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -375,7 +410,7 @@ Istio disabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -385,7 +420,7 @@ Istio disabled:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  4: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -441,7 +476,7 @@ Istio disabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -484,7 +519,7 @@ Istio disabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  6: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -492,7 +527,7 @@ Istio disabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
+  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -502,6 +537,7 @@ Istio disabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -539,7 +575,8 @@ Istio disabled:
             template:
               spec: null
       replicas: 1
-  7: |
+      shardBaseURL: https://root.kcp.localhost:8443/
+  8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
@@ -560,11 +597,12 @@ Istio disabled:
               name: root-kcp
               namespace: platform-mesh-system
               port: 6443
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -578,9 +616,9 @@ Istio disabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  9: |
+  10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -609,7 +647,7 @@ Istio disabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  10: |
+  11: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -681,6 +719,22 @@ Istio enabled:
                 namespace: platform-mesh-system
             mode: Terminate
   2: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: Kubeconfig
+    metadata:
+      name: kubeconfig-kcp-admin
+      namespace: platform-mesh-system
+    spec:
+      groups:
+        - system:kcp:admin
+      secretRef:
+        name: kubeconfig-kcp-admin
+      target:
+        rootShardRef:
+          name: root
+      username: kcp-admin
+      validity: 8766h
+  3: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -689,7 +743,7 @@ Istio enabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -699,7 +753,7 @@ Istio enabled:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  4: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -755,7 +809,7 @@ Istio enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -798,7 +852,7 @@ Istio enabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  6: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -806,7 +860,7 @@ Istio enabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
+  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -816,6 +870,7 @@ Istio enabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -853,7 +908,8 @@ Istio enabled:
             template:
               spec: null
       replicas: 1
-  7: |
+      shardBaseURL: https://root.kcp.localhost:8443/
+  8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
@@ -874,11 +930,12 @@ Istio enabled:
               name: root-kcp
               namespace: platform-mesh-system
               port: 6443
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -892,9 +949,9 @@ Istio enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  9: |
+  10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -923,7 +980,7 @@ Istio enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  10: |
+  11: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -1066,6 +1123,7 @@ configure rootshard resources:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -1110,6 +1168,7 @@ configure rootshard resources:
         requests:
           cpu: 200m
           memory: 256Mi
+      shardBaseURL: https://root.kcp.localhost:8443/
   2: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -1186,6 +1245,22 @@ match snapshots:
                 namespace: platform-mesh-system
             mode: Terminate
   2: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: Kubeconfig
+    metadata:
+      name: kubeconfig-kcp-admin
+      namespace: platform-mesh-system
+    spec:
+      groups:
+        - system:kcp:admin
+      secretRef:
+        name: kubeconfig-kcp-admin
+      target:
+        rootShardRef:
+          name: root
+      username: kcp-admin
+      validity: 8766h
+  3: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1194,7 +1269,7 @@ match snapshots:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -1204,7 +1279,7 @@ match snapshots:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  4: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -1260,7 +1335,7 @@ match snapshots:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -1305,7 +1380,7 @@ match snapshots:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  6: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1313,7 +1388,7 @@ match snapshots:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
+  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -1323,6 +1398,7 @@ match snapshots:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -1364,7 +1440,8 @@ match snapshots:
         image:
           tag: 0.0.0
       replicas: 1
-  7: |
+      shardBaseURL: https://root.kcp.localhost:8443/
+  8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
@@ -1385,11 +1462,12 @@ match snapshots:
               name: root-kcp
               namespace: platform-mesh-system
               port: 6443
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1403,9 +1481,9 @@ match snapshots:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  9: |
+  10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1434,7 +1512,7 @@ match snapshots:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  10: |
+  11: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -1506,6 +1584,22 @@ match snapshots w. hostAliases enabled:
                 namespace: platform-mesh-system
             mode: Terminate
   2: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: Kubeconfig
+    metadata:
+      name: kubeconfig-kcp-admin
+      namespace: platform-mesh-system
+    spec:
+      groups:
+        - system:kcp:admin
+      secretRef:
+        name: kubeconfig-kcp-admin
+      target:
+        rootShardRef:
+          name: root
+      username: kcp-admin
+      validity: 8766h
+  3: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1514,7 +1608,7 @@ match snapshots w. hostAliases enabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -1524,7 +1618,7 @@ match snapshots w. hostAliases enabled:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  4: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -1580,7 +1674,7 @@ match snapshots w. hostAliases enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -1609,6 +1703,8 @@ match snapshots w. hostAliases enabled:
                 - hostnames:
                     - localhost
                     - portal.localhost
+                    - kcp.localhost
+                    - root.kcp.localhost
                   ip: 10.96.188.4
       external:
         hostname: localhost
@@ -1629,7 +1725,7 @@ match snapshots w. hostAliases enabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  6: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1637,7 +1733,7 @@ match snapshots w. hostAliases enabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
+  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -1647,6 +1743,7 @@ match snapshots w. hostAliases enabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -1674,6 +1771,8 @@ match snapshots w. hostAliases enabled:
                 - hostnames:
                     - localhost
                     - portal.localhost
+                    - kcp.localhost
+                    - root.kcp.localhost
                   ip: 10.96.188.4
       etcd:
         endpoints:
@@ -1692,9 +1791,12 @@ match snapshots w. hostAliases enabled:
                   - hostnames:
                       - localhost
                       - portal.localhost
+                      - kcp.localhost
+                      - root.kcp.localhost
                     ip: 10.96.188.4
       replicas: 1
-  7: |
+      shardBaseURL: https://root.kcp.localhost:8443/
+  8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
@@ -1715,11 +1817,12 @@ match snapshots w. hostAliases enabled:
               name: root-kcp
               namespace: platform-mesh-system
               port: 6443
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -1733,9 +1836,9 @@ match snapshots w. hostAliases enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  9: |
+  10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -1764,7 +1867,7 @@ match snapshots w. hostAliases enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  10: |
+  11: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -1836,6 +1939,22 @@ match snapshots w. kcp version:
                 namespace: platform-mesh-system
             mode: Terminate
   2: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: Kubeconfig
+    metadata:
+      name: kubeconfig-kcp-admin
+      namespace: platform-mesh-system
+    spec:
+      groups:
+        - system:kcp:admin
+      secretRef:
+        name: kubeconfig-kcp-admin
+      target:
+        rootShardRef:
+          name: root
+      username: kcp-admin
+      validity: 8766h
+  3: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1844,7 +1963,7 @@ match snapshots w. kcp version:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -1854,7 +1973,7 @@ match snapshots w. kcp version:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  4: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -1910,7 +2029,7 @@ match snapshots w. kcp version:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -1955,7 +2074,7 @@ match snapshots w. kcp version:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  6: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1963,7 +2082,7 @@ match snapshots w. kcp version:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
+  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -1973,6 +2092,7 @@ match snapshots w. kcp version:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -2014,7 +2134,8 @@ match snapshots w. kcp version:
         image:
           tag: v0.1.0
       replicas: 1
-  7: |
+      shardBaseURL: https://root.kcp.localhost:8443/
+  8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
@@ -2035,11 +2156,12 @@ match snapshots w. kcp version:
               name: root-kcp
               namespace: platform-mesh-system
               port: 6443
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -2053,9 +2175,9 @@ match snapshots w. kcp version:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  9: |
+  10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -2084,7 +2206,7 @@ match snapshots w. kcp version:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  10: |
+  11: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
@@ -2156,6 +2278,22 @@ match snapshots with mailpit enabled:
                 namespace: platform-mesh-system
             mode: Terminate
   2: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: Kubeconfig
+    metadata:
+      name: kubeconfig-kcp-admin
+      namespace: platform-mesh-system
+    spec:
+      groups:
+        - system:kcp:admin
+      secretRef:
+        name: kubeconfig-kcp-admin
+      target:
+        rootShardRef:
+          name: root
+      username: kcp-admin
+      validity: 8766h
+  3: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -2164,7 +2302,7 @@ match snapshots with mailpit enabled:
     spec:
       commonName: cluster-admin
       issuerRef:
-        name: root-front-proxy-client-ca
+        name: root-client-ca
       privateKey:
         algorithm: RSA
         size: 2048
@@ -2174,7 +2312,7 @@ match snapshots with mailpit enabled:
           - system:kcp:admin
       usages:
         - client auth
-  3: |
+  4: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -2230,7 +2368,7 @@ match snapshots with mailpit enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  4: |
+  5: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
     metadata:
@@ -2273,7 +2411,7 @@ match snapshots with mailpit enabled:
               protocol: TCP
               targetPort: 6443
           type: ClusterIP
-  5: |
+  6: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -2281,7 +2419,7 @@ match snapshots with mailpit enabled:
       namespace: platform-mesh-system
     spec:
       selfSigned: {}
-  6: |
+  7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -2291,6 +2429,7 @@ match snapshots with mailpit enabled:
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
+          version: v1
       cache:
         embedded:
           enabled: true
@@ -2328,7 +2467,8 @@ match snapshots with mailpit enabled:
             template:
               spec: null
       replicas: 1
-  7: |
+      shardBaseURL: https://root.kcp.localhost:8443/
+  8: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
@@ -2349,11 +2489,12 @@ match snapshots with mailpit enabled:
               name: root-kcp
               namespace: platform-mesh-system
               port: 6443
-  8: |
+  9: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
       name: kcp-front-proxy-tlsroute
+      namespace: platform-mesh-system
     spec:
       hostnames:
         - localhost
@@ -2367,9 +2508,9 @@ match snapshots with mailpit enabled:
             - group: ""
               kind: Service
               name: frontproxy-front-proxy
+              namespace: platform-mesh-system
               port: 6443
-              weight: 1
-  9: |
+  10: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -2398,7 +2539,7 @@ match snapshots with mailpit enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  10: |
+  11: |
     apiVersion: traefik.io/v1alpha1
     kind: Middleware
     metadata:
