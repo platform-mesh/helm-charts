@@ -51,9 +51,7 @@ spec:
           periodSeconds: {{ .Values.health.periodSeconds }}
         args:
         - gateway
-        - --metrics-bind-address=:{{ .Values.gateway.metricsPort }}
-        - --health-probe-bind-address=:{{ .Values.gateway.healthCheck.port }}
-        - --log-level={{ include "common.getKeyValue" (dict "Values" .Values "key" "log.level") }}
+        - --schemas-dir=/app/definitions
         {{- if eq $noJson "true" }}
         - --no-json
         {{- end }}
@@ -106,6 +104,7 @@ spec:
         {{- include "common.imagePullPolicy" . | nindent 8 }}
         {{- include "common.resources" . | nindent 8 }}
         {{- include "common.container.securityContext" . | nindent 8 }}
+        {{- if .Values.listener.healthCheck.enabled }}
         livenessProbe:
           httpGet:
             path: {{ .Values.health.liveness.path }}
@@ -124,11 +123,14 @@ spec:
             port: {{ .Values.listener.healthCheck.port }}
           failureThreshold: {{ .Values.health.startup.failureThreshold }}
           periodSeconds: {{ .Values.health.periodSeconds }}
+        {{- end }}
         args:
         - listener
-        - --metrics-bind-address=:{{ .Values.listener.metricsPort }}
-        - --health-probe-bind-address=:{{ .Values.listener.healthCheck.port }}
-        - --log-level={{ include "common.getKeyValue" (dict "Values" .Values "key" "log.level") }}
+        - --schemas-dir=/app/definitions
+        {{- if .Values.kcp.enabled }}
+        - --multicluster-runtime-provider=kcp
+        - --apiexport-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}
+        {{- end }}
         {{- if eq $noJson "true" }}
         - --no-json
         {{- end }}

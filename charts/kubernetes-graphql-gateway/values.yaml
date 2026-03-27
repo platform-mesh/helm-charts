@@ -7,12 +7,13 @@ image:
 
 kcp:
   enabled: true
+  apiExportEndpointSliceName: "core.platform-mesh.io"
 
 gateway:
   port: 8080
   healthCheck:
     enabled: true
-    port: 3389
+    port: 8080
   metricsPort: 8081
   graphiql: true
   logLevel: trace
@@ -30,7 +31,7 @@ listener:
   apiExportName: kcp.io
   port: 8090
   healthCheck:
-    enabled: true
+    enabled: false
     port: 3390
   metricsPort: 8091
   virtualWorkspacesConfig:
@@ -123,7 +124,7 @@ gatewayApi:
     - type: URLRewrite
       urlRewrite:
         path:
-          replacePrefixMatch: /
+          replacePrefixMatch: /api/clusters/
           type: ReplacePrefixMatch
     # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
     corsFilters:
