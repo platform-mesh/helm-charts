@@ -17,7 +17,7 @@ jobs:
     concurrency:
       group: kubernetes-graphql-gateway-crds-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@07550bab80de7691f4947214ee342351896e209b # main
     with:
       chartFolder: charts
       chartName: kubernetes-graphql-gateway-crds
