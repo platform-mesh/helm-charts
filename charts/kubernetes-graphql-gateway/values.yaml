@@ -7,18 +7,32 @@ image:
 
 kcp:
   enabled: true
+  apiExportEndpointSliceName: "core.platform-mesh.io"
+
+# -- Schema handler type: "grpc" or "file"
+schemaHandler:
+  type: file
+  # -- Directory path for schema files (used when type is "file")
+  schemasDir: /app/schemas
+  # -- Shared volume configuration (used when type is "file")
+  sharedVolume:
+    storageClassName: ""
+    size: 500Mi
+    accessMode: ReadWriteOnce
 
 gateway:
   port: 8080
   healthCheck:
     enabled: true
-    port: 3389
+    port: 8080
   metricsPort: 8081
   graphiql: true
   logLevel: trace
   shouldImpersonate: false
   introspectionAuthentication: true
   usernameClaim: email
+  extraArgs: []
+
   resources:
     limits:
       memory: 1200Mi
@@ -29,8 +43,21 @@ gateway:
 listener:
   apiExportName: kcp.io
   port: 8090
+  grpcPort: 9091
+  # -- Multicluster runtime provider: "kcp" or "kubernetes"
+  multiclusterRuntimeProvider: kcp
+  apiExportEndpointSliceName: core.platform-mesh.io
+  workspaceSchemaKubeconfigOverride: /app/kubeconfig/kubeconfig
+  # -- CEL expression for anchor resource matching
+  anchorResource: 'object.metadata.name.startsWith("core.platform-mesh.io")'
+  # -- GroupVersionResource for the reconciler to watch
+  reconcilerGvr: apibindings.v1alpha2.apis.kcp.io
+  # -- Additional annotation key for path resolution
+  additionalPathAnnotationKey: kcp.io/path
+
+  extraArgs: []
   healthCheck:
-    enabled: true
+    enabled: false
     port: 3390
   metricsPort: 8091
   virtualWorkspacesConfig:
@@ -88,6 +115,9 @@ extraVolumeMounts: []
 tracing:
   enabled: true
 
+hostAliases:
+  enabled: false
+
 # Health check configuration shared by both containers
 health:
   periodSeconds: 10
@@ -123,7 +153,7 @@ gatewayApi:
     - type: URLRewrite
       urlRewrite:
         path:
-          replacePrefixMatch: /
+          replacePrefixMatch: /api/clusters/
           type: ReplacePrefixMatch
     # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
     corsFilters:

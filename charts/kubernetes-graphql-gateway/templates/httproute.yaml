@@ -24,11 +24,17 @@ spec:
     {{ toYaml . | nindent 4 }}
     {{- end }}
     {{- if .Values.traefik.enabled }}
+    # remove middleware ref when portal is ready
+    - type: ExtensionRef
+      extensionRef:
+        group: traefik.io
+        kind: Middleware
+        name: {{ include "common.entity.name" . }}-strip-graphql
     {{ toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 4 }}
     {{- end }}
     {{- end }}
     backendRefs:
     - name: {{ include "common.entity.name" . }}
       namespace: {{ .Release.Namespace }}
-      port: 8080
+      port: {{ .Values.gateway.port }}
 {{- end }}
