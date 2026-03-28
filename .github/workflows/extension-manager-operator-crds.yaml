@@ -19,7 +19,7 @@ jobs:
     concurrency:
       group: extension-manager-operator-crds-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@5c377e5944acf613950dfe83a13cc7ab3054728f # main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@f46cca01afbb79f80cd440cbdfd1538963c2ad24 # main
     with:
       chartFolder: charts
       chartName: extension-manager-operator-crds
