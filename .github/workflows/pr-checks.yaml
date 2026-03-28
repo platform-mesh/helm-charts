@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   pipeline:
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@c4423ef1896f1c154b2d12052992a23add16033c # main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
     with:
       chartFolder: charts
       chartName: common
