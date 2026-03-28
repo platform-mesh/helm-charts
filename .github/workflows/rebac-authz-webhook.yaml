@@ -20,7 +20,7 @@ jobs:
     concurrency:
       group: rebac-authz-webhook-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@25ad1e92b63a6d272599ab386d4ead982edc3851 # main
     with:
       chartFolder: charts
       chartName: rebac-authz-webhook

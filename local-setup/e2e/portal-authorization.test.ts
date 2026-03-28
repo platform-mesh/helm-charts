@@ -29,8 +29,7 @@ test.describe('Portal Authorization with Multiple Users', () => {
 
     try {
       await ensureWelcomePage(invitedUserPage, invitedUser);
-      await switchToOrganization(invitedUserPage, invitedUser, false);
-      await expectUnauthorizedAccountAccess(invitedUserPage, accountUrl);
+      await expectUnauthorizedAccountAccess(invitedUserPage, accountUrl, invitedUser);
     } finally {
       await invitedUserContext.close();
     }
