@@ -143,7 +143,7 @@ match the Snapshot:
                 failureThreshold: 1
                 periodSeconds: 10
                 tcpSocket:
-                  port: 50051
+                  port: 8091
               name: listener
               ports:
                 - containerPort: 8091
@@ -158,7 +158,7 @@ match the Snapshot:
               readinessProbe:
                 periodSeconds: 10
                 tcpSocket:
-                  port: 50051
+                  port: 8091
               resources:
                 limits:
                   memory: 600Mi
@@ -174,7 +174,7 @@ match the Snapshot:
                 failureThreshold: 30
                 periodSeconds: 10
                 tcpSocket:
-                  port: 50051
+                  port: 8091
               volumeMounts:
                 - mountPath: /app/schemas
                   name: definitions-volume

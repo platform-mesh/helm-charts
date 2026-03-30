@@ -218,11 +218,6 @@ match the Snapshot:
             - extensionRef:
                 group: traefik.io
                 kind: Middleware
-                name: platform-mesh-kubernetes-graphql-gateway-strip-graphql
-              type: ExtensionRef
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
                 name: cors-header
               type: ExtensionRef
           matches:
@@ -230,16 +225,6 @@ match the Snapshot:
                 type: PathPrefix
                 value: /api/kubernetes-graphql-gateway/
   4: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: platform-mesh-kubernetes-graphql-gateway-strip-graphql
-      namespace: platform-mesh-system
-    spec:
-      replacePathRegex:
-        regex: ^(.+)/graphql$
-        replacement: ${1}
-  5: |
     apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
@@ -253,13 +238,13 @@ match the Snapshot:
       resources:
         requests:
           storage: 500Mi
-  6: |
+  5: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: platform-mesh-kubernetes-graphql-gateway
       namespace: platform-mesh-system
-  7: |
+  6: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -282,7 +267,7 @@ match the Snapshot:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway
       type: ClusterIP
-  8: |
+  7: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -305,7 +290,7 @@ match the Snapshot:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway-listener
       type: ClusterIP
-  9: |
+  8: |
     apiVersion: v1
     data:
       virtual-workspaces.yaml: "virtualWorkspaces:\n  - name: custom-ws\n    url: https://example.com\n    kubeconfig: /etc/kubeconfig/kubeconfig "
@@ -733,11 +718,6 @@ match the Snapshot with crds:
             - extensionRef:
                 group: traefik.io
                 kind: Middleware
-                name: platform-mesh-kubernetes-graphql-gateway-strip-graphql
-              type: ExtensionRef
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
                 name: cors-header
               type: ExtensionRef
           matches:
@@ -745,16 +725,6 @@ match the Snapshot with crds:
                 type: PathPrefix
                 value: /api/kubernetes-graphql-gateway/
   5: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: platform-mesh-kubernetes-graphql-gateway-strip-graphql
-      namespace: platform-mesh-system
-    spec:
-      replacePathRegex:
-        regex: ^(.+)/graphql$
-        replacement: ${1}
-  6: |
     apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
@@ -768,13 +738,13 @@ match the Snapshot with crds:
       resources:
         requests:
           storage: 500Mi
-  7: |
+  6: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: platform-mesh-kubernetes-graphql-gateway
       namespace: platform-mesh-system
-  8: |
+  7: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -797,7 +767,7 @@ match the Snapshot with crds:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway
       type: ClusterIP
-  9: |
+  8: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -820,7 +790,7 @@ match the Snapshot with crds:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway-listener
       type: ClusterIP
-  10: |
+  9: |
     apiVersion: v1
     data:
       virtual-workspaces.yaml: "virtualWorkspaces:\n  - name: custom-ws\n    url: https://example.com\n    kubeconfig: /etc/kubeconfig/kubeconfig "

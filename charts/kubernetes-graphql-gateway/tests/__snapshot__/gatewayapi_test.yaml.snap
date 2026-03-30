@@ -25,11 +25,6 @@ HTTPRoute with traefik enabled - match the Snapshot:
             - extensionRef:
                 group: traefik.io
                 kind: Middleware
-                name: kubernetes-graphql-gateway-strip-graphql
-              type: ExtensionRef
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
                 name: cors-header
               type: ExtensionRef
           matches:
