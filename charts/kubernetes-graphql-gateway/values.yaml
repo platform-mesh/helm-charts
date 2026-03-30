@@ -43,11 +43,11 @@ gateway:
 listener:
   apiExportName: kcp.io
   port: 8090
-  grpcPort: 9091
+  grpcPort: 50051
   # -- Multicluster runtime provider: "kcp" or "kubernetes"
   multiclusterRuntimeProvider: kcp
   apiExportEndpointSliceName: core.platform-mesh.io
-  workspaceSchemaKubeconfigOverride: /app/kubeconfig/kubeconfig
+  workspaceSchemaKubeconfigOverride: ""
   # -- CEL expression for anchor resource matching
   anchorResource: 'object.metadata.name.startsWith("core.platform-mesh.io")'
   # -- GroupVersionResource for the reconciler to watch
@@ -94,6 +94,7 @@ kubeConfig:
   # -- Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated.
   enabled: false
   secretName: "kcp-root-kubeconfig"
+  path: /app/kubeconfig/kubeconfig
 
 rbac:
   # -- Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token). Uses namespace-scoped Roles when serviceAccounts list is provided.
@@ -118,7 +119,7 @@ tracing:
 hostAliases:
   enabled: false
 
-# Health check configuration shared by both containers
+# Health check configuration shared by both pods
 health:
   periodSeconds: 10
   readiness:
