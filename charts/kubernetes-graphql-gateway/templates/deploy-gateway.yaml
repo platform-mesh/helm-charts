@@ -95,7 +95,7 @@ spec:
           value: {{ .Values.kubeConfig.path }}
         {{- end }}
         volumeMounts:
-          - name: definitions-volume
+          - name: schemas-volume
             mountPath: {{ .Values.schemaHandler.schemasDir }}
             {{- if eq .Values.schemaHandler.type "file" }}
             readOnly: true
@@ -108,7 +108,7 @@ spec:
             {{- toYaml . | nindent 10 }}
           {{- end }}
       volumes:
-        - name: definitions-volume
+        - name: schemas-volume
           {{- if eq .Values.schemaHandler.type "file" }}
           persistentVolumeClaim:
             claimName: {{ include "common.entity.name" . }}-schemas

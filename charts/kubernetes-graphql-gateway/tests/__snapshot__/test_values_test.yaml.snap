@@ -85,11 +85,11 @@ match the Snapshot:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                   readOnly: true
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
   2: |
@@ -181,12 +181,12 @@ match the Snapshot:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                 - mountPath: /app/config
                   name: virtual-workspaces-config-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
             - configMap:
@@ -585,11 +585,11 @@ match the Snapshot with crds:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                   readOnly: true
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
   3: |
@@ -681,12 +681,12 @@ match the Snapshot with crds:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                 - mountPath: /app/config
                   name: virtual-workspaces-config-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
             - configMap:
