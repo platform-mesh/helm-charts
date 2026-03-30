@@ -1,5 +1,5 @@
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 name: Build kubernetes-graphql-gateway Workflow
