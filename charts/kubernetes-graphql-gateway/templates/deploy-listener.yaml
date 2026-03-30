@@ -88,7 +88,10 @@ spec:
             containerPort: {{ .Values.listener.port }}
             protocol: TCP
         env:
-        {{- include "kubernetes-graphql-gateway.env" . | nindent 8 }}
+        {{- if .Values.kubeConfig.enabled }}
+        - name: KUBECONFIG
+          value: {{ .Values.kubeConfig.path }}
+        {{- end }}
         volumeMounts:
           - name: definitions-volume
             mountPath: {{ .Values.schemaHandler.schemasDir }}

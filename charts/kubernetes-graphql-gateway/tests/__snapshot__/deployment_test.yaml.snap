@@ -32,9 +32,7 @@ has all hostAliases configured:
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
                 - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
-              env:
-                - name: KEY1
-                  value: value1
+              env: null
               image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -127,9 +125,7 @@ has all hostAliases configured:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-              env:
-                - name: KEY1
-                  value: value1
+              env: null
               image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -224,9 +220,7 @@ matches the Snapshot:
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
                 - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
-              env:
-                - name: KEY1
-                  value: value1
+              env: null
               image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -314,9 +308,7 @@ matches the Snapshot:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-              env:
-                - name: KEY1
-                  value: value1
+              env: null
               image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
