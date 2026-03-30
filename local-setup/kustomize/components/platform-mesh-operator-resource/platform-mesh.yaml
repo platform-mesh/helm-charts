@@ -159,3 +159,7 @@ spec:
       values:
         hostAliases:
           enabled: true
+    kubernetes-graphql-gateway:
+      values:
+        hostAliases:
+          enabled: true

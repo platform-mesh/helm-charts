@@ -20,7 +20,7 @@ HTTPRoute with traefik enabled - match the Snapshot:
             - type: URLRewrite
               urlRewrite:
                 path:
-                  replacePrefixMatch: /
+                  replacePrefixMatch: /api/clusters/
                   type: ReplacePrefixMatch
             - extensionRef:
                 group: traefik.io
@@ -53,7 +53,7 @@ HTTPRoute without traefik - match the Snapshot:
             - type: URLRewrite
               urlRewrite:
                 path:
-                  replacePrefixMatch: /
+                  replacePrefixMatch: /api/clusters/
                   type: ReplacePrefixMatch
           matches:
             - path:

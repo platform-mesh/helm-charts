@@ -21,51 +21,40 @@ match the Snapshot:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway
+            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
+                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - gateway
-                - --metrics-bind-address=:8081
-                - --health-probe-bind-address=:3389
-                - --log-level=warn
+                - --schema-handler=file
+                - --schemas-dir=/app/schemas
                 - --tracing-enabled=true
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
                 - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
-              env:
-                - name: OPENAPI_DEFINITIONS_PATH
-                  value: /app/definitions
-                - name: LOCAL_DEVELOPMENT
-                  value: "false"
-                - name: ENABLE_KCP
-                  value: "true"
-                - name: GATEWAY_HANDLER_CFG_GRAPHI_QL
-                  value: "true"
-                - name: GATEWAY_LOG_LEVEL
-                  value: trace
-                - name: GATEWAY_PORT
-                  value: "8080"
-                - name: GATEWAY_USERNAME_CLAIM
-                  value: email
-                - name: GATEWAY_SHOULD_IMPERSONATE
-                  value: "false"
-                - name: GATEWAY_INTROSPECTION_AUTHENTICATION
-                  value: "true"
+              env: null
               image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
                 httpGet:
                   path: /healthz
-                  port: 3389
+                  port: 8080
                 periodSeconds: 10
-              name: platform-mesh-kubernetes-graphql-gateway-gateway
+              name: gateway
               ports:
                 - containerPort: 8081
                   name: metrics
                   protocol: TCP
-                - containerPort: 3389
+                - containerPort: 8080
                   name: health-port
                   protocol: TCP
                 - containerPort: 8080
@@ -74,15 +63,15 @@ match the Snapshot:
               readinessProbe:
                 httpGet:
                   path: /readyz
-                  port: 3389
+                  port: 8080
                 initialDelaySeconds: 5
                 periodSeconds: 10
               resources:
                 limits:
-                  memory: 1600Mi
+                  memory: 1200Mi
                 requests:
-                  cpu: 300m
-                  memory: 800Mi
+                  cpu: 250m
+                  memory: 1000Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
@@ -92,34 +81,70 @@ match the Snapshot:
                 failureThreshold: 30
                 httpGet:
                   path: /readyz
-                  port: 3389
+                  port: 8080
                 periodSeconds: 10
               volumeMounts:
-                - mountPath: /app/definitions
+                - mountPath: /app/schemas
                   name: definitions-volume
+                  readOnly: true
+          serviceAccountName: platform-mesh-kubernetes-graphql-gateway
+          volumes:
+            - name: definitions-volume
+              persistentVolumeClaim:
+                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
+  2: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: platform-mesh-kubernetes-graphql-gateway-listener
+      name: platform-mesh-kubernetes-graphql-gateway-listener
+      namespace: platform-mesh-system
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: platform-mesh-kubernetes-graphql-gateway-listener
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+      template:
+        metadata:
+          labels:
+            app: platform-mesh-kubernetes-graphql-gateway-listener
+            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
+            version: 1.0.0
+        spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
+                  topologyKey: kubernetes.io/hostname
+          containers:
             - args:
                 - listener
+                - --schema-handler=file
+                - --schemas-dir=/app/schemas
+                - --multicluster-runtime-provider=kcp
+                - --apiexport-endpoint-slice-name=core.platform-mesh.io
+                - --workspace-schema-kubeconfig-override=/app/kubeconfig/kubeconfig
+                - --anchor-resource=object.metadata.name.startsWith("core.platform-mesh.io")
+                - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
+                - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-                - --health-probe-bind-address=:3390
-                - --log-level=warn
-              env:
-                - name: OPENAPI_DEFINITIONS_PATH
-                  value: /app/definitions
-                - name: LOCAL_DEVELOPMENT
-                  value: "false"
-                - name: ENABLE_KCP
-                  value: "true"
-                - name: LISTENER_APIEXPORT_NAME
-                  value: kcp.io
+              env: null
               image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
-                httpGet:
-                  path: /healthz
-                  port: 3390
                 periodSeconds: 10
-              name: platform-mesh-kubernetes-graphql-gateway-listener
+                tcpSocket:
+                  port: 8091
+              name: listener
               ports:
                 - containerPort: 8091
                   name: metrics
@@ -131,17 +156,15 @@ match the Snapshot:
                   name: service-port
                   protocol: TCP
               readinessProbe:
-                httpGet:
-                  path: /readyz
-                  port: 3390
-                initialDelaySeconds: 5
                 periodSeconds: 10
+                tcpSocket:
+                  port: 8091
               resources:
                 limits:
-                  memory: 1600Mi
+                  memory: 600Mi
                 requests:
-                  cpu: 300m
-                  memory: 800Mi
+                  cpu: 250m
+                  memory: 500Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
@@ -149,15 +172,14 @@ match the Snapshot:
                   type: RuntimeDefault
               startupProbe:
                 failureThreshold: 30
-                httpGet:
-                  path: /readyz
-                  port: 3390
                 periodSeconds: 10
+                tcpSocket:
+                  port: 8091
               volumeMounts:
-                - mountPath: /app/definitions
+                - mountPath: /app/schemas
                   name: definitions-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - emptyDir:
-                sizeLimit: 500Mi
-              name: definitions-volume
+            - name: definitions-volume
+              persistentVolumeClaim:
+                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
