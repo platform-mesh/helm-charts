@@ -1,11 +1,11 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: kubernetes-graphql-listener
+  name: {{ include "common.entity.name" . }}-listener
   namespace: {{ .Release.Namespace }}
 spec:
   selector:
-    app: kubernetes-graphql-listener
+    app: {{ include "common.entity.name" . }}-listener
   ports:
     - name: grpc
       protocol: TCP

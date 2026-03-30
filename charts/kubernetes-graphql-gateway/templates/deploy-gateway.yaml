@@ -21,15 +21,30 @@ spec:
       labels:
         app: {{ include "common.entity.name" . }}
         version: "{{ .Chart.AppVersion }}"
+        {{- if eq .Values.schemaHandler.type "file" }}
+        schema-handler-group: {{ include "common.entity.name" . }}
+        {{- end }}
     spec:
       serviceAccountName: {{ include "common.entity.name" . }}
       {{- include "common.imagePullSecret" . | nindent 6 }}
       {{- include "common.hostAliases" . | nindent 6 }}
+      {{- if eq .Values.schemaHandler.type "file" }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  schema-handler-group: {{ include "common.entity.name" . }}
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
       containers:
       - name: gateway
         image: {{ include "common.image" . }}
         {{- include "common.imagePullPolicy" . | nindent 8 }}
-        {{- include "common.resources" . | nindent 8 }}
+        {{- with .Values.gateway.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- include "common.container.securityContext" . | nindent 8 }}
         livenessProbe:
           httpGet:
@@ -53,7 +68,7 @@ spec:
         - gateway
         - --schema-handler={{ .Values.schemaHandler.type }}
         {{- if eq .Values.schemaHandler.type "grpc" }}
-        - --grpc-listener-address=kubernetes-graphql-listener.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.listener.grpcPort }}
+        - --grpc-listener-address={{ include "common.entity.name" . }}-listener.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.listener.grpcPort }}
         {{- else if eq .Values.schemaHandler.type "file" }}
         - --schemas-dir={{ .Values.schemaHandler.schemasDir }}
         {{- end }}

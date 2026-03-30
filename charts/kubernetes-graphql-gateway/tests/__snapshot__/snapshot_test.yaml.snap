@@ -26,8 +26,8 @@ match the Snapshot:
           containers:
             - args:
                 - gateway
-                - --schema-handler=file
-                - --schemas-dir=/app/schemas
+                - --schema-handler=grpc
+                - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
                 - --tracing-enabled=true
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
@@ -60,10 +60,10 @@ match the Snapshot:
                 periodSeconds: 10
               resources:
                 limits:
-                  memory: 1600Mi
+                  memory: 1200Mi
                 requests:
-                  cpu: 300m
-                  memory: 800Mi
+                  cpu: 250m
+                  memory: 1000Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
@@ -78,26 +78,25 @@ match the Snapshot:
               volumeMounts:
                 - mountPath: /app/schemas
                   name: definitions-volume
-                  readOnly: true
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
-              persistentVolumeClaim:
-                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
+            - emptyDir:
+                sizeLimit: 500Mi
+              name: definitions-volume
   2: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
       labels:
-        app: kubernetes-graphql-listener
-      name: kubernetes-graphql-listener
+        app: platform-mesh-kubernetes-graphql-gateway-listener
+      name: platform-mesh-kubernetes-graphql-gateway-listener
       namespace: platform-mesh-system
     spec:
       replicas: 1
       revisionHistoryLimit: 3
       selector:
         matchLabels:
-          app: kubernetes-graphql-listener
+          app: platform-mesh-kubernetes-graphql-gateway-listener
       strategy:
         rollingUpdate:
           maxSurge: 5
@@ -105,14 +104,14 @@ match the Snapshot:
       template:
         metadata:
           labels:
-            app: kubernetes-graphql-listener
+            app: platform-mesh-kubernetes-graphql-gateway-listener
             version: 1.0.0
         spec:
           containers:
             - args:
                 - listener
-                - --schema-handler=file
-                - --schemas-dir=/app/schemas
+                - --schema-handler=grpc
+                - --grpc-listen-addr=:50051
                 - --multicluster-runtime-provider=kcp
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
                 - --workspace-schema-kubeconfig-override=/app/kubeconfig/kubeconfig
@@ -125,6 +124,9 @@ match the Snapshot:
               imagePullPolicy: IfNotPresent
               name: listener
               ports:
+                - containerPort: 50051
+                  name: grpc
+                  protocol: TCP
                 - containerPort: 8091
                   name: metrics
                   protocol: TCP
@@ -136,10 +138,10 @@ match the Snapshot:
                   protocol: TCP
               resources:
                 limits:
-                  memory: 1600Mi
+                  memory: 600Mi
                 requests:
-                  cpu: 300m
-                  memory: 800Mi
+                  cpu: 250m
+                  memory: 500Mi
               securityContext:
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
@@ -150,6 +152,6 @@ match the Snapshot:
                   name: definitions-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
-              persistentVolumeClaim:
-                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
+            - emptyDir:
+                sizeLimit: 500Mi
+              name: definitions-volume

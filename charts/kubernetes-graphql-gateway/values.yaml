@@ -7,7 +7,6 @@ image:
 
 kcp:
   enabled: true
-  apiExportEndpointSliceName: "core.platform-mesh.io"
 
 # -- Schema handler type: "grpc" or "file"
 schemaHandler:
@@ -41,7 +40,6 @@ gateway:
       memory: 1000Mi
 
 listener:
-  apiExportName: kcp.io
   port: 8090
   grpcPort: 50051
   # -- Multicluster runtime provider: "kcp" or "kubernetes"
@@ -77,13 +75,6 @@ deployment:
   maxSurge: 5
   revisionHistoryLimit: 3
   replicas: 1
-
-  resources:
-    limits:
-      memory: 1600Mi
-    requests:
-      cpu: 300m
-      memory: 800Mi
 
 sentry:
   environment: dev
