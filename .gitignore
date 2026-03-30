@@ -28,4 +28,5 @@ local-setup/e2e/node_modules/
 local-setup/e2e/*.png
 local-setup/scripts/post-flux-hook.sh
 local-setup/scripts/post-platform-mesh-hook.sh
+local-setup/scripts/platform-mesh-resource-hook.sh
 /convo

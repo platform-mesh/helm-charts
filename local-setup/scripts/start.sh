@@ -177,7 +177,11 @@ kubectl wait --namespace default \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
-if [ "$PRERELEASE" = true ]; then
+# Apply PlatformMesh resource: use hook if available, otherwise use default overlay logic
+if [ -f "$SCRIPT_DIR/platform-mesh-resource-hook.sh" ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Running platform-mesh-resource hook ${COL_RES}"
+  source "$SCRIPT_DIR/platform-mesh-resource-hook.sh"
+elif [ "$PRERELEASE" = true ]; then
   if [ "$EXAMPLE_DATA" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
     # TODO: Create example-data-prerelease overlay if needed
