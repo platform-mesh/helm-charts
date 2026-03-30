@@ -29,9 +29,9 @@ A Helm chart to deploy platform-mesh Account-Operator
 | operator.leaderElect | bool | `true` |  |
 | security.mountServiceAccountToken | bool | `true` | Mount the service account token |
 | subroutines.accountInfo.enabled | bool | `true` | Enable AccountInfo subroutine |
-| subroutines.extension.enabled | bool | `true` | Enable extension subroutines |
-| subroutines.extensionReady.enabled | bool | `true` | Enable extension ready subroutines |
-| subroutines.namespace.enabled | bool | `true` | Enable namespace subroutines |
+| subroutines.workspace.enabled | bool | `true` | Enable workspace subroutine |
+| subroutines.workspaceReady.enabled | bool | `true` | Enable workspace ready subroutine |
+| subroutines.workspaceType.enabled | bool | `true` | Enable workspace type subroutine |
 | webhooks.additionalAccountTypes[0] | string | `"account"` |  |
 | webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
 | webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
