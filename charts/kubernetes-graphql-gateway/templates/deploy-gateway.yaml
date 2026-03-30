@@ -61,6 +61,9 @@ spec:
         {{- with .Values.gateway.extraArgs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        {{- if eq $noJson "true" }}
+        - --no-json
+        {{- end }}
         ports:
         - name: metrics
           containerPort: {{ .Values.gateway.metricsPort }}

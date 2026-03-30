@@ -20,8 +20,13 @@ HTTPRoute with traefik enabled - match the Snapshot:
             - type: URLRewrite
               urlRewrite:
                 path:
-                  replacePrefixMatch: /
+                  replacePrefixMatch: /api/clusters/
                   type: ReplacePrefixMatch
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: kubernetes-graphql-gateway-strip-graphql
+              type: ExtensionRef
             - extensionRef:
                 group: traefik.io
                 kind: Middleware
@@ -53,7 +58,7 @@ HTTPRoute without traefik - match the Snapshot:
             - type: URLRewrite
               urlRewrite:
                 path:
-                  replacePrefixMatch: /
+                  replacePrefixMatch: /api/clusters/
                   type: ReplacePrefixMatch
           matches:
             - path:

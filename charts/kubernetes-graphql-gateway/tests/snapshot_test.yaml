@@ -7,13 +7,14 @@ release:
 chart:
   appVersion: 1.0.0
 templates:
-  - deploy.yaml
+  - deploy-gateway.yaml
+  - deploy-listener.yaml
 tests:
   - it: match the Snapshot
     asserts:
     - matchSnapshot: {}
   - it: has all health checks
-    template: deploy.yaml
+    template: deploy-gateway.yaml
     asserts:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.httpGet.path

@@ -8,7 +8,8 @@ release:
 chart:
   appVersion: 1.0.0
 templates:
-  - deploy.yaml
+  - deploy-gateway.yaml
+  - deploy-listener.yaml
 tests:
   - it: matches the Snapshot
     asserts:

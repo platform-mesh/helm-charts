@@ -52,7 +52,6 @@ listener:
   anchorResource: 'object.metadata.name.startsWith("core.platform-mesh.io")'
   # -- GroupVersionResource for the reconciler to watch
   reconcilerGvr: apibindings.v1alpha2.apis.kcp.io
-  # -- Additional annotation key for path resolution
   additionalPathAnnotationKey: kcp.io/path
 
   extraArgs: []
@@ -109,7 +108,6 @@ rbac:
   #     namespace: another-namespace
   serviceAccounts: []
 
-extraEnvs: []
 extraVolumes: []
 extraVolumeMounts: []
 

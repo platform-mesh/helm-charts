@@ -65,9 +65,12 @@ spec:
         - --anchor-resource={{ .Values.listener.anchorResource }}
         - --reconciler-gvr={{ .Values.listener.reconcilerGvr }}
         - --additional-path-annotation-key={{ .Values.listener.additionalPathAnnotationKey }}
-        - --metrics-bind-address={{ .Values.listener.metricsPort }}
+        - --metrics-bind-address=:{{ .Values.listener.metricsPort }}
         {{- with .Values.listener.extraArgs }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if eq $noJson "true" }}
+        - --no-json
         {{- end }}
         ports:
         {{- if eq .Values.schemaHandler.type "grpc" }}
