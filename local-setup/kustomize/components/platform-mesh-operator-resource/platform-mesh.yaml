@@ -24,6 +24,7 @@ spec:
 #         secret: terminal-controller-manager-kubeconfig
 #         namespace: platform-mesh-system
 #         external: false
+#         adminAuth: true
   values:
     account-operator:
       values:

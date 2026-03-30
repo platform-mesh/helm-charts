@@ -24,6 +24,7 @@ patches:
               secret: httpbin-kubeconfig
               namespace: example-httpbin-provider
               external: false
+              adminAuth: true
           extraDefaultAPIBindings:
             - workspaceTypePath: root:account
               export: orchestrate.platform-mesh.io
