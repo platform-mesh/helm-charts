@@ -19,9 +19,6 @@ kubeConfig:
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | deployment.replicas | int | `1` |  |
-| deployment.resources.limits.memory | string | `"1600Mi"` |  |
-| deployment.resources.requests.cpu | string | `"300m"` |  |
-| deployment.resources.requests.memory | string | `"800Mi"` |  |
 | deployment.revisionHistoryLimit | int | `3` |  |
 | extraVolumeMounts | list | `[]` |  |
 | extraVolumes | list | `[]` |  |
@@ -54,7 +51,6 @@ kubeConfig:
 | hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/kubernetes-graphql-gateway"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` |  |
 | kcp.enabled | bool | `true` |  |
 | kubeConfig.createSecret | bool | `false` |  |
 | kubeConfig.enabled | bool | `false` | Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated. |
@@ -63,7 +59,6 @@ kubeConfig:
 | listener.additionalPathAnnotationKey | string | `"kcp.io/path"` |  |
 | listener.anchorResource | string | `"object.metadata.name.startsWith(\"core.platform-mesh.io\")"` | CEL expression for anchor resource matching |
 | listener.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` |  |
-| listener.apiExportName | string | `"kcp.io"` |  |
 | listener.extraArgs | list | `[]` |  |
 | listener.grpcPort | int | `50051` |  |
 | listener.healthCheck.enabled | bool | `false` |  |
