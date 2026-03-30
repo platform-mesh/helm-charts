@@ -15,7 +15,7 @@ on:
       - 'rgd/platform-mesh-operator-rgd.yaml'
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
