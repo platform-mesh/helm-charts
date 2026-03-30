@@ -335,7 +335,7 @@ kind delete cluster --name platform-mesh
 
 #### Hook Scripts
 
-The local setup provides two extension points (hook scripts) that run at different stages. Both are gitignored, so your local customizations won't be committed.
+The local setup provides three extension points (hook scripts) that run at different stages. All are gitignored, so your local customizations won't be committed.
 
 ##### Post-Flux Hook
 
@@ -353,6 +353,24 @@ cp local-setup/scripts/post-flux-hook.sh.example local-setup/scripts/post-flux-h
 1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
 2. Add the load command to `post-flux-hook.sh`
 3. Run `task local-setup:iterate` to reload the cluster with your custom images
+
+##### Platform-Mesh Resource Hook
+
+Runs after the Platform-Mesh Operator is ready and the PlatformMesh CRD is established. When this hook exists, it **replaces** the default PlatformMesh resource overlay logic. The hook is responsible for applying the PlatformMesh resource to the cluster.
+
+```sh
+cp local-setup/scripts/platform-mesh-resource-hook.sh.example local-setup/scripts/platform-mesh-resource-hook.sh
+# Edit the script with your customizations
+```
+
+**Available at this point:** Everything from the post-flux hook, plus KRO, OCM, Platform-Mesh Operator (ready), PlatformMesh CRD (established). Variables `$PRERELEASE` and `$EXAMPLE_DATA` reflect the flags passed to start.sh.
+
+**Example:**
+
+```sh
+# Apply a custom kustomize overlay for your PlatformMesh configuration
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/my-custom-overlay
+```
 
 ##### Post-Platform-Mesh Hook
 

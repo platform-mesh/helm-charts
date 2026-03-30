@@ -1,0 +1,32 @@
+#!/bin/bash
+SCRIPT_DIR=$(dirname "$0")
+# This script is sourced by start.sh to apply the PlatformMesh resource.
+# When this hook exists, it REPLACES the default PlatformMesh resource overlay logic.
+# Copy this file to platform-mesh-resource-hook.sh and customize it for your needs.
+# The platform-mesh-resource-hook.sh file is gitignored, so your local changes won't be committed.
+#
+# At this point in the setup, the following is available:
+#   - Kind cluster with TLS certificates
+#   - Flux, KRO, OCM
+#   - Platform-Mesh Operator (ready)
+#   - PlatformMesh CRD (established)
+#
+# This hook is responsible for applying the PlatformMesh resource to the cluster.
+# If this hook does not exist, start.sh applies the default overlay based on flags
+# (--example-data, --prerelease).
+#
+# The following variables are available:
+#   - $PRERELEASE: "true" if --prerelease flag was provided
+#   - $EXAMPLE_DATA: "true" if --example-data flag was provided
+#
+# Usage:
+#   cp platform-mesh-resource-hook.sh.example platform-mesh-resource-hook.sh
+#   # Edit platform-mesh-resource-hook.sh with your customizations
+#   task local-setup:iterate
+
+# Example: Apply a custom kustomize overlay
+# kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/my-custom-overlay
+
+# Example: Apply the default overlay with additional patches
+# kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+# kubectl patch platformmesh platform-mesh -n platform-mesh-system --type=merge -p '{"spec": {"someField": "value"}}'
