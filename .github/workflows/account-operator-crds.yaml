@@ -17,7 +17,7 @@ jobs:
     concurrency:
       group: account-operator-crds-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@74406045a622c7b7018b222b0fc58c0090bc9d86 # main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@8f285107c6d8ff9e466a36a2d68f3836be415b1c # main
     with:
       chartFolder: charts
       chartName: account-operator-crds
