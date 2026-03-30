@@ -85,7 +85,7 @@ has all hostAliases configured:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                   readOnly: true
           hostAliases:
             - hostnames:
@@ -94,7 +94,7 @@ has all hostAliases configured:
               ip: 10.0.0.1
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
   2: |
@@ -186,7 +186,7 @@ has all hostAliases configured:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                 - mountPath: /app/config
                   name: virtual-workspaces-config-volume
           hostAliases:
@@ -196,7 +196,7 @@ has all hostAliases configured:
               ip: 10.0.0.1
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
             - configMap:
@@ -289,11 +289,11 @@ matches the Snapshot:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                   readOnly: true
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
   2: |
@@ -385,12 +385,12 @@ matches the Snapshot:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                 - mountPath: /app/config
                   name: virtual-workspaces-config-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
             - configMap:

@@ -85,11 +85,11 @@ match the Snapshot:
                 periodSeconds: 10
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
                   readOnly: true
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
   2: |
@@ -177,9 +177,9 @@ match the Snapshot:
                   port: 8091
               volumeMounts:
                 - mountPath: /app/schemas
-                  name: definitions-volume
+                  name: schemas-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: definitions-volume
+            - name: schemas-volume
               persistentVolumeClaim:
                 claimName: platform-mesh-kubernetes-graphql-gateway-schemas
