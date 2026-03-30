@@ -39,17 +39,17 @@ kcp:
   apiExportEndpointSliceName: "core.platform-mesh.io"
 
 subroutines:
-  namespace:
-    # -- Enable namespace subroutines
+  workspaceType:
+    # -- Enable workspace type subroutine
     enabled: true
   accountInfo:
     # -- Enable AccountInfo subroutine
     enabled: true
-  extension:
-    # -- Enable extension subroutines
+  workspace:
+    # -- Enable workspace subroutine
     enabled: true
-  extensionReady:
-    # -- Enable extension ready subroutines
+  workspaceReady:
+    # -- Enable workspace ready subroutine
     enabled: true
 
 controllers:
