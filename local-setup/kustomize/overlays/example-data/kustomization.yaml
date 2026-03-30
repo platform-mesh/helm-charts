@@ -24,7 +24,6 @@ patches:
               secret: httpbin-kubeconfig
               namespace: example-httpbin-provider
               external: false
-              # OCM-shipped CRD (e.g. 0.3.0-build.*) still uses useAdminKubeconfig; adminAuth is rejected until the bundle includes the renamed field.
               adminAuth: true
           extraDefaultAPIBindings:
             - workspaceTypePath: root:account
