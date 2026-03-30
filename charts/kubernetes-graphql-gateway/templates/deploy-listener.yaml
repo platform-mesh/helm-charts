@@ -65,6 +65,22 @@ spec:
             port: {{ .Values.listener.healthCheck.port }}
           failureThreshold: {{ .Values.health.startup.failureThreshold }}
           periodSeconds: {{ .Values.health.periodSeconds }}
+        # remove when needed endpoints are added
+        {{- else }}
+        startupProbe:
+          tcpSocket:
+            port: {{ .Values.listener.metricsPort }}
+          failureThreshold: {{ .Values.health.startup.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.listener.metricsPort }}
+          periodSeconds: {{ .Values.health.readiness.periodSeconds }}
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.listener.metricsPort }}
+          failureThreshold: {{ .Values.health.liveness.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
         {{- end }}
         args:
         - listener

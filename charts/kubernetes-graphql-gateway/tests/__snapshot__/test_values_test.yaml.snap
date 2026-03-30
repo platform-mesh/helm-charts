@@ -21,13 +21,21 @@ match the Snapshot:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway
+            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
+                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - gateway
-                - --schema-handler=grpc
-                - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
+                - --schema-handler=file
+                - --schemas-dir=/app/schemas
                 - --tracing-enabled=true
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
@@ -78,11 +86,12 @@ match the Snapshot:
               volumeMounts:
                 - mountPath: /app/schemas
                   name: definitions-volume
+                  readOnly: true
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - emptyDir:
-                sizeLimit: 500Mi
-              name: definitions-volume
+            - name: definitions-volume
+              persistentVolumeClaim:
+                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
   2: |
     apiVersion: apps/v1
     kind: Deployment
@@ -105,13 +114,21 @@ match the Snapshot:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway-listener
+            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
+                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - listener
-                - --schema-handler=grpc
-                - --grpc-listen-addr=:50051
+                - --schema-handler=file
+                - --schemas-dir=/app/schemas
                 - --multicluster-runtime-provider=kcp
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
                 - --workspace-schema-kubeconfig-override=/app/kubeconfig/kubeconfig
@@ -130,9 +147,6 @@ match the Snapshot:
                 periodSeconds: 10
               name: listener
               ports:
-                - containerPort: 50051
-                  name: grpc
-                  protocol: TCP
                 - containerPort: 8091
                   name: metrics
                   protocol: TCP
@@ -172,9 +186,9 @@ match the Snapshot:
                   name: virtual-workspaces-config-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - emptyDir:
-                sizeLimit: 500Mi
-              name: definitions-volume
+            - name: definitions-volume
+              persistentVolumeClaim:
+                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
             - configMap:
                 name: virtual-workspaces-config
               name: virtual-workspaces-config-volume
@@ -227,11 +241,25 @@ match the Snapshot:
         replacement: ${1}
   5: |
     apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      labels:
+        app: platform-mesh-kubernetes-graphql-gateway
+      name: platform-mesh-kubernetes-graphql-gateway-schemas
+      namespace: platform-mesh-system
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 500Mi
+  6: |
+    apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: platform-mesh-kubernetes-graphql-gateway
       namespace: platform-mesh-system
-  6: |
+  7: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -254,7 +282,7 @@ match the Snapshot:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway
       type: ClusterIP
-  7: |
+  8: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -277,7 +305,7 @@ match the Snapshot:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway-listener
       type: ClusterIP
-  8: |
+  9: |
     apiVersion: v1
     data:
       virtual-workspaces.yaml: "virtualWorkspaces:\n  - name: custom-ws\n    url: https://example.com\n    kubeconfig: /etc/kubeconfig/kubeconfig "
@@ -508,13 +536,21 @@ match the Snapshot with crds:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway
+            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
+                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - gateway
-                - --schema-handler=grpc
-                - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
+                - --schema-handler=file
+                - --schemas-dir=/app/schemas
                 - --tracing-enabled=true
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
@@ -565,11 +601,12 @@ match the Snapshot with crds:
               volumeMounts:
                 - mountPath: /app/schemas
                   name: definitions-volume
+                  readOnly: true
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - emptyDir:
-                sizeLimit: 500Mi
-              name: definitions-volume
+            - name: definitions-volume
+              persistentVolumeClaim:
+                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
   3: |
     apiVersion: apps/v1
     kind: Deployment
@@ -592,13 +629,21 @@ match the Snapshot with crds:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway-listener
+            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchLabels:
+                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
+                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - listener
-                - --schema-handler=grpc
-                - --grpc-listen-addr=:50051
+                - --schema-handler=file
+                - --schemas-dir=/app/schemas
                 - --multicluster-runtime-provider=kcp
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
                 - --workspace-schema-kubeconfig-override=/app/kubeconfig/kubeconfig
@@ -617,9 +662,6 @@ match the Snapshot with crds:
                 periodSeconds: 10
               name: listener
               ports:
-                - containerPort: 50051
-                  name: grpc
-                  protocol: TCP
                 - containerPort: 8091
                   name: metrics
                   protocol: TCP
@@ -659,9 +701,9 @@ match the Snapshot with crds:
                   name: virtual-workspaces-config-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - emptyDir:
-                sizeLimit: 500Mi
-              name: definitions-volume
+            - name: definitions-volume
+              persistentVolumeClaim:
+                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
             - configMap:
                 name: virtual-workspaces-config
               name: virtual-workspaces-config-volume
@@ -714,11 +756,25 @@ match the Snapshot with crds:
         replacement: ${1}
   6: |
     apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      labels:
+        app: platform-mesh-kubernetes-graphql-gateway
+      name: platform-mesh-kubernetes-graphql-gateway-schemas
+      namespace: platform-mesh-system
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 500Mi
+  7: |
+    apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: platform-mesh-kubernetes-graphql-gateway
       namespace: platform-mesh-system
-  7: |
+  8: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -741,7 +797,7 @@ match the Snapshot with crds:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway
       type: ClusterIP
-  8: |
+  9: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -764,7 +820,7 @@ match the Snapshot with crds:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway-listener
       type: ClusterIP
-  9: |
+  10: |
     apiVersion: v1
     data:
       virtual-workspaces.yaml: "virtualWorkspaces:\n  - name: custom-ws\n    url: https://example.com\n    kubeconfig: /etc/kubeconfig/kubeconfig "
