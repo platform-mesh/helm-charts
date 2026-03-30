@@ -1,0 +1,59 @@
+#!/bin/bash
+SCRIPT_DIR=$(dirname "$0")
+# This script is sourced by start.sh after Flux has been installed and is ready.
+# Copy this file to post-flux-hook.sh and customize it for your needs.
+# The post-flux-hook.sh file is gitignored, so your local changes won't be committed.
+#
+# At this point in the setup, the following is available:
+#   - Kind cluster with TLS certificates
+#   - Flux (helm-controller, source-controller, kustomize-controller)
+#
+# You can use this hook to:
+#   - Load custom Docker images into the Kind cluster
+#   - Deploy Flux HelmReleases or HelmRepositories
+#   - Apply additional kustomizations
+#
+# Usage:
+#   cp post-flux-hook.sh.example post-flux-hook.sh
+#   # Edit post-flux-hook.sh with your customizations
+#   task local-setup:iterate
+
+chart_app_version() {
+    local chart="$1"
+    local chartYaml="$SCRIPT_DIR/../../charts/$chart/Chart.yaml"
+    if ! test -f "$chartYaml"; then
+        echo "Chart.yaml '$chartYaml' not found"
+        exit 1
+    fi
+    awk '/^appVersion:/ { print $2 }' "$chartYaml" | sed -e 's#"##g'
+}
+
+build_and_load() {
+    local app="$1"
+    local version="$(chart_app_version "$app")"
+    local image="ghcr.io/platform-mesh/$app:$version"
+    ( cd "$SCRIPT_DIR/../../../$app" && docker build -t "$image" . )
+    kind load docker-image "$image" -n platform-mesh
+}
+
+# Example: Load a locally built image
+# build_and_load platform-mesh-operator
+
+# Example: Load an image manually
+# docker build -t ghcr.io/platform-mesh/portal:dev ../../../portal/
+# kind load docker-image ghcr.io/platform-mesh/portal:dev -n platform-mesh
+
+# Example: Load from a tar archive
+# kind load image-archive my-image.tar -n platform-mesh
+
+# Example: Deploy a Flux HelmRelease (Flux is available at this point)
+# kubectl apply -f - <<EOF
+# apiVersion: source.toolkit.fluxcd.io/v1
+# kind: HelmRepository
+# metadata:
+#   name: my-repo
+#   namespace: default
+# spec:
+#   interval: 1h
+#   url: https://charts.example.com
+# EOF

@@ -26,5 +26,6 @@ registry-ca.pem
 local-setup/rootCA.pem
 local-setup/e2e/node_modules/
 local-setup/e2e/*.png
-local-setup/scripts/load-custom-images.sh
+local-setup/scripts/post-flux-hook.sh
+local-setup/scripts/post-platform-mesh-hook.sh
 /convo

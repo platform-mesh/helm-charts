@@ -333,24 +333,44 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
-#### Loading Custom Docker Images
+#### Hook Scripts
 
-When developing locally built components, you can load custom Docker images into the Kind cluster by creating a hook script. This script is automatically ignored by git, so your local customizations won't be committed.
+The local setup provides two extension points (hook scripts) that run at different stages. Both are gitignored, so your local customizations won't be committed.
 
-**Create the hook script from the example:**
+##### Post-Flux Hook
+
+Runs after Flux is installed and ready. Use this to load custom Docker images or deploy Flux resources.
 
 ```sh
-cp local-setup/scripts/load-custom-images.sh.example local-setup/scripts/load-custom-images.sh
-# Edit the script with your custom images
+cp local-setup/scripts/post-flux-hook.sh.example local-setup/scripts/post-flux-hook.sh
+# Edit the script with your customizations
 ```
 
-The script will be automatically sourced during cluster setup if it exists. You can add multiple `kind load` commands for all the images you need.
+**Available at this point:** Kind cluster, TLS certificates, Flux (helm-controller, source-controller, kustomize-controller).
 
 **Typical workflow:**
 
 1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
-2. Add the load command to `load-custom-images.sh`
+2. Add the load command to `post-flux-hook.sh`
 3. Run `task local-setup:iterate` to reload the cluster with your custom images
+
+##### Post-Platform-Mesh Hook
+
+Runs after the PlatformMesh resource is ready and KCP is accessible. Use this to create KCP workspaces or deploy resources into the platform.
+
+```sh
+cp local-setup/scripts/post-platform-mesh-hook.sh.example local-setup/scripts/post-platform-mesh-hook.sh
+# Edit the script with your customizations
+```
+
+**Available at this point:** Everything from the post-flux hook, plus KRO, OCM, Platform-Mesh Operator, PlatformMesh resource, and KCP admin kubeconfig (via `$KCP_KUBECONFIG`).
+
+**Example:**
+
+```sh
+# Create a workspace in KCP
+KUBECONFIG="$KCP_KUBECONFIG" kubectl create-workspace my-ws --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
+```
 
 ### Running E2E Tests
 
