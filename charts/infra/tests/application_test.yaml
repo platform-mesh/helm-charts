@@ -107,7 +107,7 @@ tests:
   - matchSnapshot: {}
 - it: configure etcd backup store
   templates:
-    - kcp/etcd.yaml
+    - kcp/root-shard.yaml
   set:
     kcp:
       etcd:
@@ -120,7 +120,8 @@ tests:
             secretRef:
               name: etcd-backup-aws
   asserts:
-  - equal:
+  - documentIndex: 0
+    equal:
       path: spec.backup.store
       value:
         container: etcd-bucket

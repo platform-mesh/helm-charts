@@ -88,6 +88,57 @@ Gateway API enabled:
       usages:
         - client auth
   4: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+  5: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  6: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -143,57 +194,6 @@ Gateway API enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  5: |
-    apiVersion: operator.kcp.io/v1alpha1
-    kind: FrontProxy
-    metadata:
-      name: frontproxy
-      namespace: platform-mesh-system
-    spec:
-      additionalPathMappings:
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/contentconfigurations
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/marketplace
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        serviceAccount:
-          enabled: true
-      deploymentTemplate:
-        spec:
-          template:
-            spec: null
-      external:
-        hostname: localhost
-        port: 8443
-      extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
-      replicas: 1
-      rootShard:
-        ref:
-          name: root
-      serviceTemplate:
-        spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
-          type: ClusterIP
-  6: |
-    apiVersion: cert-manager.io/v1
-    kind: Issuer
-    metadata:
-      name: selfsigned
-      namespace: platform-mesh-system
-    spec:
-      selfSigned: {}
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
@@ -421,6 +421,57 @@ Istio disabled:
       usages:
         - client auth
   4: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+  5: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  6: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -476,57 +527,6 @@ Istio disabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  5: |
-    apiVersion: operator.kcp.io/v1alpha1
-    kind: FrontProxy
-    metadata:
-      name: frontproxy
-      namespace: platform-mesh-system
-    spec:
-      additionalPathMappings:
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/contentconfigurations
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/marketplace
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        serviceAccount:
-          enabled: true
-      deploymentTemplate:
-        spec:
-          template:
-            spec: null
-      external:
-        hostname: localhost
-        port: 8443
-      extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
-      replicas: 1
-      rootShard:
-        ref:
-          name: root
-      serviceTemplate:
-        spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
-          type: ClusterIP
-  6: |
-    apiVersion: cert-manager.io/v1
-    kind: Issuer
-    metadata:
-      name: selfsigned
-      namespace: platform-mesh-system
-    spec:
-      selfSigned: {}
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
@@ -754,6 +754,57 @@ Istio enabled:
       usages:
         - client auth
   4: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+  5: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  6: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -809,57 +860,6 @@ Istio enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  5: |
-    apiVersion: operator.kcp.io/v1alpha1
-    kind: FrontProxy
-    metadata:
-      name: frontproxy
-      namespace: platform-mesh-system
-    spec:
-      additionalPathMappings:
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/contentconfigurations
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/marketplace
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        serviceAccount:
-          enabled: true
-      deploymentTemplate:
-        spec:
-          template:
-            spec: null
-      external:
-        hostname: localhost
-        port: 8443
-      extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
-      replicas: 1
-      rootShard:
-        ref:
-          name: root
-      serviceTemplate:
-        spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
-          type: ClusterIP
-  6: |
-    apiVersion: cert-manager.io/v1
-    kind: Issuer
-    metadata:
-      name: selfsigned
-      namespace: platform-mesh-system
-    spec:
-      selfSigned: {}
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
@@ -1061,6 +1061,76 @@ configure etcd backup store:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
+  2: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: RootShard
+    metadata:
+      name: root
+      namespace: platform-mesh-system
+    spec:
+      authorization:
+        webhook:
+          configSecretName: kcp-webhook-secret
+          version: v1
+      cache:
+        embedded:
+          enabled: true
+      certificateTemplates:
+        server:
+          spec:
+            dnsNames:
+              - root-kcp
+              - root-kcp.platform-mesh-system
+              - root-kcp.platform-mesh-system.svc.cluster.local
+              - root.kcp.localhost
+      certificates:
+        issuerRef:
+          group: cert-manager.io
+          kind: Issuer
+          name: selfsigned
+      deploymentTemplate:
+        spec:
+          template:
+            metadata:
+              annotations:
+                traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
+            spec: null
+      etcd:
+        endpoints:
+          - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      proxy:
+        deploymentTemplate:
+          spec:
+            template:
+              spec: null
+      replicas: 1
+      shardBaseURL: https://root.kcp.localhost:8443/
+  3: |
+    apiVersion: gateway.networking.k8s.io/v1alpha2
+    kind: TLSRoute
+    metadata:
+      name: kcp-root-shard-tlsroute
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - root.kcp.localhost
+      parentRefs:
+        - group: gateway.networking.k8s.io
+          kind: Gateway
+          name: k8sapi-gateway
+          sectionName: passthrough
+      rules:
+        - backendRefs:
+            - group: ""
+              kind: Service
+              name: root-kcp
+              namespace: platform-mesh-system
+              port: 6443
 configure frontproxy resources:
   1: |
     apiVersion: operator.kcp.io/v1alpha1
@@ -1114,6 +1184,62 @@ configure frontproxy resources:
           type: ClusterIP
 configure rootshard resources:
   1: |
+    apiVersion: druid.gardener.cloud/v1alpha1
+    kind: Etcd
+    metadata:
+      labels:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      name: etcd-kcp
+      namespace: platform-mesh-system
+    spec:
+      annotations:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      backup:
+        compression:
+          enabled: false
+          policy: gzip
+        deltaSnapshotMemoryLimit: 1Gi
+        deltaSnapshotPeriod: 300s
+        fullSnapshotSchedule: 0 */24 * * *
+        garbageCollectionPeriod: 43200s
+        garbageCollectionPolicy: Exponential
+        leaderElection:
+          etcdConnectionTimeout: 5s
+          reelectionPeriod: 5s
+        port: 8080
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1Gi
+          requests:
+            cpu: 23m
+            memory: 128Mi
+      etcd:
+        clientPort: 2379
+        defragmentationSchedule: 0 */24 * * *
+        metrics: basic
+        quota: 8Gi
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        serverPort: 2380
+      labels:
+        app: etcd-statefulset
+        gardener.cloud/role: controlplane
+        role: kcp
+      replicas: 1
+      sharedConfig:
+        autoCompactionMode: periodic
+        autoCompactionRetention: 30m
+  2: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
     metadata:
@@ -1169,7 +1295,7 @@ configure rootshard resources:
           cpu: 200m
           memory: 256Mi
       shardBaseURL: https://root.kcp.localhost:8443/
-  2: |
+  3: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
     metadata:
@@ -1280,6 +1406,59 @@ match snapshots:
       usages:
         - client auth
   4: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      image:
+        tag: 0.0.0
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+  5: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  6: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -1335,59 +1514,6 @@ match snapshots:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  5: |
-    apiVersion: operator.kcp.io/v1alpha1
-    kind: FrontProxy
-    metadata:
-      name: frontproxy
-      namespace: platform-mesh-system
-    spec:
-      additionalPathMappings:
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/contentconfigurations
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/marketplace
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        serviceAccount:
-          enabled: true
-      deploymentTemplate:
-        spec:
-          template:
-            spec: null
-      external:
-        hostname: localhost
-        port: 8443
-      extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
-      image:
-        tag: 0.0.0
-      replicas: 1
-      rootShard:
-        ref:
-          name: root
-      serviceTemplate:
-        spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
-          type: ClusterIP
-  6: |
-    apiVersion: cert-manager.io/v1
-    kind: Issuer
-    metadata:
-      name: selfsigned
-      namespace: platform-mesh-system
-    spec:
-      selfSigned: {}
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
@@ -1619,6 +1745,65 @@ match snapshots w. hostAliases enabled:
       usages:
         - client auth
   4: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
+      deploymentTemplate:
+        spec:
+          template:
+            spec:
+              hostAliases:
+                - hostnames:
+                    - localhost
+                    - portal.localhost
+                    - kcp.localhost
+                    - root.kcp.localhost
+                  ip: 10.96.188.4
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          clusterIP: 10.0.0.1
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+  5: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  6: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -1674,65 +1859,6 @@ match snapshots w. hostAliases enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  5: |
-    apiVersion: operator.kcp.io/v1alpha1
-    kind: FrontProxy
-    metadata:
-      name: frontproxy
-      namespace: platform-mesh-system
-    spec:
-      additionalPathMappings:
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/contentconfigurations
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/marketplace
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        serviceAccount:
-          enabled: true
-      deploymentTemplate:
-        spec:
-          template:
-            spec:
-              hostAliases:
-                - hostnames:
-                    - localhost
-                    - portal.localhost
-                    - kcp.localhost
-                    - root.kcp.localhost
-                  ip: 10.96.188.4
-      external:
-        hostname: localhost
-        port: 8443
-      extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
-      replicas: 1
-      rootShard:
-        ref:
-          name: root
-      serviceTemplate:
-        spec:
-          clusterIP: 10.0.0.1
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
-          type: ClusterIP
-  6: |
-    apiVersion: cert-manager.io/v1
-    kind: Issuer
-    metadata:
-      name: selfsigned
-      namespace: platform-mesh-system
-    spec:
-      selfSigned: {}
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
@@ -1974,6 +2100,59 @@ match snapshots w. kcp version:
       usages:
         - client auth
   4: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      image:
+        tag: v0.1.0
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+  5: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  6: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -2029,59 +2208,6 @@ match snapshots w. kcp version:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  5: |
-    apiVersion: operator.kcp.io/v1alpha1
-    kind: FrontProxy
-    metadata:
-      name: frontproxy
-      namespace: platform-mesh-system
-    spec:
-      additionalPathMappings:
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/contentconfigurations
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/marketplace
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        serviceAccount:
-          enabled: true
-      deploymentTemplate:
-        spec:
-          template:
-            spec: null
-      external:
-        hostname: localhost
-        port: 8443
-      extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
-      image:
-        tag: v0.1.0
-      replicas: 1
-      rootShard:
-        ref:
-          name: root
-      serviceTemplate:
-        spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
-          type: ClusterIP
-  6: |
-    apiVersion: cert-manager.io/v1
-    kind: Issuer
-    metadata:
-      name: selfsigned
-      namespace: platform-mesh-system
-    spec:
-      selfSigned: {}
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
@@ -2313,6 +2439,57 @@ match snapshots with mailpit enabled:
       usages:
         - client auth
   4: |
+    apiVersion: operator.kcp.io/v1alpha1
+    kind: FrontProxy
+    metadata:
+      name: frontproxy
+      namespace: platform-mesh-system
+    spec:
+      additionalPathMappings:
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/contentconfigurations
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+        - backend: https://virtual-workspaces.platform-mesh-system:8443
+          backend_server_ca: /etc/kcp/tls/ca/tls.crt
+          path: /services/marketplace
+          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
+          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
+      auth:
+        serviceAccount:
+          enabled: true
+      deploymentTemplate:
+        spec:
+          template:
+            spec: null
+      external:
+        hostname: localhost
+        port: 8443
+      extraArgs:
+        - --feature-gates=WorkspaceAuthentication=true
+      replicas: 1
+      rootShard:
+        ref:
+          name: root
+      serviceTemplate:
+        spec:
+          ports:
+            - appProtocol: https
+              name: https
+              port: 8443
+              protocol: TCP
+              targetPort: 6443
+          type: ClusterIP
+  5: |
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned
+      namespace: platform-mesh-system
+    spec:
+      selfSigned: {}
+  6: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
     metadata:
@@ -2368,57 +2545,6 @@ match snapshots with mailpit enabled:
       sharedConfig:
         autoCompactionMode: periodic
         autoCompactionRetention: 30m
-  5: |
-    apiVersion: operator.kcp.io/v1alpha1
-    kind: FrontProxy
-    metadata:
-      name: frontproxy
-      namespace: platform-mesh-system
-    spec:
-      additionalPathMappings:
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/contentconfigurations
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-        - backend: https://virtual-workspaces.platform-mesh-system:8443
-          backend_server_ca: /etc/kcp/tls/ca/tls.crt
-          path: /services/marketplace
-          proxy_client_cert: /etc/kcp-front-proxy/requestheader-client/tls.crt
-          proxy_client_key: /etc/kcp-front-proxy/requestheader-client/tls.key
-      auth:
-        serviceAccount:
-          enabled: true
-      deploymentTemplate:
-        spec:
-          template:
-            spec: null
-      external:
-        hostname: localhost
-        port: 8443
-      extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
-      replicas: 1
-      rootShard:
-        ref:
-          name: root
-      serviceTemplate:
-        spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
-          type: ClusterIP
-  6: |
-    apiVersion: cert-manager.io/v1
-    kind: Issuer
-    metadata:
-      name: selfsigned
-      namespace: platform-mesh-system
-    spec:
-      selfSigned: {}
   7: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: RootShard
