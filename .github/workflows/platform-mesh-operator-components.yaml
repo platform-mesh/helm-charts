@@ -21,7 +21,7 @@ jobs:
     concurrency:
       group: platform-mesh-operator-components-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@5bcf731d7f3012ae79eec382e62b179739a5fa3b # main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@c4423ef1896f1c154b2d12052992a23add16033c # main
     with:
       chartFolder: charts
       chartName: platform-mesh-operator-components
