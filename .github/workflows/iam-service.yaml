@@ -21,7 +21,7 @@ jobs:
     concurrency:
       group: iam-service-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@be477afc04260ab8af16c4a2b7574bc6687b2cbd # main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@a48e9ee830fabd2337fdcfa9aa21b50a98eabf31 # main
     with:
       chartFolder: charts
       chartName: iam-service
