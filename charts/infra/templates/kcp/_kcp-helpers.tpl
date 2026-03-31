@@ -84,3 +84,58 @@ spec:
       namespace: {{ .namespace }}
       port: 6443
 {{- end -}}
+{{- define "kcp.shard.spec" -}}
+replicas: {{ .replicas }}
+shardBaseURL: {{ .shardBaseURL }}
+proxy:
+  deploymentTemplate:
+    spec:
+      template:
+        spec:
+          {{- include "common.hostAliases" .root | nindent 10 }}
+{{ with .root.Values.kcp.image.tag }}
+  image:
+    tag: {{ . }}
+{{- end }}
+{{- if .root.Values.kcp.auth.oidc.enabled }}
+auth:
+  {{- with .root.Values.kcp.auth.oidc }}
+  oidc:
+    enabled: true
+    issuerURL: {{ .issuerUrl }}
+    caFileRef:
+      name: {{ .caFileRef.name }}
+      key: {{ .caFileRef.key }}
+    clientID: {{ .clientID }}
+    groupsClaim: {{ .groupsClaim }}
+    usernameClaim: {{ .usernameClaim }}
+  {{- end }}
+{{- end }}
+external:
+  hostname: {{ .hostname }}
+  port: {{ .port }}
+{{- if (.root.Values.kcp.webhook).enabled }}
+authorization:
+  webhook:
+    configSecretName: {{ .root.Values.kcp.webhook.authorizationWebhookSecretName }}
+    version: {{ .root.Values.kcp.webhook.version | default "v1" }}
+{{- end }}
+{{ with .root.Values.kcp.image.tag }}
+image:
+  tag: {{ . }}
+{{- end }}
+{{- if gt (len .resources) 0 }}
+resources:
+  {{- toYaml .resources | nindent 2 }}
+{{- end }}
+deploymentTemplate:
+  spec:
+    template:
+      metadata:
+        annotations:
+          traffic.sidecar.istio.io/excludeOutboundPorts: "{{ .webhookPort }}"
+      spec:
+        {{- include "common.hostAliases" .root | nindent 8 }}
+extraArgs:
+{{ toYaml .extraArgs | indent 2 }}
+{{- end -}}
