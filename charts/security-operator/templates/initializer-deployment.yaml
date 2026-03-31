@@ -29,6 +29,10 @@ spec:
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
+          - --fga-target={{ .Values.fga.target }}
+          {{- if .Values.initializer.kubeconfigSecret }}
+          - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+          {{- end }}
           {{- if not .Values.initializer.subroutines.workspaceEnabled }}
           - --initializer-workspace-enabled=false
           {{- end }}
@@ -41,18 +45,15 @@ spec:
           {{- if not .Values.initializer.subroutines.workspaceAuthEnabled }}
           - --initializer-workspace-auth-enabled=false
           {{- end }}
+          {{- with .Values.fga.storeIDCacheTTL }}
+          - --fga-store-id-cache-ttl={{ . }}
+          {{- end }}
           {{- with .Values.initializer.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}
           {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
-          - name: FGA_TARGET
-            value: {{ .Values.fga.target }}
-          {{- if .Values.initializer.kubeconfigSecret }}
-          - name: KCP_KUBECONFIG
-            value: /api-kubeconfig/kubeconfig
-          {{- end }}
         volumeMounts:
           {{- include "common.extraVolumeMounts" . | nindent 10 }}
           {{- if .Values.initializer.kubeconfigSecret }}

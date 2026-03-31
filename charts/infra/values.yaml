@@ -1,10 +1,5 @@
 hostAliases:
   enabled: false
-  entries:
-    - ip: "10.96.188.4"
-      hostnames:
-        - "localhost"
-        - "portal.localhost"
 
 externalSecrets:
   enabled: false
@@ -25,6 +20,17 @@ kcp:
       subject:
         organizations:
           - system:kcp:admin
+    serviceAccount:
+      enabled: true
+    oidc:
+      enabled: false
+      issuerUrl: ""
+      clientID: ""
+      groupsClaim: groups
+      usernameClaim: email
+      caFileRef:
+        name: domain-certificate-ca
+        key: tls.crt
   etcd:
     name: etcd-kcp
     service:
@@ -72,25 +78,17 @@ kcp:
       autoCompactionRetention: "30m"
     replicas: 1
 
-  oidc:
-    enabled: false
-    issuerUrl: ""
-    clientID: ""
-    groupsClaim: groups
-    usernameClaim: email
-    caFileRef:
-      name: domain-certificate-ca
-      key: tls.crt
-
   webhook:
     enabled: true
     caData: ""
     server: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz
     authorizationWebhookSecretName: kcp-webhook-secret
     port: 9443
+    version: v1
 
   rootShard:
     replicas: 1
+    shardBaseURL: https://root.kcp.localhost:8443/
     # -- Optional resource requests and limits for the root shard
     resources: {}
     # resources:

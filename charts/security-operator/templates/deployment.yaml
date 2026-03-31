@@ -57,10 +57,14 @@ spec:
           - fga
           - --core-module-path=/data/coreModule.fga
           {{- with .Values.fga.inviteKeycloakBaseUrl }}
-          - --invite-keycloak-base-url={{ . }}
+          - --keycloak-base-url={{ . }}
           {{- end }}
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
+          {{- end }}
+          - --fga-target={{ .Values.fga.target }}
+          {{- if .Values.kubeconfigSecret }}
+          - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}
           {{- with .Values.fga.extraArgs }}
           {{ toYaml . | nindent 10}}
@@ -73,13 +77,7 @@ spec:
           {{- include "common.commonOperatorArgs" . | indent 8 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
-          - name: FGA_TARGET
-            value: {{ .Values.fga.target }}
-          {{- if .Values.kubeconfigSecret }}
-          - name: KCP_KUBECONFIG
-            value: /api-kubeconfig/kubeconfig
-          {{- end }}
-          - name: INVITE_KEYCLOAK_CLIENT_SECRET
+          - name: KEYCLOAK_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
                 name: {{ .Values.keycloak.client.secret.name }}

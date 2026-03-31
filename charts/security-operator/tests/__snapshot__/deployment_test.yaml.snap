@@ -105,6 +105,10 @@ operator match the snapshot:
             define get_iam_roles: member
             define get_iam_users: member
 
+            # APIExport binding control
+            define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent
+            define bind: [apis_kcp_io_apiexport] or bind_inherited
+
         type core_platform-mesh_io_accountinfo
           relations
             define parent: [core_platform-mesh_io_account]
@@ -154,6 +158,8 @@ operator match the snapshot:
                 - fga
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
                 - --webhooks-cert-dir=/certs
@@ -168,11 +174,7 @@ operator match the snapshot:
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
-                - name: INVITE_KEYCLOAK_CLIENT_SECRET
+                - name: KEYCLOAK_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:
                       key: client_secret
@@ -299,6 +301,8 @@ operator match the snapshot:
           containers:
             - args:
                 - model-generator
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -309,11 +313,7 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
+              env: null
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -398,6 +398,8 @@ operator match the snapshot:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --test=myval
                 - --test2=myval
                 - --leader-elect
@@ -410,11 +412,7 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
+              env: null
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -483,6 +481,105 @@ operator match the snapshot:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
+      name: RELEASE-NAME-security-operator-system
+      namespace: NAMESPACE
+    spec:
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          service: RELEASE-NAME-security-operator-system
+      template:
+        metadata:
+          labels:
+            control-plane: controller-manager
+            service: RELEASE-NAME-security-operator-system
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - system
+                - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=warn
+                - --region=local
+                - --environment=local
+                - --image-tag=1.0.0
+                - --image-name="ghcr.io/platform-mesh/security-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
+              env:
+                - name: KEYCLOAK_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: client_secret
+                      name: security-operator-client-secret
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: RELEASE-NAME-security-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 260m
+                  memory: 512Mi
+                requests:
+                  cpu: 150m
+                  memory: 128Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /api-kubeconfig
+                  name: external-api-server
+                - mountPath: /keycloak-credentials
+                  name: keycloak-credentials
+                  readOnly: true
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: RELEASE-NAME-security-operator
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: external-api-server
+              secret:
+                secretName: kcp-kubeconfig
+            - name: keycloak-credentials
+              secret:
+                secretName: keycloak-admin
+  10: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
       name: RELEASE-NAME-security-operator-terminator
       namespace: NAMESPACE
     spec:
@@ -502,6 +599,8 @@ operator match the snapshot:
                 - terminator
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -512,11 +611,7 @@ operator match the snapshot:
                 - --image-name="ghcr.io/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env:
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: KCP_KUBECONFIG
-                  value: /api-kubeconfig/kubeconfig
+              env: null
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -575,14 +670,14 @@ operator match the snapshot:
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
-  10: |
+  11: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: RELEASE-NAME-security-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -596,7 +691,7 @@ operator match the snapshot:
         name: RELEASE-NAME-security-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-ca-secret
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -604,7 +699,7 @@ operator match the snapshot:
     spec:
       ca:
         secretName: RELEASE-NAME-security-operator-ca-secret
-  13: |
+  14: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -619,7 +714,7 @@ operator match the snapshot:
         name: RELEASE-NAME-security-operator-ca-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  14: |
+  15: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -739,6 +834,10 @@ operator match the snapshot w. sentry:
             define get_iam_roles: member
             define get_iam_users: member
 
+            # APIExport binding control
+            define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent
+            define bind: [apis_kcp_io_apiexport] or bind_inherited
+
         type core_platform-mesh_io_accountinfo
           relations
             define parent: [core_platform-mesh_io_account]
@@ -788,6 +887,7 @@ operator match the snapshot w. sentry:
                 - fga
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
                 - --webhooks-cert-dir=/certs
@@ -809,9 +909,7 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
-                - name: INVITE_KEYCLOAK_CLIENT_SECRET
+                - name: KEYCLOAK_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:
                       key: client_secret
@@ -939,6 +1037,7 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - model-generator
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -957,8 +1056,6 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1044,6 +1141,7 @@ operator match the snapshot w. sentry:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -1062,8 +1160,6 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1154,6 +1250,112 @@ operator match the snapshot w. sentry:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
+      name: RELEASE-NAME-security-operator-system
+      namespace: NAMESPACE
+    spec:
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          service: RELEASE-NAME-security-operator-system
+      template:
+        metadata:
+          labels:
+            control-plane: controller-manager
+            service: RELEASE-NAME-security-operator-system
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - args:
+                - system
+                - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --leader-elect
+                - --metrics-bind-address=:9090
+                - --health-probe-bind-address=:8090
+                - --log-level=warn
+                - --region=local
+                - --environment=local
+                - --image-tag=1.0.0
+                - --image-name="ghcr.io/platform-mesh/security-operator"
+                - --shutdown-timeout=1m
+                - --max-concurrent-reconciles=10
+              env:
+                - name: SENTRY_DSN
+                  valueFrom:
+                    secretKeyRef:
+                      key: dsn
+                      name: RELEASE-NAME-security-operator-sentry
+                - name: TEST_ENV
+                  value: test
+                - name: KEYCLOAK_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: client_secret
+                      name: security-operator-client-secret
+              image: ghcr.io/platform-mesh/security-operator:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 8090
+                periodSeconds: 10
+              name: RELEASE-NAME-security-operator
+              ports:
+                - containerPort: 9090
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 8090
+                  name: health-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 260m
+                  memory: 512Mi
+                requests:
+                  cpu: 150m
+                  memory: 128Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 8090
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /etc/kcp-kubeconfig
+                  name: kcp-kubeconfig
+                  readOnly: true
+                - mountPath: /keycloak-credentials
+                  name: keycloak-credentials
+                  readOnly: true
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: RELEASE-NAME-security-operator
+          terminationGracePeriodSeconds: 10
+          volumes:
+            - name: kcp-kubeconfig
+              secret:
+                secretName: kcp-kubeconfig
+            - name: keycloak-credentials
+              secret:
+                secretName: keycloak-admin
+  11: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
       name: RELEASE-NAME-security-operator-terminator
       namespace: NAMESPACE
     spec:
@@ -1173,6 +1375,7 @@ operator match the snapshot w. sentry:
                 - terminator
                 - --core-module-path=/data/coreModule.fga
                 - --base-domain=portal.localhost:8443
+                - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -1191,8 +1394,6 @@ operator match the snapshot w. sentry:
                       name: RELEASE-NAME-security-operator-sentry
                 - name: TEST_ENV
                   value: test
-                - name: FGA_TARGET
-                  value: openfga.platform-mesh-system.svc.cluster.local:8081
               image: ghcr.io/platform-mesh/security-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -1252,14 +1453,14 @@ operator match the snapshot w. sentry:
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: RELEASE-NAME-security-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1273,7 +1474,7 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-ca-secret
-  13: |
+  14: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1281,7 +1482,7 @@ operator match the snapshot w. sentry:
     spec:
       ca:
         secretName: RELEASE-NAME-security-operator-ca-secret
-  14: |
+  15: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1296,7 +1497,7 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-ca-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  15: |
+  16: |
     apiVersion: v1
     kind: Service
     metadata:

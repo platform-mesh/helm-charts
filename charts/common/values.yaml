@@ -39,6 +39,9 @@ defaults:
     type: ClusterIP
     port: 8080
 
+  # -- enable HTTP/2 for metrics and webhook servers
+  enableHttp2: true
+
   operator:
     # -- by default operators participate in leader election
     leaderElect: true
@@ -126,3 +129,5 @@ defaults:
         hostnames:
           - "localhost"
           - "portal.localhost"
+          - "kcp.localhost"
+          - "root.kcp.localhost"

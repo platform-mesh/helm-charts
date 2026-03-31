@@ -19,7 +19,6 @@ it should render the application manifests:
         crds:
           enabled: false
         kcp:
-          apiExportEndpointSliceName: ""
           enabled: true
         kubeconfigSecret: account-operator-kubeconfig
         log:
@@ -141,7 +140,6 @@ it should render the application manifests:
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
-              - --shard-virtual-workspace-url=https://localhost:8443
           webhook:
             enabled: true
         keycloak:
@@ -150,6 +148,37 @@ it should render the application manifests:
               hosts:
                 - example.com
   6: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
+      name: init-agent
+      namespace: default
+    spec:
+      chart:
+        spec:
+          chart: init-agent
+          reconcileStrategy: ChartVersion
+          sourceRef:
+            kind: HelmRepository
+            name: init-agent
+      dependsOn: null
+      interval: 1m
+      releaseName: init-agent
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        configWorkspace: root:platform-mesh-system
+        hostAliases:
+          enabled: false
+          values:
+            - hostnames:
+                - localhost
+              ip: 10.96.188.4
+        kcpKubeconfig: init-agent-kubeconfig
+        leaderElection:
+          enabled: false
+        replicas: 1
+  7: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -206,7 +235,7 @@ it should render the application manifests:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-  7: |
+  8: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -229,7 +258,7 @@ it should render the application manifests:
           enabled: true
         kubeConfig:
           enabled: true
-          secretName: kubernetes-grapqhl-gateway-kubeconfig
+          secretName: kubernetes-graphql-gateway-kubeconfig
         listener:
           virtualWorkspacesConfig:
             content:
@@ -263,7 +292,7 @@ it should render the application manifests:
                   - regex: .*
               name: default
           pathPrefix: /api/kubernetes-graphql-gateway/
-  8: |
+  9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -329,7 +358,7 @@ it should render the application manifests:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  9: |
+  10: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -353,7 +382,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  10: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -386,7 +415,7 @@ it should render the application manifests:
           shutdownTimeout: 1m
         terminator:
           kubeconfigSecret: security-terminator-kubeconfig
-  11: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -408,7 +437,7 @@ it should render the application manifests:
           resourceSchemaWorkspace: root:platform-mesh-system
           serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
         virtualWorkspaceSecretName: virtual-workspaces-cert
-  12: |
+  13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -433,7 +462,7 @@ it should render the application manifests:
             - name: account-operator
           resource:
             name: image
-  13: |
+  14: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -458,7 +487,7 @@ it should render the application manifests:
             - name: extension-manager-operator
           resource:
             name: image
-  14: |
+  15: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -483,7 +512,7 @@ it should render the application manifests:
             - name: iam-service
           resource:
             name: image
-  15: |
+  16: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -508,7 +537,7 @@ it should render the application manifests:
             - name: iam-ui
           resource:
             name: image
-  16: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -534,7 +563,32 @@ it should render the application manifests:
             - name: kcp
           resource:
             name: image
-  17: |
+  18: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: init-agent
+        repo: oci
+      name: init-agent-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: init-agent
+          resource:
+            name: image
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -559,7 +613,7 @@ it should render the application manifests:
             - name: keycloak
           resource:
             name: image
-  18: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -585,7 +639,7 @@ it should render the application manifests:
             - name: keycloak
           resource:
             name: postgresql-image
-  19: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -610,7 +664,7 @@ it should render the application manifests:
             - name: kubernetes-graphql-gateway
           resource:
             name: image
-  20: |
+  22: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -635,7 +689,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: image
-  21: |
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -661,7 +715,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: postgresql-image
-  22: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -686,7 +740,7 @@ it should render the application manifests:
             - name: rebac-authz-webhook
           resource:
             name: image
-  23: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -711,7 +765,7 @@ it should render the application manifests:
             - name: security-operator
           resource:
             name: image
-  24: |
+  26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -736,7 +790,7 @@ it should render the application manifests:
             - name: virtual-workspaces
           resource:
             name: image
-  25: |
+  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -761,7 +815,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  26: |
+  28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -786,7 +840,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  27: |
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -811,7 +865,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  28: |
+  30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -836,7 +890,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  29: |
+  31: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -861,7 +915,32 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  30: |
+  32: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: helm
+      name: init-agent
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: init-agent
+          resource:
+            name: chart
+      skipVerify: true
+  33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -886,7 +965,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  31: |
+  34: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -911,7 +990,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  32: |
+  35: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -936,7 +1015,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  33: |
+  36: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -961,7 +1040,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  34: |
+  37: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -986,7 +1065,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  35: |
+  38: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:

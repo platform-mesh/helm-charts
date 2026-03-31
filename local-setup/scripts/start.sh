@@ -101,12 +101,6 @@ mkdir -p $SCRIPT_DIR/certs
 $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
 cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
-# Load custom images if hook script exists
-if [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Loading custom images ${COL_RES}"
-    source "$SCRIPT_DIR/load-custom-images.sh"
-fi
-
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
 helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
   --version 2.17.2 \
@@ -125,6 +119,12 @@ kubectl wait --namespace flux-system \
 kubectl wait --namespace flux-system \
   --for=condition=available deployment \
   --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
+
+# Run post-flux hook if it exists (Flux is ready at this point)
+if [ -f "$SCRIPT_DIR/post-flux-hook.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running post-flux hook ${COL_RES}"
+    source "$SCRIPT_DIR/post-flux-hook.sh"
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
@@ -177,7 +177,11 @@ kubectl wait --namespace default \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
-if [ "$PRERELEASE" = true ]; then
+# Apply PlatformMesh resource: use hook if available, otherwise use default overlay logic
+if [ -f "$SCRIPT_DIR/platform-mesh-resource-hook.sh" ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Running platform-mesh-resource hook ${COL_RES}"
+  source "$SCRIPT_DIR/platform-mesh-resource-hook.sh"
+elif [ "$PRERELEASE" = true ]; then
   if [ "$EXAMPLE_DATA" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
     # TODO: Create example-data-prerelease overlay if needed
@@ -204,11 +208,18 @@ kubectl wait --namespace platform-mesh-system \
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
+# Run post-platform-mesh hook if it exists (PlatformMesh is ready, KCP is accessible)
+if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running post-platform-mesh hook ${COL_RES}"
+    KCP_KUBECONFIG="$(pwd)/.secret/kcp/admin.kubeconfig" source "$SCRIPT_DIR/post-platform-mesh-hook.sh"
+fi
+
 if [ "$EXAMPLE_DATA" = true ]; then
   
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="https://localhost:8443/clusters/root:orgs"
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
@@ -221,6 +232,9 @@ if [ "$EXAMPLE_DATA" = true ]; then
     --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
 
 fi
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Verifying backend resources ${COL_RES}"
+"$SCRIPT_DIR/check-backend-resources.sh"
 
 echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
 echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"

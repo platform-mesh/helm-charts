@@ -1,4 +1,20 @@
 {{ if .Values.kcp.auth.adminCert.enabled }}
+apiVersion: operator.kcp.io/v1alpha1
+kind: Kubeconfig
+metadata:
+  name: kubeconfig-kcp-admin
+  namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
+spec:
+  username: kcp-admin
+  groups:
+    - system:kcp:admin
+  validity: 8766h
+  secretRef:
+    name: kubeconfig-kcp-admin
+  target:
+    rootShardRef:
+      name: root
+---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -10,7 +26,7 @@ spec:
     {{- if .Values.kcp.auth.adminCert.issuerRef }}
     name: {{ .Values.kcp.auth.adminCert.issuerRef }}
     {{- else }}
-    name: root-front-proxy-client-ca
+    name: root-client-ca
     {{- end }}
   privateKey:
     algorithm: {{ .Values.kcp.auth.adminCert.privateKey.algorithm }}

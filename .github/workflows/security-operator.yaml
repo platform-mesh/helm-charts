@@ -1,3 +1,7 @@
+permissions:
+  contents: write
+  packages: write
+
 name: Build security-operator Workflow
 on:
   push:
@@ -17,7 +21,7 @@ jobs:
     concurrency:
       group: security-operator-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@be477afc04260ab8af16c4a2b7574bc6687b2cbd # main
     with:
       chartFolder: charts
       chartName: security-operator

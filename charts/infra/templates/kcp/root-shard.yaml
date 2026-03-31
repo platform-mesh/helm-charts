@@ -5,14 +5,20 @@ metadata:
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
   replicas: {{ .Values.kcp.rootShard.replicas }}
-  {{ with .Values.kcp.image.tag }}
+  shardBaseURL: {{ .Values.kcp.rootShard.shardBaseURL }}
   proxy:
+    deploymentTemplate:
+      spec:
+        template:
+          spec:
+            {{- include "common.hostAliases" $ | nindent 12 }}
+  {{ with .Values.kcp.image.tag }}
     image:
       tag: {{ . }}
   {{- end }}
-  {{- if .Values.kcp.oidc.enabled }}
+  {{- if .Values.kcp.auth.oidc.enabled }}
   auth:
-    {{ with .Values.kcp.oidc }}
+    {{- with .Values.kcp.auth.oidc }}
     oidc:
       enabled: true
       issuerURL: {{ .issuerUrl }}
@@ -32,6 +38,7 @@ spec:
   authorization:
     webhook:
       configSecretName: {{ .Values.kcp.webhook.authorizationWebhookSecretName }}
+      version: {{ .Values.kcp.webhook.version | default "v1" }}
   {{- end }}
   certificates:
     # this references the issuer created above
@@ -66,5 +73,34 @@ spec:
             traffic.sidecar.istio.io/excludeOutboundPorts: "{{ .Values.kcp.webhook.port }}"
         spec:
           {{- include "common.hostAliases" $ | nindent 10 }}
+  certificateTemplates:
+    server:
+      spec:
+        dnsNames:
+          - root-kcp
+          - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}
+          - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}.svc.cluster.local
+          - root.kcp.localhost
   extraArgs:
 {{ toYaml .Values.kcp.rootShard.extraArgs | indent 4 }}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TLSRoute
+metadata:
+  name: kcp-root-shard-tlsroute
+  namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
+spec:
+  hostnames:
+  - root.kcp.localhost
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.gatewayApi.name }}
+    sectionName: passthrough
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: root-kcp
+      namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
+      port: 6443

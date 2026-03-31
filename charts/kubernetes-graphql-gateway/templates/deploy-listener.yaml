@@ -1,0 +1,161 @@
+{{- $noJson := include "common.getKeyValue" (dict "Values" .Values "key" "log.noJson") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}-listener
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "common.entity.name" . }}-listener
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.deployment.maxSurge }}
+      maxUnavailable: {{ .Values.deployment.maxUnavailable }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: {{ include "common.entity.name" . }}-listener
+  template:
+    metadata:
+      labels:
+        app: {{ include "common.entity.name" . }}-listener
+        version: "{{ .Chart.AppVersion }}"
+        {{- if eq .Values.schemaHandler.type "file" }}
+        schema-handler-group: {{ include "common.entity.name" . }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "common.entity.name" . }}
+      {{- include "common.imagePullSecret" . | nindent 6 }}
+      {{- include "common.hostAliases" . | nindent 6 }}
+      {{- if eq .Values.schemaHandler.type "file" }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  schema-handler-group: {{ include "common.entity.name" . }}
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
+      containers:
+      - name: listener
+        image: {{ include "common.image" . }}
+        {{- include "common.imagePullPolicy" . | nindent 8 }}
+        {{- with .Values.listener.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- include "common.container.securityContext" . | nindent 8 }}
+        {{- if .Values.listener.healthCheck.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.health.liveness.path }}
+            port: {{ .Values.listener.healthCheck.port }}
+          failureThreshold: {{ .Values.health.liveness.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.health.readiness.path }}
+            port: {{ .Values.listener.healthCheck.port }}
+          initialDelaySeconds: {{ .Values.health.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.health.readiness.periodSeconds }}
+        startupProbe:
+          httpGet:
+            path: {{ .Values.health.startup.path }}
+            port: {{ .Values.listener.healthCheck.port }}
+          failureThreshold: {{ .Values.health.startup.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        # remove when needed endpoints are added
+        {{- else }}
+        startupProbe:
+          tcpSocket:
+            port: {{ .Values.listener.metricsPort }}
+          failureThreshold: {{ .Values.health.startup.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.listener.metricsPort }}
+          periodSeconds: {{ .Values.health.readiness.periodSeconds }}
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.listener.metricsPort }}
+          failureThreshold: {{ .Values.health.liveness.failureThreshold }}
+          periodSeconds: {{ .Values.health.periodSeconds }}
+        {{- end }}
+        args:
+        - listener
+        - --schema-handler={{ .Values.schemaHandler.type }}
+        {{- if eq .Values.schemaHandler.type "grpc" }}
+        - --grpc-listen-addr=:{{ .Values.listener.grpcPort }}
+        {{- else if eq .Values.schemaHandler.type "file" }}
+        - --schemas-dir={{ .Values.schemaHandler.schemasDir }}
+        {{- end }}
+        - --multicluster-runtime-provider={{ .Values.listener.multiclusterRuntimeProvider }}
+        - --apiexport-endpoint-slice-name={{ .Values.listener.apiExportEndpointSliceName }}
+        - --workspace-schema-kubeconfig-override={{ .Values.listener.workspaceSchemaKubeconfigOverride | default .Values.kubeConfig.path }}
+        - --anchor-resource={{ .Values.listener.anchorResource }}
+        - --reconciler-gvr={{ .Values.listener.reconcilerGvr }}
+        - --additional-path-annotation-key={{ .Values.listener.additionalPathAnnotationKey }}
+        - --metrics-bind-address=:{{ .Values.listener.metricsPort }}
+        {{- with .Values.listener.extraArgs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if eq $noJson "true" }}
+        - --no-json
+        {{- end }}
+        ports:
+        {{- if eq .Values.schemaHandler.type "grpc" }}
+          - name: grpc
+            containerPort: {{ .Values.listener.grpcPort }}
+            protocol: TCP
+        {{- end }}
+          - name: metrics
+            containerPort: {{ .Values.listener.metricsPort }}
+            protocol: TCP
+          - name: health-port
+            containerPort: {{ .Values.listener.healthCheck.port }}
+            protocol: TCP
+          - name: service-port
+            containerPort: {{ .Values.listener.port }}
+            protocol: TCP
+        env:
+        {{- if .Values.kubeConfig.enabled }}
+        - name: KUBECONFIG
+          value: {{ .Values.kubeConfig.path }}
+        {{- end }}
+        volumeMounts:
+          - name: schemas-volume
+            mountPath: {{ .Values.schemaHandler.schemasDir }}
+        {{- if .Values.kubeConfig.enabled }}
+          - name: kubeconfig-volume
+            mountPath: /app/kubeconfig
+        {{- end }}
+        {{- if .Values.listener.virtualWorkspacesConfig.enabled }}
+          - name: virtual-workspaces-config-volume
+            mountPath: /app/config
+        {{- end }}
+        {{- with .Values.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      volumes:
+        - name: schemas-volume
+          {{- if eq .Values.schemaHandler.type "file" }}
+          persistentVolumeClaim:
+            claimName: {{ include "common.entity.name" . }}-schemas
+          {{- else }}
+          emptyDir:
+            sizeLimit: {{ .Values.schemaHandler.sharedVolume.size }}
+          {{- end }}
+        {{- if .Values.kubeConfig.enabled }}
+        - name: kubeconfig-volume
+          secret:
+            secretName: {{ .Values.kubeConfig.secretName }}
+        {{- end }}
+        {{- if .Values.listener.virtualWorkspacesConfig.enabled }}
+        - name: virtual-workspaces-config-volume
+          configMap:
+            name: {{ .Values.listener.virtualWorkspacesConfig.configMapName }}
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}

@@ -8,17 +8,30 @@ image:
 kcp:
   enabled: true
 
+# -- Schema handler type: "grpc" or "file"
+schemaHandler:
+  type: file
+  # -- Directory path for schema files (used when type is "file")
+  schemasDir: /app/schemas
+  # -- Shared volume configuration (used when type is "file")
+  sharedVolume:
+    storageClassName: ""
+    size: 500Mi
+    accessMode: ReadWriteOnce
+
 gateway:
   port: 8080
   healthCheck:
     enabled: true
-    port: 3389
+    port: 8080
   metricsPort: 8081
   graphiql: true
   logLevel: trace
   shouldImpersonate: false
   introspectionAuthentication: true
   usernameClaim: email
+  extraArgs: []
+
   resources:
     limits:
       memory: 1200Mi
@@ -27,10 +40,21 @@ gateway:
       memory: 1000Mi
 
 listener:
-  apiExportName: kcp.io
   port: 8090
+  grpcPort: 50051
+  # -- Multicluster runtime provider: "kcp" or "kubernetes"
+  multiclusterRuntimeProvider: kcp
+  apiExportEndpointSliceName: core.platform-mesh.io
+  workspaceSchemaKubeconfigOverride: ""
+  # -- CEL expression for anchor resource matching
+  anchorResource: 'object.metadata.name.startsWith("core.platform-mesh.io")'
+  # -- GroupVersionResource for the reconciler to watch
+  reconcilerGvr: apibindings.v1alpha2.apis.kcp.io
+  additionalPathAnnotationKey: kcp.io/path
+
+  extraArgs: []
   healthCheck:
-    enabled: true
+    enabled: false
     port: 3390
   metricsPort: 8091
   virtualWorkspacesConfig:
@@ -52,13 +76,6 @@ deployment:
   revisionHistoryLimit: 3
   replicas: 1
 
-  resources:
-    limits:
-      memory: 1600Mi
-    requests:
-      cpu: 300m
-      memory: 800Mi
-
 sentry:
   environment: dev
 
@@ -67,6 +84,7 @@ kubeConfig:
   # -- Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated.
   enabled: false
   secretName: "kcp-root-kubeconfig"
+  path: /app/kubeconfig/kubeconfig
 
 rbac:
   # -- Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token). Uses namespace-scoped Roles when serviceAccounts list is provided.
@@ -81,14 +99,16 @@ rbac:
   #     namespace: another-namespace
   serviceAccounts: []
 
-extraEnvs: []
 extraVolumes: []
 extraVolumeMounts: []
 
 tracing:
   enabled: true
 
-# Health check configuration shared by both containers
+hostAliases:
+  enabled: false
+
+# Health check configuration shared by both pods
 health:
   periodSeconds: 10
   readiness:
@@ -123,7 +143,7 @@ gatewayApi:
     - type: URLRewrite
       urlRewrite:
         path:
-          replacePrefixMatch: /
+          replacePrefixMatch: /api/clusters/
           type: ReplacePrefixMatch
     # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
     corsFilters:

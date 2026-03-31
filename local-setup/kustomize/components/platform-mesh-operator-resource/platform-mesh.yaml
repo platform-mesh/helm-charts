@@ -17,6 +17,39 @@ spec:
    - name: feature-enable-getting-started
    - name: feature-disable-email-verification
    - name: feature-accounts-in-accounts
+  # kcp:
+  #   providerConnections:
+  #   - adminAuth: true
+  #     path:      root:platform-mesh-system
+  #     secret:    security-operator-kubeconfig
+  #   - adminAuth: true
+  #     path:      root
+  #     secret:    security-terminator-kubeconfig
+  #   - adminAuth: true
+  #     path:      root:platform-mesh-system
+  #     secret:    init-agent-kubeconfig
+  #   - adminAuth: true
+  #     path:      root:platform-mesh-system
+  #     secret:    kubernetes-grapqhl-gateway-kubeconfig
+  #   - adminAuth: true
+  #     path:      root:platform-mesh-system
+  #     secret:    account-operator-kubeconfig
+  #   - adminAuth: true
+  #     path:      root:platform-mesh-system
+  #     secret:    rebac-authz-webhook-kubeconfig
+  #   - adminAuth: true
+  #     path:      root:platform-mesh-system
+  #     secret:    extension-manager-operator-kubeconfig
+  #   - adminAuth: true
+  #     path:      root:platform-mesh-system
+  #     secret:    iam-service-kubeconfig
+  #   - adminAuth: true
+  #     path:      root
+  #     secret:    security-initializer-kubeconfig
+  #   - adminAuth: true
+  #     path:      root:orgs
+  #     rawPath:   "/services/contentconfigurations"
+  #     secret:    portal-kubeconfig
   values:
     account-operator:
       values:
@@ -39,7 +72,16 @@ spec:
             ephemeral-storage: 50Mi
             memory: 1Gi
     infra:
+      imageResources: []  # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
+        kcp:
+          auth:
+            serviceAccount:
+              enabled: true
+          image:
+            tag: "097afc12c" # bump kcp image to work around WatchList issues
+          frontProxy:
+            clusterIP: "10.96.0.100"
         traefik:
           accessControlAllowOriginList:
             - "http://localhost:4200"
@@ -53,13 +95,17 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
-        kcp:
-          frontProxy:
-            clusterIP: "10.96.0.100"
     security-operator:
       values:
         log:
           noJson: true
+        system:
+          extraArgs:
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.localhost
+            - --set-default-password
+            - --idp-registration-allowed
         fga:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
@@ -88,7 +134,7 @@ spec:
           - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
             value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
           - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-            value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+            value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}"
           - name: NODE_EXTRA_CA_CERTS
             value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
@@ -107,6 +153,8 @@ spec:
               hostnames:
                 - "localhost"
                 - "portal.localhost"
+                - "kcp.localhost"
+                - "root.kcp.localhost"
     openfga:
       enabled: true
       values:
@@ -117,6 +165,8 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
+      enabled: false
+    terminal-controller-manager:
       enabled: false
     rebac-authz-webhook:
       values:
@@ -130,7 +180,17 @@ spec:
           enabled: true
         hostAliases:
           enabled: true
+    init-agent:
+      values:
+        hostAliases:
+          enabled: true
     extension-manager-operator:
       values:
         hostAliases:
           enabled: true
+    kubernetes-graphql-gateway:
+      values:
+        hostAliases:
+          enabled: true
+        listener:
+          anchorResource: 'object.metadata.name.contains("platform-mesh.io")'

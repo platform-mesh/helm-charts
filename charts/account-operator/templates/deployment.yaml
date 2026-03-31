@@ -43,6 +43,12 @@ spec:
         args:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
+          - --subroutines-workspace-type-enabled={{ .Values.subroutines.workspaceType.enabled }}
+          - --subroutines-workspace-enabled={{ .Values.subroutines.workspace.enabled }}
+          - --subroutines-workspace-ready-enabled={{ .Values.subroutines.workspaceReady.enabled }}
+          - --subroutines-account-info-enabled={{ .Values.subroutines.accountInfo.enabled }}
+          - --controllers-account-info-enabled={{ .Values.controllers.accountInfo.enabled }}
+          - --kcp-api-export-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}
           {{- if .Values.webhooks.enabled }}
           - --webhooks-enabled
           - --webhooks-cert-dir={{ .Values.webhooks.certDir }}
@@ -55,34 +61,6 @@ spec:
           {{- end }}
         env:
           {{- include "common.basicEnvironment" . | nindent 10 }}
-          - name: SUBROUTINES_NAMESPACE_ENABLED
-            value: "{{ .Values.subroutines.namespace.enabled }}"
-          - name: SUBROUTINES_FGA_ENABLED
-            value: "{{ .Values.subroutines.fga.enabled }}"
-          - name: SUBROUTINES_FGA_GRPC_ADDR
-            value: "{{ .Values.subroutines.fga.grpcAddr }}"
-          - name: SUBROUTINES_FGA_ROOT_NAMESPACE
-            value: "{{ .Values.subroutines.fga.rootNamespace }}"
-          - name: SUBROUTINES_FGA_OBJECT_TYPE
-            value: "{{ .Values.subroutines.fga.objectType }}"
-          - name: SUBROUTINES_FGA_PARENT_RELATION
-            value: "{{ .Values.subroutines.fga.parentRelation }}"
-          - name: SUBROUTINES_FGA_CREATOR_RELATION
-            value: "{{ .Values.subroutines.fga.creatorRelation }}"
-          - name: SUBROUTINES_EXTENSION_ENABLED
-            value: "{{ .Values.subroutines.extension.enabled }}"
-          - name: SUBROUTINES_EXTENSION_READY_ENABLED
-            value: "{{ .Values.subroutines.extensionReady.enabled }}"
-          - name: KCP_ENABLED
-            value: "{{ .Values.kcp.enabled }}"
-          - name: KCP_VIRTUAL_WORKSPACE_URL
-            value: "{{ .Values.kcp.virtualWorkspaceUrl }}"
-          - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
-            value: "{{ .Values.kcp.apiExportEndpointSliceName }}"
-          {{- if .Values.webhooks.denyList }}
-          - name: WEBHOOKS_DENY_LIST
-            value: "{{ join "," .Values.webhooks.denyList }}"
-          {{- end }}
           {{- if .Values.kubeconfigSecret }}
           - name: KUBECONFIG
             value: /api-kubeconfig/kubeconfig

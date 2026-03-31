@@ -42,7 +42,6 @@ services:
         enabled: false
       kcp:
         enabled: true
-        apiExportEndpointSliceName: ""
       subroutines:
         fga:
           grpcAddr: openfga:8081
@@ -131,7 +130,6 @@ services:
         rootShard:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
-            - --shard-virtual-workspace-url=https://localhost:8443
         webhook:
           enabled: true
       istio:
@@ -161,7 +159,7 @@ services:
             hosts:
               - "{{ .Values.baseDomain }}"
   init-agent:
-    enabled: false
+    enabled: true
     helmRepo: true
     imageResources:
       - annotations:
@@ -171,6 +169,17 @@ services:
     values:
       configWorkspace: root:platform-mesh-system
       kcpKubeconfig: init-agent-kubeconfig
+      replicas: 1
+      leaderElection:
+        enabled: false
+      hostAliases:
+        # -- enable hostAliases to resolve services via ClusterIP, enable this for the local setup
+        enabled: false
+        # -- list of host alias entries
+        values:
+          - ip: "10.96.188.4"
+            hostnames:
+              - "localhost"
   keycloak:
     enabled: true
     imageResources:
@@ -264,7 +273,7 @@ services:
           audience: default
       kubeConfig:
         enabled: true
-        secretName: kubernetes-grapqhl-gateway-kubeconfig
+        secretName: kubernetes-graphql-gateway-kubeconfig
       virtualService:
         pathPrefix: /api/kubernetes-graphql-gateway/
         hosts:

@@ -30,5 +30,5 @@ spec:
     backendRefs:
     - name: {{ include "common.entity.name" . }}
       namespace: {{ .Release.Namespace }}
-      port: 8080
+      port: {{ .Values.gateway.port }}
 {{- end }}

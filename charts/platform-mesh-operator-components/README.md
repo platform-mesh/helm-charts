@@ -174,7 +174,6 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.account-operator.enabled | bool | `true` |  |
 | services.account-operator.imageResources | list | `[{"annotations":{"artifact":"image","for":"account-operator","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.account-operator.values.crds.enabled | bool | `false` |  |
-| services.account-operator.values.kcp.apiExportEndpointSliceName | string | `""` |  |
 | services.account-operator.values.kcp.enabled | bool | `true` |  |
 | services.account-operator.values.kubeconfigSecret | string | `"account-operator-kubeconfig"` |  |
 | services.account-operator.values.log.level | string | `"debug"` |  |
@@ -213,16 +212,19 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
 | services.infra.values.kcp.image.tag | string | `"v0.29.0"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
-| services.infra.values.kcp.rootShard.extraArgs[1] | string | `"--shard-virtual-workspace-url=https://localhost:8443"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.init-agent.enabled | bool | `false` |  |
+| services.init-agent.enabled | bool | `true` |  |
 | services.init-agent.helmRepo | bool | `true` |  |
 | services.init-agent.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.init-agent.imageResources[0].annotations.for | string | `"init-agent"` |  |
 | services.init-agent.imageResources[0].annotations.repo | string | `"oci"` |  |
 | services.init-agent.values.configWorkspace | string | `"root:platform-mesh-system"` |  |
+| services.init-agent.values.hostAliases.enabled | bool | `false` | enable hostAliases to resolve services via ClusterIP, enable this for the local setup |
+| services.init-agent.values.hostAliases.values | list | `[{"hostnames":["localhost"],"ip":"10.96.188.4"}]` | list of host alias entries |
 | services.init-agent.values.kcpKubeconfig | string | `"init-agent-kubeconfig"` |  |
+| services.init-agent.values.leaderElection.enabled | bool | `false` |  |
+| services.init-agent.values.replicas | int | `1` |  |
 | services.keycloak.enabled | bool | `true` |  |
 | services.keycloak.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.keycloak.imageResources[0].annotations.for | string | `"keycloak"` |  |
@@ -261,7 +263,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.kubernetes-graphql-gateway.values.cors.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.gatewayApi.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.kubeConfig.enabled | bool | `true` |  |
-| services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-grapqhl-gateway-kubeconfig"` |  |
+| services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-graphql-gateway-kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].name | string | `"contentconfigurations"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations"` |  |

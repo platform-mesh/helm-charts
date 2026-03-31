@@ -13,7 +13,7 @@ on:
       - '.github/workflows/infra.yaml'
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
     concurrency:
       group: infra-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@be477afc04260ab8af16c4a2b7574bc6687b2cbd # main
     with:
       chartFolder: charts
       chartName: infra

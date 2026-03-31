@@ -333,24 +333,62 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
-#### Loading Custom Docker Images
+#### Hook Scripts
 
-When developing locally built components, you can load custom Docker images into the Kind cluster by creating a hook script. This script is automatically ignored by git, so your local customizations won't be committed.
+The local setup provides three extension points (hook scripts) that run at different stages. All are gitignored, so your local customizations won't be committed.
 
-**Create the hook script from the example:**
+##### Post-Flux Hook
+
+Runs after Flux is installed and ready. Use this to load custom Docker images or deploy Flux resources.
 
 ```sh
-cp local-setup/scripts/load-custom-images.sh.example local-setup/scripts/load-custom-images.sh
-# Edit the script with your custom images
+cp local-setup/scripts/post-flux-hook.sh.example local-setup/scripts/post-flux-hook.sh
+# Edit the script with your customizations
 ```
 
-The script will be automatically sourced during cluster setup if it exists. You can add multiple `kind load` commands for all the images you need.
+**Available at this point:** Kind cluster, TLS certificates, Flux (helm-controller, source-controller, kustomize-controller).
 
 **Typical workflow:**
 
 1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
-2. Add the load command to `load-custom-images.sh`
+2. Add the load command to `post-flux-hook.sh`
 3. Run `task local-setup:iterate` to reload the cluster with your custom images
+
+##### Platform-Mesh Resource Hook
+
+Runs after the Platform-Mesh Operator is ready and the PlatformMesh CRD is established. When this hook exists, it **replaces** the default PlatformMesh resource overlay logic. The hook is responsible for applying the PlatformMesh resource to the cluster.
+
+```sh
+cp local-setup/scripts/platform-mesh-resource-hook.sh.example local-setup/scripts/platform-mesh-resource-hook.sh
+# Edit the script with your customizations
+```
+
+**Available at this point:** Everything from the post-flux hook, plus KRO, OCM, Platform-Mesh Operator (ready), PlatformMesh CRD (established). Variables `$PRERELEASE` and `$EXAMPLE_DATA` reflect the flags passed to start.sh.
+
+**Example:**
+
+```sh
+# Apply a custom kustomize overlay for your PlatformMesh configuration
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/my-custom-overlay
+```
+
+##### Post-Platform-Mesh Hook
+
+Runs after the PlatformMesh resource is ready and KCP is accessible. Use this to create KCP workspaces or deploy resources into the platform.
+
+```sh
+cp local-setup/scripts/post-platform-mesh-hook.sh.example local-setup/scripts/post-platform-mesh-hook.sh
+# Edit the script with your customizations
+```
+
+**Available at this point:** Everything from the post-flux hook, plus KRO, OCM, Platform-Mesh Operator, PlatformMesh resource, and KCP admin kubeconfig (via `$KCP_KUBECONFIG`).
+
+**Example:**
+
+```sh
+# Create a workspace in KCP
+KUBECONFIG="$KCP_KUBECONFIG" kubectl create-workspace my-ws --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
+```
 
 ### Running E2E Tests
 
@@ -359,11 +397,32 @@ After the local setup is running, you can run end-to-end tests to verify the por
 **Using Task:**
 
 ```sh
+# Run the full local-setup integration suite
+task test:local-setup
+
+# Run CLI checks for backend resource readiness
+task test:backend-resources
+
 # Run tests in headless mode
 task test:portal-e2e
 
+# Run the HTTPBin flow
+task test:portal-e2e:httpbins
+
+# Run the account kubeconfig flow
+task test:portal-e2e:account-kubeconfig
+
+# Run the authorization flow
+task test:portal-e2e:authorization
+
+# Run the account deletion flow
+task test:portal-e2e:deletion
+
 # Run tests with visible browser window
 task test:portal-e2e:headed
+
+# Run tests more slowly to watch each browser action
+SLOW_MO=500 task test:portal-e2e:headed
 
 # Run tests with video recording (saved to local-setup/e2e/test-results/)
 task test:portal-e2e:video
@@ -375,6 +434,10 @@ ORG_NAME=myorg task test:portal-e2e
 **Without Task:**
 
 ```sh
+# Backend readiness checks
+./local-setup/scripts/check-backend-resources.sh
+
+# Browser-driven portal checks
 cd local-setup/e2e
 npm install
 npm ci
@@ -387,6 +450,19 @@ npx playwright test test-register-and-navigate.test.ts
 - Node.js and npm must be installed
 - The local setup cluster must be running (via `task local-setup` or similar)
 - Playwright browsers will be installed automatically on first run
+- `kubectl` must be available for both the browser flow and the backend readiness checks
+- `kubectl oidc-login` must be installed for the downloaded kubeconfig smoke test
+- `portal.localhost` must resolve locally for CLI tools, for example via `/etc/hosts`
+
+**What the tests cover:**
+
+- Portal onboarding and organization switching
+- Inviting a second user and verifying unauthorized account access
+- Account kubeconfig download plus a `kubectl` smoke test against the workspace
+- Account deletion
+- Namespace creation and HTTPBin creation in both `default` and `test`
+- Opening the HTTPBin endpoint and verifying it responds
+- Ready-condition checks for ContentConfigurations, Stores, IdentityProviderConfigurations, and WorkspaceTypes
 
 ## Files and Scripts
 
