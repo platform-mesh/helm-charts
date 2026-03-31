@@ -258,7 +258,7 @@ it should render the application manifests:
           enabled: true
         kubeConfig:
           enabled: true
-          secretName: kubernetes-grapqhl-gateway-kubeconfig
+          secretName: kubernetes-graphql-gateway-kubeconfig
         listener:
           virtualWorkspacesConfig:
             content:

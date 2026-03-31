@@ -263,7 +263,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.kubernetes-graphql-gateway.values.cors.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.gatewayApi.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.kubeConfig.enabled | bool | `true` |  |
-| services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-grapqhl-gateway-kubeconfig"` |  |
+| services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-graphql-gateway-kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].name | string | `"contentconfigurations"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations"` |  |
