@@ -52,7 +52,7 @@ async function ensureAccountExists(page: Page): Promise<string> {
 
   if (!await accountRow.isVisible().catch(() => false)) {
     logStep(`ensureAccountExists:create account=${testAccountName}`);
-    await clickRobust(page.locator('[test-id="generic-list-view-create-button"]'));
+    await page.locator('[test-id="generic-list-view-create-button"]').click();
     await createDialog.waitFor({ state: 'visible', timeout: 10000 });
     await page.locator('[test-id="create-field-metadata_name"]').click();
     await page.locator('[test-id="create-field-spec_type"]').click();
