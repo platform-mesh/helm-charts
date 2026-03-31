@@ -17,13 +17,39 @@ spec:
    - name: feature-enable-getting-started
    - name: feature-disable-email-verification
    - name: feature-accounts-in-accounts
-#  kcp:
-#    extraProviderConnections:
-#       - endpointSliceName: ""
-#         path: root:platform-mesh-system
-#         secret: terminal-controller-manager-kubeconfig
-#         namespace: platform-mesh-system
-#         external: false
+  kcp:
+    providerConnections:
+    - adminAuth: true
+      path:      root:platform-mesh-system
+      secret:    kubernetes-grapqhl-gateway-kubeconfig
+    - adminAuth: true
+      path:      root:platform-mesh-system
+      secret:    account-operator-kubeconfig
+    - adminAuth: true
+      path:      root:platform-mesh-system
+      secret:    rebac-authz-webhook-kubeconfig
+    - adminAuth: true
+      path:      root:platform-mesh-system
+      secret:    security-operator-kubeconfig
+    - adminAuth: true
+      path:      root:platform-mesh-system
+      secret:    extension-manager-operator-kubeconfig
+    - adminAuth: true
+      path:      root:platform-mesh-system
+      secret:    iam-service-kubeconfig
+    - adminAuth: true
+      path:      root:orgs
+      rawPath:   "/services/contentconfigurations"
+      secret:    portal-kubeconfig
+    - adminAuth: true
+      path:      root
+      secret:    security-initializer-kubeconfig
+    - adminAuth: true
+      path:      root
+      secret:    security-terminator-kubeconfig
+    - adminAuth: true
+      path:      root:platform-mesh-system
+      secret:    init-agent-kubeconfig
   values:
     account-operator:
       values:
