@@ -62,3 +62,25 @@ spec:
 
   replicas: {{ .etcd.replicas | default 1 }}
 {{- end -}}
+{{- define "kcp.tlsroute" -}}
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TLSRoute
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+spec:
+  hostnames:
+  - {{ .hostname }}
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .gatewayName }}
+    sectionName: passthrough
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: {{ .serviceName }}
+      namespace: {{ .namespace }}
+      port: 6443
+{{- end -}}
