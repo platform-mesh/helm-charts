@@ -1,3 +1,5 @@
+{{ include "kcp.etcd" (dict "name" (.Values.kcp.etcd.name | default "etcd-kcp-client") "namespace" (.Values.kcp.namespace | default "kcp-system") "etcd" .Values.kcp.etcd) }}
+---
 apiVersion: operator.kcp.io/v1alpha1
 kind: RootShard
 metadata:
