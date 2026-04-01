@@ -14,9 +14,9 @@ spec:
       name: platform-mesh
     referencePath: []
   featureToggles:
-  - name: feature-enable-getting-started
-  - name: feature-disable-email-verification
-  - name: feature-accounts-in-accounts
+   - name: feature-enable-getting-started
+   - name: feature-disable-email-verification
+   - name: feature-accounts-in-accounts
   # kcp:
   #   providerConnections:
   #   - adminAuth: true
@@ -72,7 +72,7 @@ spec:
             ephemeral-storage: 50Mi
             memory: 1Gi
     infra:
-      imageResources: [] # Disable kcp-image OCM Resource to allow custom kcp.image.tag
+      imageResources: []  # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
         kcp:
           auth:
@@ -84,13 +84,13 @@ spec:
             clusterIP: "10.96.0.100"
         traefik:
           accessControlAllowOriginList:
-          - "http://localhost:4200"
-          - "http://localhost:4300"
-          - "http://*.localhost:4200"
-          - "http://*.localhost:4300"
-          - "http://sub.localhost:4300"
-          - "https://portal.localhost:8443"
-          - "https://*.portal.localhost:8443"
+            - "http://localhost:4200"
+            - "http://localhost:4300"
+            - "http://*.localhost:4200"
+            - "http://*.localhost:4300"
+            - "http://sub.localhost:4300"
+            - "https://portal.localhost:8443"
+            - "https://*.portal.localhost:8443"
         cors:
           enabled: true
         hostAliases:
@@ -101,24 +101,24 @@ spec:
           noJson: true
         system:
           extraArgs:
-          - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-          - --idp-smtp-port=1025
-          - --idp-from-address=keycloak@portal.localhost
-          - --set-default-password
-          - --idp-registration-allowed
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.localhost
+            - --set-default-password
+            - --idp-registration-allowed
         fga:
           extraArgs:
-          - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-          - --idp-smtp-port=1025
-          - --idp-from-address=keycloak@portal.localhost
-          - --set-default-password
-          - --idp-registration-allowed
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.localhost
+            - --set-default-password
+            - --idp-registration-allowed
         initializer:
           extraArgs:
-          - --domain-ca-lookup
-          - --idp-registration-allowed
-          - --development-allow-unverified-emails
-          - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
+            - --domain-ca-lookup
+            - --idp-registration-allowed
+            - --development-allow-unverified-emails
+            - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
@@ -128,30 +128,30 @@ spec:
         kcp:
           url: "https://localhost:8443"
         extraEnvVars:
-        - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
-        - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-          value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql"
-        - name: NODE_EXTRA_CA_CERTS
-          value: /etc/ssl/certs/domain-ca.crt
+          - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+            value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
+          - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+            value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}"
+          - name: NODE_EXTRA_CA_CERTS
+            value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
-        - name: domain-ca
-          secret:
-            secretName: domain-certificate-ca
+          - name: domain-ca
+            secret:
+              secretName: domain-certificate-ca
         extraVolumeMounts:
-        - name: domain-ca
-          mountPath: /etc/ssl/certs/domain-ca.crt
-          subPath: tls.crt
-          readOnly: true
+          - name: domain-ca
+            mountPath: /etc/ssl/certs/domain-ca.crt
+            subPath: tls.crt
+            readOnly: true
         hostAliases:
           enabled: true
           entries:
-          - ip: "10.96.188.4"
-            hostnames:
-            - "localhost"
-            - "portal.localhost"
-            - "kcp.localhost"
-            - "root.kcp.localhost"
+            - ip: "10.96.188.4"
+              hostnames:
+                - "localhost"
+                - "portal.localhost"
+                - "kcp.localhost"
+                - "root.kcp.localhost"
     openfga:
       enabled: true
       values:
@@ -172,7 +172,7 @@ spec:
     iam-service:
       values:
         extraArgs:
-        - --no-json
+          - --no-json
         cors:
           enabled: true
         hostAliases:
