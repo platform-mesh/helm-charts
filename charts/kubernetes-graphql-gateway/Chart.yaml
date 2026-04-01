@@ -1,6 +1,6 @@
 apiVersion: v2
-version: 0.35.1
-appVersion: v1.2.4
+version: 0.35.2
+appVersion: v1.2.5
 name: kubernetes-graphql-gateway
 description: Basic helm chart that contains listener and gateway
 dependencies:
