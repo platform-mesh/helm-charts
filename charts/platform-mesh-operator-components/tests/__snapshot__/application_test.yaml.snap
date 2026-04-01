@@ -277,21 +277,6 @@ it should render the application manifests:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https://example.com:8443/keycloak/realms/default
-        virtualService:
-          hosts:
-            - example.com
-            - '*.example.com'
-          httpRules:
-            - cors:
-                allowHeaders:
-                  - '*'
-                allowMethods:
-                  - GET
-                  - POST
-                allowOrigins:
-                  - regex: .*
-              name: default
-          pathPrefix: /gateway/api/clusters/
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease

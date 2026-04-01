@@ -274,21 +274,6 @@ services:
       kubeConfig:
         enabled: true
         secretName: kubernetes-graphql-gateway-kubeconfig
-      virtualService:
-        pathPrefix: /gateway/api/clusters/
-        hosts:
-          - "{{ .Values.baseDomain }}"
-          - "*.{{ .Values.baseDomain }}"
-        httpRules:
-          - name: default
-            cors:
-              allowHeaders:
-                - "*"
-              allowMethods:
-                - GET
-                - POST
-              allowOrigins:
-                - regex: .*
       listener:
         virtualWorkspacesConfig:
           enabled: true
