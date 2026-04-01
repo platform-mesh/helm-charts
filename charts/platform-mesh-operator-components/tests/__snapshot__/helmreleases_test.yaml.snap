@@ -291,7 +291,7 @@ HelmRelease snapshots:
                 allowOrigins:
                   - regex: .*
               name: default
-          pathPrefix: /api/kubernetes-graphql-gateway/
+          pathPrefix: /gateway/api/clusters/
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -762,7 +762,7 @@ enable remote deployment of helmreleases:
                 allowOrigins:
                   - regex: .*
               name: default
-          pathPrefix: /api/kubernetes-graphql-gateway/
+          pathPrefix: /gateway/api/clusters/
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease

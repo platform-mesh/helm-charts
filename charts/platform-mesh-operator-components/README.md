@@ -282,7 +282,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowMethods[1] | string | `"POST"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowOrigins[0].regex | string | `".*"` |  |
 | services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].name | string | `"default"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.pathPrefix | string | `"/api/kubernetes-graphql-gateway/"` |  |
+| services.kubernetes-graphql-gateway.values.virtualService.pathPrefix | string | `"/gateway/api/clusters/"` |  |
 | services.marketplace-ui.enabled | bool | `false` |  |
 | services.marketplace-ui.imageResources | list | `[{"annotations":{"artifact":"image","for":"marketplace-ui","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.marketplace-ui.values.gatewayApi.enabled | bool | `true` |  |
@@ -331,10 +331,10 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.portal.values.auth.default.clientSecretName | string | `"portal-client-secret-welcome"` |  |
 | services.portal.values.auth.default.discoveryUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak/realms/${org-name}/.well-known/openid-configuration"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
-| services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
+| services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/gateway/api/clusters/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.environment | string | `"kind"` |  |
 | services.portal.values.extraEnvVars[0].name | string | `"DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
-| services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
+| services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
 | services.portal.values.extraEnvVars[1].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |

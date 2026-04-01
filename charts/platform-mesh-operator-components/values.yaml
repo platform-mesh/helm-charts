@@ -275,7 +275,7 @@ services:
         enabled: true
         secretName: kubernetes-graphql-gateway-kubeconfig
       virtualService:
-        pathPrefix: /api/kubernetes-graphql-gateway/
+        pathPrefix: /gateway/api/clusters/
         hosts:
           - "{{ .Values.baseDomain }}"
           - "*.{{ .Values.baseDomain }}"
@@ -376,7 +376,7 @@ services:
     values:
       kcp:
         kubeconfigSecret: portal-kubeconfig
-      crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+      crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/gateway/api/clusters/root:orgs:${org-name}/graphql"
       environment: kind
       http:
         protocol: https
@@ -395,7 +395,7 @@ services:
       cookieDomain: "{{ .Values.baseDomain }}"
       extraEnvVars:
         - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql
         - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
           value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"
   observability:
