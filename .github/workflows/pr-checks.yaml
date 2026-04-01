@@ -14,11 +14,10 @@ concurrency:
 
 jobs:
   pipeline:
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: ./.github/workflows/chart-checks.yml
     with:
       chartFolder: charts
       chartName: common
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
-      disableOCM: true
     secrets: inherit
