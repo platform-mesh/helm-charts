@@ -164,9 +164,17 @@ jobs:
                   if [ "${{ inputs.release_type }}" = "full" ]; then
                     NEXT_VERSION="$major.$minor.$patch"
                   elif [ "${{ inputs.release_type }}" = "rc" ]; then
-                    NEXT_VERSION="$major.$minor.$patch-rc.1"
+                    if [[ "$PM_VERSION" =~ -rc\.([0-9]+)$ ]]; then
+                      NEXT_VERSION="$major.$minor.$patch-rc.$(( ${BASH_REMATCH[1]} + 1 ))"
+                    else
+                      NEXT_VERSION="$major.$minor.$patch-rc.1"
+                    fi
                   else
-                    NEXT_VERSION="$major.$minor.$patch-build.1"
+                    if [[ "$PM_VERSION" =~ -build\.([0-9]+)$ ]]; then
+                      NEXT_VERSION="$major.$minor.$patch-build.$(( ${BASH_REMATCH[1]} + 1 ))"
+                    else
+                      NEXT_VERSION="$major.$minor.$patch-build.1"
+                    fi
                   fi
                   ;;
                 "major")
