@@ -291,7 +291,7 @@ it should render the application manifests:
                 allowOrigins:
                   - regex: .*
               name: default
-          pathPrefix: /api/kubernetes-graphql-gateway/
+          pathPrefix: /gateway/api/clusters/
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
