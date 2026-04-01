@@ -30,5 +30,6 @@ jobs:
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
       componentConstructorFile: .ocm/component-constructor-platform-mesh-operator.yaml
+      chartOnly: true
     secrets: inherit
 
