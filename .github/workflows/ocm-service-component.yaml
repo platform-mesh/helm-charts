@@ -107,7 +107,7 @@ jobs:
       - name: Sign OCM Component
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
-          ./ocm sign componentversion --signature platform-mesh --private-key /tmp/ocm-signing.priv transport.ctf
+          ./ocm sign componentversion --signature platform-mesh --private-key /tmp/ocm-signing.priv --recursive=false transport.ctf
           rm -f /tmp/ocm-signing.priv
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
