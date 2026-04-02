@@ -8,7 +8,7 @@ on:
     paths:
       - 'charts/kubernetes-graphql-gateway/**'
       - '.github/workflows/kubernetes-graphql-gateway.yaml'
-      - '.ocm/component-constructor.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
   pull_request:
     paths:
       - 'charts/kubernetes-graphql-gateway/**'
@@ -25,5 +25,7 @@ jobs:
       chartName: kubernetes-graphql-gateway
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
     secrets: inherit
 
