@@ -33,9 +33,6 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - operator
-          {{- if .Values.kcp.enabled }}
-          - --kcp-enabled
-          {{- end }}
           {{- if .Values.kcp.apiExportEndpointSliceName }}
           - --kcp-api-export-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}
           {{- end }}

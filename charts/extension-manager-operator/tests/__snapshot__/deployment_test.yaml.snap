@@ -176,7 +176,6 @@ custom certs:
           containers:
             - args:
                 - operator
-                - --kcp-enabled
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -287,7 +286,6 @@ deployment with external kubeconfig:
           containers:
             - args:
                 - operator
-                - --kcp-enabled
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
