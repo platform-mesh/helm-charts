@@ -22,8 +22,8 @@ A Helm chart for extension-manager-operator which manages resources like Content
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | image.name | string | `"ghcr.io/platform-mesh/extension-manager-operator"` |  |
 | istio.enabled | bool | `false` | enable Istio VirtualService |
-| kcp.apiExportEndpointSliceName | string | `""` | APIExportEndpointSlice name to watch. |
-| kcp.kubeconfig | object | `{"secret":"extension-manager-operator-kubeconfig"}` |  |
+| kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` |  |
+| kcp.kubeconfig.secret | string | `"extension-manager-operator-kubeconfig"` |  |
 | kubeconfigSecret | string | `""` |  |
 | pathPrefix | string | `"/validate"` | Path prefix for routing rules in Gateway API and Istio VirtualService |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
