@@ -277,21 +277,6 @@ HelmRelease snapshots:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https:///keycloak/realms/default
-        virtualService:
-          hosts:
-            - ""
-            - '*.'
-          httpRules:
-            - cors:
-                allowHeaders:
-                  - '*'
-                allowMethods:
-                  - GET
-                  - POST
-                allowOrigins:
-                  - regex: .*
-              name: default
-          pathPrefix: /api/kubernetes-graphql-gateway/
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -748,21 +733,6 @@ enable remote deployment of helmreleases:
             audience: default
             jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
             trustedIssuer: https:///keycloak/realms/default
-        virtualService:
-          hosts:
-            - ""
-            - '*.'
-          httpRules:
-            - cors:
-                allowHeaders:
-                  - '*'
-                allowMethods:
-                  - GET
-                  - POST
-                allowOrigins:
-                  - regex: .*
-              name: default
-          pathPrefix: /api/kubernetes-graphql-gateway/
   9: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
