@@ -176,7 +176,7 @@ custom certs:
           containers:
             - args:
                 - operator
-                - --kcp-enabled
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -287,7 +287,7 @@ deployment with external kubeconfig:
           containers:
             - args:
                 - operator
-                - --kcp-enabled
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -530,6 +530,7 @@ enable Gateway API:
           containers:
             - args:
                 - operator
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -797,6 +798,7 @@ operator match the snapshot:
           containers:
             - args:
                 - operator
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:8080
                 - --health-probe-bind-address=:8081
@@ -995,6 +997,7 @@ operator match the snapshot with tracing:
           containers:
             - args:
                 - operator
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:8080
                 - --health-probe-bind-address=:8090
