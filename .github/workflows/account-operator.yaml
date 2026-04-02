@@ -30,5 +30,3 @@ jobs:
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
     secrets: inherit
-
-
