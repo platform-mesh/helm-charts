@@ -68,6 +68,8 @@ match the snapshots:
                 - portal.localhost
                 - kcp.localhost
                 - root.kcp.localhost
+                - nereus.kcp.localhost
+                - triton.kcp.localhost
               ip: 10.96.188.4
           imagePullSecrets:
             - name: github
