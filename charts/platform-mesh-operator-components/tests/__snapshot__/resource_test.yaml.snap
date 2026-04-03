@@ -21,6 +21,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: account-operator
+            - name: image
           resource:
             name: image
   2: |
@@ -45,6 +46,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: extension-manager-operator
+            - name: image
           resource:
             name: image
   3: |
@@ -69,6 +71,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: iam-service
+            - name: image
           resource:
             name: image
   4: |
@@ -93,6 +96,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: iam-ui
+            - name: image
           resource:
             name: image
   5: |
@@ -118,6 +122,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: kcp
+            - name: image
           resource:
             name: image
   6: |
@@ -142,6 +147,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: init-agent
+            - name: image
           resource:
             name: image
   7: |
@@ -166,6 +172,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: keycloak
+            - name: image
           resource:
             name: image
   8: |
@@ -191,6 +198,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: keycloak
+            - name: image
           resource:
             name: postgresql-image
   9: |
@@ -215,6 +223,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: kubernetes-graphql-gateway
+            - name: image
           resource:
             name: image
   10: |
@@ -239,6 +248,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: openfga
+            - name: image
           resource:
             name: image
   11: |
@@ -264,6 +274,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: openfga
+            - name: image
           resource:
             name: postgresql-image
   12: |
@@ -288,6 +299,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: rebac-authz-webhook
+            - name: image
           resource:
             name: image
   13: |
@@ -312,6 +324,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: security-operator
+            - name: image
           resource:
             name: image
   14: |
@@ -336,6 +349,7 @@ image enabled resource:
         byReference:
           referencePath:
             - name: virtual-workspaces
+            - name: image
           resource:
             name: image
 ocm resources:
@@ -346,7 +360,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: account-operator
+      name: account-operator-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -360,6 +374,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: account-operator
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -370,7 +385,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: extension-manager-operator
+      name: extension-manager-operator-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -384,6 +399,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: extension-manager-operator
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -394,7 +410,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: iam-service
+      name: iam-service-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -408,6 +424,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: iam-service
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -418,7 +435,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: iam-ui
+      name: iam-ui-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -432,6 +449,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: iam-ui
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -442,7 +460,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: infra
+      name: infra-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -456,6 +474,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: infra
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -466,7 +485,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: helm
-      name: init-agent
+      name: init-agent-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -480,6 +499,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: init-agent
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -490,7 +510,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: keycloak
+      name: keycloak-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -504,6 +524,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: keycloak
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -514,7 +535,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: kubernetes-graphql-gateway
+      name: kubernetes-graphql-gateway-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -528,6 +549,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: kubernetes-graphql-gateway
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -538,7 +560,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: helm
-      name: openfga
+      name: openfga-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -552,6 +574,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: openfga
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -562,7 +585,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: rebac-authz-webhook
+      name: rebac-authz-webhook-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -576,6 +599,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: rebac-authz-webhook
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -586,7 +610,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: security-operator
+      name: security-operator-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -600,6 +624,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: security-operator
+            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -610,7 +635,7 @@ ocm resources:
       labels:
         artifact: chart
         repo: oci
-      name: virtual-workspaces
+      name: virtual-workspaces-chart
     spec:
       componentRef:
         name: platform-mesh
@@ -624,6 +649,7 @@ ocm resources:
         byReference:
           referencePath:
             - name: virtual-workspaces
+            - name: chart
           resource:
             name: chart
       skipVerify: true
