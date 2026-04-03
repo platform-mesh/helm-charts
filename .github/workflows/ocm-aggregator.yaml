@@ -1,5 +1,19 @@
-name: Build Platform Mesh OCM Component
+name: Build Platform Mesh OCM Component (aggregator)
 on:
+  workflow_call:
+    inputs:
+      force_version_upgrade:
+        required: false
+        default: false
+        type: boolean
+      version_increment:
+        required: false
+        default: 'none'
+        type: string
+      release_type:
+        required: false
+        default: 'build'
+        type: string
   workflow_dispatch:
     inputs:
       force_version_upgrade:

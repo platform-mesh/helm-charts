@@ -116,8 +116,8 @@ jobs:
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
 
-      - name: Trigger aggregator build
-        run: |
-          gh workflow run ocm.yaml --repo "platform-mesh/ocm"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  trigger-aggregator:
+    needs: service-component
+    uses: platform-mesh/ocm/.github/workflows/ocm.yaml@main
+    secrets: inherit
