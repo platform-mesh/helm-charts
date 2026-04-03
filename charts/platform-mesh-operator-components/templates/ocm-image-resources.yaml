@@ -46,6 +46,7 @@ spec:
         {{- end }}
         - name: {{ $service}}
         {{- end }}
+        - name: image
   interval: 1m
   ocmConfig:
     - kind: Repository
