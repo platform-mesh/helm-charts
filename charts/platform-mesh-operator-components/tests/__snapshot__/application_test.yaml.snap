@@ -574,7 +574,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: init-agent
-            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -600,7 +599,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: keycloak
-            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -652,7 +650,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: openfga
-            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -888,7 +885,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: init-agent
-            - name: image
           resource:
             name: image
   31: |
@@ -914,7 +910,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: keycloak
-            - name: image
           resource:
             name: image
   32: |
@@ -941,7 +936,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: keycloak
-            - name: image
           resource:
             name: postgresql-image
   33: |
@@ -993,7 +987,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: openfga
-            - name: image
           resource:
             name: image
   35: |
@@ -1020,7 +1013,6 @@ it should render the application manifests:
           referencePath:
             - name: test
             - name: openfga
-            - name: image
           resource:
             name: postgresql-image
   36: |

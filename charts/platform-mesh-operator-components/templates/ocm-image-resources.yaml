@@ -46,7 +46,9 @@ spec:
         {{- end }}
         - name: {{ $service}}
         {{- end }}
+        {{- if not $config.external }}
         - name: image
+        {{- end }}
   interval: 1m
   ocmConfig:
     - kind: Repository
