@@ -1,5 +1,5 @@
 components:
-  - name: {{ .COMPONENT_NAME }}
+  - name: {{ .COMPONENT_NAME }}/chart
     version: {{ .VERSION }}
     provider:
       name: The Platform Mesh Team
@@ -11,6 +11,19 @@ components:
         access:
           type: ociArtifact
           imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
+    sources:
+      - name: chart
+        type: git
+        version: {{ .VERSION }}
+        access:
+          commit: {{ .COMMIT }}
+          repoUrl: {{ .CHART_REPO }}
+          type: gitHub
+  - name: {{ .COMPONENT_NAME }}/image
+    version: {{ .APP_VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    resources:
       - name: image
         type: ociImage
         relation: external
@@ -18,12 +31,6 @@ components:
         access:
           type: ociArtifact
           imageReference: "{{ .IMAGE_NAME }}:{{ .APP_VERSION }}"
-      - name: rgd
-        type: blob
-        version: {{ .APP_VERSION }}
-        input:
-          type: file
-          path: ./../rgd/platform-mesh-operator-rgd.yaml
     sources:
       - name: source
         type: git
@@ -32,10 +39,14 @@ components:
           commit: {{ .IMAGE_REPO_SHA }}
           repoUrl: {{ .IMAGE_REPO }}
           type: gitHub
+  - name: {{ .COMPONENT_NAME }}
+    version: {{ .VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    componentReferences:
       - name: chart
-        type: git
+        componentName: {{ .COMPONENT_NAME }}/chart
         version: {{ .VERSION }}
-        access:
-          commit: {{ .COMMIT }}
-          repoUrl: {{ .CHART_REPO }}
-          type: gitHub
+      - name: image
+        componentName: {{ .COMPONENT_NAME }}/image
+        version: {{ .APP_VERSION }}
