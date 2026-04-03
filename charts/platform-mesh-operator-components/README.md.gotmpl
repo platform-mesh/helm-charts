@@ -9,7 +9,7 @@ Both templates are driven by the top-level `ocm` values and per-service configur
 
 ---
 
-### Chart Resources (`ocm-resources.yaml`)
+### Chart Resources (`ocm-image-resources.yaml` and `ocm-chart-resources.yaml`)
 
 For every service where `services.<name>.enabled: true`, a `delivery.ocm.software/v1alpha1` `Resource` is created with `metadata.name` set to the service name.
 
@@ -34,7 +34,7 @@ For every service where `services.<name>.enabled: true`, a `delivery.ocm.softwar
 | Condition | Resulting `referencePath` |
 |---|---|
 | `services.<name>.absoluteReferencePath` is set | Exactly the entries in `absoluteReferencePath` — the top-level `ocm.referencePath` is **not** prepended |
-| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` entries |
+| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` and `chart` or `image` entry respectively. If services.<name>.external is true the last entry is ommited |
 | Neither is set (default) | `ocm.referencePath` entries followed by `- name: <service-name>` |
 
 **Example — default path:**
@@ -53,6 +53,7 @@ Produces:
 referencePath: 
 - name: platform-mesh
 - name: tracing
+- name: image
 ```
 
 **Example — per-service `referencePath`:**
@@ -73,6 +74,7 @@ Produces:
 referencePath: 
 - name: platform-mesh
 - name: vw-component
+- name: image
 ```
 
 **Example — `absoluteReferencePath` (no top-level prepend):**
@@ -84,6 +86,7 @@ ocm:
 services:
   infra:
     enabled: true
+    external: true
     absoluteReferencePath:
       - name: compref1
       - name: compref2

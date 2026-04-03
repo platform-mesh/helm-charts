@@ -14,7 +14,7 @@ Both templates are driven by the top-level `ocm` values and per-service configur
 
 ---
 
-### Chart Resources (`ocm-resources.yaml`)
+### Chart Resources (`ocm-image-resources.yaml` and `ocm-chart-resources.yaml`)
 
 For every service where `services.<name>.enabled: true`, a `delivery.ocm.software/v1alpha1` `Resource` is created with `metadata.name` set to the service name.
 
@@ -39,7 +39,7 @@ For every service where `services.<name>.enabled: true`, a `delivery.ocm.softwar
 | Condition | Resulting `referencePath` |
 |---|---|
 | `services.<name>.absoluteReferencePath` is set | Exactly the entries in `absoluteReferencePath` — the top-level `ocm.referencePath` is **not** prepended |
-| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` entries |
+| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` and `chart` or `image` entry respectively. If services.<name>.external is true the last entry is ommited |
 | Neither is set (default) | `ocm.referencePath` entries followed by `- name: <service-name>` |
 
 **Example — default path:**
@@ -58,6 +58,7 @@ Produces:
 referencePath:
 - name: platform-mesh
 - name: tracing
+- name: image
 ```
 
 **Example — per-service `referencePath`:**
@@ -78,6 +79,7 @@ Produces:
 referencePath:
 - name: platform-mesh
 - name: vw-component
+- name: image
 ```
 
 **Example — `absoluteReferencePath` (no top-level prepend):**
@@ -89,6 +91,7 @@ ocm:
 services:
   infra:
     enabled: true
+    external: true
     absoluteReferencePath:
       - name: compref1
       - name: compref2
@@ -215,6 +218,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.init-agent.enabled | bool | `true` |  |
+| services.init-agent.external | bool | `true` |  |
 | services.init-agent.helmRepo | bool | `true` |  |
 | services.init-agent.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.init-agent.imageResources[0].annotations.for | string | `"init-agent"` |  |
@@ -226,6 +230,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.init-agent.values.leaderElection.enabled | bool | `false` |  |
 | services.init-agent.values.replicas | int | `1` |  |
 | services.keycloak.enabled | bool | `true` |  |
+| services.keycloak.external | bool | `true` |  |
 | services.keycloak.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.keycloak.imageResources[0].annotations.for | string | `"keycloak"` |  |
 | services.keycloak.imageResources[0].annotations.repo | string | `"oci"` |  |
@@ -286,6 +291,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
 | services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
 | services.openfga.enabled | bool | `true` |  |
+| services.openfga.external | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
 | services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |

@@ -147,7 +147,6 @@ image enabled resource:
         byReference:
           referencePath:
             - name: init-agent
-            - name: image
           resource:
             name: image
   7: |
@@ -172,7 +171,6 @@ image enabled resource:
         byReference:
           referencePath:
             - name: keycloak
-            - name: image
           resource:
             name: image
   8: |
@@ -198,7 +196,6 @@ image enabled resource:
         byReference:
           referencePath:
             - name: keycloak
-            - name: image
           resource:
             name: postgresql-image
   9: |
@@ -248,7 +245,6 @@ image enabled resource:
         byReference:
           referencePath:
             - name: openfga
-            - name: image
           resource:
             name: image
   11: |
@@ -274,7 +270,6 @@ image enabled resource:
         byReference:
           referencePath:
             - name: openfga
-            - name: image
           resource:
             name: postgresql-image
   12: |
@@ -499,7 +494,6 @@ ocm resources:
         byReference:
           referencePath:
             - name: init-agent
-            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -524,7 +518,6 @@ ocm resources:
         byReference:
           referencePath:
             - name: keycloak
-            - name: chart
           resource:
             name: chart
       skipVerify: true
@@ -574,7 +567,6 @@ ocm resources:
         byReference:
           referencePath:
             - name: openfga
-            - name: chart
           resource:
             name: chart
       skipVerify: true
