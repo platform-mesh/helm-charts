@@ -54,7 +54,7 @@ permissions:
 
 concurrency:
   group: ocm-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   ocm:
     runs-on: ubuntu-latest
