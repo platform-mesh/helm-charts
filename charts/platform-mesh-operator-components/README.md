@@ -338,20 +338,10 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.observability.values.istio.tracing.enabled | bool | `false` |  |
 | services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
 | services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
-| services.openfga.chartResources | object | `{"annotations":{"unsuspend":"true"}}` | Allow the configuration of additional ocm resources |
 | services.openfga.enabled | bool | `true` |  |
 | services.openfga.external | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
-| services.openfga.imageResources[0].annotations.artifact | string | `"image"` |  |
-| services.openfga.imageResources[0].annotations.for | string | `"openfga"` |  |
-| services.openfga.imageResources[0].annotations.repo | string | `"oci"` |  |
-| services.openfga.imageResources[0].name | string | `"openfga-image"` |  |
-| services.openfga.imageResources[1].annotations.artifact | string | `"image"` |  |
-| services.openfga.imageResources[1].annotations.for | string | `"openfga"` |  |
-| services.openfga.imageResources[1].annotations.path | string | `"postgresql.image.tag"` |  |
-| services.openfga.imageResources[1].annotations.repo | string | `"oci"` |  |
-| services.openfga.imageResources[1].name | string | `"openfga-postgresql-image"` |  |
-| services.openfga.imageResources[1].resource | string | `"postgresql-image"` |  |
+| services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci","unsuspend":"true"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
 | services.openfga.suspend | bool | `true` |  |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |
 | services.openfga.values.checkQueryCache.enabled | bool | `true` |  |

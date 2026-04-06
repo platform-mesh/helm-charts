@@ -633,8 +633,6 @@ it should render the application manifests:
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
-      annotations:
-        unsuspend: "true"
       labels:
         artifact: chart
         repo: helm
@@ -999,6 +997,7 @@ it should render the application manifests:
         for: openfga
         path: postgresql.image.tag
         repo: oci
+        unsuspend: "true"
       name: openfga-postgresql-image
     spec:
       componentRef:
