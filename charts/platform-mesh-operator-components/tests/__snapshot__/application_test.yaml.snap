@@ -294,6 +294,7 @@ it should render the application manifests:
       dependsOn: null
       interval: 1m
       releaseName: openfga
+      suspend: true
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:

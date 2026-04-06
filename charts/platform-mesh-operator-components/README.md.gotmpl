@@ -99,6 +99,19 @@ referencePath:
 - name: compref2
 ```
 
+#### `suspend`
+
+Setting `services.<name>.suspend: true` sets `spec.suspend: true` on the generated FluxCD `HelmRelease`, which pauses reconciliation for that service without removing it. Omit or set to `false` to keep reconciliation active (the default).
+
+**Example:**
+
+```yaml
+services:
+  openfga:
+    enabled: true
+    suspend: true
+```
+
 ---
 
 ### Image Resources (`ocm-image-resources.yaml`)
