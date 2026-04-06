@@ -115,7 +115,6 @@ services:
           for: infra
           repo: oci
           artifact: image
-          unsuspend: "true"
         resource: image
         absoluteReferencePath:
           - name: kcp
@@ -293,6 +292,9 @@ services:
     external: true
     helmRepo: true
     # -- Allow the configuration of additional ocm resources
+    chartResources:
+      annotations:
+        unsuspend: "true"
     imageResources:
       - name: openfga-image
         annotations:

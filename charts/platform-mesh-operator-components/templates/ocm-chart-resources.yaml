@@ -17,6 +17,10 @@ metadata:
     {{- if not (or $config.gitRepo $config.helmRepo) }}
     repo: oci
     {{- end }}
+  {{- with ($config.chartResources).annotations }}
+  annotations:
+    {{- toYaml $config.chartResources.annotations | nindent 4 }}
+  {{- end }}
 spec:
   skipVerify: {{ $values.ocm.skipVerify }}
   componentRef:

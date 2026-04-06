@@ -633,6 +633,8 @@ it should render the application manifests:
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
+      annotations:
+        unsuspend: "true"
       labels:
         artifact: chart
         repo: helm
@@ -845,7 +847,6 @@ it should render the application manifests:
         for: infra
         path: kcp.image.tag
         repo: oci
-        unsuspend: "true"
       name: kcp-image
     spec:
       componentRef:

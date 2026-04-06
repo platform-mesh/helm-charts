@@ -127,6 +127,41 @@ For every enabled service that has an `imageResources` list, one `Resource` is g
 
 #### `referencePath` resolution for image resources
 
+#### Annotations
+
+`imageResources[].annotations` are passed through verbatim to `metadata.annotations` on the generated OCM `Resource` object. The following annotation keys are recognised by the OCM controller:
+
+| Key | Type | Description |
+|---|---|---|
+| `repo` | string | Target repository type (e.g. `oci`) |
+| `artifact` | string | Artifact kind (e.g. `image`) |
+| `for` | string | Service name this image resource belongs to |
+| `path` | string | Dot-separated values path the controller uses to patch the image tag (e.g. `kcp.image.tag`) |
+| `unsuspend` | string (`"true"`) | When set to `"true"`, the OCM controller will unsuspend the corresponding `HelmRelease` after updating the image tag |
+
+**Example — image resource with `unsuspend`:**
+
+```yaml
+services:
+  infra:
+    enabled: true
+    imageResources:
+      - name: kcp-image
+        resource: image
+        annotations:
+          repo: oci
+          artifact: image
+          for: infra
+          path: kcp.image.tag
+          unsuspend: "true"
+        absoluteReferencePath:
+          - name: kcp
+```
+
+This causes the OCM controller to update `kcp.image.tag` in the `infra` HelmRelease values and then clear its `spec.suspend` flag.
+
+#### `referencePath` resolution for image resources
+
 Image resources follow a four-level priority:
 
 | Condition | Resulting `referencePath` |
@@ -211,7 +246,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
-| services.infra.imageResources | list | `[{"absoluteReferencePath":[{"name":"kcp"}],"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci","unsuspend":"true"},"name":"kcp-image","resource":"image"}]` | Allow the configuration of additional ocm resources |
+| services.infra.imageResources | list | `[{"absoluteReferencePath":[{"name":"kcp"}],"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci"},"name":"kcp-image","resource":"image"}]` | Allow the configuration of additional ocm resources |
 | services.infra.values.gatewayApi.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
@@ -303,10 +338,20 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.observability.values.istio.tracing.enabled | bool | `false` |  |
 | services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
 | services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
+| services.openfga.chartResources | object | `{"annotations":{"unsuspend":"true"}}` | Allow the configuration of additional ocm resources |
 | services.openfga.enabled | bool | `true` |  |
 | services.openfga.external | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
-| services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
+| services.openfga.imageResources[0].annotations.artifact | string | `"image"` |  |
+| services.openfga.imageResources[0].annotations.for | string | `"openfga"` |  |
+| services.openfga.imageResources[0].annotations.repo | string | `"oci"` |  |
+| services.openfga.imageResources[0].name | string | `"openfga-image"` |  |
+| services.openfga.imageResources[1].annotations.artifact | string | `"image"` |  |
+| services.openfga.imageResources[1].annotations.for | string | `"openfga"` |  |
+| services.openfga.imageResources[1].annotations.path | string | `"postgresql.image.tag"` |  |
+| services.openfga.imageResources[1].annotations.repo | string | `"oci"` |  |
+| services.openfga.imageResources[1].name | string | `"openfga-postgresql-image"` |  |
+| services.openfga.imageResources[1].resource | string | `"postgresql-image"` |  |
 | services.openfga.suspend | bool | `true` |  |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |
 | services.openfga.values.checkQueryCache.enabled | bool | `true` |  |
