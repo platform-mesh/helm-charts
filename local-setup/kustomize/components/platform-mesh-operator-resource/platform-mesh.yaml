@@ -155,6 +155,7 @@ spec:
             - "nereus.kcp.localhost"
             - "triton.kcp.localhost"
     openfga:
+      suspend: true
       enabled: true
       values:
         datastore:
@@ -193,3 +194,7 @@ spec:
           enabled: true
         listener:
           anchorResource: 'object.metadata.name.contains("platform-mesh.io")'
+    kcp-operator:
+      external: true
+    kcp:
+      external: true
