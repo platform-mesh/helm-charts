@@ -122,6 +122,41 @@ For every enabled service that has an `imageResources` list, one `Resource` is g
 
 #### `referencePath` resolution for image resources
 
+#### Annotations
+
+`imageResources[].annotations` are passed through verbatim to `metadata.annotations` on the generated OCM `Resource` object. The following annotation keys are recognised by the OCM controller:
+
+| Key | Type | Description |
+|---|---|---|
+| `repo` | string | Target repository type (e.g. `oci`) |
+| `artifact` | string | Artifact kind (e.g. `image`) |
+| `for` | string | Service name this image resource belongs to |
+| `path` | string | Dot-separated values path the controller uses to patch the image tag (e.g. `kcp.image.tag`) |
+| `unsuspend` | string (`"true"`) | When set to `"true"`, the OCM controller will unsuspend the corresponding `HelmRelease` after updating the image tag |
+
+**Example — image resource with `unsuspend`:**
+
+```yaml
+services:
+  infra:
+    enabled: true
+    imageResources:
+      - name: kcp-image
+        resource: image
+        annotations:
+          repo: oci
+          artifact: image
+          for: infra
+          path: kcp.image.tag
+          unsuspend: "true"
+        absoluteReferencePath:
+          - name: kcp
+```
+
+This causes the OCM controller to update `kcp.image.tag` in the `infra` HelmRelease values and then clear its `spec.suspend` flag.
+
+#### `referencePath` resolution for image resources
+
 Image resources follow a four-level priority:
 
 | Condition | Resulting `referencePath` |
