@@ -199,12 +199,9 @@ tests:
     - equal:
         path: spec.resource.byReference.referencePath[1].name
         value: compref2
-    - equal:
-        path: spec.resource.byReference.referencePath[2].name
-        value: image
     - lengthEqual:
         path: spec.resource.byReference.referencePath
-        count: 3
+        count: 2
     - equal:
         path: spec.componentRef.name
         value: apeiro
@@ -244,12 +241,9 @@ tests:
     - equal:
         path: spec.resource.byReference.referencePath[1].name
         value: compref2
-    - equal:
-        path: spec.resource.byReference.referencePath[2].name
-        value: chart
     - lengthEqual:
         path: spec.resource.byReference.referencePath
-        count: 3
+        count: 2
     - equal:
         path: spec.componentRef.name
         value: apeiro

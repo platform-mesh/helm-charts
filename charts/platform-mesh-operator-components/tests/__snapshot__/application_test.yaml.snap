@@ -844,6 +844,7 @@ it should render the application manifests:
         for: infra
         path: kcp.image.tag
         repo: oci
+        unsuspend: true
       name: kcp-image
     spec:
       componentRef:
@@ -857,9 +858,7 @@ it should render the application manifests:
       resource:
         byReference:
           referencePath:
-            - name: test
             - name: kcp
-            - name: image
           resource:
             name: image
   30: |
