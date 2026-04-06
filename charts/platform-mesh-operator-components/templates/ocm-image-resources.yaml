@@ -46,8 +46,10 @@ spec:
         {{- end }}
         - name: {{ $service}}
         {{- end }}
+        {{- if not .absoluteReferencePath }}
         {{- if not $config.external }}
         - name: image
+        {{- end }}
         {{- end }}
   interval: 1m
   ocmConfig:

@@ -43,8 +43,10 @@ spec:
         {{- end }}
         - name: {{ $service}}
         {{- end }}
+        {{- if not .absoluteReferencePath }}
         {{- if not $config.external }}
         - name: chart
+        {{- end }}
         {{- end }}
   interval: {{ $values.ocm.interval }}
   ocmConfig:

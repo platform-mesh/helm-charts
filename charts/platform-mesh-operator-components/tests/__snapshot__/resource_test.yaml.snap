@@ -108,6 +108,7 @@ image enabled resource:
         for: infra
         path: kcp.image.tag
         repo: oci
+        unsuspend: true
       name: kcp-image
     spec:
       componentRef:
@@ -122,7 +123,6 @@ image enabled resource:
         byReference:
           referencePath:
             - name: kcp
-            - name: image
           resource:
             name: image
   6: |

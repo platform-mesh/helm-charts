@@ -115,8 +115,9 @@ services:
           for: infra
           repo: oci
           artifact: image
+          unsuspend: true
         resource: image
-        referencePath:
+        absoluteReferencePath:
           - name: kcp
     dependsOn:
       - name: kcp-operator
