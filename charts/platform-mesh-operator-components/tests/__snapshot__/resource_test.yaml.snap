@@ -108,7 +108,7 @@ image enabled resource:
         for: infra
         path: kcp.image.tag
         repo: oci
-        unsuspend: true
+        unsuspend: "true"
       name: kcp-image
     spec:
       componentRef:
