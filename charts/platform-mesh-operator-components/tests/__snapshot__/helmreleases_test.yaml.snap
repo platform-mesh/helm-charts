@@ -294,6 +294,7 @@ HelmRelease snapshots:
       dependsOn: null
       interval: 1m
       releaseName: openfga
+      suspend: true
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:
@@ -754,6 +755,7 @@ enable remote deployment of helmreleases:
           key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: openfga
+      suspend: true
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:

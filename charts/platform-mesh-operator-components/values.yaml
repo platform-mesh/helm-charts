@@ -306,6 +306,7 @@ services:
           artifact: image
           for: openfga
           path: postgresql.image.tag
+    suspend: true
     values:
       global:
         imagePullSecrets:

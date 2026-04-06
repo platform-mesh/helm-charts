@@ -104,6 +104,19 @@ referencePath:
 - name: compref2
 ```
 
+#### `suspend`
+
+Setting `services.<name>.suspend: true` sets `spec.suspend: true` on the generated FluxCD `HelmRelease`, which pauses reconciliation for that service without removing it. Omit or set to `false` to keep reconciliation active (the default).
+
+**Example:**
+
+```yaml
+services:
+  openfga:
+    enabled: true
+    suspend: true
+```
+
 ---
 
 ### Image Resources (`ocm-image-resources.yaml`)
@@ -294,6 +307,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.openfga.external | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
 | services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
+| services.openfga.suspend | bool | `true` |  |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |
 | services.openfga.values.checkQueryCache.enabled | bool | `true` |  |
 | services.openfga.values.checkQueryCache.limit | int | `10000` |  |
