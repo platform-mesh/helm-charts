@@ -198,7 +198,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
-| services.infra.imageResources | list | `[{"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci"},"name":"kcp-image","referencePath":[{"name":"kcp"}],"resource":"image"}]` | Allow the configuration of additional ocm resources |
+| services.infra.imageResources | list | `[{"absoluteReferencePath":[{"name":"kcp"}],"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci","unsuspend":true},"name":"kcp-image","resource":"image"}]` | Allow the configuration of additional ocm resources |
 | services.infra.values.gatewayApi.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
