@@ -60,9 +60,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Third-party dependency versions
-      KCP_OPERATOR_CHART_VERSION: "0.4.1"
-      KCP_OPERATOR_IMAGE_VERSION: "v0.5.1"
-      KCP_VERSION: "v0.30.0"
+      KCP_OPERATOR_CHART_VERSION: "0.6.0"
+      KCP_OPERATOR_IMAGE_VERSION: "v0.6.0"
+      KCP_VERSION: "v0.30.3"
       INIT_AGENT_CHART_VERSION: "0.2.0"
       INIT_AGENT_IMAGE_VERSION: "v0.2.0"
       PM_OPENFGA_VERSION: "0.2.54"
