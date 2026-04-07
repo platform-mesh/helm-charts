@@ -229,6 +229,7 @@ add_chart_to_ctf() {
         IMAGE_REPO_SHA="$COMMIT" \
         CHART_REPO="$COMPONENT_NAME" \
         COMPONENT_NAME="$COMPONENT_NAME" \
+        COMPONENT_SHORT_NAME="$comp" \
         CHART_OCI_PATH="$CHART_OCI_PATH" \
         LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
 

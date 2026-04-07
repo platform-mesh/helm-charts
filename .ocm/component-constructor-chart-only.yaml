@@ -3,14 +3,10 @@ components:
     version: {{ .VERSION }}
     provider:
       name: The Platform Mesh Team
-    resources:
+    componentReferences:
       - name: chart
-        type: helmChart
-        relation: external
+        componentName: github.com/platform-mesh/helm-charts/{{ .COMPONENT_SHORT_NAME }}
         version: {{ .VERSION }}
-        access:
-          type: ociArtifact
-          imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
     sources:
       - name: chart
         type: git
@@ -19,3 +15,16 @@ components:
           commit: {{ .COMMIT }}
           repoUrl: {{ .CHART_REPO }}
           type: gitHub
+
+  - name: github.com/platform-mesh/helm-charts/{{ .COMPONENT_SHORT_NAME }}
+    version: {{ .VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    resources:
+      - name: chart
+        type: helmChart
+        relation: external
+        version: {{ .VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"

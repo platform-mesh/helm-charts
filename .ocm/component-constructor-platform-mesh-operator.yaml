@@ -3,6 +3,26 @@ components:
     version: {{ .VERSION }}
     provider:
       name: The Platform Mesh Team
+    componentReferences:
+      - name: chart
+        componentName: github.com/platform-mesh/helm-charts/platform-mesh-operator
+        version: {{ .VERSION }}
+      - name: image
+        componentName: github.com/platform-mesh/images/platform-mesh-operator
+        version: {{ .APP_VERSION }}
+    sources:
+      - name: chart
+        type: git
+        version: {{ .VERSION }}
+        access:
+          commit: {{ .COMMIT }}
+          repoUrl: {{ .CHART_REPO }}
+          type: gitHub
+
+  - name: github.com/platform-mesh/helm-charts/platform-mesh-operator
+    version: {{ .VERSION }}
+    provider:
+      name: The Platform Mesh Team
     resources:
       - name: chart
         type: helmChart
@@ -11,6 +31,12 @@ components:
         access:
           type: ociArtifact
           imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
+
+  - name: github.com/platform-mesh/images/platform-mesh-operator
+    version: {{ .APP_VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    resources:
       - name: image
         type: ociImage
         relation: external
@@ -18,12 +44,6 @@ components:
         access:
           type: ociArtifact
           imageReference: "{{ .IMAGE_NAME }}:{{ .APP_VERSION }}"
-      - name: rgd
-        type: blob
-        version: {{ .APP_VERSION }}
-        input:
-          type: file
-          path: ./../rgd/platform-mesh-operator-rgd.yaml
     sources:
       - name: source
         type: git
@@ -31,11 +51,4 @@ components:
         access:
           commit: {{ .IMAGE_REPO_SHA }}
           repoUrl: {{ .IMAGE_REPO }}
-          type: gitHub
-      - name: chart
-        type: git
-        version: {{ .VERSION }}
-        access:
-          commit: {{ .COMMIT }}
-          repoUrl: {{ .CHART_REPO }}
           type: gitHub
