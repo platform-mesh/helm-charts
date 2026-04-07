@@ -280,7 +280,7 @@ jobs:
           echo "Version: $TARGET_VERSION"
           echo ""
 
-          ocm transfer ctf --overwrite .ocm/transport.ctf "ghcr.io/platform-mesh"
+          ocm transfer ctf .ocm/transport.ctf "ghcr.io/platform-mesh"
 
           echo ""
           echo "✓ Successfully published OCM component"
