@@ -107,7 +107,7 @@ jobs:
             APP_VERSION=${{ inputs.appVersion }}
 
       - name: Transfer to OCM registry
-        run: ./ocm transfer ctf --overwrite transport.ctf "ghcr.io/platform-mesh"
+        run: ./ocm transfer ctf transport.ctf "ghcr.io/platform-mesh"
 
       - name: Sign OCM Component
         run: |
