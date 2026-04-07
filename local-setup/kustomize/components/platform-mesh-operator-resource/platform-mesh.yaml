@@ -93,8 +93,8 @@ spec:
           auth:
             serviceAccount:
               enabled: true
-          image:
-            tag: "097afc12c" # bump kcp image to work around WatchList issues
+          # image:
+          #   tag: "097afc12c" # bump kcp image to work around WatchList issues
           frontProxy:
             clusterIP: "10.96.0.100"
         traefik:
