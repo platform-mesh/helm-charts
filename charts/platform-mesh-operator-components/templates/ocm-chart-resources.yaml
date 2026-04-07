@@ -5,7 +5,7 @@
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Resource
 metadata:
-  name: {{ $service }}
+  name: "{{ $service }}-chart"
   labels:
     artifact: chart
     {{- if $config.helmRepo }}
@@ -17,6 +17,10 @@ metadata:
     {{- if not (or $config.gitRepo $config.helmRepo) }}
     repo: oci
     {{- end }}
+  {{- with ($config.chartResources).annotations }}
+  annotations:
+    {{- toYaml $config.chartResources.annotations | nindent 4 }}
+  {{- end }}
 spec:
   skipVerify: {{ $values.ocm.skipVerify }}
   componentRef:
@@ -42,6 +46,11 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
         - name: {{ $service}}
+        {{- end }}
+        {{- if not .absoluteReferencePath }}
+        {{- if not $config.external }}
+        - name: chart
+        {{- end }}
         {{- end }}
   interval: {{ $values.ocm.interval }}
   ocmConfig:

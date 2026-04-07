@@ -6,7 +6,7 @@ on:
     paths:
       - 'charts/example-httpbin-operator/**'
       - '.github/workflows/example-httpbin-operator.yaml'
-      - '.ocm/component-constructor-example-httpbin-operator.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
   pull_request:
     paths:
       - 'charts/example-httpbin-operator/**'
@@ -21,13 +21,14 @@ jobs:
     concurrency:
       group: example-httpbin-operator-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@be477afc04260ab8af16c4a2b7574bc6687b2cbd # main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
     with:
       chartFolder: charts
       chartName: example-httpbin-operator
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
-      componentConstructorFile: .ocm/component-constructor-example-httpbin-operator.yaml
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
     secrets: inherit
 
 

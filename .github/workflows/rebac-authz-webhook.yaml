@@ -9,7 +9,7 @@ on:
     paths:
       - 'charts/rebac-authz-webhook/**'
       - '.github/workflows/rebac-authz-webhook.yaml'
-      - '.ocm/component-constructor.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
   pull_request:
     paths:
       - 'charts/rebac-authz-webhook/**'
@@ -20,11 +20,13 @@ jobs:
     concurrency:
       group: rebac-authz-webhook-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@be477afc04260ab8af16c4a2b7574bc6687b2cbd # main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
     with:
       chartFolder: charts
       chartName: rebac-authz-webhook
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
     secrets: inherit
 

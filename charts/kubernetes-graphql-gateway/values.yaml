@@ -132,7 +132,7 @@ gatewayApi:
   # -- configuration for the HTTPRoute resource
   httpRoute:
     enabled: true
-    pathPrefix: /api/kubernetes-graphql-gateway/
+    pathPrefix: /gateway/api/clusters/
     hostnames:
     - "portal.localhost"
     - "*.portal.localhost"

@@ -1,9 +1,9 @@
 dependencies:
 - name: common
   repository: oci://ghcr.io/platform-mesh/helm-charts
-  version: 0.12.1
+  version: 0.12.2
 - name: platform-mesh-operator-crds
   repository: oci://ghcr.io/platform-mesh/helm-charts
   version: 0.4.1
-digest: sha256:74e3548a4c6026f0b9e0a4bbb9b8b433fe437e1b3077fe6b1fb6839f143f9d78
-generated: "2026-03-30T09:43:46.054886787Z"
+digest: sha256:3ed3cc83aa3f9fa2d0fb798b3519a2a6e0aeec19cf3bbb00078c4354182a17f2
+generated: "2026-04-03T16:22:02.673231+02:00"

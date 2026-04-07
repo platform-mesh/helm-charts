@@ -6,7 +6,7 @@ on:
     paths:
       - 'charts/iam-service/**'
       - '.github/workflows/iam-service.yaml'
-      - '.ocm/component-constructor.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
   pull_request:
     paths:
       - 'charts/iam-service/**'
@@ -21,11 +21,13 @@ jobs:
     concurrency:
       group: iam-service-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@be477afc04260ab8af16c4a2b7574bc6687b2cbd # main
+    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
     with:
       chartFolder: charts
       chartName: iam-service
       additionalTestFilesCommand: ''
       chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
     secrets: inherit
 

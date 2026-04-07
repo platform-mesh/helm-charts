@@ -116,7 +116,7 @@ services:
           repo: oci
           artifact: image
         resource: image
-        referencePath:
+        absoluteReferencePath:
           - name: kcp
     dependsOn:
       - name: kcp-operator
@@ -161,6 +161,7 @@ services:
   init-agent:
     enabled: true
     helmRepo: true
+    external: true
     imageResources:
       - annotations:
           repo: oci
@@ -182,6 +183,7 @@ services:
               - "localhost"
   keycloak:
     enabled: true
+    external: true
     imageResources:
       - name: keycloak-image
         annotations:
@@ -274,21 +276,6 @@ services:
       kubeConfig:
         enabled: true
         secretName: kubernetes-graphql-gateway-kubeconfig
-      virtualService:
-        pathPrefix: /api/kubernetes-graphql-gateway/
-        hosts:
-          - "{{ .Values.baseDomain }}"
-          - "*.{{ .Values.baseDomain }}"
-        httpRules:
-          - name: default
-            cors:
-              allowHeaders:
-                - "*"
-              allowMethods:
-                - GET
-                - POST
-              allowOrigins:
-                - regex: .*
       listener:
         virtualWorkspacesConfig:
           enabled: true
@@ -302,6 +289,7 @@ services:
                 kubeconfig: /app/kubeconfig/kubeconfig
   openfga:
     enabled: true
+    external: true
     helmRepo: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
@@ -317,6 +305,8 @@ services:
           artifact: image
           for: openfga
           path: postgresql.image.tag
+          unsuspend: "true"
+    suspend: true
     values:
       global:
         imagePullSecrets:
@@ -376,7 +366,7 @@ services:
     values:
       kcp:
         kubeconfigSecret: portal-kubeconfig
-      crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+      crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/gateway/api/clusters/root:orgs:${org-name}/graphql"
       environment: kind
       http:
         protocol: https
@@ -395,7 +385,7 @@ services:
       cookieDomain: "{{ .Values.baseDomain }}"
       extraEnvVars:
         - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql
         - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
           value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"
   observability:
