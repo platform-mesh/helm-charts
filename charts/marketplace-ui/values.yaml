@@ -23,18 +23,6 @@ contentConfig:
   baseDomain: localhost:8000/ui/marketplace
   protocol: http
 
-istio:
-  enabled: true
-  virtualService:
-    hosts:
-      - "*"
-    matcher:
-      match:
-        - uri:
-            exact: /ui/marketplace
-        - uri:
-            prefix: /ui/marketplace/
-
 http:
   protocol: https
 

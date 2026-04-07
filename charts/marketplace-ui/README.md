@@ -26,10 +26,6 @@ Helm Chart for the marketplace-ui
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.pullSecret | string | `"github"` |  |
 | imagePullSecret | string | `"github"` |  |
-| istio.enabled | bool | `true` |  |
-| istio.virtualService.hosts[0] | string | `"*"` |  |
-| istio.virtualService.matcher.match[0].uri.exact | string | `"/ui/marketplace"` |  |
-| istio.virtualService.matcher.match[1].uri.prefix | string | `"/ui/marketplace/"` |  |
 | port | int | `8080` |  |
 
 ## Overriding Values
