@@ -216,7 +216,7 @@ add_chart_to_ctf() {
     elif [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
         constructor=".ocm/component-constructor-chart-only-prerelease.yaml"
     else
-        constructor=".ocm/component-constructor-prerelease.yaml"
+        constructor=".ocm/component-constructor-local-prerelease.yaml"
     fi
 
     # Add component to OCM transport archive
