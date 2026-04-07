@@ -2,8 +2,8 @@ apiVersion: v2
 name: account-operator
 description: A Helm chart to deploy platform-mesh Account-Operator
 type: application
-version: 0.15.58
-appVersion: "v0.12.37"
+version: 0.15.59
+appVersion: "v0.12.38"
 dependencies:
   - name: account-operator-crds
     version: 0.2.5
