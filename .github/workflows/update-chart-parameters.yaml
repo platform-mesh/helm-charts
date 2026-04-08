@@ -36,14 +36,30 @@ jobs:
         run: |
           git config --global user.name "Platform Mesh Publisher"
           git config --global user.email "platformmesh@gmail.com"
-      - name: Update appVersion in Chart.yaml
+      - name: Validate inputs
+        env:
+          INPUT_CHART: ${{ inputs.chart }}
+          INPUT_APP_VERSION: ${{ inputs.appVersion }}
         run: |
-          chart_file="charts/${{ inputs.chart }}/Chart.yaml"
+          if ! [[ "${INPUT_CHART}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            echo "::error::Invalid chart name"
+            exit 1
+          fi
+          if ! [[ "${INPUT_APP_VERSION}" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "::error::Invalid appVersion format"
+            exit 1
+          fi
+      - name: Update appVersion in Chart.yaml
+        env:
+          INPUT_CHART: ${{ inputs.chart }}
+          INPUT_APP_VERSION: ${{ inputs.appVersion }}
+        run: |
+          chart_file="charts/${INPUT_CHART}/Chart.yaml"
           ls -al charts/
           if [ -f "$chart_file" ]; then
             echo "Chart.yaml file found at $chart_file"
-            yq e -i '.appVersion = "${{ inputs.appVersion }}"' "$chart_file"
-            echo "Updated appVersion to ${{ inputs.appVersion }} in $chart_file"
+            yq e -i ".appVersion = \"${INPUT_APP_VERSION}\"" "$chart_file"
+            echo "Updated appVersion to ${INPUT_APP_VERSION} in $chart_file"
 
             # bump version parameter in chart
             CHART_VERSION=$(yq '.version' "$chart_file")
@@ -57,7 +73,7 @@ jobs:
             echo "Version bumped to $NEW_CHART_VERSION in $chart_file"
 
             git add "$chart_file"
-            git commit -m "Set $NEW_CHART_VERSION / ${{ inputs.appVersion }} in $chart_file" || echo "appVersion was already up to date"
+            git commit -m "Set $NEW_CHART_VERSION / ${INPUT_APP_VERSION} in $chart_file" || echo "appVersion was already up to date"
           else
             echo "Chart.yaml file not found at $chart_file"
             exit 1
