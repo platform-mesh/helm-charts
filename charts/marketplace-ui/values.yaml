@@ -1,9 +1,6 @@
 image:
   name: ghcr.io/platform-mesh/marketplace-ui
   pullPolicy: IfNotPresent
-  pullSecret: github
-
-imagePullSecret: "github"
 
 deployment:
   maxUnavailable: 0

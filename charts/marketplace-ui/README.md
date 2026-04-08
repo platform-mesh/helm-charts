@@ -24,8 +24,6 @@ Helm Chart for the marketplace-ui
 | http.protocol | string | `"https"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/marketplace-ui"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.pullSecret | string | `"github"` |  |
-| imagePullSecret | string | `"github"` |  |
 | port | int | `8080` |  |
 
 ## Overriding Values

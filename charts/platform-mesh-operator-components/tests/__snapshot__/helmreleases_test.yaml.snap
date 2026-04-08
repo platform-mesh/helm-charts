@@ -317,9 +317,6 @@ HelmRelease snapshots:
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
-        global:
-          imagePullSecrets:
-            - name: github
         image:
           repository: openfga/openfga
           tag: ""
@@ -778,9 +775,6 @@ enable remote deployment of helmreleases:
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
-        global:
-          imagePullSecrets:
-            - name: github
         image:
           repository: openfga/openfga
           tag: ""
