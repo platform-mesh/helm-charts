@@ -308,9 +308,6 @@ services:
           unsuspend: "true"
     suspend: true
     values:
-      global:
-        imagePullSecrets:
-          - name: github
       migrate:
         annotations:
           sidecar.istio.io/inject: "false"

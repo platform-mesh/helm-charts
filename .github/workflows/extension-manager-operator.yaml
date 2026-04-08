@@ -5,26 +5,22 @@ permissions:
 name: Build extension-manager-operator Workflow
 on:
   push:
+    branches:
+      - main
     paths:
       - 'charts/extension-manager-operator/**'
       - '.github/workflows/extension-manager-operator.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
-  pull_request:
-    paths:
-      - 'charts/extension-manager-operator/**'
-      - '.github/workflows/extension-manager-operator.yaml'
 
 jobs:
   pipeline:
     concurrency:
       group: extension-manager-operator-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: ./.github/workflows/pipeline-chart.yml
     with:
       chartFolder: charts
       chartName: extension-manager-operator
-      additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
     secrets: inherit

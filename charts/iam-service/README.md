@@ -15,7 +15,6 @@ A Helm chart for Kubernetes
 | hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/iam-service"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| imagePullSecret | string | `"github"` |  |
 | jwt.userIdClaim | string | `"email"` |  |
 | kcp.kubeconfig.secretName | string | `"iam-service-kubeconfig"` |  |
 | keycloak.baseUrl | string | `"https://portal.localhost:8443/keycloak"` |  |

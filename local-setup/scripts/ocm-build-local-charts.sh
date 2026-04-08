@@ -214,9 +214,9 @@ add_chart_to_ctf() {
         constructor=".ocm/component-constructor-${comp}.yaml"
         echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Using component-specific constructor for $comp${COL_RES}"
     elif [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
-        constructor=".ocm/component-constructor-chart-only.yaml"
+        constructor=".ocm/component-constructor-chart-only-prerelease.yaml"
     else
-        constructor=".ocm/component-constructor.yaml"
+        constructor=".ocm/component-constructor-local-prerelease.yaml"
     fi
 
     # Add component to OCM transport archive
@@ -229,6 +229,7 @@ add_chart_to_ctf() {
         IMAGE_REPO_SHA="$COMMIT" \
         CHART_REPO="$COMPONENT_NAME" \
         COMPONENT_NAME="$COMPONENT_NAME" \
+        COMPONENT_SHORT_NAME="$comp" \
         CHART_OCI_PATH="$CHART_OCI_PATH" \
         LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
 

@@ -71,8 +71,6 @@ match the snapshots:
                 - nereus.kcp.localhost
                 - triton.kcp.localhost
               ip: 10.96.188.4
-          imagePullSecrets:
-            - name: github
           serviceAccountName: iam-service
           volumes:
             - name: external-api-server
@@ -142,8 +140,6 @@ match the snapshots:
       name: iam-service-roles
   4: |
     apiVersion: v1
-    imagePullSecrets:
-      - name: github
     kind: ServiceAccount
     metadata:
       name: iam-service
