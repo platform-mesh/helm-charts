@@ -1,312 +1,10 @@
 match the Snapshot:
   1: |
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      labels:
-        app: platform-mesh-kubernetes-graphql-gateway
-      name: platform-mesh-kubernetes-graphql-gateway
-      namespace: platform-mesh-system
-    spec:
-      replicas: 1
-      revisionHistoryLimit: 3
-      selector:
-        matchLabels:
-          app: platform-mesh-kubernetes-graphql-gateway
-      strategy:
-        rollingUpdate:
-          maxSurge: 5
-          maxUnavailable: 0
-      template:
-        metadata:
-          labels:
-            app: platform-mesh-kubernetes-graphql-gateway
-            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
-            version: 1.0.0
-        spec:
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
-                  topologyKey: kubernetes.io/hostname
-          containers:
-            - args:
-                - gateway
-                - --schema-handler=file
-                - --schemas-dir=/app/schemas
-                - --tracing-enabled=true
-                - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
-                - --tracing-config-service-version=1.0.0
-                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
-              env: null
-              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
-              imagePullPolicy: IfNotPresent
-              livenessProbe:
-                failureThreshold: 1
-                httpGet:
-                  path: /healthz
-                  port: 3389
-                periodSeconds: 10
-              name: gateway
-              ports:
-                - containerPort: 8081
-                  name: metrics
-                  protocol: TCP
-                - containerPort: 3389
-                  name: health-port
-                  protocol: TCP
-                - containerPort: 8080
-                  name: service-port
-                  protocol: TCP
-              readinessProbe:
-                httpGet:
-                  path: /readyz
-                  port: 3389
-                initialDelaySeconds: 5
-                periodSeconds: 10
-              resources:
-                limits:
-                  memory: 1200Mi
-                requests:
-                  cpu: 250m
-                  memory: 1000Mi
-              securityContext:
-                readOnlyRootFilesystem: true
-                runAsNonRoot: true
-                seccompProfile:
-                  type: RuntimeDefault
-              startupProbe:
-                failureThreshold: 30
-                httpGet:
-                  path: /readyz
-                  port: 3389
-                periodSeconds: 10
-              volumeMounts:
-                - mountPath: /app/schemas
-                  name: schemas-volume
-                  readOnly: true
-          serviceAccountName: platform-mesh-kubernetes-graphql-gateway
-          volumes:
-            - name: schemas-volume
-              persistentVolumeClaim:
-                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
-  2: |
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      labels:
-        app: platform-mesh-kubernetes-graphql-gateway-listener
-      name: platform-mesh-kubernetes-graphql-gateway-listener
-      namespace: platform-mesh-system
-    spec:
-      replicas: 1
-      revisionHistoryLimit: 3
-      selector:
-        matchLabels:
-          app: platform-mesh-kubernetes-graphql-gateway-listener
-      strategy:
-        rollingUpdate:
-          maxSurge: 5
-          maxUnavailable: 0
-      template:
-        metadata:
-          labels:
-            app: platform-mesh-kubernetes-graphql-gateway-listener
-            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
-            version: 1.0.0
-        spec:
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
-                  topologyKey: kubernetes.io/hostname
-          containers:
-            - args:
-                - listener
-                - --schema-handler=file
-                - --schemas-dir=/app/schemas
-                - --multicluster-runtime-provider=kcp
-                - --apiexport-endpoint-slice-name=core.platform-mesh.io
-                - --workspace-schema-kubeconfig-override=/app/kubeconfig/kubeconfig
-                - --anchor-resource=object.metadata.name.startsWith("core.platform-mesh.io")
-                - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
-                - --additional-path-annotation-key=kcp.io/path
-                - --metrics-bind-address=:8091
-              env: null
-              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
-              imagePullPolicy: IfNotPresent
-              livenessProbe:
-                failureThreshold: 1
-                httpGet:
-                  path: /healthz
-                  port: 3390
-                periodSeconds: 10
-              name: listener
-              ports:
-                - containerPort: 8091
-                  name: metrics
-                  protocol: TCP
-                - containerPort: 3390
-                  name: health-port
-                  protocol: TCP
-                - containerPort: 8090
-                  name: service-port
-                  protocol: TCP
-              readinessProbe:
-                httpGet:
-                  path: /readyz
-                  port: 3390
-                initialDelaySeconds: 5
-                periodSeconds: 10
-              resources:
-                limits:
-                  memory: 600Mi
-                requests:
-                  cpu: 250m
-                  memory: 500Mi
-              securityContext:
-                readOnlyRootFilesystem: true
-                runAsNonRoot: true
-                seccompProfile:
-                  type: RuntimeDefault
-              startupProbe:
-                failureThreshold: 30
-                httpGet:
-                  path: /readyz
-                  port: 3390
-                periodSeconds: 10
-              volumeMounts:
-                - mountPath: /app/schemas
-                  name: schemas-volume
-                - mountPath: /app/config
-                  name: virtual-workspaces-config-volume
-          serviceAccountName: platform-mesh-kubernetes-graphql-gateway
-          volumes:
-            - name: schemas-volume
-              persistentVolumeClaim:
-                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
-            - configMap:
-                name: virtual-workspaces-config
-              name: virtual-workspaces-config-volume
-  3: |
-    apiVersion: gateway.networking.k8s.io/v1
-    kind: HTTPRoute
-    metadata:
-      name: platform-mesh-kubernetes-graphql-gateway
-      namespace: platform-mesh-system
-    spec:
-      hostnames:
-        - portal.localhost
-        - '*.portal.localhost'
-      parentRefs:
-        - name: k8sapi-gateway
-      rules:
-        - backendRefs:
-            - name: platform-mesh-kubernetes-graphql-gateway
-              namespace: platform-mesh-system
-              port: 8080
-          filters:
-            - type: URLRewrite
-              urlRewrite:
-                path:
-                  replacePrefixMatch: /api/clusters/
-                  type: ReplacePrefixMatch
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
-                name: cors-header
-              type: ExtensionRef
-          matches:
-            - path:
-                type: PathPrefix
-                value: /gateway/api/clusters/
-  4: |
-    apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      labels:
-        app: platform-mesh-kubernetes-graphql-gateway
-      name: platform-mesh-kubernetes-graphql-gateway-schemas
-      namespace: platform-mesh-system
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 500Mi
-  5: |
-    apiVersion: v1
-    kind: ServiceAccount
-    metadata:
-      name: platform-mesh-kubernetes-graphql-gateway
-      namespace: platform-mesh-system
-  6: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: platform-mesh-kubernetes-graphql-gateway
-      namespace: platform-mesh-system
-    spec:
-      ports:
-        - name: http
-          port: 8080
-          protocol: TCP
-          targetPort: 8080
-        - name: health
-          port: 3389
-          protocol: TCP
-          targetPort: 3389
-        - name: metrics
-          port: 8081
-          protocol: TCP
-          targetPort: 8081
-      selector:
-        app: platform-mesh-kubernetes-graphql-gateway
-      type: ClusterIP
-  7: |
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: platform-mesh-kubernetes-graphql-gateway-listener
-      namespace: platform-mesh-system
-    spec:
-      ports:
-        - name: grpc
-          port: 50051
-          protocol: TCP
-          targetPort: 50051
-        - name: metrics
-          port: 8091
-          protocol: TCP
-          targetPort: 8091
-        - name: health
-          port: 3390
-          protocol: TCP
-          targetPort: 3390
-      selector:
-        app: platform-mesh-kubernetes-graphql-gateway-listener
-      type: ClusterIP
-  8: |
-    apiVersion: v1
-    data:
-      virtual-workspaces.yaml: "virtualWorkspaces:\n  - name: custom-ws\n    url: https://example.com\n    kubeconfig: /etc/kubeconfig/kubeconfig "
-    kind: ConfigMap
-    metadata:
-      labels:
-        app: platform-mesh-kubernetes-graphql-gateway
-      name: virtual-workspaces-config
-      namespace: platform-mesh-system
-match the Snapshot with crds:
-  1: |
     apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
     metadata:
       annotations:
-        controller-gen.kubebuilder.io/version: v0.18.0
+        controller-gen.kubebuilder.io/version: v0.20.0
       name: clusteraccesses.gateway.platform-mesh.io
     spec:
       group: gateway.platform-mesh.io
@@ -348,40 +46,34 @@ match the Snapshot with crds:
                       description: Auth configuration for the cluster
                       properties:
                         clientCertificateRef:
-                          description: ClientCertificateRef points to secrets containing client certificate and key for mTLS
+                          description: |-
+                            ClientCertificateRef points to secrets containing client certificate and key for mTLS
+                            Secret must contain tls.crt and tls.key keys.
                           properties:
                             name:
+                              description: name is unique within a namespace to reference a secret resource.
                               type: string
                             namespace:
+                              description: namespace defines the space within which the secret name must be unique.
                               type: string
-                          required:
-                            - name
                           type: object
+                          x-kubernetes-map-type: atomic
                         kubeconfigSecretRef:
                           description: KubeconfigSecretRef points to a secret containing kubeconfig
                           properties:
-                            name:
-                              type: string
-                            namespace:
-                              type: string
-                          required:
-                            - name
-                          type: object
-                        secretRef:
-                          description: SecretRef points to a secret containing auth token
-                          properties:
                             key:
+                              description: Key is the key in the secret data which contains the token
                               type: string
                             name:
+                              description: name is unique within a namespace to reference a secret resource.
                               type: string
                             namespace:
+                              description: namespace defines the space within which the secret name must be unique.
                               type: string
-                          required:
-                            - key
-                            - name
                           type: object
-                        serviceAccount:
-                          description: ServiceAccount is the name of the service account to use
+                          x-kubernetes-map-type: atomic
+                        serviceAccountRef:
+                          description: ServiceAccountRef points to a service account for token generation
                           properties:
                             audience:
                               items:
@@ -393,37 +85,45 @@ match the Snapshot with crds:
                               type: string
                             token_expiration:
                               type: string
+                          required:
+                            - name
+                            - namespace
                           type: object
+                        tokenSecretRef:
+                          description: SecretRef points to a secret containing auth token
+                          properties:
+                            key:
+                              description: Key is the key in the secret data which contains the token
+                              type: string
+                            name:
+                              description: name is unique within a namespace to reference a secret resource.
+                              type: string
+                            namespace:
+                              description: namespace defines the space within which the secret name must be unique.
+                              type: string
+                          type: object
+                          x-kubernetes-map-type: atomic
                       type: object
+                      x-kubernetes-validations:
+                        - message: only one of tokenSecretRef, kubeconfigSecretRef, clientCertificateRef, or serviceAccountRef can be set
+                          rule: '(has(self.tokenSecretRef) ? 1 : 0) + (has(self.kubeconfigSecretRef) ? 1 : 0) + (has(self.clientCertificateRef) ? 1 : 0) + (has(self.serviceAccountRef) ? 1 : 0) <= 1'
                     ca:
                       description: CA configuration for the cluster
                       properties:
-                        configMapRef:
-                          description: ConfigMapRef points to a config map containing CA data
-                          properties:
-                            key:
-                              type: string
-                            name:
-                              type: string
-                            namespace:
-                              type: string
-                          required:
-                            - key
-                            - name
-                          type: object
                         secretRef:
                           description: SecretRef points to a secret containing CA data
                           properties:
                             key:
+                              description: Key is the key in the secret data which contains the token
                               type: string
                             name:
+                              description: name is unique within a namespace to reference a secret resource.
                               type: string
                             namespace:
+                              description: namespace defines the space within which the secret name must be unique.
                               type: string
-                          required:
-                            - key
-                            - name
                           type: object
+                          x-kubernetes-map-type: atomic
                       type: object
                     host:
                       description: Host is the URL for the cluster
@@ -435,7 +135,7 @@ match the Snapshot with crds:
                     - host
                   type: object
                 status:
-                  description: ClusterAccessStatus defines the observed state of ClusterAccess
+                  description: ClusterAccessStatus defines the observed state of ClusterAccess.
                   properties:
                     conditions:
                       description: Conditions represent the latest available observations of the cluster access state
@@ -500,6 +200,83 @@ match the Snapshot with crds:
           subresources:
             status: {}
   2: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - users
+          - serviceaccounts
+        verbs:
+          - impersonate
+      - apiGroups:
+          - '*'
+        resources:
+          - '*'
+        verbs:
+          - '*'
+      - apiGroups:
+          - apiextensions.k8s.io
+        resources:
+          - customresourcedefinitions
+        verbs:
+          - get
+          - list
+          - watch
+      - apiGroups:
+          - gateway.platform-mesh.io
+        resources:
+          - clusteraccesses
+          - clusteraccesses/status
+        verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+      - apiGroups:
+          - ""
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resources:
+          - configmaps
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resources:
+          - serviceaccounts
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resources:
+          - serviceaccounts/token
+        verbs:
+          - create
+  3: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: platform-mesh-kubernetes-graphql-gateway
+    subjects:
+      - kind: ServiceAccount
+        name: platform-mesh-kubernetes-graphql-gateway
+        namespace: platform-mesh-system
+  4: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -521,26 +298,20 @@ match the Snapshot with crds:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway
-            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
-                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - gateway
-                - --schema-handler=file
-                - --schemas-dir=/app/schemas
+                - --schema-handler=grpc
+                - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
                 - --tracing-enabled=true
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
                 - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /app/kubeconfig/kubeconfig
               image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -584,15 +355,14 @@ match the Snapshot with crds:
                   port: 3389
                 periodSeconds: 10
               volumeMounts:
-                - mountPath: /app/schemas
-                  name: schemas-volume
-                  readOnly: true
+                - mountPath: /app/kubeconfig
+                  name: kubeconfig-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: schemas-volume
-              persistentVolumeClaim:
-                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
-  3: |
+            - name: kubeconfig-volume
+              secret:
+                secretName: kcp-root-kubeconfig
+  5: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -614,29 +384,28 @@ match the Snapshot with crds:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway-listener
-            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
-                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - listener
-                - --schema-handler=file
-                - --schemas-dir=/app/schemas
-                - --multicluster-runtime-provider=kcp
+                - --schema-handler=grpc
+                - --grpc-listen-addr=:50051
+                - --multicluster-runtime-provider=multi
+                - --kubeconfig=/app/kubeconfig/kubeconfig
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
                 - --workspace-schema-kubeconfig-override=/app/kubeconfig/kubeconfig
-                - --anchor-resource=object.metadata.name.startsWith("core.platform-mesh.io")
+                - --anchor-resource=true
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-              env: null
+                - --enable-clusteraccess-controller
+                - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
+                - --resource-controller-providers=kcp
+                - --clusteraccess-controller-providers=single
+              env:
+                - name: KUBECONFIG
+                  value: /app/kubeconfig/kubeconfig
               image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -647,6 +416,9 @@ match the Snapshot with crds:
                 periodSeconds: 10
               name: listener
               ports:
+                - containerPort: 50051
+                  name: grpc
+                  protocol: TCP
                 - containerPort: 8091
                   name: metrics
                   protocol: TCP
@@ -680,19 +452,19 @@ match the Snapshot with crds:
                   port: 3390
                 periodSeconds: 10
               volumeMounts:
-                - mountPath: /app/schemas
-                  name: schemas-volume
-                - mountPath: /app/config
-                  name: virtual-workspaces-config-volume
+                - mountPath: /app/kubeconfig
+                  name: kubeconfig-volume
+                - mountPath: /app/single-kubeconfig
+                  name: single-kubeconfig-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: schemas-volume
-              persistentVolumeClaim:
-                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
-            - configMap:
-                name: virtual-workspaces-config
-              name: virtual-workspaces-config-volume
-  4: |
+            - name: kubeconfig-volume
+              secret:
+                secretName: kcp-root-kubeconfig
+            - name: single-kubeconfig-volume
+              secret:
+                secretName: single-kubeconfig
+  6: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
     metadata:
@@ -724,27 +496,13 @@ match the Snapshot with crds:
             - path:
                 type: PathPrefix
                 value: /gateway/api/clusters/
-  5: |
-    apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      labels:
-        app: platform-mesh-kubernetes-graphql-gateway
-      name: platform-mesh-kubernetes-graphql-gateway-schemas
-      namespace: platform-mesh-system
-    spec:
-      accessModes:
-        - ReadWriteOnce
-      resources:
-        requests:
-          storage: 500Mi
-  6: |
+  7: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: platform-mesh-kubernetes-graphql-gateway
       namespace: platform-mesh-system
-  7: |
+  8: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -767,7 +525,7 @@ match the Snapshot with crds:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway
       type: ClusterIP
-  8: |
+  9: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -790,13 +548,605 @@ match the Snapshot with crds:
       selector:
         app: platform-mesh-kubernetes-graphql-gateway-listener
       type: ClusterIP
-  9: |
+  10: |
     apiVersion: v1
-    data:
-      virtual-workspaces.yaml: "virtualWorkspaces:\n  - name: custom-ws\n    url: https://example.com\n    kubeconfig: /etc/kubeconfig/kubeconfig "
-    kind: ConfigMap
+    kind: Secret
+    metadata:
+      name: single-kubeconfig
+      namespace: platform-mesh-system
+    stringData:
+      kubeconfig: |
+        apiVersion: v1
+        kind: Config
+        clusters:
+        - cluster:
+            certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            server: https://kubernetes.default.svc
+          name: default
+        contexts:
+        - context:
+            cluster: default
+            user: default
+          name: default
+        current-context: default
+        users:
+        - name: default
+          user:
+            tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    type: Opaque
+match the Snapshot with crds:
+  1: |
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      annotations:
+        controller-gen.kubebuilder.io/version: v0.20.0
+      name: clusteraccesses.gateway.platform-mesh.io
+    spec:
+      group: gateway.platform-mesh.io
+      names:
+        kind: ClusterAccess
+        listKind: ClusterAccessList
+        plural: clusteraccesses
+        shortNames:
+          - ca
+        singular: clusteraccess
+      scope: Cluster
+      versions:
+        - name: v1alpha1
+          schema:
+            openAPIV3Schema:
+              description: ClusterAccess is the Schema for the clusteraccesses API
+              properties:
+                apiVersion:
+                  description: |-
+                    APIVersion defines the versioned schema of this representation of an object.
+                    Servers should convert recognized schemas to the latest internal value, and
+                    may reject unrecognized values.
+                    More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+                  type: string
+                kind:
+                  description: |-
+                    Kind is a string value representing the REST resource this object represents.
+                    Servers may infer this from the endpoint the client submits requests to.
+                    Cannot be updated.
+                    In CamelCase.
+                    More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                  type: string
+                metadata:
+                  type: object
+                spec:
+                  description: ClusterAccessSpec defines the desired state of ClusterAccess
+                  properties:
+                    auth:
+                      description: Auth configuration for the cluster
+                      properties:
+                        clientCertificateRef:
+                          description: |-
+                            ClientCertificateRef points to secrets containing client certificate and key for mTLS
+                            Secret must contain tls.crt and tls.key keys.
+                          properties:
+                            name:
+                              description: name is unique within a namespace to reference a secret resource.
+                              type: string
+                            namespace:
+                              description: namespace defines the space within which the secret name must be unique.
+                              type: string
+                          type: object
+                          x-kubernetes-map-type: atomic
+                        kubeconfigSecretRef:
+                          description: KubeconfigSecretRef points to a secret containing kubeconfig
+                          properties:
+                            key:
+                              description: Key is the key in the secret data which contains the token
+                              type: string
+                            name:
+                              description: name is unique within a namespace to reference a secret resource.
+                              type: string
+                            namespace:
+                              description: namespace defines the space within which the secret name must be unique.
+                              type: string
+                          type: object
+                          x-kubernetes-map-type: atomic
+                        serviceAccountRef:
+                          description: ServiceAccountRef points to a service account for token generation
+                          properties:
+                            audience:
+                              items:
+                                type: string
+                              type: array
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                            token_expiration:
+                              type: string
+                          required:
+                            - name
+                            - namespace
+                          type: object
+                        tokenSecretRef:
+                          description: SecretRef points to a secret containing auth token
+                          properties:
+                            key:
+                              description: Key is the key in the secret data which contains the token
+                              type: string
+                            name:
+                              description: name is unique within a namespace to reference a secret resource.
+                              type: string
+                            namespace:
+                              description: namespace defines the space within which the secret name must be unique.
+                              type: string
+                          type: object
+                          x-kubernetes-map-type: atomic
+                      type: object
+                      x-kubernetes-validations:
+                        - message: only one of tokenSecretRef, kubeconfigSecretRef, clientCertificateRef, or serviceAccountRef can be set
+                          rule: '(has(self.tokenSecretRef) ? 1 : 0) + (has(self.kubeconfigSecretRef) ? 1 : 0) + (has(self.clientCertificateRef) ? 1 : 0) + (has(self.serviceAccountRef) ? 1 : 0) <= 1'
+                    ca:
+                      description: CA configuration for the cluster
+                      properties:
+                        secretRef:
+                          description: SecretRef points to a secret containing CA data
+                          properties:
+                            key:
+                              description: Key is the key in the secret data which contains the token
+                              type: string
+                            name:
+                              description: name is unique within a namespace to reference a secret resource.
+                              type: string
+                            namespace:
+                              description: namespace defines the space within which the secret name must be unique.
+                              type: string
+                          type: object
+                          x-kubernetes-map-type: atomic
+                      type: object
+                    host:
+                      description: Host is the URL for the cluster
+                      type: string
+                    path:
+                      description: Path is an optional field. If not set, the name of the resource is used
+                      type: string
+                  required:
+                    - host
+                  type: object
+                status:
+                  description: ClusterAccessStatus defines the observed state of ClusterAccess.
+                  properties:
+                    conditions:
+                      description: Conditions represent the latest available observations of the cluster access state
+                      items:
+                        description: Condition contains details for one aspect of the current state of this API Resource.
+                        properties:
+                          lastTransitionTime:
+                            description: |-
+                              lastTransitionTime is the last time the condition transitioned from one status to another.
+                              This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                            format: date-time
+                            type: string
+                          message:
+                            description: |-
+                              message is a human readable message indicating details about the transition.
+                              This may be an empty string.
+                            maxLength: 32768
+                            type: string
+                          observedGeneration:
+                            description: |-
+                              observedGeneration represents the .metadata.generation that the condition was set based upon.
+                              For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                              with respect to the current state of the instance.
+                            format: int64
+                            minimum: 0
+                            type: integer
+                          reason:
+                            description: |-
+                              reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                              Producers of specific condition types may define expected values and meanings for this field,
+                              and whether the values are considered a guaranteed API.
+                              The value should be a CamelCase string.
+                              This field may not be empty.
+                            maxLength: 1024
+                            minLength: 1
+                            pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                            type: string
+                          status:
+                            description: status of the condition, one of True, False, Unknown.
+                            enum:
+                              - "True"
+                              - "False"
+                              - Unknown
+                            type: string
+                          type:
+                            description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                            maxLength: 316
+                            pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                            type: string
+                        required:
+                          - lastTransitionTime
+                          - message
+                          - reason
+                          - status
+                          - type
+                        type: object
+                      type: array
+                  type: object
+              type: object
+          served: true
+          storage: true
+          subresources:
+            status: {}
+  2: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - users
+          - serviceaccounts
+        verbs:
+          - impersonate
+      - apiGroups:
+          - '*'
+        resources:
+          - '*'
+        verbs:
+          - '*'
+      - apiGroups:
+          - apiextensions.k8s.io
+        resources:
+          - customresourcedefinitions
+        verbs:
+          - get
+          - list
+          - watch
+      - apiGroups:
+          - gateway.platform-mesh.io
+        resources:
+          - clusteraccesses
+          - clusteraccesses/status
+        verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+      - apiGroups:
+          - ""
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resources:
+          - configmaps
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resources:
+          - serviceaccounts
+        verbs:
+          - get
+      - apiGroups:
+          - ""
+        resources:
+          - serviceaccounts/token
+        verbs:
+          - create
+  3: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: platform-mesh-kubernetes-graphql-gateway
+    subjects:
+      - kind: ServiceAccount
+        name: platform-mesh-kubernetes-graphql-gateway
+        namespace: platform-mesh-system
+  4: |
+    apiVersion: apps/v1
+    kind: Deployment
     metadata:
       labels:
         app: platform-mesh-kubernetes-graphql-gateway
-      name: virtual-workspaces-config
+      name: platform-mesh-kubernetes-graphql-gateway
       namespace: platform-mesh-system
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: platform-mesh-kubernetes-graphql-gateway
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+      template:
+        metadata:
+          labels:
+            app: platform-mesh-kubernetes-graphql-gateway
+            version: 1.0.0
+        spec:
+          containers:
+            - args:
+                - gateway
+                - --schema-handler=grpc
+                - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
+                - --tracing-enabled=true
+                - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
+                - --tracing-config-service-version=1.0.0
+                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
+              env:
+                - name: KUBECONFIG
+                  value: /app/kubeconfig/kubeconfig
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 3389
+                periodSeconds: 10
+              name: gateway
+              ports:
+                - containerPort: 8081
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 3389
+                  name: health-port
+                  protocol: TCP
+                - containerPort: 8080
+                  name: service-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 3389
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 1200Mi
+                requests:
+                  cpu: 250m
+                  memory: 1000Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 3389
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /app/kubeconfig
+                  name: kubeconfig-volume
+          serviceAccountName: platform-mesh-kubernetes-graphql-gateway
+          volumes:
+            - name: kubeconfig-volume
+              secret:
+                secretName: kcp-root-kubeconfig
+  5: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app: platform-mesh-kubernetes-graphql-gateway-listener
+      name: platform-mesh-kubernetes-graphql-gateway-listener
+      namespace: platform-mesh-system
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 3
+      selector:
+        matchLabels:
+          app: platform-mesh-kubernetes-graphql-gateway-listener
+      strategy:
+        rollingUpdate:
+          maxSurge: 5
+          maxUnavailable: 0
+      template:
+        metadata:
+          labels:
+            app: platform-mesh-kubernetes-graphql-gateway-listener
+            version: 1.0.0
+        spec:
+          containers:
+            - args:
+                - listener
+                - --schema-handler=grpc
+                - --grpc-listen-addr=:50051
+                - --multicluster-runtime-provider=multi
+                - --kubeconfig=/app/kubeconfig/kubeconfig
+                - --apiexport-endpoint-slice-name=core.platform-mesh.io
+                - --workspace-schema-kubeconfig-override=/app/kubeconfig/kubeconfig
+                - --anchor-resource=true
+                - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
+                - --additional-path-annotation-key=kcp.io/path
+                - --metrics-bind-address=:8091
+                - --enable-clusteraccess-controller
+                - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
+                - --resource-controller-providers=kcp
+                - --clusteraccess-controller-providers=single
+              env:
+                - name: KUBECONFIG
+                  value: /app/kubeconfig/kubeconfig
+              image: ghcr.io/openmfp/kubernetes-graphql-gateway:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 1
+                httpGet:
+                  path: /healthz
+                  port: 3390
+                periodSeconds: 10
+              name: listener
+              ports:
+                - containerPort: 50051
+                  name: grpc
+                  protocol: TCP
+                - containerPort: 8091
+                  name: metrics
+                  protocol: TCP
+                - containerPort: 3390
+                  name: health-port
+                  protocol: TCP
+                - containerPort: 8090
+                  name: service-port
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /readyz
+                  port: 3390
+                initialDelaySeconds: 5
+                periodSeconds: 10
+              resources:
+                limits:
+                  memory: 600Mi
+                requests:
+                  cpu: 250m
+                  memory: 500Mi
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+              startupProbe:
+                failureThreshold: 30
+                httpGet:
+                  path: /readyz
+                  port: 3390
+                periodSeconds: 10
+              volumeMounts:
+                - mountPath: /app/kubeconfig
+                  name: kubeconfig-volume
+                - mountPath: /app/single-kubeconfig
+                  name: single-kubeconfig-volume
+          serviceAccountName: platform-mesh-kubernetes-graphql-gateway
+          volumes:
+            - name: kubeconfig-volume
+              secret:
+                secretName: kcp-root-kubeconfig
+            - name: single-kubeconfig-volume
+              secret:
+                secretName: single-kubeconfig
+  6: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    spec:
+      hostnames:
+        - portal.localhost
+        - '*.portal.localhost'
+      parentRefs:
+        - name: k8sapi-gateway
+      rules:
+        - backendRefs:
+            - name: platform-mesh-kubernetes-graphql-gateway
+              namespace: platform-mesh-system
+              port: 8080
+          filters:
+            - type: URLRewrite
+              urlRewrite:
+                path:
+                  replacePrefixMatch: /api/clusters/
+                  type: ReplacePrefixMatch
+            - extensionRef:
+                group: traefik.io
+                kind: Middleware
+                name: cors-header
+              type: ExtensionRef
+          matches:
+            - path:
+                type: PathPrefix
+                value: /gateway/api/clusters/
+  7: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+  8: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: platform-mesh-kubernetes-graphql-gateway
+      namespace: platform-mesh-system
+    spec:
+      ports:
+        - name: http
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+        - name: health
+          port: 3389
+          protocol: TCP
+          targetPort: 3389
+        - name: metrics
+          port: 8081
+          protocol: TCP
+          targetPort: 8081
+      selector:
+        app: platform-mesh-kubernetes-graphql-gateway
+      type: ClusterIP
+  9: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: platform-mesh-kubernetes-graphql-gateway-listener
+      namespace: platform-mesh-system
+    spec:
+      ports:
+        - name: grpc
+          port: 50051
+          protocol: TCP
+          targetPort: 50051
+        - name: metrics
+          port: 8091
+          protocol: TCP
+          targetPort: 8091
+        - name: health
+          port: 3390
+          protocol: TCP
+          targetPort: 3390
+      selector:
+        app: platform-mesh-kubernetes-graphql-gateway-listener
+      type: ClusterIP
+  10: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: single-kubeconfig
+      namespace: platform-mesh-system
+    stringData:
+      kubeconfig: |
+        apiVersion: v1
+        kind: Config
+        clusters:
+        - cluster:
+            certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+            server: https://kubernetes.default.svc
+          name: default
+        contexts:
+        - context:
+            cluster: default
+            user: default
+          name: default
+        current-context: default
+        users:
+        - name: default
+          user:
+            tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    type: Opaque

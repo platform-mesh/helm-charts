@@ -95,11 +95,11 @@ spec:
           value: {{ .Values.kubeConfig.path }}
         {{- end }}
         volumeMounts:
+          {{- if eq .Values.schemaHandler.type "file" }}
           - name: schemas-volume
             mountPath: {{ .Values.schemaHandler.schemasDir }}
-            {{- if eq .Values.schemaHandler.type "file" }}
             readOnly: true
-            {{- end }}
+          {{- end }}
           {{- if .Values.kubeConfig.enabled }}
           - name: kubeconfig-volume
             mountPath: /app/kubeconfig
@@ -108,14 +108,11 @@ spec:
             {{- toYaml . | nindent 10 }}
           {{- end }}
       volumes:
+        {{- if eq .Values.schemaHandler.type "file" }}
         - name: schemas-volume
-          {{- if eq .Values.schemaHandler.type "file" }}
           persistentVolumeClaim:
             claimName: {{ include "common.entity.name" . }}-schemas
-          {{- else }}
-          emptyDir:
-            sizeLimit: {{ .Values.schemaHandler.sharedVolume.size }}
-          {{- end }}
+        {{- end }}
         {{- if .Values.kubeConfig.enabled }}
         - name: kubeconfig-volume
           secret:

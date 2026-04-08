@@ -21,26 +21,20 @@ match the Snapshot:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway
-            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
-                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - gateway
-                - --schema-handler=file
-                - --schemas-dir=/app/schemas
+                - --schema-handler=grpc
+                - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
                 - --tracing-enabled=true
                 - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
                 - --tracing-config-service-version=1.0.0
                 - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
-              env: null
+              env:
+                - name: KUBECONFIG
+                  value: /app/kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -84,14 +78,13 @@ match the Snapshot:
                   port: 8080
                 periodSeconds: 10
               volumeMounts:
-                - mountPath: /app/schemas
-                  name: schemas-volume
-                  readOnly: true
+                - mountPath: /app/kubeconfig
+                  name: kubeconfig-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: schemas-volume
-              persistentVolumeClaim:
-                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
+            - name: kubeconfig-volume
+              secret:
+                secretName: kcp-root-kubeconfig
   2: |
     apiVersion: apps/v1
     kind: Deployment
@@ -114,29 +107,28 @@ match the Snapshot:
         metadata:
           labels:
             app: platform-mesh-kubernetes-graphql-gateway-listener
-            schema-handler-group: platform-mesh-kubernetes-graphql-gateway
             version: 1.0.0
         spec:
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchLabels:
-                      schema-handler-group: platform-mesh-kubernetes-graphql-gateway
-                  topologyKey: kubernetes.io/hostname
           containers:
             - args:
                 - listener
-                - --schema-handler=file
-                - --schemas-dir=/app/schemas
-                - --multicluster-runtime-provider=kcp
+                - --schema-handler=grpc
+                - --grpc-listen-addr=:50051
+                - --multicluster-runtime-provider=multi
+                - --kubeconfig=/app/kubeconfig/kubeconfig
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
                 - --workspace-schema-kubeconfig-override=/app/kubeconfig/kubeconfig
-                - --anchor-resource=object.metadata.name.startsWith("core.platform-mesh.io")
+                - --anchor-resource=true
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-              env: null
+                - --enable-clusteraccess-controller
+                - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
+                - --resource-controller-providers=kcp
+                - --clusteraccess-controller-providers=single
+              env:
+                - name: KUBECONFIG
+                  value: /app/kubeconfig/kubeconfig
               image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
@@ -146,6 +138,9 @@ match the Snapshot:
                   port: 8091
               name: listener
               ports:
+                - containerPort: 50051
+                  name: grpc
+                  protocol: TCP
                 - containerPort: 8091
                   name: metrics
                   protocol: TCP
@@ -176,10 +171,15 @@ match the Snapshot:
                 tcpSocket:
                   port: 8091
               volumeMounts:
-                - mountPath: /app/schemas
-                  name: schemas-volume
+                - mountPath: /app/kubeconfig
+                  name: kubeconfig-volume
+                - mountPath: /app/single-kubeconfig
+                  name: single-kubeconfig-volume
           serviceAccountName: platform-mesh-kubernetes-graphql-gateway
           volumes:
-            - name: schemas-volume
-              persistentVolumeClaim:
-                claimName: platform-mesh-kubernetes-graphql-gateway-schemas
+            - name: kubeconfig-volume
+              secret:
+                secretName: kcp-root-kubeconfig
+            - name: single-kubeconfig-volume
+              secret:
+                secretName: single-kubeconfig
