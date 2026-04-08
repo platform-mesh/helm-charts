@@ -31,27 +31,17 @@ match the default snapshot:
                 - --image-name="ghcr.io/platform-mesh/terminal-controller-manager"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
-              env:
-                - name: KCP_API_EXPORT_ENDPOINT_SLICE_NAME
-                  value: terminal.platform-mesh.io
-                - name: TERMINAL_IMAGE
-                  value: ghcr.io/platform-mesh/terminal:0.0.0
-                - name: TERMINAL_NAMESPACE
-                  value: terminal-sessions
-                - name: TERMINAL_LIFETIME
-                  value: 2h
-                - name: GATEWAY_NAME
-                  value: k8sapi-gateway
-                - name: GATEWAY_NAMESPACE
-                  value: platform-mesh-system
-                - name: SUBROUTINES_LIFETIME_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_POD_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_SERVICE_ENABLED
-                  value: "true"
-                - name: SUBROUTINES_HTTPROUTE_ENABLED
-                  value: "true"
+                - --kcp-api-export-endpoint-slice-name=terminal.platform-mesh.io
+                - --terminal-image=ghcr.io/platform-mesh/terminal:0.0.0
+                - --terminal-namespace=terminal-sessions
+                - --terminal-lifetime=2h
+                - --gateway-name=k8sapi-gateway
+                - --gateway-namespace=platform-mesh-system
+                - --subroutines-lifetime-enabled=true
+                - --subroutines-pod-enabled=true
+                - --subroutines-service-enabled=true
+                - --subroutines-httproute-enabled=true
+              env: null
               image: ghcr.io/platform-mesh/terminal-controller-manager:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
