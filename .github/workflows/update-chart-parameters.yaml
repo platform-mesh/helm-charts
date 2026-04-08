@@ -45,7 +45,7 @@ jobs:
             echo "::error::Invalid chart name"
             exit 1
           fi
-          if ! [[ "${INPUT_APP_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+          if ! [[ "${INPUT_APP_VERSION}" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
             echo "::error::Invalid appVersion format"
             exit 1
           fi
