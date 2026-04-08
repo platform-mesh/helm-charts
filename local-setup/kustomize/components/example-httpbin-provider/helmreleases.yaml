@@ -18,7 +18,7 @@ spec:
   interval: 1m
   releaseName: example-httpbin-provider
   targetNamespace: example-httpbin-provider
-  timeout: 30m
+  timeout: 15m
   values:
     operator:
       args:
@@ -52,7 +52,7 @@ spec:
   interval: 1m
   releaseName: api-syncagent
   targetNamespace: example-httpbin-provider
-  timeout: 30m
+  timeout: 15m
   values:
     apiExportName: orchestrate.platform-mesh.io
     agentName: kcp-api-syncagent
