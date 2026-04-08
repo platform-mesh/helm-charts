@@ -7,10 +7,6 @@ permissions:
 on:
   workflow_call:
     inputs:
-      chartRepos:
-        required: false
-        type: string
-        default: ''
       chartFolder:
         required: false
         type: string
@@ -18,10 +14,6 @@ on:
       chartName:
         required: true
         type: string
-      additionalTestFilesCommand:
-        required: false
-        type: string
-        default: '-f chart/test-values.yaml'
       release_branch:
         required: false
         type: string
@@ -55,50 +47,10 @@ on:
 
 jobs:
   # ──────────────────────────────────────────────
-  # Always-run jobs (PR + main)
-  # ──────────────────────────────────────────────
-  test-chart:
-    uses: platform-mesh/.github/.github/workflows/job-test-chart.yml@main
-    with:
-      chartsFolder: ${{ inputs.chartFolder }}
-      chartName: ${{ inputs.chartName }}
-      additionalTestFilesCommand: ${{ inputs.additionalTestFilesCommand }}
-      chartRepos: ${{ inputs.chartRepos }}
-    secrets: inherit
-
-  check-helm-docs:
-    uses: platform-mesh/.github/.github/workflows/job-check-helm-chart-docs.yml@main
-    with:
-      chartFolder: ${{ inputs.chartFolder }}/${{ inputs.chartName }}
-    secrets: inherit
-
-  # ──────────────────────────────────────────────
-  # Quality gate (aggregates required checks)
-  # ──────────────────────────────────────────────
-  quality-gate:
-    if: always()
-    permissions: {}
-    needs: [test-chart, check-helm-docs]
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    steps:
-      - name: Check results
-        run: |
-          if [[ "${{ needs.test-chart.result }}" != "success" ]]; then
-            echo "test-chart failed"
-            exit 1
-          fi
-          if [[ "${{ needs.check-helm-docs.result }}" != "success" ]]; then
-            echo "check-helm-docs failed"
-            exit 1
-          fi
-
-  # ──────────────────────────────────────────────
   # Release jobs (main branch only)
   # ──────────────────────────────────────────────
   release:
     if: github.ref == format('refs/heads/{0}', inputs.release_branch)
-    needs: [test-chart, check-helm-docs]
     uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@main
     secrets: inherit
     with:

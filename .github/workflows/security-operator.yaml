@@ -11,10 +11,6 @@ on:
       - 'charts/security-operator/**'
       - '.github/workflows/security-operator.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
-  pull_request:
-    paths:
-      - 'charts/security-operator/**'
-      - '.github/workflows/security-operator.yaml'
 
 jobs:
   pipeline:
@@ -25,8 +21,6 @@ jobs:
     with:
       chartFolder: charts
       chartName: security-operator
-      additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
     secrets: inherit

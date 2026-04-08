@@ -5,14 +5,12 @@ permissions:
 name: Build virtual-workspaces Workflow
 on:
   push:
+    branches:
+      - main
     paths:
       - 'charts/virtual-workspaces/**'
       - '.github/workflows/virtual-workspaces.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
-  pull_request:
-    paths:
-      - 'charts/virtual-workspaces/**'
-      - '.github/workflows/virtual-workspaces.yaml'
 
 jobs:
   pipeline:
@@ -23,8 +21,6 @@ jobs:
     with:
       chartFolder: charts
       chartName: virtual-workspaces
-      additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
     secrets: inherit

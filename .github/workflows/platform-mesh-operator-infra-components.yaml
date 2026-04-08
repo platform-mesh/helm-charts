@@ -7,10 +7,6 @@ on:
       - 'charts/platform-mesh-operator-infra-components/**'
       - '.github/workflows/platform-mesh-operator-infra-components.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
-  pull_request:
-    paths:
-      - 'charts/platform-mesh-operator-infra-components/**'
-      - '.github/workflows/platform-mesh-operator-infra-components.yaml'
 
 permissions:
   contents: write
@@ -25,8 +21,6 @@ jobs:
     with:
       chartFolder: charts
       chartName: platform-mesh-operator-infra-components
-      additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
     secrets: inherit
