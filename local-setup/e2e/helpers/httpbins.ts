@@ -239,6 +239,22 @@ async function selectNamespaceScope(page: Page, namespaceName: string): Promise<
   throw new Error(`Unable to select namespace scope ${namespaceName}`);
 }
 
+async function waitForHttpBinReady(page: Page, namespaceName: string, httpBinName: string, timeout: number): Promise<void> {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    await selectNamespaceScope(page, namespaceName);
+    const row = page.getByRole('row').filter({ hasText: httpBinName }).first();
+    if (await row.isVisible().catch(() => false)) {
+      const readyIcon = row.locator('[test-id="value-cell-status.ready-boolean"]').first();
+      if (await readyIcon.isVisible().catch(() => false)) {
+        return;
+      }
+    }
+    await page.waitForTimeout(3000);
+  }
+  throw new Error(`HttpBin ${httpBinName} in namespace ${namespaceName} did not become ready within ${timeout}ms`);
+}
+
 async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinName: string): Promise<void> {
   logStep(`ensureHttpBinExists:start namespace=${namespaceName} name=${httpBinName}`);
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -276,8 +292,7 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
     }
 
     if (await httpBinRow.isVisible().catch(() => false)) {
-      const readyIcon = httpBinRow.locator('[test-id="value-cell-status.ready-boolean"]').first();
-      await expect(readyIcon).toBeVisible({ timeout: 80000 });
+      await waitForHttpBinReady(page, namespaceName, httpBinName, 120000);
       logStep(`ensureHttpBinExists:done namespace=${namespaceName} name=${httpBinName}`);
       return;
     }
@@ -289,11 +304,7 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
 
   ensureHttpBinExistsViaBackend(namespaceName, httpBinName);
   await openHttpBinsView(page);
-  await selectNamespaceScope(page, namespaceName);
-  const nameCell = page.getByRole('row').filter({ hasText: httpBinName }).first();
-  await expect(nameCell).toBeVisible({ timeout: 30000 });
-  const readyIcon = nameCell.locator('[test-id="value-cell-status.ready-boolean"]').first();
-  await expect(readyIcon).toBeVisible({ timeout: 80000 });
+  await waitForHttpBinReady(page, namespaceName, httpBinName, 120000);
   logStep(`ensureHttpBinExists:done namespace=${namespaceName} name=${httpBinName}`);
 }
 
