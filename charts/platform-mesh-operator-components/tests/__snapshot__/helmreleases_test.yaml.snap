@@ -294,6 +294,7 @@ HelmRelease snapshots:
       dependsOn: null
       interval: 1m
       releaseName: openfga
+      suspend: true
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:
@@ -316,9 +317,6 @@ HelmRelease snapshots:
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
-        global:
-          imagePullSecrets:
-            - name: github
         image:
           repository: openfga/openfga
           tag: ""
@@ -754,6 +752,7 @@ enable remote deployment of helmreleases:
           key: kubeconfig
           name: test-kubeconfig-secret
       releaseName: openfga
+      suspend: true
       targetNamespace: platform-mesh-system
       timeout: 30m
       values:
@@ -776,9 +775,6 @@ enable remote deployment of helmreleases:
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
-        global:
-          imagePullSecrets:
-            - name: github
         image:
           repository: openfga/openfga
           tag: ""

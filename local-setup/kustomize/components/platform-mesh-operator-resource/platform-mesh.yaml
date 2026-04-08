@@ -71,6 +71,21 @@ spec:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
+      suspend: true
+      imageResources:
+        - name: keycloak-image
+          annotations:
+            repo: oci
+            artifact: image
+            for: keycloak
+        - name: keycloak-postgresql-image
+          resource: postgresql-image
+          annotations:
+            repo: oci
+            artifact: image
+            for: keycloak
+            path: postgresql.image.tag
+            unsuspend: "true"
     infra:
       imageResources: [] # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
@@ -108,11 +123,14 @@ spec:
           - --idp-registration-allowed
         fga:
           extraArgs:
-          - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-          - --idp-smtp-port=1025
-          - --idp-from-address=keycloak@portal.localhost
-          - --set-default-password
-          - --idp-registration-allowed
+            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+            - --idp-smtp-port=1025
+            - --idp-from-address=keycloak@portal.localhost
+            - --set-default-password
+            - --idp-registration-allowed
+            - --domain-ca-lookup
+            - --development-allow-unverified-emails
+            - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         initializer:
           extraArgs:
           - --domain-ca-lookup
@@ -152,7 +170,10 @@ spec:
             - "portal.localhost"
             - "kcp.localhost"
             - "root.kcp.localhost"
+            - "nereus.kcp.localhost"
+            - "triton.kcp.localhost"
     openfga:
+      suspend: true
       enabled: true
       values:
         datastore:
@@ -191,3 +212,7 @@ spec:
           enabled: true
         listener:
           anchorResource: 'object.metadata.name.contains("platform-mesh.io")'
+    kcp-operator:
+      external: true
+    kcp:
+      external: true

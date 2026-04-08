@@ -14,7 +14,7 @@ Both templates are driven by the top-level `ocm` values and per-service configur
 
 ---
 
-### Chart Resources (`ocm-resources.yaml`)
+### Chart Resources (`ocm-image-resources.yaml` and `ocm-chart-resources.yaml`)
 
 For every service where `services.<name>.enabled: true`, a `delivery.ocm.software/v1alpha1` `Resource` is created with `metadata.name` set to the service name.
 
@@ -39,7 +39,7 @@ For every service where `services.<name>.enabled: true`, a `delivery.ocm.softwar
 | Condition | Resulting `referencePath` |
 |---|---|
 | `services.<name>.absoluteReferencePath` is set | Exactly the entries in `absoluteReferencePath` — the top-level `ocm.referencePath` is **not** prepended |
-| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` entries |
+| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` and `chart` or `image` entry respectively. If services.<name>.external is true the last entry is ommited |
 | Neither is set (default) | `ocm.referencePath` entries followed by `- name: <service-name>` |
 
 **Example — default path:**
@@ -58,6 +58,7 @@ Produces:
 referencePath:
 - name: platform-mesh
 - name: tracing
+- name: image
 ```
 
 **Example — per-service `referencePath`:**
@@ -78,6 +79,7 @@ Produces:
 referencePath:
 - name: platform-mesh
 - name: vw-component
+- name: image
 ```
 
 **Example — `absoluteReferencePath` (no top-level prepend):**
@@ -89,6 +91,7 @@ ocm:
 services:
   infra:
     enabled: true
+    external: true
     absoluteReferencePath:
       - name: compref1
       - name: compref2
@@ -101,6 +104,19 @@ referencePath:
 - name: compref2
 ```
 
+#### `suspend`
+
+Setting `services.<name>.suspend: true` sets `spec.suspend: true` on the generated FluxCD `HelmRelease`, which pauses reconciliation for that service without removing it. Omit or set to `false` to keep reconciliation active (the default).
+
+**Example:**
+
+```yaml
+services:
+  openfga:
+    enabled: true
+    suspend: true
+```
+
 ---
 
 ### Image Resources (`ocm-image-resources.yaml`)
@@ -108,6 +124,41 @@ referencePath:
 For every enabled service that has an `imageResources` list, one `Resource` is generated per list entry. The resource type is `image` by default and can be overridden with `imageResources[].resource`.
 
 `metadata.name` uses `imageResources[].name` if provided, otherwise falls back to `<service-name>-image`.
+
+#### `referencePath` resolution for image resources
+
+#### Annotations
+
+`imageResources[].annotations` are passed through verbatim to `metadata.annotations` on the generated OCM `Resource` object. The following annotation keys are recognised by the OCM controller:
+
+| Key | Type | Description |
+|---|---|---|
+| `repo` | string | Target repository type (e.g. `oci`) |
+| `artifact` | string | Artifact kind (e.g. `image`) |
+| `for` | string | Service name this image resource belongs to |
+| `path` | string | Dot-separated values path the controller uses to patch the image tag (e.g. `kcp.image.tag`) |
+| `unsuspend` | string (`"true"`) | When set to `"true"`, the OCM controller will unsuspend the corresponding `HelmRelease` after updating the image tag |
+
+**Example — image resource with `unsuspend`:**
+
+```yaml
+services:
+  infra:
+    enabled: true
+    imageResources:
+      - name: kcp-image
+        resource: image
+        annotations:
+          repo: oci
+          artifact: image
+          for: infra
+          path: kcp.image.tag
+          unsuspend: "true"
+        absoluteReferencePath:
+          - name: kcp
+```
+
+This causes the OCM controller to update `kcp.image.tag` in the `infra` HelmRelease values and then clear its `spec.suspend` flag.
 
 #### `referencePath` resolution for image resources
 
@@ -195,7 +246,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
-| services.infra.imageResources | list | `[{"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci"},"name":"kcp-image","referencePath":[{"name":"kcp"}],"resource":"image"}]` | Allow the configuration of additional ocm resources |
+| services.infra.imageResources | list | `[{"absoluteReferencePath":[{"name":"kcp"}],"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci"},"name":"kcp-image","resource":"image"}]` | Allow the configuration of additional ocm resources |
 | services.infra.values.gatewayApi.enabled | bool | `true` |  |
 | services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
@@ -215,6 +266,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
 | services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.init-agent.enabled | bool | `true` |  |
+| services.init-agent.external | bool | `true` |  |
 | services.init-agent.helmRepo | bool | `true` |  |
 | services.init-agent.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.init-agent.imageResources[0].annotations.for | string | `"init-agent"` |  |
@@ -226,6 +278,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.init-agent.values.leaderElection.enabled | bool | `false` |  |
 | services.init-agent.values.replicas | int | `1` |  |
 | services.keycloak.enabled | bool | `true` |  |
+| services.keycloak.external | bool | `true` |  |
 | services.keycloak.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.keycloak.imageResources[0].annotations.for | string | `"keycloak"` |  |
 | services.keycloak.imageResources[0].annotations.repo | string | `"oci"` |  |
@@ -286,8 +339,10 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
 | services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
 | services.openfga.enabled | bool | `true` |  |
+| services.openfga.external | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
-| services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
+| services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci","unsuspend":"true"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
+| services.openfga.suspend | bool | `true` |  |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |
 | services.openfga.values.checkQueryCache.enabled | bool | `true` |  |
 | services.openfga.values.checkQueryCache.limit | int | `10000` |  |
@@ -301,7 +356,6 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.openfga.values.datastore.migrations.image.tag | string | `"v2.0"` |  |
 | services.openfga.values.extraEnvVars[0].name | string | `"OPENFGA_EXPERIMENTALS"` |  |
 | services.openfga.values.extraEnvVars[0].value | string | `"enable-list-users"` |  |
-| services.openfga.values.global.imagePullSecrets[0].name | string | `"github"` |  |
 | services.openfga.values.image.repository | string | `"openfga/openfga"` |  |
 | services.openfga.values.image.tag | string | `""` |  |
 | services.openfga.values.log.level | string | `"info"` |  |

@@ -116,7 +116,7 @@ services:
           repo: oci
           artifact: image
         resource: image
-        referencePath:
+        absoluteReferencePath:
           - name: kcp
     dependsOn:
       - name: kcp-operator
@@ -161,6 +161,7 @@ services:
   init-agent:
     enabled: true
     helmRepo: true
+    external: true
     imageResources:
       - annotations:
           repo: oci
@@ -182,6 +183,7 @@ services:
               - "localhost"
   keycloak:
     enabled: true
+    external: true
     imageResources:
       - name: keycloak-image
         annotations:
@@ -287,6 +289,7 @@ services:
                 kubeconfig: /app/kubeconfig/kubeconfig
   openfga:
     enabled: true
+    external: true
     helmRepo: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
@@ -302,10 +305,9 @@ services:
           artifact: image
           for: openfga
           path: postgresql.image.tag
+          unsuspend: "true"
+    suspend: true
     values:
-      global:
-        imagePullSecrets:
-          - name: github
       migrate:
         annotations:
           sidecar.istio.io/inject: "false"

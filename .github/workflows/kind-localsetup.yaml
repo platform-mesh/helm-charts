@@ -13,7 +13,7 @@ concurrency:
 jobs:
 
   checkout-and-detect-changes:
-    runs-on: ubuntu-latest-large
+    runs-on: ubuntu-latest
     outputs:
       local_setup_changed: ${{ steps.local_setup.outputs.changed }}
 

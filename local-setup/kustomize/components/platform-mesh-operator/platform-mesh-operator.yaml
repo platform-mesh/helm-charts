@@ -3,5 +3,9 @@ kind: PlatformMeshOperator
 metadata:
   name: platform-mesh-operator
 spec:
-  referencePath:
+  chartReferencePath:
     - name: platform-mesh-operator
+    - name: chart
+  imageReferencePath:
+    - name: platform-mesh-operator
+    - name: image

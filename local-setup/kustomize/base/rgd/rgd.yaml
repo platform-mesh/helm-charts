@@ -7,7 +7,8 @@ spec:
     apiVersion: v1alpha1
     kind: PlatformMeshOperator
     spec:
-      referencePath: "[]map[string]string | required=false"
+      imageReferencePath: "[]map[string]string | required=false"
+      chartReferencePath: "[]map[string]string | required=false"
   resources:
     - id: resourceChart
       readyWhen:
@@ -17,7 +18,9 @@ spec:
         apiVersion: delivery.ocm.software/v1alpha1
         kind: Resource
         metadata:
-          name: platform-mesh-operator
+          name: platform-mesh-operator-chart
+          labels:
+            artifact: oci
         spec:
           componentRef:
             name: platform-mesh
@@ -30,7 +33,7 @@ spec:
               policy: Propagate
           resource:
             byReference:
-              referencePath: ${schema.spec.referencePath}
+              referencePath: ${schema.spec.chartReferencePath}
               resource:
                 name: chart
           additionalStatusFields:
@@ -47,7 +50,7 @@ spec:
         kind: Resource
         metadata:
           name: platform-mesh-operator-image
-          annotations:
+          labels:
             artifact: image
         spec:
           componentRef:
@@ -61,7 +64,7 @@ spec:
               policy: Propagate
           resource:
             byReference:
-              referencePath: ${schema.spec.referencePath}
+              referencePath: ${schema.spec.imageReferencePath}
               resource:
                 name: image
           additionalStatusFields:

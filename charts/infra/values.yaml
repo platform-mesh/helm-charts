@@ -100,6 +100,9 @@ kcp:
     #     memory: "1Gi"
     extraArgs:
     - --feature-gates=WorkspaceAuthentication=true
+  shards:
+    - name: nereus
+    - name: triton
   frontProxy:
     replicas: 1
     name: frontproxy

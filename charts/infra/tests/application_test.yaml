@@ -107,7 +107,7 @@ tests:
   - matchSnapshot: {}
 - it: configure etcd backup store
   templates:
-    - kcp/etcd.yaml
+    - kcp/root-shard.yaml
   set:
     kcp:
       etcd:
@@ -120,7 +120,8 @@ tests:
             secretRef:
               name: etcd-backup-aws
   asserts:
-  - equal:
+  - documentIndex: 0
+    equal:
       path: spec.backup.store
       value:
         container: etcd-bucket
@@ -130,3 +131,65 @@ tests:
         secretRef:
           name: etcd-backup-aws
   - matchSnapshot: {}
+- it: render additional shard with explicit hostname
+  templates:
+    - kcp/shards.yaml
+  set:
+    kcp:
+      shards:
+        - name: shard-1
+          hostname: shard-1.kcp.localhost
+          spec:
+            replicas: 2
+  asserts:
+  - matchSnapshot: {}
+- it: render additional shard with hostname fallback
+  templates:
+    - kcp/shards.yaml
+  set:
+    kcp:
+      shards:
+        - name: shard-2
+  asserts:
+  - contains:
+      path: spec.hostnames
+      content: shard-2.kcp.localhost
+    documentIndex: 2
+- it: render additional shard with etcd override
+  templates:
+    - kcp/shards.yaml
+  set:
+    kcp:
+      shards:
+        - name: shard-3
+          etcd:
+            replicas: 3
+  asserts:
+  - equal:
+      path: spec.replicas
+      value: 3
+    documentIndex: 0
+  - equal:
+      path: metadata.name
+      value: etcd-kcp-shard-3
+    documentIndex: 0
+- it: render additional shard with spec override
+  templates:
+    - kcp/shards.yaml
+  set:
+    kcp:
+      shards:
+        - name: shard-4
+          spec:
+            resources:
+              limits:
+                cpu: 2000m
+                memory: 2Gi
+  asserts:
+  - equal:
+      path: spec.resources
+      value:
+        limits:
+          cpu: 2000m
+          memory: 2Gi
+    documentIndex: 1
