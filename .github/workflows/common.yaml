@@ -10,10 +10,6 @@ on:
     paths:
       - 'charts/common/**'
       - '.github/workflows/common.yaml'
-  pull_request:
-    paths:
-      - 'charts/common/**'
-      - '.github/workflows/common.yaml'
 
 concurrency:
   group: common-${{ github.ref }}
@@ -25,7 +21,5 @@ jobs:
     with:
       chartFolder: charts
       chartName: common
-      additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
       disableOCM: true
     secrets: inherit

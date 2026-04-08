@@ -7,10 +7,6 @@ on:
       - 'charts/marketplace-ui/**'
       - '.github/workflows/marketplace-ui.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
-  pull_request:
-    paths:
-      - 'charts/marketplace-ui/**'
-      - '.github/workflows/marketplace-ui.yaml'
 
 permissions:
   contents: write
@@ -25,8 +21,6 @@ jobs:
     with:
       chartFolder: charts
       chartName: marketplace-ui
-      additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
     secrets: inherit
