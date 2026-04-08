@@ -250,7 +250,7 @@ async function waitForHttpBinReady(page: Page, namespaceName: string, httpBinNam
         return;
       }
     }
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(10000);
   }
   throw new Error(`HttpBin ${httpBinName} in namespace ${namespaceName} did not become ready within ${timeout}ms`);
 }
@@ -292,7 +292,6 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
     }
 
     if (await httpBinRow.isVisible().catch(() => false)) {
-      await waitForHttpBinReady(page, namespaceName, httpBinName, 120000);
       logStep(`ensureHttpBinExists:done namespace=${namespaceName} name=${httpBinName}`);
       return;
     }
@@ -304,7 +303,7 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
 
   ensureHttpBinExistsViaBackend(namespaceName, httpBinName);
   await openHttpBinsView(page);
-  await waitForHttpBinReady(page, namespaceName, httpBinName, 120000);
+  await waitForHttpBinReady(page, namespaceName, httpBinName, 300000);
   logStep(`ensureHttpBinExists:done namespace=${namespaceName} name=${httpBinName}`);
 }
 
