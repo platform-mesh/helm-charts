@@ -71,6 +71,21 @@ spec:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
+      suspend: true
+      imageResources:
+        - name: keycloak-image
+          annotations:
+            repo: oci
+            artifact: image
+            for: keycloak
+        - name: keycloak-postgresql-image
+          resource: postgresql-image
+          annotations:
+            repo: oci
+            artifact: image
+            for: keycloak
+            path: postgresql.image.tag
+            unsuspend: "true"
     infra:
       imageResources: [] # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
