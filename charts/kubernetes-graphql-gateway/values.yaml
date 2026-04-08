@@ -1,16 +1,17 @@
 crds:
-  enabled: false
+  enabled: true
 
 image:
   name: ghcr.io/platform-mesh/kubernetes-graphql-gateway
   pullPolicy: IfNotPresent
 
 kcp:
+  # -- Controls kcp-specific RBAC. Set to true when provider is "kcp" or "multi".
   enabled: true
 
 # -- Schema handler type: "grpc" or "file"
 schemaHandler:
-  type: file
+  type: grpc
   # -- Directory path for schema files (used when type is "file")
   schemasDir: /app/schemas
   # -- Shared volume configuration (used when type is "file")
@@ -42,27 +43,33 @@ gateway:
 listener:
   port: 8090
   grpcPort: 50051
-  # -- Multicluster runtime provider: "kcp" or "kubernetes"
-  multiclusterRuntimeProvider: kcp
+  # -- Multicluster runtime provider: "single", "kcp", or "multi" (default).
+  # "single" watches only the local cluster.
+  # "kcp" watches only kcp workspaces.
+  # "multi" composes both kcp + single providers.
+  provider: multi
   apiExportEndpointSliceName: core.platform-mesh.io
   workspaceSchemaKubeconfigOverride: ""
-  # -- CEL expression for anchor resource matching
-  anchorResource: 'object.metadata.name.startsWith("core.platform-mesh.io")'
+  # -- CEL expression that selects which resources trigger a reconcile
+  anchorResourceExpression: 'true'
   # -- GroupVersionResource for the reconciler to watch
   reconcilerGvr: apibindings.v1alpha2.apis.kcp.io
   additionalPathAnnotationKey: kcp.io/path
+  # -- (multi mode only) Comma-separated list of providers for the resource controller.
+  # Valid values: "kcp", "single". Only valid when provider=multi.
+  resourceControllerProviders: "kcp"
+  # -- (multi mode only) Comma-separated list of providers for the ClusterAccess controller.
+  # Valid values: "kcp", "single". Only valid when provider=multi.
+  # Requires enableClusterAccessController=true.
+  clusterAccessControllerProviders: "single"
+  # -- Enable the ClusterAccess controller.
+  enableClusterAccessController: true
 
   extraArgs: []
   healthCheck:
     enabled: false
     port: 3390
   metricsPort: 8091
-  virtualWorkspacesConfig:
-    enabled: false
-    configMapName: "virtual-workspaces-config"
-    path: "/app/config/virtual-workspaces.yaml"
-    content:
-      virtualWorkspaces: []
   resources:
     limits:
       memory: 600Mi
@@ -81,23 +88,20 @@ sentry:
 
 kubeConfig:
   createSecret: false
-  # -- Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated.
-  enabled: false
+  # -- Mounts an external kubeconfig (for kcp provider).
+  # When provider is "kcp" or "multi", this provides the kcp kubeconfig.
+  enabled: true
   secretName: "kcp-root-kubeconfig"
   path: /app/kubeconfig/kubeconfig
 
-rbac:
-  # -- Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token). Uses namespace-scoped Roles when serviceAccounts list is provided.
-  createServiceAccountRules: false
-  # -- List of service accounts with name and namespace to allow access to. Creates a Role and RoleBinding per namespace.
-  # @default -- []
-  # Example:
-  # serviceAccounts:
-  #   - name: my-service-account
-  #     namespace: my-namespace
-  #   - name: another-sa
-  #     namespace: another-namespace
-  serviceAccounts: []
+# -- Single-provider kubeconfig. Used when listener.provider=multi.
+singleKubeConfig:
+  # -- Auto-generate an in-cluster kubeconfig using the pod's service account.
+  # Set to false if providing your own secret via secretName.
+  createInClusterSecret: true
+  enabled: true
+  secretName: "single-kubeconfig"
+  path: /app/single-kubeconfig/kubeconfig
 
 extraVolumes: []
 extraVolumeMounts: []
