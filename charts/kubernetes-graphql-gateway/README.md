@@ -15,7 +15,7 @@ kubeConfig:
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| crds.enabled | bool | `false` |  |
+| crds.enabled | bool | `true` |  |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | deployment.replicas | int | `1` |  |
@@ -51,36 +51,35 @@ kubeConfig:
 | hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/kubernetes-graphql-gateway"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| kcp.enabled | bool | `true` |  |
+| kcp.enabled | bool | `true` | Controls kcp-specific RBAC. Set to true when provider is "kcp" or "multi". |
 | kubeConfig.createSecret | bool | `false` |  |
-| kubeConfig.enabled | bool | `false` | Allows the mounting of an external kubeconfig. If the kubeconfig is set, it is expected that the service account, that is used, is not connected to this chart and the rbac resources will not be generated. |
+| kubeConfig.enabled | bool | `true` | Mounts an external kubeconfig (for kcp provider). When provider is "kcp" or "multi", this provides the kcp kubeconfig. |
 | kubeConfig.path | string | `"/app/kubeconfig/kubeconfig"` |  |
 | kubeConfig.secretName | string | `"kcp-root-kubeconfig"` |  |
 | listener.additionalPathAnnotationKey | string | `"kcp.io/path"` |  |
-| listener.anchorResource | string | `"object.metadata.name.startsWith(\"core.platform-mesh.io\")"` | CEL expression for anchor resource matching |
+| listener.anchorResourceExpression | string | `"true"` | CEL expression that selects which resources trigger a reconcile |
 | listener.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` |  |
+| listener.clusterAccessControllerProviders | multi mode only | `"single"` | Comma-separated list of providers for the ClusterAccess controller. Valid values: "kcp", "single". Only valid when provider=multi. Requires enableClusterAccessController=true. |
+| listener.enableClusterAccessController | bool | `true` | Enable the ClusterAccess controller. |
 | listener.extraArgs | list | `[]` |  |
 | listener.grpcPort | int | `50051` |  |
 | listener.healthCheck.enabled | bool | `false` |  |
 | listener.healthCheck.port | int | `3390` |  |
 | listener.metricsPort | int | `8091` |  |
-| listener.multiclusterRuntimeProvider | string | `"kcp"` | Multicluster runtime provider: "kcp" or "kubernetes" |
 | listener.port | int | `8090` |  |
+| listener.provider | string | `"multi"` | Multicluster runtime provider: "single", "kcp", or "multi" (default). "single" watches only the local cluster. "kcp" watches only kcp workspaces. "multi" composes both kcp + single providers. |
 | listener.reconcilerGvr | string | `"apibindings.v1alpha2.apis.kcp.io"` | GroupVersionResource for the reconciler to watch |
+| listener.resourceControllerProviders | multi mode only | `"kcp"` | Comma-separated list of providers for the resource controller. Valid values: "kcp", "single". Only valid when provider=multi. |
 | listener.resources.limits.memory | string | `"600Mi"` |  |
 | listener.resources.requests.cpu | string | `"250m"` |  |
 | listener.resources.requests.memory | string | `"500Mi"` |  |
-| listener.virtualWorkspacesConfig.configMapName | string | `"virtual-workspaces-config"` |  |
-| listener.virtualWorkspacesConfig.content.virtualWorkspaces | list | `[]` |  |
-| listener.virtualWorkspacesConfig.enabled | bool | `false` |  |
-| listener.virtualWorkspacesConfig.path | string | `"/app/config/virtual-workspaces.yaml"` |  |
 | listener.workspaceSchemaKubeconfigOverride | string | `""` |  |
-| rbac.createServiceAccountRules | bool | `false` | Enables RBAC rules for service accounts (get, list, watch on serviceaccounts and serviceaccounts/token). Uses namespace-scoped Roles when serviceAccounts list is provided. |
-| rbac.serviceAccounts | list | [] | List of service accounts with name and namespace to allow access to. Creates a Role and RoleBinding per namespace. Example: serviceAccounts:   - name: my-service-account     namespace: my-namespace   - name: another-sa     namespace: another-namespace |
-| schemaHandler | object | `{"schemasDir":"/app/schemas","sharedVolume":{"accessMode":"ReadWriteOnce","size":"500Mi","storageClassName":""},"type":"file"}` | Schema handler type: "grpc" or "file" |
+| schemaHandler | object | `{"schemasDir":"/app/schemas","sharedVolume":{"accessMode":"ReadWriteOnce","size":"500Mi","storageClassName":""},"type":"grpc"}` | Schema handler type: "grpc" or "file" |
 | schemaHandler.schemasDir | string | `"/app/schemas"` | Directory path for schema files (used when type is "file") |
 | schemaHandler.sharedVolume | object | `{"accessMode":"ReadWriteOnce","size":"500Mi","storageClassName":""}` | Shared volume configuration (used when type is "file") |
 | sentry.environment | string | `"dev"` |  |
+| singleKubeConfig | object | `{"createInClusterSecret":true,"enabled":true,"path":"/app/single-kubeconfig/kubeconfig","secretName":"single-kubeconfig"}` | Single-provider kubeconfig. Used when listener.provider=multi. |
+| singleKubeConfig.createInClusterSecret | bool | `true` | Auto-generate an in-cluster kubeconfig using the pod's service account. Set to false if providing your own secret via secretName. |
 | tracing.enabled | bool | `true` |  |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
