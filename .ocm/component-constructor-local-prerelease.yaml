@@ -5,10 +5,10 @@ components:
       name: The Platform Mesh Team
     componentReferences:
       - name: chart
-        componentName: github.com/platform-mesh/helm-charts/platform-mesh-operator
+        componentName: github.com/platform-mesh/helm-charts/{{ .COMPONENT_SHORT_NAME }}
         version: {{ .VERSION }}
       - name: image
-        componentName: github.com/platform-mesh/images/platform-mesh-operator
+        componentName: github.com/platform-mesh/images/{{ .COMPONENT_SHORT_NAME }}
         version: {{ .APP_VERSION }}
     sources:
       - name: chart
@@ -19,7 +19,7 @@ components:
           repoUrl: {{ .CHART_REPO }}
           type: gitHub
 
-  - name: github.com/platform-mesh/helm-charts/platform-mesh-operator
+  - name: github.com/platform-mesh/helm-charts/{{ .COMPONENT_SHORT_NAME }}
     version: {{ .VERSION }}
     provider:
       name: The Platform Mesh Team
@@ -32,7 +32,7 @@ components:
           type: ociArtifact
           imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
 
-  - name: github.com/platform-mesh/images/platform-mesh-operator
+  - name: github.com/platform-mesh/images/{{ .COMPONENT_SHORT_NAME }}
     version: {{ .APP_VERSION }}
     provider:
       name: The Platform Mesh Team
