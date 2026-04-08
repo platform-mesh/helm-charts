@@ -1,0 +1,127 @@
+name: pipeline-chart
+
+permissions:
+  contents: write
+  packages: write
+
+on:
+  workflow_call:
+    inputs:
+      chartRepos:
+        required: false
+        type: string
+        default: ''
+      chartFolder:
+        required: false
+        type: string
+        default: 'charts'
+      chartName:
+        required: true
+        type: string
+      additionalTestFilesCommand:
+        required: false
+        type: string
+        default: '-f chart/test-values.yaml'
+      release_branch:
+        required: false
+        type: string
+        default: 'main'
+      pushTags:
+        required: false
+        type: boolean
+        default: false
+      disableOCM:
+        required: false
+        type: boolean
+        default: false
+      componentConstructorFile:
+        required: false
+        type: string
+        default: .ocm/component-constructor.yaml
+      chartOnly:
+        description: "If true, builds chart-only component and triggers service component pipeline"
+        required: false
+        type: boolean
+        default: false
+      imageComponentName:
+        description: "Image component name suffix for service component (defaults to chart name)"
+        required: false
+        type: string
+        default: ''
+    outputs:
+      version:
+        description: "The created Version"
+        value: ${{ jobs.release.outputs.version }}
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Always-run jobs (PR + main)
+  # ──────────────────────────────────────────────
+  test-chart:
+    uses: platform-mesh/.github/.github/workflows/job-test-chart.yml@main
+    with:
+      chartsFolder: ${{ inputs.chartFolder }}
+      chartName: ${{ inputs.chartName }}
+      additionalTestFilesCommand: ${{ inputs.additionalTestFilesCommand }}
+      chartRepos: ${{ inputs.chartRepos }}
+    secrets: inherit
+
+  check-helm-docs:
+    uses: platform-mesh/.github/.github/workflows/job-check-helm-chart-docs.yml@main
+    with:
+      chartFolder: ${{ inputs.chartFolder }}/${{ inputs.chartName }}
+    secrets: inherit
+
+  # ──────────────────────────────────────────────
+  # Quality gate (aggregates required checks)
+  # ──────────────────────────────────────────────
+  quality-gate:
+    if: always()
+    permissions: {}
+    needs: [test-chart, check-helm-docs]
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Check results
+        run: |
+          if [[ "${{ needs.test-chart.result }}" != "success" ]]; then
+            echo "test-chart failed"
+            exit 1
+          fi
+          if [[ "${{ needs.check-helm-docs.result }}" != "success" ]]; then
+            echo "check-helm-docs failed"
+            exit 1
+          fi
+
+  # ──────────────────────────────────────────────
+  # Release jobs (main branch only)
+  # ──────────────────────────────────────────────
+  release:
+    if: github.ref == format('refs/heads/{0}', inputs.release_branch)
+    needs: [test-chart, check-helm-docs]
+    uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@main
+    secrets: inherit
+    with:
+      updateVersion: false
+      pushTags: ${{ inputs.pushTags }}
+      updateImageTag: false
+      chartFolder: ${{ inputs.chartFolder }}/${{ inputs.chartName }}
+      release_branch: ${{ inputs.release_branch }}
+
+  ocm:
+    if: ${{ !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
+    needs: [release]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    secrets: inherit
+    with:
+      chartPath: ${{ inputs.chartFolder }}/${{ inputs.chartName }}
+      componentName: ${{ inputs.chartOnly && format('github.com/platform-mesh/helm-charts/{0}', inputs.chartName) || format('github.com/platform-mesh/{0}', inputs.chartName) }}
+      componentConstructorFile: ${{ inputs.componentConstructorFile }}
+      chartOnly: ${{ inputs.chartOnly }}
+      imageComponentName: ${{ inputs.imageComponentName }}
+
+  pm-ocm:
+    if: ${{ !inputs.chartOnly && !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
+    needs: [ocm]
+    uses: platform-mesh/.github/.github/workflows/job-ocm-version-update.yml@main
+    secrets: inherit
