@@ -21,7 +21,7 @@ jobs:
     concurrency:
       group: marketplace-ui-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: ./.github/workflows/pipeline-chart.yml
     with:
       chartFolder: charts
       chartName: marketplace-ui
