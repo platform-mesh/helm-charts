@@ -426,6 +426,26 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --prerelease --concurrent"}
 
+  local-setup:sharded:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--sharded"}
+
+  local-setup:sharded:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--sharded"}
+
+  local-setup:cached:sharded:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --sharded"}
+
+  local-setup:cached:sharded:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --sharded"}
+
   local-setup:prerelease:sharded:
     cmds:
       - task: local-setup
