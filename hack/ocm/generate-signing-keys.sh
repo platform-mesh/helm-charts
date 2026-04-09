@@ -17,7 +17,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 SECRETS_DIR="${REPO_ROOT}/.secrets"
 CA_DIR="${SECRETS_DIR}/ca"
-VALIDITY_DAYS=3650
+VALIDITY_HOURS=$((3650 * 24))  # ~10 years
 CA_CN="platform-mesh"
 
 COMPONENTS=(
@@ -37,36 +37,27 @@ COMPONENTS=(
   rebac-authz-webhook
   security-operator
   virtual-workspaces
+  terminal-controller-manager
 )
 
 generate_component_cert() {
   local name="$1"
   local cn="${name}.${CA_CN}"
-  local tmp_csr
-  tmp_csr="$(mktemp)"
 
   echo "==> Generating certificate for ${name} (CN=${cn})"
 
   # Make existing files writable if they exist
   chmod u+w "${SECRETS_DIR}/${name}.priv" "${SECRETS_DIR}/${name}.cert" 2>/dev/null || true
 
-  # Generate key + CSR
-  openssl req -newkey rsa:2048 -nodes \
-    -keyout "${SECRETS_DIR}/${name}.priv" \
-    -out "${tmp_csr}" \
-    -subj "/CN=${cn}"
-
-  # Sign with CA
-  openssl x509 -req -days "${VALIDITY_DAYS}" \
-    -in "${tmp_csr}" \
-    -CA "${CA_DIR}/ca.cert" \
-    -CAkey "${CA_DIR}/ca.priv" \
-    -CAcreateserial \
-    -out "${SECRETS_DIR}/${name}.cert" \
-    -extfile <(printf 'extendedKeyUsage=codeSigning\nbasicConstraints=critical,CA:FALSE')
+  # Generate key pair signed by CA (includes full certificate chain)
+  ocm create rsakeypair \
+    --ca-key "${CA_DIR}/ca.priv" \
+    --ca-cert "${CA_DIR}/ca.cert" \
+    --validity "${VALIDITY_HOURS}h" \
+    "${SECRETS_DIR}/${name}.priv" "${SECRETS_DIR}/${name}.cert" \
+    CN="${cn}"
 
   chmod 400 "${SECRETS_DIR}/${name}.priv" "${SECRETS_DIR}/${name}.cert"
-  rm -f "${tmp_csr}"
 
   echo "    ${name}.cert"
   echo "    ${name}.priv"
