@@ -132,7 +132,7 @@ jobs:
                       properties:
                         username: ${{ secrets.DOCKERHUB_USERNAME }}
                         password: ${{ secrets.DOCKERHUB_TOKEN }}
-            - type: resolvers.config.ocm.software/v1alpha1
+            - type: ocm.config.ocm.software
               resolvers:
                 - repository:
                     type: OCIRegistry/v1
