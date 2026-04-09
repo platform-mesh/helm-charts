@@ -1,0 +1,12 @@
+{{- if .Values.clusterAccess.marketplace.enabled }}
+apiVersion: gateway.platform-mesh.io/v1alpha1
+kind: ClusterAccess
+metadata:
+  name: marketplace
+spec:
+  path: {{ .Values.clusterAccess.marketplace.path }}
+  auth:
+    kubeconfigSecretRef:
+      name: {{ .Values.clusterAccess.marketplace.auth.kubeconfigSecretRef.name }}
+      key: {{ .Values.clusterAccess.marketplace.auth.kubeconfigSecretRef.key }}
+{{- end }}
