@@ -132,6 +132,13 @@ jobs:
                       properties:
                         username: ${{ secrets.DOCKERHUB_USERNAME }}
                         password: ${{ secrets.DOCKERHUB_TOKEN }}
+            - type: resolvers.config.ocm.software
+              resolvers:
+                - repository:
+                    type: OCIRegistry/v1
+                    baseUrl: europe-docker.pkg.dev
+                    subPath: gardener-project/releases
+                  componentNamePattern: "github.com/gardener/*"
           EOF
       - name: Get versions
         run: |
