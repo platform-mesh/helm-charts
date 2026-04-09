@@ -230,8 +230,10 @@ async function deleteAccount(page: Page, accountUrl: string): Promise<void> {
   }
 
   const confirmButtons = [
-    page.getByRole('button', { name: 'Delete', exact: true }).last(),
+    page.getByRole('button', { name: 'Submit', exact: true }).last(),
     page.getByRole('button', { name: 'Confirm', exact: true }).last(),
+    page.getByRole('button', { name: 'Delete', exact: true }).last(),
+    page.getByRole('button', { name: /submit/i }).last(),
     page.getByRole('button', { name: /delete/i }).last(),
     page.getByRole('button', { name: /remove/i }).last(),
     page.locator('[test-id="delete-resource-confirm"]').first(),
