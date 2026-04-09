@@ -13,7 +13,7 @@ spec:
   ocmConfig:
     - apiVersion: delivery.ocm.software/v1alpha1
       kind: Repository
-      name: {{ .Values.etcdDruid.ocm.repo.name }}
+      name: {{ .Values.ocm.repo.name }}
       namespace: {{ .Release.Namespace }}
   resource:
     byReference:
