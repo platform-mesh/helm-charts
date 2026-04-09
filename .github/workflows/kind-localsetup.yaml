@@ -39,7 +39,7 @@ jobs:
       - name: Skip — local-setup unchanged
         run: echo "local-setup unchanged, skipping kind-localsetup"
 
-  kind-localsetup:
+  kind-localsetup-run:
     needs: checkout-and-detect-changes
     if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
     runs-on: ubuntu-latest-large
@@ -111,3 +111,14 @@ jobs:
             local-setup/e2e/test-results/
             local-setup/e2e/*.png
           retention-days: 5
+
+  kind-localsetup:
+    if: always()
+    needs: [kind-localsetup-skip, kind-localsetup-run]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check result
+        run: |
+          if [[ "${{ needs.kind-localsetup-run.result }}" == "failure" || "${{ needs.kind-localsetup-run.result }}" == "cancelled" ]]; then
+            exit 1
+          fi
