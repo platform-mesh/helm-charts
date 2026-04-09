@@ -492,6 +492,16 @@ jobs:
             MARKETPLACE_UI_VERSION=${{ env.MARKETPLACE_UI_VERSION }} \
             TERMINAL_CONTROLLER_MANAGER_VERSION=${{ env.TERMINAL_CONTROLLER_MANAGER_VERSION }}
 
+      - name: Sign OCM Component
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
+          ./ocm sign componentversions --signature platform-mesh --private-key /tmp/ocm-signing.priv \
+            "directory::.ocm/transport.ctf//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
+          rm -f /tmp/ocm-signing.priv
+        env:
+          OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
+
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
         run: ./ocm transfer ctf .ocm/transport.ctf "ghcr.io/platform-mesh"
