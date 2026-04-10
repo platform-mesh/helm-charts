@@ -245,6 +245,8 @@ match the Snapshot:
           - secrets
         verbs:
           - get
+          - list
+          - watch
       - apiGroups:
           - ""
         resources:
@@ -822,6 +824,8 @@ match the Snapshot with crds:
           - secrets
         verbs:
           - get
+          - list
+          - watch
       - apiGroups:
           - ""
         resources:

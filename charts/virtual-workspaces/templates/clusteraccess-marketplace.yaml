@@ -8,5 +8,6 @@ spec:
   auth:
     kubeconfigSecretRef:
       name: {{ .Values.clusterAccess.marketplace.auth.kubeconfigSecretRef.name }}
+      namespace: {{ .Values.clusterAccess.marketplace.auth.kubeconfigSecretRef.namespace | default .Release.Namespace }}
       key: {{ .Values.clusterAccess.marketplace.auth.kubeconfigSecretRef.key }}
 {{- end }}

@@ -44,6 +44,8 @@ creates RBAC in multi mode even when kcp.enabled is true:
           - secrets
         verbs:
           - get
+          - list
+          - watch
       - apiGroups:
           - ""
         resources:
@@ -122,6 +124,8 @@ matches the Snapshot:
           - secrets
         verbs:
           - get
+          - list
+          - watch
       - apiGroups:
           - ""
         resources:
