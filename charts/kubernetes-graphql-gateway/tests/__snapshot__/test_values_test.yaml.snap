@@ -126,14 +126,15 @@ match the Snapshot:
                           x-kubernetes-map-type: atomic
                       type: object
                     host:
-                      description: Host is the URL for the cluster
+                      description: Host is the URL for the cluster. If not set and kubeconfig auth is used, the host from the kubeconfig is used.
                       type: string
                     path:
                       description: Path is an optional field. If not set, the name of the resource is used
                       type: string
-                  required:
-                    - host
                   type: object
+                  x-kubernetes-validations:
+                    - message: host is required unless kubeconfigSecretRef auth is used
+                      rule: has(self.host) || (has(self.auth) && has(self.auth.kubeconfigSecretRef))
                 status:
                   description: ClusterAccessStatus defines the observed state of ClusterAccess.
                   properties:
@@ -702,14 +703,15 @@ match the Snapshot with crds:
                           x-kubernetes-map-type: atomic
                       type: object
                     host:
-                      description: Host is the URL for the cluster
+                      description: Host is the URL for the cluster. If not set and kubeconfig auth is used, the host from the kubeconfig is used.
                       type: string
                     path:
                       description: Path is an optional field. If not set, the name of the resource is used
                       type: string
-                  required:
-                    - host
                   type: object
+                  x-kubernetes-validations:
+                    - message: host is required unless kubeconfigSecretRef auth is used
+                      rule: has(self.host) || (has(self.auth) && has(self.auth.kubeconfigSecretRef))
                 status:
                   description: ClusterAccessStatus defines the observed state of ClusterAccess.
                   properties:
