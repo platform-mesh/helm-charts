@@ -129,6 +129,9 @@ if [ -f "$SCRIPT_DIR/post-flux-hook.sh" ]; then
     source "$SCRIPT_DIR/post-flux-hook.sh"
 fi
 
+# Deploy CloudNativePG operator and shared PostgreSQL cluster
+source "$SCRIPT_DIR/setup-cnpg.sh"
+
 echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
 kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
