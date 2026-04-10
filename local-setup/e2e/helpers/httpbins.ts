@@ -210,32 +210,20 @@ async function openHttpBinsView(page: Page): Promise<void> {
 async function selectNamespaceScope(page: Page, namespaceName: string): Promise<void> {
   logStep(`selectNamespaceScope:start namespace=${namespaceName}`);
   await page.waitForTimeout(2000);
-  await page.screenshot({ path: 'debug-namespace-scope.png', fullPage: true });
 
-  // Dump all ui5-select elements for debugging
+  // Find the namespace scope dropdown (ui5-select with namespace names, not the "items per load" one)
   const ui5SelectCount = await page.locator('ui5-select').count();
-  for (let i = 0; i < ui5SelectCount; i++) {
-    const text = await page.locator('ui5-select').nth(i).textContent().catch(() => '');
-    logStep(`selectNamespaceScope:ui5-select[${i}] text="${text?.trim()}"`);
-  }
-
-  // The namespace scope dropdown shows "-all-" and contains namespace names
-  // Find it by looking for the one with "-all-" text
   let scopeSelect = null;
   for (let i = 0; i < ui5SelectCount; i++) {
     const text = await page.locator('ui5-select').nth(i).textContent().catch(() => '');
     if (text?.includes('-all-') || text?.includes(namespaceName)) {
       scopeSelect = page.locator('ui5-select').nth(i);
-      logStep(`selectNamespaceScope:found-scope-select index=${i}`);
       break;
     }
   }
 
   if (!scopeSelect) {
-    logStep(`selectNamespaceScope:no-scope-select-found ui5SelectCount=${ui5SelectCount}`);
-    // If namespace is "default" and we're on -all- scope, it's already included
     if (namespaceName === 'default') {
-      logStep('selectNamespaceScope:default-namespace-skip');
       return;
     }
     throw new Error(`Namespace scope dropdown not found for ${namespaceName}`);
@@ -261,9 +249,7 @@ async function selectNamespaceScope(page: Page, namespaceName: string): Promise<
   }
 
   await page.keyboard.press('Escape').catch(() => {});
-  // If on "-all-" and selecting "default", skip — it's already included
   if (namespaceName === 'default') {
-    logStep('selectNamespaceScope:default-namespace-fallback-skip');
     return;
   }
   throw new Error(`Unable to select namespace scope ${namespaceName}`);
