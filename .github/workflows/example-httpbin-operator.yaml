@@ -23,5 +23,6 @@ jobs:
       chartName: example-httpbin-operator
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
+      serviceComponentConstructorFile: constructor/service-component-example-httpbin-operator.yaml
     secrets: inherit
 
