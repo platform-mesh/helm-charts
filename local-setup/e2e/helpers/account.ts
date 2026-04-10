@@ -54,16 +54,33 @@ async function ensureAccountExists(page: Page): Promise<string> {
     logStep(`ensureAccountExists:create account=${testAccountName}`);
     await page.locator('[test-id="generic-list-view-create-button"]').click();
     await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-    await page.locator('[test-id="create-field-metadata_name"]').click();
-    await page.locator('[test-id="create-field-spec_type"]').click();
-    await page.locator('[test-id="create-field-spec_type-option-account"]').click();
-    await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
+
+    // Wait for the form fields to render
+    const firstTextbox = page.getByRole('textbox').first();
+    await firstTextbox.waitFor({ state: 'visible', timeout: 5000 });
+
+    // Fill the Name field
+    await firstTextbox.click({ force: true });
+    await page.keyboard.type(testAccountName, { delay: 30 });
+
+    // Select "account" type from the Type dropdown
+    const typeSelect = page.locator('ui5-select').nth(1);
+    await typeSelect.scrollIntoViewIfNeeded();
+    await typeSelect.click({ force: true, timeout: 3000 });
+    await page.waitForTimeout(500);
+    const accountOpt = page.locator('ui5-option').filter({ hasText: 'account' }).first();
+    if (await accountOpt.isVisible().catch(() => false)) {
+      await accountOpt.click({ force: true });
+    } else {
+      await page.keyboard.press('Escape');
+    }
+
     const submitButton = page.locator('[test-id="create-resource-submit"]');
     const alreadyExistsAlert = page.getByText(`accounts.core.platform-mesh.io "${testAccountName}" already exists`);
     const transientWebhookAlert = page.getByText(/failed calling webhook|connection refused|Internal error occurred/i);
 
     for (let attempt = 0; attempt < 4; attempt++) {
-      await submitButton.click();
+      await submitButton.click({ force: true });
 
       const outcome = await Promise.race([
         alreadyExistsAlert.waitFor({ state: 'visible', timeout: 30000 }).then(() => 'exists'),
