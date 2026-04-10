@@ -17,7 +17,9 @@ kcp_kubectl=(kubectl --kubeconfig "$ADMIN_KUBECONFIG")
 
 workspace_exists() {
   local workspace_path="$1"
-  "${kcp_kubectl[@]}" get --raw "/clusters/${workspace_path}/apis/tenancy.kcp.io/v1alpha1/workspacetypes" >/dev/null 2>&1
+  local parent="${workspace_path%:*}"
+  local name="${workspace_path##*:}"
+  [[ "$("${kcp_kubectl[@]}" --server "$KCP_URL/clusters/${parent}" get workspace "$name" -o jsonpath='{.status.phase}' 2>/dev/null)" == "Ready" ]]
 }
 
 wait_for_ready_resources() {
