@@ -22,6 +22,11 @@ on:
         description: 'Image component name suffix (defaults to repo name, e.g., security-operator)'
         required: false
         type: string
+      componentConstructorFile:
+        description: 'Service component constructor file path'
+        required: false
+        type: string
+        default: 'constructor/service-component.yaml'
 
 permissions:
   packages: write
@@ -77,29 +82,10 @@ jobs:
           fi
           echo "IMAGE_COMPONENT_NAME=$IMAGE_COMPONENT_NAME" >> $GITHUB_ENV
 
-      - name: Write service component constructor
-        run: |
-          cat <<'EOF' > service-component-constructor.yaml
-          components:
-            - name: "{{ .COMPONENT_NAME }}"
-              version: "{{ .VERSION }}"
-              provider:
-                name: Platform Mesh Team
-              componentReferences:
-                - name: chart
-                  componentName: "github.com/platform-mesh/helm-charts/{{ .CHART_NAME }}"
-                  version: "{{ .VERSION }}"
-                {{- if ne .APP_VERSION "0.0.0" }}
-                - name: image
-                  componentName: "github.com/platform-mesh/images/{{ .IMAGE_COMPONENT_NAME }}"
-                  version: "{{ .APP_VERSION }}"
-                {{- end }}
-          EOF
-
       - name: Create OCM ComponentArchive
         run: |
           ocm_ctf=transport.ctf
-          ./ocm add components -c --templater=go --file "$ocm_ctf" service-component-constructor.yaml -- \
+          ./ocm add components -c --templater=go --file "$ocm_ctf" ${{ inputs.componentConstructorFile }} -- \
             COMPONENT_NAME=${{ inputs.componentName }} \
             VERSION=${{ inputs.chartVersion }} \
             CHART_NAME=${{ inputs.chartName }} \
