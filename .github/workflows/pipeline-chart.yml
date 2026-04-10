@@ -40,6 +40,11 @@ on:
         required: false
         type: string
         default: ''
+      serviceComponentConstructorFile:
+        description: "Custom service component constructor file in the ocm repo"
+        required: false
+        type: string
+        default: ''
     outputs:
       version:
         description: "The created Version"
@@ -71,6 +76,7 @@ jobs:
       componentConstructorFile: ${{ inputs.componentConstructorFile }}
       chartOnly: ${{ inputs.chartOnly }}
       imageComponentName: ${{ inputs.imageComponentName }}
+      serviceComponentConstructorFile: ${{ inputs.serviceComponentConstructorFile }}
 
   pm-ocm:
     if: ${{ !inputs.chartOnly && !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
