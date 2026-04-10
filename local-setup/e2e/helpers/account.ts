@@ -54,10 +54,10 @@ async function ensureAccountExists(page: Page): Promise<string> {
     logStep(`ensureAccountExists:create account=${testAccountName}`);
     await page.locator('[test-id="generic-list-view-create-button"]').click();
     await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-    await page.locator('[test-id="create-field-metadata_name"]').click();
-    await page.locator('[test-id="create-field-spec_type"]').click();
-    await page.locator('[test-id="create-field-spec_type-option-account"]').click();
-    await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
+    await page.locator('[test-id="generic-form-field-metadata_name"]').click();
+    await page.locator('[test-id="generic-form-field-spec_type"]').click();
+    await page.locator('[test-id="generic-form-field-spec_type-option-account"]').click();
+    await page.locator('[test-id="generic-form-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
     const submitButton = page.locator('[test-id="create-resource-submit"]');
     const alreadyExistsAlert = page.getByText(`accounts.core.platform-mesh.io "${testAccountName}" already exists`);
     const transientWebhookAlert = page.getByText(/failed calling webhook|connection refused|Internal error occurred/i);
