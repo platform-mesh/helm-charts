@@ -1,0 +1,14 @@
+components:
+  - name: "{{ .COMPONENT_NAME }}"
+    version: "{{ .VERSION }}"
+    provider:
+      name: Platform Mesh Team
+    componentReferences:
+      - name: chart
+        componentName: "github.com/platform-mesh/helm-charts/{{ .CHART_NAME }}"
+        version: "{{ .VERSION }}"
+      {{- if ne .APP_VERSION "0.0.0" }}
+      - name: image
+        componentName: "github.com/platform-mesh/images/{{ .IMAGE_COMPONENT_NAME }}"
+        version: "{{ .APP_VERSION }}"
+      {{- end }}
