@@ -71,21 +71,20 @@ spec:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
-      suspend: true
+        postgresql:
+          enabled: false
+        externalDatabase:
+          host: platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local
+          port: 5432
+          user: keycloak
+          password: keycloak-password
+          database: keycloak
       imageResources:
         - name: keycloak-image
           annotations:
             repo: oci
             artifact: image
             for: keycloak
-        - name: keycloak-postgresql-image
-          resource: postgresql-image
-          annotations:
-            repo: oci
-            artifact: image
-            for: keycloak
-            path: postgresql.image.tag
-            unsuspend: "true"
     infra:
       imageResources: [] # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
@@ -174,15 +173,15 @@ spec:
             - "nereus.kcp.localhost"
             - "triton.kcp.localhost"
     openfga:
-      suspend: true
       enabled: true
       values:
         datastore:
-          uri: "postgres://postgres:password@openfga-postgres.platform-mesh-system.svc.cluster.local:5432/postgres?sslmode=disable"
+          uri: "postgres://openfga:openfga-password@platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local:5432/openfga?sslmode=disable"
+        extraEnvVars:
+          - name: OPENFGA_DATASTORE_SECONDARY_URI
+            value: "postgres://openfga:openfga-password@platform-mesh-pg-ro.platform-mesh-system.svc.cluster.local:5432/openfga?sslmode=disable"
         postgresql:
-          auth:
-            postgresPassword: password
-            database: postgres
+          enabled: false
     marketplace-ui:
       enabled: false
     terminal-controller-manager:
