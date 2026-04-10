@@ -4,7 +4,7 @@ crds match the snapshot:
     kind: CustomResourceDefinition
     metadata:
       annotations:
-        controller-gen.kubebuilder.io/version: v0.18.0
+        controller-gen.kubebuilder.io/version: v0.20.0
       name: clusteraccesses.gateway.platform-mesh.io
     spec:
       group: gateway.platform-mesh.io
@@ -46,40 +46,34 @@ crds match the snapshot:
                       description: Auth configuration for the cluster
                       properties:
                         clientCertificateRef:
-                          description: ClientCertificateRef points to secrets containing client certificate and key for mTLS
+                          description: |-
+                            ClientCertificateRef points to secrets containing client certificate and key for mTLS
+                            Secret must contain tls.crt and tls.key keys.
                           properties:
                             name:
+                              description: name is unique within a namespace to reference a secret resource.
                               type: string
                             namespace:
+                              description: namespace defines the space within which the secret name must be unique.
                               type: string
-                          required:
-                            - name
                           type: object
+                          x-kubernetes-map-type: atomic
                         kubeconfigSecretRef:
                           description: KubeconfigSecretRef points to a secret containing kubeconfig
                           properties:
-                            name:
-                              type: string
-                            namespace:
-                              type: string
-                          required:
-                            - name
-                          type: object
-                        secretRef:
-                          description: SecretRef points to a secret containing auth token
-                          properties:
                             key:
+                              description: Key is the key in the secret data which contains the token
                               type: string
                             name:
+                              description: name is unique within a namespace to reference a secret resource.
                               type: string
                             namespace:
+                              description: namespace defines the space within which the secret name must be unique.
                               type: string
-                          required:
-                            - key
-                            - name
                           type: object
-                        serviceAccount:
-                          description: ServiceAccount is the name of the service account to use
+                          x-kubernetes-map-type: atomic
+                        serviceAccountRef:
+                          description: ServiceAccountRef points to a service account for token generation
                           properties:
                             audience:
                               items:
@@ -91,49 +85,58 @@ crds match the snapshot:
                               type: string
                             token_expiration:
                               type: string
+                          required:
+                            - name
+                            - namespace
                           type: object
+                        tokenSecretRef:
+                          description: SecretRef points to a secret containing auth token
+                          properties:
+                            key:
+                              description: Key is the key in the secret data which contains the token
+                              type: string
+                            name:
+                              description: name is unique within a namespace to reference a secret resource.
+                              type: string
+                            namespace:
+                              description: namespace defines the space within which the secret name must be unique.
+                              type: string
+                          type: object
+                          x-kubernetes-map-type: atomic
                       type: object
+                      x-kubernetes-validations:
+                        - message: only one of tokenSecretRef, kubeconfigSecretRef, clientCertificateRef, or serviceAccountRef can be set
+                          rule: '(has(self.tokenSecretRef) ? 1 : 0) + (has(self.kubeconfigSecretRef) ? 1 : 0) + (has(self.clientCertificateRef) ? 1 : 0) + (has(self.serviceAccountRef) ? 1 : 0) <= 1'
                     ca:
                       description: CA configuration for the cluster
                       properties:
-                        configMapRef:
-                          description: ConfigMapRef points to a config map containing CA data
-                          properties:
-                            key:
-                              type: string
-                            name:
-                              type: string
-                            namespace:
-                              type: string
-                          required:
-                            - key
-                            - name
-                          type: object
                         secretRef:
                           description: SecretRef points to a secret containing CA data
                           properties:
                             key:
+                              description: Key is the key in the secret data which contains the token
                               type: string
                             name:
+                              description: name is unique within a namespace to reference a secret resource.
                               type: string
                             namespace:
+                              description: namespace defines the space within which the secret name must be unique.
                               type: string
-                          required:
-                            - key
-                            - name
                           type: object
+                          x-kubernetes-map-type: atomic
                       type: object
                     host:
-                      description: Host is the URL for the cluster
+                      description: Host is the URL for the cluster. If not set and kubeconfig auth is used, the host from the kubeconfig is used.
                       type: string
                     path:
                       description: Path is an optional field. If not set, the name of the resource is used
                       type: string
-                  required:
-                    - host
                   type: object
+                  x-kubernetes-validations:
+                    - message: host is required unless kubeconfigSecretRef auth is used
+                      rule: has(self.host) || (has(self.auth) && has(self.auth.kubeconfigSecretRef))
                 status:
-                  description: ClusterAccessStatus defines the observed state of ClusterAccess
+                  description: ClusterAccessStatus defines the observed state of ClusterAccess.
                   properties:
                     conditions:
                       description: Conditions represent the latest available observations of the cluster access state

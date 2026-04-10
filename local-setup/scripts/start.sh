@@ -22,15 +22,17 @@ PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
 CONCURRENT=false
+SHARDED=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--sharded] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
   echo "  --cached        Use local Docker registry mirrors for faster image pulls"
   echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
   echo "  --concurrent    Run prerelease chart builds in parallel instead of sequentially"
+  echo "  --sharded       Deploy additional kcp shards"
   echo "  --help          Show this help message"
   exit 1
 }
@@ -41,6 +43,7 @@ while [ $# -gt 0 ]; do
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
+    --sharded) SHARDED=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -185,18 +188,32 @@ elif [ "$PRERELEASE" = true ]; then
   if [ "$EXAMPLE_DATA" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
     # TODO: Create example-data-prerelease overlay if needed
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+    if [ "$SHARDED" = true ]; then
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
+    else
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+    fi
     kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
   else
-    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+    if [ "$SHARDED" = true ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
+    else
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+    fi
   fi
-elif [ "$EXAMPLE_DATA" = true ]; then
-  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
 else
-  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
-  kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+  if [ "$SHARDED" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (sharded) ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-sharded
+  else
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+  fi
+  if [ "$EXAMPLE_DATA" = true ]; then
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+  fi
 fi
 
 # wait for kind: PlatformMesh resource to become ready

@@ -1,4 +1,11 @@
 {{- $noJson := include "common.getKeyValue" (dict "Values" .Values "key" "log.noJson") }}
+{{- $provider := .Values.listener.provider | default "multi" }}
+{{- if eq $provider "kubernetes" }}
+{{- fail "listener.provider value 'kubernetes' is no longer supported. Use 'single' instead." }}
+{{- end }}
+{{- if and .Values.listener.clusterAccessControllerProviders (not .Values.listener.enableClusterAccessController) }}
+{{- fail "listener.clusterAccessControllerProviders requires listener.enableClusterAccessController=true" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -90,13 +97,30 @@ spec:
         {{- else if eq .Values.schemaHandler.type "file" }}
         - --schemas-dir={{ .Values.schemaHandler.schemasDir }}
         {{- end }}
-        - --multicluster-runtime-provider={{ .Values.listener.multiclusterRuntimeProvider }}
+        - --multicluster-runtime-provider={{ $provider }}
+        {{- if or (eq $provider "kcp") (eq $provider "multi") }}
+        {{- if .Values.kubeConfig.enabled }}
+        - --kubeconfig={{ .Values.kubeConfig.path }}
+        {{- end }}
         - --apiexport-endpoint-slice-name={{ .Values.listener.apiExportEndpointSliceName }}
         - --workspace-schema-kubeconfig-override={{ .Values.listener.workspaceSchemaKubeconfigOverride | default .Values.kubeConfig.path }}
-        - --anchor-resource={{ .Values.listener.anchorResource }}
+        - --anchor-resource={{ .Values.listener.anchorResourceExpression }}
         - --reconciler-gvr={{ .Values.listener.reconcilerGvr }}
         - --additional-path-annotation-key={{ .Values.listener.additionalPathAnnotationKey }}
+        {{- end }}
         - --metrics-bind-address=:{{ .Values.listener.metricsPort }}
+        {{- if .Values.listener.enableClusterAccessController }}
+        - --enable-clusteraccess-controller
+        {{- end }}
+        {{- if eq $provider "multi" }}
+        - --single-kubeconfig={{ .Values.singleKubeConfig.path }}
+        {{- if .Values.listener.resourceControllerProviders }}
+        - --resource-controller-providers={{ .Values.listener.resourceControllerProviders }}
+        {{- end }}
+        {{- if .Values.listener.clusterAccessControllerProviders }}
+        - --clusteraccess-controller-providers={{ .Values.listener.clusterAccessControllerProviders }}
+        {{- end }}
+        {{- end }}
         {{- with .Values.listener.extraArgs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -124,37 +148,36 @@ spec:
           value: {{ .Values.kubeConfig.path }}
         {{- end }}
         volumeMounts:
+        {{- if eq .Values.schemaHandler.type "file" }}
           - name: schemas-volume
             mountPath: {{ .Values.schemaHandler.schemasDir }}
+        {{- end }}
         {{- if .Values.kubeConfig.enabled }}
           - name: kubeconfig-volume
             mountPath: /app/kubeconfig
         {{- end }}
-        {{- if .Values.listener.virtualWorkspacesConfig.enabled }}
-          - name: virtual-workspaces-config-volume
-            mountPath: /app/config
+        {{- if .Values.singleKubeConfig.enabled }}
+          - name: single-kubeconfig-volume
+            mountPath: /app/single-kubeconfig
         {{- end }}
         {{- with .Values.extraVolumeMounts }}
           {{- toYaml . | nindent 10 }}
         {{- end }}
       volumes:
+        {{- if eq .Values.schemaHandler.type "file" }}
         - name: schemas-volume
-          {{- if eq .Values.schemaHandler.type "file" }}
           persistentVolumeClaim:
             claimName: {{ include "common.entity.name" . }}-schemas
-          {{- else }}
-          emptyDir:
-            sizeLimit: {{ .Values.schemaHandler.sharedVolume.size }}
-          {{- end }}
+        {{- end }}
         {{- if .Values.kubeConfig.enabled }}
         - name: kubeconfig-volume
           secret:
             secretName: {{ .Values.kubeConfig.secretName }}
         {{- end }}
-        {{- if .Values.listener.virtualWorkspacesConfig.enabled }}
-        - name: virtual-workspaces-config-volume
-          configMap:
-            name: {{ .Values.listener.virtualWorkspacesConfig.configMapName }}
+        {{- if .Values.singleKubeConfig.enabled }}
+        - name: single-kubeconfig-volume
+          secret:
+            secretName: {{ .Values.singleKubeConfig.secretName }}
         {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}

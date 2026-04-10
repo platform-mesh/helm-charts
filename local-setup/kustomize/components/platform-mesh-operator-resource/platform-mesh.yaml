@@ -95,6 +95,7 @@ spec:
               enabled: true
           image:
             tag: "097afc12c" # bump kcp image to work around WatchList issues
+          shards: []
           frontProxy:
             clusterIP: "10.96.0.100"
         traefik:
