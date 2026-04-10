@@ -36,6 +36,7 @@ virtual-workspaces match the snapshot:
         kubeconfigSecretRef:
           key: kubeconfig
           name: virtual-workspace-clusteraccess-kubeconfig
+          namespace: NAMESPACE
       path: null
   3: |
     apiVersion: apps/v1
