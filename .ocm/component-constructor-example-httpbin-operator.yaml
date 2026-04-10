@@ -1,65 +1,66 @@
 components:
-- name: github.com/kcp-dev/api-syncagent
-  version: 0.4.4
-  provider:
-    name: kcp
-  resources:
-  - name: chart
-    type: helmChart
+  - name: github.com/kcp-dev/api-syncagent
     version: 0.4.4
-    access:
-      type: helm
-      helmChart: api-syncagent:0.4.4
-      helmRepository: https://kcp-dev.github.io/helm-charts
-- name: github.com/kubernetes/ingress-nginx
-  version: 4.11.3
-  provider:
-    name: kubernetes
-  resources:
-  - name: chart
-    type: helmChart
+    provider:
+      name: kcp
+    resources:
+      - name: chart
+        type: helmChart
+        version: 0.4.4
+        access:
+          type: helm
+          helmChart: api-syncagent:0.4.4
+          helmRepository: https://kcp-dev.github.io/helm-charts
+  - name: github.com/kubernetes/ingress-nginx
     version: 4.11.3
-    access:
-      type: helm
-      helmChart: ingress-nginx:4.11.3
-      helmRepository: https://kubernetes.github.io/ingress-nginx
-- name: {{ .COMPONENT_NAME }}
-  version: {{ .VERSION }}
-  provider:
-    name: The Platform Mesh Team
-  componentReferences:
-  - name: chart
-    type: helmChart
-    relation: external
+    provider:
+      name: kubernetes
+    resources:
+      - name: chart
+        type: helmChart
+        version: 4.11.3
+        access:
+          type: helm
+          helmChart: ingress-nginx:4.11.3
+          helmRepository: https://kubernetes.github.io/ingress-nginx
+  - name: {{ .COMPONENT_NAME }}
     version: {{ .VERSION }}
-    access:
-      type: ociArtifact
-      imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
-  - name: image
-    type: ociImage
-    relation: external
-    version: {{ .APP_VERSION }}
-    access:
-      type: ociArtifact
-      imageReference: "{{ .IMAGE_NAME }}:{{ .APP_VERSION }}"
-  - name: api-syncagent
-    componentName: github.com/kcp-dev/api-syncagent
-    version: 0.4.4
-  - name: ingress-nginx
-    componentName: github.com/kubernetes/ingress-nginx
-    version: 4.11.3
-  sources:
-  - name: source
-    type: git
-    version: {{ .APP_VERSION }}
-    access:
-      commit: {{ .IMAGE_REPO_SHA }}
-      repoUrl: {{ .IMAGE_REPO }}
-      type: gitHub
-  - name: chart
-    type: git
-    version: {{ .VERSION }}
-    access:
-      commit: {{ .COMMIT }}
-      repoUrl: {{ .CHART_REPO }}
-      type: gitHub
+    provider:
+      name: The Platform Mesh Team
+    componentReferences:
+      - name: api-syncagent
+        componentName: github.com/kcp-dev/api-syncagent
+        version: 0.4.4
+      - name: ingress-nginx
+        componentName: github.com/kubernetes/ingress-nginx
+        version: 4.11.3
+    resources:
+      - name: chart
+        type: helmChart
+        relation: external
+        version: {{ .VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
+      - name: image
+        type: ociImage
+        relation: external
+        version: {{ .APP_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "{{ .IMAGE_NAME }}:{{ .APP_VERSION }}"
+    sources:
+      - name: source
+        type: git
+        version: {{ .APP_VERSION }}
+        access:
+          commit: {{ .IMAGE_REPO_SHA }}
+          repoUrl: {{ .IMAGE_REPO }}
+          type: gitHub
+      - name: chart
+        type: git
+        version: {{ .VERSION }}
+        access:
+          commit: {{ .COMMIT }}
+          repoUrl: {{ .CHART_REPO }}
+          type: gitHub
