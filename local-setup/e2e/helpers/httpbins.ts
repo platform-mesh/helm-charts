@@ -160,7 +160,10 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
 
   await page.locator('[test-id="generic-list-view-create-button"]').click();
   await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-  await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(namespaceName);
+  await page
+    .locator('[test-id="generic-form-field-metadata_name"]')
+    .getByRole("textbox")
+    .fill(namespaceName);
   await page.locator('[test-id="create-resource-submit"]').click();
   const alreadyExistsAlert = page.getByText(`namespaces \"${namespaceName}\" already exists`);
   await Promise.race([
@@ -248,23 +251,42 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
     const httpBinRow = page.getByRole('row').filter({ hasText: httpBinName }).first();
     if (!await httpBinRow.isVisible().catch(() => false)) {
       const createDialog = page.locator('[test-id="create-resource-dialog"]');
-      await page.getByRole('button', { name: 'Create' }).click();
-      await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-      await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(httpBinName);
-      await page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items"]').click();
+      await page.getByRole("button", { name: "Create" }).click();
+      await createDialog.waitFor({ state: "visible", timeout: 10000 });
+      await page
+        .locator('[test-id="generic-form-field-metadata_name"]')
+        .getByRole("textbox")
+        .fill(httpBinName);
+      const namespaceInput = page.locator(
+        '[test-id="generic-form-field-metadata_namespace"]',
+      );
+      await namespaceInput.click();
 
-      const namespaceOption = page.locator(`[test-id="pm-dynamic-select-v1.Namespaces.items-option-${namespaceName}"]`).or(
-        page.getByRole('option', { name: namespaceName, exact: true }),
-      ).first();
-      await namespaceOption.waitFor({ state: 'visible', timeout: 10000 });
+      const namespaceOption = namespaceInput
+        .locator(page.getByRole("option", { name: namespaceName, exact: true }))
+        .first();
+      await namespaceOption.waitFor({ state: "visible", timeout: 10000 });
       await namespaceOption.click();
 
-      const submitButton = page.locator('[test-id="create-resource-submit"]');
-      await expect(submitButton).toBeEnabled({ timeout: 10000 });
-      await submitButton.click();
+      const submitButton = createDialog.locator('[test-id="create-resource-submit"]');
+      if (await submitButton.isEnabled({ timeout: 1000 })) {
+        for (let attempt = 0; attempt < 3; attempt++) {
+          await submitButton.click({ force: true, timeout: 100 });
+          const outcome = await Promise.race([
+            httpBinRow.waitFor({ state: "visible", timeout: 10000 }).then(() => "exists"),
+            createDialog
+              .waitFor({ state: "hidden", timeout: 10000 })
+              .then(() => "submitted"),
+          ]).catch(() => "retry");
+
+          if (outcome === "submitted" || outcome === "exists") {
+            break;
+          }
+        }
+      }
 
       await Promise.race([
-        createDialog.waitFor({ state: 'hidden', timeout: 30000 }),
+        createDialog.waitFor({ state: "hidden", timeout: 30000 }),
         expect(httpBinRow).toBeVisible({ timeout: 30000 }),
       ]).catch(async () => {
         await closeDialogIfVisible(createDialog);
