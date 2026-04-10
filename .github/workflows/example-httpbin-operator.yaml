@@ -21,7 +21,7 @@ jobs:
     with:
       chartFolder: charts
       chartName: example-httpbin-operator
-      componentConstructorFile: .ocm/component-constructor-example-httpbin-operator.yaml
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
     secrets: inherit
 
