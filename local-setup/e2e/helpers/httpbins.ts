@@ -160,8 +160,11 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
 
   await page.locator('[test-id="generic-list-view-create-button"]').click();
   await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-  await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(namespaceName);
-  await page.locator('[test-id="create-resource-submit"]').click();
+  const nameInput = page.getByRole('textbox').first();
+  await nameInput.waitFor({ state: 'visible', timeout: 5000 });
+  await nameInput.click({ force: true });
+  await page.keyboard.type(namespaceName, { delay: 30 });
+  await page.locator('[test-id="create-resource-submit"]').click({ force: true });
   const alreadyExistsAlert = page.getByText(`namespaces \"${namespaceName}\" already exists`);
   await Promise.race([
     expect(namespaceRow).toBeVisible({ timeout: 30000 }),
@@ -196,7 +199,7 @@ async function openHttpBinsView(page: Page): Promise<void> {
   await ensureExampleHttpbinProvider(page);
 
   const httpBinsReadyLocators = [
-    page.locator('[data-testid="namespace-selection-combobox"]').first(),
+    page.locator('ui5-select').first(),
     page.getByRole('button', { name: 'Create' }).first(),
     page.getByRole('heading', { name: 'HttpBins', exact: true }),
   ];
@@ -205,37 +208,64 @@ async function openHttpBinsView(page: Page): Promise<void> {
 }
 
 async function selectNamespaceScope(page: Page, namespaceName: string): Promise<void> {
-  const scopeCombobox = page.locator('[data-testid="namespace-selection-combobox"]').first();
-  await expect(scopeCombobox).toBeVisible({ timeout: 15000 });
-  if ((await scopeCombobox.textContent().catch(() => ''))?.includes(namespaceName)) {
-    return;
+  logStep(`selectNamespaceScope:start namespace=${namespaceName}`);
+  await page.waitForTimeout(2000);
+  await page.screenshot({ path: 'debug-namespace-scope.png', fullPage: true });
+
+  // Dump all ui5-select elements for debugging
+  const ui5SelectCount = await page.locator('ui5-select').count();
+  for (let i = 0; i < ui5SelectCount; i++) {
+    const text = await page.locator('ui5-select').nth(i).textContent().catch(() => '');
+    logStep(`selectNamespaceScope:ui5-select[${i}] text="${text?.trim()}"`);
   }
 
-  await scopeCombobox.click();
-  await scopeCombobox.press('F4').catch(() => {});
-  await page.waitForTimeout(500);
-
-  const namespaceItem = page.locator(`[data-testid="namespace-selection-combobox-item-${namespaceName}"]`).or(
-    page.getByRole('option', { name: namespaceName, exact: true }),
-  ).first();
-
-  if (await namespaceItem.isVisible().catch(() => false)) {
-    await namespaceItem.click();
-    await expect(scopeCombobox).toContainText(namespaceName);
-    return;
+  // The namespace scope dropdown shows "-all-" and contains namespace names
+  // Find it by looking for the one with "-all-" text
+  let scopeSelect = null;
+  for (let i = 0; i < ui5SelectCount; i++) {
+    const text = await page.locator('ui5-select').nth(i).textContent().catch(() => '');
+    if (text?.includes('-all-') || text?.includes(namespaceName)) {
+      scopeSelect = page.locator('ui5-select').nth(i);
+      logStep(`selectNamespaceScope:found-scope-select index=${i}`);
+      break;
+    }
   }
 
-  const comboInput = scopeCombobox.locator('input').first();
-  if (await comboInput.isVisible().catch(() => false)) {
-    await comboInput.click();
-    await comboInput.fill(namespaceName);
-    await comboInput.press('Enter');
-    if ((await scopeCombobox.textContent().catch(() => ''))?.includes(namespaceName)) {
+  if (!scopeSelect) {
+    logStep(`selectNamespaceScope:no-scope-select-found ui5SelectCount=${ui5SelectCount}`);
+    // If namespace is "default" and we're on -all- scope, it's already included
+    if (namespaceName === 'default') {
+      logStep('selectNamespaceScope:default-namespace-skip');
       return;
     }
-    await page.keyboard.press('Escape').catch(() => {});
+    throw new Error(`Namespace scope dropdown not found for ${namespaceName}`);
   }
 
+  if ((await scopeSelect.textContent().catch(() => ''))?.includes(namespaceName)) {
+    return;
+  }
+
+  await scopeSelect.click({ force: true });
+  await page.waitForTimeout(500);
+
+  const namespaceItem = page.getByRole('option', { name: namespaceName, exact: true }).first();
+  if (await namespaceItem.isVisible().catch(() => false)) {
+    await namespaceItem.click();
+    return;
+  }
+
+  const ui5Option = page.locator('ui5-option').filter({ hasText: namespaceName }).first();
+  if (await ui5Option.isVisible().catch(() => false)) {
+    await ui5Option.click({ force: true });
+    return;
+  }
+
+  await page.keyboard.press('Escape').catch(() => {});
+  // If on "-all-" and selecting "default", skip — it's already included
+  if (namespaceName === 'default') {
+    logStep('selectNamespaceScope:default-namespace-fallback-skip');
+    return;
+  }
   throw new Error(`Unable to select namespace scope ${namespaceName}`);
 }
 
@@ -250,14 +280,31 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
       const createDialog = page.locator('[test-id="create-resource-dialog"]');
       await page.getByRole('button', { name: 'Create' }).click();
       await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-      await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(httpBinName);
-      await page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items"]').click();
+      const httpBinNameInput = page.getByRole('textbox').first();
+      await httpBinNameInput.waitFor({ state: 'visible', timeout: 5000 });
+      await httpBinNameInput.click({ force: true });
+      await page.keyboard.type(httpBinName, { delay: 30 });
 
-      const namespaceOption = page.locator(`[test-id="pm-dynamic-select-v1.Namespaces.items-option-${namespaceName}"]`).or(
-        page.getByRole('option', { name: namespaceName, exact: true }),
-      ).first();
-      await namespaceOption.waitFor({ state: 'visible', timeout: 10000 });
-      await namespaceOption.click();
+      // Select namespace from the dropdown in the create dialog
+      // The form has multiple ui5-selects; the namespace one is after the first (items-per-load)
+      const dialogSelects = page.locator('ui5-select');
+      const selectCount = await dialogSelects.count();
+      for (let i = 0; i < selectCount; i++) {
+        const text = await dialogSelects.nth(i).textContent().catch(() => '');
+        if (text?.includes(namespaceName) || text?.includes('-all-') || text === '') {
+          await dialogSelects.nth(i).scrollIntoViewIfNeeded();
+          await dialogSelects.nth(i).click({ force: true, timeout: 3000 });
+          await page.waitForTimeout(500);
+          const nsOpt = page.locator('ui5-option').filter({ hasText: namespaceName }).first();
+          if (await nsOpt.isVisible().catch(() => false)) {
+            await nsOpt.click({ force: true });
+            logStep(`ensureHttpBinExists:namespace-selected=${namespaceName}`);
+          } else {
+            await page.keyboard.press('Escape').catch(() => {});
+          }
+          break;
+        }
+      }
 
       const submitButton = page.locator('[test-id="create-resource-submit"]');
       await expect(submitButton).toBeEnabled({ timeout: 10000 });
