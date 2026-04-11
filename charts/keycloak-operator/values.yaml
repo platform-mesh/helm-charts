@@ -1,0 +1,21 @@
+image:
+  repository: quay.io/keycloak/keycloak-operator
+  tag: ""  # defaults to appVersion
+  pullPolicy: Always
+
+keycloakImage:
+  repository: quay.io/keycloak/keycloak
+  tag: ""  # defaults to appVersion
+
+replicaCount: 1
+
+resources:
+  limits:
+    cpu: 700m
+    memory: 450Mi
+  requests:
+    cpu: 300m
+    memory: 450Mi
+
+# Namespace to watch for Keycloak CRs. Defaults to the release namespace.
+watchNamespaces: ""
