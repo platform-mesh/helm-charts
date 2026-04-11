@@ -58,36 +58,16 @@ spec:
         log:
           noJson: true
     keycloak:
-      enabled: true
-      values:
-        service:
-          clusterIP: 10.96.0.110
-        resources:
-          limits:
-            cpu: "2"
-            ephemeral-storage: 2Gi
-            memory: 2Gi
-          requests:
-            cpu: 750m
-            ephemeral-storage: 50Mi
-            memory: 1Gi
-        postgresql:
-          enabled: false
-        externalDatabase:
-          host: platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local
-          port: 5432
-          user: keycloak
-          password: keycloak-password
-          database: keycloak
-      imageResources:
-        - name: keycloak-image
-          annotations:
-            repo: oci
-            artifact: image
-            for: keycloak
+      enabled: false
     infra:
       imageResources: [] # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
+        keycloak:
+          service:
+            name: keycloak-service
+            port: 8080
+          keycloakConfig:
+            url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
         kcp:
           auth:
             serviceAccount:
@@ -212,6 +192,9 @@ spec:
           enabled: true
         listener:
           anchorResource: 'object.metadata.name.contains("platform-mesh.io")'
+        trust:
+          default:
+            jwksUrl: http://keycloak-service.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
     kcp-operator:
       external: true
     kcp:
