@@ -1,3 +1,6 @@
+rbac:
+  enabled: true
+
 crds:
   enabled: true
 
@@ -105,9 +108,6 @@ singleKubeConfig:
 
 extraVolumes: []
 extraVolumeMounts: []
-
-tracing:
-  enabled: true
 
 hostAliases:
   enabled: false

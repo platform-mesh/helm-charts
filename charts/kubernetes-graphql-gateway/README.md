@@ -74,13 +74,13 @@ kubeConfig:
 | listener.resources.requests.cpu | string | `"250m"` |  |
 | listener.resources.requests.memory | string | `"500Mi"` |  |
 | listener.workspaceSchemaKubeconfigOverride | string | `""` |  |
+| rbac.enabled | bool | `true` |  |
 | schemaHandler | object | `{"schemasDir":"/app/schemas","sharedVolume":{"accessMode":"ReadWriteOnce","size":"500Mi","storageClassName":""},"type":"grpc"}` | Schema handler type: "grpc" or "file" |
 | schemaHandler.schemasDir | string | `"/app/schemas"` | Directory path for schema files (used when type is "file") |
 | schemaHandler.sharedVolume | object | `{"accessMode":"ReadWriteOnce","size":"500Mi","storageClassName":""}` | Shared volume configuration (used when type is "file") |
 | sentry.environment | string | `"dev"` |  |
 | singleKubeConfig | object | `{"createInClusterSecret":true,"enabled":true,"path":"/app/single-kubeconfig/kubeconfig","secretName":"single-kubeconfig"}` | Single-provider kubeconfig. Used when listener.provider=multi. |
 | singleKubeConfig.createInClusterSecret | bool | `true` | Auto-generate an in-cluster kubeconfig using the pod's service account. Set to false if providing your own secret via secretName. |
-| tracing.enabled | bool | `true` |  |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
