@@ -65,6 +65,11 @@ listener:
   # Valid values: "kcp", "single". Only valid when provider=multi.
   # Requires enableClusterAccessController=true.
   clusterAccessControllerProviders: "single"
+  # -- Enable the resource controller for watching the configured anchor resource and generating schemas.
+  enableResourceController: true
+  # -- Restrict the cache to these namespaces for namespaced resources (e.g. secrets, configmaps).
+  # Cluster-scoped resources are unaffected. When empty, all namespaces are cached.
+  cacheNamespaces: []
   # -- Enable the ClusterAccess controller.
   enableClusterAccessController: true
 

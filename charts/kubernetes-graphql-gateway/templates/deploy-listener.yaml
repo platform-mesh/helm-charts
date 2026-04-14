@@ -109,8 +109,14 @@ spec:
         - --additional-path-annotation-key={{ .Values.listener.additionalPathAnnotationKey }}
         {{- end }}
         - --metrics-bind-address=:{{ .Values.listener.metricsPort }}
+        {{- if .Values.listener.enableResourceController }}
+        - --enable-resource-controller
+        {{- end }}
         {{- if .Values.listener.enableClusterAccessController }}
         - --enable-clusteraccess-controller
+        {{- end }}
+        {{- if .Values.listener.cacheNamespaces }}
+        - --cache-namespaces={{ join "," .Values.listener.cacheNamespaces }}
         {{- end }}
         {{- if eq $provider "multi" }}
         - --single-kubeconfig={{ .Values.singleKubeConfig.path }}
