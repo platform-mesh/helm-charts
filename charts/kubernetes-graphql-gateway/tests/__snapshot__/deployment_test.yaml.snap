@@ -28,10 +28,6 @@ has all hostAliases configured:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
-                - --tracing-enabled=true
-                - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
-                - --tracing-config-service-version=1.0.0
-                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
@@ -127,6 +123,7 @@ has all hostAliases configured:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
+                - --enable-resource-controller
                 - --enable-clusteraccess-controller
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
@@ -227,10 +224,6 @@ matches the Snapshot:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
-                - --tracing-enabled=true
-                - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
-                - --tracing-config-service-version=1.0.0
-                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
@@ -321,6 +314,7 @@ matches the Snapshot:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
+                - --enable-resource-controller
                 - --enable-clusteraccess-controller
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
@@ -424,6 +418,7 @@ renders default multi-mode with all features enabled:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
+                - --enable-resource-controller
                 - --enable-clusteraccess-controller
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
@@ -523,6 +518,7 @@ renders listener with kcp provider mode:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
+                - --enable-resource-controller
                 - --enable-clusteraccess-controller
               env:
                 - name: KUBECONFIG
@@ -623,6 +619,7 @@ renders listener with multi provider mode and all flags:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
+                - --enable-resource-controller
                 - --enable-clusteraccess-controller
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp,single
@@ -720,6 +717,7 @@ renders listener with single provider mode:
                 - --grpc-listen-addr=:50051
                 - --multicluster-runtime-provider=single
                 - --metrics-bind-address=:8091
+                - --enable-resource-controller
                 - --enable-clusteraccess-controller
               env:
                 - name: KUBECONFIG

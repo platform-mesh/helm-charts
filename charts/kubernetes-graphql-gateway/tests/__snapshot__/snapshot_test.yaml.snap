@@ -28,10 +28,6 @@ match the Snapshot:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
-                - --tracing-enabled=true
-                - --tracing-config-service-name=platform-mesh-kubernetes-graphql-gateway.platform-mesh-system
-                - --tracing-config-service-version=1.0.0
-                - --tracing-config-collector-endpoint=observability-opentelemetry-collector.platform-mesh-observability.svc.cluster.local:4317
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
@@ -122,6 +118,7 @@ match the Snapshot:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
+                - --enable-resource-controller
                 - --enable-clusteraccess-controller
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
