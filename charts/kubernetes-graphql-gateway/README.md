@@ -59,8 +59,10 @@ kubeConfig:
 | listener.additionalPathAnnotationKey | string | `"kcp.io/path"` |  |
 | listener.anchorResourceExpression | string | `"true"` | CEL expression that selects which resources trigger a reconcile |
 | listener.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` |  |
+| listener.cacheNamespaces | list | `[]` | Restrict the cache to these namespaces for namespaced resources (e.g. secrets, configmaps). Cluster-scoped resources are unaffected. When empty, all namespaces are cached. |
 | listener.clusterAccessControllerProviders | multi mode only | `"single"` | Comma-separated list of providers for the ClusterAccess controller. Valid values: "kcp", "single". Only valid when provider=multi. Requires enableClusterAccessController=true. |
 | listener.enableClusterAccessController | bool | `true` | Enable the ClusterAccess controller. |
+| listener.enableResourceController | bool | `true` | Enable the resource controller for watching the configured anchor resource and generating schemas. |
 | listener.extraArgs | list | `[]` |  |
 | listener.grpcPort | int | `50051` |  |
 | listener.healthCheck.enabled | bool | `false` |  |
