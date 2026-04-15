@@ -398,8 +398,8 @@ match the Snapshot:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-                - --enable-resource-controller
-                - --enable-clusteraccess-controller
+                - --enable-resource-controller=true
+                - --enable-clusteraccess-controller=true
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
                 - --clusteraccess-controller-providers=single
@@ -974,8 +974,8 @@ match the Snapshot with crds:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-                - --enable-resource-controller
-                - --enable-clusteraccess-controller
+                - --enable-resource-controller=true
+                - --enable-clusteraccess-controller=true
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
                 - --clusteraccess-controller-providers=single

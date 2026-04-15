@@ -123,8 +123,8 @@ has all hostAliases configured:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-                - --enable-resource-controller
-                - --enable-clusteraccess-controller
+                - --enable-resource-controller=true
+                - --enable-clusteraccess-controller=true
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
                 - --clusteraccess-controller-providers=single
@@ -314,8 +314,8 @@ matches the Snapshot:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-                - --enable-resource-controller
-                - --enable-clusteraccess-controller
+                - --enable-resource-controller=true
+                - --enable-clusteraccess-controller=true
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
                 - --clusteraccess-controller-providers=single
@@ -418,8 +418,8 @@ renders default multi-mode with all features enabled:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-                - --enable-resource-controller
-                - --enable-clusteraccess-controller
+                - --enable-resource-controller=true
+                - --enable-clusteraccess-controller=true
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp
                 - --clusteraccess-controller-providers=single
@@ -518,8 +518,8 @@ renders listener with kcp provider mode:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-                - --enable-resource-controller
-                - --enable-clusteraccess-controller
+                - --enable-resource-controller=true
+                - --enable-clusteraccess-controller=true
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
@@ -619,8 +619,8 @@ renders listener with multi provider mode and all flags:
                 - --reconciler-gvr=apibindings.v1alpha2.apis.kcp.io
                 - --additional-path-annotation-key=kcp.io/path
                 - --metrics-bind-address=:8091
-                - --enable-resource-controller
-                - --enable-clusteraccess-controller
+                - --enable-resource-controller=true
+                - --enable-clusteraccess-controller=true
                 - --single-kubeconfig=/app/single-kubeconfig/kubeconfig
                 - --resource-controller-providers=kcp,single
                 - --clusteraccess-controller-providers=single
@@ -717,8 +717,8 @@ renders listener with single provider mode:
                 - --grpc-listen-addr=:50051
                 - --multicluster-runtime-provider=single
                 - --metrics-bind-address=:8091
-                - --enable-resource-controller
-                - --enable-clusteraccess-controller
+                - --enable-resource-controller=true
+                - --enable-clusteraccess-controller=true
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
