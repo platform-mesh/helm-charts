@@ -73,6 +73,9 @@ spec:
         - --schemas-dir={{ .Values.schemaHandler.schemasDir }}
         {{- end }}
         {{- include "common.collectorArgs" . | nindent 8 }}
+        {{- if .Values.gateway.playground }}
+        - --enable-playground
+        {{- end }}
         {{- with .Values.gateway.extraArgs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
