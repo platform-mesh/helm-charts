@@ -457,11 +457,19 @@ jobs:
             echo "needs_update=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: create OCM ComponentArchive
+      - name: Copy external component references to local CTF
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
           ocm_ctf=.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
+          ./ocm transfer componentversions --recursive \
+            "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
+            "$ocm_ctf"
+
+      - name: create OCM ComponentArchive
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          ocm_ctf=.ocm/transport.ctf
           ./ocm add components -c --templater=go --file "$ocm_ctf" constructor/component-constructor.yaml -- \
             VERSION=${{ env.VERSION }} \
             ACCOUNT_OPERATOR_VERSION=${{ env.ACCOUNT_OPERATOR_VERSION }} \
