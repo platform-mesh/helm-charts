@@ -462,7 +462,7 @@ jobs:
         run: |
           ocm_ctf=.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
-          ./ocm transfer componentversions --recursive \
+          ./ocm transfer componentversions --copy-resources --recursive \
             "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
             "$ocm_ctf"
 
@@ -510,8 +510,8 @@ jobs:
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ./ocm hash components .ocm/transport.ctf
-          ./ocm transfer ctf .ocm/transport.ctf "ghcr.io/platform-mesh"
+          ./ocm hash components --lookup ghcr.io/platform-mesh .ocm/transport.ctf
+          ./ocm transfer ctf --lookup ghcr.io/platform-mesh .ocm/transport.ctf "ghcr.io/platform-mesh"
 
       - name: Sign OCM Component
         if: steps.version_check.outputs.needs_update == 'true'
