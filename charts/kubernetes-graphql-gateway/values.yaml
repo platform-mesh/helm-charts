@@ -29,7 +29,7 @@ gateway:
     enabled: true
     port: 8080
   metricsPort: 8081
-  graphiql: true
+  playground: true
   logLevel: trace
   shouldImpersonate: false
   introspectionAuthentication: true

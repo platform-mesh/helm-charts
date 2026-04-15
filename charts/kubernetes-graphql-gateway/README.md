@@ -23,12 +23,12 @@ kubeConfig:
 | extraVolumeMounts | list | `[]` |  |
 | extraVolumes | list | `[]` |  |
 | gateway.extraArgs | list | `[]` |  |
-| gateway.graphiql | bool | `true` |  |
 | gateway.healthCheck.enabled | bool | `true` |  |
 | gateway.healthCheck.port | int | `8080` |  |
 | gateway.introspectionAuthentication | bool | `true` |  |
 | gateway.logLevel | string | `"trace"` |  |
 | gateway.metricsPort | int | `8081` |  |
+| gateway.playground | bool | `true` |  |
 | gateway.port | int | `8080` |  |
 | gateway.resources.limits.memory | string | `"1200Mi"` |  |
 | gateway.resources.requests.cpu | string | `"250m"` |  |

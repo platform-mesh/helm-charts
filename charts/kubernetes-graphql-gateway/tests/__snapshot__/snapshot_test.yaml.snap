@@ -28,6 +28,7 @@ match the Snapshot:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
+                - --enable-playground
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
