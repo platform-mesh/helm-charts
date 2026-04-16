@@ -1,50 +1,22 @@
-# NOTE: Test steps are mirrored in nightly-local-setup.yaml (scheduled workflow).
+# NOTE: Test steps are mirrored from kind-localsetup.yaml (PR workflow).
 # Keep both files in sync when changing setup or test steps.
-name: test-local-setup
+name: nightly-local-setup
 permissions:
   contents: read
 on:
-  pull_request:
-    branches:
-      - main
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: nightly-local-setup
   cancel-in-progress: true
 
 jobs:
 
-  checkout-and-detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      local_setup_changed: ${{ steps.local_setup.outputs.changed }}
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 0
-
-      - name: Did local-setup change?
-        id: local_setup
-        run: |
-          if git diff --quiet origin/${{ github.base_ref }} -- local-setup; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-
-  kind-localsetup-skip:
-    needs: checkout-and-detect-changes
-    if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Skip — local-setup unchanged
-        run: echo "local-setup unchanged, skipping kind-localsetup"
-
-  kind-localsetup-run:
-    needs: checkout-and-detect-changes
-    if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
+  nightly-e2e:
     runs-on: ubuntu-latest-large
+    timeout-minutes: 60
 
     steps:
 
@@ -98,7 +70,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'local-setup/e2e'
 
-      - name: Clean install of npm dependencies
+      - name: Run e2e tests with video recording
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -113,14 +85,3 @@ jobs:
             local-setup/e2e/test-results/
             local-setup/e2e/*.png
           retention-days: 5
-
-  kind-localsetup:
-    if: always()
-    needs: [kind-localsetup-skip, kind-localsetup-run]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check result
-        run: |
-          if [[ "${{ needs.kind-localsetup-run.result }}" == "failure" || "${{ needs.kind-localsetup-run.result }}" == "cancelled" ]]; then
-            exit 1
-          fi
