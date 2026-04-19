@@ -37,7 +37,9 @@ virtual-workspaces match the snapshot:
           key: kubeconfig
           name: virtual-workspace-clusteraccess-kubeconfig
           namespace: NAMESPACE
+      introspectionPath: /clusters/*
       path: null
+      requestPathTemplate: /clusters/{clusterTarget}
   3: |
     apiVersion: apps/v1
     kind: Deployment
