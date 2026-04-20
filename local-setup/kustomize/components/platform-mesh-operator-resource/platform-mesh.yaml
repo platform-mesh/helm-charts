@@ -153,6 +153,8 @@ spec:
             database: postgres
           image:
             repository: upstream-images/postgresql
+    marketplace-ui:
+      enabled: true
     terminal-controller-manager:
       enabled: false
     rebac-authz-webhook:
