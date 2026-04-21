@@ -10,7 +10,6 @@ COL_RES='\033[0m'
 setup_registry_proxies() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Setting up registry proxies for cached mode ${COL_RES}"
 
-    # Reuse shared runtime detection from check-environment.sh
     CONTAINER_RUNTIME=$(detect_container_runtime)
     if [ -z "$CONTAINER_RUNTIME" ]; then
         echo -e "${RED}❌ Error: No container runtime available${COL_RES}"
