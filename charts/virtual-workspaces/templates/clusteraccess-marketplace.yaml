@@ -5,6 +5,8 @@ metadata:
   name: marketplace
 spec:
   path: {{ .Values.clusterAccess.marketplace.path }}
+  introspectionPath: "/clusters/*"
+  requestPathTemplate: "/clusters/{clusterTarget}"
   auth:
     kubeconfigSecretRef:
       name: {{ .Values.clusterAccess.marketplace.auth.kubeconfigSecretRef.name }}
