@@ -28,27 +28,36 @@ setup_registry_proxies() {
     fi
 
     # Start proxy-quay if not already running
-    if ! $CONTAINER_RUNTIME ps --format '{{.Names}}' | grep -q '^proxy-quay$'; then
+    if $CONTAINER_RUNTIME ps --format '{{.Names}}' | grep -q '^proxy-quay$'; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] ✅ proxy-quay registry already running ${COL_RES}"
+    elif $CONTAINER_RUNTIME ps -a --format '{{.Names}}' | grep -q '^proxy-quay$'; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Starting existing proxy-quay container ${COL_RES}"
+        $CONTAINER_RUNTIME start proxy-quay
+    else
         echo -e "${COL}[$(date '+%H:%M:%S')] Starting proxy-quay registry ${COL_RES}"
         $CONTAINER_RUNTIME run -d --name proxy-quay --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://quay.io registry:2
-    else
-        echo -e "${COL}[$(date '+%H:%M:%S')] ✅ proxy-quay registry already running ${COL_RES}"
     fi
 
     # Start proxy-ghcr if not already running
-    if ! $CONTAINER_RUNTIME ps --format '{{.Names}}' | grep -q '^proxy-ghcr$'; then
+    if $CONTAINER_RUNTIME ps --format '{{.Names}}' | grep -q '^proxy-ghcr$'; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] ✅ proxy-ghcr registry already running ${COL_RES}"
+    elif $CONTAINER_RUNTIME ps -a --format '{{.Names}}' | grep -q '^proxy-ghcr$'; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Starting existing proxy-ghcr container ${COL_RES}"
+        $CONTAINER_RUNTIME start proxy-ghcr
+    else
         echo -e "${COL}[$(date '+%H:%M:%S')] Starting proxy-ghcr registry ${COL_RES}"
         $CONTAINER_RUNTIME run -d --name proxy-ghcr --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://ghcr.io registry:2
-    else
-        echo -e "${COL}[$(date '+%H:%M:%S')] ✅ proxy-ghcr registry already running ${COL_RES}"
     fi
 
     # Start proxy-k8s-io if not already running
-    if ! $CONTAINER_RUNTIME ps --format '{{.Names}}' | grep -q '^proxy-k8s-io$'; then
+    if $CONTAINER_RUNTIME ps --format '{{.Names}}' | grep -q '^proxy-k8s-io$'; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] ✅ proxy-k8s-io registry already running ${COL_RES}"
+    elif $CONTAINER_RUNTIME ps -a --format '{{.Names}}' | grep -q '^proxy-k8s-io$'; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Starting existing proxy-k8s-io container ${COL_RES}"
+        $CONTAINER_RUNTIME start proxy-k8s-io
+    else
         echo -e "${COL}[$(date '+%H:%M:%S')] Starting proxy-k8s-io registry ${COL_RES}"
         $CONTAINER_RUNTIME run -d --name proxy-k8s-io --restart=always --net=kind -e REGISTRY_PROXY_REMOTEURL=https://registry.k8s.io registry:2
-    else
-        echo -e "${COL}[$(date '+%H:%M:%S')] ✅ proxy-k8s-io registry already running ${COL_RES}"
     fi
 
     return 0

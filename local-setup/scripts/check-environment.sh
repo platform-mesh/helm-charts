@@ -8,8 +8,31 @@ RED='\033[91m'
 COL_RES='\033[0m'
 
 check_kind_cluster() {
-    # Check if kind cluster is already running
+    # Check if kind cluster is registered
     if [ $(kind get clusters 2>/dev/null | grep -c platform-mesh) -gt 0 ]; then
+        # Detect container runtime
+        local runtime="docker"
+        if command -v podman &> /dev/null && podman info &> /dev/null; then
+            runtime="podman"
+        fi
+
+        # Verify the control-plane container is actually running; start it if stopped
+        if ! $runtime ps --format '{{.Names}}' | grep -q '^platform-mesh-control-plane$'; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Kind cluster exists but control-plane is stopped, restarting... ${COL_RES}"
+            $runtime start platform-mesh-control-plane
+            # Wait for the API server to become ready before proceeding
+            local deadline=60
+            local elapsed=0
+            while ! kubectl cluster-info --request-timeout=2s &>/dev/null; do
+                if [ $elapsed -ge $deadline ]; then
+                    echo -e "${RED}❌ Timed out waiting for API server to become ready${COL_RES}"
+                    return 1
+                fi
+                sleep 2
+                elapsed=$((elapsed + 2))
+            done
+        fi
+
         echo -e "${COL}[$(date '+%H:%M:%S')] Kind cluster already running, using existing ${COL_RES}"
         kind export kubeconfig --name platform-mesh
         return 0  # Return 0 to indicate cluster exists
