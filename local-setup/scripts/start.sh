@@ -225,6 +225,13 @@ kubectl wait --namespace platform-mesh-system \
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
+# Apply KCP-local fixes that every setup needs: CoreDNS hosts entry for
+# root.kcp.localhost, security-operator-initializer off (Keycloak realm
+# management doesn't work locally), and the root:providers workspace
+# pre-created so per-provider tutorials can skip the parent-workspace
+# prerequisite.
+$SCRIPT_DIR/finalizeKcpLocal.sh
+
 # Run post-platform-mesh hook if it exists (PlatformMesh is ready, KCP is accessible)
 if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Running post-platform-mesh hook ${COL_RES}"
@@ -232,8 +239,7 @@ if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
 fi
 
 if [ "$EXAMPLE_DATA" = true ]; then
-  
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
+
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="https://localhost:8443/clusters/root:orgs"
