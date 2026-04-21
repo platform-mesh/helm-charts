@@ -41,6 +41,12 @@ A common workflow for a contributor after cloning the repository would be:
 
 > **NOTE:** You should always add if you are adding code repository.
 
+## Generative AI
+
+If you use generative AI tools while preparing a contribution, you remain responsible for the correctness, safety, licensing, and maintainability of the submitted change.
+
+If you use Claude while contributing, do not assume it will automatically pick up this repository's `AGENTS.md`. Explicitly provide or reference `AGENTS.md` at the start of the session so Claude has the repository-specific instructions before it suggests or applies changes.
+
 ## License
 
 By contributing to Platform Mesh, you agree that your contributions will be licensed
