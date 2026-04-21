@@ -7,14 +7,21 @@ COL='\033[92m'
 RED='\033[91m'
 COL_RES='\033[0m'
 
+detect_container_runtime() {
+    if command -v docker &> /dev/null && docker info &> /dev/null; then
+        echo "docker"
+    elif command -v podman &> /dev/null && podman info &> /dev/null; then
+        echo "podman"
+    else
+        echo ""
+    fi
+}
+
 check_kind_cluster() {
     # Check if kind cluster is registered
     if [ $(kind get clusters 2>/dev/null | grep -c platform-mesh) -gt 0 ]; then
-        # Detect container runtime
-        local runtime="docker"
-        if command -v podman &> /dev/null && podman info &> /dev/null; then
-            runtime="podman"
-        fi
+        local runtime
+        runtime=$(detect_container_runtime)
 
         # Verify the control-plane container is actually running; start it if stopped
         if ! $runtime ps --format '{{.Names}}' | grep -q '^platform-mesh-control-plane$'; then
@@ -287,6 +294,7 @@ run_environment_checks() {
 }
 
 # Export functions so they can be used by the main script
+export -f detect_container_runtime
 export -f check_kind_cluster
 export -f check_kind_dependency
 export -f check_kubectl_dependency

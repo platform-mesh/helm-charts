@@ -10,12 +10,9 @@ COL_RES='\033[0m'
 setup_registry_proxies() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Setting up registry proxies for cached mode ${COL_RES}"
 
-    # Detect container runtime (docker or podman)
-    if command -v docker &> /dev/null && docker info &> /dev/null; then
-        CONTAINER_RUNTIME="docker"
-    elif command -v podman &> /dev/null && podman info &> /dev/null; then
-        CONTAINER_RUNTIME="podman"
-    else
+    # Reuse shared runtime detection from check-environment.sh
+    CONTAINER_RUNTIME=$(detect_container_runtime)
+    if [ -z "$CONTAINER_RUNTIME" ]; then
         echo -e "${RED}❌ Error: No container runtime available${COL_RES}"
         return 1
     fi
