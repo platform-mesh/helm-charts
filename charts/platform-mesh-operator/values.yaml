@@ -27,6 +27,13 @@ idp:
 istio:
   enabled: false
 
+hostAliases:
+  enabled: false
+
+providers:
+  # -- Enables the providers controller deployment. NOTE: Required by "feature-enable-provider-manager" feature toggle in PlatformMesh spec.
+  enabled: false
+
 remoteInfra:
   # -- Enables reconciliation of PlatformMesh resources on remote clusters
   enabled: false

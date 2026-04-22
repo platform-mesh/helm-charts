@@ -1,0 +1,50 @@
+{{- if .Values.providers.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.entity.name" . }}-providers
+  namespace: {{ .Release.Namespace }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "common.entity.name" . }}-providers
+  template:
+    metadata:
+      labels:
+        app: {{ include "common.entity.name" . }}-providers
+        control-plane: controller-manager
+      annotations:
+      {{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "istio.enabled")) "true" }}
+        sidecar.istio.io/inject: "{{ (include "common.istioEnabled" .) }}"
+      {{- end -}}
+      {{- if ((.Values.deployment).template).annotations }}
+      {{ .Values.deployment.template.annotations | toYaml | nindent 8 }}
+      {{- end }}
+    spec:
+      {{ include "common.pod.securityContext" . | nindent 6 }}
+      serviceAccountName: {{ include "common.entity.name" . }}-providers
+      containers:
+      - name: {{ include "common.entity.name" . }}-providers
+        image: {{ include "common.image" . }}
+        {{- include "common.imagePullPolicy" . | indent 8 }}
+        {{- include "common.container.securityContext" . | indent 8 }}
+        {{- include "common.healthAndReadiness" . | indent 8 }}
+        args:
+          - providers
+          {{- include "common.leaderElectArg" . | indent 10 }}
+          {{- include "common.observabilityArgs" . | nindent 10 }}
+          {{- include "common.collectorArgs" . | nindent 10 }}
+          {{- with .Values.providers.extraArgs }}
+          {{ toYaml . | nindent 10 }}
+          {{- end }}
+        ports:
+          {{- include "common.PortsMetricsHealth" . | nindent 10 }}
+        env:
+          {{- include "common.basicEnvironment" . | nindent 10 }}
+      {{ include "common.hostAliases" $ | nindent 6 }}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
+{{- end }}
