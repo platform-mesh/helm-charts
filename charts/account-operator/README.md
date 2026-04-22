@@ -21,9 +21,9 @@ A Helm chart to deploy platform-mesh Account-Operator
 | hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/account-operator"` | The image repository |
 | istio.enabled | bool | `false` |  |
-| kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The KCP configuration |
-| kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | KCP APIExportEndpointSliceName |
-| kcp.enabled | bool | `false` | Enable KCP |
+| kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The kcp configuration |
+| kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | kcp APIExportEndpointSliceName |
+| kcp.enabled | bool | `false` | Enable kcp |
 | kcp.virtualWorkspaceUrl | string | `""` | The URL for the virtual workspace |
 | kubeconfigSecret | string | `""` | The secret for kubeconfig |
 | operator.leaderElect | bool | `true` |  |

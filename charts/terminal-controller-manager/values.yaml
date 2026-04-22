@@ -19,11 +19,11 @@ terminal:
   # -- Host alias names for local development (optional)
   hostAliasNames: []
 
-# -- The KCP configuration
+# -- The kcp configuration
 kcp:
-  # -- KCP APIExportEndpointSliceName
+  # -- kcp APIExportEndpointSliceName
   apiExportEndpointSliceName: "terminal.platform-mesh.io"
-  # -- Secret containing kubeconfig for KCP connection
+  # -- Secret containing kubeconfig for kcp connection
   kubeconfigSecret: ""
 
 gateway:

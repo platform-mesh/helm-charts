@@ -1,6 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR=$(dirname "$0")
-# This script is sourced by start.sh after the PlatformMesh resource is ready and KCP is accessible.
+# This script is sourced by start.sh after the PlatformMesh resource is ready and kcp is accessible.
 # Copy this file to post-platform-mesh-hook.sh and customize it for your needs.
 # The post-platform-mesh-hook.sh file is gitignored, so your local changes won't be committed.
 #
@@ -9,11 +9,11 @@ SCRIPT_DIR=$(dirname "$0")
 #   - Flux, KRO, OCM
 #   - Platform-Mesh Operator (ready)
 #   - PlatformMesh resource (ready)
-#   - KCP admin kubeconfig (via $KCP_KUBECONFIG)
+#   - kcp admin kubeconfig (via $KCP_KUBECONFIG)
 #
 # You can use this hook to:
-#   - Create KCP workspaces
-#   - Deploy resources into KCP
+#   - Create kcp workspaces
+#   - Deploy resources into kcp
 #   - Apply additional platform-level configuration
 #
 # Usage:
@@ -21,10 +21,10 @@ SCRIPT_DIR=$(dirname "$0")
 #   # Edit post-platform-mesh-hook.sh with your customizations
 #   task local-setup:iterate
 
-# Example: Create a workspace in KCP
+# Example: Create a workspace in kcp
 # KUBECONFIG="$KCP_KUBECONFIG" kubectl create-workspace my-workspace --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
 
-# Example: Apply resources into a KCP workspace
+# Example: Apply resources into a kcp workspace
 # KUBECONFIG="$KCP_KUBECONFIG" kubectl apply -f my-resources.yaml --server="https://localhost:8443/clusters/root:my-workspace"
 
 # Example: Deploy a Flux HelmRelease into the host cluster
