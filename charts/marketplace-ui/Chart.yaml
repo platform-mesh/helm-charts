@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: "v0.10.15"
+appVersion: "v0.10.16"
 description: Helm Chart for the marketplace-ui
 name: marketplace-ui
-version: 0.6.27
+version: 0.6.28
 dependencies:
   - name: common
     version: 0.12.2
