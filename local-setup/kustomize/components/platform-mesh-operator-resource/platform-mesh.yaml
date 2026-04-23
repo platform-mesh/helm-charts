@@ -183,8 +183,6 @@ spec:
           auth:
             postgresPassword: password
             database: postgres
-    marketplace-ui:
-      enabled: false
     terminal-controller-manager:
       enabled: false
     rebac-authz-webhook:

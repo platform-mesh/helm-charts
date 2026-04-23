@@ -328,7 +328,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.kubernetes-graphql-gateway.values.trust.default.audience | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomainPort }}/keycloak/realms/default"` |  |
-| services.marketplace-ui.enabled | bool | `false` |  |
+| services.marketplace-ui.enabled | bool | `true` |  |
 | services.marketplace-ui.imageResources | list | `[{"annotations":{"artifact":"image","for":"marketplace-ui","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.marketplace-ui.values.gatewayApi.enabled | bool | `true` |  |
 | services.marketplace-ui.values.istio.enabled | bool | `false` |  |
