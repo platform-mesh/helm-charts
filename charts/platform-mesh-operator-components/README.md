@@ -319,10 +319,13 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.marketplace-ui.values.istio.enabled | bool | `false` |  |
 | services.observability.enabled | bool | `false` |  |
 | services.observability.targetNamespace | string | `"observability"` |  |
-| services.observability.values.istio.grafana.virtualService.hosts[0] | string | `"grafana.{{ .Values.baseDomain }}"` |  |
-| services.observability.values.istio.tracing.enabled | bool | `false` |  |
-| services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
-| services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
+| services.observability.values.opentelemetry-operator.manager.collectorImage.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
+| services.observability.values.prometheus.alertmanager.enabled | bool | `false` |  |
+| services.observability.values.prometheus.kube-state-metrics.enabled | bool | `false` |  |
+| services.observability.values.prometheus.prometheus-node-exporter.enabled | bool | `false` |  |
+| services.observability.values.prometheus.prometheus-pushgateway.enabled | bool | `false` |  |
+| services.observability.values.prometheus.server.extraFlags[0] | string | `"web.enable-remote-write-receiver"` |  |
+| services.observability.values.prometheus.server.persistentVolume.enabled | bool | `false` |  |
 | services.openfga.enabled | bool | `true` |  |
 | services.openfga.external | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
