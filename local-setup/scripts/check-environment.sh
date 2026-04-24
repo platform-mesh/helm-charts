@@ -7,9 +7,39 @@ COL='\033[92m'
 RED='\033[91m'
 COL_RES='\033[0m'
 
+detect_container_runtime() {
+    if command -v docker &> /dev/null && docker info &> /dev/null; then
+        echo "docker"
+    elif command -v podman &> /dev/null && podman info &> /dev/null; then
+        echo "podman"
+    else
+        echo ""
+    fi
+}
+
 check_kind_cluster() {
-    # Check if kind cluster is already running
+    # Check if kind cluster is registered
     if [ $(kind get clusters 2>/dev/null | grep -c platform-mesh) -gt 0 ]; then
+        local runtime
+        runtime=$(detect_container_runtime)
+
+        # Verify the control-plane container is actually running; start it if stopped
+        if ! $runtime ps --format '{{.Names}}' | grep -q '^platform-mesh-control-plane$'; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Kind cluster exists but control-plane is stopped, restarting... ${COL_RES}"
+            $runtime start platform-mesh-control-plane
+            # Wait for the API server to become ready before proceeding
+            local deadline=60
+            local elapsed=0
+            while ! kubectl cluster-info --request-timeout=2s &>/dev/null; do
+                if [ $elapsed -ge $deadline ]; then
+                    echo -e "${RED}❌ Timed out waiting for API server to become ready${COL_RES}"
+                    return 1
+                fi
+                sleep 2
+                elapsed=$((elapsed + 2))
+            done
+        fi
+
         echo -e "${COL}[$(date '+%H:%M:%S')] Kind cluster already running, using existing ${COL_RES}"
         kind export kubeconfig --name platform-mesh
         return 0  # Return 0 to indicate cluster exists
@@ -264,6 +294,7 @@ run_environment_checks() {
 }
 
 # Export functions so they can be used by the main script
+export -f detect_container_runtime
 export -f check_kind_cluster
 export -f check_kind_dependency
 export -f check_kubectl_dependency
