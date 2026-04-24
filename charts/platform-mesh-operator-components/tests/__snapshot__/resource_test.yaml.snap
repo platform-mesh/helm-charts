@@ -228,6 +228,31 @@ image enabled resource:
     metadata:
       annotations:
         artifact: image
+        for: marketplace-ui
+        repo: oci
+      name: marketplace-ui-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: marketplace-ui
+            - name: image
+          resource:
+            name: image
+  11: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
         for: openfga
         repo: oci
       name: openfga-image
@@ -246,7 +271,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: image
-  11: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -272,7 +297,7 @@ image enabled resource:
             - name: openfga
           resource:
             name: postgresql-image
-  12: |
+  13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -297,7 +322,7 @@ image enabled resource:
             - name: image
           resource:
             name: image
-  13: |
+  14: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -322,7 +347,7 @@ image enabled resource:
             - name: image
           resource:
             name: image
-  14: |
+  15: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -552,6 +577,31 @@ ocm resources:
     metadata:
       labels:
         artifact: chart
+        repo: oci
+      name: marketplace-ui-chart
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: marketplace-ui
+            - name: chart
+          resource:
+            name: chart
+      skipVerify: true
+  10: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
         repo: helm
       name: openfga-chart
     spec:
@@ -570,7 +620,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  10: |
+  11: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -595,7 +645,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  11: |
+  12: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -620,7 +670,7 @@ ocm resources:
           resource:
             name: chart
       skipVerify: true
-  12: |
+  13: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
