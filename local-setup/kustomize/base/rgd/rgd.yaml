@@ -110,3 +110,7 @@ spec:
             tag: ${resourceImage.status.?resource.?version}
           idp:
             registrationAllowed: true
+            values:
+          extraArgs:
+          - --kcp-front-proxy-port=8443
+          - --subroutines-feature-toggles-enabled=true
