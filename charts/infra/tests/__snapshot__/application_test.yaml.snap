@@ -526,7 +526,7 @@ Gateway API enabled:
               kind: Service
               name: frontproxy-front-proxy
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   16: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1101,7 +1101,7 @@ Istio disabled:
               kind: Service
               name: frontproxy-front-proxy
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   16: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -1676,7 +1676,7 @@ Istio enabled:
               kind: Service
               name: frontproxy-front-proxy
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   16: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -2584,7 +2584,7 @@ match snapshots:
               kind: Service
               name: frontproxy-front-proxy
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   16: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -3223,7 +3223,7 @@ match snapshots w. hostAliases enabled:
               kind: Service
               name: frontproxy-front-proxy
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   16: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -3812,7 +3812,7 @@ match snapshots w. kcp version:
               kind: Service
               name: frontproxy-front-proxy
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   16: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
@@ -4387,7 +4387,7 @@ match snapshots with mailpit enabled:
               kind: Service
               name: frontproxy-front-proxy
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   16: |
     apiVersion: gateway.networking.k8s.io/v1
     kind: HTTPRoute
