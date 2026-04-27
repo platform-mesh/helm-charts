@@ -19,10 +19,10 @@ components:
     resources:
       - name: chart
         type: helmChart
-        version: {{ .TRAEFIK_VERSION }}
+        version: {{ .TRAEFIK_CHART_VERSION }}
         access:
           type: helm
-          helmChart: traefik:{{ .TRAEFIK_VERSION }}
+          helmChart: traefik:{{ .TRAEFIK_CHART_VERSION }}
           helmRepository: https://traefik.github.io/charts
       - name: crds
         type: helmChart
@@ -71,7 +71,7 @@ components:
           type: ociArtifact
           imageReference: "quay.io/jetstack/cert-manager-cainjector:{{ .CERT_MANAGER_VERSION }}"
   - name: github.com/openfga/openfga
-    version: {{ .OPENFGA_VERSION }}
+    version: {{ .PM_OPENFGA_VERSION }}
     provider:
       name: openfga
     resources:
