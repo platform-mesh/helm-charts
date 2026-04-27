@@ -17,6 +17,8 @@ spec:
   - name: feature-enable-getting-started
   - name: feature-disable-email-verification
   - name: feature-accounts-in-accounts
+  - name: feature-enable-marketplace-org
+  - name: feature-enable-marketplace-account
   # kcp:
   #   providerConnections:
   #   - adminAuth: true
@@ -184,7 +186,7 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
-      enabled: false
+      enabled: true
     terminal-controller-manager:
       enabled: false
     rebac-authz-webhook:

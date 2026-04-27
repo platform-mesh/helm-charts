@@ -24,6 +24,11 @@ export {
 } from './httpbins';
 
 export {
+  openOrganizationMarketplace,
+  openAccountMarketplace,
+} from './marketplace';
+
+export {
   ensureAccountExists,
   downloadAccountKubeconfig,
   deleteAccount,

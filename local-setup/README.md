@@ -409,6 +409,9 @@ task test:portal-e2e
 # Run the HTTPBin flow
 task test:portal-e2e:httpbins
 
+# Run the marketplace flow
+task test:portal-e2e:marketplace
+
 # Run the account kubeconfig flow
 task test:portal-e2e:account-kubeconfig
 

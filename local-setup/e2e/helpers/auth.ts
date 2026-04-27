@@ -263,9 +263,31 @@ async function selectExistingOrganization(page: Page, value: string): Promise<bo
     return false;
   }
 
-  const option = page.locator('ui5-option').nth(optionIndex).locator('.option').first();
+  const optionHost = page.locator('ui5-option').nth(optionIndex);
+  const optionInner = optionHost.locator('.option').first();
   logStep(`selectExistingOrganization:click value=${value}`);
-  await option.click({ force: true });
+
+  if (await optionHost.isVisible().catch(() => false)) {
+    await optionHost.click({ force: true }).catch(async () => {
+      if (await optionInner.isVisible().catch(() => false)) {
+        await optionInner.click({ force: true });
+        return;
+      }
+
+      await optionHost.focus().catch(() => {});
+      await page.keyboard.press('Enter').catch(() => {});
+      await optionHost.evaluate((element) => {
+        (element as HTMLElement).click();
+      }).catch(() => {});
+    });
+  } else {
+    await optionInner.click({ force: true }).catch(async () => {
+      await optionHost.evaluate((element) => {
+        (element as HTMLElement).click();
+      });
+    });
+  }
+
   await page.waitForTimeout(500);
 
   return true;
