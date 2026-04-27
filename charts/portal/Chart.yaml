@@ -1,8 +1,8 @@
 apiVersion: v2
 description: Helm Chart for the Platform Mesh Portal
 name: portal
-version: 0.10.169
-appVersion: "v0.21.36"
+version: 0.10.170
+appVersion: "v0.21.37"
 dependencies:
   - name: common
     repository: oci://ghcr.io/platform-mesh/helm-charts
