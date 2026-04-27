@@ -29,13 +29,13 @@ webhooks:
   # -- Serving certificate renewal time before expiration (default: 30 days)
   certRenewBefore: 720h
 
-# -- The KCP configuration
+# -- The kcp configuration
 kcp:
-  # -- Enable KCP
+  # -- Enable kcp
   enabled: false
   # -- The URL for the virtual workspace
   virtualWorkspaceUrl: ""
-  # -- KCP APIExportEndpointSliceName
+  # -- kcp APIExportEndpointSliceName
   apiExportEndpointSliceName: "core.platform-mesh.io"
 
 subroutines:

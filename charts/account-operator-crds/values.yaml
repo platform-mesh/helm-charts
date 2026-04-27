@@ -1,3 +1,3 @@
 kcp:
-  # -- The identityHash of KCP's core tenant api export
+  # -- The identityHash of kcp's core tenant api export
   identityHash: ""
