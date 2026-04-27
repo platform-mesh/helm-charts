@@ -281,6 +281,27 @@ it should render the application manifests:
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
+      name: marketplace-ui
+      namespace: default
+    spec:
+      chartRef:
+        kind: OCIRepository
+        name: marketplace-ui
+        namespace: default
+      dependsOn: null
+      interval: 1m
+      releaseName: marketplace-ui
+      targetNamespace: platform-mesh-system
+      timeout: 30m
+      values:
+        gatewayApi:
+          enabled: true
+        istio:
+          enabled: false
+  10: |
+    apiVersion: helm.toolkit.fluxcd.io/v2
+    kind: HelmRelease
+    metadata:
       name: openfga
       namespace: default
     spec:
@@ -341,7 +362,7 @@ it should render the application manifests:
               endpoint: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               tls:
                 enabled: false
-  10: |
+  11: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -365,7 +386,7 @@ it should render the application manifests:
           level: debug
         openfga:
           url: openfga:8081
-  11: |
+  12: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -398,7 +419,7 @@ it should render the application manifests:
           shutdownTimeout: 1m
         terminator:
           kubeconfigSecret: security-terminator-kubeconfig
-  12: |
+  13: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
     metadata:
@@ -420,7 +441,7 @@ it should render the application manifests:
           resourceSchemaWorkspace: root:platform-mesh-system
           serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
         virtualWorkspaceSecretName: virtual-workspaces-cert
-  13: |
+  14: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -446,7 +467,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  14: |
+  15: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -472,7 +493,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  15: |
+  16: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -498,7 +519,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  16: |
+  17: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -524,7 +545,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  17: |
+  18: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -550,7 +571,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  18: |
+  19: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -575,7 +596,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  19: |
+  20: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -600,7 +621,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  20: |
+  21: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -626,7 +647,33 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  21: |
+  22: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      labels:
+        artifact: chart
+        repo: oci
+      name: marketplace-ui-chart
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 3m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: marketplace-ui
+            - name: chart
+          resource:
+            name: chart
+      skipVerify: true
+  23: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -651,7 +698,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  22: |
+  24: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -677,7 +724,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  23: |
+  25: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -703,7 +750,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  24: |
+  26: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -729,7 +776,7 @@ it should render the application manifests:
           resource:
             name: chart
       skipVerify: true
-  25: |
+  27: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -755,7 +802,7 @@ it should render the application manifests:
             - name: image
           resource:
             name: image
-  26: |
+  28: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -781,7 +828,7 @@ it should render the application manifests:
             - name: image
           resource:
             name: image
-  27: |
+  29: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -807,7 +854,7 @@ it should render the application manifests:
             - name: image
           resource:
             name: image
-  28: |
+  30: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -833,7 +880,7 @@ it should render the application manifests:
             - name: image
           resource:
             name: image
-  29: |
+  31: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -858,7 +905,7 @@ it should render the application manifests:
             - name: kcp
           resource:
             name: image
-  30: |
+  32: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -883,7 +930,7 @@ it should render the application manifests:
             - name: init-agent
           resource:
             name: image
-  31: |
+  33: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -908,7 +955,7 @@ it should render the application manifests:
             - name: keycloak
           resource:
             name: image
-  32: |
+  34: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -934,7 +981,7 @@ it should render the application manifests:
             - name: keycloak
           resource:
             name: postgresql-image
-  33: |
+  35: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -960,7 +1007,33 @@ it should render the application manifests:
             - name: image
           resource:
             name: image
-  34: |
+  36: |
+    apiVersion: delivery.ocm.software/v1alpha1
+    kind: Resource
+    metadata:
+      annotations:
+        artifact: image
+        for: marketplace-ui
+        repo: oci
+      name: marketplace-ui-image
+    spec:
+      componentRef:
+        name: platform-mesh
+      interval: 1m
+      ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+      resource:
+        byReference:
+          referencePath:
+            - name: test
+            - name: marketplace-ui
+            - name: image
+          resource:
+            name: image
+  37: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -985,7 +1058,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: image
-  35: |
+  38: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1012,7 +1085,7 @@ it should render the application manifests:
             - name: openfga
           resource:
             name: postgresql-image
-  36: |
+  39: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1038,7 +1111,7 @@ it should render the application manifests:
             - name: image
           resource:
             name: image
-  37: |
+  40: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
@@ -1064,7 +1137,7 @@ it should render the application manifests:
             - name: image
           resource:
             name: image
-  38: |
+  41: |
     apiVersion: delivery.ocm.software/v1alpha1
     kind: Resource
     metadata:
