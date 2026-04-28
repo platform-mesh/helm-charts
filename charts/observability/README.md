@@ -7,6 +7,20 @@ OpenTelemetry-based observability stack for platform-mesh
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | createNamespace | bool | `false` | Create the namespace if it doesn't exist (usually handled externally) |
+| httproutes | object | `{"gatewayName":"","gatewayNamespace":"","otelCollector":{"enabled":false,"filters":[],"hostnames":[],"pathPrefix":"/otel","port":8888},"prometheus":{"enabled":false,"filters":[],"hostnames":[],"pathPrefix":"/prometheus"}}` | ---------------------------------------------------------------------------- |
+| httproutes.gatewayName | string | `""` | Name of the Gateway to attach routes to |
+| httproutes.gatewayNamespace | string | `""` | Namespace of the Gateway (optional, defaults to same namespace) |
+| httproutes.otelCollector | object | `{"enabled":false,"filters":[],"hostnames":[],"pathPrefix":"/otel","port":8888}` | OpenTelemetry Collector HTTPRoute |
+| httproutes.otelCollector.enabled | bool | `false` | Enable HTTPRoute for OTel Collector |
+| httproutes.otelCollector.filters | list | `[]` | Optional filters |
+| httproutes.otelCollector.hostnames | list | `[]` | Hostnames for the OTel Collector |
+| httproutes.otelCollector.pathPrefix | string | `"/otel"` | Path prefix for OTel Collector |
+| httproutes.otelCollector.port | int | `8888` | Port to expose (metrics port 8888 or receiver ports like 4318 for OTLP HTTP) |
+| httproutes.prometheus | object | `{"enabled":false,"filters":[],"hostnames":[],"pathPrefix":"/prometheus"}` | Prometheus UI HTTPRoute |
+| httproutes.prometheus.enabled | bool | `false` | Enable HTTPRoute for Prometheus |
+| httproutes.prometheus.filters | list | `[]` | Optional filters (e.g., URLRewrite for path stripping) |
+| httproutes.prometheus.hostnames | list | `[]` | Hostnames for the Prometheus UI |
+| httproutes.prometheus.pathPrefix | string | `"/prometheus"` | Path prefix for Prometheus UI |
 | opentelemetry-operator | object | `{"enabled":true,"manager":{"collectorImage":{"repository":"otel/opentelemetry-collector-contrib"}}}` | ---------------------------------------------------------------------------- |
 | opentelemetry-operator.enabled | bool | `true` | Enable the OpenTelemetry Operator |
 | opentelemetry-operator.manager.collectorImage.repository | string | `"otel/opentelemetry-collector-contrib"` | Use the contrib image which includes the prometheus receiver |
@@ -93,6 +107,20 @@ OpenTelemetry-based observability stack for platform-mesh
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | createNamespace | bool | `false` | Create the namespace if it doesn't exist (usually handled externally) |
+| httproutes | object | `{"gatewayName":"","gatewayNamespace":"","otelCollector":{"enabled":false,"filters":[],"hostnames":[],"pathPrefix":"/otel","port":8888},"prometheus":{"enabled":false,"filters":[],"hostnames":[],"pathPrefix":"/prometheus"}}` | ---------------------------------------------------------------------------- |
+| httproutes.gatewayName | string | `""` | Name of the Gateway to attach routes to |
+| httproutes.gatewayNamespace | string | `""` | Namespace of the Gateway (optional, defaults to same namespace) |
+| httproutes.otelCollector | object | `{"enabled":false,"filters":[],"hostnames":[],"pathPrefix":"/otel","port":8888}` | OpenTelemetry Collector HTTPRoute |
+| httproutes.otelCollector.enabled | bool | `false` | Enable HTTPRoute for OTel Collector |
+| httproutes.otelCollector.filters | list | `[]` | Optional filters |
+| httproutes.otelCollector.hostnames | list | `[]` | Hostnames for the OTel Collector |
+| httproutes.otelCollector.pathPrefix | string | `"/otel"` | Path prefix for OTel Collector |
+| httproutes.otelCollector.port | int | `8888` | Port to expose (metrics port 8888 or receiver ports like 4318 for OTLP HTTP) |
+| httproutes.prometheus | object | `{"enabled":false,"filters":[],"hostnames":[],"pathPrefix":"/prometheus"}` | Prometheus UI HTTPRoute |
+| httproutes.prometheus.enabled | bool | `false` | Enable HTTPRoute for Prometheus |
+| httproutes.prometheus.filters | list | `[]` | Optional filters (e.g., URLRewrite for path stripping) |
+| httproutes.prometheus.hostnames | list | `[]` | Hostnames for the Prometheus UI |
+| httproutes.prometheus.pathPrefix | string | `"/prometheus"` | Path prefix for Prometheus UI |
 | opentelemetry-operator | object | `{"enabled":true,"manager":{"collectorImage":{"repository":"otel/opentelemetry-collector-contrib"}}}` | ---------------------------------------------------------------------------- |
 | opentelemetry-operator.enabled | bool | `true` | Enable the OpenTelemetry Operator |
 | opentelemetry-operator.manager.collectorImage.repository | string | `"otel/opentelemetry-collector-contrib"` | Use the contrib image which includes the prometheus receiver |
