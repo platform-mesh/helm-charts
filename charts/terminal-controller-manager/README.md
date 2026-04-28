@@ -23,9 +23,9 @@ A Helm chart to deploy platform-mesh Terminal Controller Manager
 | hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/terminal-controller-manager"` | The image repository |
 | istio.enabled | bool | `false` |  |
-| kcp | object | `{"apiExportEndpointSliceName":"terminal.platform-mesh.io","kubeconfigSecret":""}` | The KCP configuration |
-| kcp.apiExportEndpointSliceName | string | `"terminal.platform-mesh.io"` | KCP APIExportEndpointSliceName |
-| kcp.kubeconfigSecret | string | `""` | Secret containing kubeconfig for KCP connection |
+| kcp | object | `{"apiExportEndpointSliceName":"terminal.platform-mesh.io","kubeconfigSecret":""}` | The kcp configuration |
+| kcp.apiExportEndpointSliceName | string | `"terminal.platform-mesh.io"` | kcp APIExportEndpointSliceName |
+| kcp.kubeconfigSecret | string | `""` | Secret containing kubeconfig for kcp connection |
 | kubeconfigSecret | string | `""` | Secret containing kubeconfig for runtime cluster (optional, defaults to in-cluster config) |
 | operator.leaderElect | bool | `true` |  |
 | security.mountServiceAccountToken | bool | `true` | Mount the service account token |

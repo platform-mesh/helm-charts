@@ -94,10 +94,11 @@ spec:
             serviceAccount:
               enabled: true
           image:
-            tag: "097afc12c" # bump kcp image to work around WatchList issues
+            tag: "v0.31.0" # bump kcp image to work around WatchList issues
           shards: []
           frontProxy:
             clusterIP: "10.96.0.100"
+            port: 8443
         traefik:
           accessControlAllowOriginList:
           - "http://localhost:4200"
@@ -183,8 +184,8 @@ spec:
           auth:
             postgresPassword: password
             database: postgres
-    marketplace-ui:
-      enabled: false
+          image:
+            repository: upstream-images/postgresql
     terminal-controller-manager:
       enabled: false
     rebac-authz-webhook:
@@ -217,3 +218,7 @@ spec:
       external: true
     kcp:
       external: true
+    virtual-workspaces:
+      values:
+        deployment:
+          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443

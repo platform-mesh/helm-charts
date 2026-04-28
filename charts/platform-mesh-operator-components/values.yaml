@@ -455,7 +455,7 @@ services:
           artifact: image
           for: iam-ui
   marketplace-ui:
-    enabled: false
+    enabled: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
       - annotations:

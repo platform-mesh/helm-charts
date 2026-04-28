@@ -6,7 +6,7 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| kcp.identityHash | string | `""` | The identityHash of KCP's core tenant api export |
+| kcp.identityHash | string | `""` | The identityHash of kcp's core tenant api export |
 
 ## Overriding Values
 
