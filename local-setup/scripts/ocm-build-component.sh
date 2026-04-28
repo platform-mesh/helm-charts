@@ -84,7 +84,7 @@ get_component_version() {
         if [ "$short" = "$name" ] && [ -n "$ver" ] && [ "$ver" != "$name" ]; then
             echo "Using FIXED override version for $short -> $ver"
             export "$env_var"="$ver"
-            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://$LOCAL_REGISTRY/platform-mesh
+            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --recursive --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://$LOCAL_REGISTRY/platform-mesh
             return 0
         fi
     done
