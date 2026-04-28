@@ -142,3 +142,44 @@ serviceMonitors:
     port: metrics
     # -- Path to metrics endpoint
     path: /metrics
+
+# ------------------------------------------------------------------------------
+# HTTPRoutes
+# Expose observability endpoints via Gateway API
+# ------------------------------------------------------------------------------
+httproutes:
+  # -- Name of the Gateway to attach routes to
+  gatewayName: ""
+  # -- Namespace of the Gateway (optional, defaults to same namespace)
+  gatewayNamespace: ""
+
+  # -- Prometheus UI HTTPRoute
+  prometheus:
+    # -- Enable HTTPRoute for Prometheus
+    enabled: false
+    # -- Hostnames for the Prometheus UI
+    hostnames: []
+    # -- Path prefix for Prometheus UI
+    pathPrefix: /prometheus
+    # -- Optional filters (e.g., URLRewrite for path stripping)
+    filters: []
+    # Example filters for path rewriting:
+    # filters:
+    #   - type: URLRewrite
+    #     urlRewrite:
+    #       path:
+    #         type: ReplacePrefixMatch
+    #         replacePrefixMatch: /
+
+  # -- OpenTelemetry Collector HTTPRoute
+  otelCollector:
+    # -- Enable HTTPRoute for OTel Collector
+    enabled: false
+    # -- Hostnames for the OTel Collector
+    hostnames: []
+    # -- Path prefix for OTel Collector
+    pathPrefix: /otel
+    # -- Port to expose (metrics port 8888 or receiver ports like 4318 for OTLP HTTP)
+    port: 8888
+    # -- Optional filters
+    filters: []
