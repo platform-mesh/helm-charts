@@ -106,6 +106,8 @@ spec:
           - "http://*.localhost:4200"
           - "http://*.localhost:4300"
           - "http://sub.localhost:4300"
+          - "https://*.localhost:4300"
+          - "https://sub.localhost:4300"
           - "https://portal.localhost:8443"
           - "https://*.portal.localhost:8443"
         cors:
