@@ -335,9 +335,9 @@ EOF
     ["TRAEFIK_VERSION"]="Traefik|traefik/traefik-helm-chart|v"
     ["CERT_MANAGER_VERSION"]="Cert Manager|cert-manager/cert-manager|"
     ["OPENFGA_VERSION"]="OpenFGA|openfga/helm-charts|openfga-"
-    ["KCP_OPERATOR_VERSION"]="KCP Operator|kcp-dev/helm-charts|kcp-operator-"
+    ["KCP_OPERATOR_CHART_VERSION"]="KCP Operator|kcp-dev/helm-charts|kcp-operator-"
+    ["KCP_VERSION"]="KCP|kcp-dev/kcp|"
     ["INIT_AGENT_CHART_VERSION"]="init-agent|kcp-dev/helm-charts|init-agent-"
-    ["GARDENER_ETCD_DRUID_SOURCE_REF"]="etcd-druid|gardener/etcd-druid|"
   )
 
   for env_var in "${!tp_map[@]}"; do

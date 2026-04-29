@@ -33,6 +33,7 @@ declare -A THIRD_PARTY_COMPONENTS=(
   ["cert-manager"]="cert-manager/cert-manager"
   ["openfga"]="openfga/openfga"
   ["kcp-operator"]="kcp-dev/kcp-operator"
+  ["kcp"]="kcp-dev/kcp"
   ["init-agent"]="kcp-dev/init-agent"
   ["etcd-druid"]="gardener/etcd-druid"
 )

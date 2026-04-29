@@ -277,15 +277,17 @@ fetch_ocm_component_details() {
     return
   fi
 
-  # Extract resources and sources using yq
-  local resources=$(echo "$result" | yq eval '.component.resources' -o=json 2>/dev/null || echo "[]")
-  local sources=$(echo "$result" | yq eval '.component.sources' -o=json 2>/dev/null || echo "[]")
+  # Extract resources, sources, and componentReferences using yq
+  local resources=$(echo "$result" | yq eval '.component.resources // []' -o=json 2>/dev/null || echo "[]")
+  local sources=$(echo "$result" | yq eval '.component.sources // []' -o=json 2>/dev/null || echo "[]")
+  local comp_refs=$(echo "$result" | yq eval '.component.componentReferences // []' -o=json 2>/dev/null || echo "[]")
 
   # Combine into single JSON object
   jq -n \
     --argjson resources "$resources" \
     --argjson sources "$sources" \
-    '{resources: $resources, sources: $sources}' 2>/dev/null || echo "{}"
+    --argjson componentReferences "$comp_refs" \
+    '{resources: $resources, sources: $sources, componentReferences: $componentReferences}' 2>/dev/null || echo "{}"
 }
 
 # Check if changelog indicates breaking changes
@@ -325,6 +327,7 @@ declare -A THIRD_PARTY_COMPONENTS=(
   ["cert-manager"]=1
   ["openfga"]=1
   ["kcp-operator"]=1
+  ["kcp"]=1
   ["init-agent"]=1
   ["etcd-druid"]=1
 )
@@ -431,13 +434,29 @@ for component in "${!last_version[@]}"; do
   # Fetch PR changelogs from image repository only
   echo "    Fetching PRs and changelogs..." >&2
 
-  # Extract image details from OLD OCM component
+  # Extract image details from OLD OCM component (direct resources - old structure)
   old_image_version=$(echo "$old_ocm_details" | jq -r '.resources[]? | select(.type == "ociImage") | .version // empty')
   old_image_source_repo=$(echo "$old_ocm_details" | jq -r '.sources[]? | select(.name == "source") | .access.repoUrl // empty')
 
-  # Extract image details from NEW OCM component
+  # Extract image details from NEW OCM component (direct resources - old structure)
   new_image_version=$(echo "$new_ocm_details" | jq -r '.resources[]? | select(.type == "ociImage") | .version // empty')
   new_image_source_repo=$(echo "$new_ocm_details" | jq -r '.sources[]? | select(.name == "source") | .access.repoUrl // empty')
+
+  # Fallback: extract image version from componentReferences (new structure)
+  if [[ -z "$old_image_version" ]]; then
+    old_image_version=$(echo "$old_ocm_details" | jq -r '.componentReferences[]? | select(.name == "image") | .version // empty')
+  fi
+  if [[ -z "$new_image_version" ]]; then
+    new_image_version=$(echo "$new_ocm_details" | jq -r '.componentReferences[]? | select(.name == "image") | .version // empty')
+  fi
+
+  # Fallback: derive source repo from component name for platform-mesh components
+  if [[ -z "$new_image_source_repo" ]]; then
+    new_image_source_repo="https://github.com/platform-mesh/${component}"
+  fi
+  if [[ -z "$old_image_source_repo" ]]; then
+    old_image_source_repo="https://github.com/platform-mesh/${component}"
+  fi
 
   # Initialize PR list and track repo info
   pr_numbers="[]"
