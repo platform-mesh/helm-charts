@@ -136,7 +136,7 @@ HelmRelease snapshots:
               protocol: HTTPS
         kcp:
           image:
-            tag: v0.29.0
+            tag: v0.31.1
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
@@ -599,7 +599,7 @@ enable remote deployment of helmreleases:
               protocol: HTTPS
         kcp:
           image:
-            tag: v0.29.0
+            tag: v0.31.1
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
