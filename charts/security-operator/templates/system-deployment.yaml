@@ -1,3 +1,4 @@
+{{- $systemKubeconfigSecret := .Values.system.kubeconfigSecret | default .Values.kubeconfigSecret }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,7 +33,7 @@ spec:
           - --base-domain={{ . }}
           {{- end }}
           - --fga-target={{ .Values.fga.target }}
-          {{- if .Values.kubeconfigSecret }}
+          {{- if $systemKubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}
           {{- with .Values.system.extraArgs }}
@@ -65,10 +66,10 @@ spec:
           {{- end }}
       volumes:
         {{- include "common.extraVolumes" . | nindent 8 }}
-        {{- if .Values.kubeconfigSecret }}
+        {{- if $systemKubeconfigSecret }}
         - name: external-api-server
           secret:
-            secretName: {{ .Values.kubeconfigSecret }}
+            secretName: {{ $systemKubeconfigSecret }}
         {{- end }}
         {{- if .Values.keycloakSecret }}
         - name: keycloak-credentials
