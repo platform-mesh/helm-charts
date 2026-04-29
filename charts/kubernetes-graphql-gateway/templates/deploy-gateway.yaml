@@ -86,9 +86,11 @@ spec:
         - name: metrics
           containerPort: {{ .Values.gateway.metricsPort }}
           protocol: TCP
+        {{- if ne (int .Values.gateway.healthCheck.port) (int .Values.gateway.port) }}
         - name: health-port
           containerPort: {{ .Values.gateway.healthCheck.port }}
           protocol: TCP
+        {{- end }}
         - name: service-port
           containerPort: {{ .Values.gateway.port }}
           protocol: TCP

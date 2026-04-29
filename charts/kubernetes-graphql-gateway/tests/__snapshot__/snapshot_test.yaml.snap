@@ -46,9 +46,6 @@ match the Snapshot:
                   name: metrics
                   protocol: TCP
                 - containerPort: 8080
-                  name: health-port
-                  protocol: TCP
-                - containerPort: 8080
                   name: service-port
                   protocol: TCP
               readinessProbe:
