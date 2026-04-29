@@ -409,7 +409,7 @@ task test:portal-e2e
 # Run the HTTPBin flow
 task test:portal-e2e:httpbins
 
-# Run the marketplace flow
+# Run the marketplace UI flow (default availability + UI lifecycle check)
 task test:portal-e2e:marketplace
 
 # Run the account kubeconfig flow
