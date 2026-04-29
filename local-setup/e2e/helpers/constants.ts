@@ -18,6 +18,8 @@ const repoRoot = path.resolve(process.cwd(), '..', '..');
 const adminKubeconfigPath = process.env.ADMIN_KUBECONFIG || path.join(repoRoot, '.secret/kcp/admin.kubeconfig');
 const httpbinProviderManifestPath = path.join(repoRoot, 'local-setup', 'example-data', 'root', 'providers', 'httpbin-provider');
 const exampleDataOverlayPath = path.join(repoRoot, 'local-setup', 'kustomize', 'overlays', 'example-data');
+const exampleMarketplaceEntryName = process.env.EXAMPLE_MARKETPLACE_ENTRY_NAME || 'orchestrate.platform-mesh.io-orchestrate.platform-mesh.io';
+const exampleProviderDisplayName = process.env.EXAMPLE_PROVIDER_DISPLAY_NAME || 'ABC MSP Provider';
 
 type TestUser = {
   email: string;
@@ -62,6 +64,8 @@ export {
   adminKubeconfigPath,
   httpbinProviderManifestPath,
   exampleDataOverlayPath,
+  exampleMarketplaceEntryName,
+  exampleProviderDisplayName,
   primaryUser,
   invitedUser,
 };

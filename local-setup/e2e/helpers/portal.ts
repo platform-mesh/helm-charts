@@ -26,6 +26,10 @@ export {
 export {
   openOrganizationMarketplace,
   openAccountMarketplace,
+  openAccountMarketplaceProvider,
+  clickMarketplaceAction,
+  expectMarketplaceActionVisible,
+  waitForHttpBinsNavigation,
 } from './marketplace';
 
 export {
