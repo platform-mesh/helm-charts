@@ -3,7 +3,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKUP_DIR="$SCRIPT_DIR/../backup/fga"
+BACKUP_DIR="$SCRIPT_DIR/../backup/openfga"
 POSTGRES_BACKUP_DIR="$BACKUP_DIR/postgres"
 
 echo "=== OpenFGA Backup Script ==="

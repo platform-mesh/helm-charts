@@ -3,8 +3,8 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-STORE_LIST="$SCRIPT_DIR/../backup/fga/store-list.json"
-OUTPUT_DIR="$SCRIPT_DIR/../backup/fga"
+STORE_LIST="$SCRIPT_DIR/../backup/openfga/store-list.json"
+OUTPUT_DIR="$SCRIPT_DIR/../backup/openfga"
 
 # Ensure output directory exists
 mkdir -p "$OUTPUT_DIR"
@@ -13,6 +13,7 @@ mkdir -p "$OUTPUT_DIR"
 jq -r '.stores[] | "\(.id) \(.name)"' "$STORE_LIST" | while read -r STORE_ID STORE_NAME; do
     echo "Exporting store: $STORE_NAME (ID: $STORE_ID)"
     fga store export --store-id="$STORE_ID" > "$OUTPUT_DIR/$STORE_NAME.yaml"
+    fga tuple read --store-id="$STORE_ID" > "$OUTPUT_DIR/$STORE_NAME-tuples.json"
 done
 
 echo "Done exporting all stores."

@@ -17,6 +17,7 @@ spec:
    - name: feature-enable-getting-started
    - name: feature-disable-email-verification
    - name: feature-accounts-in-accounts
+   - name: feature-enable-marketplace-account
   values:
     account-operator:
       values:
@@ -117,13 +118,15 @@ spec:
             postgresPassword: password
             database: postgres
     marketplace-ui:
-      enabled: false
+      enabled: true
     rebac-authz-webhook:
       values:
         hostAliases:
           enabled: true
     iam-service:
       values:
+        image:
+          tag: latest
         extraArgs:
           - --no-json
         cors:

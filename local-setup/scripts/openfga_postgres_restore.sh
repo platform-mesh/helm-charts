@@ -3,7 +3,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKUP_DIR="$SCRIPT_DIR/../backup/fga/postgres"
+BACKUP_DIR="$SCRIPT_DIR/../backup/openfga/postgres"
 NAMESPACE="platform-mesh-system"
 PVC_NAME="data-openfga-postgres-0"
 POD_NAME="openfga-postgres-0"
