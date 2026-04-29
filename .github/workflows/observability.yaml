@@ -1,0 +1,26 @@
+name: Build observability Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/observability/**'
+      - '.github/workflows/observability.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  pipeline:
+    concurrency:
+      group: observability-${{ github.ref }}
+      cancel-in-progress: true
+    uses: ./.github/workflows/pipeline-chart.yml
+    with:
+      chartFolder: charts
+      chartName: observability
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
+    secrets: inherit
