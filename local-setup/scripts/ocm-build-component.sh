@@ -84,7 +84,7 @@ get_component_version() {
         if [ "$short" = "$name" ] && [ -n "$ver" ] && [ "$ver" != "$name" ]; then
             echo "Using FIXED override version for $short -> $ver"
             export "$env_var"="$ver"
-            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://$LOCAL_REGISTRY/platform-mesh
+            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --recursive --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://$LOCAL_REGISTRY/platform-mesh
             return 0
         fi
     done
@@ -167,6 +167,7 @@ resolve_component_versions() {
     export GATEWAY_API_VERSION=$(get_ocm_resource_version "github.com/kubernetes-sigs/gateway-api" '.items[0].element["version"]')
     export GATEWAY_API_COMMIT=$(get_ocm_resource_version "github.com/kubernetes-sigs/gateway-api" '.items[0].element.access["commit"]')
     export TRAEFIK_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[0].element["version"]')
+    export TRAEFIK_CHART_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[] | select(.element.name == "chart") | .element.version')
     export TRAEFIK_CRD_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[1].element["version"]')
     export CERT_MANAGER_VERSION=$(get_ocm_resource_version "github.com/cert-manager/cert-manager" '.items[0].element["version"]')
     export KCP_OPERATOR_CHART_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[0].element["version"]')
@@ -177,9 +178,13 @@ resolve_component_versions() {
     export TRAEFIK_IMAGE_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
     export OPENFGA_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "postgresql-image") | .element.version')
+    export MARKETPLACE_UI_CHART_VERSION=$(get_ocm_resource_version "github.com/platform-mesh/helm-charts/marketplace-ui" '.items[0].element | .version')
+    export MARKETPLACE_UI_IMAGE_VERSION=$(get_ocm_resource_version "github.com/platform-mesh/images/marketplace-ui" '.items[0].element | .version')
 
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite --copy-resources --no-update europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:0.4.4 oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/platform-mesh/helm-charts/marketplace-ui:$MARKETPLACE_UI_CHART_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/platform-mesh/images/marketplace-ui:$MARKETPLACE_UI_IMAGE_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
 }
@@ -224,6 +229,7 @@ build_final_component() {
         GATEWAY_API_COMMIT="$GATEWAY_API_COMMIT" \
         TRAEFIK_VERSION="$TRAEFIK_VERSION" \
         TRAEFIK_CRD_VERSION="$TRAEFIK_CRD_VERSION" \
+        TRAEFIK_CHART_VERSION="$TRAEFIK_CHART_VERSION" \
         CERT_MANAGER_VERSION="$CERT_MANAGER_VERSION" \
         PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION="$PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION" \
         KCP_OPERATOR_CHART_VERSION="$KCP_OPERATOR_CHART_VERSION" \

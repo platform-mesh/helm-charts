@@ -222,17 +222,17 @@ kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Preparing kcp Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
-# Run post-platform-mesh hook if it exists (PlatformMesh is ready, KCP is accessible)
+# Run post-platform-mesh hook if it exists (PlatformMesh is ready, kcp is accessible)
 if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Running post-platform-mesh hook ${COL_RES}"
     KCP_KUBECONFIG="$(pwd)/.secret/kcp/admin.kubeconfig" source "$SCRIPT_DIR/post-platform-mesh-hook.sh"
 fi
 
 if [ "$EXAMPLE_DATA" = true ]; then
-  
+
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
