@@ -42,6 +42,7 @@ A Helm chart for security-operator
 | logLevel | string | `"info"` |  |
 | region | string | `"local"` | region indicator, used for logging and observability |
 | system.extraArgs | list | `[]` |  |
+| system.kubeconfigSecret | string | `""` |  |
 | terminator.extraArgs | list | `[]` |  |
 | terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
 | webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
