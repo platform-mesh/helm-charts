@@ -78,7 +78,7 @@ jobs:
       chartsFolder: charts
       chartName: ${{ matrix.chart }}
       additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts,prometheus-community=https://prometheus-community.github.io/helm-charts,open-telemetry=https://open-telemetry.github.io/opentelemetry-helm-charts'
     secrets: inherit
 
   # ──────────────────────────────────────────────

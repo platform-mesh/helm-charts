@@ -1,0 +1,50 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: {{ .Values.otelCollector.name }}
+  labels:
+    {{- include "observability.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+spec:
+  mode: {{ .Values.otelCollector.mode }}
+  replicas: {{ .Values.otelCollector.replicas }}
+  {{- if .Values.serviceMonitors.kcp.tlsSecretName }}
+  volumes:
+    - name: kcp-metrics-certs
+      secret:
+        secretName: {{ .Values.serviceMonitors.kcp.tlsSecretName }}
+  volumeMounts:
+    - name: kcp-metrics-certs
+      mountPath: /etc/prometheus/certs/0_{{ .Release.Namespace }}_{{ .Values.serviceMonitors.kcp.tlsSecretName }}_tls.crt
+      subPath: tls.crt
+      readOnly: true
+    - name: kcp-metrics-certs
+      mountPath: /etc/prometheus/certs/0_{{ .Release.Namespace }}_{{ .Values.serviceMonitors.kcp.tlsSecretName }}_tls.key
+      subPath: tls.key
+      readOnly: true
+  {{- end }}
+  targetAllocator:
+    enabled: true
+    prometheusCR:
+      enabled: true
+      podMonitorSelector: {}
+      serviceMonitorSelector: {}
+  config:
+    receivers:
+      prometheus:
+        config:
+          scrape_configs: []
+    processors:
+      batch:
+        timeout: {{ .Values.otelCollector.config.batchTimeout }}
+    exporters:
+      prometheusremotewrite:
+        endpoint: {{ include "observability.prometheusEndpoint" . }}
+    service:
+      pipelines:
+        metrics:
+          receivers: [prometheus]
+          processors: [batch]
+          exporters: [prometheusremotewrite]
