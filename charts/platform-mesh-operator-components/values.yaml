@@ -125,39 +125,11 @@ services:
       gatewayApi:
         enabled: true
       kcp:
-        image:
-          tag: v0.29.0
         rootShard:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
         webhook:
           enabled: true
-      istio:
-        main:
-          gateway:
-            hosts:
-              - "{{ .Values.baseDomain }}"
-              - "*.{{ .Values.baseDomain }}"
-            port: '{{ .Values.port }}'
-            name: https
-            protocol: HTTPS
-            tls:
-              mode: SIMPLE
-              credentialName: domain-certificate
-              minProtocolVersion: TLSV1_2
-        passThrough:
-          gateway:
-            enabled: true
-            hosts:
-              - "kcp.api.{{ .Values.baseDomain }}"
-            port: '{{ .Values.port }}'
-            name: pass-https
-            protocol: HTTPS
-      keycloak:
-        istio:
-          virtualservice:
-            hosts:
-              - "{{ .Values.baseDomain }}"
   init-agent:
     enabled: true
     helmRepo: true
@@ -308,9 +280,6 @@ services:
           unsuspend: "true"
     suspend: true
     values:
-      migrate:
-        annotations:
-          sidecar.istio.io/inject: "false"
       extraEnvVars:
         - name: OPENFGA_EXPERIMENTALS
           value: enable-list-users
