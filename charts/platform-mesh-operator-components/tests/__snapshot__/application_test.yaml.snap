@@ -113,40 +113,12 @@ it should render the application manifests:
       values:
         gatewayApi:
           enabled: true
-        istio:
-          main:
-            gateway:
-              hosts:
-                - example.com
-                - '*.example.com'
-              name: https
-              port: "8443"
-              protocol: HTTPS
-              tls:
-                credentialName: domain-certificate
-                minProtocolVersion: TLSV1_2
-                mode: SIMPLE
-          passThrough:
-            gateway:
-              enabled: true
-              hosts:
-                - kcp.api.example.com
-              name: pass-https
-              port: "8443"
-              protocol: HTTPS
         kcp:
-          image:
-            tag: v0.29.0
           rootShard:
             extraArgs:
               - --feature-gates=WorkspaceAuthentication=true
           webhook:
             enabled: true
-        keycloak:
-          istio:
-            virtualservice:
-              hosts:
-                - example.com
   6: |
     apiVersion: helm.toolkit.fluxcd.io/v2
     kind: HelmRelease
@@ -343,9 +315,6 @@ it should render the application manifests:
           tag: ""
         log:
           level: info
-        migrate:
-          annotations:
-            sidecar.istio.io/inject: "false"
         podAnnotations:
           traffic.sidecar.istio.io/excludeInboundPorts: "2112"
         postgresql:
