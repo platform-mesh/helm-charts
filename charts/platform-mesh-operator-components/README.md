@@ -248,23 +248,8 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.enabled | bool | `true` |  |
 | services.infra.imageResources | list | `[{"absoluteReferencePath":[{"name":"kcp"}],"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci"},"name":"kcp-image","resource":"image"}]` | Allow the configuration of additional ocm resources |
 | services.infra.values.gatewayApi.enabled | bool | `true` |  |
-| services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
-| services.infra.values.istio.main.gateway.name | string | `"https"` |  |
-| services.infra.values.istio.main.gateway.port | string | `"{{ .Values.port }}"` |  |
-| services.infra.values.istio.main.gateway.protocol | string | `"HTTPS"` |  |
-| services.infra.values.istio.main.gateway.tls.credentialName | string | `"domain-certificate"` |  |
-| services.infra.values.istio.main.gateway.tls.minProtocolVersion | string | `"TLSV1_2"` |  |
-| services.infra.values.istio.main.gateway.tls.mode | string | `"SIMPLE"` |  |
-| services.infra.values.istio.passThrough.gateway.enabled | bool | `true` |  |
-| services.infra.values.istio.passThrough.gateway.hosts[0] | string | `"kcp.api.{{ .Values.baseDomain }}"` |  |
-| services.infra.values.istio.passThrough.gateway.name | string | `"pass-https"` |  |
-| services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
-| services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
-| services.infra.values.kcp.image.tag | string | `"v0.29.0"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
-| services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.init-agent.enabled | bool | `true` |  |
 | services.init-agent.external | bool | `true` |  |
 | services.init-agent.helmRepo | bool | `true` |  |
@@ -359,7 +344,6 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.openfga.values.image.repository | string | `"openfga/openfga"` |  |
 | services.openfga.values.image.tag | string | `""` |  |
 | services.openfga.values.log.level | string | `"info"` |  |
-| services.openfga.values.migrate.annotations."sidecar.istio.io/inject" | string | `"false"` |  |
 | services.openfga.values.podAnnotations."traffic.sidecar.istio.io/excludeInboundPorts" | string | `"2112"` |  |
 | services.openfga.values.postgresql.enabled | bool | `true` |  |
 | services.openfga.values.postgresql.image.registry | string | `"ghcr.io/platform-mesh"` |  |
