@@ -10,11 +10,11 @@ COL='\033[92m'
 COL_RES='\033[0m'
 KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
 
-KEYCLOAK_IMAGE="ghcr.io/platform-mesh/keycloak"
-KEYCLOAK_TAG="26.6.0-optimized"
+KEYCLOAK_IMAGE="ghcr.io/platform-mesh/custom-images/keycloak"
+KEYCLOAK_TAG="26.6.0-local"
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Building optimized Keycloak image ${COL_RES}"
-docker build -t "$KEYCLOAK_IMAGE:$KEYCLOAK_TAG" "$SCRIPT_DIR/../keycloak"
+docker build -t "$KEYCLOAK_IMAGE:$KEYCLOAK_TAG" "$SCRIPT_DIR/../../../custom-images/images/keycloak"
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Loading Keycloak image into Kind cluster ${COL_RES}"
 kind load docker-image "$KEYCLOAK_IMAGE:$KEYCLOAK_TAG" -n platform-mesh
