@@ -2,9 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "keycloak-operator.name" . }}-clusterrole
-  labels:
-    {{- include "keycloak-operator.selectorLabels" . | nindent 4 }}
+  name: {{ include "common.entity.name" . }}-clusterrole
 rules:
   - apiGroups:
       - config.openshift.io
@@ -17,8 +15,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: keycloakrealmimportcontroller-cluster-role
-  labels:
-    {{- include "keycloak-operator.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - k8s.keycloak.org
@@ -62,8 +58,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: keycloakcontroller-cluster-role
-  labels:
-    {{- include "keycloak-operator.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - k8s.keycloak.org
@@ -153,25 +147,21 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "keycloak-operator.name" . }}-clusterrole-binding
-  labels:
-    {{- include "keycloak-operator.selectorLabels" . | nindent 4 }}
+  name: {{ include "common.entity.name" . }}-clusterrole-binding
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
-  name: {{ include "keycloak-operator.name" . }}-clusterrole
+  name: {{ include "common.entity.name" . }}-clusterrole
 subjects:
   - kind: ServiceAccount
-    name: {{ include "keycloak-operator.name" . }}
+    name: {{ include "common.entity.name" . }}
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "keycloak-operator.name" . }}-role
+  name: {{ include "common.entity.name" . }}-role
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
-  labels:
-    {{- include "keycloak-operator.selectorLabels" . | nindent 4 }}
 rules:
   - apiGroups:
       - apps
@@ -258,17 +248,15 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "keycloak-operator.name" . }}-role-binding
+  name: {{ include "common.entity.name" . }}-role-binding
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
-  labels:
-    {{- include "keycloak-operator.selectorLabels" . | nindent 4 }}
 roleRef:
   kind: Role
   apiGroup: rbac.authorization.k8s.io
-  name: {{ include "keycloak-operator.name" . }}-role
+  name: {{ include "common.entity.name" . }}-role
 subjects:
   - kind: ServiceAccount
-    name: {{ include "keycloak-operator.name" . }}
+    name: {{ include "common.entity.name" . }}
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -276,15 +264,13 @@ kind: RoleBinding
 metadata:
   name: keycloakrealmimportcontroller-role-binding
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
-  labels:
-    {{- include "keycloak-operator.labels" . | nindent 4 }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
   name: keycloakrealmimportcontroller-cluster-role
 subjects:
   - kind: ServiceAccount
-    name: {{ include "keycloak-operator.name" . }}
+    name: {{ include "common.entity.name" . }}
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -292,29 +278,25 @@ kind: RoleBinding
 metadata:
   name: keycloakcontroller-role-binding
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
-  labels:
-    {{- include "keycloak-operator.labels" . | nindent 4 }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
   name: keycloakcontroller-cluster-role
 subjects:
   - kind: ServiceAccount
-    name: {{ include "keycloak-operator.name" . }}
+    name: {{ include "common.entity.name" . }}
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "keycloak-operator.name" . }}-view
+  name: {{ include "common.entity.name" . }}-view
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
-  labels:
-    {{- include "keycloak-operator.labels" . | nindent 4 }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
   name: view
 subjects:
   - kind: ServiceAccount
-    name: {{ include "keycloak-operator.name" . }}
+    name: {{ include "common.entity.name" . }}
     namespace: {{ .Release.Namespace }}

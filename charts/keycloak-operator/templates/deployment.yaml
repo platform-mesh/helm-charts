@@ -1,24 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "keycloak-operator.name" . }}
-  labels:
-    {{- include "keycloak-operator.labels" . | nindent 4 }}
+  name: {{ include "common.entity.name" . }}
 spec:
-  replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      {{- include "keycloak-operator.selectorLabels" . | nindent 6 }}
+  {{- include "common.deploymentBasics" . | nindent 2 }}
+  replicas: {{ .Values.deployment.replicas }}
   template:
     metadata:
       labels:
-        {{- include "keycloak-operator.labels" . | nindent 8 }}
+        {{- include "common.labelMatcher" . | nindent 8 }}
+        {{- with .Values.deployment.specTemplate.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.deployment.specTemplate.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
-      serviceAccountName: {{ include "keycloak-operator.name" . }}
+      {{- include "common.imagePullSecret" . | nindent 6 }}
+      {{- include "common.pod.securityContext" . | nindent 6 }}
+      terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" . }}
       containers:
-        - name: keycloak-operator
-          image: {{ include "keycloak-operator.image" . }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - {{- include "common.podBasics" . | nindent 10 }}
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
           env:
             - name: KUBERNETES_NAMESPACE
               valueFrom:
@@ -55,5 +62,9 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 10
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
