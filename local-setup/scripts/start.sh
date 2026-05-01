@@ -218,9 +218,26 @@ fi
 
 # wait for kind: PlatformMesh resource to become ready
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
-kubectl wait --namespace platform-mesh-system \
-  --for=condition=Ready platformmesh \
-  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
+wait_timeout_seconds="${KUBECTL_WAIT_TIMEOUT%s}"
+deadline=$((SECONDS + wait_timeout_seconds))
+while true; do
+  ready_status="$(kubectl get --namespace platform-mesh-system platformmesh/platform-mesh -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || true)"
+  if [ "$ready_status" = "True" ]; then
+    break
+  fi
+
+  if [ $SECONDS -ge $deadline ]; then
+    kubectl get --namespace platform-mesh-system platformmesh/platform-mesh -o wide
+    kubectl describe --namespace platform-mesh-system platformmesh/platform-mesh
+    echo -e "${RED}[$(date '+%H:%M:%S')] Timed out waiting for PlatformMesh to become ready ${COL_RES}"
+    exit 1
+  fi
+
+  kubectl annotate --namespace platform-mesh-system platformmesh/platform-mesh \
+    local-setup.platform-mesh.io/retry-ts="$(date +%s)" \
+    --overwrite >/dev/null
+  sleep 10
+done
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing kcp Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
