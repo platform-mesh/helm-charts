@@ -1,0 +1,99 @@
+import { expect, Page } from '@playwright/test';
+
+import { exampleMarketplaceEntryName, exampleProviderDisplayName, testAccountName } from './constants';
+import { logStep, portalOrgUrl } from './log';
+
+const marketplaceFrameSelector = 'iframe[src*="/ui/marketplace/ui/"]';
+
+async function waitForMarketplaceFrame(page: Page, srcPattern: RegExp = /\/ui\/marketplace\/ui\/#\/marketplace/): Promise<void> {
+  const marketplaceFrame = page.locator(marketplaceFrameSelector).first();
+  await expect(marketplaceFrame).toBeVisible({ timeout: 30000 });
+  await expect(marketplaceFrame).toHaveAttribute('src', srcPattern);
+}
+
+async function openOrganizationMarketplace(page: Page): Promise<void> {
+  const marketplaceUrl = portalOrgUrl('/home/marketplace');
+  logStep(`openOrganizationMarketplace:url=${marketplaceUrl}`);
+  await page.goto(marketplaceUrl, { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
+  await waitForMarketplaceFrame(page);
+}
+
+async function openAccountMarketplace(page: Page): Promise<void> {
+  const marketplaceUrl = portalOrgUrl(`/home/accounts/${testAccountName}/marketplace`);
+  logStep(`openAccountMarketplace:url=${marketplaceUrl}`);
+  await page.goto(marketplaceUrl, { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
+  await waitForMarketplaceFrame(page);
+}
+
+async function openAccountMarketplaceProvider(page: Page): Promise<void> {
+  const providerUrl = portalOrgUrl(`/home/accounts/${testAccountName}/provider/${exampleMarketplaceEntryName}`);
+  logStep(`openAccountMarketplaceProvider:url=${providerUrl}`);
+  await page.goto(providerUrl, { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
+  await waitForMarketplaceFrame(page, /\/ui\/marketplace\/ui\/#\/provider\//);
+  await expect(page.frameLocator(marketplaceFrameSelector).getByText(exampleProviderDisplayName, { exact: true })).toBeVisible({ timeout: 30000 });
+}
+
+async function clickMarketplaceAction(page: Page, action: 'Enable' | 'Disable'): Promise<void> {
+  logStep(`clickMarketplaceAction:start action=${action}`);
+  const actionButton = marketplaceActionButton(page, action);
+  await expect(actionButton).toBeVisible({ timeout: 30000 });
+  await actionButton.click({ timeout: 10000 });
+
+  if (action === 'Disable') {
+    const confirmButton = page.locator('[data-testid="luigi-modal-confirm"]').first();
+    await expect(confirmButton).toBeVisible({ timeout: 10000 });
+    await confirmButton.click({ force: true, timeout: 5000, noWaitAfter: true });
+    await expect(confirmButton).toBeHidden({ timeout: 10000 });
+  }
+
+  logStep(`clickMarketplaceAction:done action=${action}`);
+}
+
+function marketplaceActionButton(page: Page, action: 'Enable' | 'Disable') {
+  const actionTestId = action === 'Enable'
+    ? 'extension-details-dialog-install-button'
+    : 'extension-details-dialog-uninstall-button';
+
+  return page.frameLocator(marketplaceFrameSelector)
+    .getByTestId(actionTestId)
+    .first();
+}
+
+async function expectMarketplaceActionVisible(page: Page, action: 'Enable' | 'Disable'): Promise<void> {
+  await expect(marketplaceActionButton(page, action)).toBeVisible({ timeout: 30000 });
+}
+
+async function waitForHttpBinsNavigation(page: Page, visible: boolean, accountUrl: string): Promise<void> {
+  const httpBinsNav = page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').first();
+
+  for (let attempt = 0; attempt < 6; attempt++) {
+    await page.goto(accountUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
+
+    const isVisible = await httpBinsNav.isVisible().catch(() => false);
+    if (isVisible === visible) {
+      return;
+    }
+
+    await page.waitForTimeout(2000);
+  }
+
+  if (visible) {
+    await expect(httpBinsNav).toBeVisible({ timeout: 5000 });
+    return;
+  }
+
+  await expect(httpBinsNav).toBeHidden({ timeout: 5000 });
+}
+
+export {
+  openOrganizationMarketplace,
+  openAccountMarketplace,
+  openAccountMarketplaceProvider,
+  clickMarketplaceAction,
+  expectMarketplaceActionVisible,
+  waitForHttpBinsNavigation,
+};
