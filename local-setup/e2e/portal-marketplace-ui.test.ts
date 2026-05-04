@@ -11,6 +11,7 @@ import {
   openAccountMarketplaceProvider,
   clickMarketplaceAction,
   expectMarketplaceActionVisible,
+  waitForMarketplaceAction,
   waitForHttpBinsNavigation,
   logStep,
 } from './helpers/portal';
@@ -44,13 +45,11 @@ test.describe('Portal Marketplace UI', () => {
     await expectMarketplaceActionVisible(page, 'Disable');
 
     await clickMarketplaceAction(page, 'Disable');
-    await openAccountMarketplaceProvider(page);
-    await expectMarketplaceActionVisible(page, 'Enable');
+    await waitForMarketplaceAction(page, 'Enable');
     await waitForHttpBinsNavigation(page, false, accountUrl);
 
     await clickMarketplaceAction(page, 'Enable');
-    await openAccountMarketplaceProvider(page);
-    await expectMarketplaceActionVisible(page, 'Disable');
+    await waitForMarketplaceAction(page, 'Disable');
     await waitForHttpBinsNavigation(page, true, accountUrl);
     logStep('test:marketplace-ui-lifecycle:done');
   });

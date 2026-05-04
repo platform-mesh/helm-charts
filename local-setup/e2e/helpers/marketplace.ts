@@ -66,6 +66,21 @@ async function expectMarketplaceActionVisible(page: Page, action: 'Enable' | 'Di
   await expect(marketplaceActionButton(page, action)).toBeVisible({ timeout: 30000 });
 }
 
+async function waitForMarketplaceAction(page: Page, action: 'Enable' | 'Disable'): Promise<void> {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    await openAccountMarketplaceProvider(page);
+    const button = marketplaceActionButton(page, action);
+    if (await button.isVisible().catch(() => false)) {
+      logStep(`waitForMarketplaceAction:done action=${action} attempt=${attempt}`);
+      return;
+    }
+    logStep(`waitForMarketplaceAction:retry action=${action} attempt=${attempt}`);
+    await page.waitForTimeout(3000);
+  }
+  await openAccountMarketplaceProvider(page);
+  await expectMarketplaceActionVisible(page, action);
+}
+
 async function waitForHttpBinsNavigation(page: Page, visible: boolean, accountUrl: string): Promise<void> {
   const httpBinsNav = page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').first();
 
@@ -95,5 +110,6 @@ export {
   openAccountMarketplaceProvider,
   clickMarketplaceAction,
   expectMarketplaceActionVisible,
+  waitForMarketplaceAction,
   waitForHttpBinsNavigation,
 };

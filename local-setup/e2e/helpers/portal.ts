@@ -29,6 +29,7 @@ export {
   openAccountMarketplaceProvider,
   clickMarketplaceAction,
   expectMarketplaceActionVisible,
+  waitForMarketplaceAction,
   waitForHttpBinsNavigation,
 } from './marketplace';
 
