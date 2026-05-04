@@ -45,8 +45,8 @@ test.describe('Portal Marketplace UI', () => {
     await expectMarketplaceActionVisible(page, 'Disable');
 
     await clickMarketplaceAction(page, 'Disable');
-    await waitForMarketplaceAction(page, 'Enable');
     await waitForHttpBinsNavigation(page, false, accountUrl);
+    await waitForMarketplaceAction(page, 'Enable');
 
     await clickMarketplaceAction(page, 'Enable');
     await waitForMarketplaceAction(page, 'Disable');
