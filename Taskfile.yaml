@@ -245,17 +245,22 @@ tasks:
       - task: test:portal-e2e:deletion
         vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
 
+  test:portal-e2e:setup:
+    run: once
+    internal: true
+    dir: local-setup/e2e
+    cmds:
+      - npm ci
+      - npx playwright install
+
   test:portal-e2e:httpbins:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:marketplace:
     vars:
@@ -269,37 +274,28 @@ tasks:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-marketplace-ui.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-marketplace-ui.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:account-kubeconfig:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:authorization:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:headed:
     vars:
@@ -312,25 +308,19 @@ tasks:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm ci
-          npx playwright install
-          VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test portal-marketplace-ui.test.ts portal-httpbins.test.ts portal-account-kubeconfig.test.ts portal-authorization.test.ts portal-account-deletion.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
-          popd
+      - VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test portal-marketplace-ui.test.ts portal-httpbins.test.ts portal-account-kubeconfig.test.ts portal-authorization.test.ts portal-account-deletion.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
 
   test:portal-e2e:deletion:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
 
   test:backend-resources:
     cmds:
