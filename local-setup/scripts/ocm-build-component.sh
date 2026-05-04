@@ -24,7 +24,7 @@ REMOTE_REGISTRY="${REMOTE_REGISTRY:-ghcr.io/platform-mesh}"
 LOCAL_REGISTRY="${LOCAL_REGISTRY:-oci-registry-docker-registry.registry.svc.cluster.local}"
 
 # List of local component names (for version resolution)
-CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,kubernetes-graphql-gateway,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
+CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,keycloak-operator,kubernetes-graphql-gateway,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
 
 # Fixed version overrides (empty by default)
 FIXED_VERSION_PAIRS=""
@@ -61,6 +61,15 @@ update_constructor() {
     sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' \
         "$OCM_DIR/component-constructor-prerelease.yaml" > "$OCM_DIR/component-constructor-prerelease.yaml.tmp" \
         && mv "$OCM_DIR/component-constructor-prerelease.yaml.tmp" "$OCM_DIR/component-constructor-prerelease.yaml"
+
+    # Inject keycloak-operator componentReference if not already present (not yet in upstream constructor).
+    # Use printf+cat instead of yq: yq parses {{ .VAR }} as YAML map keys, corrupting all Go template
+    # variables in the file. Appending raw text to the file end is safe since the platform-mesh component
+    # is always last and componentReferences is the final key.
+    if ! grep -q "keycloak-operator" "$OCM_DIR/component-constructor-prerelease.yaml"; then
+        printf '      - name: keycloak-operator\n        componentName: github.com/platform-mesh/keycloak-operator\n        version: '"'"'{{ .KEYCLOAK_OPERATOR_VERSION }}'"'"'\n' \
+            >> "$OCM_DIR/component-constructor-prerelease.yaml"
+    fi
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor updated${COL_RES}"
 }
@@ -142,6 +151,7 @@ resolve_component_versions() {
     get_component_version security-operator github.com/platform-mesh/security-operator charts/security-operator SECURITY_OPERATOR_VERSION
     get_component_version extension-manager-operator github.com/platform-mesh/extension-manager-operator charts/extension-manager-operator EXTENSION_MANAGER_OPERATOR_VERSION
     get_component_version infra github.com/platform-mesh/infra charts/infra INFRA_VERSION
+    get_component_version keycloak-operator github.com/platform-mesh/keycloak-operator charts/keycloak-operator KEYCLOAK_OPERATOR_VERSION
     get_component_version rebac-authz-webhook github.com/platform-mesh/rebac-authz-webhook charts/rebac-authz-webhook REBAC_AUTHZ_WEBHOOK_VERSION
     get_component_version portal github.com/platform-mesh/portal "../helm-charts/charts/portal/" PORTAL_VERSION
     get_component_version platform-mesh-operator github.com/platform-mesh/platform-mesh-operator charts/platform-mesh-operator/ PLATFORM_MESH_OPERATOR_VERSION
@@ -219,6 +229,7 @@ build_final_component() {
         PORTAL_VERSION="$PORTAL_VERSION" \
         KEYCLOAK_VERSION="$KEYCLOAK_VERSION" \
         PM_KEYCLOAK_VERSION="$KEYCLOAK_VERSION" \
+        KEYCLOAK_OPERATOR_VERSION="$KEYCLOAK_OPERATOR_VERSION" \
         VIRTUAL_WORKSPACES_VERSION="$VIRTUAL_WORKSPACES_VERSION" \
         PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION="$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION" \
         EXAMPLE_HTTPBIN_OPERATOR_VERSION="$EXAMPLE_HTTPBIN_OPERATOR_VERSION" \
