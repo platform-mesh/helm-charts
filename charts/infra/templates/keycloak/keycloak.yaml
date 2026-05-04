@@ -1,0 +1,56 @@
+{{- if .Values.keycloak.operator.enabled }}
+apiVersion: k8s.keycloak.org/v2beta1
+kind: Keycloak
+metadata:
+  name: keycloak
+  namespace: {{ .Release.Namespace }}
+spec:
+  instances: {{ .Values.keycloak.operator.instances }}
+  image: {{ .Values.keycloak.operator.image.repository }}:{{ .Values.keycloak.operator.image.tag | default .Chart.AppVersion }}
+  db:
+    vendor: postgres
+    host: {{ .Values.keycloak.operator.db.host }}
+    port: {{ .Values.keycloak.operator.db.port }}
+    database: {{ .Values.keycloak.operator.db.database }}
+    usernameSecret:
+      name: keycloak-db-credentials
+      key: username
+    passwordSecret:
+      name: keycloak-db-credentials
+      key: password
+  http:
+    httpEnabled: true
+  ingress:
+    enabled: false
+  hostname:
+    hostname: {{ .Values.keycloak.operator.hostname }}
+    strict: false
+    backchannelDynamic: true
+  proxy:
+    headers: xforwarded
+  bootstrapAdmin:
+    user:
+      secret: keycloak-admin
+  unsupported:
+    podTemplate:
+      spec:
+        containers:
+          - imagePullPolicy: IfNotPresent
+            livenessProbe:
+              httpGet:
+                path: /keycloak/health/live
+                port: 9000
+                scheme: HTTP
+            readinessProbe:
+              httpGet:
+                path: /keycloak/health/ready
+                port: 9000
+                scheme: HTTP
+            startupProbe:
+              httpGet:
+                path: /keycloak/health/started
+                port: 9000
+                scheme: HTTP
+            resources:
+              {{- toYaml .Values.keycloak.operator.resources | nindent 14 }}
+{{- end }}

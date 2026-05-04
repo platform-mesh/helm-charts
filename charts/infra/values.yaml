@@ -145,6 +145,45 @@ traefik:
   accessControlAllowOriginList: []
 
 keycloak:
+  operator:
+    # -- Enable Keycloak CR and supporting secrets managed by Keycloak Operator
+    enabled: false
+    # -- Number of Keycloak instances
+    instances: 1
+    image:
+      # -- Keycloak image repository
+      repository: ghcr.io/platform-mesh/custom-images/keycloak
+      # -- Keycloak image tag
+      tag: "26.6.0-local"
+    # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).
+    # Must not include a path — the operator auto-derives http-relative-path from
+    # any path component, which conflicts with the value baked into the image.
+    hostname: "https://portal.localhost:8443"
+    db:
+      # -- PostgreSQL host
+      host: platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local
+      # -- PostgreSQL port
+      port: 5432
+      # -- Database name
+      database: keycloak
+      # -- Database username (written to keycloak-db-credentials secret)
+      username: keycloak
+      # -- Database password (written to keycloak-db-credentials secret)
+      password: keycloak-password
+    admin:
+      # -- Bootstrap admin username (written to keycloak-admin secret)
+      username: keycloak-admin
+      # -- Bootstrap admin password (written to keycloak-admin secret)
+      password: admin
+      # -- Bootstrap admin client secret (written to keycloak-admin secret)
+      secret: admin
+    resources:
+      limits:
+        cpu: "2"
+        memory: 2Gi
+      requests:
+        cpu: 750m
+        memory: 1Gi
   gatewayApi:
     # -- hostnames for the Keycloak HTTPRoute
     hostnames:
