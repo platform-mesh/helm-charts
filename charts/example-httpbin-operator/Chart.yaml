@@ -2,8 +2,8 @@ apiVersion: v2
 name: example-httpbin-operator
 description: A Helm chart for deploying the httpbin operator and its CRDs
 type: application
-version: 0.5.14
-appVersion: "v0.6.0"
+version: 0.5.15
+appVersion: "v0.6.1"
 annotations:
   # Automatically install and upgrade CRDs
   "helm.sh/resource-policy": keep
