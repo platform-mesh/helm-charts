@@ -43,10 +43,13 @@ async function clickMarketplaceAction(page: Page, action: 'Enable' | 'Disable'):
   await actionButton.click({ timeout: 10000 });
 
   if (action === 'Disable') {
-    const confirmButton = page.locator('[data-testid="luigi-modal-confirm"]').first();
-    await expect(confirmButton).toBeVisible({ timeout: 10000 });
-    await confirmButton.click({ force: true, timeout: 5000, noWaitAfter: true });
-    await expect(confirmButton).toBeHidden({ timeout: 10000 });
+    const modal = page.locator('[data-testid="luigi-confirmation-modal"]');
+    await expect(modal).toBeVisible({ timeout: 10000 });
+    const confirmButton = modal.locator('[data-testid="luigi-modal-confirm"]');
+    await expect(confirmButton).toBeVisible({ timeout: 5000 });
+    logStep(`clickMarketplaceAction:confirm-modal-visible`);
+    await confirmButton.click({ timeout: 5000 });
+    await expect(modal).toBeHidden({ timeout: 10000 });
   }
 
   logStep(`clickMarketplaceAction:done action=${action}`);
