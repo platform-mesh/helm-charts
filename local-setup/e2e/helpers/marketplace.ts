@@ -50,6 +50,14 @@ async function clickMarketplaceAction(page: Page, action: 'Enable' | 'Disable'):
     logStep(`clickMarketplaceAction:confirm-modal-visible`);
     await confirmButton.click({ timeout: 5000 });
     await expect(modal).toBeHidden({ timeout: 10000 });
+
+    // After confirm, the marketplace-ui fires a GraphQL deleteAPIBinding mutation.
+    // On success it calls luigiClient.goBack() which navigates the iframe away from
+    // the provider detail. Wait for the Disable button to disappear (indicating the
+    // uninstall completed and the iframe navigated) before proceeding.
+    const disableButton = marketplaceActionButton(page, 'Disable');
+    await expect(disableButton).toBeHidden({ timeout: 30000 });
+    logStep(`clickMarketplaceAction:uninstall-confirmed`);
   }
 
   logStep(`clickMarketplaceAction:done action=${action}`);
