@@ -98,7 +98,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'local-setup/e2e'
 
-      - name: Clean install of npm dependencies
+      - name: Run e2e tests
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
