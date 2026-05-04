@@ -130,6 +130,23 @@ A Helm chart for Kubernetes
 | keycloak.keycloakConfig.redirectUrls | list | `["http://localhost:8000/callback*"]` | redirect urls |
 | keycloak.keycloakConfig.url | string | `"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak"` | url of the keycloak server |
 | keycloak.keycloakConfig.userRegistration.enabled | bool | `true` | toggle to enable/disable user registration |
+| keycloak.operator.admin.password | string | `"admin"` | Bootstrap admin password (written to keycloak-admin secret) |
+| keycloak.operator.admin.secret | string | `"admin"` | Bootstrap admin client secret (written to keycloak-admin secret) |
+| keycloak.operator.admin.username | string | `"keycloak-admin"` | Bootstrap admin username (written to keycloak-admin secret) |
+| keycloak.operator.db.database | string | `"keycloak"` | Database name |
+| keycloak.operator.db.host | string | `"platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local"` | PostgreSQL host |
+| keycloak.operator.db.password | string | `"keycloak-password"` | Database password (written to keycloak-db-credentials secret) |
+| keycloak.operator.db.port | int | `5432` | PostgreSQL port |
+| keycloak.operator.db.username | string | `"keycloak"` | Database username (written to keycloak-db-credentials secret) |
+| keycloak.operator.enabled | bool | `false` | Enable Keycloak CR and supporting secrets managed by Keycloak Operator |
+| keycloak.operator.hostname | string | `"https://portal.localhost:8443"` | Keycloak hostname (used in the Keycloak CR hostname.hostname field). Must not include a path — the operator auto-derives http-relative-path from any path component, which conflicts with the value baked into the image. |
+| keycloak.operator.image.repository | string | `"ghcr.io/platform-mesh/custom-images/keycloak"` | Keycloak image repository |
+| keycloak.operator.image.tag | string | `"26.6.0-local"` | Keycloak image tag |
+| keycloak.operator.instances | int | `1` | Number of Keycloak instances |
+| keycloak.operator.resources.limits.cpu | string | `"2"` |  |
+| keycloak.operator.resources.limits.memory | string | `"2Gi"` |  |
+| keycloak.operator.resources.requests.cpu | string | `"750m"` |  |
+| keycloak.operator.resources.requests.memory | string | `"1Gi"` |  |
 | keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
 | keycloak.service.name | string | `"keycloak"` | service name |
 | keycloak.service.port | int | `80` | service port |
