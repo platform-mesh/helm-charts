@@ -27,6 +27,9 @@ keycloak operator enabled renders all resources:
       name: keycloak
       namespace: platform-mesh-system
     spec:
+      additionalOptions:
+        - name: http-relative-path
+          value: /keycloak
       bootstrapAdmin:
         user:
           secret: keycloak-admin
@@ -58,16 +61,6 @@ keycloak operator enabled renders all resources:
           spec:
             containers:
               - imagePullPolicy: IfNotPresent
-                livenessProbe:
-                  httpGet:
-                    path: /keycloak/health/live
-                    port: 9000
-                    scheme: HTTP
-                readinessProbe:
-                  httpGet:
-                    path: /keycloak/health/ready
-                    port: 9000
-                    scheme: HTTP
                 resources:
                   limits:
                     cpu: "2"
@@ -75,11 +68,6 @@ keycloak operator enabled renders all resources:
                   requests:
                     cpu: 750m
                     memory: 1Gi
-                startupProbe:
-                  httpGet:
-                    path: /keycloak/health/started
-                    port: 9000
-                    scheme: HTTP
 test HTTPRoutes:
   1: |
     apiVersion: gateway.networking.k8s.io/v1

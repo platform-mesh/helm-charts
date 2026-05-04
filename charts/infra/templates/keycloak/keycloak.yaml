@@ -28,6 +28,9 @@ spec:
     backchannelDynamic: true
   proxy:
     headers: xforwarded
+  additionalOptions:
+    - name: http-relative-path
+      value: /keycloak
   bootstrapAdmin:
     user:
       secret: keycloak-admin
@@ -36,21 +39,6 @@ spec:
       spec:
         containers:
           - imagePullPolicy: IfNotPresent
-            livenessProbe:
-              httpGet:
-                path: /keycloak/health/live
-                port: 9000
-                scheme: HTTP
-            readinessProbe:
-              httpGet:
-                path: /keycloak/health/ready
-                port: 9000
-                scheme: HTTP
-            startupProbe:
-              httpGet:
-                path: /keycloak/health/started
-                port: 9000
-                scheme: HTTP
             resources:
               {{- toYaml .Values.keycloak.operator.resources | nindent 14 }}
 {{- end }}
