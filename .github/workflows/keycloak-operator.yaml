@@ -1,0 +1,26 @@
+permissions:
+  contents: write
+  packages: write
+
+name: Build keycloak-operator Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/keycloak-operator/**'
+      - '.github/workflows/keycloak-operator.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+
+jobs:
+  pipeline:
+    concurrency:
+      group: keycloak-operator-${{ github.ref }}
+      cancel-in-progress: true
+    uses: ./.github/workflows/pipeline-chart.yml
+    with:
+      chartFolder: charts
+      chartName: keycloak-operator
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
+    secrets: inherit
