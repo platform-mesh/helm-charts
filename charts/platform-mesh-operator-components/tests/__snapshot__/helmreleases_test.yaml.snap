@@ -321,7 +321,7 @@ HelmRelease snapshots:
           enabled: true
           image:
             registry: ghcr.io/platform-mesh
-            repository: images/postgresql
+            repository: upstream-images/postgresql
           nameOverride: postgres
         replicaCount: 1
         telemetry:
@@ -773,7 +773,7 @@ enable remote deployment of helmreleases:
           enabled: true
           image:
             registry: ghcr.io/platform-mesh
-            repository: images/postgresql
+            repository: upstream-images/postgresql
           nameOverride: postgres
         replicaCount: 1
         telemetry:

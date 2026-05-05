@@ -347,7 +347,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.openfga.values.podAnnotations."traffic.sidecar.istio.io/excludeInboundPorts" | string | `"2112"` |  |
 | services.openfga.values.postgresql.enabled | bool | `true` |  |
 | services.openfga.values.postgresql.image.registry | string | `"ghcr.io/platform-mesh"` |  |
-| services.openfga.values.postgresql.image.repository | string | `"images/postgresql"` |  |
+| services.openfga.values.postgresql.image.repository | string | `"upstream-images/postgresql"` |  |
 | services.openfga.values.postgresql.nameOverride | string | `"postgres"` |  |
 | services.openfga.values.replicaCount | int | `1` |  |
 | services.openfga.values.telemetry.trace.enabled | bool | `false` |  |
