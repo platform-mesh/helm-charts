@@ -8,7 +8,7 @@ keycloakImage:
   # -- The Keycloak image repository
   repository: ghcr.io/platform-mesh/custom-images/keycloak
   # -- The Keycloak image tag (defaults to appVersion)
-  tag: "latest"
+  tag: "v26.6.0"
 
 # -- Namespace to watch for Keycloak CRs. Defaults to the release namespace.
 watchNamespaces: ""

@@ -28,7 +28,7 @@ deployment matches snapshot (defaults):
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: RELATED_IMAGE_KEYCLOAK
-                  value: ghcr.io/platform-mesh/custom-images/keycloak:latest
+                  value: ghcr.io/platform-mesh/custom-images/keycloak:v26.6.0
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKREALMIMPORTCONTROLLER_NAMESPACES
                   value: JOSDK_WATCH_CURRENT
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKCONTROLLER_NAMESPACES
@@ -434,7 +434,7 @@ deployment matches snapshot with custom resources:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: RELATED_IMAGE_KEYCLOAK
-                  value: ghcr.io/platform-mesh/custom-images/keycloak:latest
+                  value: ghcr.io/platform-mesh/custom-images/keycloak:v26.6.0
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKREALMIMPORTCONTROLLER_NAMESPACES
                   value: JOSDK_WATCH_CURRENT
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKCONTROLLER_NAMESPACES
