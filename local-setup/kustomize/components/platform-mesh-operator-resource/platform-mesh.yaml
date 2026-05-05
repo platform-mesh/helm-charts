@@ -151,6 +151,8 @@ spec:
           auth:
             postgresPassword: password
             database: postgres
+          image:
+            repository: upstream-images/postgresql
     terminal-controller-manager:
       enabled: false
     rebac-authz-webhook:
