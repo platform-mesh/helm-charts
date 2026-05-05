@@ -67,6 +67,7 @@ keycloak operator enabled renders all resources:
                     path: /keycloak/health/live
                     port: 9000
                   periodSeconds: 10
+                name: keycloak
                 readinessProbe:
                   httpGet:
                     path: /keycloak/health/ready
