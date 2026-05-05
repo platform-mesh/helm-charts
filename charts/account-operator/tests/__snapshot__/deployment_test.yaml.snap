@@ -651,17 +651,33 @@ disable istio:
                 secretName: account-operator-webhook-server-cert
   8: |
     apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: account-operator
+      name: account-operator-metrics
+    spec:
+      ports:
+        - name: metrics
+          port: 9090
+          protocol: TCP
+          targetPort: metrics
+      selector:
+        app: account-operator
+      type: ClusterIP
+  9: |
+    apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: account-operator
-  9: |
+  10: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: account-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  10: |
+  11: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -675,7 +691,7 @@ disable istio:
         name: account-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: account-operator-ca-secret
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -683,7 +699,7 @@ disable istio:
     spec:
       ca:
         secretName: account-operator-ca-secret
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -698,7 +714,7 @@ disable istio:
         name: account-operator-ca-issuer
       renewBefore: 720h
       secretName: account-operator-webhook-server-cert
-  13: |
+  14: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -1257,17 +1273,33 @@ operator match the snapshot:
                 secretName: account-operator-webhook-server-cert
   8: |
     apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: account-operator
+      name: account-operator-metrics
+    spec:
+      ports:
+        - name: metrics
+          port: 9090
+          protocol: TCP
+          targetPort: metrics
+      selector:
+        app: account-operator
+      type: ClusterIP
+  9: |
+    apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: account-operator
-  9: |
+  10: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: account-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  10: |
+  11: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1281,7 +1313,7 @@ operator match the snapshot:
         name: account-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: account-operator-ca-secret
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1289,7 +1321,7 @@ operator match the snapshot:
     spec:
       ca:
         secretName: account-operator-ca-secret
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1304,7 +1336,7 @@ operator match the snapshot:
         name: account-operator-ca-issuer
       renewBefore: 720h
       secretName: account-operator-webhook-server-cert
-  13: |
+  14: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -1869,17 +1901,33 @@ operator match the snapshot (with kubeconfigSecret):
                 secretName: account-operator-webhook-server-cert
   8: |
     apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: account-operator
+      name: account-operator-metrics
+    spec:
+      ports:
+        - name: metrics
+          port: 9090
+          protocol: TCP
+          targetPort: metrics
+      selector:
+        app: account-operator
+      type: ClusterIP
+  9: |
+    apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: account-operator
-  9: |
+  10: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: account-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  10: |
+  11: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1893,7 +1941,7 @@ operator match the snapshot (with kubeconfigSecret):
         name: account-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: account-operator-ca-secret
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1901,7 +1949,7 @@ operator match the snapshot (with kubeconfigSecret):
     spec:
       ca:
         secretName: account-operator-ca-secret
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1916,7 +1964,7 @@ operator match the snapshot (with kubeconfigSecret):
         name: account-operator-ca-issuer
       renewBefore: 720h
       secretName: account-operator-webhook-server-cert
-  13: |
+  14: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -2475,17 +2523,33 @@ operator match the snapshot with webhook enabled:
                 secretName: account-operator-webhook-server-cert
   8: |
     apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: account-operator
+      name: account-operator-metrics
+    spec:
+      ports:
+        - name: metrics
+          port: 9090
+          protocol: TCP
+          targetPort: metrics
+      selector:
+        app: account-operator
+      type: ClusterIP
+  9: |
+    apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: account-operator
-  9: |
+  10: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: account-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  10: |
+  11: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -2499,7 +2563,7 @@ operator match the snapshot with webhook enabled:
         name: account-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: account-operator-ca-secret
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -2507,7 +2571,7 @@ operator match the snapshot with webhook enabled:
     spec:
       ca:
         secretName: account-operator-ca-secret
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -2522,7 +2586,7 @@ operator match the snapshot with webhook enabled:
         name: account-operator-ca-issuer
       renewBefore: 720h
       secretName: account-operator-webhook-server-cert
-  13: |
+  14: |
     apiVersion: v1
     kind: Service
     metadata:

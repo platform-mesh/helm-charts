@@ -358,18 +358,24 @@ services:
     enabled: false
     targetNamespace: observability
     values:
-      istio:
-        grafana:
-          virtualService:
-            hosts: ["grafana.{{ .Values.baseDomain }}"]
-        tracing:
+      opentelemetry-operator:
+        manager:
+          collectorImage:
+            repository: otel/opentelemetry-collector-contrib
+      prometheus:
+        server:
+          persistentVolume:
+            enabled: false
+          extraFlags:
+            - web.enable-remote-write-receiver
+        alertmanager:
           enabled: false
-      opentelemetry-collector:
-        service:
-          type: ClusterIP
-        ports:
-          metrics:
-            enabled: true
+        prometheus-node-exporter:
+          enabled: false
+        prometheus-pushgateway:
+          enabled: false
+        kube-state-metrics:
+          enabled: false
   terminal-controller-manager:
     enabled: false
     imageResources:

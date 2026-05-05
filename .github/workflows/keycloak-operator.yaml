@@ -1,0 +1,38 @@
+permissions:
+  contents: write
+  packages: write
+
+name: Build keycloak-operator Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/keycloak-operator/**'
+      - '.github/workflows/keycloak-operator.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+
+jobs:
+  verify-crds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Verify CRDs are up-to-date
+        run: |
+          VERSION=$(yq e '.appVersion' charts/keycloak-operator/Chart.yaml)
+          bash hack/update-keycloak-crds.sh "$VERSION"
+          git diff --exit-code charts/keycloak-operator/crds/
+
+  pipeline:
+    needs: verify-crds
+    concurrency:
+      group: keycloak-operator-${{ github.ref }}
+      cancel-in-progress: true
+    uses: ./.github/workflows/pipeline-chart.yml
+    with:
+      chartFolder: charts
+      chartName: keycloak-operator
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
+    secrets: inherit
