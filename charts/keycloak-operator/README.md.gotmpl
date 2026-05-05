@@ -1,4 +1,21 @@
 
+## Updating CRDs
+
+CRDs are not managed by Helm and must be updated manually when upgrading the operator version.
+Use the provided script, passing the target Keycloak version:
+
+```bash
+hack/update-keycloak-crds.sh <version>
+```
+
+Example:
+
+```bash
+hack/update-keycloak-crds.sh 26.6.0
+```
+
+This fetches the CRD manifests from the [OperatorHub community-operators](https://github.com/k8s-operatorhub/community-operators) repository and writes them to `charts/keycloak-operator/crds/`.
+
 ## Requirements
 
 | Repository | Name | Description | Sources |

@@ -4,6 +4,23 @@ Keycloak Operator for Kubernetes
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
+## Updating CRDs
+
+CRDs are not managed by Helm and must be updated manually when upgrading the operator version.
+Use the provided script, passing the target Keycloak version:
+
+```bash
+hack/update-keycloak-crds.sh <version>
+```
+
+Example:
+
+```bash
+hack/update-keycloak-crds.sh 26.6.0
+```
+
+This fetches the CRD manifests from the [OperatorHub community-operators](https://github.com/k8s-operatorhub/community-operators) repository and writes them to `charts/keycloak-operator/crds/`.
+
 ## Requirements
 
 | Repository | Name | Description | Sources |
@@ -13,16 +30,16 @@ Keycloak Operator for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | deployment.replicas | int | `1` |  |
-| deployment.resources.limits.cpuOverride | string | `"700m"` | CPU limit |
-| deployment.resources.limits.memoryOverride | string | `"450Mi"` | Memory limit |
-| deployment.resources.requests.cpuOverride | string | `"300m"` | CPU request |
-| deployment.resources.requests.memoryOverride | string | `"450Mi"` | Memory request |
+| deployment.resources.limits.cpu | string | `"700m"` | CPU limit |
+| deployment.resources.limits.memory | string | `"450Mi"` | Memory limit |
+| deployment.resources.requests.cpu | string | `"300m"` | CPU request |
+| deployment.resources.requests.memory | string | `"450Mi"` | Memory request |
 | deployment.specTemplate.annotations | object | `{}` | Annotations for the pod template |
 | deployment.specTemplate.labels | object | `{}` | Labels for the pod template |
 | image.name | string | `"quay.io/keycloak/keycloak-operator"` | The image repository |
 | image.tag | string | `""` | The image tag (defaults to appVersion) |
 | keycloakImage.repository | string | `"ghcr.io/platform-mesh/custom-images/keycloak"` | The Keycloak image repository |
-| keycloakImage.tag | string | `"latest"` | The Keycloak image tag (defaults to appVersion) |
+| keycloakImage.tag | string | `"v26.6.0"` | The Keycloak image tag (defaults to appVersion) |
 | watchNamespaces | string | `""` | Namespace to watch for Keycloak CRs. Defaults to the release namespace. |
 
 ## Overriding Values
