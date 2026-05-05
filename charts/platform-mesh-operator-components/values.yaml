@@ -313,7 +313,7 @@ services:
         nameOverride: postgres
         image:
           registry: ghcr.io/platform-mesh
-          repository: images/postgresql
+          repository: upstream-images/postgresql
       telemetry:
         trace:
           enabled: false
