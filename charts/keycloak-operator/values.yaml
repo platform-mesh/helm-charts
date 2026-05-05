@@ -23,11 +23,11 @@ deployment:
   resources:
     limits:
       # -- Memory limit
-      memoryOverride: "450Mi"
+      memory: "450Mi"
       # -- CPU limit
-      cpuOverride: "700m"
+      cpu: "700m"
     requests:
       # -- CPU request
-      cpuOverride: "300m"
+      cpu: "300m"
       # -- Memory request
-      memoryOverride: "450Mi"
+      memory: "450Mi"
