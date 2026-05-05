@@ -9,13 +9,13 @@ A Helm chart to automate bootstrapping of new environment
 | crds.enabled | bool | `true` |  |
 | deployment.replicas | int | `1` |  |
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |
+| hostAliases.enabled | bool | `false` |  |
 | idp.registrationAllowed | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/platform-mesh-operator"` |  |
 | istio.enabled | bool | `false` |  |
 | log.level | string | `"debug"` |  |
 | operator.leaderElect | bool | `true` |  |
-| hostAliases.enabled | bool | `true` |  |
-| providers.enabled | bool | `false` | Enables the providers controller deployment. NOTE: Required by `feature-enable-provider-manager` feature toggle in PlatformMesh spec.
+| providers.enabled | bool | `false` | Enables the providers controller deployment. NOTE: Required by "feature-enable-provider-manager" feature toggle in PlatformMesh spec. |
 | remoteInfra.enabled | bool | `false` | Enables reconciliation of PlatformMesh resources on remote clusters |
 | remoteInfra.secretKey | string | `"kubeconfig"` |  |
 | remoteInfra.secretName | string | `"platform-mesh-kubeconfig"` | Name of the secret containing the kubeconfig for remote cluster access where the PlatformMesh resources will be deployed |
