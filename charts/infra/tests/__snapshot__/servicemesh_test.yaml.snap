@@ -1,3 +1,92 @@
+keycloak operator enabled renders all resources:
+  1: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: keycloak-admin
+      namespace: platform-mesh-system
+    stringData:
+      password: admin
+      secret: admin
+      username: keycloak-admin
+    type: Opaque
+  2: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: keycloak-db-credentials
+      namespace: platform-mesh-system
+    stringData:
+      password: keycloak-password
+      username: keycloak
+    type: Opaque
+  3: |
+    apiVersion: k8s.keycloak.org/v2beta1
+    kind: Keycloak
+    metadata:
+      name: keycloak
+      namespace: platform-mesh-system
+    spec:
+      additionalOptions:
+        - name: http-relative-path
+          value: /keycloak
+      bootstrapAdmin:
+        user:
+          secret: keycloak-admin
+      db:
+        database: keycloak
+        host: platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local
+        passwordSecret:
+          key: password
+          name: keycloak-db-credentials
+        port: 5432
+        usernameSecret:
+          key: username
+          name: keycloak-db-credentials
+        vendor: postgres
+      hostname:
+        backchannelDynamic: true
+        hostname: https://portal.localhost:8443
+        strict: false
+      http:
+        httpEnabled: true
+      image: ghcr.io/platform-mesh/custom-images/keycloak:mail
+      ingress:
+        enabled: false
+      instances: 1
+      proxy:
+        headers: xforwarded
+      unsupported:
+        podTemplate:
+          spec:
+            containers:
+              - imagePullPolicy: IfNotPresent
+                livenessProbe:
+                  failureThreshold: 3
+                  httpGet:
+                    path: /keycloak/health/live
+                    port: 9000
+                  periodSeconds: 10
+                name: keycloak
+                readinessProbe:
+                  httpGet:
+                    path: /keycloak/health/ready
+                    port: 9000
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                resources:
+                  limits:
+                    cpu: "2"
+                    memory: 2Gi
+                  requests:
+                    cpu: 750m
+                    memory: 1Gi
+                startupProbe:
+                  failureThreshold: 600
+                  httpGet:
+                    path: /keycloak/health
+                    port: 9000
+                  periodSeconds: 10
 test HTTPRoutes:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
