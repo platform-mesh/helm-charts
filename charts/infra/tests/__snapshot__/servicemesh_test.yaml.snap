@@ -61,6 +61,18 @@ keycloak operator enabled renders all resources:
           spec:
             containers:
               - imagePullPolicy: IfNotPresent
+                livenessProbe:
+                  failureThreshold: 3
+                  httpGet:
+                    path: /keycloak/health/live
+                    port: 9000
+                  periodSeconds: 10
+                readinessProbe:
+                  httpGet:
+                    path: /keycloak/health/ready
+                    port: 9000
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
                 resources:
                   limits:
                     cpu: "2"
@@ -68,6 +80,12 @@ keycloak operator enabled renders all resources:
                   requests:
                     cpu: 750m
                     memory: 1Gi
+                startupProbe:
+                  failureThreshold: 600
+                  httpGet:
+                    path: /keycloak/health
+                    port: 9000
+                  periodSeconds: 10
 test HTTPRoutes:
   1: |
     apiVersion: gateway.networking.k8s.io/v1

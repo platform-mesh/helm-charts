@@ -154,7 +154,7 @@ keycloak:
       # -- Keycloak image repository
       repository: ghcr.io/platform-mesh/custom-images/keycloak
       # -- Keycloak image tag
-      tag: "26.6.0-local"
+      tag: "latest"
     # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).
     # Must not include a path — the operator auto-derives http-relative-path from
     # any path component, which conflicts with the value baked into the image.
@@ -184,6 +184,19 @@ keycloak:
       requests:
         cpu: 750m
         memory: 1Gi
+    health:
+      port: 9000
+      periodSeconds: 10
+      liveness:
+        path: /keycloak/health/live
+        failureThreshold: 3
+      readiness:
+        path: /keycloak/health/ready
+        initialDelaySeconds: 0
+        periodSeconds: 10
+      startup:
+        path: /keycloak/health
+        failureThreshold: 600
   gatewayApi:
     # -- hostnames for the Keycloak HTTPRoute
     hostnames:
