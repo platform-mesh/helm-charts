@@ -263,9 +263,16 @@ async function selectExistingOrganization(page: Page, value: string): Promise<bo
     return false;
   }
 
-  const option = page.locator('ui5-option').nth(optionIndex).locator('.option').first();
+  const optionHost = page.locator('ui5-option').nth(optionIndex);
   logStep(`selectExistingOrganization:click value=${value}`);
-  await option.click({ force: true });
+
+  try {
+    await optionHost.click({ force: true });
+  } catch {
+    logStep(`selectExistingOrganization:click-fallback value=${value}`);
+    await optionHost.evaluate((el) => (el as HTMLElement).click());
+  }
+
   await page.waitForTimeout(500);
 
   return true;

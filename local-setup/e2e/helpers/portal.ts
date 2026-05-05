@@ -24,6 +24,16 @@ export {
 } from './httpbins';
 
 export {
+  openOrganizationMarketplace,
+  openAccountMarketplace,
+  openAccountMarketplaceProvider,
+  clickMarketplaceAction,
+  expectMarketplaceActionVisible,
+  waitForMarketplaceAction,
+  waitForHttpBinsNavigation,
+} from './marketplace';
+
+export {
   ensureAccountExists,
   downloadAccountKubeconfig,
   deleteAccount,
