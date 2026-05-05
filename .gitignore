@@ -6,7 +6,6 @@ bin/*
 .claude
 oci/
 *.webm
-
 local-setup/webhook-config/*
 !local-setup/webhook-config/*.sh
 !local-setup/webhook-config/*.yaml
@@ -26,7 +25,8 @@ registry-ca.pem
 local-setup/rootCA.pem
 local-setup/e2e/node_modules/
 local-setup/e2e/*.png
-local-setup/scripts/post-flux-hook.sh
-local-setup/scripts/post-platform-mesh-hook.sh
-local-setup/scripts/platform-mesh-resource-hook.sh
+local-setup/scripts/load-custom-images.sh
 /convo
+docs/migration-0.3/kcp-exports
+local-setup/backup
+tmp/
