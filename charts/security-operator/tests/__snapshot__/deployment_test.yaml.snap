@@ -473,11 +473,27 @@ operator match the snapshot:
               name: core-module
   8: |
     apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: RELEASE-NAME-security-operator
+      name: RELEASE-NAME-security-operator-metrics
+    spec:
+      ports:
+        - name: metrics
+          port: 9090
+          protocol: TCP
+          targetPort: metrics
+      selector:
+        app: RELEASE-NAME-security-operator
+      type: ClusterIP
+  9: |
+    apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
-  9: |
+  10: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -576,7 +592,7 @@ operator match the snapshot:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
-  10: |
+  11: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -670,14 +686,14 @@ operator match the snapshot:
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
-  11: |
+  12: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: RELEASE-NAME-security-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -691,7 +707,7 @@ operator match the snapshot:
         name: RELEASE-NAME-security-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-ca-secret
-  13: |
+  14: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -699,7 +715,7 @@ operator match the snapshot:
     spec:
       ca:
         secretName: RELEASE-NAME-security-operator-ca-secret
-  14: |
+  15: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -714,7 +730,7 @@ operator match the snapshot:
         name: RELEASE-NAME-security-operator-ca-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  15: |
+  16: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -1220,6 +1236,22 @@ operator match the snapshot w. sentry:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
   8: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app: RELEASE-NAME-security-operator
+      name: RELEASE-NAME-security-operator-metrics
+    spec:
+      ports:
+        - name: metrics
+          port: 9090
+          protocol: TCP
+          targetPort: metrics
+      selector:
+        app: RELEASE-NAME-security-operator
+      type: ClusterIP
+  9: |
     apiVersion: external-secrets.io/v1beta1
     kind: ExternalSecret
     metadata:
@@ -1240,13 +1272,13 @@ operator match the snapshot w. sentry:
         creationPolicy: Owner
         deletionPolicy: Retain
         name: RELEASE-NAME-security-operator-sentry
-  9: |
+  10: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
       name: RELEASE-NAME-security-operator
       namespace: NAMESPACE
-  10: |
+  11: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -1352,7 +1384,7 @@ operator match the snapshot w. sentry:
             - name: keycloak-credentials
               secret:
                 secretName: keycloak-admin
-  11: |
+  12: |
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -1453,14 +1485,14 @@ operator match the snapshot w. sentry:
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
-  12: |
+  13: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
       name: RELEASE-NAME-security-operator-selfsigned-issuer
     spec:
       selfSigned: {}
-  13: |
+  14: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1474,7 +1506,7 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-selfsigned-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-ca-secret
-  14: |
+  15: |
     apiVersion: cert-manager.io/v1
     kind: Issuer
     metadata:
@@ -1482,7 +1514,7 @@ operator match the snapshot w. sentry:
     spec:
       ca:
         secretName: RELEASE-NAME-security-operator-ca-secret
-  15: |
+  16: |
     apiVersion: cert-manager.io/v1
     kind: Certificate
     metadata:
@@ -1497,7 +1529,7 @@ operator match the snapshot w. sentry:
         name: RELEASE-NAME-security-operator-ca-issuer
       renewBefore: 720h
       secretName: RELEASE-NAME-security-operator-webhook-server-cert
-  16: |
+  17: |
     apiVersion: v1
     kind: Service
     metadata:

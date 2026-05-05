@@ -1,0 +1,21 @@
+{{- if .Values.serviceMonitors.accountOperator.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: account-operator
+  labels:
+    {{- include "observability.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.serviceMonitors.accountOperator.namespace }}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.serviceMonitors.accountOperator.labels | nindent 6 }}
+  endpoints:
+    - port: {{ .Values.serviceMonitors.accountOperator.port }}
+      path: {{ .Values.serviceMonitors.accountOperator.path }}
+{{- end }}
