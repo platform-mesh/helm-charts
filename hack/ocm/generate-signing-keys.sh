@@ -22,6 +22,7 @@ CA_CN="platform-mesh"
 
 COMPONENTS=(
   account-operator
+  custom-images
   example-httpbin-operator
   extension-manager-operator
   generic-resource-ui
