@@ -82,7 +82,7 @@ spec:
       kind: Service
       name: {{ .serviceName }}
       namespace: {{ .namespace }}
-      port: 6443
+      port: {{ .frontproxyPort }}
 {{- end -}}
 {{- define "kcp.shard.spec" -}}
 replicas: {{ .replicas }}

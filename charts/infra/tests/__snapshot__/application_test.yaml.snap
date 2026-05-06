@@ -263,7 +263,7 @@ Gateway API enabled:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   9: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -384,7 +384,7 @@ Gateway API enabled:
               kind: Service
               name: nereus-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   12: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -505,7 +505,7 @@ Gateway API enabled:
               kind: Service
               name: triton-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   15: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -838,7 +838,7 @@ Istio disabled:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   9: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -959,7 +959,7 @@ Istio disabled:
               kind: Service
               name: nereus-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   12: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -1080,7 +1080,7 @@ Istio disabled:
               kind: Service
               name: triton-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   15: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -1413,7 +1413,7 @@ Istio enabled:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   9: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -1534,7 +1534,7 @@ Istio enabled:
               kind: Service
               name: nereus-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   12: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -1655,7 +1655,7 @@ Istio enabled:
               kind: Service
               name: triton-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   15: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -1856,7 +1856,7 @@ configure etcd backup store:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
 configure frontproxy resources:
   1: |
     apiVersion: operator.kcp.io/v1alpha1
@@ -2041,7 +2041,7 @@ configure rootshard resources:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
 match snapshots:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -2313,7 +2313,7 @@ match snapshots:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   9: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -2438,7 +2438,7 @@ match snapshots:
               kind: Service
               name: nereus-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   12: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -2563,7 +2563,7 @@ match snapshots:
               kind: Service
               name: triton-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   15: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -2924,7 +2924,7 @@ match snapshots w. hostAliases enabled:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   9: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -3063,7 +3063,7 @@ match snapshots w. hostAliases enabled:
               kind: Service
               name: nereus-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   12: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -3202,7 +3202,7 @@ match snapshots w. hostAliases enabled:
               kind: Service
               name: triton-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   15: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -3541,7 +3541,7 @@ match snapshots w. kcp version:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   9: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -3666,7 +3666,7 @@ match snapshots w. kcp version:
               kind: Service
               name: nereus-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   12: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -3791,7 +3791,7 @@ match snapshots w. kcp version:
               kind: Service
               name: triton-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   15: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -4124,7 +4124,7 @@ match snapshots with mailpit enabled:
               kind: Service
               name: root-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   9: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -4245,7 +4245,7 @@ match snapshots with mailpit enabled:
               kind: Service
               name: nereus-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   12: |
     apiVersion: druid.gardener.cloud/v1alpha1
     kind: Etcd
@@ -4366,7 +4366,7 @@ match snapshots with mailpit enabled:
               kind: Service
               name: triton-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443
   15: |
     apiVersion: gateway.networking.k8s.io/v1alpha2
     kind: TLSRoute
@@ -4555,4 +4555,4 @@ render additional shard with explicit hostname:
               kind: Service
               name: shard-1-shard-kcp
               namespace: platform-mesh-system
-              port: 6443
+              port: 8443

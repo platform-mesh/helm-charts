@@ -27,4 +27,4 @@ spec:
           - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}.svc.cluster.local
           - root.kcp.localhost
 ---
-{{ include "kcp.tlsroute" (dict "name" "kcp-root-shard-tlsroute" "hostname" "root.kcp.localhost" "serviceName" "root-kcp" "namespace" (.Values.kcp.namespace | default "kcp-system") "gatewayName" .Values.gatewayApi.name) }}
+{{ include "kcp.tlsroute" (dict "name" "kcp-root-shard-tlsroute" "hostname" "root.kcp.localhost" "serviceName" "root-kcp" "namespace" (.Values.kcp.namespace | default "kcp-system") "gatewayName" .Values.gatewayApi.name "frontproxyPort" .Values.kcp.frontProxy.port ) }}
