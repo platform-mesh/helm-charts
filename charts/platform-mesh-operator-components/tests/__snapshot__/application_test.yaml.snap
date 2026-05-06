@@ -237,10 +237,10 @@ it should render the application manifests:
               virtualWorkspaces:
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: contentconfigurations
-                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
+                  url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/contentconfigurations
                 - kubeconfig: /app/kubeconfig/kubeconfig
                   name: marketplace
-                  url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
+                  url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/marketplace
             enabled: true
         tracing:
           enabled: false
@@ -408,7 +408,7 @@ it should render the application manifests:
         deployment:
           resourceSchemaName: v250704-6d57f16.contentconfigurations.ui.platform-mesh.io
           resourceSchemaWorkspace: root:platform-mesh-system
-          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
+          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443
         virtualWorkspaceSecretName: virtual-workspaces-cert
   14: |
     apiVersion: delivery.ocm.software/v1alpha1
