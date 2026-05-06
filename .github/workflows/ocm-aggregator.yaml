@@ -8,23 +8,23 @@ on:
         type: boolean
       version_increment:
         required: false
-        default: 'none'
+        default: "none"
         type: string
       release_type:
         required: false
-        default: 'build'
+        default: "build"
         type: string
   workflow_dispatch:
     inputs:
       force_version_upgrade:
-        description: 'Force version upgrade even without dependency changes'
+        description: "Force version upgrade even without dependency changes"
         required: false
         default: false
         type: boolean
       version_increment:
-        description: 'Version component to increment (only applies when force_version_upgrade is true, use none to keep version and only change release type)'
+        description: "Version component to increment (only applies when force_version_upgrade is true, use none to keep version and only change release type)"
         required: false
-        default: 'minor'
+        default: "minor"
         type: choice
         options:
           - none
@@ -32,22 +32,22 @@ on:
           - major
           - patch
       release_type:
-        description: 'Type of release to create (only applies when force_version_upgrade is true)'
+        description: "Type of release to create (only applies when force_version_upgrade is true)"
         required: false
-        default: 'build'
+        default: "build"
         type: choice
         options:
           - build
           - rc
           - full
   schedule:
-    - cron: '0 * * * *'
+    - cron: "0 * * * *"
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/ocm.yaml'
-      - 'constructor/component-constructor.yaml'
+      - ".github/workflows/ocm.yaml"
+      - "constructor/component-constructor.yaml"
 permissions:
   packages: write
   contents: read
@@ -520,7 +520,7 @@ jobs:
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
-          ./ocm sign componentversions --signature platform-mesh --private-key /tmp/ocm-signing.priv \
+          ./ocm sign componentversions --signature ocm.platform-mesh --private-key /tmp/ocm-signing.priv \
           --public-key /tmp/ocm-signing.cert \
           --ca-cert signature/ca.cert \
             "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
@@ -529,4 +529,3 @@ jobs:
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
-

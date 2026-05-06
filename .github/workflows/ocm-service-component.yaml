@@ -3,30 +3,30 @@ on:
   workflow_dispatch:
     inputs:
       componentName:
-        description: 'Service component name (e.g., github.com/platform-mesh/security-operator)'
+        description: "Service component name (e.g., github.com/platform-mesh/security-operator)"
         required: true
         type: string
       chartName:
-        description: 'Chart name (e.g., security-operator)'
+        description: "Chart name (e.g., security-operator)"
         required: true
         type: string
       chartVersion:
-        description: 'Chart version (semver)'
+        description: "Chart version (semver)"
         required: true
         type: string
       appVersion:
-        description: 'App/image version (semver)'
+        description: "App/image version (semver)"
         required: true
         type: string
       imageComponentName:
-        description: 'Image component name suffix (defaults to repo name, e.g., security-operator)'
+        description: "Image component name suffix (defaults to repo name, e.g., security-operator)"
         required: false
         type: string
       componentConstructorFile:
-        description: 'Service component constructor file path'
+        description: "Service component constructor file path"
         required: false
         type: string
-        default: 'constructor/service-component.yaml'
+        default: "constructor/service-component.yaml"
 
 permissions:
   packages: write
@@ -99,7 +99,7 @@ jobs:
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
-          ./ocm sign componentversion --signature platform-mesh --private-key /tmp/ocm-signing.priv \
+          ./ocm sign componentversion --signature ocm.platform-mesh --private-key /tmp/ocm-signing.priv \
           --public-key /tmp/ocm-signing.cert \
           --ca-cert signature/ca.cert \
             "oci://ghcr.io/platform-mesh//${{ inputs.componentName }}:${{ inputs.chartVersion }}"
@@ -108,7 +108,6 @@ jobs:
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
-
 
   trigger-aggregator:
     needs: service-component
