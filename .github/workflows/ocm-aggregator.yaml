@@ -522,6 +522,7 @@ jobs:
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
           ./ocm sign componentversions --signature platform-mesh --private-key /tmp/ocm-signing.priv \
           --public-key /tmp/ocm-signing.cert \
+          --ca-cert signature/ca.cert \
             "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
           rm -f /tmp/ocm-signing.priv
           rm -f /tmp/ocm-signing.cert
