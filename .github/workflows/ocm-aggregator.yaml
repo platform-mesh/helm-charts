@@ -519,9 +519,13 @@ jobs:
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
+          printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
           ./ocm sign componentversions --signature platform-mesh --private-key /tmp/ocm-signing.priv \
+          --public-key /tmp/ocm-signing.cert \
             "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
           rm -f /tmp/ocm-signing.priv
+          rm -f /tmp/ocm-signing.cert
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
+          OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
 
