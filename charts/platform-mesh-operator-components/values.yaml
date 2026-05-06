@@ -254,10 +254,10 @@ services:
           content:
             virtualWorkspaces:
               - name: contentconfigurations
-                url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
+                url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/contentconfigurations
                 kubeconfig: /app/kubeconfig/kubeconfig
               - name: marketplace
-                url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
+                url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/marketplace
                 kubeconfig: /app/kubeconfig/kubeconfig
   openfga:
     enabled: true
@@ -406,7 +406,7 @@ services:
     values:
       virtualWorkspaceSecretName: virtual-workspaces-cert
       deployment:
-        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
+        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:8443"
         resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
         resourceSchemaWorkspace: "root:platform-mesh-system"
   iam-service:

@@ -304,10 +304,10 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-graphql-gateway-kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].name | string | `"contentconfigurations"` |  |
-| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations"` |  |
+| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443/services/contentconfigurations"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].name | string | `"marketplace"` |  |
-| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace"` |  |
+| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443/services/marketplace"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.tracing.enabled | bool | `false` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.audience | string | `"default"` |  |
@@ -409,7 +409,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.virtual-workspaces.imageResources | list | `[{"annotations":{"artifact":"image","for":"virtual-workspaces","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.virtual-workspaces.values.deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
 | services.virtual-workspaces.values.deployment.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
-| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443"` |  |
+| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443"` |  |
 | services.virtual-workspaces.values.virtualWorkspaceSecretName | string | `"virtual-workspaces-cert"` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 | timeout | string | `"30m"` |  |
