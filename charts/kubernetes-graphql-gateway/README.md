@@ -16,12 +16,10 @@ kubeConfig:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | crds.enabled | bool | `true` |  |
-| deployment.maxSurge | int | `5` |  |
-| deployment.maxUnavailable | int | `0` |  |
-| deployment.replicas | int | `1` |  |
-| deployment.revisionHistoryLimit | int | `3` |  |
+| deployment | object | `{"maxSurge":5,"maxUnavailable":0,"replicas":1,"revisionHistoryLimit":3}` | Default deployment settings applied to both the gateway and listener Deployments. Each setting can be overridden per-deployment via `gateway.deployment.<field>` or `listener.deployment.<field>` (see those blocks in this file). When a per-deployment override is unset, the value from this block is used. |
 | extraVolumeMounts | list | `[]` |  |
 | extraVolumes | list | `[]` |  |
+| gateway.deployment | object | `{}` | Per-deployment overrides for the gateway Deployment. Any field set here takes precedence over the matching field in the top-level `deployment` block. Unset fields fall back to the top-level defaults. Example:   gateway:     deployment:       replicas: 3 |
 | gateway.extraArgs | list | `[]` |  |
 | gateway.healthCheck.enabled | bool | `true` |  |
 | gateway.healthCheck.port | int | `8080` |  |
@@ -61,6 +59,7 @@ kubeConfig:
 | listener.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` |  |
 | listener.cacheNamespaces | list | `[]` | Restrict the cache to these namespaces for namespaced resources (e.g. secrets, configmaps). Cluster-scoped resources are unaffected. When empty, all namespaces are cached. |
 | listener.clusterAccessControllerProviders | multi mode only | `"single"` | Comma-separated list of providers for the ClusterAccess controller. Valid values: "kcp", "single". Only valid when provider=multi. Requires enableClusterAccessController=true. |
+| listener.deployment | object | `{}` | Per-deployment overrides for the listener Deployment. Any field set here takes precedence over the matching field in the top-level `deployment` block. Unset fields fall back to the top-level defaults. Example:   listener:     deployment:       replicas: 1 |
 | listener.enableClusterAccessController | bool | `true` | Enable the ClusterAccess controller. |
 | listener.enableResourceController | bool | `true` | Enable the resource controller for watching the configured anchor resource and generating schemas. |
 | listener.extraArgs | list | `[]` |  |

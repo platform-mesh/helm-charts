@@ -80,3 +80,62 @@ tests:
       - deploy-listener.yaml
     asserts:
       - matchSnapshot: {}
+  - it: applies per-deployment override to gateway only
+    set:
+      gateway.deployment.replicas: 3
+      gateway.deployment.maxSurge: 1
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+        template: deploy-gateway.yaml
+      - equal:
+          path: spec.strategy.rollingUpdate.maxSurge
+          value: 1
+        template: deploy-gateway.yaml
+      - equal:
+          path: spec.replicas
+          value: 1
+        template: deploy-listener.yaml
+  - it: applies per-deployment override to listener only
+    set:
+      listener.deployment.replicas: 2
+      listener.deployment.maxUnavailable: 1
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2
+        template: deploy-listener.yaml
+      - equal:
+          path: spec.strategy.rollingUpdate.maxUnavailable
+          value: 1
+        template: deploy-listener.yaml
+      - equal:
+          path: spec.replicas
+          value: 1
+        template: deploy-gateway.yaml
+  - it: honors zero values in per-deployment overrides
+    set:
+      gateway.deployment.replicas: 0
+      listener.deployment.revisionHistoryLimit: 0
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 0
+        template: deploy-gateway.yaml
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+        template: deploy-listener.yaml
+  - it: falls back to top-level deployment defaults when override is unset
+    set:
+      deployment.replicas: 5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 5
+        template: deploy-gateway.yaml
+      - equal:
+          path: spec.replicas
+          value: 5
+        template: deploy-listener.yaml
