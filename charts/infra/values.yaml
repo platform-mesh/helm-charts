@@ -158,7 +158,7 @@ keycloak:
     # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).
     # Must not include a path — the operator auto-derives http-relative-path from
     # any path component, which conflicts with the value baked into the image.
-    hostname: "https://portal.localhost:8443"
+    hostname: "https://portal.localhost:8443/keycloak/"
     db:
       # -- PostgreSQL host
       host: platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local
