@@ -2,7 +2,7 @@ image:
   # -- The image repository
   name: quay.io/keycloak/keycloak-operator
   # -- The image tag (defaults to appVersion)
-  tag: ""
+  tag: "26.6.0"
 
 keycloakImage:
   # -- The Keycloak image repository
