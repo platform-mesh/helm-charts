@@ -18,6 +18,10 @@ spec:
   - name: feature-disable-email-verification
   - name: feature-accounts-in-accounts
   values:
+    platform-mesh-operator:
+      values:
+        hostAliases:
+          enabled: true # Needed by providers operator deployment.
     account-operator:
       values:
         hostAliases:
