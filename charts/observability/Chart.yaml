@@ -2,8 +2,8 @@ apiVersion: v2
 name: observability
 description: OpenTelemetry-based observability stack for platform-mesh
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 0.2.0
+appVersion: "0.0.0"
 dependencies:
   - name: prometheus-operator-crds
     version: 19.1.0
