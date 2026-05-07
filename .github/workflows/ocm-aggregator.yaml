@@ -161,8 +161,9 @@ jobs:
           echo IAM_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo MARKETPLACE_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/marketplace-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo TERMINAL_CONTROLLER_MANAGER_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/terminal-controller-manager --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo KEYCLOAK_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/helm-charts/keycloak-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          
+          echo KEYCLOAK_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/helm-charts/keycloak-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV \
+          echo OBSERVABILITY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/observability --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+
           # Fetch etcd-druid version from Gardener registry
           echo GARDENER_ETCD_DRUID_VERSION=$(./ocm get componentversions --latest github.com/gardener/etcd-druid --repo europe-docker.pkg.dev/gardener-project/releases -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           # Get current platform-mesh version
@@ -291,6 +292,7 @@ jobs:
             CURRENT_MARKETPLACE_UI=$(yq eval '.component.componentReferences[] | select(.name == "marketplace-ui") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_TERMINAL_CONTROLLER_MANAGER=$(yq eval '.component.componentReferences[] | select(.name == "terminal-controller-manager") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_KEYCLOAK_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "keycloak-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_OBSERVABILITY=$(yq eval '.component.componentReferences[] | select(.name == "observability") | .version' current_pm_component.yaml 2>/dev/null || echo "")
 
             # Extract third-party dependency versions
             CURRENT_ISTIO=$(yq eval '.component.componentReferences[] | select(.name == "istio-base") | .version' current_pm_component.yaml 2>/dev/null || echo "")
@@ -413,6 +415,11 @@ jobs:
             NEEDS_UPDATE=true
           fi
 
+          if [ "$CURRENT_OBSERVABILITY" != "${{ env.OBSERVABILITY_VERSION }}" ]; then
+            echo "Observability: $CURRENT_OBSERVABILITY -> ${{ env.OBSERVABILITY_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
           # Check third-party dependency versions
           if [ "$CURRENT_KCP_OPERATOR" != "${{ env.KCP_OPERATOR_CHART_VERSION }}" ]; then
             echo "KCP Operator: $CURRENT_KCP_OPERATOR -> ${{ env.KCP_OPERATOR_CHART_VERSION }}"
@@ -516,7 +523,8 @@ jobs:
             IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
             MARKETPLACE_UI_VERSION=${{ env.MARKETPLACE_UI_VERSION }} \
             TERMINAL_CONTROLLER_MANAGER_VERSION=${{ env.TERMINAL_CONTROLLER_MANAGER_VERSION }} \
-            KEYCLOAK_OPERATOR_VERSION=${{ env.KEYCLOAK_OPERATOR_VERSION }}
+            KEYCLOAK_OPERATOR_VERSION=${{ env.KEYCLOAK_OPERATOR_VERSION }} \
+            OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }}
 
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'

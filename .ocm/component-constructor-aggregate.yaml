@@ -229,3 +229,6 @@ components:
       - name: cert-manager
         componentName: github.com/cert-manager/cert-manager
         version: {{ .CERT_MANAGER_VERSION }}
+      - name: observability
+        componentName: github.com/platform-mesh/observability
+        version: {{ .OBSERVABILITY_VERSION }}
