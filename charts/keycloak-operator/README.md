@@ -37,7 +37,7 @@ This fetches the CRD manifests from the [OperatorHub community-operators](https:
 | deployment.specTemplate.annotations | object | `{}` | Annotations for the pod template |
 | deployment.specTemplate.labels | object | `{}` | Labels for the pod template |
 | image.name | string | `"quay.io/keycloak/keycloak-operator"` | The image repository |
-| image.tag | string | `""` | The image tag (defaults to appVersion) |
+| image.tag | string | `"26.6.0"` | The image tag (defaults to appVersion) |
 | keycloakImage.repository | string | `"ghcr.io/platform-mesh/custom-images/keycloak"` | The Keycloak image repository |
 | keycloakImage.tag | string | `"v26.6.0"` | The Keycloak image tag (defaults to appVersion) |
 | watchNamespaces | string | `""` | Namespace to watch for Keycloak CRs. Defaults to the release namespace. |
