@@ -5,6 +5,7 @@ deployment matches snapshot (defaults):
     metadata:
       name: keycloak-operator
     spec:
+      image: quay.io/keycloak/keycloak-operator:26.6.0
       replicas: 1
       revisionHistoryLimit: 3
       selector:
@@ -33,7 +34,7 @@ deployment matches snapshot (defaults):
                   value: JOSDK_WATCH_CURRENT
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKCONTROLLER_NAMESPACES
                   value: JOSDK_WATCH_CURRENT
-              image: quay.io/keycloak/keycloak-operator:0.0.0
+              image: quay.io/keycloak/keycloak-operator:26.6.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -411,6 +412,7 @@ deployment matches snapshot with custom resources:
     metadata:
       name: keycloak-operator
     spec:
+      image: quay.io/keycloak/keycloak-operator:26.6.0
       replicas: 1
       revisionHistoryLimit: 3
       selector:
@@ -439,7 +441,7 @@ deployment matches snapshot with custom resources:
                   value: JOSDK_WATCH_CURRENT
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKCONTROLLER_NAMESPACES
                   value: JOSDK_WATCH_CURRENT
-              image: quay.io/keycloak/keycloak-operator:0.0.0
+              image: quay.io/keycloak/keycloak-operator:26.6.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:

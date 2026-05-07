@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - name: Verify CRDs are up-to-date
         run: |
-          VERSION=$(yq e '.appVersion' charts/keycloak-operator/Chart.yaml)
+          VERSION=$(yq e '.image.tag' charts/keycloak-operator/values.yaml)
           bash hack/update-keycloak-crds.sh "$VERSION"
           git diff --exit-code charts/keycloak-operator/crds/
 
