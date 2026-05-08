@@ -77,6 +77,8 @@ jobs:
       TRAEFIK_IMAGE_VERSION: "v3.6.13"
       TRAEFIK_CRD_VERSION: "1.14.0"
       CERT_MANAGER_VERSION: "v1.20.1"
+      CNPG_OPERATOR_CHART_VERSION: "0.28.0"
+      CNPG_OPERATOR_IMAGE_VERSION: "1.29.0"
     steps:
       - name: Setup yq@latest
         run: |
@@ -161,7 +163,7 @@ jobs:
           echo IAM_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo MARKETPLACE_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/marketplace-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo TERMINAL_CONTROLLER_MANAGER_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/terminal-controller-manager --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo KEYCLOAK_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/helm-charts/keycloak-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV \
+          echo KEYCLOAK_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/helm-charts/keycloak-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo OBSERVABILITY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/observability --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
 
           # Fetch etcd-druid version from Gardener registry
@@ -304,6 +306,7 @@ jobs:
             CURRENT_GATEWAY_API=$(yq eval '.component.componentReferences[] | select(.name == "gateway-api") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_TRAEFIK=$(yq eval '.component.componentReferences[] | select(.name == "traefik") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_CERT_MANAGER=$(yq eval '.component.componentReferences[] | select(.name == "cert-manager") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_CNPG_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "cnpg-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
           else
             # No existing component, so we need to create one
             echo "No existing platform-mesh component found, creating initial version"
@@ -461,6 +464,11 @@ jobs:
             NEEDS_UPDATE=true
           fi
 
+          if [ "$CURRENT_CNPG_OPERATOR" != "${{ env.CNPG_OPERATOR_CHART_VERSION }}" ]; then
+            echo "CNPG Operator: $CURRENT_CNPG_OPERATOR -> ${{ env.CNPG_OPERATOR_CHART_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
           if [ "$NEEDS_UPDATE" = "true" ]; then
             echo "Component dependencies have changed, creating new version"
             echo "Previous platform-mesh version: ${{ env.CURRENT_PM_VERSION }}"
@@ -524,7 +532,9 @@ jobs:
             MARKETPLACE_UI_VERSION=${{ env.MARKETPLACE_UI_VERSION }} \
             TERMINAL_CONTROLLER_MANAGER_VERSION=${{ env.TERMINAL_CONTROLLER_MANAGER_VERSION }} \
             KEYCLOAK_OPERATOR_VERSION=${{ env.KEYCLOAK_OPERATOR_VERSION }} \
-            OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }}
+            OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }} \
+            CNPG_OPERATOR_CHART_VERSION=${{ env.CNPG_OPERATOR_CHART_VERSION }} \
+            CNPG_OPERATOR_IMAGE_VERSION=${{ env.CNPG_OPERATOR_IMAGE_VERSION }}
 
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
