@@ -46,7 +46,7 @@ keycloak operator enabled renders all resources:
         vendor: postgres
       hostname:
         backchannelDynamic: true
-        hostname: https://portal.localhost:8443
+        hostname: https://portal.localhost:8443/keycloak/
         strict: false
       http:
         httpEnabled: true
