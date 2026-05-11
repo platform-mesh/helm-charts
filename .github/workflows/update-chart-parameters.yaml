@@ -57,30 +57,19 @@ jobs:
           INPUT_CHART: ${{ inputs.chart }}
           INPUT_APP_VERSION: ${{ inputs.appVersion }}
         run: |
+          set -euo pipefail
           chart_file="charts/${INPUT_CHART}/Chart.yaml"
-          ls -al charts/
-          if [ -f "$chart_file" ]; then
-            echo "Chart.yaml file found at $chart_file"
-            yq e -i ".appVersion = \"${INPUT_APP_VERSION}\"" "$chart_file"
-            echo "Updated appVersion to ${INPUT_APP_VERSION} in $chart_file"
+          bash hack/bump-chart-version.sh "$chart_file" "${INPUT_APP_VERSION}"
 
-            # bump version parameter in chart
-            CHART_VERSION=$(yq '.version' "$chart_file")
-            IFS='.' read -r -a VERSION_PARTS <<< "$CHART_VERSION"
-            MAJOR=${VERSION_PARTS[0]}
-            MINOR=${VERSION_PARTS[1]}
-            PATCH=${VERSION_PARTS[2]}
-            NEW_PATCH=$((PATCH + 1))
-            NEW_CHART_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
-            yq e -i ".version = \"$NEW_CHART_VERSION\"" "$chart_file"
-            echo "Version bumped to $NEW_CHART_VERSION in $chart_file"
-
-            git add "$chart_file"
-            git commit -m "Set $NEW_CHART_VERSION / ${INPUT_APP_VERSION} in $chart_file" || echo "appVersion was already up to date"
-          else
-            echo "Chart.yaml file not found at $chart_file"
-            exit 1
+          if git diff --quiet -- "$chart_file"; then
+            echo "Chart.yaml unchanged; nothing to commit"
+            exit 0
           fi
+
+          new_chart_version=$(yq '.version' "$chart_file")
+          new_app_version=$(yq '.appVersion' "$chart_file" | tr -d '"')
+          git add "$chart_file"
+          git commit -m "Set $new_chart_version / $new_app_version in $chart_file"
       - name: Git push
         run: |
           git push origin main
