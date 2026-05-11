@@ -558,3 +558,23 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --prerelease --sharded"}
+
+  local-setup:cached:sharded:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --sharded --example-data"}
+
+  local-setup:sharded:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--sharded --example-data"}
+
+  local-setup:sharded:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--sharded --example-data"}
+        
+  local-setup:cached:sharded:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --sharded --example-data"}

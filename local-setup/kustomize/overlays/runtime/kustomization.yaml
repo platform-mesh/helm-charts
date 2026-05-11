@@ -22,3 +22,10 @@ patches:
       - op: add
         path: /metadata/namespace
         value: platform-mesh-system
+  - target:
+      kind: Secret
+      name: ocm-signing-public-cert
+    patch: |
+      - op: add
+        path: /metadata/namespace
+        value: platform-mesh-system

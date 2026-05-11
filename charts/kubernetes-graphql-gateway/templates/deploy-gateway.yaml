@@ -1,4 +1,6 @@
 {{- $noJson := include "common.getKeyValue" (dict "Values" .Values "key" "log.noJson") }}
+{{- $deploy := default dict .Values.deployment }}
+{{- $override := default dict .Values.gateway.deployment }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,12 +9,12 @@ metadata:
   labels:
     app: {{ include "common.entity.name" . }}
 spec:
-  replicas: {{ .Values.deployment.replicas }}
+  replicas: {{ if hasKey $override "replicas" }}{{ $override.replicas }}{{ else }}{{ $deploy.replicas }}{{ end }}
   strategy:
     rollingUpdate:
-      maxSurge: {{ .Values.deployment.maxSurge }}
-      maxUnavailable: {{ .Values.deployment.maxUnavailable }}
-  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+      maxSurge: {{ if hasKey $override "maxSurge" }}{{ $override.maxSurge }}{{ else }}{{ $deploy.maxSurge }}{{ end }}
+      maxUnavailable: {{ if hasKey $override "maxUnavailable" }}{{ $override.maxUnavailable }}{{ else }}{{ $deploy.maxUnavailable }}{{ end }}
+  revisionHistoryLimit: {{ if hasKey $override "revisionHistoryLimit" }}{{ $override.revisionHistoryLimit }}{{ else }}{{ $deploy.revisionHistoryLimit }}{{ end }}
   selector:
     matchLabels:
       app: {{ include "common.entity.name" . }}

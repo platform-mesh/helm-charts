@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "common.entity.name" . }}
 spec:
+  image: {{ .Values.image.name }}:{{ .Values.image.tag  }}
   {{- include "common.deploymentBasics" . | nindent 2 }}
   replicas: {{ .Values.deployment.replicas }}
   template:

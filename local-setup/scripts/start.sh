@@ -573,7 +573,11 @@ else
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
     fi
     if [ "$EXAMPLE_DATA" = true ]; then
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+      if [ "$SHARDED" = true ]; then
+        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
+      else
+        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+      fi
     fi
   fi
 fi

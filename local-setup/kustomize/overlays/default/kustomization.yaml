@@ -4,3 +4,12 @@ kind: Kustomization
 resources:
   - ../../components/platform-mesh-operator
   - ../../components/ocm
+
+patches:
+  - target:
+      kind: Secret
+      name: ocm-signing-public-cert
+    patch: |
+      - op: add
+        path: /metadata/namespace
+        value: platform-mesh-system

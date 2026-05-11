@@ -1,6 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ocm-signing-public-cert.yaml
   - repository.yaml
   - component.yaml
   - ocm-resolver-config.yaml
