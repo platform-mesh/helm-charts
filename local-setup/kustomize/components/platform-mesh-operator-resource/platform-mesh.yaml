@@ -93,6 +93,8 @@ spec:
           auth:
             serviceAccount:
               enabled: true
+          image:
+            tag: "v0.31.1" # bump kcp image to work around WatchList issues
           shards: []
           frontProxy:
             clusterIP: "10.96.0.100"
