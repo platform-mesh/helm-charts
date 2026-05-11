@@ -1,0 +1,34 @@
+name: hack/ script tests
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'hack/bump-chart-version.sh'
+      - 'hack/bump-chart-version.test.sh'
+      - '.github/workflows/hack-tests.yml'
+
+concurrency:
+  group: hack-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  bump-chart-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Setup yq
+        run: |
+          if ! command -v yq >/dev/null 2>&1; then
+            mkdir -p "$HOME/.local/bin"
+            wget -q https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O "$HOME/.local/bin/yq"
+            chmod +x "$HOME/.local/bin/yq"
+            echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          fi
+      - name: Run bump-chart-version tests
+        run: bash hack/bump-chart-version.test.sh
