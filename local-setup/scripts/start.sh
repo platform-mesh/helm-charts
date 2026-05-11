@@ -227,7 +227,7 @@ kubectl wait --namespace platform-mesh-system \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing kcp Secrets for admin access ${COL_RES}"
-$SCRIPT_DIR/createKcpAdminKubeconfig.sh
+$SCRIPT_DIR/createKcpAdminKubeconfig.sh $SHARDED
 
 # Run post-platform-mesh hook if it exists (PlatformMesh is ready, kcp is accessible)
 if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
