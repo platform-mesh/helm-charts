@@ -23,4 +23,5 @@ jobs:
       chartName: observability
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
+      serviceComponentConstructorFile: constructor/service-component-observability.yaml
     secrets: inherit
