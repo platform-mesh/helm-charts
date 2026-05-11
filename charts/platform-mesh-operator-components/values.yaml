@@ -116,7 +116,7 @@ services:
           repo: oci
           artifact: image
         resource: image
-        referencePath:
+        absoluteReferencePath:
           - name: kcp
     dependsOn:
       - name: kcp-operator
@@ -125,42 +125,15 @@ services:
       gatewayApi:
         enabled: true
       kcp:
-        image:
-          tag: v0.29.0
         rootShard:
           extraArgs:
             - --feature-gates=WorkspaceAuthentication=true
         webhook:
           enabled: true
-      istio:
-        main:
-          gateway:
-            hosts:
-              - "{{ .Values.baseDomain }}"
-              - "*.{{ .Values.baseDomain }}"
-            port: '{{ .Values.port }}'
-            name: https
-            protocol: HTTPS
-            tls:
-              mode: SIMPLE
-              credentialName: domain-certificate
-              minProtocolVersion: TLSV1_2
-        passThrough:
-          gateway:
-            enabled: true
-            hosts:
-              - "kcp.api.{{ .Values.baseDomain }}"
-            port: '{{ .Values.port }}'
-            name: pass-https
-            protocol: HTTPS
-      keycloak:
-        istio:
-          virtualservice:
-            hosts:
-              - "{{ .Values.baseDomain }}"
   init-agent:
     enabled: true
     helmRepo: true
+    external: true
     imageResources:
       - annotations:
           repo: oci
@@ -182,6 +155,7 @@ services:
               - "localhost"
   keycloak:
     enabled: true
+    external: true
     imageResources:
       - name: keycloak-image
         annotations:
@@ -273,35 +247,21 @@ services:
           audience: default
       kubeConfig:
         enabled: true
-        secretName: kubernetes-grapqhl-gateway-kubeconfig
-      virtualService:
-        pathPrefix: /api/kubernetes-graphql-gateway/
-        hosts:
-          - "{{ .Values.baseDomain }}"
-          - "*.{{ .Values.baseDomain }}"
-        httpRules:
-          - name: default
-            cors:
-              allowHeaders:
-                - "*"
-              allowMethods:
-                - GET
-                - POST
-              allowOrigins:
-                - regex: .*
+        secretName: kubernetes-graphql-gateway-kubeconfig
       listener:
         virtualWorkspacesConfig:
           enabled: true
           content:
             virtualWorkspaces:
               - name: contentconfigurations
-                url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations
+                url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/contentconfigurations
                 kubeconfig: /app/kubeconfig/kubeconfig
               - name: marketplace
-                url: https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace
+                url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/marketplace
                 kubeconfig: /app/kubeconfig/kubeconfig
   openfga:
     enabled: true
+    external: true
     helmRepo: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
@@ -317,13 +277,9 @@ services:
           artifact: image
           for: openfga
           path: postgresql.image.tag
+          unsuspend: "true"
+    suspend: true
     values:
-      global:
-        imagePullSecrets:
-          - name: github
-      migrate:
-        annotations:
-          sidecar.istio.io/inject: "false"
       extraEnvVars:
         - name: OPENFGA_EXPERIMENTALS
           value: enable-list-users
@@ -357,7 +313,7 @@ services:
         nameOverride: postgres
         image:
           registry: ghcr.io/platform-mesh
-          repository: images/postgresql
+          repository: upstream-images/postgresql
       telemetry:
         trace:
           enabled: false
@@ -376,7 +332,7 @@ services:
     values:
       kcp:
         kubeconfigSecret: portal-kubeconfig
-      crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+      crdGatewayApiUrl: "https://${org-subdomain}{{ .Values.baseDomain }}/gateway/api/clusters/root:orgs:${org-name}/graphql"
       environment: kind
       http:
         protocol: https
@@ -395,25 +351,31 @@ services:
       cookieDomain: "{{ .Values.baseDomain }}"
       extraEnvVars:
         - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql
+          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql
         - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
           value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"
   observability:
     enabled: false
     targetNamespace: observability
     values:
-      istio:
-        grafana:
-          virtualService:
-            hosts: ["grafana.{{ .Values.baseDomain }}"]
-        tracing:
+      opentelemetry-operator:
+        manager:
+          collectorImage:
+            repository: otel/opentelemetry-collector-contrib
+      prometheus:
+        server:
+          persistentVolume:
+            enabled: false
+          extraFlags:
+            - web.enable-remote-write-receiver
+        alertmanager:
           enabled: false
-      opentelemetry-collector:
-        service:
-          type: ClusterIP
-        ports:
-          metrics:
-            enabled: true
+        prometheus-node-exporter:
+          enabled: false
+        prometheus-pushgateway:
+          enabled: false
+        kube-state-metrics:
+          enabled: false
   terminal-controller-manager:
     enabled: false
     imageResources:
@@ -444,7 +406,7 @@ services:
     values:
       virtualWorkspaceSecretName: virtual-workspaces-cert
       deployment:
-        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:6443"
+        serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:8443"
         resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
         resourceSchemaWorkspace: "root:platform-mesh-system"
   iam-service:
@@ -468,7 +430,7 @@ services:
           artifact: image
           for: iam-ui
   marketplace-ui:
-    enabled: false
+    enabled: true
     # -- Allow the configuration of additional ocm resources
     imageResources:
       - annotations:

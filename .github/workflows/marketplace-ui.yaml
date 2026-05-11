@@ -1,0 +1,27 @@
+name: Build marketplace-ui Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/marketplace-ui/**'
+      - '.github/workflows/marketplace-ui.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  pipeline:
+    concurrency:
+      group: marketplace-ui-${{ github.ref }}
+      cancel-in-progress: true
+    uses: ./.github/workflows/pipeline-chart.yml
+    with:
+      chartFolder: charts
+      chartName: marketplace-ui
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
+    secrets: inherit
+

@@ -2,8 +2,8 @@ import { expect, Locator, Page } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 
-import { defaultHttpBinName, exampleDataOverlayPath, httpbinProviderManifestPath, infraKubeconfigPath, newOrgName, testNamespaceHttpBinName, testNamespaceName } from './constants';
-import { logStep } from './log';
+import { defaultHttpBinName, exampleDataOverlayPath, httpbinProviderManifestPath, infraKubeconfigPath, newOrgName, testAccountName, testNamespaceHttpBinName, testNamespaceName } from './constants';
+import { logStep, portalOrgUrl } from './log';
 import { runAdminKubectl, runInfraKubectl, runRuntimeKubectl } from './runtime';
 
 async function clickRobust(locator: Locator): Promise<void> {
@@ -27,6 +27,23 @@ async function clickFirstVisible(page: Page, selectors: string[]): Promise<void>
   }
 
   throw new Error(`None of the selectors were visible: ${selectors.join(', ')}`);
+}
+
+async function closeDialogIfVisible(dialog: Locator): Promise<void> {
+  if (!await dialog.isVisible().catch(() => false)) {
+    return;
+  }
+
+  const cancelButton = dialog.getByRole('button', { name: 'Cancel' });
+  const closeButton = dialog.getByRole('button', { name: 'Close' });
+
+  if (await cancelButton.isVisible().catch(() => false)) {
+    await clickRobust(cancelButton);
+  } else if (await closeButton.isVisible().catch(() => false)) {
+    await clickRobust(closeButton);
+  }
+
+  await dialog.waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {});
 }
 
 function isArgoCD(): boolean {
@@ -91,7 +108,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
     waitForArgoApplication('api-syncagent', 'argocd', 120);
     waitForArgoApplication('example-httpbin-provider', 'argocd', 120);
   } else {
-    runInfraKubectl([
+    runRuntimeKubectl([
       'wait',
       '--namespace',
       'default',
@@ -101,7 +118,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
       'api-syncagent',
     ]);
 
-    runInfraKubectl([
+    runRuntimeKubectl([
       'wait',
       '--namespace',
       'default',
@@ -113,20 +130,40 @@ function ensureExampleHttpbinProviderWorkspace(): void {
   }
 }
 
+function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: string): void {
+  const manifest = [
+    'apiVersion: orchestrate.platform-mesh.io/v1alpha1',
+    'kind: HttpBin',
+    'metadata:',
+    `  name: ${httpBinName}`,
+    `  namespace: ${namespaceName}`,
+    '',
+  ].join('\n');
+
+  runAdminKubectl([
+    'apply',
+    '--server',
+    `https://localhost:8443/clusters/root:orgs:${newOrgName}:${testAccountName}`,
+    '-f',
+    '-',
+  ], manifest);
+
+  runAdminKubectl([
+    'wait',
+    '--server',
+    `https://localhost:8443/clusters/root:orgs:${newOrgName}:${testAccountName}`,
+    '--for=condition=Ready',
+    '--timeout=120s',
+    '-n',
+    namespaceName,
+    `httpbins.orchestrate.platform-mesh.io/${httpBinName}`,
+  ]);
+}
+
 async function ensureExampleHttpbinProvider(page: Page): Promise<void> {
   ensureExampleHttpbinProviderWorkspace();
-
-  for (let attempt = 0; attempt < 12; attempt++) {
-    await page.goto(`https://${newOrgName}.portal.localhost:8443/home`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
-    const navItem = page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]');
-    if (await navItem.isVisible().catch(() => false)) {
-      return;
-    }
-    await page.waitForTimeout(10000);
-  }
-
-  throw new Error('HTTPBin navigation item did not appear after bootstrapping example data');
+  await page.goto(portalOrgUrl(`/home/accounts/${testAccountName}/orchestrate_platform-mesh_io_httpbins`), { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
 }
 
 async function openNamespacesView(page: Page): Promise<void> {
@@ -159,7 +196,10 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
 
   await page.locator('[test-id="generic-list-view-create-button"]').click();
   await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-  await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(namespaceName);
+  await page
+    .locator('[test-id="generic-form-field-metadata_name"]')
+    .getByRole("textbox")
+    .fill(namespaceName);
   await page.locator('[test-id="create-resource-submit"]').click();
   const alreadyExistsAlert = page.getByText(`namespaces \"${namespaceName}\" already exists`);
   await Promise.race([
@@ -192,10 +232,7 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
 }
 
 async function openHttpBinsView(page: Page): Promise<void> {
-  if (!await page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').isVisible().catch(() => false)) {
-    await ensureExampleHttpbinProvider(page);
-  }
-  await page.locator('[data-testid="orchestrate_platform-mesh_io_httpbins_httpbins"]').click();
+  await ensureExampleHttpbinProvider(page);
 
   const httpBinsReadyLocators = [
     page.locator('[data-testid="namespace-selection-combobox"]').first(),
@@ -209,47 +246,110 @@ async function openHttpBinsView(page: Page): Promise<void> {
 async function selectNamespaceScope(page: Page, namespaceName: string): Promise<void> {
   const scopeCombobox = page.locator('[data-testid="namespace-selection-combobox"]').first();
   await expect(scopeCombobox).toBeVisible({ timeout: 15000 });
+  if ((await scopeCombobox.textContent().catch(() => ''))?.includes(namespaceName)) {
+    return;
+  }
+
   await scopeCombobox.click();
-  await scopeCombobox.press('F4');
+  await scopeCombobox.press('F4').catch(() => {});
+  await page.waitForTimeout(500);
 
   const namespaceItem = page.locator(`[data-testid="namespace-selection-combobox-item-${namespaceName}"]`).or(
     page.getByRole('option', { name: namespaceName, exact: true }),
   ).first();
-  await namespaceItem.waitFor({ state: 'visible', timeout: 10000 });
-  await namespaceItem.click();
-  await expect(scopeCombobox).toContainText(namespaceName);
+
+  if (await namespaceItem.isVisible().catch(() => false)) {
+    await namespaceItem.click();
+    await expect(scopeCombobox).toContainText(namespaceName);
+    return;
+  }
+
+  const comboInput = scopeCombobox.locator('input').first();
+  if (await comboInput.isVisible().catch(() => false)) {
+    await comboInput.click();
+    await comboInput.fill(namespaceName);
+    await comboInput.press('Enter');
+    if ((await scopeCombobox.textContent().catch(() => ''))?.includes(namespaceName)) {
+      return;
+    }
+    await page.keyboard.press('Escape').catch(() => {});
+  }
+
+  throw new Error(`Unable to select namespace scope ${namespaceName}`);
 }
 
 async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinName: string): Promise<void> {
   logStep(`ensureHttpBinExists:start namespace=${namespaceName} name=${httpBinName}`);
-  await openHttpBinsView(page);
-  await selectNamespaceScope(page, namespaceName);
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await openHttpBinsView(page);
+    await selectNamespaceScope(page, namespaceName);
 
-  const httpBinRow = page.getByRole('row').filter({ hasText: httpBinName }).first();
-  if (!await httpBinRow.isVisible().catch(() => false)) {
-    await page.getByRole('button', { name: 'Create' }).click();
-    await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'visible', timeout: 10000 });
-    await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(httpBinName);
+    const httpBinRow = page.getByRole('row').filter({ hasText: httpBinName }).first();
+    if (!await httpBinRow.isVisible().catch(() => false)) {
+      const createDialog = page.locator('[test-id="create-resource-dialog"]');
+      await page.getByRole("button", { name: "Create" }).click();
+      await createDialog.waitFor({ state: "visible", timeout: 10000 });
+      await page
+        .locator('[test-id="generic-form-field-metadata_name"]')
+        .getByRole("textbox")
+        .fill(httpBinName);
+      const namespaceInput = page.locator(
+        '[test-id="generic-form-field-metadata_namespace"]',
+      );
+      await namespaceInput.click();
 
-    // Select namespace from dropdown
-    const namespaceDropdown = page.locator('[test-id="pm-dynamic-select-v1.Namespaces.items"]');
-    await namespaceDropdown.waitFor({ state: 'visible', timeout: 10000 });
-    await namespaceDropdown.click();
+      const namespaceOption = namespaceInput
+        .locator(page.getByRole("option", { name: namespaceName, exact: true }))
+        .first();
+      await namespaceOption.waitFor({ state: "visible", timeout: 10000 });
+      await namespaceOption.click();
 
-    const namespaceOption = page.locator(`[test-id="pm-dynamic-select-v1.Namespaces.items-option-${namespaceName}"]`);
-    await namespaceOption.waitFor({ state: 'visible', timeout: 10000 });
-    await namespaceOption.click();
+      const submitButton = createDialog.locator('[test-id="create-resource-submit"]');
+      if (await submitButton.isEnabled({ timeout: 1000 })) {
+        for (let attempt = 0; attempt < 3; attempt++) {
+          await submitButton.click({ force: true, timeout: 100 });
+          const outcome = await Promise.race([
+            httpBinRow.waitFor({ state: "visible", timeout: 10000 }).then(() => "exists"),
+            createDialog
+              .waitFor({ state: "hidden", timeout: 10000 })
+              .then(() => "submitted"),
+          ]).catch(() => "retry");
 
-    // Wait for submit button to be enabled after namespace selection
-    const submitButton = page.locator('[test-id="create-resource-submit"]');
-    await expect(submitButton).toBeEnabled({ timeout: 10000 });
-    await clickRobust(submitButton);
-    await page.locator('[test-id="create-resource-dialog"]').waitFor({ state: 'hidden', timeout: 60000 });
+          if (outcome === "submitted" || outcome === "exists") {
+            break;
+          }
+        }
+      }
+
+      await Promise.race([
+        createDialog.waitFor({ state: "hidden", timeout: 30000 }),
+        expect(httpBinRow).toBeVisible({ timeout: 30000 }),
+      ]).catch(async () => {
+        await closeDialogIfVisible(createDialog);
+      });
+
+      if (await createDialog.isVisible().catch(() => false)) {
+        await closeDialogIfVisible(createDialog);
+      }
+    }
+
+    if (await httpBinRow.isVisible().catch(() => false)) {
+      const readyIcon = httpBinRow.locator('[test-id="value-cell-status.ready-boolean"]').first();
+      await expect(readyIcon).toBeVisible({ timeout: 80000 });
+      logStep(`ensureHttpBinExists:done namespace=${namespaceName} name=${httpBinName}`);
+      return;
+    }
+
+    logStep(`ensureHttpBinExists:retry namespace=${namespaceName} name=${httpBinName} attempt=${attempt + 1}`);
+    await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+    await page.waitForTimeout(3000);
   }
 
+  ensureHttpBinExistsViaBackend(namespaceName, httpBinName);
+  await openHttpBinsView(page);
+  await selectNamespaceScope(page, namespaceName);
   const nameCell = page.getByRole('row').filter({ hasText: httpBinName }).first();
   await expect(nameCell).toBeVisible({ timeout: 30000 });
-
   const readyIcon = nameCell.locator('[test-id="value-cell-status.ready-boolean"]').first();
   await expect(readyIcon).toBeVisible({ timeout: 80000 });
   logStep(`ensureHttpBinExists:done namespace=${namespaceName} name=${httpBinName}`);

@@ -7,31 +7,23 @@ import { expect, Locator, Page } from '@playwright/test';
 import { newOrgName, testAccountName } from './constants';
 import { waitForAccountDeleted, waitForAccountExists, waitForAccountReady, normalizeDownloadedKubeconfig } from './backend';
 import { clickRobust } from './httpbins';
-import { logStep } from './log';
+import { logStep, portalOrgUrl } from './log';
 
 async function openAccountsView(page: Page): Promise<void> {
-  const accountsNavItem = page.locator('[data-testid="accounts_accounts"]');
   const createButton = page.locator('[test-id="generic-list-view-create-button"]');
   const heading = page.getByRole('heading', { name: 'Accounts', exact: true });
+  const accountsUrl = portalOrgUrl('/home/accounts');
 
-  for (let attempt = 0; attempt < 5; attempt++) {
-    await clickRobust(accountsNavItem);
-    await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
+  logStep(`openAccountsView:navigate url=${accountsUrl}`);
+  await page.goto(accountsUrl, { waitUntil: 'domcontentloaded' });
+  await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
 
-    const viewReady = await Promise.race([
-      createButton.waitFor({ state: 'visible', timeout: 10000 }).then(() => true),
-      heading.waitFor({ state: 'visible', timeout: 10000 }).then(() => createButton.isVisible().catch(() => false)),
-    ]).catch(() => false);
+  await Promise.race([
+    createButton.waitFor({ state: 'visible', timeout: 15000 }).then(() => true),
+    heading.waitFor({ state: 'visible', timeout: 15000 }).then(() => createButton.isVisible().catch(() => false)),
+  ]).catch(() => false);
 
-    if (viewReady) {
-      return;
-    }
-
-    await page.goto(`https://${newOrgName}.portal.localhost:8443/home`, { waitUntil: 'domcontentloaded' }).catch(() => {});
-    await page.waitForTimeout(5000);
-  }
-
-  throw new Error('Accounts view did not become ready');
+  await expect(createButton).toBeVisible({ timeout: 15000 });
 }
 
 async function ensureListRowVisible(page: Page, row: Locator): Promise<void> {
@@ -60,12 +52,12 @@ async function ensureAccountExists(page: Page): Promise<string> {
 
   if (!await accountRow.isVisible().catch(() => false)) {
     logStep(`ensureAccountExists:create account=${testAccountName}`);
-    await clickRobust(page.locator('[test-id="generic-list-view-create-button"]'));
+    await page.locator('[test-id="generic-list-view-create-button"]').click();
     await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-    await page.locator('[test-id="create-field-metadata_name"]').click();
-    await page.locator('[test-id="create-field-spec_type"]').click();
-    await page.locator('[test-id="create-field-spec_type-option-account"]').click();
-    await page.locator('[test-id="create-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
+    await page.locator('[test-id="generic-form-field-metadata_name"]').click();
+    await page.locator('[test-id="generic-form-field-spec_type"]').click();
+    await page.locator('[test-id="generic-form-field-spec_type-option-account"]').click();
+    await page.locator('[test-id="generic-form-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
     const submitButton = page.locator('[test-id="create-resource-submit"]');
     const alreadyExistsAlert = page.getByText(`accounts.core.platform-mesh.io "${testAccountName}" already exists`);
     const transientWebhookAlert = page.getByText(/failed calling webhook|connection refused|Internal error occurred/i);
@@ -238,8 +230,10 @@ async function deleteAccount(page: Page, accountUrl: string): Promise<void> {
   }
 
   const confirmButtons = [
-    page.getByRole('button', { name: 'Delete', exact: true }).last(),
+    page.getByRole('button', { name: 'Submit', exact: true }).last(),
     page.getByRole('button', { name: 'Confirm', exact: true }).last(),
+    page.getByRole('button', { name: 'Delete', exact: true }).last(),
+    page.getByRole('button', { name: /submit/i }).last(),
     page.getByRole('button', { name: /delete/i }).last(),
     page.getByRole('button', { name: /remove/i }).last(),
     page.locator('[test-id="delete-resource-confirm"]').first(),

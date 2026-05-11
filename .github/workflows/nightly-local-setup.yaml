@@ -1,0 +1,87 @@
+# NOTE: Test steps are mirrored from kind-localsetup.yaml (PR workflow).
+# Keep both files in sync when changing setup or test steps.
+name: nightly-local-setup
+permissions:
+  contents: read
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-local-setup
+  cancel-in-progress: true
+
+jobs:
+
+  nightly-e2e:
+    runs-on: ubuntu-latest-large
+    timeout-minutes: 60
+
+    steps:
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Install the gh cli
+        uses: ksivamuthu/actions-setup-gh-cli@c78dbed4be2f8d6133a14a9a597ee12fd4ed5c93 # v3
+        with:
+          version: 2.24.3
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.44.1
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install kubectl kcp plugins
+        run: |
+          set -e
+          ( set -x; cd "$(mktemp -d)" && curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-linux_amd64.tar.gz" && tar zxvf krew-linux_amd64.tar.gz && KREW_ROOT="$HOME/.krew" ./krew-linux_amd64 install krew )
+          echo "$HOME/.krew/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.krew/bin:$PATH"
+          kubectl krew index add kcp-dev https://github.com/kcp-dev/krew-index.git
+          kubectl krew install kcp-dev/kcp
+          kubectl krew install kcp-dev/ws
+          kubectl krew install kcp-dev/create-workspace
+          kubectl krew install oidc-login
+      - name: Run local-setup with example data
+        run: |
+          task local-setup:example-data
+      - name: Check/wait for all components to be ready
+        run: |
+          sleep 10
+          kubectl wait --for=condition=ready --timeout=10m component --all -A
+          kubectl wait --for=condition=ready --timeout=10m resource --all -A
+          kubectl wait --for=condition=ready --timeout=10m hr --all -A
+          kubectl wait --for=condition=Available --timeout=10m deployment --all -A
+
+      - name: Cache node modules
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'local-setup/e2e'
+
+      - name: Run e2e tests with video recording
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          task test:portal-e2e:video
+
+      - name: Upload Playwright artefacts
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playwright-artifacts
+          path: |
+            local-setup/e2e/test-results/
+            local-setup/e2e/*.png
+          retention-days: 5

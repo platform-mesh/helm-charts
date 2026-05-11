@@ -13,7 +13,6 @@ export { ensureWelcomePage, switchToOrganization } from './auth';
 
 export {
   ensureInvitedUserExists,
-  verifyDownloadedKubeconfig,
 } from './backend';
 
 export {
@@ -23,6 +22,16 @@ export {
   assertHttpBinLinkWorks,
   selectNamespaceScope,
 } from './httpbins';
+
+export {
+  openOrganizationMarketplace,
+  openAccountMarketplace,
+  openAccountMarketplaceProvider,
+  clickMarketplaceAction,
+  expectMarketplaceActionVisible,
+  waitForMarketplaceAction,
+  waitForHttpBinsNavigation,
+} from './marketplace';
 
 export {
   ensureAccountExists,

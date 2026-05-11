@@ -43,9 +43,9 @@ spec:
         args:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
-          - --subroutines-workspace-type-enabled={{ .Values.subroutines.namespace.enabled }}
-          - --subroutines-workspace-enabled={{ .Values.subroutines.extension.enabled }}
-          - --subroutines-workspace-ready-enabled={{ .Values.subroutines.extensionReady.enabled }}
+          - --subroutines-workspace-type-enabled={{ .Values.subroutines.workspaceType.enabled }}
+          - --subroutines-workspace-enabled={{ .Values.subroutines.workspace.enabled }}
+          - --subroutines-workspace-ready-enabled={{ .Values.subroutines.workspaceReady.enabled }}
           - --subroutines-account-info-enabled={{ .Values.subroutines.accountInfo.enabled }}
           - --controllers-account-info-enabled={{ .Values.controllers.accountInfo.enabled }}
           - --kcp-api-export-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}

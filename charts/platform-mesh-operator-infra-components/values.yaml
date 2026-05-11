@@ -75,12 +75,6 @@ etcdDruid:
   ocmResourceName: etcd-druid
   ocmImageResourceName: etcd-druid
   interval: 1m
-  ocm:
-    repo:
-      name: gardener-releases
-      baseUrl: europe-docker.pkg.dev/gardener-project/releases
-    resolverConfig:
-      name: ocm-resolver-config
 
 kcpOperator:
   enabled: true

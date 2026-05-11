@@ -4,4 +4,3 @@ resources:
   - apiexport.yaml
   - providermetadata.yaml
   - contentconfiguration.yaml
-  - rbac.yaml

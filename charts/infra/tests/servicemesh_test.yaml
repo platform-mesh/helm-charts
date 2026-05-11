@@ -1,6 +1,9 @@
 suite: Test service-mesh manifests
 templates:
   - keycloak/httproute.yaml
+  - keycloak/db-secret.yaml
+  - keycloak/admin-secret.yaml
+  - keycloak/keycloak.yaml
   - gatewayapi/gateway.yaml
 release:
   name: infra
@@ -30,3 +33,24 @@ tests:
       path: spec.infrastructure.annotations
       value:
         dns.gardener.cloud/class: garden
+- it: keycloak operator disabled by default
+  templates:
+  - keycloak/db-secret.yaml
+  - keycloak/admin-secret.yaml
+  - keycloak/keycloak.yaml
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: keycloak operator enabled renders all resources
+  templates:
+  - keycloak/db-secret.yaml
+  - keycloak/admin-secret.yaml
+  - keycloak/keycloak.yaml
+  set:
+    keycloak:
+      operator:
+        enabled: true
+        image:
+          tag: "mail"
+  asserts:
+  - matchSnapshot: {}

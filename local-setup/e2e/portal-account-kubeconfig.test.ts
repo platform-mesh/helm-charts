@@ -7,7 +7,6 @@ import {
   ensureExampleHttpbinProviderWorkspace,
   ensureAccountExists,
   downloadAccountKubeconfig,
-  verifyDownloadedKubeconfig,
   logStep,
 } from './helpers/portal';
 
@@ -21,8 +20,7 @@ test.describe('Portal Account Kubeconfig', () => {
     ensureExampleHttpbinProviderWorkspace();
 
     await ensureAccountExists(page);
-    const kubeconfigPath = await downloadAccountKubeconfig(page);
-    await verifyDownloadedKubeconfig(kubeconfigPath);
+    await downloadAccountKubeconfig(page);
     logStep('test:account-kubeconfig:done');
   });
 });

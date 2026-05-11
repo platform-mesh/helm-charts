@@ -131,3 +131,5 @@ defaults:
           - "portal.localhost"
           - "kcp.localhost"
           - "root.kcp.localhost"
+          - "nereus.kcp.localhost"
+          - "triton.kcp.localhost"

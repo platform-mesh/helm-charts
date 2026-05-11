@@ -15,7 +15,7 @@ COL_RES='\033[0m'
 
 KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-900s}"
 CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-docker}"
- KINDEST_VERSION="kindest/node:v1.35.0"
+ KINDEST_VERSION="kindest/node:v1.35.1"
 
 SCRIPT_DIR=$(dirname "$0")
 
@@ -23,17 +23,19 @@ PRERELEASE=false
 CACHED=false
 EXAMPLE_DATA=false
 CONCURRENT=false
+SHARDED=false
 REMOTE=false
 DEPLOYMENT_TECH="fluxcd"
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--remote] [--deployment-tech=fluxcd|argocd] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease       Deploy with locally built OCM components instead of released versions"
   echo "  --cached           Use local Docker registry mirrors for faster image pulls"
   echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
   echo "  --concurrent       Run prerelease chart builds in parallel instead of sequentially"
+  echo "  --sharded          Deploy additional kcp shards"
   echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
   echo "  --deployment-tech  Choose deployment technology: fluxcd or argocd (only with --remote). Default: fluxcd"
   echo "  --help             Show this help message"
@@ -46,6 +48,7 @@ while [ $# -gt 0 ]; do
     --cached) CACHED=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
+    --sharded) SHARDED=true ;;
     --remote) REMOTE=true ;;
     --deployment-tech=*)
       DEPLOYMENT_TECH="${1#*=}"
@@ -306,19 +309,15 @@ if [ "$REMOTE" = true ]; then
     kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
   fi
 
-  ### Remove this when operator is published
-      IMAGE_NAME="ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11"
-      if [ "${CONTAINER_RUNTIME}" = "podman" ]; then
-          # With podman, we need to save the image to a tar file and load it
-          echo "Saving ${IMAGE_NAME} to tar archive..."
-          podman save -o /tmp/kind-image.tar "${IMAGE_NAME}"
-          echo "Loading ${IMAGE_NAME} into kind cluster from archive..."
-          kind load image-archive /tmp/kind-image.tar -n "${cluster_name}"
-          rm -f /tmp/kind-image.tar
-      else
-          # With docker, use the standard command
-         kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11 --name platform-mesh-infra
-      fi
+  # Load operator image into infra cluster
+  IMAGE_NAME="ghcr.io/platform-mesh/platform-mesh-operator:v0.27.0-rc.11"
+  if [ "${CONTAINER_RUNTIME}" = "podman" ]; then
+    podman save -o /tmp/kind-image.tar "${IMAGE_NAME}"
+    kind load image-archive /tmp/kind-image.tar -n platform-mesh-infra
+    rm -f /tmp/kind-image.tar
+  else
+    kind load docker-image "${IMAGE_NAME}" --name platform-mesh-infra
+  fi
 fi
 
 # Kubeconfig args for kubectl targeting the runtime cluster (empty for local)
@@ -365,6 +364,12 @@ else
     --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
 fi
 
+# Run post-flux hook if it exists (Flux is ready at this point)
+if [ -f "$SCRIPT_DIR/post-flux-hook.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running post-flux hook ${COL_RES}"
+    source "$SCRIPT_DIR/post-flux-hook.sh"
+fi
+
 if [ "$REMOTE" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Install OCM and namespaces ${COL_RES}"
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
@@ -385,6 +390,10 @@ else
   kubectl wait --namespace default \
     --for=condition=Ready helmreleases \
     --timeout=$KUBECTL_WAIT_TIMEOUT kro
+
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
 fi
 
 ###############################################################################
@@ -500,12 +509,21 @@ if [ "$REMOTE" = true ]; then
 
   if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
     setup_argocd
+    # Reset namespace context back to default after ArgoCD setup (which sets it to argocd)
+    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig \
+      config set-context kind-platform-mesh-infra --namespace=default
   fi
 
   kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/overlays/infra
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for Platform-Mesh Operator Deployment ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
 
-  # Re-apply Platform-Mesh Runtime resource after operator setup
+  # Re-apply Platform-Mesh resource after operator setup
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
   if [ "$PRERELEASE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
@@ -523,22 +541,40 @@ if [ "$REMOTE" = true ]; then
     kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
   fi
 else
-  if [ "$PRERELEASE" = true ]; then
+  # Apply PlatformMesh resource: use hook if available, otherwise use default overlay logic
+  if [ -f "$SCRIPT_DIR/platform-mesh-resource-hook.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running platform-mesh-resource hook ${COL_RES}"
+    source "$SCRIPT_DIR/platform-mesh-resource-hook.sh"
+  elif [ "$PRERELEASE" = true ]; then
     if [ "$EXAMPLE_DATA" = true ]; then
       echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
       # TODO: Create example-data-prerelease overlay if needed
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+      if [ "$SHARDED" = true ]; then
+        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
+      else
+        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+      fi
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
     else
-      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+      if [ "$SHARDED" = true ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
+        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
+      else
+        echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
+        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+      fi
     fi
-  elif [ "$EXAMPLE_DATA" = true ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (with example-data) ${COL_RES}"
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
   else
-    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+    if [ "$SHARDED" = true ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (sharded) ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-sharded
+    else
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+    fi
+    if [ "$EXAMPLE_DATA" = true ]; then
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+    fi
   fi
 fi
 
@@ -573,6 +609,12 @@ fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
+# Run post-platform-mesh hook if it exists (PlatformMesh is ready, kcp is accessible)
+if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running post-platform-mesh hook ${COL_RES}"
+    KCP_KUBECONFIG="$(pwd)/.secret/kcp/admin.kubeconfig" source "$SCRIPT_DIR/post-platform-mesh-hook.sh"
+fi
+
 ###############################################################################
 # Example data
 ###############################################################################
@@ -585,6 +627,7 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="https://localhost:8443/clusters/root:orgs"
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
@@ -607,6 +650,13 @@ if [ "$EXAMPLE_DATA" = true ]; then
       --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
   fi
 fi
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Installing observability stack ${COL_RES}"
+helm dependency update "$SCRIPT_DIR/../../charts/observability" > /dev/null 2>&1
+kubectl create namespace observability --dry-run=client -o yaml | kubectl apply -f -
+helm upgrade --install observability "$SCRIPT_DIR/../../charts/observability" -n observability \
+  --set prometheus.server.persistentVolume.enabled=false \
+  --wait --timeout=5m > /dev/null 2>&1
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Verifying backend resources ${COL_RES}"
 "$SCRIPT_DIR/check-backend-resources.sh"

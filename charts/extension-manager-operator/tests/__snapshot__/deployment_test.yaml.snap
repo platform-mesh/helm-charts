@@ -176,7 +176,7 @@ custom certs:
           containers:
             - args:
                 - operator
-                - --kcp-enabled
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -243,6 +243,8 @@ custom certs:
                 - portal.localhost
                 - kcp.localhost
                 - root.kcp.localhost
+                - nereus.kcp.localhost
+                - triton.kcp.localhost
               ip: 10.96.188.4
           securityContext:
             runAsNonRoot: true
@@ -287,7 +289,7 @@ deployment with external kubeconfig:
           containers:
             - args:
                 - operator
-                - --kcp-enabled
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -530,6 +532,7 @@ enable Gateway API:
           containers:
             - args:
                 - operator
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -797,6 +800,7 @@ operator match the snapshot:
           containers:
             - args:
                 - operator
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:8080
                 - --health-probe-bind-address=:8081
@@ -995,6 +999,7 @@ operator match the snapshot with tracing:
           containers:
             - args:
                 - operator
+                - --kcp-api-export-endpoint-slice-name=core.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:8080
                 - --health-probe-bind-address=:8090

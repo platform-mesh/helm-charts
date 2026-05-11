@@ -1,0 +1,128 @@
+name: PR Chart Checks
+
+permissions:
+  contents: read
+  packages: read
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Detect which charts/ directories changed
+  # ──────────────────────────────────────────────
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      charts: ${{ steps.changed.outputs.charts }}
+      has_changes: ${{ steps.changed.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed chart directories
+        id: changed
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }})
+
+          # Charts changed directly
+          CHART_CHANGES=$(echo "$CHANGED_FILES" \
+            | grep '^charts/' \
+            | cut -d'/' -f2 \
+            | sort -u)
+
+          # Map workflow file changes to chart names
+          # e.g. .github/workflows/account-operator.yaml → account-operator
+          WORKFLOW_CHANGES=$(echo "$CHANGED_FILES" \
+            | grep '^\.github/workflows/.*\.yaml$' \
+            | sed 's|\.github/workflows/||; s|\.yaml$||' \
+            | sort -u)
+
+          # Combine both sources, deduplicate, and validate
+          CHARTS=$(printf '%s\n%s\n' "$CHART_CHANGES" "$WORKFLOW_CHANGES" \
+            | sort -u \
+            | while read -r name; do
+                [ -f "charts/$name/Chart.yaml" ] && echo "$name"
+              done \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "charts=$CHARTS" >> "$GITHUB_OUTPUT"
+
+          if [ "$CHARTS" = "[]" ] || [ -z "$CHARTS" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No chart changes detected"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Changed charts: $CHARTS"
+          fi
+
+  # ──────────────────────────────────────────────
+  # Run chart tests per changed chart (matrix)
+  # ──────────────────────────────────────────────
+  test-chart:
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    strategy:
+      matrix:
+        chart: ${{ fromJson(needs.detect-changes.outputs.charts) }}
+      fail-fast: false
+    uses: platform-mesh/.github/.github/workflows/job-test-chart.yml@main
+    with:
+      chartsFolder: charts
+      chartName: ${{ matrix.chart }}
+      additionalTestFilesCommand: ''
+      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts,prometheus-community=https://prometheus-community.github.io/helm-charts,open-telemetry=https://open-telemetry.github.io/opentelemetry-helm-charts'
+    secrets: inherit
+
+  # ──────────────────────────────────────────────
+  # Check helm docs per changed chart (matrix)
+  # ──────────────────────────────────────────────
+  check-helm-docs:
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    strategy:
+      matrix:
+        chart: ${{ fromJson(needs.detect-changes.outputs.charts) }}
+      fail-fast: false
+    uses: platform-mesh/.github/.github/workflows/job-check-helm-chart-docs.yml@main
+    with:
+      chartFolder: charts/${{ matrix.chart }}
+    secrets: inherit
+
+  # ──────────────────────────────────────────────
+  # Quality gate (aggregates all required checks)
+  # ──────────────────────────────────────────────
+  quality-gate:
+    if: always()
+    permissions: {}
+    needs: [detect-changes, test-chart, check-helm-docs]
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Check results
+        run: |
+          if [[ "${{ needs.detect-changes.result }}" != "success" ]]; then
+            echo "::error::detect-changes failed"
+            exit 1
+          fi
+
+          if [[ "${{ needs.detect-changes.outputs.has_changes }}" != "true" ]]; then
+            echo "No chart changes — quality gate passes"
+            exit 0
+          fi
+
+          if [[ "${{ needs.test-chart.result }}" != "success" ]]; then
+            echo "::error::test-chart failed"
+            exit 1
+          fi
+          if [[ "${{ needs.check-helm-docs.result }}" != "success" ]]; then
+            echo "::error::check-helm-docs failed"
+            exit 1
+          fi

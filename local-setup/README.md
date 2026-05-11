@@ -13,7 +13,7 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 - **Kind**: [Kubernetes in Docker](https://kind.sigs.k8s.io/) for local Kubernetes clusters. [Installation](https://kind.sigs.k8s.io/docs/user/quick-start/)
 - **Helm**: Required for bootstrapping Flux and managing Helm releases. [Installation](https://helm.sh/docs/intro/install/)
 - **kubectl**: Kubernetes command-line tool (usually installed with Docker Desktop or Kind)
-- **kubectl-kcp plugin** (required only for `--example-data` setup): KCP kubectl plugin for workspace management. [Installation](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/)
+- **kubectl-kcp plugin** (required only for `--example-data` setup): kcp kubectl plugin for workspace management. [Installation](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/)
 - **openssl**: Required for SSL certificate generation (typically pre-installed on Linux/macOS)
 - **base64**: Required for encoding/decoding operations (standard Unix utility, typically pre-installed)
 - **mkcert**: For generating local SSL certificates. [Installation](https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation)
@@ -128,7 +128,7 @@ kind delete cluster --name platform-mesh
 
 This setup includes an example provider ("httpbin") to showcase how provider integrations work in Platform Mesh. Perfect for demonstrations and learning.
 
-**Note**: The `--example-data` setup requires the [KCP kubectl plugin](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/) to be installed for workspace creation commands.
+**Note**: The `--example-data` setup requires the [kcp kubectl plugin](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/) to be installed for workspace creation commands.
 
 **Using Task:**
 
@@ -226,14 +226,14 @@ See [DEVELOPERS](./DEVELOPERS.md) for more detailed information related to chart
 Once the setup completes successfully, you can access:
 
 - **Onboarding Portal**: <https://portal.localhost:8443>
-- **KCP API**: <https://localhost:8443>
+- **kcp API**: <https://localhost:8443>
 
 **Note**: Modern browsers automatically resolve `*.localhost` domains to `127.0.0.1`, so no `/etc/hosts` configuration is required for browser access. Organization subdomains like `myorg.portal.localhost` will also work automatically in browsers.
 
 **If you installed with example data:**
 
 - The HTTPBin provider is available in the `root:providers:httpbin-provider` workspace
-- Use the KCP admin kubeconfig to explore: `export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig`
+- Use the kcp admin kubeconfig to explore: `export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig`
 
 ## What the Setup Script Does
 
@@ -267,21 +267,21 @@ The `scripts/start.sh` script performs the following operations:
    - Installs supporting services (Keycloak, RBAC webhook, etc.)
 
 6. **Post-Installation Setup**
-   - Creates KCP admin kubeconfig for workspace access
+   - Creates kcp admin kubeconfig for workspace access
    - Waits for all components to become ready
    - Provides access instructions and next steps
 
 7. **Example Data Setup** (when using `--example-data` flag)
-   - Creates KCP provider workspaces structure
+   - Creates kcp provider workspaces structure
    - Creates `root:providers` workspace for hosting provider integrations
    - Creates `root:providers:httpbin-provider` workspace
    - Deploys HTTPBin provider configuration to demonstrate provider integration patterns
 
 ## Advanced Usage
 
-### Working with KCP Workspaces
+### Working with kcp Workspaces
 
-After successful setup, export the KCP kubeconfig to interact with workspaces:
+After successful setup, export the kcp kubeconfig to interact with workspaces:
 
 ```sh
 export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
@@ -333,24 +333,62 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
-#### Loading Custom Docker Images
+#### Hook Scripts
 
-When developing locally built components, you can load custom Docker images into the Kind cluster by creating a hook script. This script is automatically ignored by git, so your local customizations won't be committed.
+The local setup provides three extension points (hook scripts) that run at different stages. All are gitignored, so your local customizations won't be committed.
 
-**Create the hook script from the example:**
+##### Post-Flux Hook
+
+Runs after Flux is installed and ready. Use this to load custom Docker images or deploy Flux resources.
 
 ```sh
-cp local-setup/scripts/load-custom-images.sh.example local-setup/scripts/load-custom-images.sh
-# Edit the script with your custom images
+cp local-setup/scripts/post-flux-hook.sh.example local-setup/scripts/post-flux-hook.sh
+# Edit the script with your customizations
 ```
 
-The script will be automatically sourced during cluster setup if it exists. You can add multiple `kind load` commands for all the images you need.
+**Available at this point:** Kind cluster, TLS certificates, Flux (helm-controller, source-controller, kustomize-controller).
 
 **Typical workflow:**
 
 1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
-2. Add the load command to `load-custom-images.sh`
+2. Add the load command to `post-flux-hook.sh`
 3. Run `task local-setup:iterate` to reload the cluster with your custom images
+
+##### Platform-Mesh Resource Hook
+
+Runs after the Platform-Mesh Operator is ready and the PlatformMesh CRD is established. When this hook exists, it **replaces** the default PlatformMesh resource overlay logic. The hook is responsible for applying the PlatformMesh resource to the cluster.
+
+```sh
+cp local-setup/scripts/platform-mesh-resource-hook.sh.example local-setup/scripts/platform-mesh-resource-hook.sh
+# Edit the script with your customizations
+```
+
+**Available at this point:** Everything from the post-flux hook, plus KRO, OCM, Platform-Mesh Operator (ready), PlatformMesh CRD (established). Variables `$PRERELEASE` and `$EXAMPLE_DATA` reflect the flags passed to start.sh.
+
+**Example:**
+
+```sh
+# Apply a custom kustomize overlay for your PlatformMesh configuration
+kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/my-custom-overlay
+```
+
+##### Post-Platform-Mesh Hook
+
+Runs after the PlatformMesh resource is ready and kcp is accessible. Use this to create kcp workspaces or deploy resources into the platform.
+
+```sh
+cp local-setup/scripts/post-platform-mesh-hook.sh.example local-setup/scripts/post-platform-mesh-hook.sh
+# Edit the script with your customizations
+```
+
+**Available at this point:** Everything from the post-flux hook, plus KRO, OCM, Platform-Mesh Operator, PlatformMesh resource, and kcp admin kubeconfig (via `$KCP_KUBECONFIG`).
+
+**Example:**
+
+```sh
+# Create a workspace in kcp
+KUBECONFIG="$KCP_KUBECONFIG" kubectl create-workspace my-ws --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
+```
 
 ### Running E2E Tests
 
@@ -370,6 +408,9 @@ task test:portal-e2e
 
 # Run the HTTPBin flow
 task test:portal-e2e:httpbins
+
+# Run the marketplace UI flow (default availability + UI lifecycle check)
+task test:portal-e2e:marketplace
 
 # Run the account kubeconfig flow
 task test:portal-e2e:account-kubeconfig
@@ -434,7 +475,7 @@ npx playwright test test-register-and-navigate.test.ts
 - `scripts/check-environment.sh`: Dependency validation
 - `scripts/check-wsl-compatibility.sh`: WSL2 compatibility checks
 - `scripts/gen-certs.sh`: SSL certificate generation
-- `scripts/createKcpAdminKubeconfig.sh`: KCP workspace access setup
+- `scripts/createKcpAdminKubeconfig.sh`: kcp workspace access setup
 
 ### Configuration
 

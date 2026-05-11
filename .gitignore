@@ -7,7 +7,6 @@ local-setup/platform-mesh-cluster-secret.yml
 .claude
 oci/
 *.webm
-
 local-setup/webhook-config/*
 !local-setup/webhook-config/*.sh
 !local-setup/webhook-config/*.yaml
@@ -29,3 +28,6 @@ local-setup/e2e/node_modules/
 local-setup/e2e/*.png
 local-setup/scripts/load-custom-images.sh
 /convo
+docs/migration-0.3/kcp-exports
+local-setup/backup
+tmp/

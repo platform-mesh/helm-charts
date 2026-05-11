@@ -7,9 +7,39 @@ COL='\033[92m'
 RED='\033[91m'
 COL_RES='\033[0m'
 
+detect_container_runtime() {
+    if command -v docker &> /dev/null && docker info &> /dev/null; then
+        echo "docker"
+    elif command -v podman &> /dev/null && podman info &> /dev/null; then
+        echo "podman"
+    else
+        echo ""
+    fi
+}
+
 check_kind_cluster() {
-    # Check if kind cluster is already running
+    # Check if kind cluster is registered
     if [ $(kind get clusters 2>/dev/null | grep -c platform-mesh) -gt 0 ]; then
+        local runtime
+        runtime=$(detect_container_runtime)
+
+        # Verify the control-plane container is actually running; start it if stopped
+        if ! $runtime ps --format '{{.Names}}' | grep -q '^platform-mesh-control-plane$'; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] Kind cluster exists but control-plane is stopped, restarting... ${COL_RES}"
+            $runtime start platform-mesh-control-plane
+            # Wait for the API server to become ready before proceeding
+            local deadline=60
+            local elapsed=0
+            while ! kubectl cluster-info --request-timeout=2s &>/dev/null; do
+                if [ $elapsed -ge $deadline ]; then
+                    echo -e "${RED}❌ Timed out waiting for API server to become ready${COL_RES}"
+                    return 1
+                fi
+                sleep 2
+                elapsed=$((elapsed + 2))
+            done
+        fi
+
         echo -e "${COL}[$(date '+%H:%M:%S')] Kind cluster already running, using existing ${COL_RES}"
         kind export kubeconfig --name platform-mesh
         return 0  # Return 0 to indicate cluster exists
@@ -36,7 +66,7 @@ check_kind_dependency() {
         echo ""
         return 1
     fi
-    
+
     echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Kind is available${COL_RES}"
     return 0
 }
@@ -44,7 +74,7 @@ check_kind_dependency() {
 check_kubectl_dependency() {
     if ! command -v kubectl &> /dev/null; then
         echo -e "${RED}❌ Error: 'kubectl' is not installed${COL_RES}"
-        echo -e "${COL}☸️ kubectl is required to interact with the local cluster and KCP.${COL_RES}"
+        echo -e "${COL}☸️ kubectl is required to interact with the local cluster and kcp.${COL_RES}"
         echo -e "${COL}📚 Installation guide: https://kubernetes.io/docs/tasks/tools/${COL_RES}"
         echo ""
         return 1
@@ -58,7 +88,7 @@ check_container_runtime_dependency() {
     local docker_available=false
     local podman_available=false
     local runtime_name=""
-    
+
     # Check for Docker
     if command -v docker &> /dev/null; then
         if docker info &> /dev/null; then
@@ -66,7 +96,7 @@ check_container_runtime_dependency() {
             runtime_name="Docker"
         fi
     fi
-    
+
     # Check for Podman
     if command -v podman &> /dev/null; then
         if podman info &> /dev/null; then
@@ -78,7 +108,7 @@ check_container_runtime_dependency() {
             fi
         fi
     fi
-    
+
     # If neither is available or running, show error
     if [ "$docker_available" = false ] && [ "$podman_available" = false ]; then
         if ! command -v docker &> /dev/null && ! command -v podman &> /dev/null; then
@@ -107,7 +137,7 @@ check_container_runtime_dependency() {
         echo ""
         return 1
     fi
-    
+
     echo -e "${COL}[$(date '+%H:%M:%S')] ✅ $runtime_name is available and running${COL_RES}"
     return 0
 }
@@ -165,7 +195,7 @@ check_architecture() {
 check_kcp_plugin() {
     if ! kubectl kcp --help &> /dev/null; then
         echo -e "${RED}❌ Error: 'kubectl-kcp' plugin is not installed${COL_RES}"
-        echo -e "${COL}🔌 The KCP kubectl plugin is required for creating workspaces when using --example-data.${COL_RES}"
+        echo -e "${COL}🔌 The kcp kubectl plugin is required for creating workspaces when using --example-data.${COL_RES}"
         echo -e "${COL}📚 Installation guide: https://docs.kcp.io/kcp/main/setup/kubectl-plugin/${COL_RES}"
         echo ""
         return 1
@@ -252,12 +282,12 @@ run_environment_checks() {
         echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Architecture: $ARCH${COL_RES}"
     fi
 
-    # Check hosts entries (always run - KCP is always deployed)
+    # Check hosts entries (always run - kcp is always deployed)
     if ! check_hosts_entries; then
         checks_failed=$((checks_failed + 1))
     fi
 
-    # Check KCP plugin if example-data mode is enabled
+    # Check kcp plugin if example-data mode is enabled
     if [ "$EXAMPLE_DATA" = true ]; then
         if ! check_kcp_plugin; then
             checks_failed=$((checks_failed + 1))
@@ -275,6 +305,7 @@ run_environment_checks() {
 }
 
 # Export functions so they can be used by the main script
+export -f detect_container_runtime
 export -f check_kind_cluster
 export -f check_kind_infra_cluster
 export -f check_kind_dependency

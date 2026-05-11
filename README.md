@@ -5,6 +5,8 @@
 
 ## Description
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/platform-mesh/helm-charts/badge)](https://scorecard.dev/viewer/?uri=github.com/platform-mesh/helm-charts)
+
 The helm-charts repository contains helm charts used for the deployment of platform-mesh instance on Kubernetes. It also contains CI/CD scripts for buildidng and publishing relevant artefacts like charts and OCM components.
 
 ## Directory structure

@@ -45,25 +45,6 @@ data:
               collector:
                 host: observability-opentelemetry-collector.observability.svc.cluster.local:4317
               enabled: false
-        etcd-druid:
-          syncWave: 1
-          enabled: true
-          gitRepo: false
-          ocm:
-            repo:
-              name: gardener-releases
-          ocmResourceName: etcd-druid
-          ocmResourceType: helmChart
-          imageResources:
-          - annotations:
-              artifact: image
-              for: etcd-druid
-              repo: oci
-            ocmRepoName: gardener-releases
-            resourceName: etcd-druid
-          path: charts
-          targetNamespace: etcd-druid-system
-          values: {}
         extension-manager-operator:
           imageResources:
           - annotations:
@@ -133,7 +114,7 @@ data:
             - /status
             - /metadata/finalizers
             - /spec/serviceTemplate/spec/ports
-          syncWave: 3
+          syncWave: 4
           dependsOn:
           - name: kcp-operator
             namespace: platform-mesh-system
@@ -148,6 +129,8 @@ data:
             istio:
               enabled: false
             kcp:
+              frontProxy:
+                port: 6443
               rootShard:
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true
@@ -186,6 +169,7 @@ data:
         init-agent:
           enabled: true
           helmRepo: true
+          external: true
           syncWave: 4
           imageResources:
           - annotations:
@@ -207,6 +191,7 @@ data:
         keycloak:
           syncWave: 2
           enabled: true
+          external: true
           values:
             auth:
               adminUser: keycloak-admin
@@ -269,7 +254,7 @@ data:
               enabled: false
             kubeConfig:
               enabled: true
-              secretName: kubernetes-grapqhl-gateway-kubeconfig
+              secretName: kubernetes-graphql-gateway-kubeconfig
             listener:
               virtualWorkspacesConfig:
                 content:
@@ -308,15 +293,17 @@ data:
               artifact: image
               for: openfga
           - name: openfga-postgresql-image
-            resourceName: postgresql-image
+            resource: postgresql-image
             annotations:
               repo: oci
               artifact: image
               for: openfga
               path: postgresql.image.tag
+              unsuspend: "true"
           syncWave: 2
           enabled: true
           helmRepo: true
+          external: true
           values:
             autoscaling:
               enabled: false
@@ -354,7 +341,7 @@ data:
               enabled: true
               image:
                 registry: ghcr.io/platform-mesh
-                repository: images/postgresql
+                repository: upstream-images/postgresql
                 tag: 17.6.0-debian-12-r4
               nameOverride: postgres
             replicaCount: 1
@@ -401,7 +388,7 @@ data:
               repo: oci
               artifact: image
               for: rebac-authz-webhook
-          syncWave: 4
+          syncWave: 3
           enabled: true
           values:
             hostAliases:
@@ -555,14 +542,8 @@ data:
         name: etcd-druid
         targetNamespace: etcd-druid-system
         interval: 1m
-        ocmResourceName: chart
+        ocmResourceName: etcd-druid
         values: {}
-        ocm:
-          repo:
-            name: gardener-releases
-            baseUrl: europe-docker.pkg.dev/gardener-project/releases
-          resolverConfig:
-            name: ocm-resolver-config
 kind: ConfigMap
 metadata:
   name: platform-mesh-profile

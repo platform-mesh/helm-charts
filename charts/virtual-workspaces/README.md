@@ -23,6 +23,8 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | cert.renewBefore | string | `"168h0m0s"` | Certificate renew before |
 | cert.secretName | string | `"virtual-workspaces-cert"` | Secret name to store the certificate |
 | clientCASecretName | string | `"root-front-proxy-client-ca"` |  |
+| clusterAccess.marketplace.auth | object | `{"kubeconfigSecretRef":{"key":"kubeconfig","name":"virtual-workspace-clusteraccess-kubeconfig"}}` | Path for gateway url path: "" |
+| clusterAccess.marketplace.enabled | bool | `true` |  |
 | deployment.accountEntityName | string | `"core_platform-mesh_io_account"` |  |
 | deployment.contentForLabel | string | `"ui.platform-mesh.io/content-for"` |  |
 | deployment.entityLabel | string | `"ui.platform-mesh.io/entity"` |  |
@@ -30,7 +32,7 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | deployment.resourceSchemaExportName | string | `"core.platform-mesh.io"` |  |
 | deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
 | deployment.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
-| deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443"` |  |
+| deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443"` |  |
 | image.name | string | `"ghcr.io/platform-mesh/virtual-workspaces"` | The image repository |
 | kubeconfigSecretName | string | `"account-operator-kubeconfig"` |  |
 | requestHeaderClientCASecretName | string | `"root-requestheader-client-ca"` |  |

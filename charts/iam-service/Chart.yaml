@@ -1,9 +1,9 @@
 apiVersion: v2
 name: iam-service
 description: A Helm chart for Kubernetes
-version: 0.15.80
-appVersion: v0.14.15
+version: 0.15.194
+appVersion: v0.16.54
 dependencies:
   - name: common
-    version: 0.12.1
+    version: 0.12.2
     repository: oci://ghcr.io/platform-mesh/helm-charts

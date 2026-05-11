@@ -21,17 +21,17 @@ A Helm chart to deploy platform-mesh Account-Operator
 | hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/account-operator"` | The image repository |
 | istio.enabled | bool | `false` |  |
-| kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The KCP configuration |
-| kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | KCP APIExportEndpointSliceName |
-| kcp.enabled | bool | `false` | Enable KCP |
+| kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The kcp configuration |
+| kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | kcp APIExportEndpointSliceName |
+| kcp.enabled | bool | `false` | Enable kcp |
 | kcp.virtualWorkspaceUrl | string | `""` | The URL for the virtual workspace |
 | kubeconfigSecret | string | `""` | The secret for kubeconfig |
 | operator.leaderElect | bool | `true` |  |
 | security.mountServiceAccountToken | bool | `true` | Mount the service account token |
 | subroutines.accountInfo.enabled | bool | `true` | Enable AccountInfo subroutine |
-| subroutines.extension.enabled | bool | `true` | Enable extension subroutines |
-| subroutines.extensionReady.enabled | bool | `true` | Enable extension ready subroutines |
-| subroutines.namespace.enabled | bool | `true` | Enable namespace subroutines |
+| subroutines.workspace.enabled | bool | `true` | Enable workspace subroutine |
+| subroutines.workspaceReady.enabled | bool | `true` | Enable workspace ready subroutine |
+| subroutines.workspaceType.enabled | bool | `true` | Enable workspace type subroutine |
 | webhooks.additionalAccountTypes[0] | string | `"account"` |  |
 | webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
 | webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |

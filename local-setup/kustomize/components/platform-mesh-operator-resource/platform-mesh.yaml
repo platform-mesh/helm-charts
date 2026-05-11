@@ -14,16 +14,9 @@ spec:
       name: platform-mesh
     referencePath: []
   featureToggles:
-   - name: feature-enable-getting-started
-   - name: feature-disable-email-verification
-   - name: feature-accounts-in-accounts
-#  kcp:
-#    extraProviderConnections:
-#       - endpointSliceName: ""
-#         path: root:platform-mesh-system
-#         secret: terminal-controller-manager-kubeconfig
-#         namespace: platform-mesh-system
-#         external: false
+  - name: feature-enable-getting-started
+  - name: feature-disable-email-verification
+  - name: feature-accounts-in-accounts
   values:
     account-operator:
       values:
@@ -47,26 +40,43 @@ spec:
             cpu: 750m
             ephemeral-storage: 50Mi
             memory: 1Gi
+      suspend: true
+      imageResources:
+        - name: keycloak-image
+          annotations:
+            repo: oci
+            artifact: image
+            for: keycloak
+        - name: keycloak-postgresql-image
+          resource: postgresql-image
+          annotations:
+            repo: oci
+            artifact: image
+            for: keycloak
+            path: postgresql.image.tag
+            unsuspend: "true"
     infra:
-      imageResources: []  # Disable kcp-image OCM Resource to allow custom kcp.image.tag
+      imageResources: [] # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:
         kcp:
           auth:
             serviceAccount:
               enabled: true
           image:
-            tag: "097afc12c" # bump kcp image to work around WatchList issues
+            tag: "v0.31.0" # bump kcp image to work around WatchList issues
+          shards: []
           frontProxy:
             clusterIP: "10.96.0.100"
+            port: 6443
         traefik:
           accessControlAllowOriginList:
-            - "http://localhost:4200"
-            - "http://localhost:4300"
-            - "http://*.localhost:4200"
-            - "http://*.localhost:4300"
-            - "http://sub.localhost:4300"
-            - "https://portal.localhost:8443"
-            - "https://*.portal.localhost:8443"
+          - "http://localhost:4200"
+          - "http://localhost:4300"
+          - "http://*.localhost:4200"
+          - "http://*.localhost:4300"
+          - "http://sub.localhost:4300"
+          - "https://portal.localhost:8443"
+          - "https://*.portal.localhost:8443"
         cors:
           enabled: true
         hostAliases:
@@ -77,11 +87,11 @@ spec:
           noJson: true
         system:
           extraArgs:
-            - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-            - --idp-smtp-port=1025
-            - --idp-from-address=keycloak@portal.localhost
-            - --set-default-password
-            - --idp-registration-allowed
+          - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+          - --idp-smtp-port=1025
+          - --idp-from-address=keycloak@portal.localhost
+          - --set-default-password
+          - --idp-registration-allowed
         fga:
           extraArgs:
             - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
@@ -89,12 +99,15 @@ spec:
             - --idp-from-address=keycloak@portal.localhost
             - --set-default-password
             - --idp-registration-allowed
-        initializer:
-          extraArgs:
             - --domain-ca-lookup
-            - --idp-registration-allowed
             - --development-allow-unverified-emails
             - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
+        initializer:
+          extraArgs:
+          - --domain-ca-lookup
+          - --idp-registration-allowed
+          - --development-allow-unverified-emails
+          - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
         caSecret: domain-certificate-ca
         hostAliases:
           enabled: true
@@ -104,32 +117,49 @@ spec:
         kcp:
           url: "https://localhost:8443"
         extraEnvVars:
-          - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-            value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
-          - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-            value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
-          - name: NODE_EXTRA_CA_CERTS
-            value: /etc/ssl/certs/domain-ca.crt
+        - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
+          value: https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql
+        - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
+          value: "https://${org-subdomain}{{ .Values.baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql"
+        - name: NODE_EXTRA_CA_CERTS
+          value: /etc/ssl/certs/domain-ca.crt
         extraVolumes:
-          - name: domain-ca
-            secret:
-              secretName: domain-certificate-ca
+        - name: domain-ca
+          secret:
+            secretName: domain-certificate-ca
         extraVolumeMounts:
-          - name: domain-ca
-            mountPath: /etc/ssl/certs/domain-ca.crt
-            subPath: tls.crt
-            readOnly: true
+        - name: domain-ca
+          mountPath: /etc/ssl/certs/domain-ca.crt
+          subPath: tls.crt
+          readOnly: true
         hostAliases:
           enabled: true
           entries:
-            - ip: "10.96.188.4"
-              hostnames:
-                - "localhost"
-                - "portal.localhost"
-                - "kcp.localhost"
-                - "root.kcp.localhost"
+          - ip: "10.96.188.4"
+            hostnames:
+            - "localhost"
+            - "portal.localhost"
+            - "kcp.localhost"
+            - "root.kcp.localhost"
+            - "nereus.kcp.localhost"
+            - "triton.kcp.localhost"
     openfga:
+      suspend: true
       enabled: true
+      imageResources:
+      - name: openfga-image
+        annotations:
+          repo: oci
+          artifact: image
+          for: openfga
+      - name: openfga-postgresql-image
+        resource: postgresql-image
+        annotations:
+          repo: oci
+          artifact: image
+          for: openfga
+          path: postgresql.image.tag
+          unsuspend: "true"
       values:
         datastore:
           uri: "postgres://postgres:password@openfga-postgres.platform-mesh-system.svc.cluster.local:5432/postgres?sslmode=disable"
@@ -137,8 +167,6 @@ spec:
           auth:
             postgresPassword: password
             database: postgres
-    marketplace-ui:
-      enabled: false
     terminal-controller-manager:
       enabled: false
     rebac-authz-webhook:
@@ -150,7 +178,7 @@ spec:
       values:
         caSecret: domain-certificate-ca
         extraArgs:
-          - --no-json
+        - --no-json
         cors:
           enabled: true
         hostAliases:
@@ -165,5 +193,15 @@ spec:
           enabled: true
     kubernetes-graphql-gateway:
       values:
-        kubeConfig:
-          secretName: kubernetes-graphql-gateway-kubeconfig
+        hostAliases:
+          enabled: true
+        listener:
+          anchorResource: 'object.metadata.name.contains("platform-mesh.io")'
+    kcp-operator:
+      external: true
+    kcp:
+      external: true
+    virtual-workspaces:
+      values:
+        deployment:
+          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443

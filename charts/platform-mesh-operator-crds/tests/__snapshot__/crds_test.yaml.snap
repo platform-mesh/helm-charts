@@ -17,38 +17,38 @@ operator match the snapshot:
       versions:
         - additionalPrinterColumns:
             - description: KCP status (shows reason if Unknown)
-              jsonPath: .status.conditions[?(@.type=='KcpsetupSubroutine_Ready')].status
+              jsonPath: .status.conditions[?(@.type=='KcpsetupSubroutine')].status
               name: KCP
               type: string
             - description: KCP reason if status is Unknown
-              jsonPath: .status.conditions[?(@.type=='KcpsetupSubroutine_Ready')].reason
+              jsonPath: .status.conditions[?(@.type=='KcpsetupSubroutine')].reason
               name: KCP_REASON
               priority: 1
               type: string
             - description: Provider Secret status (shows reason if Unknown)
-              jsonPath: .status.conditions[?(@.type=='ProvidersecretSubroutine_Ready')].status
+              jsonPath: .status.conditions[?(@.type=='ProvidersecretSubroutine')].status
               name: SECRET
               type: string
             - description: Provider Secret reason if status is Unknown
-              jsonPath: .status.conditions[?(@.type=='ProvidersecretSubroutine_Ready')].reason
+              jsonPath: .status.conditions[?(@.type=='ProvidersecretSubroutine')].reason
               name: SECRET_REASON
               priority: 1
               type: string
             - description: Deployment status (shows reason if Unknown)
-              jsonPath: .status.conditions[?(@.type=='DeploymentSubroutine_Ready')].status
+              jsonPath: .status.conditions[?(@.type=='DeploymentSubroutine')].status
               name: DEPLOYMENT
               type: string
             - description: Deployment reason if status is Unknown
-              jsonPath: .status.conditions[?(@.type=='DeploymentSubroutine_Ready')].reason
+              jsonPath: .status.conditions[?(@.type=='DeploymentSubroutine')].reason
               name: DEPLOYMENT_REASON
               priority: 1
               type: string
             - description: Wait status (shows reason if Unknown)
-              jsonPath: .status.conditions[?(@.type=='WaitSubroutine_Ready')].status
+              jsonPath: .status.conditions[?(@.type=='WaitSubroutine')].status
               name: WAIT
               type: string
             - description: Wait reason if status is Unknown
-              jsonPath: .status.conditions[?(@.type=='WaitSubroutine_Ready')].reason
+              jsonPath: .status.conditions[?(@.type=='WaitSubroutine')].reason
               name: WAIT_REASON
               priority: 1
               type: string
@@ -123,6 +123,14 @@ operator match the snapshot:
                         extraProviderConnections:
                           items:
                             properties:
+                              adminAuth:
+                                description: |-
+                                  AdminAuth when true opts into cluster-admin certificate material. When false or omitted, the operator writes a scoped kubeconfig (ServiceAccount token and RBAC from the APIExport).
+                                  Scoped mode requires exactly one of endpointSliceName (virtual workspace server from slice) or apiExportName (workspace server for Path).
+                                type: boolean
+                              apiExportName:
+                                description: APIExportName is the APIExport object name in ProviderConnection.Path used to build RBAC for scoped kubeconfig when endpointSliceName is not set (server URL is the workspace cluster URL for Path).
+                                type: string
                               endpointSliceName:
                                 type: string
                               external:
@@ -168,6 +176,14 @@ operator match the snapshot:
                         providerConnections:
                           items:
                             properties:
+                              adminAuth:
+                                description: |-
+                                  AdminAuth when true opts into cluster-admin certificate material. When false or omitted, the operator writes a scoped kubeconfig (ServiceAccount token and RBAC from the APIExport).
+                                  Scoped mode requires exactly one of endpointSliceName (virtual workspace server from slice) or apiExportName (workspace server for Path).
+                                type: boolean
+                              apiExportName:
+                                description: APIExportName is the APIExport object name in ProviderConnection.Path used to build RBAC for scoped kubeconfig when endpointSliceName is not set (server URL is the workspace cluster URL for Path).
+                                type: string
                               endpointSliceName:
                                 type: string
                               external:
@@ -216,13 +232,6 @@ operator match the snapshot:
                         resourceTypes:
                           items:
                             properties:
-                              apiVersion:
-                                description: |-
-                                  APIVersion defines the versioned schema of this representation of an object.
-                                  Servers should convert recognized schemas to the latest internal value, and
-                                  may reject unrecognized values.
-                                  More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-                                type: string
                               conditionStatus:
                                 type: string
                               conditionType:
@@ -230,12 +239,6 @@ operator match the snapshot:
                               group:
                                 type: string
                               kind:
-                                description: |-
-                                  Kind is a string value representing the REST resource this object represents.
-                                  Servers may infer this from the endpoint the client submits requests to.
-                                  Cannot be updated.
-                                  In CamelCase.
-                                  More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
                                 type: string
                               matchExpressions:
                                 description: matchExpressions is a list of label selector requirements. The requirements are ANDed.
@@ -280,43 +283,12 @@ operator match the snapshot:
                                 type: string
                               namespace:
                                 type: string
-                              serverAddressByClientCIDRs:
-                                description: |-
-                                  a map of client CIDR to server address that is serving this group.
-                                  This is to help clients reach servers in the most network-efficient way possible.
-                                  Clients can use the appropriate server address as per the CIDR that they match.
-                                  In case of multiple matches, clients should use the longest matching CIDR.
-                                  The server returns only those CIDRs that it thinks that the client can match.
-                                  For example: the master will return an internal IP CIDR only, if the client reaches the server using an internal IP.
-                                  Server looks at X-Forwarded-For header or X-Real-Ip header or request.RemoteAddr (in that order) to get the client IP.
-                                items:
-                                  description: ServerAddressByClientCIDR helps the client to determine the server address that they should use, depending on the clientCIDR that they match.
-                                  properties:
-                                    clientCIDR:
-                                      description: The CIDR with which clients can match their IP to figure out the server address that they should use.
-                                      type: string
-                                    serverAddress:
-                                      description: |-
-                                        Address of this server, suitable for a client that matches the above CIDR.
-                                        This can be a hostname, hostname:port, IP or IP:port.
-                                      type: string
-                                  required:
-                                    - clientCIDR
-                                    - serverAddress
-                                  type: object
-                                type: array
-                                x-kubernetes-list-type: atomic
-                              versions:
-                                description: versions are the api versions that are available.
-                                items:
-                                  type: string
-                                type: array
-                                x-kubernetes-list-type: atomic
+                              version:
+                                type: string
                             required:
                               - group
                               - kind
-                              - serverAddressByClientCIDRs
-                              - versions
+                              - version
                             type: object
                             x-kubernetes-map-type: atomic
                           type: array

@@ -6,14 +6,10 @@ on:
     paths:
       - 'charts/iam-ui/**'
       - '.github/workflows/iam-ui.yaml'
-      - '.ocm/component-constructor.yaml'
-  pull_request:
-    paths:
-      - 'charts/iam-ui/**'
-      - '.github/workflows/iam-ui.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -21,11 +17,11 @@ jobs:
     concurrency:
       group: iam-ui-${{ github.ref }}
       cancel-in-progress: true
-    uses: platform-mesh/.github/.github/workflows/pipeline-chart.yml@main
+    uses: ./.github/workflows/pipeline-chart.yml
     with:
       chartFolder: charts
       chartName: iam-ui
-      additionalTestFilesCommand: ''
-      chartRepos: 'bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts'
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
     secrets: inherit
 

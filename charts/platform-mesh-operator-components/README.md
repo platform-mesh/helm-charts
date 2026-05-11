@@ -14,7 +14,7 @@ Both templates are driven by the top-level `ocm` values and per-service configur
 
 ---
 
-### Chart Resources (`ocm-resources.yaml`)
+### Chart Resources (`ocm-image-resources.yaml` and `ocm-chart-resources.yaml`)
 
 For every service where `services.<name>.enabled: true`, a `delivery.ocm.software/v1alpha1` `Resource` is created with `metadata.name` set to the service name.
 
@@ -39,7 +39,7 @@ For every service where `services.<name>.enabled: true`, a `delivery.ocm.softwar
 | Condition | Resulting `referencePath` |
 |---|---|
 | `services.<name>.absoluteReferencePath` is set | Exactly the entries in `absoluteReferencePath` — the top-level `ocm.referencePath` is **not** prepended |
-| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` entries |
+| `services.<name>.referencePath` is set | `ocm.referencePath` entries followed by `services.<name>.referencePath` and `chart` or `image` entry respectively. If services.<name>.external is true the last entry is ommited |
 | Neither is set (default) | `ocm.referencePath` entries followed by `- name: <service-name>` |
 
 **Example — default path:**
@@ -58,6 +58,7 @@ Produces:
 referencePath:
 - name: platform-mesh
 - name: tracing
+- name: image
 ```
 
 **Example — per-service `referencePath`:**
@@ -78,6 +79,7 @@ Produces:
 referencePath:
 - name: platform-mesh
 - name: vw-component
+- name: image
 ```
 
 **Example — `absoluteReferencePath` (no top-level prepend):**
@@ -89,6 +91,7 @@ ocm:
 services:
   infra:
     enabled: true
+    external: true
     absoluteReferencePath:
       - name: compref1
       - name: compref2
@@ -101,6 +104,19 @@ referencePath:
 - name: compref2
 ```
 
+#### `suspend`
+
+Setting `services.<name>.suspend: true` sets `spec.suspend: true` on the generated FluxCD `HelmRelease`, which pauses reconciliation for that service without removing it. Omit or set to `false` to keep reconciliation active (the default).
+
+**Example:**
+
+```yaml
+services:
+  openfga:
+    enabled: true
+    suspend: true
+```
+
 ---
 
 ### Image Resources (`ocm-image-resources.yaml`)
@@ -108,6 +124,41 @@ referencePath:
 For every enabled service that has an `imageResources` list, one `Resource` is generated per list entry. The resource type is `image` by default and can be overridden with `imageResources[].resource`.
 
 `metadata.name` uses `imageResources[].name` if provided, otherwise falls back to `<service-name>-image`.
+
+#### `referencePath` resolution for image resources
+
+#### Annotations
+
+`imageResources[].annotations` are passed through verbatim to `metadata.annotations` on the generated OCM `Resource` object. The following annotation keys are recognised by the OCM controller:
+
+| Key | Type | Description |
+|---|---|---|
+| `repo` | string | Target repository type (e.g. `oci`) |
+| `artifact` | string | Artifact kind (e.g. `image`) |
+| `for` | string | Service name this image resource belongs to |
+| `path` | string | Dot-separated values path the controller uses to patch the image tag (e.g. `kcp.image.tag`) |
+| `unsuspend` | string (`"true"`) | When set to `"true"`, the OCM controller will unsuspend the corresponding `HelmRelease` after updating the image tag |
+
+**Example — image resource with `unsuspend`:**
+
+```yaml
+services:
+  infra:
+    enabled: true
+    imageResources:
+      - name: kcp-image
+        resource: image
+        annotations:
+          repo: oci
+          artifact: image
+          for: infra
+          path: kcp.image.tag
+          unsuspend: "true"
+        absoluteReferencePath:
+          - name: kcp
+```
+
+This causes the OCM controller to update `kcp.image.tag` in the `infra` HelmRelease values and then clear its `spec.suspend` flag.
 
 #### `referencePath` resolution for image resources
 
@@ -195,26 +246,12 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.infra.dependsOn[0].name | string | `"kcp-operator"` |  |
 | services.infra.dependsOn[0].namespace | string | `"default"` |  |
 | services.infra.enabled | bool | `true` |  |
-| services.infra.imageResources | list | `[{"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci"},"name":"kcp-image","referencePath":[{"name":"kcp"}],"resource":"image"}]` | Allow the configuration of additional ocm resources |
+| services.infra.imageResources | list | `[{"absoluteReferencePath":[{"name":"kcp"}],"annotations":{"artifact":"image","for":"infra","path":"kcp.image.tag","repo":"oci"},"name":"kcp-image","resource":"image"}]` | Allow the configuration of additional ocm resources |
 | services.infra.values.gatewayApi.enabled | bool | `true` |  |
-| services.infra.values.istio.main.gateway.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.infra.values.istio.main.gateway.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
-| services.infra.values.istio.main.gateway.name | string | `"https"` |  |
-| services.infra.values.istio.main.gateway.port | string | `"{{ .Values.port }}"` |  |
-| services.infra.values.istio.main.gateway.protocol | string | `"HTTPS"` |  |
-| services.infra.values.istio.main.gateway.tls.credentialName | string | `"domain-certificate"` |  |
-| services.infra.values.istio.main.gateway.tls.minProtocolVersion | string | `"TLSV1_2"` |  |
-| services.infra.values.istio.main.gateway.tls.mode | string | `"SIMPLE"` |  |
-| services.infra.values.istio.passThrough.gateway.enabled | bool | `true` |  |
-| services.infra.values.istio.passThrough.gateway.hosts[0] | string | `"kcp.api.{{ .Values.baseDomain }}"` |  |
-| services.infra.values.istio.passThrough.gateway.name | string | `"pass-https"` |  |
-| services.infra.values.istio.passThrough.gateway.port | string | `"{{ .Values.port }}"` |  |
-| services.infra.values.istio.passThrough.gateway.protocol | string | `"HTTPS"` |  |
-| services.infra.values.kcp.image.tag | string | `"v0.29.0"` |  |
 | services.infra.values.kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | services.infra.values.kcp.webhook.enabled | bool | `true` |  |
-| services.infra.values.keycloak.istio.virtualservice.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
 | services.init-agent.enabled | bool | `true` |  |
+| services.init-agent.external | bool | `true` |  |
 | services.init-agent.helmRepo | bool | `true` |  |
 | services.init-agent.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.init-agent.imageResources[0].annotations.for | string | `"init-agent"` |  |
@@ -226,6 +263,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.init-agent.values.leaderElection.enabled | bool | `false` |  |
 | services.init-agent.values.replicas | int | `1` |  |
 | services.keycloak.enabled | bool | `true` |  |
+| services.keycloak.external | bool | `true` |  |
 | services.keycloak.imageResources[0].annotations.artifact | string | `"image"` |  |
 | services.keycloak.imageResources[0].annotations.for | string | `"keycloak"` |  |
 | services.keycloak.imageResources[0].annotations.repo | string | `"oci"` |  |
@@ -263,39 +301,36 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.kubernetes-graphql-gateway.values.cors.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.gatewayApi.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.kubeConfig.enabled | bool | `true` |  |
-| services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-grapqhl-gateway-kubeconfig"` |  |
+| services.kubernetes-graphql-gateway.values.kubeConfig.secretName | string | `"kubernetes-graphql-gateway-kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].name | string | `"contentconfigurations"` |  |
-| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443/services/contentconfigurations"` |  |
+| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[0].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443/services/contentconfigurations"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].kubeconfig | string | `"/app/kubeconfig/kubeconfig"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].name | string | `"marketplace"` |  |
-| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443/services/marketplace"` |  |
+| services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.content.virtualWorkspaces[1].url | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443/services/marketplace"` |  |
 | services.kubernetes-graphql-gateway.values.listener.virtualWorkspacesConfig.enabled | bool | `true` |  |
 | services.kubernetes-graphql-gateway.values.tracing.enabled | bool | `false` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.audience | string | `"default"` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.jwksUrl | string | `"http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs"` |  |
 | services.kubernetes-graphql-gateway.values.trust.default.trustedIssuer | string | `"https://{{ .Values.baseDomainPort }}/keycloak/realms/default"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.hosts[0] | string | `"{{ .Values.baseDomain }}"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.hosts[1] | string | `"*.{{ .Values.baseDomain }}"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowHeaders[0] | string | `"*"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowMethods[0] | string | `"GET"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowMethods[1] | string | `"POST"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].cors.allowOrigins[0].regex | string | `".*"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.httpRules[0].name | string | `"default"` |  |
-| services.kubernetes-graphql-gateway.values.virtualService.pathPrefix | string | `"/api/kubernetes-graphql-gateway/"` |  |
-| services.marketplace-ui.enabled | bool | `false` |  |
+| services.marketplace-ui.enabled | bool | `true` |  |
 | services.marketplace-ui.imageResources | list | `[{"annotations":{"artifact":"image","for":"marketplace-ui","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.marketplace-ui.values.gatewayApi.enabled | bool | `true` |  |
 | services.marketplace-ui.values.istio.enabled | bool | `false` |  |
 | services.observability.enabled | bool | `false` |  |
 | services.observability.targetNamespace | string | `"observability"` |  |
-| services.observability.values.istio.grafana.virtualService.hosts[0] | string | `"grafana.{{ .Values.baseDomain }}"` |  |
-| services.observability.values.istio.tracing.enabled | bool | `false` |  |
-| services.observability.values.opentelemetry-collector.ports.metrics.enabled | bool | `true` |  |
-| services.observability.values.opentelemetry-collector.service.type | string | `"ClusterIP"` |  |
+| services.observability.values.opentelemetry-operator.manager.collectorImage.repository | string | `"otel/opentelemetry-collector-contrib"` |  |
+| services.observability.values.prometheus.alertmanager.enabled | bool | `false` |  |
+| services.observability.values.prometheus.kube-state-metrics.enabled | bool | `false` |  |
+| services.observability.values.prometheus.prometheus-node-exporter.enabled | bool | `false` |  |
+| services.observability.values.prometheus.prometheus-pushgateway.enabled | bool | `false` |  |
+| services.observability.values.prometheus.server.extraFlags[0] | string | `"web.enable-remote-write-receiver"` |  |
+| services.observability.values.prometheus.server.persistentVolume.enabled | bool | `false` |  |
 | services.openfga.enabled | bool | `true` |  |
+| services.openfga.external | bool | `true` |  |
 | services.openfga.helmRepo | bool | `true` |  |
-| services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
+| services.openfga.imageResources | list | `[{"annotations":{"artifact":"image","for":"openfga","repo":"oci"},"name":"openfga-image"},{"annotations":{"artifact":"image","for":"openfga","path":"postgresql.image.tag","repo":"oci","unsuspend":"true"},"name":"openfga-postgresql-image","resource":"postgresql-image"}]` | Allow the configuration of additional ocm resources |
+| services.openfga.suspend | bool | `true` |  |
 | services.openfga.values.autoscaling.enabled | bool | `false` |  |
 | services.openfga.values.checkQueryCache.enabled | bool | `true` |  |
 | services.openfga.values.checkQueryCache.limit | int | `10000` |  |
@@ -309,15 +344,13 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.openfga.values.datastore.migrations.image.tag | string | `"v2.0"` |  |
 | services.openfga.values.extraEnvVars[0].name | string | `"OPENFGA_EXPERIMENTALS"` |  |
 | services.openfga.values.extraEnvVars[0].value | string | `"enable-list-users"` |  |
-| services.openfga.values.global.imagePullSecrets[0].name | string | `"github"` |  |
 | services.openfga.values.image.repository | string | `"openfga/openfga"` |  |
 | services.openfga.values.image.tag | string | `""` |  |
 | services.openfga.values.log.level | string | `"info"` |  |
-| services.openfga.values.migrate.annotations."sidecar.istio.io/inject" | string | `"false"` |  |
 | services.openfga.values.podAnnotations."traffic.sidecar.istio.io/excludeInboundPorts" | string | `"2112"` |  |
 | services.openfga.values.postgresql.enabled | bool | `true` |  |
 | services.openfga.values.postgresql.image.registry | string | `"ghcr.io/platform-mesh"` |  |
-| services.openfga.values.postgresql.image.repository | string | `"images/postgresql"` |  |
+| services.openfga.values.postgresql.image.repository | string | `"upstream-images/postgresql"` |  |
 | services.openfga.values.postgresql.nameOverride | string | `"postgres"` |  |
 | services.openfga.values.replicaCount | int | `1` |  |
 | services.openfga.values.telemetry.trace.enabled | bool | `false` |  |
@@ -331,10 +364,10 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.portal.values.auth.default.clientSecretName | string | `"portal-client-secret-welcome"` |  |
 | services.portal.values.auth.default.discoveryUrl | string | `"https://{{ .Values.baseDomainPort }}/keycloak/realms/${org-name}/.well-known/openid-configuration"` |  |
 | services.portal.values.cookieDomain | string | `"{{ .Values.baseDomain }}"` |  |
-| services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
+| services.portal.values.crdGatewayApiUrl | string | `"https://${org-subdomain}{{ .Values.baseDomain }}/gateway/api/clusters/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.environment | string | `"kind"` |  |
 | services.portal.values.extraEnvVars[0].name | string | `"DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL"` |  |
-| services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"` |  |
+| services.portal.values.extraEnvVars[0].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql"` |  |
 | services.portal.values.extraEnvVars[1].name | string | `"OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL"` |  |
 | services.portal.values.extraEnvVars[1].value | string | `"https://${org-subdomain}{{ .Values.baseDomainPort }}/iam/graphql"` |  |
 | services.portal.values.frontendPort | string | `"{{ .Values.port }}"` |  |
@@ -376,7 +409,7 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.virtual-workspaces.imageResources | list | `[{"annotations":{"artifact":"image","for":"virtual-workspaces","repo":"oci"}}]` | Allow the configuration of additional ocm resources |
 | services.virtual-workspaces.values.deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
 | services.virtual-workspaces.values.deployment.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
-| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:6443"` |  |
+| services.virtual-workspaces.values.deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443"` |  |
 | services.virtual-workspaces.values.virtualWorkspaceSecretName | string | `"virtual-workspaces-cert"` |  |
 | targetNamespace | string | `"platform-mesh-system"` |  |
 | timeout | string | `"30m"` |  |

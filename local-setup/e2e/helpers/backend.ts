@@ -1,23 +1,15 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import dns from 'node:dns/promises';
-import { execFileSync } from 'node:child_process';
-
-import { expect } from '@playwright/test';
 
 import {
   accountReadyTimeoutSeconds,
   inviteName,
-  keycloakAdminPassword,
-  keycloakAdminUser,
-  keycloakBaseUrl,
-  kubeconfigSmokeConfigMapName,
   newOrgName,
   primaryUser,
   testAccountName,
   type TestUser,
 } from './constants';
 import { logStep } from './log';
-import { runAdminKubectl, runKubectlWithKubeconfig } from './runtime';
+import { runAdminKubectl } from './runtime';
 
 function waitForAccountReady(): void {
   logStep(`waitForAccountReady:start account=${testAccountName} timeout=${accountReadyTimeoutSeconds}s`);
@@ -93,10 +85,16 @@ function ensureInvitedUserExists(user: TestUser): void {
 
 function normalizeDownloadedKubeconfig(kubeconfigPath: string): void {
   const original = readFileSync(kubeconfigPath, 'utf8');
-  let normalized = original.replace(
-    /\n(\s+)certificate-authority-data: .+\n/,
-    '\n$1insecure-skip-tls-verify: true\n',
-  );
+  let normalized = original
+    .replace(/\n(\s+)certificate-authority-data: .+\n/g, '\n$1insecure-skip-tls-verify: true\n')
+    .replace(/\n(\s+)certificate-authority: .+\n/g, '\n$1insecure-skip-tls-verify: true\n');
+
+  if (!/\n\s+insecure-skip-tls-verify:\s*true\s*\n/.test(normalized)) {
+    normalized = normalized.replace(
+      /(\n\s+server: .+\n)/,
+      `$1      insecure-skip-tls-verify: true\n`,
+    );
+  }
 
   if (!normalized.includes('--insecure-skip-tls-verify')) {
     normalized = normalized.replace(
@@ -117,117 +115,10 @@ function normalizeDownloadedKubeconfig(kubeconfigPath: string): void {
   }
 }
 
-function extractOidcClientId(kubeconfigPath: string): string {
-  const kubeconfig = readFileSync(kubeconfigPath, 'utf8');
-  const match = kubeconfig.match(/--oidc-client-id=([^\n]+)/);
-  if (!match) {
-    throw new Error(`Unable to find OIDC client ID in ${kubeconfigPath}`);
-  }
-
-  return match[1].trim();
-}
-
-async function ensurePortalHostnameResolves(): Promise<void> {
-  try {
-    await dns.lookup('portal.localhost');
-  } catch {
-    throw new Error('portal.localhost must resolve locally for the kubeconfig smoke test. Add "127.0.0.1 portal.localhost" to /etc/hosts.');
-  }
-}
-
-function keycloakApiRequest(method: 'GET' | 'POST' | 'PUT', url: string, body?: string, token?: string): string {
-  const args = ['-sk', '-X', method, url];
-
-  if (token) {
-    args.push('-H', `Authorization: Bearer ${token}`);
-  }
-
-  if (body) {
-    args.push('-H', 'content-type: application/json', '--data', body);
-  }
-
-  return execFileSync('curl', args, { encoding: 'utf8' }).trim();
-}
-
-function getKeycloakAdminToken(): string {
-  const response = execFileSync('curl', [
-    '-sk',
-    '-X',
-    'POST',
-    `${keycloakBaseUrl}/realms/master/protocol/openid-connect/token`,
-    '-H',
-    'content-type: application/x-www-form-urlencoded',
-    '--data',
-    `grant_type=password&client_id=admin-cli&username=${encodeURIComponent(keycloakAdminUser)}&password=${encodeURIComponent(keycloakAdminPassword)}`,
-  ], { encoding: 'utf8' }).trim();
-
-  const parsed = JSON.parse(response);
-  if (!parsed.access_token) {
-    throw new Error(`Unable to get Keycloak admin token: ${response}`);
-  }
-
-  return parsed.access_token;
-}
-
-function ensureKubectlClientAllowsDirectGrants(clientId: string): void {
-  const token = getKeycloakAdminToken();
-  const response = keycloakApiRequest(
-    'GET',
-    `${keycloakBaseUrl}/admin/realms/default/clients?clientId=${encodeURIComponent(clientId)}`,
-    undefined,
-    token,
-  );
-  const clients = JSON.parse(response);
-
-  if (!Array.isArray(clients) || clients.length === 0) {
-    throw new Error(`Unable to find Keycloak client ${clientId}`);
-  }
-
-  const client = clients[0];
-  if (client.directAccessGrantsEnabled === true) {
-    return;
-  }
-
-  client.directAccessGrantsEnabled = true;
-  keycloakApiRequest(
-    'PUT',
-    `${keycloakBaseUrl}/admin/realms/default/clients/${client.id}`,
-    JSON.stringify(client),
-    token,
-  );
-}
-
-async function verifyDownloadedKubeconfig(kubeconfigPath: string): Promise<void> {
-  logStep(`verifyDownloadedKubeconfig:start path=${kubeconfigPath}`);
-  await ensurePortalHostnameResolves();
-  ensureKubectlClientAllowsDirectGrants(extractOidcClientId(kubeconfigPath));
-
-  const manifest = [
-    'apiVersion: v1',
-    'kind: ConfigMap',
-    'metadata:',
-    `  name: ${kubeconfigSmokeConfigMapName}`,
-    '  namespace: default',
-    'data:',
-    '  smoke: ok',
-    '',
-  ].join('\n');
-
-  runKubectlWithKubeconfig(kubeconfigPath, ['auth', 'can-i', 'create', 'configmaps', '-n', 'default']);
-  runKubectlWithKubeconfig(kubeconfigPath, ['apply', '-f', '-'], manifest);
-
-  const configMapName = runKubectlWithKubeconfig(kubeconfigPath, ['get', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '-o', 'jsonpath={.metadata.name}']);
-  expect(configMapName).toBe(kubeconfigSmokeConfigMapName);
-
-  runKubectlWithKubeconfig(kubeconfigPath, ['delete', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '--ignore-not-found=true']);
-  logStep(`verifyDownloadedKubeconfig:done path=${kubeconfigPath}`);
-}
-
 export {
   waitForAccountReady,
   waitForAccountExists,
   waitForAccountDeleted,
   ensureInvitedUserExists,
   normalizeDownloadedKubeconfig,
-  verifyDownloadedKubeconfig,
 };

@@ -13,12 +13,22 @@ image:
 deployment:
   entityLabel: ui.platform-mesh.io/entity
   contentForLabel: ui.platform-mesh.io/content-for
-  serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443
+  serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443
   resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
   resourceSchemaWorkspace: root:platform-mesh-system
   resourceSchemaExportName: core.platform-mesh.io
   mainEntityName: main
   accountEntityName: core_platform-mesh_io_account
+
+clusterAccess:
+  marketplace:
+    enabled: true
+    # -- Path for gateway url
+    # path: ""
+    auth:
+      kubeconfigSecretRef:
+        name: "virtual-workspace-clusteraccess-kubeconfig"
+        key: "kubeconfig"
 
 service:
   port: 8443

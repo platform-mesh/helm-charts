@@ -99,11 +99,14 @@ A Helm chart for Kubernetes
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.rootShard.resources | object | `{}` | Optional resource requests and limits for the root shard |
 | kcp.rootShard.shardBaseURL | string | `"https://root.kcp.localhost:8443/"` |  |
+| kcp.shards[0].name | string | `"nereus"` |  |
+| kcp.shards[1].name | string | `"triton"` |  |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
 | kcp.webhook.caData | string | `""` |  |
 | kcp.webhook.enabled | bool | `true` |  |
 | kcp.webhook.port | int | `9443` |  |
 | kcp.webhook.server | string | `"https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/authz"` |  |
+| kcp.webhook.version | string | `"v1"` |  |
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
@@ -127,6 +130,32 @@ A Helm chart for Kubernetes
 | keycloak.keycloakConfig.redirectUrls | list | `["http://localhost:8000/callback*"]` | redirect urls |
 | keycloak.keycloakConfig.url | string | `"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak"` | url of the keycloak server |
 | keycloak.keycloakConfig.userRegistration.enabled | bool | `true` | toggle to enable/disable user registration |
+| keycloak.operator.admin.password | string | `"admin"` | Bootstrap admin password (written to keycloak-admin secret) |
+| keycloak.operator.admin.secret | string | `"admin"` | Bootstrap admin client secret (written to keycloak-admin secret) |
+| keycloak.operator.admin.username | string | `"keycloak-admin"` | Bootstrap admin username (written to keycloak-admin secret) |
+| keycloak.operator.db.database | string | `"keycloak"` | Database name |
+| keycloak.operator.db.host | string | `"platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local"` | PostgreSQL host |
+| keycloak.operator.db.password | string | `"keycloak-password"` | Database password (written to keycloak-db-credentials secret) |
+| keycloak.operator.db.port | int | `5432` | PostgreSQL port |
+| keycloak.operator.db.username | string | `"keycloak"` | Database username (written to keycloak-db-credentials secret) |
+| keycloak.operator.enabled | bool | `false` | Enable Keycloak CR and supporting secrets managed by Keycloak Operator |
+| keycloak.operator.health.liveness.failureThreshold | int | `3` |  |
+| keycloak.operator.health.liveness.path | string | `"/keycloak/health/live"` |  |
+| keycloak.operator.health.periodSeconds | int | `10` |  |
+| keycloak.operator.health.port | int | `9000` |  |
+| keycloak.operator.health.readiness.initialDelaySeconds | int | `0` |  |
+| keycloak.operator.health.readiness.path | string | `"/keycloak/health/ready"` |  |
+| keycloak.operator.health.readiness.periodSeconds | int | `10` |  |
+| keycloak.operator.health.startup.failureThreshold | int | `600` |  |
+| keycloak.operator.health.startup.path | string | `"/keycloak/health"` |  |
+| keycloak.operator.hostname | string | `"https://portal.localhost:8443"` | Keycloak hostname (used in the Keycloak CR hostname.hostname field). Must not include a path — the operator auto-derives http-relative-path from any path component, which conflicts with the value baked into the image. |
+| keycloak.operator.image.repository | string | `"ghcr.io/platform-mesh/custom-images/keycloak"` | Keycloak image repository |
+| keycloak.operator.image.tag | string | `"latest"` | Keycloak image tag |
+| keycloak.operator.instances | int | `1` | Number of Keycloak instances |
+| keycloak.operator.resources.limits.cpu | string | `"2"` |  |
+| keycloak.operator.resources.limits.memory | string | `"2Gi"` |  |
+| keycloak.operator.resources.requests.cpu | string | `"750m"` |  |
+| keycloak.operator.resources.requests.memory | string | `"1Gi"` |  |
 | keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
 | keycloak.service.name | string | `"keycloak"` | service name |
 | keycloak.service.port | int | `80` | service port |

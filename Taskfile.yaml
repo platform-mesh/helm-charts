@@ -5,7 +5,7 @@ vars:
   CHARTS:
     sh: "printf '%s' $(ls -d charts/*/ | paste -sd ',' -)"
   CHANGED_CHARTS:
-    sh: "( git diff --name-only main..@ ; git diff --name-only ) | grep '^charts/' | cut -d/ -f1-2 | sort | uniq | paste -sd ',' - "
+    sh: "( git diff --name-only main..@ ; git diff --name-only ) | grep '^charts/' | cut -d/ -f1-2 | sort | uniq | paste -sd ',' -"
   PACKAGED_CHARTS:
     sh: "mkdir -p oci/ && ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
   GOOS:
@@ -235,6 +235,8 @@ tasks:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
     cmds:
+      - task: test:portal-e2e:marketplace-ui
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
       - task: test:portal-e2e:httpbins
         vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
       - task: test:portal-e2e:account-kubeconfig
@@ -244,44 +246,57 @@ tasks:
       - task: test:portal-e2e:deletion
         vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
 
+  test:portal-e2e:setup:
+    run: once
+    internal: true
+    dir: local-setup/e2e
+    cmds:
+      - npm ci
+      - npx playwright install
+
   test:portal-e2e:httpbins:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm install
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
+
+  test:portal-e2e:marketplace:
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      HEADED: '{{.HEADED | default ""}}'
+    cmds:
+      - task: test:portal-e2e:marketplace-ui
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+
+  test:portal-e2e:marketplace-ui:
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
+    cmds:
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-marketplace-ui.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:account-kubeconfig:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm install
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:authorization:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm install
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:headed:
     vars:
@@ -294,27 +309,19 @@ tasks:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm install
-          npm ci
-          npx playwright install
-          VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test portal-*.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
-          popd
+      - VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test portal-marketplace-ui.test.ts portal-httpbins.test.ts portal-account-kubeconfig.test.ts portal-authorization.test.ts portal-account-deletion.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
 
   test:portal-e2e:deletion:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+    deps: [test:portal-e2e:setup]
+    dir: local-setup/e2e
     cmds:
-      - |
-          pushd local-setup/e2e
-          npm install
-          npm ci
-          npx playwright install
-          ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
-          popd
+      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
 
   test:backend-resources:
     cmds:
@@ -511,3 +518,43 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --prerelease --concurrent"}
+
+  local-setup:sharded:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--sharded"}
+
+  local-setup:sharded:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--sharded"}
+
+  local-setup:cached:sharded:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --sharded"}
+
+  local-setup:cached:sharded:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --sharded"}
+
+  local-setup:prerelease:sharded:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--prerelease --sharded"}
+
+  local-setup:prerelease:sharded:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--prerelease --sharded"}
+
+  local-setup:cached:prerelease:sharded:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--cached --prerelease --sharded"}
+
+  local-setup:cached:prerelease:sharded:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--cached --prerelease --sharded"}

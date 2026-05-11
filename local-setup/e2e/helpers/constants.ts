@@ -20,6 +20,8 @@ const runtimeKubeconfigPath = process.env.RUNTIME_KUBECONFIG || path.join(repoRo
 const infraKubeconfigPath = process.env.INFRA_KUBECONFIG || path.join(repoRoot, '.secret/platform-mesh-infra.kubeconfig');
 const httpbinProviderManifestPath = path.join(repoRoot, 'local-setup', 'example-data', 'root', 'providers', 'httpbin-provider');
 const exampleDataOverlayPath = path.join(repoRoot, 'local-setup', 'kustomize', 'overlays', 'example-data');
+const exampleMarketplaceEntryName = process.env.EXAMPLE_MARKETPLACE_ENTRY_NAME || 'orchestrate.platform-mesh.io-orchestrate.platform-mesh.io';
+const exampleProviderDisplayName = process.env.EXAMPLE_PROVIDER_DISPLAY_NAME || 'ABC MSP Provider';
 
 type TestUser = {
   email: string;
@@ -66,6 +68,8 @@ export {
   infraKubeconfigPath,
   httpbinProviderManifestPath,
   exampleDataOverlayPath,
+  exampleMarketplaceEntryName,
+  exampleProviderDisplayName,
   primaryUser,
   invitedUser,
 };

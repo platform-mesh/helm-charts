@@ -7,109 +7,111 @@ spec:
     apiVersion: v1alpha1
     kind: PlatformMeshOperator
     spec:
-      referencePath: "[]map[string]string | required=false"
-      resource: "object | required=true"
-      values: "object | required=false"
+      imageReferencePath: "[]map[string]string | required=false"
+      chartReferencePath: "[]map[string]string | required=false"
   resources:
-    - id: resourceChart
-      readyWhen:
-        - ${has(resourceChart.status.resource)}
-        - ${resourceChart.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
-      template:
-        apiVersion: delivery.ocm.software/v1alpha1
-        kind: Resource
-        metadata:
-          name: platform-mesh-operator
-        spec:
-          componentRef:
-            name: platform-mesh
-          interval: 3m0s
-          ocmConfig:
-            - apiVersion: delivery.ocm.software/v1alpha1
-              kind: Repository
-              name: platform-mesh
-              namespace: default
-              policy: Propagate
-          resource:
-            byReference:
-              referencePath: ${schema.spec.referencePath}
-              resource:
-                name: chart
-          additionalStatusFields:
-            registry: resource.access.imageReference.toOCI().registry
-            repository: resource.access.imageReference.toOCI().repository
-            version: resource.version
-          skipVerify: true
-    - id: resourceImage
-      readyWhen:
-        - ${has(resourceImage.status.resource)}
-        - ${resourceImage.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
-      template:
-        apiVersion: delivery.ocm.software/v1alpha1
-        kind: Resource
-        metadata:
-          name: platform-mesh-operator-image
-          annotations:
-            artifact: image
-        spec:
-          componentRef:
-            name: platform-mesh
-          interval: 3m0s
-          ocmConfig:
-            - apiVersion: delivery.ocm.software/v1alpha1
-              kind: Repository
-              name: platform-mesh
-              namespace: default
-              policy: Propagate
-          resource:
-            byReference:
-              referencePath: ${schema.spec.referencePath}
-              resource:
-                name: image
-          additionalStatusFields:
-            registry: resource.access.imageReference.toOCI().registry
-            repository: resource.access.imageReference.toOCI().repository
-            version: resource.version
-          skipVerify: true
-    - id: ocirepository
-      readyWhen:
-        - ${has(ocirepository.status.artifact)}
-        - ${ocirepository.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
-      template:
-        apiVersion: source.toolkit.fluxcd.io/v1
-        kind: OCIRepository
-        metadata:
-          name: platform-mesh-operator
-        spec:
-          interval: 1m0s
-          insecure: true
-          layerSelector:
-            mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
-            operation: copy
-          url: oci://${resourceChart.status.additional.?registry}/${resourceChart.status.additional.?repository}
-          ref:
-            tag: ${resourceChart.status.additional.?version}
-    - id: helmrelease
-      readyWhen:
-        - ${helmrelease.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
-      template:
-        apiVersion: helm.toolkit.fluxcd.io/v2
-        kind: HelmRelease
-        metadata:
-          name: platform-mesh-operator
-        spec:
-          releaseName: platform-mesh-operator
-          targetNamespace: platform-mesh-system
-          interval: 1m
-          timeout: 5m
-          chartRef:
-            kind: OCIRepository
-            name: ${ocirepository.metadata.name}
-            namespace: default
-          values:
-            log:
-              noJson: true
-            image:
-              tag: ${resourceImage.status.?resource.?version}
-            idp:
-              registrationAllowed: true
+  - id: resourceChart
+    readyWhen:
+    - ${has(resourceChart.status.resource)}
+    - ${resourceChart.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
+    template:
+      apiVersion: delivery.ocm.software/v1alpha1
+      kind: Resource
+      metadata:
+        name: platform-mesh-operator-chart
+        labels:
+          artifact: oci
+      spec:
+        componentRef:
+          name: platform-mesh
+        ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+          policy: Propagate
+        resource:
+          byReference:
+            referencePath: ${schema.spec.chartReferencePath}
+            resource:
+              name: chart
+        additionalStatusFields:
+          registry: resource.access.imageReference.toOCI().registry
+          repository: resource.access.imageReference.toOCI().repository
+          version: resource.version
+  - id: resourceImage
+    readyWhen:
+    - ${has(resourceImage.status.resource)}
+    - ${resourceImage.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
+    template:
+      apiVersion: delivery.ocm.software/v1alpha1
+      kind: Resource
+      metadata:
+        name: platform-mesh-operator-image
+        labels:
+          artifact: image
+      spec:
+        componentRef:
+          name: platform-mesh
+        ocmConfig:
+        - apiVersion: delivery.ocm.software/v1alpha1
+          kind: Repository
+          name: platform-mesh
+          namespace: default
+          policy: Propagate
+        resource:
+          byReference:
+            referencePath: ${schema.spec.imageReferencePath}
+            resource:
+              name: image
+        additionalStatusFields:
+          registry: resource.access.imageReference.toOCI().registry
+          repository: resource.access.imageReference.toOCI().repository
+          version: resource.version
+  - id: ocirepository
+    readyWhen:
+    - ${has(ocirepository.status.artifact)}
+    - ${ocirepository.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
+    template:
+      apiVersion: source.toolkit.fluxcd.io/v1
+      kind: OCIRepository
+      metadata:
+        name: platform-mesh-operator
+      spec:
+        interval: 1m0s
+        insecure: true
+        layerSelector:
+          mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+          operation: copy
+        url: oci://${resourceChart.status.additional.?registry}/${resourceChart.status.additional.?repository}
+        ref:
+          tag: ${resourceChart.status.additional.?version}
+  - id: helmrelease
+    readyWhen:
+    - ${helmrelease.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
+    template:
+      apiVersion: helm.toolkit.fluxcd.io/v2
+      kind: HelmRelease
+      metadata:
+        name: platform-mesh-operator
+      spec:
+        releaseName: platform-mesh-operator
+        targetNamespace: platform-mesh-system
+        interval: 1m
+        timeout: 5m
+        chartRef:
+          kind: OCIRepository
+          name: ${ocirepository.metadata.name}
+          namespace: default
+        values:
+          log:
+            noJson: true
+          image:
+            tag: ${resourceImage.status.?resource.?version}
+          idp:
+            registrationAllowed: true
+            values:
+          extraArgs:
+          - --kcp-front-proxy-port=8443
+          - --subroutines-feature-toggles-enabled=true
+          - --no-json=true
