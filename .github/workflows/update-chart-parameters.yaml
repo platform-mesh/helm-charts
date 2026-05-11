@@ -57,30 +57,67 @@ jobs:
           INPUT_CHART: ${{ inputs.chart }}
           INPUT_APP_VERSION: ${{ inputs.appVersion }}
         run: |
+          set -euo pipefail
           chart_file="charts/${INPUT_CHART}/Chart.yaml"
-          ls -al charts/
-          if [ -f "$chart_file" ]; then
-            echo "Chart.yaml file found at $chart_file"
-            yq e -i ".appVersion = \"${INPUT_APP_VERSION}\"" "$chart_file"
-            echo "Updated appVersion to ${INPUT_APP_VERSION} in $chart_file"
-
-            # bump version parameter in chart
-            CHART_VERSION=$(yq '.version' "$chart_file")
-            IFS='.' read -r -a VERSION_PARTS <<< "$CHART_VERSION"
-            MAJOR=${VERSION_PARTS[0]}
-            MINOR=${VERSION_PARTS[1]}
-            PATCH=${VERSION_PARTS[2]}
-            NEW_PATCH=$((PATCH + 1))
-            NEW_CHART_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
-            yq e -i ".version = \"$NEW_CHART_VERSION\"" "$chart_file"
-            echo "Version bumped to $NEW_CHART_VERSION in $chart_file"
-
-            git add "$chart_file"
-            git commit -m "Set $NEW_CHART_VERSION / ${INPUT_APP_VERSION} in $chart_file" || echo "appVersion was already up to date"
-          else
-            echo "Chart.yaml file not found at $chart_file"
+          if [ ! -f "$chart_file" ]; then
+            echo "::error::Chart.yaml file not found at $chart_file"
             exit 1
           fi
+          echo "Chart.yaml file found at $chart_file"
+
+          OLD_APP_VERSION=$(yq '.appVersion' "$chart_file" | tr -d '"')
+          NEW_APP_VERSION="${INPUT_APP_VERSION}"
+
+          # Strip leading "v" and any pre-release/build suffix to compare clean MAJOR.MINOR.PATCH triplets.
+          strip() { v="${1#v}"; printf '%s' "${v%%[-+]*}"; }
+          OLD_CLEAN=$(strip "$OLD_APP_VERSION")
+          NEW_CLEAN=$(strip "$NEW_APP_VERSION")
+
+          if ! [[ "$OLD_CLEAN" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Existing appVersion ($OLD_APP_VERSION) is not a clean semver triplet"
+            exit 1
+          fi
+
+          IFS='.' read -r OLD_MAJOR OLD_MINOR OLD_PATCH <<<"$OLD_CLEAN"
+          IFS='.' read -r NEW_MAJOR NEW_MINOR NEW_PATCH <<<"$NEW_CLEAN"
+
+          if [ "$OLD_CLEAN" = "$NEW_CLEAN" ]; then
+            echo "appVersion unchanged ($OLD_APP_VERSION); nothing to do"
+            exit 0
+          fi
+
+          # Refuse downgrades — most likely a manual workflow_dispatch input mistake.
+          if [ "$NEW_MAJOR" -lt "$OLD_MAJOR" ] \
+            || { [ "$NEW_MAJOR" -eq "$OLD_MAJOR" ] && [ "$NEW_MINOR" -lt "$OLD_MINOR" ]; } \
+            || { [ "$NEW_MAJOR" -eq "$OLD_MAJOR" ] && [ "$NEW_MINOR" -eq "$OLD_MINOR" ] && [ "$NEW_PATCH" -lt "$OLD_PATCH" ]; }; then
+            echo "::error::appVersion downgrade refused: $OLD_APP_VERSION -> $NEW_APP_VERSION"
+            exit 1
+          fi
+
+          if   [ "$NEW_MAJOR" -gt "$OLD_MAJOR" ]; then BUMP=major
+          elif [ "$NEW_MINOR" -gt "$OLD_MINOR" ]; then BUMP=minor
+          else                                         BUMP=patch
+          fi
+          echo "Detected appVersion bump: $OLD_APP_VERSION -> $NEW_APP_VERSION ($BUMP)"
+
+          CHART_VERSION=$(yq '.version' "$chart_file")
+          if ! [[ "$CHART_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Existing chart version ($CHART_VERSION) is not a clean semver triplet"
+            exit 1
+          fi
+          IFS='.' read -r CM Cm Cp <<<"$CHART_VERSION"
+          case "$BUMP" in
+            major) NEW_CHART_VERSION="$((CM + 1)).0.0" ;;
+            minor) NEW_CHART_VERSION="$CM.$((Cm + 1)).0" ;;
+            patch) NEW_CHART_VERSION="$CM.$Cm.$((Cp + 1))" ;;
+          esac
+
+          yq e -i ".appVersion = \"${NEW_APP_VERSION}\"" "$chart_file"
+          yq e -i ".version    = \"${NEW_CHART_VERSION}\"" "$chart_file"
+          echo "Updated appVersion to ${NEW_APP_VERSION} and version to ${NEW_CHART_VERSION} in $chart_file"
+
+          git add "$chart_file"
+          git commit -m "Set $NEW_CHART_VERSION / ${NEW_APP_VERSION} in $chart_file" || echo "appVersion was already up to date"
       - name: Git push
         run: |
           git push origin main
