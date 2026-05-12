@@ -62,15 +62,6 @@ update_constructor() {
         "$OCM_DIR/component-constructor-prerelease.yaml" > "$OCM_DIR/component-constructor-prerelease.yaml.tmp" \
         && mv "$OCM_DIR/component-constructor-prerelease.yaml.tmp" "$OCM_DIR/component-constructor-prerelease.yaml"
 
-    # Inject keycloak-operator componentReference if not already present (not yet in upstream constructor).
-    # Use printf+cat instead of yq: yq parses {{ .VAR }} as YAML map keys, corrupting all Go template
-    # variables in the file. Appending raw text to the file end is safe since the platform-mesh component
-    # is always last and componentReferences is the final key.
-    if ! grep -q "keycloak-operator" "$OCM_DIR/component-constructor-prerelease.yaml"; then
-        printf '      - name: keycloak-operator\n        componentName: github.com/platform-mesh/keycloak-operator\n        version: '"'"'{{ .KEYCLOAK_OPERATOR_VERSION }}'"'"'\n' \
-            >> "$OCM_DIR/component-constructor-prerelease.yaml"
-    fi
-
     echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor updated${COL_RES}"
 }
 
@@ -151,13 +142,13 @@ resolve_component_versions() {
     get_component_version security-operator github.com/platform-mesh/security-operator charts/security-operator SECURITY_OPERATOR_VERSION
     get_component_version extension-manager-operator github.com/platform-mesh/extension-manager-operator charts/extension-manager-operator EXTENSION_MANAGER_OPERATOR_VERSION
     get_component_version infra github.com/platform-mesh/infra charts/infra INFRA_VERSION
-    get_component_version keycloak-operator github.com/platform-mesh/keycloak-operator charts/keycloak-operator KEYCLOAK_OPERATOR_VERSION
     get_component_version rebac-authz-webhook github.com/platform-mesh/rebac-authz-webhook charts/rebac-authz-webhook REBAC_AUTHZ_WEBHOOK_VERSION
     get_component_version portal github.com/platform-mesh/portal "../helm-charts/charts/portal/" PORTAL_VERSION
     get_component_version platform-mesh-operator github.com/platform-mesh/platform-mesh-operator charts/platform-mesh-operator/ PLATFORM_MESH_OPERATOR_VERSION
     get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
     get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
     get_component_version keycloak github.com/platform-mesh/keycloak "../helm-charts/keycloak/" KEYCLOAK_VERSION
+    get_component_version keycloak-operator github.com/platform-mesh/keycloak-operator charts/keycloak-operator KEYCLOAK_OPERATOR_VERSION
     get_component_version platform-mesh-operator-components github.com/platform-mesh/platform-mesh-operator-components charts/platform-mesh-operator-components PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
     get_component_version platform-mesh-operator-infra-components github.com/platform-mesh/platform-mesh-operator-infra-components charts/platform-mesh-operator-infra-components PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION
     get_component_version iam-service github.com/platform-mesh/iam-service charts/iam-service IAM_SERVICE_VERSION
@@ -165,6 +156,7 @@ resolve_component_versions() {
     get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui charts/marketplace-ui MARKETPLACE_UI_VERSION
     get_component_version example-httpbin-operator github.com/platform-mesh/example-httpbin-operator charts/example-httpbin-operator EXAMPLE_HTTPBIN_OPERATOR_VERSION
     get_component_version terminal-controller-manager github.com/platform-mesh/terminal-controller-manager charts/terminal-controller-manager TERMINAL_CONTROLLER_MANAGER_VERSION
+    get_component_version observability github.com/platform-mesh/observability charts/observability OBSERVABILITY_VERSION
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Resolving third-party component versions...${COL_RES}"
 
@@ -172,6 +164,9 @@ resolve_component_versions() {
     export GARDENER_ETCD_DRUID_VERSION=$(get_external_component_version github.com/gardener/etcd-druid europe-docker.pkg.dev/gardener-project/releases)
     export ISTIO_VERSION=$(get_ocm_resource_version "github.com/istio/istio/base" '.items[0].element["version"]')
     export OPENFGA_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[0].element["version"]')
+    export CNPG_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[0].element["version"]')
+    export CNPG_OPERATOR_CHART_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[] | select(.element.name == "chart") | .element.version')
+    export CNPG_OPERATOR_IMAGE_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[] | select(.element.type == "ociImage") | .element.version')
     export KCP_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[0].element["version"]')
     export KCP_IMAGE_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[] | select(.element.type == "ociImage") | .element.version' | sed 's/^0\.0\.0-//')
     export GATEWAY_API_VERSION=$(get_ocm_resource_version "github.com/kubernetes-sigs/gateway-api" '.items[0].element["version"]')
@@ -251,7 +246,11 @@ build_final_component() {
         TRAEFIK_IMAGE_VERSION="$TRAEFIK_IMAGE_VERSION" \
         OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
         OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
-        TERMINAL_CONTROLLER_MANAGER_VERSION="$TERMINAL_CONTROLLER_MANAGER_VERSION"
+        CNPG_OPERATOR_VERSION="$CNPG_OPERATOR_VERSION" \
+        CNPG_OPERATOR_CHART_VERSION="$CNPG_OPERATOR_CHART_VERSION" \
+        CNPG_OPERATOR_IMAGE_VERSION="$CNPG_OPERATOR_IMAGE_VERSION" \
+        TERMINAL_CONTROLLER_MANAGER_VERSION="$TERMINAL_CONTROLLER_MANAGER_VERSION" \
+        OBSERVABILITY_VERSION="$OBSERVABILITY_VERSION"
 
     echo ""
     echo -e "${COL}[$(date '+%H:%M:%S')] Built prerelease component version $COMPONENT_PRERELEASE_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)${COL_RES}"
