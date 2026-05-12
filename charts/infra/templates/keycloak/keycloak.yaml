@@ -37,6 +37,10 @@ spec:
   unsupported:
     podTemplate:
       spec:
+        initContainers:
+          - name: wait-for-db
+            image: busybox:1.37
+            command: ['sh', '-c', 'until nc -z {{ .Values.keycloak.operator.db.host }} {{ .Values.keycloak.operator.db.port }}; do echo "Waiting for PostgreSQL..."; sleep 2; done']
         containers:
           - imagePullPolicy: IfNotPresent
             name: keycloak
