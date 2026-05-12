@@ -670,11 +670,17 @@ echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_R
 show_wsl_hosts_guidance
 
 echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Saving kcp root CA certificate ${COL_RES}"
+kubectl -n platform-mesh-system get secret root-ca -oyaml | yq '.data["ca.crt"]' | base64 -d > $SCRIPT_DIR/certs/root-ca.crt
+
+echo -e "${YELLOW}⚠️  Add the following entry to /etc/hosts if not already present:${COL_RES}"
+echo 'echo "127.0.0.1 kcp.root.localhost" | sudo tee -a /etc/hosts'
 
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}You can access the onboarding portal at: https://portal.localhost:8443 ${COL_RES}"
+
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"

@@ -17,6 +17,7 @@ Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 - **openssl**: Required for SSL certificate generation (typically pre-installed on Linux/macOS)
 - **base64**: Required for encoding/decoding operations (standard Unix utility, typically pre-installed)
 - **mkcert**: For generating local SSL certificates. [Installation](https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation)
+- **yq**: For processing YAML files. [Installation](https://github.com/mikefarah/yq#install)
 
 ### Optional Tools
 
