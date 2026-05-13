@@ -158,7 +158,7 @@ keycloak:
     # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).
     # Must not include a path — the operator auto-derives http-relative-path from
     # any path component, which conflicts with the value baked into the image.
-    hostname: "https://portal.localhost:8443/keycloak/"
+    hostname: "https://portal.localhost:8443"
     db:
       # -- PostgreSQL host
       host: platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local
@@ -264,6 +264,29 @@ keycloak:
             name: keycloak-admin
             # -- key of the password in the secret
             key: secret
+
+cnpg:
+  enabled: false
+  cluster:
+    name: platform-mesh-pg
+    instances: 2
+    storage:
+      size: 2Gi
+    postgresql:
+      maxConnections: "200"
+      sharedBuffers: "128MB"
+  roles:
+    keycloak:
+      username: keycloak
+      password: keycloak-password
+    openfga:
+      username: openfga
+      password: openfga-password
+  databases:
+    - name: keycloak
+      owner: keycloak
+    - name: openfga
+      owner: openfga
 
 gatewayApi:
   # -- Toggle to enable/disable Gateway API resources
