@@ -341,11 +341,11 @@ Produces `referencePath: [{name: compref1}, {name: compref2}]`.
 | services.openfga.values.datastore.migrationType | string | `"initContainer"` |  |
 | services.openfga.values.datastore.migrations.image.pullPolicy | string | `"Always"` |  |
 | services.openfga.values.datastore.migrations.image.repository | string | `"groundnuty/k8s-wait-for"` |  |
-| services.openfga.values.datastore.migrations.image.tag | string | `"v2.0"` |  |
+| services.openfga.values.datastore.migrations.image.tag | string | `"v2.0@sha256:c14d7271e4013b24b34ef0d7144c4610577d0e9110ccc26b163fa28089fa1f4e"` |  |
 | services.openfga.values.extraEnvVars[0].name | string | `"OPENFGA_EXPERIMENTALS"` |  |
 | services.openfga.values.extraEnvVars[0].value | string | `"enable-list-users"` |  |
 | services.openfga.values.image.repository | string | `"openfga/openfga"` |  |
-| services.openfga.values.image.tag | string | `""` |  |
+| services.openfga.values.image.tag | string | `"@sha256:8543200bf85878c968d73da46c4f0e31ba1f63ed3675b71122f1133b0e9d97eb"` |  |
 | services.openfga.values.log.level | string | `"info"` |  |
 | services.openfga.values.podAnnotations."traffic.sidecar.istio.io/excludeInboundPorts" | string | `"2112"` |  |
 | services.openfga.values.postgresql.enabled | bool | `true` |  |

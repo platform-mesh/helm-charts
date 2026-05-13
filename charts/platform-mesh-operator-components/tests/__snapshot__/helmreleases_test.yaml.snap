@@ -306,13 +306,13 @@ HelmRelease snapshots:
             image:
               pullPolicy: Always
               repository: groundnuty/k8s-wait-for
-              tag: v2.0
+              tag: v2.0@sha256:c14d7271e4013b24b34ef0d7144c4610577d0e9110ccc26b163fa28089fa1f4e
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
         image:
           repository: openfga/openfga
-          tag: ""
+          tag: '@sha256:8543200bf85878c968d73da46c4f0e31ba1f63ed3675b71122f1133b0e9d97eb'
         log:
           level: info
         podAnnotations:
@@ -758,13 +758,13 @@ enable remote deployment of helmreleases:
             image:
               pullPolicy: Always
               repository: groundnuty/k8s-wait-for
-              tag: v2.0
+              tag: v2.0@sha256:c14d7271e4013b24b34ef0d7144c4610577d0e9110ccc26b163fa28089fa1f4e
         extraEnvVars:
           - name: OPENFGA_EXPERIMENTALS
             value: enable-list-users
         image:
           repository: openfga/openfga
-          tag: ""
+          tag: '@sha256:8543200bf85878c968d73da46c4f0e31ba1f63ed3675b71122f1133b0e9d97eb'
         log:
           level: info
         podAnnotations:

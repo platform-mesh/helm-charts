@@ -164,7 +164,7 @@ A Helm chart for Kubernetes
 | keycloak.operator.health.startup.path | string | `"/keycloak/health"` |  |
 | keycloak.operator.hostname | string | `"https://portal.localhost:8443"` | Keycloak hostname (used in the Keycloak CR hostname.hostname field). Must not include a path — the operator auto-derives http-relative-path from any path component, which conflicts with the value baked into the image. |
 | keycloak.operator.image.repository | string | `"ghcr.io/platform-mesh/custom-images/keycloak"` | Keycloak image repository |
-| keycloak.operator.image.tag | string | `"latest"` | Keycloak image tag |
+| keycloak.operator.image.tag | string | `"latest@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"` | Keycloak image tag |
 | keycloak.operator.instances | int | `1` | Number of Keycloak instances |
 | keycloak.operator.resources.limits.cpu | string | `"2"` |  |
 | keycloak.operator.resources.limits.memory | string | `"2Gi"` |  |
