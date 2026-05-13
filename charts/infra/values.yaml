@@ -154,7 +154,7 @@ keycloak:
       # -- Keycloak image repository
       repository: ghcr.io/platform-mesh/custom-images/keycloak
       # -- Keycloak image tag
-      tag: "latest"
+      tag: "latest@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
     # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).
     # Must not include a path — the operator auto-derives http-relative-path from
     # any path component, which conflicts with the value baked into the image.
