@@ -76,7 +76,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
   runRuntimeKubectl([
     'wait',
     '--namespace',
-    'default',
+    'platform-mesh-system',
     '--for=condition=Ready',
     'helmreleases',
     '--timeout=120s',
@@ -86,7 +86,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
   runRuntimeKubectl([
     'wait',
     '--namespace',
-    'default',
+    'platform-mesh-system',
     '--for=condition=Ready',
     'helmreleases',
     '--timeout=120s',
