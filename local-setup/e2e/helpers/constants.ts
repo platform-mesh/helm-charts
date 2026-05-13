@@ -16,6 +16,8 @@ const keycloakAdminUser = process.env.KEYCLOAK_ADMIN_USER || 'keycloak-admin';
 const keycloakAdminPassword = process.env.KEYCLOAK_ADMIN_PASSWORD || 'admin';
 const repoRoot = path.resolve(process.cwd(), '..', '..');
 const adminKubeconfigPath = process.env.ADMIN_KUBECONFIG || path.join(repoRoot, '.secret/kcp/admin.kubeconfig');
+const runtimeKubeconfigPath = process.env.RUNTIME_KUBECONFIG || path.join(repoRoot, '.secret/platform-mesh.kubeconfig');
+const infraKubeconfigPath = process.env.INFRA_KUBECONFIG || path.join(repoRoot, '.secret/platform-mesh-infra.kubeconfig');
 const httpbinProviderManifestPath = path.join(repoRoot, 'local-setup', 'example-data', 'root', 'providers', 'httpbin-provider');
 const exampleDataOverlayPath = path.join(repoRoot, 'local-setup', 'kustomize', 'overlays', 'example-data');
 const exampleMarketplaceEntryName = process.env.EXAMPLE_MARKETPLACE_ENTRY_NAME || 'orchestrate.platform-mesh.io-orchestrate.platform-mesh.io';
@@ -62,6 +64,8 @@ export {
   keycloakAdminPassword,
   repoRoot,
   adminKubeconfigPath,
+  runtimeKubeconfigPath,
+  infraKubeconfigPath,
   httpbinProviderManifestPath,
   exampleDataOverlayPath,
   exampleMarketplaceEntryName,

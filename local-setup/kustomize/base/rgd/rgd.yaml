@@ -114,3 +114,4 @@ spec:
           extraArgs:
           - --kcp-front-proxy-port=8443
           - --subroutines-feature-toggles-enabled=true
+          - --no-json=true

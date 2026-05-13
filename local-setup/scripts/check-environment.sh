@@ -47,6 +47,17 @@ check_kind_cluster() {
     return 1  # Return 1 to indicate cluster doesn't exist
 }
 
+check_kind_infra_cluster() {
+    # Check if kind cluster is already running
+    if kind get clusters 2>/dev/null | grep -qx 'platform-mesh-infra'; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] Kind infra cluster already running, using existing ${COL_RES}"
+        kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
+        return 0  # Return 0 to indicate cluster exists
+    fi
+    return 1  # Return 1 to indicate cluster doesn't exist
+}
+
+
 check_kind_dependency() {
     if ! command -v kind &> /dev/null; then
         echo -e "${RED}❌ Error: 'kind' (Kubernetes in Docker) is not installed${COL_RES}"
@@ -296,6 +307,7 @@ run_environment_checks() {
 # Export functions so they can be used by the main script
 export -f detect_container_runtime
 export -f check_kind_cluster
+export -f check_kind_infra_cluster
 export -f check_kind_dependency
 export -f check_kubectl_dependency
 export -f check_docker_dependency

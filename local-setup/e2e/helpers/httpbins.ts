@@ -1,8 +1,10 @@
 import { expect, Locator, Page } from '@playwright/test';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 
-import { defaultHttpBinName, exampleDataOverlayPath, httpbinProviderManifestPath, newOrgName, testAccountName, testNamespaceHttpBinName, testNamespaceName } from './constants';
+import { defaultHttpBinName, exampleDataOverlayPath, httpbinProviderManifestPath, infraKubeconfigPath, newOrgName, testAccountName, testNamespaceHttpBinName, testNamespaceName } from './constants';
 import { logStep, portalOrgUrl } from './log';
-import { runAdminKubectl, runRuntimeKubectl } from './runtime';
+import { runAdminKubectl, runInfraKubectl, runRuntimeKubectl } from './runtime';
 
 async function clickRobust(locator: Locator): Promise<void> {
   try {
@@ -44,6 +46,35 @@ async function closeDialogIfVisible(dialog: Locator): Promise<void> {
   await dialog.waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {});
 }
 
+function isArgoCD(): boolean {
+  if (!existsSync(infraKubeconfigPath)) {
+    return false;
+  }
+  try {
+    runInfraKubectl(['get', 'namespace', 'argocd']);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function waitForArgoApplication(name: string, namespace: string, timeoutSeconds: number): void {
+  const deadline = Date.now() + timeoutSeconds * 1000;
+  while (Date.now() < deadline) {
+    try {
+      const health = runInfraKubectl(['get', 'application', name, '-n', namespace, '-o', 'jsonpath={.status.health.status}']);
+      const sync = runInfraKubectl(['get', 'application', name, '-n', namespace, '-o', 'jsonpath={.status.sync.status}']);
+      if (health === 'Healthy' && sync === 'Synced') {
+        return;
+      }
+    } catch {
+      // resource may not exist yet
+    }
+    execFileSync('sleep', ['2']);
+  }
+  throw new Error(`Timed out waiting for ArgoCD Application ${namespace}/${name} to become Healthy and Synced`);
+}
+
 function ensureExampleHttpbinProviderWorkspace(): void {
   runRuntimeKubectl(['apply', '-k', exampleDataOverlayPath]);
 
@@ -73,25 +104,30 @@ function ensureExampleHttpbinProviderWorkspace(): void {
     'https://localhost:8443/clusters/root:providers:httpbin-provider',
   ]);
 
-  runRuntimeKubectl([
-    'wait',
-    '--namespace',
-    'default',
-    '--for=condition=Ready',
-    'helmreleases',
-    '--timeout=120s',
-    'api-syncagent',
-  ]);
+  if (isArgoCD()) {
+    waitForArgoApplication('api-syncagent', 'argocd', 120);
+    waitForArgoApplication('example-httpbin-provider', 'argocd', 120);
+  } else {
+    runRuntimeKubectl([
+      'wait',
+      '--namespace',
+      'default',
+      '--for=condition=Ready',
+      'helmreleases',
+      '--timeout=120s',
+      'api-syncagent',
+    ]);
 
-  runRuntimeKubectl([
-    'wait',
-    '--namespace',
-    'default',
-    '--for=condition=Ready',
-    'helmreleases',
-    '--timeout=120s',
-    'example-httpbin-provider',
-  ]);
+    runRuntimeKubectl([
+      'wait',
+      '--namespace',
+      'default',
+      '--for=condition=Ready',
+      'helmreleases',
+      '--timeout=120s',
+      'example-httpbin-provider',
+    ]);
+  }
 }
 
 function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: string): void {

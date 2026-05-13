@@ -3,6 +3,7 @@ bin/*
 .idea
 .secret
 .debug
+local-setup/platform-mesh-cluster-secret.yml
 .claude
 oci/
 *.webm

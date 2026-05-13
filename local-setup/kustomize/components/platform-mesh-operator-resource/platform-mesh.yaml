@@ -24,6 +24,8 @@ spec:
           enabled: true
         log:
           noJson: true
+        kcp:
+          apiExportEndpointSliceName: "core.platform-mesh.io"
     keycloak:
       enabled: true
       values:
@@ -65,7 +67,7 @@ spec:
           shards: []
           frontProxy:
             clusterIP: "10.96.0.100"
-            port: 8443
+            port: 6443
         traefik:
           accessControlAllowOriginList:
           - "http://localhost:4200"
@@ -144,6 +146,20 @@ spec:
     openfga:
       suspend: true
       enabled: true
+      imageResources:
+      - name: openfga-image
+        annotations:
+          repo: oci
+          artifact: image
+          for: openfga
+      - name: openfga-postgresql-image
+        resource: postgresql-image
+        annotations:
+          repo: oci
+          artifact: image
+          for: openfga
+          path: postgresql.image.tag
+          unsuspend: "true"
       values:
         datastore:
           uri: "postgres://postgres:password@openfga-postgres.platform-mesh-system.svc.cluster.local:5432/postgres?sslmode=disable"
@@ -158,7 +174,9 @@ spec:
         hostAliases:
           enabled: true
     iam-service:
+      enabled: true
       values:
+        caSecret: domain-certificate-ca
         extraArgs:
         - --no-json
         cors:
@@ -186,4 +204,4 @@ spec:
     virtual-workspaces:
       values:
         deployment:
-          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443
+          serverUrl: https://frontproxy-front-proxy.platform-mesh-system:6443

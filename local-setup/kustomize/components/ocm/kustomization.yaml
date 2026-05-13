@@ -4,3 +4,4 @@ resources:
   - ocm-signing-public-cert.yaml
   - repository.yaml
   - component.yaml
+  - ocm-resolver-config.yaml
