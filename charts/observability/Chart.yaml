@@ -2,11 +2,11 @@ apiVersion: v2
 name: observability
 description: OpenTelemetry-based observability stack for platform-mesh
 type: application
-version: 0.3.0
+version: 0.3.1
 appVersion: "0.0.0"
 dependencies:
   - name: prometheus-operator-crds
-    version: 19.1.0
+    version: 28.0.1
     repository: https://prometheus-community.github.io/helm-charts
   - name: opentelemetry-operator
     version: 0.112.0
