@@ -175,7 +175,7 @@ else
   kubectl apply -k "$SCRIPT_DIR/../kustomize/overlays/default"
 fi
 
-kubectl wait --namespace default \
+kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready PlatformMeshOperator \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
 kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
@@ -244,11 +244,11 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
-  kubectl wait --namespace default \
+  kubectl wait --namespace platform-mesh-system \
     --for=condition=Ready helmreleases \
     --timeout=$KUBECTL_WAIT_TIMEOUT api-syncagent
 
-  kubectl wait --namespace default \
+  kubectl wait --namespace platform-mesh-system \
     --for=condition=Ready helmreleases \
     --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
 
