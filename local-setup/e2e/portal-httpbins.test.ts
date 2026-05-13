@@ -27,8 +27,8 @@ test.describe('Portal HTTPBins', () => {
 
     await ensureAccountExists(page);
     await ensureNamespaceExists(page, testNamespaceName);
-    await ensureHttpBinExists(page, 'platform-mesh-system', defaultHttpBinName);
-    await assertHttpBinLinkWorks(page, 'platform-mesh-system', defaultHttpBinName);
+    await ensureHttpBinExists(page, 'default', defaultHttpBinName);
+    await assertHttpBinLinkWorks(page, 'default', defaultHttpBinName);
     await ensureHttpBinExists(page, testNamespaceName, testNamespaceHttpBinName);
     await selectNamespaceScope(page, testNamespaceName);
     logStep('test:httpbins:done');
