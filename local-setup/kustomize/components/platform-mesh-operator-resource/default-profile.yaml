@@ -160,20 +160,25 @@ data:
                 serviceAccount:
                   enabled: true
               frontProxy:
-                clusterIP: "10.96.0.100"
+                clusterIP: 10.96.0.100
                 port: 8443
               image:
-                tag: "v0.31.0"
+                tag: v0.31.0
+              rootShard:
+                extraArgs:
+                - --feature-gates=WorkspaceAuthentication=true
               shards: []
+              webhook:
+                enabled: true
             traefik:
               accessControlAllowOriginList:
-              - "http://localhost:4200"
-              - "http://localhost:4300"
-              - "http://*.localhost:4200"
-              - "http://*.localhost:4300"
-              - "http://sub.localhost:4300"
-              - "https://portal.localhost:8443"
-              - "https://*.portal.localhost:8443"
+              - http://localhost:4200
+              - http://localhost:4300
+              - http://*.localhost:4200
+              - http://*.localhost:4300
+              - http://sub.localhost:4300
+              - https://portal.localhost:8443
+              - https://*.portal.localhost:8443
         iam-ui:
           enabled: true
           syncWave: 4
@@ -423,12 +428,10 @@ data:
             crdGatewayApiUrl: 'https://${org-subdomain}{{ .baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql'
             environment: kind
             extraEnvVars:
-            - name: DEFAULT_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-              value: 'https://${org-subdomain}{{ .baseDomainPort }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql'
             - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
               value: https://${org-subdomain}portal.localhost:8443/iam/graphql
             - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-              value: "https://${org-subdomain}portal.localhost:8443/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql"
+              value: https://${org-subdomain}portal.localhost:8443/gateway/api/clusters/root:orgs:${org-name}/graphql
             - name: NODE_EXTRA_CA_CERTS
               value: /etc/ssl/certs/domain-ca.crt
             extraVolumes:
@@ -446,7 +449,6 @@ data:
               httpRoute:
                 parentRefs:
                 - name: k8sapi-gateway
-                  sectionName: websecure
                   kind: Gateway
             hostAliases:
               enabled: true
@@ -555,4 +557,58 @@ data:
               serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443
               resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
               resourceSchemaWorkspace: "root:platform-mesh-system"
+        marketplace-ui:
+          enabled: true
+          imageResources:
+          - annotations:
+              repo: oci
+              artifact: image
+              for: marketplace-ui
+          values:
+            gatewayApi:
+              enabled: true
+            istio:
+              enabled: false
+        terminal-controller-manager:
+          enabled: false
+          imageResources:
+          - annotations:
+              repo: oci
+              artifact: image
+              for: terminal-controller-manager
+          - name: terminal-image
+            annotations:
+              path: terminal.image.tag
+              for: terminal-controller-manager
+              repo: oci
+              artifact: image
+            resource: terminal-image
+            referencePath:
+            - name: terminal-controller-manager
+          values:
+            kcp:
+              kubeconfigSecret: terminal-controller-manager-kubeconfig
+        observability:
+          syncWave: 4
+          enabled: false
+          targetNamespace: observability
+          values:
+            opentelemetry-operator:
+              manager:
+                collectorImage:
+                  repository: otel/opentelemetry-collector-contrib
+            prometheus:
+              server:
+                persistentVolume:
+                  enabled: false
+                extraFlags:
+                - web.enable-remote-write-receiver
+              alertmanager:
+                enabled: false
+              prometheus-node-exporter:
+                enabled: false
+              prometheus-pushgateway:
+                enabled: false
+              kube-state-metrics:
+                enabled: false
       targetNamespace: platform-mesh-system
