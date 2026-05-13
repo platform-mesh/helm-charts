@@ -98,7 +98,7 @@ OpenTelemetry-based observability stack for platform-mesh
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry-operator | 0.110.0 |
+| https://open-telemetry.github.io/opentelemetry-helm-charts | opentelemetry-operator | 0.112.0 |
 | https://prometheus-community.github.io/helm-charts | prometheus | 29.6.0 |
 | https://prometheus-community.github.io/helm-charts | prometheus-operator-crds | 19.1.0 |
 
