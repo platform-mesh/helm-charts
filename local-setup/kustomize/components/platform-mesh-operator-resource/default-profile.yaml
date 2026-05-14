@@ -148,13 +148,42 @@ data:
         infra:
           enabled: true
           imageResources: [] # Disable kcp-image OCM Resource to allow custom kcp.image.tag
+          dependsOn:
+          - name: keycloak-operator
+            namespace: platform-mesh-system
+          - name: cnpg-operator
+            namespace: platform-mesh-system
           values:
+            cnpg:
+              enabled: true
             cors:
               enabled: true
             gatewayApi:
               enabled: true
             hostAliases:
               enabled: true
+            keycloak:
+              operator:
+                hostname: https://portal.localhost:8443/keycloak/
+                enabled: true
+                health:
+                  port: 9000
+                  periodSeconds: 10
+                  liveness:
+                    path: /keycloak/health/live
+                    failureThreshold: 3
+                  readiness:
+                    path: /keycloak/health/ready
+                    initialDelaySeconds: 0
+                    periodSeconds: 10
+                  startup:
+                    path: /keycloak/health
+                    failureThreshold: 600
+              service:
+                name: keycloak-service
+                port: 8080
+              keycloakConfig:
+                url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
             kcp:
               auth:
                 serviceAccount:
@@ -236,69 +265,20 @@ data:
           enabled: true
           helmRepo: true
           targetNamespace: kcp-operator
-        keycloak:
-          syncWave: 2
-          external: true
+        keycloak-operator:
           enabled: true
-          suspend: true
-          imageResources:
-          - name: keycloak-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: keycloak
-          - name: keycloak-postgresql-image
-            resource: postgresql-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: keycloak
-              path: postgresql.image.tag
-              unsuspend: "true"
+          external: true
+          absoluteReferencePath:
+            - name: keycloak-operator
+            - name: chart
           values:
-            auth:
-              adminUser: keycloak-admin
-              existingSecret: keycloak-admin
-              passwordSecretKey: secret
-            extraEnvVars:
-            - name: JAVA_OPTS_APPEND
-              value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
-            - name: KC_PROXY_HEADERS
-              value: xforwarded
-            - name: KC_HOSTNAME_STRICT
-              value: "false"
-            global:
-              security:
-                allowInsecureImages: true
-            httpRelativePath: /keycloak/
-            image:
-              registry: ghcr.io/platform-mesh
-              repository: upstream-images/keycloak
-            postgresql:
-              auth:
-                existingSecret: ""
-                secretKeys:
-                  adminPasswordKey: password
-                  userPasswordKey: password
-                username: keycloak
-              image:
-                registry: ghcr.io/platform-mesh
-                repository: upstream-images/postgresql
-                tag: 17.6.0-debian-12-r4
-              nameOverride: postgresql-keycloak
-              primary:
-                resourcesPreset: none
-            resources:
-              limits:
-                cpu: "2"
-                ephemeral-storage: 2Gi
-                memory: 2Gi
-              requests:
-                cpu: 750m
-                ephemeral-storage: 50Mi
-                memory: 1Gi
-            service:
-              clusterIP: 10.96.0.110
+            watchNamespaces: platform-mesh-system
+        cnpg-operator:
+          enabled: true
+          external: true
+          targetNamespace: platform-mesh-system
+          absoluteReferencePath:
+          - name: cnpg-operator
         kubernetes-graphql-gateway:
           imageResources:
           - annotations:

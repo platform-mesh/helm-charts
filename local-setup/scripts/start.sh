@@ -23,9 +23,10 @@ CACHED=false
 EXAMPLE_DATA=false
 CONCURRENT=false
 SHARDED=false
+ITERATE=false
 
 usage() {
-  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--sharded] [--help]"
+  echo "Usage: $0 [--prerelease] [--cached] [--example-data] [--concurrent] [--sharded] [--iterate] [--help]"
   echo ""
   echo "Options:"
   echo "  --prerelease    Deploy with locally built OCM components instead of released versions"
@@ -33,6 +34,7 @@ usage() {
   echo "  --example-data  Install with example provider data (requires kubectl-kcp plugin)"
   echo "  --concurrent    Run prerelease chart builds in parallel instead of sequentially"
   echo "  --sharded       Deploy additional kcp shards"
+  echo "  --iterate       Skip infrastructure setup; rebuild and reapply the OCM component only (requires --prerelease)"
   echo "  --help          Show this help message"
   exit 1
 }
@@ -44,6 +46,7 @@ while [ $# -gt 0 ]; do
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
+    --iterate) ITERATE=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -51,8 +54,14 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# Export CONCURRENT for prerelease build scripts
+# Export CONCURRENT and ITERATE for prerelease build scripts
 export CONCURRENT
+export ITERATE
+
+if [ "$ITERATE" = true ] && [ "$PRERELEASE" = false ]; then
+  echo -e "${RED}--iterate requires --prerelease${COL_RES}" >&2
+  exit 1
+fi
 
 # Source compatibility and environment checks
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
@@ -60,110 +69,114 @@ source "$SCRIPT_DIR/check-environment.sh"
 source "$SCRIPT_DIR/setup-registry-proxies.sh"
 source "$SCRIPT_DIR/setup-prerelease.sh"
 
-# Run WSL compatibility checks
-check_wsl_compatibility
+if [ "$ITERATE" = true ]; then
+  kind export kubeconfig -n platform-mesh
+else
 
-# Run environment checks
-run_environment_checks
+  # Run WSL compatibility checks
+  check_wsl_compatibility
 
-# Start registry proxies if using cached mode
-if [ "$CACHED" = true ]; then
-    setup_registry_proxies
-fi
+  # Run environment checks
+  run_environment_checks
 
-# Check if kind cluster is already running, if not create it
-if ! check_kind_cluster; then
-    if [ -d "$SCRIPT_DIR/certs" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
-        rm -rf "$SCRIPT_DIR/certs"
-    fi
-    $SCRIPT_DIR/../scripts/gen-certs.sh
+  # Start registry proxies if using cached mode
+  if [ "$CACHED" = true ]; then
+      setup_registry_proxies
+  fi
 
-    KIND_QUIET_FLAG="--quiet"
-    if [ "$DEBUG" = "true" ]; then
-        KIND_QUIET_FLAG=""
-    fi
+  # Check if kind cluster is already running, if not create it
+  if ! check_kind_cluster; then
+      if [ -d "$SCRIPT_DIR/certs" ]; then
+          echo -e "${COL}[$(date '+%H:%M:%S')] Clearing existing certs directory ${COL_RES}"
+          rm -rf "$SCRIPT_DIR/certs"
+      fi
+      $SCRIPT_DIR/../scripts/gen-certs.sh
 
-    if [ "$CACHED" = true ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached images ${COL_RES}"
+      KIND_QUIET_FLAG="--quiet"
+      if [ "$DEBUG" = "true" ]; then
+          KIND_QUIET_FLAG=""
+      fi
 
-        # Create temporary kind config with absolute path for containerd certs
-        TEMP_KIND_CONFIG=$(mktemp)
-        CERTS_DIR=$(cd "$SCRIPT_DIR/../kind/containerd-certs.d" && pwd)
-        sed "s|./containerd-certs.d|${CERTS_DIR}|" "$SCRIPT_DIR/../kind/kind-config-cached.yaml" > "$TEMP_KIND_CONFIG"
+      if [ "$CACHED" = true ]; then
+          echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster with cached images ${COL_RES}"
 
-        kind create cluster --config "$TEMP_KIND_CONFIG" --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
-        rm -f "$TEMP_KIND_CONFIG"
-    else
-        echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
-        kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
-    fi
-fi
+          # Create temporary kind config with absolute path for containerd certs
+          TEMP_KIND_CONFIG=$(mktemp)
+          CERTS_DIR=$(cd "$SCRIPT_DIR/../kind/containerd-certs.d" && pwd)
+          sed "s|./containerd-certs.d|${CERTS_DIR}|" "$SCRIPT_DIR/../kind/kind-config-cached.yaml" > "$TEMP_KIND_CONFIG"
 
-mkdir -p $SCRIPT_DIR/certs
-$MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
-cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
+          kind create cluster --config "$TEMP_KIND_CONFIG" --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
+          rm -f "$TEMP_KIND_CONFIG"
+      else
+          echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${COL_RES}"
+          kind create cluster --config $SCRIPT_DIR/../kind/kind-config.yaml --name platform-mesh --image=$KINDEST_VERSION $KIND_QUIET_FLAG
+      fi
+  fi
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
-helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-  --version 2.17.2 \
-  --set imageAutomationController.create=false \
-  --set imageReflectionController.create=false \
-  --set notificationController.create=false \
-  --set-json 'helmController.container.additionalArgs=["--concurrent=50"]' \
-  --set-json 'sourceController.container.additionalArgs=["--requeue-dependency=5s"]' > /dev/null 2>&1
+  mkdir -p $SCRIPT_DIR/certs
+  $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
+  cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 
-kubectl wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
-kubectl wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
-kubectl wait --namespace flux-system \
-  --for=condition=available deployment \
-  --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
+  echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
+  helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+    --version 2.17.2 \
+    --set imageAutomationController.create=false \
+    --set imageReflectionController.create=false \
+    --set notificationController.create=false \
+    --set-json 'helmController.container.additionalArgs=["--concurrent=50"]' \
+    --set-json 'sourceController.container.additionalArgs=["--requeue-dependency=5s"]' > /dev/null 2>&1
 
-# Run post-flux hook if it exists (Flux is ready at this point)
-if [ -f "$SCRIPT_DIR/post-flux-hook.sh" ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Running post-flux hook ${COL_RES}"
-    source "$SCRIPT_DIR/post-flux-hook.sh"
-fi
+  kubectl wait --namespace flux-system \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
+  kubectl wait --namespace flux-system \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
+  kubectl wait --namespace flux-system \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/base
+  # Run post-flux hook if it exists (Flux is ready at this point)
+  if [ -f "$SCRIPT_DIR/post-flux-hook.sh" ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Running post-flux hook ${COL_RES}"
+      source "$SCRIPT_DIR/post-flux-hook.sh"
+  fi
 
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT kro
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/base
 
-kubectl wait --namespace default \
-  --for=condition=Ready helmreleases \
-  --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT kro
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
-#kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl apply -f -
-kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl apply -f -
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
 
-kubectl create secret generic domain-certificate -n default \
-  --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
-  --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
-  --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
-  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
+  echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 
-kubectl create secret generic domain-certificate -n platform-mesh-system \
-  --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
-  --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
-  --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
-  --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
+  kubectl create secret generic domain-certificate -n default \
+    --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
+    --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
+    --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
+    --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
 
-kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
-  --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
+  kubectl create secret generic domain-certificate -n platform-mesh-system \
+    --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
+    --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
+    --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
+    --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
-kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
-kubectl wait --namespace default \
-  --for=condition=Ready resourcegraphdefinition \
-  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+  kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
+    --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl apply -f -
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
+  kubectl wait --namespace default \
+    --for=condition=Ready resourcegraphdefinition \
+    --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+
+fi # end of infrastructure setup (skipped when --iterate)
 
 # kind load image-archive image.tar --name platform-mesh
 # kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.41.9 --name platform-mesh
