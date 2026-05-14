@@ -276,7 +276,7 @@ data:
         cnpg-operator:
           enabled: true
           external: true
-          targetNamespace: cnpg-system
+          targetNamespace: platform-mesh-system
           absoluteReferencePath:
           - name: cnpg-operator
         kubernetes-graphql-gateway:
