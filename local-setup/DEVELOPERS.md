@@ -40,8 +40,12 @@ task local-setup:cached:prerelease:concurrent:iterate
 
 This is the recommended approach for iterative development as it:
 - Skips cluster deletion and recreation
-- Reuses existing OCM infrastructure
-- Only rebuilds and redeploys the changed components
+- Skips environment checks, certificate generation, and Flux installation
+- Skips all OCM infrastructure setup (OCI registry, transfer pod)
+- Only rebuilds the OCM component from local charts and reapplies it
+- Reconfigures the transfer pod CA trust if certificates changed
+
+The `--iterate` flag requires `--prerelease` — it has no effect on released-version setups since there is nothing to rebuild.
 
 ## Iterating on Chart Changes
 
@@ -74,3 +78,13 @@ task ocm:build ocm:apply  # Build and deploy prerelease component
 ```sh
 task ocm:cleanup       # Remove transfer pod and temp files
 ```
+
+## Infrastructure Architecture
+
+The local setup deploys the following key infrastructure components:
+
+- **CloudNativePG (CNPG)**: Manages a shared PostgreSQL cluster used by both Keycloak and OpenFGA. Replaces individual embedded PostgreSQL instances with a single operator-managed cluster that handles backups, failover, and database provisioning.
+- **Keycloak Operator**: Deploys Keycloak as a Custom Resource instead of a traditional Helm release. The operator manages the Keycloak lifecycle including upgrades and configuration reconciliation.
+- **Observability stack**: OpenTelemetry collector for traces and metrics aggregation.
+
+These components are declared as external components in the Platform Mesh profile (`default-profile.yaml`) and are resolved during OCM component builds.
