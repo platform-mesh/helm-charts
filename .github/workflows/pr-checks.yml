@@ -73,7 +73,7 @@ jobs:
       matrix:
         chart: ${{ fromJson(needs.detect-changes.outputs.charts) }}
       fail-fast: false
-    uses: platform-mesh/.github/.github/workflows/job-test-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-test-chart.yml@8276a58f5cab10d5f1e7b0344fda349ecb4486bd
     with:
       chartsFolder: charts
       chartName: ${{ matrix.chart }}
@@ -91,7 +91,7 @@ jobs:
       matrix:
         chart: ${{ fromJson(needs.detect-changes.outputs.charts) }}
       fail-fast: false
-    uses: platform-mesh/.github/.github/workflows/job-check-helm-chart-docs.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-check-helm-chart-docs.yml@8276a58f5cab10d5f1e7b0344fda349ecb4486bd
     with:
       chartFolder: charts/${{ matrix.chart }}
     secrets: inherit
