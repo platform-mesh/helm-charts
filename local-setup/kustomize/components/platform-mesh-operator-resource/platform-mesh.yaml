@@ -161,4 +161,10 @@ spec:
       values:
         deployment:
           serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443
+    observability:
+      syncWave: 4
+      enabled: true
+      targetNamespace: observability
+      # absoluteReferencePath:
+      # - name: observability
   kcp: {}

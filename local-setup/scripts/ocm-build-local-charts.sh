@@ -33,6 +33,7 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "security-operator:charts/security-operator"
     "terminal-controller-manager:charts/terminal-controller-manager"
     "virtual-workspaces:charts/virtual-workspaces"
+    "observability:charts/observability"
 )
 
 # Color output (respect NO_COLOR env var)
