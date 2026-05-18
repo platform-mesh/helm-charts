@@ -56,7 +56,7 @@ jobs:
   # ──────────────────────────────────────────────
   release:
     if: github.ref == format('refs/heads/{0}', inputs.release_branch)
-    uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@8276a58f5cab10d5f1e7b0344fda349ecb4486bd
     secrets: inherit
     with:
       updateVersion: false
@@ -68,7 +68,7 @@ jobs:
   ocm:
     if: ${{ !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
     needs: [release]
-    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@8276a58f5cab10d5f1e7b0344fda349ecb4486bd
     secrets: inherit
     with:
       chartPath: ${{ inputs.chartFolder }}/${{ inputs.chartName }}
@@ -81,5 +81,5 @@ jobs:
   pm-ocm:
     if: ${{ !inputs.chartOnly && !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
     needs: [ocm]
-    uses: platform-mesh/.github/.github/workflows/job-ocm-version-update.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-ocm-version-update.yml@8276a58f5cab10d5f1e7b0344fda349ecb4486bd
     secrets: inherit
