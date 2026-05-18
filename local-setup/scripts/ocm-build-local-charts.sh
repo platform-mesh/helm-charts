@@ -25,10 +25,9 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "iam-service:charts/iam-service"
     "iam-ui:charts/iam-ui"
     "infra:charts/infra"
+    "keycloak-operator:charts/keycloak-operator"
     "kubernetes-graphql-gateway:charts/kubernetes-graphql-gateway"
-platform-mesh-operator:charts/platform-mesh-operator
-    "platform-mesh-operator-components:charts/platform-mesh-operator-components"
-    "platform-mesh-operator-infra-components:charts/platform-mesh-operator-infra-components"
+    "platform-mesh-operator:charts/platform-mesh-operator"
     "portal:charts/portal"
     "rebac-authz-webhook:charts/rebac-authz-webhook"
     "security-operator:charts/security-operator"
