@@ -1,8 +1,7 @@
 name: pipeline-chart
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 on:
   workflow_call:
@@ -56,8 +55,11 @@ jobs:
   # ──────────────────────────────────────────────
   release:
     if: github.ref == format('refs/heads/{0}', inputs.release_branch)
-    uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit
+    permissions:
+      contents: write
+      packages: write
     with:
       updateVersion: false
       pushTags: ${{ inputs.pushTags }}
@@ -68,8 +70,11 @@ jobs:
   ocm:
     if: ${{ !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
     needs: [release]
-    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit
+    permissions:
+      contents: read
+      packages: write
     with:
       chartPath: ${{ inputs.chartFolder }}/${{ inputs.chartName }}
       componentName: ${{ inputs.chartOnly && format('github.com/platform-mesh/helm-charts/{0}', inputs.chartName) || format('github.com/platform-mesh/{0}', inputs.chartName) }}
@@ -81,5 +86,5 @@ jobs:
   pm-ocm:
     if: ${{ !inputs.chartOnly && !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
     needs: [ocm]
-    uses: platform-mesh/.github/.github/workflows/job-ocm-version-update.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-ocm-version-update.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit

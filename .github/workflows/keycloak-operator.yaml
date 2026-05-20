@@ -1,7 +1,3 @@
-permissions:
-  contents: write
-  packages: write
-
 name: Build keycloak-operator Workflow
 on:
   push:
@@ -11,6 +7,9 @@ on:
       - 'charts/keycloak-operator/**'
       - '.github/workflows/keycloak-operator.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
+
+permissions:
+  contents: read
 
 jobs:
   verify-crds:
@@ -30,6 +29,9 @@ jobs:
       group: keycloak-operator-${{ github.ref }}
       cancel-in-progress: true
     uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
     with:
       chartFolder: charts
       chartName: keycloak-operator

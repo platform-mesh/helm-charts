@@ -10,8 +10,7 @@ on:
       - 'rgd/platform-mesh-operator-rgd.yaml'
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 jobs:
   pipeline:
@@ -19,6 +18,9 @@ jobs:
       group: platform-mesh-operator-${{ github.ref }}
       cancel-in-progress: true
     uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
     with:
       chartFolder: charts
       chartName: platform-mesh-operator
