@@ -32,13 +32,11 @@ spec:
           {{- include "common.commonOperatorArgs" . | indent 8 }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
           {{- if .Values.remoteRuntime.enabled }}
-          - --remote-runtime-enabled=true
           - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
           - --remote-runtime-infra-secret-name={{ .Values.remoteRuntime.infra.secretName }}
           - --remote-runtime-infra-secret-key={{ .Values.remoteRuntime.infra.secretKey }}
           {{- end }}
           {{- if .Values.remoteInfra.enabled }}
-          - --remote-infra-enabled
           - --remote-infra-kubeconfig=/etc/infra/kubeconfig
           {{- end }}
           {{- if .Values.idp.registrationAllowed }}
