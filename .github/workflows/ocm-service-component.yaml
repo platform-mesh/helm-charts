@@ -29,12 +29,14 @@ on:
         default: "constructor/service-component.yaml"
 
 permissions:
-  packages: write
   contents: read
 
 jobs:
   service-component:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Check out the repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -111,5 +113,5 @@ jobs:
 
   trigger-aggregator:
     needs: service-component
-    uses: platform-mesh/ocm/.github/workflows/ocm.yaml@main
+    uses: ./.github/workflows/ocm.yaml
     secrets: inherit
