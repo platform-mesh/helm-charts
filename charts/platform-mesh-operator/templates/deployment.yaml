@@ -68,14 +68,18 @@ spec:
       - name: external-infra-deployment
         secret:
           secretName: {{ .Values.remoteInfra.secretName }}
-          secretKey: {{ .Values.remoteInfra.secretKey }}
+          items:
+          - key: {{ .Values.remoteInfra.secretKey }}
+            path: kubeconfig
           defaultMode: 420
       {{- end }}
       {{- if .Values.remoteRuntime.enabled }}
       - name: external-platformmesh-deployment
         secret:
           secretName: {{ .Values.remoteRuntime.secretName }}
-          secretKey: {{ .Values.remoteRuntime.secretKey }}
+          items:
+          - key: {{ .Values.remoteRuntime.secretKey }}
+            path: kubeconfig
           defaultMode: 420
       {{- end }}
       {{- end }}
