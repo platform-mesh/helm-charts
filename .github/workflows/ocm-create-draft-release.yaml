@@ -9,8 +9,7 @@ on:
         type: string
 
 permissions:
-  contents: write
-  packages: read
+  contents: read
 
 concurrency:
   group: draft-release-${{ github.ref }}
@@ -20,6 +19,9 @@ jobs:
   create-draft-release:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write
+      packages: read
     steps:
       - name: Validate version format
         run: |
