@@ -122,14 +122,8 @@ tests:
   asserts:
     - matchSnapshot: {}
     - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-infra-enabled")]
-        value: "--remote-infra-enabled"
-    - equal:
         path: spec.template.spec.containers[0].args[?(@=="--remote-infra-kubeconfig=/etc/infra/kubeconfig")]
         value: "--remote-infra-kubeconfig=/etc/infra/kubeconfig"
-    - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-enabled=true")]
-        value: "--remote-runtime-enabled=true"
     - equal:
         path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig")]
         value: "--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig"
@@ -151,9 +145,6 @@ tests:
       infra:
         secretName: "kubeconfig-platformmesh"
   asserts:
-    - equal:
-        path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-enabled=true")]
-        value: "--remote-runtime-enabled=true"
     - equal:
         path: spec.template.spec.containers[0].args[?(@=="--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig")]
         value: "--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig"
