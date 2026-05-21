@@ -81,6 +81,9 @@ jobs:
       CERT_MANAGER_VERSION: "v1.20.1"
       CNPG_OPERATOR_CHART_VERSION: "0.28.0"
       CNPG_OPERATOR_IMAGE_VERSION: "1.29.0"
+      PROMETHEUS_OPERATOR_CRDS_VERSION: "28.0.1"
+      KUBE_PROMETHEUS_STACK_VERSION: "27.0.0"
+      OPENTELEMETRY_OPERATOR_VERSION: "0.110.0"
     steps:
       - name: Setup yq@latest
         run: |
@@ -309,6 +312,9 @@ jobs:
             CURRENT_TRAEFIK=$(yq eval '.component.componentReferences[] | select(.name == "traefik") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_CERT_MANAGER=$(yq eval '.component.componentReferences[] | select(.name == "cert-manager") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_CNPG_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "cnpg-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PROMETHEUS_OPERATOR_CRDS=$(yq eval '.component.componentReferences[] | select(.name == "prometheus-operator-crds") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KUBE_PROMETHEUS_STACK=$(yq eval '.component.componentReferences[] | select(.name == "kube-prometheus-stack") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_OPENTELEMETRY_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "opentelemetry-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
           else
             # No existing component, so we need to create one
             echo "No existing platform-mesh component found, creating initial version"
@@ -471,6 +477,21 @@ jobs:
             NEEDS_UPDATE=true
           fi
 
+          if [ "$CURRENT_PROMETHEUS_OPERATOR_CRDS" != "${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }}" ]; then
+            echo "Prometheus Operator CRDs: $CURRENT_PROMETHEUS_OPERATOR_CRDS -> ${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_KUBE_PROMETHEUS_STACK" != "${{ env.KUBE_PROMETHEUS_STACK_VERSION }}" ]; then
+            echo "Kube Prometheus Stack: $CURRENT_KUBE_PROMETHEUS_STACK -> ${{ env.KUBE_PROMETHEUS_STACK_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_OPENTELEMETRY_OPERATOR" != "${{ env.OPENTELEMETRY_OPERATOR_VERSION }}" ]; then
+            echo "OpenTelemetry Operator: $CURRENT_OPENTELEMETRY_OPERATOR -> ${{ env.OPENTELEMETRY_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
           if [ "$NEEDS_UPDATE" = "true" ]; then
             echo "Component dependencies have changed, creating new version"
             echo "Previous platform-mesh version: ${{ env.CURRENT_PM_VERSION }}"
@@ -536,7 +557,10 @@ jobs:
             KEYCLOAK_OPERATOR_VERSION=${{ env.KEYCLOAK_OPERATOR_VERSION }} \
             OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }} \
             CNPG_OPERATOR_CHART_VERSION=${{ env.CNPG_OPERATOR_CHART_VERSION }} \
-            CNPG_OPERATOR_IMAGE_VERSION=${{ env.CNPG_OPERATOR_IMAGE_VERSION }}
+            CNPG_OPERATOR_IMAGE_VERSION=${{ env.CNPG_OPERATOR_IMAGE_VERSION }} \
+            PROMETHEUS_OPERATOR_CRDS_VERSION=${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }} \
+            KUBE_PROMETHEUS_STACK_VERSION=${{ env.KUBE_PROMETHEUS_STACK_VERSION }} \
+            OPENTELEMETRY_OPERATOR_VERSION=${{ env.OPENTELEMETRY_OPERATOR_VERSION }}
 
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
