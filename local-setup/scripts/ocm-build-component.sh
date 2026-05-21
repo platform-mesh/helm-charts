@@ -24,7 +24,7 @@ REMOTE_REGISTRY="${REMOTE_REGISTRY:-ghcr.io/platform-mesh}"
 LOCAL_REGISTRY="${LOCAL_REGISTRY:-oci-registry-docker-registry.registry.svc.cluster.local}"
 
 # List of local component names (for version resolution)
-CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,kubernetes-graphql-gateway,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
+CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,keycloak-operator,kubernetes-graphql-gateway,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
 
 # Fixed version overrides (empty by default)
 FIXED_VERSION_PAIRS=""
@@ -148,6 +148,7 @@ resolve_component_versions() {
     get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
     get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
     get_component_version keycloak github.com/platform-mesh/keycloak "../helm-charts/keycloak/" KEYCLOAK_VERSION
+    get_component_version keycloak-operator github.com/platform-mesh/keycloak-operator charts/keycloak-operator KEYCLOAK_OPERATOR_VERSION
     get_component_version platform-mesh-operator-components github.com/platform-mesh/platform-mesh-operator-components charts/platform-mesh-operator-components PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
     get_component_version platform-mesh-operator-infra-components github.com/platform-mesh/platform-mesh-operator-infra-components charts/platform-mesh-operator-infra-components PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION
     get_component_version iam-service github.com/platform-mesh/iam-service charts/iam-service IAM_SERVICE_VERSION
@@ -155,6 +156,7 @@ resolve_component_versions() {
     get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui charts/marketplace-ui MARKETPLACE_UI_VERSION
     get_component_version example-httpbin-operator github.com/platform-mesh/example-httpbin-operator charts/example-httpbin-operator EXAMPLE_HTTPBIN_OPERATOR_VERSION
     get_component_version terminal-controller-manager github.com/platform-mesh/terminal-controller-manager charts/terminal-controller-manager TERMINAL_CONTROLLER_MANAGER_VERSION
+    get_component_version observability github.com/platform-mesh/observability charts/observability OBSERVABILITY_VERSION
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Resolving third-party component versions...${COL_RES}"
 
@@ -162,6 +164,9 @@ resolve_component_versions() {
     export GARDENER_ETCD_DRUID_VERSION=$(get_external_component_version github.com/gardener/etcd-druid europe-docker.pkg.dev/gardener-project/releases)
     export ISTIO_VERSION=$(get_ocm_resource_version "github.com/istio/istio/base" '.items[0].element["version"]')
     export OPENFGA_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[0].element["version"]')
+    export CNPG_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[0].element["version"]')
+    export CNPG_OPERATOR_CHART_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[] | select(.element.name == "chart") | .element.version')
+    export CNPG_OPERATOR_IMAGE_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[] | select(.element.type == "ociImage") | .element.version')
     export KCP_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[0].element["version"]')
     export KCP_IMAGE_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[] | select(.element.type == "ociImage") | .element.version' | sed 's/^0\.0\.0-//')
     export GATEWAY_API_VERSION=$(get_ocm_resource_version "github.com/kubernetes-sigs/gateway-api" '.items[0].element["version"]')
@@ -219,6 +224,7 @@ build_final_component() {
         PORTAL_VERSION="$PORTAL_VERSION" \
         KEYCLOAK_VERSION="$KEYCLOAK_VERSION" \
         PM_KEYCLOAK_VERSION="$KEYCLOAK_VERSION" \
+        KEYCLOAK_OPERATOR_VERSION="$KEYCLOAK_OPERATOR_VERSION" \
         VIRTUAL_WORKSPACES_VERSION="$VIRTUAL_WORKSPACES_VERSION" \
         PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION="$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION" \
         EXAMPLE_HTTPBIN_OPERATOR_VERSION="$EXAMPLE_HTTPBIN_OPERATOR_VERSION" \
@@ -240,7 +246,11 @@ build_final_component() {
         TRAEFIK_IMAGE_VERSION="$TRAEFIK_IMAGE_VERSION" \
         OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
         OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
-        TERMINAL_CONTROLLER_MANAGER_VERSION="$TERMINAL_CONTROLLER_MANAGER_VERSION"
+        CNPG_OPERATOR_VERSION="$CNPG_OPERATOR_VERSION" \
+        CNPG_OPERATOR_CHART_VERSION="$CNPG_OPERATOR_CHART_VERSION" \
+        CNPG_OPERATOR_IMAGE_VERSION="$CNPG_OPERATOR_IMAGE_VERSION" \
+        TERMINAL_CONTROLLER_MANAGER_VERSION="$TERMINAL_CONTROLLER_MANAGER_VERSION" \
+        OBSERVABILITY_VERSION="$OBSERVABILITY_VERSION"
 
     echo ""
     echo -e "${COL}[$(date '+%H:%M:%S')] Built prerelease component version $COMPONENT_PRERELEASE_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)${COL_RES}"

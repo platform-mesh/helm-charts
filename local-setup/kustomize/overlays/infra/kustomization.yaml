@@ -2,7 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - resources.yaml
+  - ../../components/platform-mesh-operator
+  - rbac.yaml
   - ../../components/ocm
 
 patches:
@@ -30,3 +31,22 @@ patches:
       - op: add
         path: /metadata/namespace
         value: platform-mesh-system
+  - target:
+      kind: PlatformMeshOperator
+      name: platform-mesh-operator
+    patch: |
+      - op: add
+        path: /spec/remoteRuntimeEnabled
+        value: "true"
+      - op: add
+        path: /spec/remoteRuntimeSecretName
+        value: platform-mesh-kubeconfig
+      - op: add
+        path: /spec/remoteRuntimeSecretKey
+        value: kubeconfig
+      - op: add
+        path: /spec/kcpUrl
+        value: https://root.kcp.localhost:8443
+      - op: add
+        path: /spec/runtimeClusterIp
+        value: ${RUNTIME_CLUSTER_IP}

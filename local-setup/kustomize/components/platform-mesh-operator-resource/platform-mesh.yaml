@@ -7,6 +7,7 @@ spec:
   exposure:
     port: 8443
     baseDomain: "portal.localhost"
+    protocol: "https"
   ocm:
     repo:
       name: platform-mesh
@@ -26,35 +27,6 @@ spec:
           noJson: true
         kcp:
           apiExportEndpointSliceName: "core.platform-mesh.io"
-    keycloak:
-      enabled: true
-      values:
-        service:
-          clusterIP: 10.96.0.110
-        resources:
-          limits:
-            cpu: "2"
-            ephemeral-storage: 2Gi
-            memory: 2Gi
-          requests:
-            cpu: 750m
-            ephemeral-storage: 50Mi
-            memory: 1Gi
-      suspend: true
-      imageResources:
-        - name: keycloak-image
-          annotations:
-            repo: oci
-            artifact: image
-            for: keycloak
-        - name: keycloak-postgresql-image
-          resource: postgresql-image
-          annotations:
-            repo: oci
-            artifact: image
-            for: keycloak
-            path: postgresql.image.tag
-            unsuspend: "true"
     infra:
       imageResources: [] # Disable kcp-image OCM Resource to allow custom kcp.image.tag
       values:

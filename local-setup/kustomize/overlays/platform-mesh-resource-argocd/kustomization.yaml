@@ -3,4 +3,9 @@ kind: Kustomization
 
 resources:
   - ../../components/platform-mesh-operator-resource
-  - default-profile.yaml
+
+patches:
+  - target:
+      kind: ConfigMap
+      name: platform-mesh-profile
+    path: default-profile.yaml

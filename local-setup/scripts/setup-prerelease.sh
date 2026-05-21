@@ -58,13 +58,28 @@ build_prerelease_component() {
   "$SCRIPT_DIR/ocm-build-component.sh"
 }
 
+# Reconfigure CA trust on an already-running transfer pod (used during iterate)
+reconfigure_transfer_pod_ca() {
+  echo -e "${COL}[$(date '+%H:%M:%S')] Reconfiguring CA on existing OCM transfer pod ${COL_RES}"
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- mkdir -p .ocm
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM > $SCRIPT_DIR/registry-ca.pem
+  kubectl cp $SCRIPT_DIR/registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo update-ca-certificates
+}
+
 # Run the full prerelease setup workflow
 run_prerelease_setup() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Using PRERELEASE OCM Component ${COL_RES}"
 
-  # Deploy OCM infrastructure
-  deploy_oci_registry
-  deploy_transfer_pod
+  # Deploy OCM infrastructure (skip on iterate — registry and transfer pod already exist)
+  if [ "${ITERATE:-false}" = "true" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Skipping OCI registry and transfer pod deployment (--iterate) ${COL_RES}"
+    reconfigure_transfer_pod_ca
+  else
+    deploy_oci_registry
+    deploy_transfer_pod
+  fi
   $SCRIPT_DIR/configureOcmTls.sh
 
   # Build prerelease component

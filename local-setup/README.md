@@ -1,7 +1,7 @@
 # Platform Mesh - Local Development Setup
 
 For this setup we create a functional local platform-mesh environment using Kind (Kubernetes in Docker).
-Is leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh components.
+It leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh components.
 
 ## Prerequisites
 
@@ -211,11 +211,15 @@ task local-setup
 
 **Concurrent builds (--concurrent flag):** When using the `--concurrent` flag together with `--prerelease`, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
 
+**Sharded kcp (--sharded flag):** When using the `--sharded` flag, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally.
+
+**Iterate mode (--iterate flag):** When using `--iterate` together with `--prerelease`, the setup skips cluster creation and infrastructure deployment entirely. It only rebuilds the OCM component from local charts and reapplies it to the existing cluster. This provides the fastest feedback loop during chart development.
+
 **Task Naming Convention:**
 
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `cached`, `prerelease`, `example-data`, `concurrent`
+- Available flags: `cached`, `prerelease`, `example-data`, `concurrent`, `sharded`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
@@ -248,7 +252,7 @@ The `scripts/start.sh` script performs the following operations:
 
 2. **Cluster Management**
    - Creates Kind cluster named `platform-mesh` (if not exists)
-   - Uses Kubernetes v1.35.0 (`kindest/node:v1.35.0`)
+   - Uses Kubernetes v1.35.1 (`kindest/node:v1.35.1`)
    - Configures cluster with custom networking for local development
 
 3. **Certificate Generation**
@@ -260,12 +264,16 @@ The `scripts/start.sh` script performs the following operations:
    - Installs Flux for GitOps workflow management
    - Deploys Cert-Manager for SSL certificate management
    - Sets up OCM (Open Component Model) controller
+   - Deploys CloudNativePG (CNPG) operator for managed PostgreSQL
+   - Deploys Keycloak Operator for identity management
 
 5. **Platform Mesh Deployment**
    - Applies base Kustomize configurations
-   - Creates necessary secrets (Keycloak, Grafana, certificates)
+   - Creates necessary secrets (certificates, Grafana, etc.)
    - Deploys Platform Mesh operator and components
-   - Installs supporting services (Keycloak, RBAC webhook, etc.)
+   - CNPG provisions a shared PostgreSQL cluster for Keycloak and OpenFGA
+   - Keycloak Operator deploys a Keycloak instance via Custom Resource
+   - Installs supporting services (RBAC webhook, observability, etc.)
 
 6. **Post-Installation Setup**
    - Creates kcp admin kubeconfig for workspace access
@@ -477,6 +485,11 @@ npx playwright test test-register-and-navigate.test.ts
 - `scripts/check-wsl-compatibility.sh`: WSL2 compatibility checks
 - `scripts/gen-certs.sh`: SSL certificate generation
 - `scripts/createKcpAdminKubeconfig.sh`: kcp workspace access setup
+- `scripts/setup-prerelease.sh`: Prerelease OCM component build and deployment
+- `scripts/setup-registry-proxies.sh`: Docker registry mirror configuration
+- `scripts/ocm-build-component.sh`: OCM component descriptor assembly
+- `scripts/ocm-build-local-charts.sh`: Local chart packaging for prerelease builds
+- `scripts/check-backend-resources.sh`: Post-setup resource readiness checks
 
 ### Configuration
 

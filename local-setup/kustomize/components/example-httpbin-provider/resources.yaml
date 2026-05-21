@@ -5,7 +5,7 @@ metadata:
     artifact: chart
     repo: oci
   name: example-httpbin-provider-chart
-  namespace: default
+  namespace: platform-mesh-system
 spec:
   componentRef:
     name: platform-mesh
@@ -13,7 +13,7 @@ spec:
   - apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     name: platform-mesh
-    namespace: default
+    namespace: platform-mesh-system
     policy: Propagate
   resource:
     byReference:
@@ -30,7 +30,7 @@ metadata:
     artifact: image
     for: example-httpbin-provider
   name: example-httpbin-provider-image
-  namespace: default
+  namespace: platform-mesh-system
 spec:
   componentRef:
     name: platform-mesh
@@ -38,7 +38,7 @@ spec:
   - apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     name: platform-mesh
-    namespace: default
+    namespace: platform-mesh-system
     policy: Propagate
   resource:
     byReference:
@@ -55,7 +55,7 @@ metadata:
     artifact: chart
     repo: helm
   name: api-syncagent
-  namespace: default
+  namespace: platform-mesh-system
 spec:
   componentRef:
     name: platform-mesh
@@ -63,7 +63,7 @@ spec:
   - apiVersion: delivery.ocm.software/v1alpha1
     kind: Repository
     name: platform-mesh
-    namespace: default
+    namespace: platform-mesh-system
     policy: Propagate
   resource:
     byReference:

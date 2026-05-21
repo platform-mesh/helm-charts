@@ -9,6 +9,11 @@ spec:
     spec:
       imageReferencePath: "[]map[string]string | required=false"
       chartReferencePath: "[]map[string]string | required=false"
+      remoteRuntimeEnabled: "string | required=false"
+      remoteRuntimeSecretName: "string | required=false"
+      remoteRuntimeSecretKey: "string | required=false"
+      kcpUrl: "string | required=false"
+      runtimeClusterIp: "string | required=false"
   resources:
   - id: resourceChart
     readyWhen:
@@ -28,7 +33,7 @@ spec:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
           name: platform-mesh
-          namespace: default
+          namespace: platform-mesh-system
           policy: Propagate
         resource:
           byReference:
@@ -57,7 +62,7 @@ spec:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
           name: platform-mesh
-          namespace: default
+          namespace: platform-mesh-system
           policy: Propagate
         resource:
           byReference:
@@ -102,7 +107,7 @@ spec:
         chartRef:
           kind: OCIRepository
           name: ${ocirepository.metadata.name}
-          namespace: default
+          namespace: platform-mesh-system
         values:
           log:
             noJson: true
@@ -112,6 +117,28 @@ spec:
             registrationAllowed: true
             values:
           extraArgs:
-          - --kcp-front-proxy-port=8443
+          - --kcp-front-proxy-port=6443
+          - '--kcp-url=${has(schema.spec.kcpUrl) && schema.spec.kcpUrl != "" ? schema.spec.kcpUrl : "https://frontproxy-front-proxy.platform-mesh-system:6443"}'
           - --subroutines-feature-toggles-enabled=true
           - --no-json=true
+          - '${has(schema.spec.remoteRuntimeEnabled) && schema.spec.remoteRuntimeEnabled == "true" ? "--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig" : "--no-json=true"}'
+          - '${has(schema.spec.remoteRuntimeEnabled) && schema.spec.remoteRuntimeEnabled == "true" ? "--remote-runtime-infra-secret-name=" + (has(schema.spec.remoteRuntimeSecretName) && schema.spec.remoteRuntimeSecretName != "" ? schema.spec.remoteRuntimeSecretName : "platform-mesh-kubeconfig") : "--no-json=true"}'
+          - '${has(schema.spec.remoteRuntimeEnabled) && schema.spec.remoteRuntimeEnabled == "true" ? "--remote-runtime-infra-secret-key=" + (has(schema.spec.remoteRuntimeSecretKey) && schema.spec.remoteRuntimeSecretKey != "" ? schema.spec.remoteRuntimeSecretKey : "kubeconfig") : "--no-json=true"}'
+          extraVolumes:
+          - name: external-platformmesh-deployment
+            secret:
+              secretName: '${has(schema.spec.remoteRuntimeSecretName) && schema.spec.remoteRuntimeSecretName != "" ? schema.spec.remoteRuntimeSecretName : "platform-mesh-kubeconfig"}'
+              optional: true
+              defaultMode: 420
+          extraVolumeMounts:
+          - name: external-platformmesh-deployment
+            mountPath: /etc/platformmesh
+            readOnly: true
+          hostAliases:
+            enabled: '${has(schema.spec.runtimeClusterIp) && schema.spec.runtimeClusterIp != ""}'
+            entries:
+            - ip: '${has(schema.spec.runtimeClusterIp) ? schema.spec.runtimeClusterIp : ""}'
+              hostnames:
+              - portal.localhost
+              - localhost
+              - root.kcp.localhost

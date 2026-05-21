@@ -1,4 +1,8 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-mesh-profile
+  namespace: platform-mesh-system
 data:
   profile.yaml: |
     components:
@@ -114,12 +118,66 @@ data:
             - /status
             - /metadata/finalizers
             - /spec/serviceTemplate/spec/ports
+          - group: operator.kcp.io
+            kind: RootShard
+            jsonPointers:
+            - /status
+            - /metadata/finalizers
+          - group: operator.kcp.io
+            kind: Shard
+            jsonPointers:
+            - /status
+            - /metadata/finalizers
+          - group: operator.kcp.io
+            kind: Kubeconfig
+            jsonPointers:
+            - /status
+            - /metadata/finalizers
+          - group: druid.gardener.cloud
+            kind: Etcd
+            jsonPointers:
+            - /status
+            - /metadata/finalizers
+            - /spec/backup
+            - /spec/replicas
+            - /spec/annotations
+            - /spec/labels
+          - group: k8s.keycloak.org
+            kind: Keycloak
+            jsonPointers:
+            - /status
+            - /spec/hostname/adminUrl
+          - group: postgresql.cnpg.io
+            kind: Cluster
+            jsonPointers:
+            - /status
+            - /spec/bootstrap
+            - /spec/primaryUpdateStrategy
+          - group: postgresql.cnpg.io
+            kind: Database
+            jsonPointers:
+            - /status
+          - group: cert-manager.io
+            kind: Certificate
+            jsonPointers:
+            - /status
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            jsonPointers:
+            - /status
+            - /spec/addresses
           syncWave: 4
           dependsOn:
           - name: kcp-operator
             namespace: platform-mesh-system
+          - name: keycloak-operator
+            namespace: platform-mesh-system
+          - name: cnpg-operator
+            namespace: platform-mesh-system
           enabled: true
           values:
+            cnpg:
+              enabled: true
             cors:
               enabled: true
             gatewayApi:
@@ -130,7 +188,7 @@ data:
               enabled: false
             kcp:
               frontProxy:
-                port: 6443
+                port: 8443
               rootShard:
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true
@@ -139,10 +197,27 @@ data:
               external:
                 hostname: localhost
             keycloak:
-              istio:
-                virtualservice:
-                  hosts:
-                  - portal.localhost
+              operator:
+                hostname: https://portal.localhost:8443/keycloak/
+                enabled: true
+                health:
+                  port: 9000
+                  periodSeconds: 10
+                  liveness:
+                    path: /keycloak/health/live
+                    failureThreshold: 3
+                  readiness:
+                    path: /keycloak/health/ready
+                    initialDelaySeconds: 0
+                    periodSeconds: 10
+                  startup:
+                    path: /keycloak/health
+                    failureThreshold: 600
+              service:
+                name: keycloak-service
+                port: 8080
+              keycloakConfig:
+                url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
             traefik:
               accessControlAllowOriginList:
               - http://localhost:4200
@@ -188,54 +263,26 @@ data:
               - ip: "10.96.188.4"
                 hostnames:
                 - "localhost"
-        keycloak:
-          syncWave: 2
+        keycloak-operator:
           enabled: true
           external: true
+          absoluteReferencePath:
+            - name: keycloak-operator
+            - name: chart
           values:
-            auth:
-              adminUser: keycloak-admin
-              existingSecret: keycloak-admin
-              passwordSecretKey: secret
-            extraEnvVars:
-            - name: JAVA_OPTS_APPEND
-              value: -Djgroups.dns.query=keycloak-headless.platform-mesh-system.svc.cluster.local
-            - name: KC_PROXY_HEADERS
-              value: xforwarded
-            - name: KC_HOSTNAME_STRICT
-              value: "false"
-            global:
-              imagePullSecrets:
-              - name: github
-              security:
-                allowInsecureImages: true
-            httpRelativePath: /keycloak/
-            image:
-              registry: ghcr.io/platform-mesh
-              repository: upstream-images/keycloak
-            postgresql:
-              auth:
-                existingSecret: ""
-                secretKeys:
-                  userPasswordKey: password
-                  adminPasswordKey: password
-                username: keycloak
-              image:
-                registry: ghcr.io/platform-mesh
-                repository: upstream-images/postgresql
-                tag: 17.6.0-debian-12-r4
-              nameOverride: postgresql-keycloak
-              primary:
-                resourcesPreset: none
-            resources:
-              limits:
-                cpu: "2"
-                ephemeral-storage: 2Gi
-                memory: 2Gi
-              requests:
-                cpu: 750m
-                ephemeral-storage: 50Mi
-                memory: 1Gi
+            watchNamespaces: platform-mesh-system
+        cnpg-operator:
+          enabled: true
+          external: true
+          helmRepo: true
+          chart: cloudnative-pg
+          targetNamespace: platform-mesh-system
+          syncOptions:
+          - CreateNamespace=true
+          - RespectIgnoreDifferences=true
+          - ServerSideApply=true
+          absoluteReferencePath:
+          - name: cnpg-operator
         kubernetes-graphql-gateway:
           # -- Allow the configuration of additional ocm resources
           imageResources:
