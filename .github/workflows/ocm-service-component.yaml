@@ -116,4 +116,5 @@ jobs:
     uses: ./.github/workflows/ocm.yaml
     secrets: inherit
     permissions:
+      contents: read
       packages: write
