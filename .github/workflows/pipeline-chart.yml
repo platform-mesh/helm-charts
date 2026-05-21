@@ -51,10 +51,72 @@ on:
 
 jobs:
   # ──────────────────────────────────────────────
+  # Immutability guard: refuse to publish if the
+  # chart version or the OCM component version
+  # already exists in the registry. Force a
+  # Chart.yaml version bump for every change.
+  # ──────────────────────────────────────────────
+  verify-version:
+    if: github.ref == format('refs/heads/{0}', inputs.release_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Read chart version
+        id: read
+        run: |
+          VERSION=$(yq '.version' "${{ inputs.chartFolder }}/${{ inputs.chartName }}/Chart.yaml")
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "::error::Could not read .version from ${{ inputs.chartFolder }}/${{ inputs.chartName }}/Chart.yaml"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Chart version: $VERSION"
+      - name: Setup OCM CLI
+        run: |
+          set -euo pipefail
+          REPO=open-component-model/ocm
+          VERSION_REF="$(basename "$(curl -Ls -o /dev/null -w '%{url_effective}' "https://github.com/$REPO/releases/latest")")"
+          VERSION_NUM=${VERSION_REF#v}
+          curl -LsS -o ocm-cli.tgz \
+            "https://github.com/$REPO/releases/download/v${VERSION_NUM}/ocm-${VERSION_NUM}-linux-amd64.tar.gz"
+          tar --overwrite -xzf ocm-cli.tgz ocm
+          chmod +x ocm
+          ./ocm --version
+      - name: Verify OCM component version does not exist
+        env:
+          VERSION: ${{ steps.read.outputs.version }}
+          CHART_NAME: ${{ inputs.chartName }}
+          CHART_ONLY: ${{ inputs.chartOnly }}
+        run: |
+          set -euo pipefail
+
+          if [ "$CHART_ONLY" = "true" ]; then
+            COMPONENT_NAME="github.com/platform-mesh/helm-charts/${CHART_NAME}"
+          else
+            COMPONENT_NAME="github.com/platform-mesh/${CHART_NAME}"
+          fi
+
+          echo "Checking OCM component ${COMPONENT_NAME}:${VERSION} at ghcr.io/platform-mesh"
+          if ./ocm get cv \
+              "${COMPONENT_NAME}:${VERSION}" \
+              --repo ghcr.io/platform-mesh >/dev/null 2>&1; then
+            echo "::error::ERROR! OCM component ${COMPONENT_NAME}:${VERSION} already exists at ghcr.io/platform-mesh. We should not overwrite components for the same version. Bump .version in ${{ inputs.chartFolder }}/${CHART_NAME}/Chart.yaml before merging."
+            exit 1
+          fi
+          echo "OK: OCM component ${COMPONENT_NAME}:${VERSION} is new."
+
+  # ──────────────────────────────────────────────
   # Release jobs (main branch only)
   # ──────────────────────────────────────────────
   release:
     if: github.ref == format('refs/heads/{0}', inputs.release_branch)
+    needs: [verify-version]
     uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit
     permissions:
@@ -69,7 +131,7 @@ jobs:
 
   ocm:
     if: ${{ !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
-    needs: [release]
+    needs: [verify-version, release]
     uses: platform-mesh/.github/.github/workflows/job-ocm.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit
     permissions:
