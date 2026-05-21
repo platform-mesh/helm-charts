@@ -115,3 +115,5 @@ jobs:
     needs: service-component
     uses: ./.github/workflows/ocm.yaml
     secrets: inherit
+    permissions:
+      packages: write
