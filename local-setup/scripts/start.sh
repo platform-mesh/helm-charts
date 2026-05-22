@@ -13,8 +13,11 @@ RED='\033[91m'
 YELLOW='\033[93m'
 COL_RES='\033[0m'
 
-KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-1800s}"
+KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-3600s}"
 CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-docker}"
+
+# Helm requires an auth config file for OCI registries; create an empty one if absent.
+echo '{"auths":{}}' > /tmp/helm-no-auth.json
  KINDEST_VERSION="kindest/node:v1.35.1"
 
 SCRIPT_DIR=$(dirname "$0")
@@ -538,9 +541,40 @@ if [ "$REMOTE" = true ]; then
   kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/overlays/infra
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for Platform-Mesh Operator ${COL_RES}"
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace platform-mesh-system \
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait \
+    --namespace platform-mesh-system \
     --for=condition=Ready PlatformMeshOperator \
-    --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+    --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator || {
+    # OCM digest mismatch may have prevented kro from deploying pm-operator.
+    # Resolve chart/image via OCM CLI and deploy directly via FluxCD.
+    echo -e "${COL}[$(date '+%H:%M:%S')] OCM rescue: deploying pm-operator directly via FluxCD ${COL_RES}"
+    OCM_VER=$(kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig \
+      get component.delivery.ocm.software platform-mesh -n platform-mesh-system \
+      -o jsonpath='{.status.component.version}' 2>/dev/null || true)
+    [ -z "$OCM_VER" ] && OCM_VER=$(grep "semver:" "$SCRIPT_DIR/../kustomize/components/ocm/component.yaml" | awk '{print $2}')
+    PM_OP_CHART_OCI=$(./bin/ocm get resources --repo ghcr.io/platform-mesh \
+      "github.com/platform-mesh/platform-mesh:${OCM_VER}" chart --recursive -o yaml 2>/dev/null | \
+      awk '/helm-charts\/platform-mesh-operator:[0-9]/{found=1} found && /imageReference:/{print $2; exit}')
+    export PM_OP_IMAGE_TAG=$(./bin/ocm get resources --repo ghcr.io/platform-mesh \
+      "github.com/platform-mesh/platform-mesh:${OCM_VER}" image --recursive -o yaml 2>/dev/null | \
+      awk '/images\/platform-mesh-operator:/{found=1} found && /^  version:/{print $2; exit}')
+    if [ -z "$PM_OP_CHART_OCI" ] || [ -z "$PM_OP_IMAGE_TAG" ]; then
+      echo -e "\033[91m[$(date '+%H:%M:%S')] Could not resolve pm-operator chart/image via OCM CLI - aborting\033[0m"
+      exit 1
+    fi
+    export PM_OP_CHART_URL="oci://$(echo "$PM_OP_CHART_OCI" | cut -d: -f1)"
+    export PM_OP_CHART_TAG="$(echo "$PM_OP_CHART_OCI" | cut -d: -f2)"
+    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig delete \
+      platformmeshoperator platform-mesh-operator -n platform-mesh-system --wait=false 2>/dev/null || true
+    sleep 10
+    kubectl kustomize "$SCRIPT_DIR/../kustomize/components/platform-mesh-operator-fluxcd" | \
+      envsubst '${PM_OP_CHART_URL}${PM_OP_CHART_TAG}${PM_OP_IMAGE_TAG}${RUNTIME_CLUSTER_IP}' | \
+      kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
+    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait \
+      --namespace platform-mesh-system \
+      --for=condition=Ready helmrelease platform-mesh-operator \
+      --timeout=$KUBECTL_WAIT_TIMEOUT
+  }
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
   kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
@@ -572,31 +606,45 @@ if [ "$REMOTE" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Pre-installing cnpg-operator CRDs on runtime cluster ${COL_RES}"
     CNPG_ELAPSED=0
     CNPG_VERSION=""
-    while [ $CNPG_ELAPSED -lt 120 ]; do
-      CNPG_VERSION=$(kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig \
+    while [ $CNPG_ELAPSED -lt 300 ]; do
+      _raw=$(kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig \
         get application cnpg-operator -n platform-mesh-system \
         -o jsonpath='{.spec.source.targetRevision}' 2>/dev/null || echo "")
-      [ -n "$CNPG_VERSION" ] && break
+      # Only accept a real semver (x.y.z…); reject placeholder strings
+      if echo "$_raw" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]'; then
+        CNPG_VERSION="$_raw"
+        break
+      fi
       sleep 5
       CNPG_ELAPSED=$((CNPG_ELAPSED + 5))
     done
     CNPG_VERSION="${CNPG_VERSION:-0.28.0}"
-    HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade -i cnpg-operator \
+    # cert-manager's ValidatingWebhookConfiguration (failurePolicy=Fail) is registered before
+    # its pod starts; any resource creation during that window is rejected, blocking CNPG install.
+    kubectl --kubeconfig .secret/platform-mesh.kubeconfig \
+      wait deployment cert-manager-webhook -n platform-mesh-system \
+      --for=condition=Available --timeout=120s > /dev/null 2>&1 || true
+    _cnpg_install_err=$(HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade -i cnpg-operator \
       oci://ghcr.io/cloudnative-pg/charts/cloudnative-pg \
       --version "${CNPG_VERSION}" \
       --namespace platform-mesh-system \
       --create-namespace \
-      --kubeconfig .secret/platform-mesh.kubeconfig > /dev/null 2>&1 || true
+      --kubeconfig .secret/platform-mesh.kubeconfig 2>&1) || {
+      echo -e "${RED}[$(date '+%H:%M:%S')] CNPG pre-install failed, retrying: ${_cnpg_install_err} ${COL_RES}"
+      sleep 10
+      HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade -i cnpg-operator \
+        oci://ghcr.io/cloudnative-pg/charts/cloudnative-pg \
+        --version "${CNPG_VERSION}" \
+        --namespace platform-mesh-system \
+        --create-namespace \
+        --kubeconfig .secret/platform-mesh.kubeconfig > /dev/null 2>&1 || true
+    }
 
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig \
       wait deployment cnpg-operator-cloudnative-pg \
       -n platform-mesh-system \
       --for=condition=Available \
       --timeout=120s > /dev/null 2>&1 || true
-    echo -e "${COL}[$(date '+%H:%M:%S')] Triggering infra re-sync after cnpg-operator pre-install ${COL_RES}"
-    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig \
-      patch application infra -n platform-mesh-system \
-      --type=merge -p '{"operation":{"sync":{"revision":"HEAD"}}}' > /dev/null 2>&1 || true
   fi
 
 else
@@ -645,17 +693,55 @@ fi
 ###############################################################################
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
+# Rescue helper: patch *-chart OCM Resources on the RUNTIME cluster whose status is stuck in
+# digest mismatch (CI republishes chart components with the same version tag, invalidating digests
+# recorded in the parent component). The OCM k8s controller cannot bypass this check, but the OCI
+# URL is still valid — we derive it from the error message and inject it directly into the Resource
+# status so pm-operator can read it and create the deployment objects (HelmReleases / Applications).
+_rescue_chart_resources() {
+  local _kubeconfig="$1"
+  local _failing
+  _failing=$(kubectl --kubeconfig "$_kubeconfig" \
+    get resources.delivery.ocm.software -n platform-mesh-system -o json 2>/dev/null | \
+    jq -r '.items[] |
+      select(.metadata.name | endswith("-chart")) |
+      select(any(.status.conditions[]?; .type=="Ready" and .status=="False")) |
+      (.metadata.name | rtrimstr("-chart")) as $chart |
+      ((.status.conditions[] | select(.type=="Ready") | .message) | split(":")[1] | select(. != null and (test("^[0-9]") or test("^v[0-9]")))) as $ver |
+      .metadata.name + "|ghcr.io/platform-mesh/helm-charts/" + $chart + ":" + $ver' 2>/dev/null || true)
+  [ -z "$_failing" ] && return 0
+  echo -e "${COL}[$(date '+%H:%M:%S')] OCM digest mismatch on runtime cluster - patching chart Resource statuses ${COL_RES}"
+  kubectl --kubeconfig "$_kubeconfig" scale deployment \
+    -n ocm-system ocm-k8s-toolkit-controller-manager --replicas=0 2>/dev/null || true
+  sleep 5
+  while IFS='|' read -r _res _oci; do
+    [ -z "$_res" ] && continue
+    _ver="${_oci##*:}"
+    _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    kubectl --kubeconfig "$_kubeconfig" \
+      patch resource.delivery.ocm.software "$_res" -n platform-mesh-system \
+      --subresource=status --type=merge \
+      -p "{\"status\":{\"conditions\":[{\"lastTransitionTime\":\"${_ts}\",\"message\":\"Applied version ${_ver}\",\"reason\":\"Succeeded\",\"status\":\"True\",\"type\":\"Ready\",\"observedGeneration\":1}],\"observedGeneration\":1,\"resource\":{\"access\":{\"imageReference\":\"${_oci}\",\"type\":\"ociArtifact\"},\"name\":\"chart\",\"type\":\"helmChart\",\"version\":\"${_ver}\"}}}" 2>/dev/null || true
+    echo -e "${COL}[$(date '+%H:%M:%S')] Patched ${_res} → ${_oci} ${COL_RES}"
+  done <<< "$_failing"
+  sleep 60
+  kubectl --kubeconfig "$_kubeconfig" scale deployment \
+    -n ocm-system ocm-k8s-toolkit-controller-manager --replicas=1 2>/dev/null || true
+}
 if [ "$REMOTE" = true ] && [ "$DEPLOYMENT_TECH" = "fluxcd" ]; then
   # On fresh clusters, large images can exceed the 15m Helm install timeout, leaving HelmReleases
-  # in a Stalled/RetriesExceeded state that blocks pm-operator's WaitSubroutine. Poll with a
-  # shorter interval and rescue any stalled HelmReleases so pm-operator can proceed.
+  # in a Stalled/RetriesExceeded state that blocks pm-operator's WaitSubroutine. Also rescues
+  # OCM digest mismatch on the runtime cluster (CI republishes charts with the same version tag).
+  # Use real-time deadline so rescue's internal sleep doesn't silently consume the budget.
   total_timeout="${KUBECTL_WAIT_TIMEOUT%s}"
-  elapsed=0
-  check_interval=60
+  deadline=$(( $(date +%s) + total_timeout ))
   platformmesh_ready=false
-  while [ "$elapsed" -lt "$total_timeout" ]; do
+  while [ "$(date +%s)" -lt "$deadline" ]; do
+    remaining=$(( deadline - $(date +%s) ))
+    wait_secs=$(( remaining < 60 ? remaining : 60 ))
+    if [ "$wait_secs" -le 0 ]; then break; fi
     if kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
-        --for=condition=Ready platformmesh --timeout="${check_interval}s" platform-mesh 2>/dev/null; then
+        --for=condition=Ready platformmesh --timeout="${wait_secs}s" platform-mesh 2>/dev/null; then
       platformmesh_ready=true
       break
     fi
@@ -670,7 +756,28 @@ if [ "$REMOTE" = true ] && [ "$DEPLOYMENT_TECH" = "fluxcd" ]; then
           -p '{"spec":{"install":{"remediation":{"retries":-1}},"upgrade":{"remediation":{"retries":-1}}}}' 2>/dev/null || true
       done
     fi
-    elapsed=$((elapsed + check_interval))
+    _rescue_chart_resources .secret/platform-mesh.kubeconfig
+  done
+  if [ "$platformmesh_ready" != "true" ]; then
+    echo "error: timed out waiting for the condition on platformmeshes/platform-mesh"
+    exit 1
+  fi
+elif [ "$REMOTE" = true ] && [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+  # Poll while rescuing OCM *-chart Resources on the runtime cluster stuck in digest mismatch.
+  # Use real-time deadline so rescue's internal sleep doesn't silently consume the budget.
+  total_timeout="${KUBECTL_WAIT_TIMEOUT%s}"
+  deadline=$(( $(date +%s) + total_timeout ))
+  platformmesh_ready=false
+  while [ "$(date +%s)" -lt "$deadline" ]; do
+    remaining=$(( deadline - $(date +%s) ))
+    wait_secs=$(( remaining < 60 ? remaining : 60 ))
+    if [ "$wait_secs" -le 0 ]; then break; fi
+    if kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
+        --for=condition=Ready platformmesh --timeout="${wait_secs}s" platform-mesh 2>/dev/null; then
+      platformmesh_ready=true
+      break
+    fi
+    _rescue_chart_resources .secret/platform-mesh.kubeconfig
   done
   if [ "$platformmesh_ready" != "true" ]; then
     echo "error: timed out waiting for the condition on platformmeshes/platform-mesh"
@@ -746,13 +853,23 @@ fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Installing observability stack ${COL_RES}"
 helm dependency update "$SCRIPT_DIR/../../charts/observability" > /dev/null 2>&1
 kubectl create namespace observability --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
-helm upgrade --install observability "$SCRIPT_DIR/../../charts/observability" \
+_obs_err=$(helm upgrade --install observability "$SCRIPT_DIR/../../charts/observability" \
   "${RUNTIME_KC[@]}" -n observability \
   --set prometheus.server.persistentVolume.enabled=false \
-  --wait --timeout=5m > /dev/null 2>&1
+  --wait --timeout=10m 2>&1) || {
+  echo -e "${RED}[$(date '+%H:%M:%S')] Observability install failed, retrying: ${_obs_err} ${COL_RES}"
+  # The OTel operator registers its webhook before the pod is ready (failurePolicy=Fail).
+  # Wait for it to be Available before retrying so the post-install hook can succeed.
+  kubectl "${RUNTIME_KC[@]}" wait deployment observability-opentelemetry-operator \
+    -n observability --for=condition=Available --timeout=120s > /dev/null 2>&1 || true
+  helm upgrade --install observability "$SCRIPT_DIR/../../charts/observability" \
+    "${RUNTIME_KC[@]}" -n observability \
+    --set prometheus.server.persistentVolume.enabled=false \
+    --wait --timeout=10m > /dev/null 2>&1 || true
+}
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Verifying backend resources ${COL_RES}"
-"$SCRIPT_DIR/check-backend-resources.sh"
+WAIT_TIMEOUT=120s "$SCRIPT_DIR/check-backend-resources.sh"
 
 echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
 echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"

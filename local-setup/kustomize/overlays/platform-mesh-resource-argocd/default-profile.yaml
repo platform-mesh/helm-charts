@@ -274,8 +274,6 @@ data:
         cnpg-operator:
           enabled: true
           external: true
-          helmRepo: true
-          chart: cloudnative-pg
           targetNamespace: platform-mesh-system
           syncOptions:
           - CreateNamespace=true

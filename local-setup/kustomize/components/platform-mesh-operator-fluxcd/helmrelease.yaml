@@ -1,0 +1,47 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: platform-mesh-operator
+  namespace: platform-mesh-system
+spec:
+  releaseName: platform-mesh-operator
+  targetNamespace: platform-mesh-system
+  interval: 1m
+  timeout: 5m
+  chartRef:
+    kind: OCIRepository
+    name: platform-mesh-operator
+    namespace: platform-mesh-system
+  values:
+    log:
+      noJson: true
+    image:
+      tag: "${PM_OP_IMAGE_TAG}"
+    idp:
+      registrationAllowed: true
+    extraArgs:
+    - --kcp-front-proxy-port=6443
+    - --kcp-url=https://root.kcp.localhost:8443
+    - --subroutines-feature-toggles-enabled=true
+    - --no-json=true
+    - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
+    - --remote-runtime-infra-secret-name=platform-mesh-kubeconfig
+    - --remote-runtime-infra-secret-key=kubeconfig
+    extraVolumes:
+    - name: external-platformmesh-deployment
+      secret:
+        secretName: platform-mesh-kubeconfig
+        optional: true
+        defaultMode: 420
+    extraVolumeMounts:
+    - name: external-platformmesh-deployment
+      mountPath: /etc/platformmesh
+      readOnly: true
+    hostAliases:
+      enabled: true
+      entries:
+      - ip: "${RUNTIME_CLUSTER_IP}"
+        hostnames:
+        - portal.localhost
+        - localhost
+        - root.kcp.localhost
