@@ -9,8 +9,7 @@ on:
       - '.ocm/component-constructor-chart-only.yaml'
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 jobs:
   pipeline:
@@ -18,6 +17,9 @@ jobs:
       group: iam-service-${{ github.ref }}
       cancel-in-progress: true
     uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
     with:
       chartFolder: charts
       chartName: iam-service

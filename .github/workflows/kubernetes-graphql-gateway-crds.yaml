@@ -1,7 +1,3 @@
-permissions:
-  contents: write
-  packages: write
-
 name: Build kubernetes-graphql-gateway-crds Workflow
 on:
   push:
@@ -12,12 +8,18 @@ on:
       - '.github/workflows/kubernetes-graphql-gateway-crds.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   pipeline:
     concurrency:
       group: kubernetes-graphql-gateway-crds-${{ github.ref }}
       cancel-in-progress: true
     uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
     with:
       chartFolder: charts
       chartName: kubernetes-graphql-gateway-crds
