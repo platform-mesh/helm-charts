@@ -274,8 +274,8 @@ wait_for_deployment_resource() {
       sleep 2
       elapsed=$((elapsed + 2))
     done
-    echo "Warning: Application $resource_name did not become Healthy and Synced within timeout" >&2
-    return 1
+    echo -e "${RED}[$(date '+%H:%M:%S')] Timed out waiting for ArgoCD Application ${namespace}/${resource_name} to become Healthy and Synced${COL_RES}" >&2
+    exit 1
   fi
 }
 
@@ -283,33 +283,30 @@ wait_for_deployment_resource() {
 # Common initialization
 ###############################################################################
 
-check_wsl_compatibility
-run_environment_checks
-
-if [ "$CACHED" = true ]; then
-  setup_registry_proxies
-fi
-
 if [ "$REMOTE" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Using deployment technology: ${DEPLOYMENT_TECH} ${COL_RES}"
 fi
 
 if [ "$ITERATE" = true ]; then
-  kind export kubeconfig -n platform-mesh
+  kind export kubeconfig --name platform-mesh
   if [ "$REMOTE" = true ]; then
     kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
     kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
   fi
 else
 
+  check_wsl_compatibility
+  run_environment_checks
+
+  if [ "$CACHED" = true ]; then
+    setup_registry_proxies
+  fi
+
   ###############################################################################
   # Generate certificates
   ###############################################################################
 
   mkdir -p $SCRIPT_DIR/certs
-  if [ "$REMOTE" = true ]; then
-    MKCERT_CMD="bin/mkcert"
-  fi
   $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
   cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
 

@@ -468,47 +468,6 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
 
-  # Cached remote variants
-  local-setup:remote:cached:fluxcd:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--remote --cached --deployment-tech=fluxcd"}
-
-  local-setup:remote:cached:fluxcd:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--remote --cached --deployment-tech=fluxcd"}
-
-  local-setup:remote:cached:argocd:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--remote --cached --deployment-tech=argocd"}
-
-  local-setup:remote:cached:argocd:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--remote --cached --deployment-tech=argocd"}
-
-  local-setup:remote:cached:fluxcd:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--remote --cached --deployment-tech=fluxcd --example-data"}
-
-  local-setup:remote:cached:fluxcd:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--remote --cached --deployment-tech=fluxcd --example-data"}
-
-  local-setup:remote:cached:argocd:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--remote --cached --deployment-tech=argocd --example-data"}
-
-  local-setup:remote:cached:argocd:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--remote --cached --deployment-tech=argocd --example-data"}
-
   local-setup:cached:prerelease:concurrent:
     cmds:
       - task: local-setup
