@@ -100,17 +100,6 @@ spec:
                       type: object
                   type: object
                 type: array
-              uiOptions:
-                items:
-                  properties:
-                    name:
-                      type: string
-                    parameters:
-                      additionalProperties:
-                        type: string
-                      type: object
-                  type: object
-                type: array
               infraValues:
                 x-kubernetes-preserve-unknown-fields: true
               kcp:
