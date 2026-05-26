@@ -17,7 +17,6 @@ Helm Chart for the Platform Mesh Portal
 | developmentLandcsape | string | `"true"` | development landscape toggle |
 | environment | string | `"local"` | environment |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
-| uiOptions | string | `"enableFeatureToggleSetting"` |  |
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `true` | toggle to enable the Gateway API |
 | gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
@@ -36,6 +35,7 @@ Helm Chart for the Platform Mesh Portal
 | kcp.url | string | `""` | kcp API URL (e.g. https://localhost:8443 for local setup) |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
+| uiOptions | string | `"enableFeatureToggleSetting"` |  |
 | validWebcomponentUrls | string | `".?"` |  |
 | validation.path | string | `"/validate"` |  |
 | validation.port | int | `8088` |  |
