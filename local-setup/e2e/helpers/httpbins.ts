@@ -27,6 +27,13 @@ async function clickFirstVisible(page: Page, selectors: string[]): Promise<void>
   throw new Error(`None of the selectors were visible: ${selectors.join(', ')}`);
 }
 
+function createFieldLocator(page: Page, fieldName: string): Locator {
+  return page
+    .locator(`[test-id="create-field-${fieldName}"]`)
+    .or(page.locator(`[test-id="generic-form-field-${fieldName}"]`))
+    .first();
+}
+
 async function closeDialogIfVisible(dialog: Locator): Promise<void> {
   if (!await dialog.isVisible().catch(() => false)) {
     return;
@@ -160,10 +167,7 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
 
   await page.locator('[test-id="generic-list-view-create-button"]').click();
   await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-  await page
-    .locator('[test-id="generic-form-field-metadata_name"]')
-    .getByRole("textbox")
-    .fill(namespaceName);
+  await createFieldLocator(page, 'metadata_name').getByRole('textbox').fill(namespaceName);
   await page.locator('[test-id="create-resource-submit"]').click();
   const alreadyExistsAlert = page.getByText(`namespaces \"${namespaceName}\" already exists`);
   await Promise.race([
@@ -253,13 +257,8 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
       const createDialog = page.locator('[test-id="create-resource-dialog"]');
       await page.getByRole("button", { name: "Create" }).click();
       await createDialog.waitFor({ state: "visible", timeout: 10000 });
-      await page
-        .locator('[test-id="generic-form-field-metadata_name"]')
-        .getByRole("textbox")
-        .fill(httpBinName);
-      const namespaceInput = page.locator(
-        '[test-id="generic-form-field-metadata_namespace"]',
-      );
+      await createFieldLocator(page, 'metadata_name').getByRole('textbox').fill(httpBinName);
+      const namespaceInput = createFieldLocator(page, 'metadata_namespace');
       await namespaceInput.click();
 
       const namespaceOption = namespaceInput

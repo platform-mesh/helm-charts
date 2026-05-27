@@ -42,6 +42,13 @@ async function ensureListRowVisible(page: Page, row: Locator): Promise<void> {
   }
 }
 
+function createFieldLocator(page: Page, fieldName: string): Locator {
+  return page
+    .locator(`[test-id="create-field-${fieldName}"]`)
+    .or(page.locator(`[test-id="generic-form-field-${fieldName}"]`))
+    .first();
+}
+
 async function ensureAccountExists(page: Page): Promise<string> {
   logStep(`ensureAccountExists:start account=${testAccountName}`);
   await openAccountsView(page);
@@ -54,10 +61,10 @@ async function ensureAccountExists(page: Page): Promise<string> {
     logStep(`ensureAccountExists:create account=${testAccountName}`);
     await page.locator('[test-id="generic-list-view-create-button"]').click();
     await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-    await page.locator('[test-id="generic-form-field-metadata_name"]').click();
-    await page.locator('[test-id="generic-form-field-spec_type"]').click();
-    await page.locator('[test-id="generic-form-field-spec_type-option-account"]').click();
-    await page.locator('[test-id="generic-form-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
+    await createFieldLocator(page, 'metadata_name').click();
+    await createFieldLocator(page, 'spec_type').click();
+    await createFieldLocator(page, 'spec_type-option-account').click();
+    await createFieldLocator(page, 'metadata_name').getByRole('textbox').fill(testAccountName);
     const submitButton = page.locator('[test-id="create-resource-submit"]');
     const alreadyExistsAlert = page.getByText(`accounts.core.platform-mesh.io "${testAccountName}" already exists`);
     const transientWebhookAlert = page.getByText(/failed calling webhook|connection refused|Internal error occurred/i);
