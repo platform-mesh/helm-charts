@@ -17,7 +17,7 @@ metadata:
   namespace: default
 spec:
   releaseName: ocm-k8s-toolkit
-  interval: 1m
+  interval: 5m
   timeout: 15m
   targetNamespace: ocm-system
   chartRef:
@@ -26,4 +26,4 @@ spec:
   values:
     manager:
       concurrency:
-        resource: 21
+        resource: 6
