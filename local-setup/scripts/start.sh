@@ -198,23 +198,12 @@ if [ -f "$SCRIPT_DIR/platform-mesh-resource-hook.sh" ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Running platform-mesh-resource hook ${COL_RES}"
   source "$SCRIPT_DIR/platform-mesh-resource-hook.sh"
 elif [ "$PRERELEASE" = true ]; then
-  if [ "$EXAMPLE_DATA" = true ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
-    # TODO: Create example-data-prerelease overlay if needed
-    if [ "$SHARDED" = true ]; then
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
-    else
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
-    fi
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+  if [ "$SHARDED" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
   else
-    if [ "$SHARDED" = true ]; then
-      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
-    else
-      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
-    fi
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   fi
 else
   if [ "$SHARDED" = true ]; then
@@ -224,13 +213,6 @@ else
     echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
     kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
   fi
-  if [ "$EXAMPLE_DATA" = true ]; then
-    if [ "$SHARDED" = true ]; then
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
-    else
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-    fi
-  fi
 fi
 
 # wait for kind: PlatformMesh resource to become ready
@@ -238,6 +220,16 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to 
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
+
+# Apply example-data overlay after PlatformMesh is ready
+if [ "$EXAMPLE_DATA" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data overlay ${COL_RES}"
+  if [ "$SHARDED" = true ]; then
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
+  else
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+  fi
+fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing kcp Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
@@ -249,9 +241,15 @@ if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
 fi
 
 if [ "$EXAMPLE_DATA" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Creating workspaces ${COL_RES}"
 
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
+  echo -e "${COL}[$(date '+%H:%M:%S')] 'providers' workspace created ${COL_RES}"
+
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
+  echo -e "${COL}[$(date '+%H:%M:%S')] 'httpbin-provider' workspace created ${COL_RES}"
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Applying example data to workspaces ${COL_RES}"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="https://localhost:8443/clusters/root:orgs"
 
