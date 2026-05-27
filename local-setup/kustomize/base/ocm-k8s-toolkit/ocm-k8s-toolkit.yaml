@@ -26,4 +26,4 @@ spec:
   values:
     manager:
       concurrency:
-        resource: 6
+        resource: 3
