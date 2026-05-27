@@ -583,6 +583,7 @@ operator match the snapshot:
           - ""
         resources:
           - events
+          - pods
         verbs:
           - create
           - get
@@ -701,13 +702,20 @@ operator match the snapshot:
           - update
           - watch
       - apiGroups:
-          - ""
+          - providers.platform-mesh.io
         resources:
-          - pods
+          - managedproviders
+          - providers
+        verbs:
+          - '*'
+      - apiGroups:
+          - providers.platform-mesh.io
+        resources:
+          - managedproviders/status
         verbs:
           - get
-          - list
-          - delete
+          - patch
+          - update
   2: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding

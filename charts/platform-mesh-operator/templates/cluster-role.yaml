@@ -6,6 +6,7 @@ rules:
 - apiGroups: [ "" ]
   resources:
     - events
+    - pods
   verbs:
     - create
     - get
@@ -106,11 +107,16 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - ""
+- apiGroups: ["providers.platform-mesh.io"]
   resources:
-  - pods
+  - managedproviders
+  - providers
+  verbs:
+  - '*'
+- apiGroups: ["providers.platform-mesh.io"]
+  resources:
+  - managedproviders/status
   verbs:
   - get
-  - list
-  - delete
+  - patch
+  - update
