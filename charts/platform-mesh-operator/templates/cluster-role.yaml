@@ -5,12 +5,12 @@ metadata:
 rules:
 - apiGroups: [ "" ]
   resources:
-    - events
+  - events
   verbs:
-    - create
-    - get
-    - list
-    - watch
+  - create
+  - get
+  - list
+  - watch
 - apiGroups:
   - core.platform-mesh.io
   resources:
@@ -41,7 +41,7 @@ rules:
   resources: 
   - secrets
   - configmaps
-  verbs: 
+  verbs:
   - get
   - list
   - watch
@@ -51,7 +51,7 @@ rules:
   - patch
 - apiGroups: ["delivery.ocm.software"]
   resources:
-    - "*"
+  - '*'
   verbs:
     - get
     - list
@@ -62,7 +62,7 @@ rules:
     - patch
 - apiGroups: ["helm.toolkit.fluxcd.io"]
   resources:
-    - helmreleases
+  - helmreleases
   verbs:
     - get
     - list
@@ -73,16 +73,16 @@ rules:
     - patch
 - apiGroups: ["operator.kcp.io"]
   resources:
-    - rootshards
-    - frontproxies
+  - rootshards
+  - frontproxies
   verbs:
     - get
     - list
     - watch
 - apiGroups: ["cert-manager.io"]
   resources:
-    - certificates
-    - issuers
+  - certificates
+  - issuers
   verbs:
     - get
     - list
@@ -106,11 +106,16 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - ""
+- apiGroups: ["providers.platform-mesh.io"]
   resources:
-  - pods
+  - managedproviders
+  - providers
+  verbs:
+  - '*'
+- apiGroups: ["providers.platform-mesh.io"]
+  resources:
+  - managedproviders/status
   verbs:
   - get
-  - list
-  - delete
+  - patch
+  - update
