@@ -21,15 +21,3 @@ patches:
                   shards:
                     - name: nereus
                     - name: triton
-            portal:
-              values:
-                hostAliases:
-                  entries:
-                    - ip: "10.96.188.4"
-                      hostnames:
-                        - "localhost"
-                        - "portal.localhost"
-                        - "kcp.localhost"
-                        - "root.kcp.localhost"
-                        - "nereus.kcp.localhost"
-                        - "triton.kcp.localhost"
