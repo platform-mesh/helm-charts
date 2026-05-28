@@ -192,7 +192,7 @@ data:
                 clusterIP: 10.96.0.100
                 port: 8443
               image:
-                tag: "0.31.0"
+                tag: v0.31.0
               rootShard:
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true
