@@ -10,7 +10,7 @@ import { clickRobust } from './httpbins';
 import { logStep, portalOrgUrl } from './log';
 
 async function openAccountsView(page: Page): Promise<void> {
-  const createButton = page.locator('[test-id="generic-list-view-create-button"]');
+  const createButton = page.getByRole('button', { name: 'Create', exact: true });
   const heading = page.getByRole('heading', { name: 'Accounts', exact: true });
   const accountsUrl = portalOrgUrl('/home/accounts');
 
@@ -46,29 +46,74 @@ async function ensureAccountExists(page: Page): Promise<string> {
   logStep(`ensureAccountExists:start account=${testAccountName}`);
   await openAccountsView(page);
   const accountRow = page.getByRole('row').filter({ hasText: testAccountName }).first();
-  const createDialog = page.locator('[test-id="create-resource-dialog"]');
+  const createDialog = page.locator('ui5-dialog[open]').first();
 
   await ensureListRowVisible(page, accountRow);
 
   if (!await accountRow.isVisible().catch(() => false)) {
     logStep(`ensureAccountExists:create account=${testAccountName}`);
-    await page.locator('[test-id="generic-list-view-create-button"]').click();
+    await page.getByRole('button', { name: 'Create', exact: true }).click();
     await createDialog.waitFor({ state: 'visible', timeout: 10000 });
-    await page.locator('[test-id="generic-form-field-metadata_name"]').click();
-    await page.locator('[test-id="generic-form-field-spec_type"]').click();
-    await page.locator('[test-id="generic-form-field-spec_type-option-account"]').click();
-    await page.locator('[test-id="generic-form-field-metadata_name"]').getByRole('textbox').fill(testAccountName);
-    const submitButton = page.locator('[test-id="create-resource-submit"]');
+
+    const nameField = page.getByRole('textbox').first();
+    await nameField.fill(testAccountName);
+
+    // The account create form has a required ui5-select for "Type" with a single value "account".
+    // Save stays disabled until it is filled. The first ui5-select on the page is the pagination
+    // (value already "5"); the dialog's required Type select is the empty one.
+    const typeSelectInfo = await page.evaluate(() => {
+      function findRequiredEmptySelect(root: Document | ShadowRoot): { x: number; y: number } | null {
+        const elements = root.querySelectorAll('ui5-select');
+        for (const el of Array.from(elements)) {
+          const value = (el as any).value ?? el.getAttribute('value') ?? '';
+          if (el.hasAttribute('required') && !value) {
+            const rect = (el as HTMLElement).getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+              return { x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2) };
+            }
+          }
+        }
+        for (const el of Array.from(root.querySelectorAll('*'))) {
+          if ((el as any).shadowRoot) {
+            const found = findRequiredEmptySelect((el as any).shadowRoot);
+            if (found) return found;
+          }
+        }
+        return null;
+      }
+      return findRequiredEmptySelect(document);
+    }).catch(() => null);
+
+    if (typeSelectInfo) {
+      // Click the select to open the option popover, then use keyboard to navigate to the
+      // "account" option. ui5-select emits proper selection events for keyboard navigation,
+      // unlike a programmatic .click() on a ui5-option which silently no-ops.
+      await page.mouse.click(typeSelectInfo.x, typeSelectInfo.y);
+      await page.waitForTimeout(500);
+
+      // The first option is empty (placeholder); the second is "account". Down + Enter selects it.
+      await page.keyboard.press('ArrowDown');
+      await page.waitForTimeout(100);
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(300);
+      logStep('ensureAccountExists:type-selected via keyboard');
+    } else {
+      logStep('ensureAccountExists:no-required-type-select-found');
+    }
+
+    const submitButton = page.getByRole('button', { name: /^(Save|Submit)$/ }).first();
     const alreadyExistsAlert = page.getByText(`accounts.core.platform-mesh.io "${testAccountName}" already exists`);
     const transientWebhookAlert = page.getByText(/failed calling webhook|connection refused|Internal error occurred/i);
 
     for (let attempt = 0; attempt < 4; attempt++) {
+      await expect(submitButton).toBeEnabled({ timeout: 10000 });
       await submitButton.click();
 
       const outcome = await Promise.race([
         alreadyExistsAlert.waitFor({ state: 'visible', timeout: 30000 }).then(() => 'exists'),
         transientWebhookAlert.waitFor({ state: 'visible', timeout: 30000 }).then(() => 'retry'),
         createDialog.waitFor({ state: 'hidden', timeout: 30000 }).then(() => 'submitted'),
+        accountRow.waitFor({ state: 'visible', timeout: 30000 }).then(() => 'submitted'),
       ]);
 
       if (outcome === 'submitted' || outcome === 'exists') {
@@ -88,8 +133,8 @@ async function ensureAccountExists(page: Page): Promise<string> {
   }
 
   if (await createDialog.isVisible().catch(() => false)) {
-    const dialogCancelButton = createDialog.getByRole('button', { name: 'Cancel' });
-    const dialogCloseButton = createDialog.getByRole('button', { name: 'Close' });
+    const dialogCancelButton = page.getByRole('button', { name: 'Cancel' }).first();
+    const dialogCloseButton = page.getByRole('button', { name: 'Close' }).first();
 
     if (await dialogCancelButton.isVisible().catch(() => false)) {
       await dialogCancelButton.click();
@@ -113,13 +158,13 @@ async function ensureAccountExists(page: Page): Promise<string> {
   const accountUrl = `https://${newOrgName}.portal.localhost:8443/home/accounts/${testAccountName}/dashboard`;
   logStep(`ensureAccountExists:navigate-direct account=${testAccountName} url=${accountUrl}`);
   await page.goto(accountUrl, { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('[test-id="generic-detail-view-download"]')).toBeVisible({ timeout: 30000 });
+  await expect(page.getByRole('button', { name: 'Download kubeconfig' })).toBeVisible({ timeout: 30000 });
   logStep(`ensureAccountExists:done account=${testAccountName}`);
   return accountUrl;
 }
 
 async function downloadAccountKubeconfig(page: Page): Promise<string> {
-  const downloadButton = page.locator('[test-id="generic-detail-view-download"]');
+  const downloadButton = page.getByRole('button', { name: 'Download kubeconfig' });
   let download = null;
 
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -156,7 +201,7 @@ async function deleteAccount(page: Page, accountUrl: string): Promise<void> {
   await page.goto(accountUrl, { waitUntil: 'domcontentloaded' });
 
   for (let attempt = 0; attempt < 3; attempt++) {
-    const downloadButton = page.locator('[test-id="generic-detail-view-download"]');
+    const downloadButton = page.getByRole('button', { name: 'Download kubeconfig' });
     if (await downloadButton.isVisible().catch(() => false)) {
       break;
     }
@@ -170,7 +215,6 @@ async function deleteAccount(page: Page, accountUrl: string): Promise<void> {
   }
 
   const deleteSelectors = [
-    '[test-id="generic-detail-view-delete"]',
     '[test-id="delete-resource-button"]',
     'button:has-text("Delete")',
     '[role="button"][aria-label="Delete"]',

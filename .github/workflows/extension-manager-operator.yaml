@@ -1,7 +1,3 @@
-permissions:
-  contents: write
-  packages: write
-
 name: Build extension-manager-operator Workflow
 on:
   push:
@@ -12,12 +8,18 @@ on:
       - '.github/workflows/extension-manager-operator.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   pipeline:
     concurrency:
       group: extension-manager-operator-${{ github.ref }}
       cancel-in-progress: true
     uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
     with:
       chartFolder: charts
       chartName: extension-manager-operator

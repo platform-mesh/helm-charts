@@ -32,13 +32,11 @@ spec:
           {{- include "common.commonOperatorArgs" . | indent 8 }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
           {{- if .Values.remoteRuntime.enabled }}
-          - --remote-runtime-enabled=true
           - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
           - --remote-runtime-infra-secret-name={{ .Values.remoteRuntime.infra.secretName }}
           - --remote-runtime-infra-secret-key={{ .Values.remoteRuntime.infra.secretKey }}
           {{- end }}
           {{- if .Values.remoteInfra.enabled }}
-          - --remote-infra-enabled
           - --remote-infra-kubeconfig=/etc/infra/kubeconfig
           {{- end }}
           {{- if .Values.idp.registrationAllowed }}
@@ -70,14 +68,18 @@ spec:
       - name: external-infra-deployment
         secret:
           secretName: {{ .Values.remoteInfra.secretName }}
-          secretKey: {{ .Values.remoteInfra.secretKey }}
+          items:
+          - key: {{ .Values.remoteInfra.secretKey }}
+            path: kubeconfig
           defaultMode: 420
       {{- end }}
       {{- if .Values.remoteRuntime.enabled }}
       - name: external-platformmesh-deployment
         secret:
           secretName: {{ .Values.remoteRuntime.secretName }}
-          secretKey: {{ .Values.remoteRuntime.secretKey }}
+          items:
+          - key: {{ .Values.remoteRuntime.secretKey }}
+            path: kubeconfig
           defaultMode: 420
       {{- end }}
       {{- end }}

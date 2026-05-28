@@ -28,7 +28,7 @@ spec:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
           name: platform-mesh
-          namespace: default
+          namespace: platform-mesh-system
           policy: Propagate
         resource:
           byReference:
@@ -57,7 +57,7 @@ spec:
         - apiVersion: delivery.ocm.software/v1alpha1
           kind: Repository
           name: platform-mesh
-          namespace: default
+          namespace: platform-mesh-system
           policy: Propagate
         resource:
           byReference:
@@ -102,7 +102,7 @@ spec:
         chartRef:
           kind: OCIRepository
           name: ${ocirepository.metadata.name}
-          namespace: default
+          namespace: platform-mesh-system
         values:
           log:
             noJson: true
@@ -113,4 +113,6 @@ spec:
             values:
           extraArgs:
           - --kcp-front-proxy-port=8443
+          - --kcp-url=https://frontproxy-front-proxy.platform-mesh-system:8443
           - --subroutines-feature-toggles-enabled=true
+          - --no-json=true

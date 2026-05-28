@@ -8,6 +8,7 @@ http:
 
 validWebcomponentUrls: ".?"
 featureToggles: "enableSessionAutoRefresh=true"
+uiOptions: "enableFeatureToggleSetting"
 
 # -- environment
 environment: local

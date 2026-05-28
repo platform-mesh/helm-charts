@@ -409,11 +409,9 @@ enable remote PlatformMesh and Infra:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --remote-runtime-enabled=true
                 - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
                 - --remote-runtime-infra-secret-name=kubeconfig-platformmesh
                 - --remote-runtime-infra-secret-key=kubeconfig
-                - --remote-infra-enabled
                 - --remote-infra-kubeconfig=/etc/infra/kubeconfig
                 - --subroutines-feature-toggles-enabled=true
               env: null
@@ -473,12 +471,16 @@ enable remote PlatformMesh and Infra:
             - name: external-infra-deployment
               secret:
                 defaultMode: 420
-                secretKey: kubeconfig
+                items:
+                  - key: kubeconfig
+                    path: kubeconfig
                 secretName: kubeconfig-platformmesh
             - name: external-platformmesh-deployment
               secret:
                 defaultMode: 420
-                secretKey: kubeconfig
+                items:
+                  - key: kubeconfig
+                    path: kubeconfig
                 secretName: kubeconfig-deployment
 enables istio sidecar injection:
   1: |
@@ -581,6 +583,7 @@ operator match the snapshot:
           - ""
         resources:
           - events
+          - pods
         verbs:
           - create
           - get
@@ -698,6 +701,21 @@ operator match the snapshot:
           - patch
           - update
           - watch
+      - apiGroups:
+          - providers.platform-mesh.io
+        resources:
+          - managedproviders
+          - providers
+        verbs:
+          - '*'
+      - apiGroups:
+          - providers.platform-mesh.io
+        resources:
+          - managedproviders/status
+        verbs:
+          - get
+          - patch
+          - update
   2: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
@@ -836,6 +854,66 @@ operator match the snapshot:
           - patch
           - update
           - watch
+      - apiGroups:
+          - ""
+        resources:
+          - configmaps
+        verbs:
+          - get
+          - list
+          - watch
+      - apiGroups:
+          - core.platform-mesh.io
+        resources:
+          - platformmeshes
+        verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+      - apiGroups:
+          - core.platform-mesh.io
+        resources:
+          - platformmeshes/finalizers
+        verbs:
+          - update
+      - apiGroups:
+          - core.platform-mesh.io
+        resources:
+          - platformmeshes/status
+        verbs:
+          - get
+          - patch
+          - update
+      - apiGroups:
+          - providers.platform-mesh.io
+        resources:
+          - managedproviders
+        verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+      - apiGroups:
+          - providers.platform-mesh.io
+        resources:
+          - managedproviders/finalizers
+        verbs:
+          - update
+      - apiGroups:
+          - providers.platform-mesh.io
+        resources:
+          - managedproviders/status
+        verbs:
+          - get
+          - patch
+          - update
   5: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding

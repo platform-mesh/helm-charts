@@ -21,6 +21,7 @@ The helm-charts repository contains helm charts used for the deployment of platf
 ## Getting started
 
 - For running and building the local-setup, please refer to the [local-setup readme](local-setup/README.md) file in this repository.
+- For adding a new service to PlatformMesh, see the [Adding a Service](docs/adding-a-service.md) guide.
 <!--
 TODO:
 - To deploy the Platform Mesh to kubernetes, please refer to ...

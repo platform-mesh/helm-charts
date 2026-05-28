@@ -1,8 +1,7 @@
 name: pipeline-chart
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 on:
   workflow_call:
@@ -52,12 +51,96 @@ on:
 
 jobs:
   # ──────────────────────────────────────────────
+  # Immutability guard: refuse to publish if the
+  # chart version or the OCM component version
+  # already exists in the registry. Force a
+  # Chart.yaml version bump for every change.
+  # ──────────────────────────────────────────────
+  verify-version:
+    if: github.ref == format('refs/heads/{0}', inputs.release_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Read chart version
+        id: read
+        run: |
+          set -euo pipefail
+          VERSION=$(yq '.version' "${{ inputs.chartFolder }}/${{ inputs.chartName }}/Chart.yaml")
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "::error::Could not read .version from ${{ inputs.chartFolder }}/${{ inputs.chartName }}/Chart.yaml"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Chart version: $VERSION"
+      - name: setup OCM CLI
+        run: |
+          REPO=${repo:=open-component-model/ocm}
+          if [ -z "$version" -o "$version" == latest ]; then
+            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
+            echo "Selecting latest version: $version"
+          fi
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          echo "Installing ocm-cli version $version from $REPO"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          chmod a+x ocm
+      - name: Verify OCM component version does not exist
+        env:
+          VERSION: ${{ steps.read.outputs.version }}
+          CHART_NAME: ${{ inputs.chartName }}
+          CHART_ONLY: ${{ inputs.chartOnly }}
+        run: |
+          set -euo pipefail
+
+          if [ "$CHART_ONLY" = "true" ]; then
+            COMPONENT_NAME="github.com/platform-mesh/helm-charts/${CHART_NAME}"
+          else
+            COMPONENT_NAME="github.com/platform-mesh/${CHART_NAME}"
+          fi
+
+          echo "Checking OCM component ${COMPONENT_NAME}:${VERSION} at ghcr.io/platform-mesh"
+
+          # Fail-closed: a successful lookup means the component already exists
+          # and we must not overwrite it. Any other error (auth, network,
+          # registry) must abort the pipeline rather than fall through to
+          # release; only a definitive "not found" is a pass.
+          set +e
+          out=$(./ocm get cv \
+            "${COMPONENT_NAME}:${VERSION}" \
+            --repo ghcr.io/platform-mesh 2>&1)
+          rc=$?
+          set -e
+
+          if [ "$rc" -eq 0 ]; then
+            echo "$out"
+            echo "::error::OCM component ${COMPONENT_NAME}:${VERSION} already exists at ghcr.io/platform-mesh. We should not overwrite components for the same version. Bump .version in ${{ inputs.chartFolder }}/${CHART_NAME}/Chart.yaml before merging."
+            exit 1
+          fi
+
+          if ! grep -qiE 'not found|does not exist|no such|component version .* not found' <<<"$out"; then
+            echo "$out"
+            echo "::error::OCM lookup for ${COMPONENT_NAME}:${VERSION} failed (rc=${rc}). Refusing to proceed without a definitive answer; see output above."
+            exit 1
+          fi
+
+          echo "OK: OCM component ${COMPONENT_NAME}:${VERSION} is new."
+
+  # ──────────────────────────────────────────────
   # Release jobs (main branch only)
   # ──────────────────────────────────────────────
   release:
     if: github.ref == format('refs/heads/{0}', inputs.release_branch)
-    uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@main
+    needs: [verify-version]
+    uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit
+    permissions:
+      contents: write
+      packages: write
     with:
       updateVersion: false
       pushTags: ${{ inputs.pushTags }}
@@ -67,9 +150,12 @@ jobs:
 
   ocm:
     if: ${{ !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
-    needs: [release]
-    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@main
+    needs: [verify-version, release]
+    uses: platform-mesh/.github/.github/workflows/job-ocm.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit
+    permissions:
+      contents: read
+      packages: write
     with:
       chartPath: ${{ inputs.chartFolder }}/${{ inputs.chartName }}
       componentName: ${{ inputs.chartOnly && format('github.com/platform-mesh/helm-charts/{0}', inputs.chartName) || format('github.com/platform-mesh/{0}', inputs.chartName) }}
@@ -81,5 +167,5 @@ jobs:
   pm-ocm:
     if: ${{ !inputs.chartOnly && !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
     needs: [ocm]
-    uses: platform-mesh/.github/.github/workflows/job-ocm-version-update.yml@main
+    uses: platform-mesh/.github/.github/workflows/job-ocm-version-update.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit
