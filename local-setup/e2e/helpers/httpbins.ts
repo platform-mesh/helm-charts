@@ -152,7 +152,7 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
   logStep(`ensureNamespaceExists:start namespace=${namespaceName}`);
   await openNamespacesView(page);
   const namespaceRow = page.getByText(namespaceName, { exact: true }).first();
-  const createDialog = page.getByRole('dialog', { name: 'Create' });
+  const createDialog = page.locator('ui5-dialog[open]').first();
 
   if (await namespaceRow.isVisible().catch(() => false)) {
     return;
@@ -249,7 +249,7 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
 
     const httpBinRow = page.getByRole('row').filter({ hasText: httpBinName }).first();
     if (!await httpBinRow.isVisible().catch(() => false)) {
-      const createDialog = page.getByRole('dialog', { name: 'Create' });
+      const createDialog = page.locator('ui5-dialog[open]').first();
       await page.getByRole("button", { name: "Create" }).click();
       await createDialog.waitFor({ state: "visible", timeout: 10000 });
 

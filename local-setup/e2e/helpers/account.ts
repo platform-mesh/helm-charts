@@ -46,7 +46,7 @@ async function ensureAccountExists(page: Page): Promise<string> {
   logStep(`ensureAccountExists:start account=${testAccountName}`);
   await openAccountsView(page);
   const accountRow = page.getByRole('row').filter({ hasText: testAccountName }).first();
-  const createDialog = page.getByRole('dialog', { name: 'Create' });
+  const createDialog = page.locator('ui5-dialog[open]').first();
 
   await ensureListRowVisible(page, accountRow);
 

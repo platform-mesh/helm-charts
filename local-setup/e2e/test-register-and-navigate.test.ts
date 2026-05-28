@@ -203,7 +203,7 @@ test.describe('Home Page', () => {
     // click on "Create" button
     await page.getByRole('button', { name: 'Create', exact: true }).click();
 
-    const accountCreateDialog = page.getByRole('dialog', { name: 'Create' });
+    const accountCreateDialog = page.locator('ui5-dialog[open]').first();
     await accountCreateDialog.waitFor({ state: 'visible', timeout: 10000 });
     await page.getByRole('textbox').first().fill(testAccountName);
 
@@ -272,7 +272,7 @@ test.describe('Home Page', () => {
     await expect(scopeCombobox).toContainText('default');
 
     await page.getByRole('button', { name: 'Create' }).click();
-    const httpBinCreateDialog = page.getByRole('dialog', { name: 'Create' });
+    const httpBinCreateDialog = page.locator('ui5-dialog[open]').first();
     await httpBinCreateDialog.waitFor({ state: 'visible', timeout: 10000 });
     await page.getByRole('textbox').first().fill(testHttpBinName);
     await page.waitForTimeout(1000);
