@@ -161,7 +161,7 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
   await page.getByRole('button', { name: 'Create', exact: true }).click();
   await createDialog.waitFor({ state: 'visible', timeout: 10000 });
   await page.getByRole('textbox').first().fill(namespaceName);
-  const nsSaveButton = page.getByRole('button', { name: 'Save' });
+  const nsSaveButton = page.getByRole('button', { name: /^(Save|Submit)$/ }).first();
   await expect(nsSaveButton).toBeEnabled({ timeout: 5000 });
   await nsSaveButton.click();
   const alreadyExistsAlert = page.getByText(`namespaces \"${namespaceName}\" already exists`);
@@ -255,7 +255,7 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
 
       await page.getByRole('textbox').first().fill(httpBinName);
 
-      const submitButton = page.getByRole('button', { name: 'Save' });
+      const submitButton = page.getByRole('button', { name: /^(Save|Submit)$/ }).first();
       for (let attempt = 0; attempt < 3; attempt++) {
         try {
           await expect(submitButton).toBeEnabled({ timeout: 5000 });

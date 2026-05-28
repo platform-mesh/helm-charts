@@ -240,7 +240,7 @@ test.describe('Home Page', () => {
       await page.waitForTimeout(300);
     }
 
-    const accountSaveButton = page.getByRole('button', { name: 'Save' });
+    const accountSaveButton = page.getByRole('button', { name: /^(Save|Submit)$/ }).first();
     await expect(accountSaveButton).toBeEnabled({ timeout: 10000 });
     await accountSaveButton.click();
 
@@ -276,7 +276,7 @@ test.describe('Home Page', () => {
     await httpBinCreateDialog.waitFor({ state: 'visible', timeout: 10000 });
     await page.getByRole('textbox').first().fill(testHttpBinName);
     await page.waitForTimeout(1000);
-    const httpBinSaveButton = page.getByRole('button', { name: 'Save' });
+    const httpBinSaveButton = page.getByRole('button', { name: /^(Save|Submit)$/ }).first();
     await expect(httpBinSaveButton).toBeEnabled({ timeout: 5000 });
     await httpBinSaveButton.click();
 

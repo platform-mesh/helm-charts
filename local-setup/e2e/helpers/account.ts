@@ -101,7 +101,7 @@ async function ensureAccountExists(page: Page): Promise<string> {
       logStep('ensureAccountExists:no-required-type-select-found');
     }
 
-    const submitButton = page.getByRole('button', { name: 'Save' });
+    const submitButton = page.getByRole('button', { name: /^(Save|Submit)$/ }).first();
     const alreadyExistsAlert = page.getByText(`accounts.core.platform-mesh.io "${testAccountName}" already exists`);
     const transientWebhookAlert = page.getByText(/failed calling webhook|connection refused|Internal error occurred/i);
 
