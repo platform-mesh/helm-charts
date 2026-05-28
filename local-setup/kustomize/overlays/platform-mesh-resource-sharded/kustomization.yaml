@@ -6,6 +6,18 @@ patches:
   - target:
       kind: PlatformMesh
       name: platform-mesh
-    patch: |
-      - op: remove
-        path: /spec/values/infra/values/kcp/shards
+      namespace: platform-mesh-system
+    patch: |-
+      - op: add
+        path: /spec/values
+        value:
+          services:
+            infra:
+              values:
+                kcp:
+                # TODO remove commit image tag when released version is compatible
+                  image:
+                    tag: "15923aca7"
+                  shards:
+                    - name: nereus
+                    - name: triton
