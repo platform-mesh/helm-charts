@@ -457,6 +457,26 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--remote --deployment-tech=argocd"}
 
+  local-setup:remote:fluxcd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:remote:fluxcd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:remote:argocd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
+
+  local-setup:remote:argocd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
+
   local-setup:sharded:
     cmds:
       - task: local-setup

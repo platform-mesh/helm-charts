@@ -509,12 +509,8 @@ if [ "$REMOTE" = true ]; then
   elif [ "$EXAMPLE_DATA" = true ]; then
     # Apply default profile to runtime cluster
     envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
-    # Apply example-httpbin-provider resources to INFRA cluster (targeting runtime)
-    if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
-      kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
-    else
-      kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
-    fi
+    kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-runtime
+    kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-${DEPLOYMENT_TECH}
   else
     kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
   fi
@@ -544,15 +540,20 @@ if [ "$REMOTE" = true ]; then
   if [ "$PRERELEASE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
-    # Apply default profile and example-data (PlatformMesh patch) to runtime cluster
+    # Apply default profile and example-data (PlatformMesh patch) to runtime cluster.
+    # Note: overlays/example-data imports components/platform-mesh-operator-resource
+    # which carries the *non-remote* (fluxcd) default-profile ConfigMap; re-apply
+    # the deployment-tech-specific default-profile.yaml AFTER it to ensure the
+    # correct profile wins.
     envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-    # Apply example-httpbin-provider resources to INFRA cluster (targeting runtime)
-    if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
-      kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-argocd
-    else
-      kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider
-    fi
+    envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
+    # Apply runtime-side example-data resources (namespace + OCM Resources for
+    # the fluxcd path) to RUNTIME cluster.
+    kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-runtime
+    # Apply infra-side example-data resources (HelmReleases for fluxcd, ArgoCD
+    # Applications for argocd) to INFRA cluster.
+    kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-${DEPLOYMENT_TECH}
   else
     kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
   fi
