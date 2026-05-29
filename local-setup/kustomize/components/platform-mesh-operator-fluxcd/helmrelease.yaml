@@ -20,7 +20,7 @@ spec:
     idp:
       registrationAllowed: true
     extraArgs:
-    - --kcp-front-proxy-port=6443
+    - --kcp-front-proxy-port=8443
     - --kcp-url=https://root.kcp.localhost:8443
     - --subroutines-feature-toggles-enabled=true
     - --no-json=true

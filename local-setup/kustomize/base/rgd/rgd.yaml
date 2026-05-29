@@ -117,8 +117,8 @@ spec:
             registrationAllowed: true
             values:
           extraArgs:
-          - --kcp-front-proxy-port=6443
-          - '--kcp-url=${has(schema.spec.kcpUrl) && schema.spec.kcpUrl != "" ? schema.spec.kcpUrl : "https://frontproxy-front-proxy.platform-mesh-system:6443"}'
+          - --kcp-front-proxy-port=8443
+          - '--kcp-url=${has(schema.spec.kcpUrl) && schema.spec.kcpUrl != "" ? schema.spec.kcpUrl : "https://frontproxy-front-proxy.platform-mesh-system:8443"}'
           - --subroutines-feature-toggles-enabled=true
           - --no-json=true
           # Remote-runtime args, gated on schema.spec.remoteRuntimeEnabled. The "false" branch
