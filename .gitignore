@@ -11,6 +11,7 @@ local-setup/webhook-config/*
 !local-setup/webhook-config/*.yaml
 !local-setup/webhook-config/*.conf
 local-setup/e2e/test-results/*
+local-setup/test-results/
 local-setup/scripts/certs
 .vscode/
 *.log
