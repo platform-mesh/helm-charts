@@ -1,0 +1,9 @@
+# CR-only slice of components/platform-mesh-operator-resource: includes the
+# PlatformMesh CR but NOT the default-profile.yaml ConfigMap.  Use this from
+# overlays that need the CR but apply their own (e.g., remote-mode-specific)
+# profile separately.  Non-remote setups should keep using the full
+# components/platform-mesh-operator-resource component.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - platform-mesh.yaml

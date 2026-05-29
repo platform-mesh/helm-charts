@@ -134,6 +134,11 @@ data:
             istio:
               enabled: false
             kcp:
+              # Required in remote mode: serviceAccount-based kcp auth lets the
+              # multicluster-provider mint workspace-scoped tokens that
+              # account-operator uses to discover newly created org workspaces.
+              # Without this, ManageAccountInfoSubroutine fails with
+              # "cluster with name <uid> not found" on every new Account.
               auth:
                 serviceAccount:
                   enabled: true

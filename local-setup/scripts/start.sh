@@ -13,7 +13,7 @@ RED='\033[91m'
 YELLOW='\033[93m'
 COL_RES='\033[0m'
 
-KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-3600s}"
+KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-1200s}"
 CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-docker}"
 
 # Helm requires an auth config file for OCI registries; create an empty one if absent.
@@ -48,7 +48,11 @@ usage() {
 while [ $# -gt 0 ]; do
   case "$1" in
     --prerelease) PRERELEASE=true ;;
-    --cached) ;; # deprecated: kind configs always use cached registry mirrors now
+    --cached)
+      # Deprecated: registry mirrors are always-on now; the flag is accepted
+      # for backwards compatibility with the local-setup:cached* Taskfile entries.
+      echo -e "${YELLOW}Note: --cached is deprecated; registry mirrors are now always enabled.${COL_RES}" >&2
+      ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
@@ -284,6 +288,10 @@ if [ "$ITERATE" = true ]; then
   if [ "$REMOTE" = true ]; then
     kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
     kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
+  else
+    # Drop stale remote-mode artefacts so downstream tooling (e.g. the e2e
+    # helpers) doesn't misdetect this as a remote run.
+    rm -f .secret/platform-mesh.kubeconfig .secret/platform-mesh-infra.kubeconfig
   fi
 else
 
@@ -315,6 +323,10 @@ else
       create_kind_cluster platform-mesh-infra kind-config-infra.yaml false
       kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
     fi
+  else
+    # Drop stale remote-mode artefacts so downstream tooling (e.g. the e2e
+    # helpers) doesn't misdetect this as a remote run.
+    rm -f .secret/platform-mesh.kubeconfig .secret/platform-mesh-infra.kubeconfig
   fi
 
 fi # end of infrastructure setup (skipped when --iterate)
@@ -540,14 +552,10 @@ if [ "$REMOTE" = true ]; then
   if [ "$PRERELEASE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
-    # Apply default profile and example-data (PlatformMesh patch) to runtime cluster.
-    # Note: overlays/example-data imports components/platform-mesh-operator-resource
-    # which carries the *non-remote* (fluxcd) default-profile ConfigMap; re-apply
-    # the deployment-tech-specific default-profile.yaml AFTER it to ensure the
-    # correct profile wins.
+    # Apply the deployment-tech default profile and the remote-mode example-data
+    # overlay (PlatformMesh patch only) to the runtime cluster.
     envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
-    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-    envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
+    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-remote
     # Apply runtime-side example-data resources (namespace + OCM Resources for
     # the fluxcd path) to RUNTIME cluster.
     kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-runtime
@@ -655,8 +663,8 @@ if [ "$EXAMPLE_DATA" = true ]; then
       wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd api-syncagent
       wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd example-httpbin-provider
     else
-      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default api-syncagent
-      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig default example-httpbin-provider
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system api-syncagent
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system example-httpbin-provider
     fi
   else
     kubectl wait --namespace platform-mesh-system \

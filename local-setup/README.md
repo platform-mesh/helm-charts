@@ -225,6 +225,12 @@ task local-setup:remote:fluxcd:iterate
 # ArgoCD on a two-cluster topology
 task local-setup:remote:argocd
 task local-setup:remote:argocd:iterate
+
+# With example provider data (httpbin); requires the kubectl-kcp plugin
+task local-setup:remote:fluxcd:example-data
+task local-setup:remote:fluxcd:example-data:iterate
+task local-setup:remote:argocd:example-data
+task local-setup:remote:argocd:example-data:iterate
 ```
 
 **Iterate mode (--iterate flag):** When using `--iterate` together with `--prerelease`, the setup skips cluster creation and infrastructure deployment entirely. It only rebuilds the OCM component from local charts and reapplies it to the existing cluster. This provides the fastest feedback loop during chart development.
