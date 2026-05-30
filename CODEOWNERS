@@ -1,3 +1,5 @@
 * @platform-mesh/tsc @platform-mesh/kube @platform-mesh/frame
 package.json
 package-lock.json
+charts/**/Chart.yaml
+local-setup/**
