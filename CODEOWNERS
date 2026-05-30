@@ -2,4 +2,5 @@
 package.json
 package-lock.json
 charts/**/Chart.yaml
-local-setup/kustomize/**
+local-setup/kustomize/components/ocm/component.yaml
+local-setup/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit.yaml
