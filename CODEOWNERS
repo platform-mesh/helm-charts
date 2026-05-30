@@ -2,4 +2,4 @@
 package.json
 package-lock.json
 charts/**/Chart.yaml
-local-setup/**
+local-setup/kustomize/**
