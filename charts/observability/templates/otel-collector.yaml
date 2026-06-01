@@ -8,6 +8,7 @@ metadata:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "10"
 spec:
+  image: {{ .Values.otelCollector.image }}
   mode: {{ .Values.otelCollector.mode }}
   replicas: {{ .Values.otelCollector.replicas }}
   {{- if .Values.serviceMonitors.kcp.tlsSecretName }}

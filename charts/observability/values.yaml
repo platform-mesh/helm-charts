@@ -2,19 +2,6 @@
 createNamespace: false
 
 # ------------------------------------------------------------------------------
-# OpenTelemetry Operator
-# Manages the OTel Collector via CRDs
-# https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-operator
-# ------------------------------------------------------------------------------
-opentelemetry-operator:
-  # -- Enable the OpenTelemetry Operator
-  enabled: true
-  manager:
-    collectorImage:
-      # -- Use the contrib image which includes the prometheus receiver
-      repository: otel/opentelemetry-collector-contrib
-
-# ------------------------------------------------------------------------------
 # Prometheus
 # Metrics storage and query backend
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
@@ -54,6 +41,8 @@ otelCollector:
   mode: statefulset
   # -- Number of collector replicas
   replicas: 1
+  # -- Collector image (use contrib for prometheusremotewrite exporter)
+  image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0
   config:
     # -- Batch processor timeout before sending metrics
     batchTimeout: 10s
