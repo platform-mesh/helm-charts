@@ -93,11 +93,15 @@ serviceMonitors:
       app.kubernetes.io/name: kcp
     # -- Name of the port exposing metrics (same as API port)
     port: https
-    # -- Path to metrics endpoint (kcp-specific path)
+    # -- Path to metrics endpoint (as of kcp 0.32, /metrics and /clusters/root/metrics
+    # return the exact same data, but /clusters/root/metrics requires fewer permissions).
     path: /clusters/root/metrics
     # -- Use HTTPS scheme
     scheme: https
-    # -- Skip TLS certificate verification (required for self-signed certs)
+    # -- Skip TLS certificate verification; unless you know what you're doing,
+    # this should be left to true, since OTel Collector will connect to each
+    # Pod in the target Service using its IP, which is never part of the
+    # certificate's SANs.
     tlsInsecureSkipVerify: true
     # -- Name of the TLS secret containing client cert/key for authentication
     # This secret is created by the kcp-metrics-cert-job from the kubeconfig
