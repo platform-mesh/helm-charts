@@ -11,21 +11,6 @@ spec:
   image: {{ .Values.otelCollector.image }}
   mode: {{ .Values.otelCollector.mode }}
   replicas: {{ .Values.otelCollector.replicas }}
-  {{- if .Values.serviceMonitors.kcp.tlsSecretName }}
-  volumes:
-    - name: kcp-metrics-certs
-      secret:
-        secretName: {{ .Values.serviceMonitors.kcp.tlsSecretName }}
-  volumeMounts:
-    - name: kcp-metrics-certs
-      mountPath: /etc/prometheus/certs/0_{{ .Release.Namespace }}_{{ .Values.serviceMonitors.kcp.tlsSecretName }}_tls.crt
-      subPath: tls.crt
-      readOnly: true
-    - name: kcp-metrics-certs
-      mountPath: /etc/prometheus/certs/0_{{ .Release.Namespace }}_{{ .Values.serviceMonitors.kcp.tlsSecretName }}_tls.key
-      subPath: tls.key
-      readOnly: true
-  {{- end }}
   targetAllocator:
     enabled: true
     prometheusCR:
