@@ -10,12 +10,3 @@ nodes:
   - hostPath: ./containerd-certs.d
     containerPath: /etc/containerd/certs.d
     readOnly: true
-  extraPortMappings:
-  - containerPort: 31000
-    hostPort: 8443
-    protocol: TCP
-    listenAddress: "127.0.0.1"
-  - containerPort: 32000
-    hostPort: 15021
-    protocol: TCP
-    listenAddress: "127.0.0.1"

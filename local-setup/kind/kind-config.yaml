@@ -1,7 +1,17 @@
 apiVersion: kind.x-k8s.io/v1alpha4
 kind: Cluster
+networking:
+  apiServerAddress: "0.0.0.0"  # Makes API server accessible from Docker network
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry]
+      config_path = "/etc/containerd/certs.d"
 nodes:
 - role: control-plane
+  extraMounts:
+  - hostPath: ./containerd-certs.d
+    containerPath: /etc/containerd/certs.d
+    readOnly: true
   extraPortMappings:
   - containerPort: 31000
     hostPort: 8443

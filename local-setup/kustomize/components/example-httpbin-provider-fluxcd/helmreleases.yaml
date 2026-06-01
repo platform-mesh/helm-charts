@@ -1,0 +1,78 @@
+# FluxCD HelmReleases for the example-httpbin-provider demo in remote mode.
+# These live on the infra cluster; their kubeConfig.secretRef makes flux deploy
+# the actual workloads to the runtime cluster.  The OCIRepository
+# `example-httpbin-provider` and HelmRepository `api-syncagent` referenced below
+# are auto-created on the infra cluster by the platform-mesh-operator's
+# ResourceSubroutine, watching the corresponding OCM Resource objects on the
+# runtime cluster (applied via example-httpbin-provider-runtime).
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: example-httpbin-provider
+  namespace: platform-mesh-system
+spec:
+  dependsOn:
+    - name: api-syncagent
+  kubeConfig:
+    secretRef:
+      name: platform-mesh-kubeconfig
+      key: kubeconfig
+  chartRef:
+    kind: OCIRepository
+    name: example-httpbin-provider
+    namespace: platform-mesh-system
+  interval: 1m
+  releaseName: example-httpbin-provider
+  targetNamespace: example-httpbin-provider
+  timeout: 15m
+  values:
+    operator:
+      args:
+        - --local-http-route
+        - --local-http-route-port=8443
+        - --local-http-route-gateway-name=k8sapi-gateway
+        - --local-http-route-gateway-namespace=platform-mesh-system
+        - --domain=httpbin.services.portal.localhost
+    apiSyncagent:
+      rbac:
+        enable: true
+      publishedResources:
+        enable: true
+      serviceAccount:
+        name: api-syncagent
+        namespace: example-httpbin-provider
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: api-syncagent
+  namespace: platform-mesh-system
+spec:
+  kubeConfig:
+    secretRef:
+      name: platform-mesh-kubeconfig
+      key: kubeconfig
+  chart:
+    spec:
+      chart: api-syncagent
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: api-syncagent
+  interval: 1m
+  releaseName: api-syncagent
+  targetNamespace: example-httpbin-provider
+  timeout: 15m
+  values:
+    apiExportName: orchestrate.platform-mesh.io
+    agentName: kcp-api-syncagent
+    kcpKubeconfig: httpbin-kubeconfig
+    hostAliases:
+      enabled: true
+      values:
+        - ip: "10.96.188.4"
+          hostnames:
+           - "localhost"
+           - "portal.localhost"
+           - "kcp.localhost"
+           - "root.kcp.localhost"

@@ -9,6 +9,11 @@ spec:
     spec:
       imageReferencePath: "[]map[string]string | required=false"
       chartReferencePath: "[]map[string]string | required=false"
+      remoteRuntimeEnabled: "string | required=false"
+      remoteRuntimeSecretName: "string | required=false"
+      remoteRuntimeSecretKey: "string | required=false"
+      kcpUrl: "string | required=false"
+      runtimeClusterIp: "string | required=false"
   resources:
   - id: resourceChart
     readyWhen:
@@ -113,6 +118,33 @@ spec:
             values:
           extraArgs:
           - --kcp-front-proxy-port=8443
-          - --kcp-url=https://frontproxy-front-proxy.platform-mesh-system:8443
+          - '--kcp-url=${has(schema.spec.kcpUrl) && schema.spec.kcpUrl != "" ? schema.spec.kcpUrl : "https://frontproxy-front-proxy.platform-mesh-system:8443"}'
           - --subroutines-feature-toggles-enabled=true
           - --no-json=true
+          # Remote-runtime args, gated on schema.spec.remoteRuntimeEnabled. The "false" branch
+          # repeats --no-json=true (already passed above) as a no-op filler because KRO/CEL
+          # cannot conditionally omit a list element — it must produce a string. --no-json=true
+          # is idempotent on the operator side, so duplicating it is safe but admittedly ugly.
+          # If/when KRO supports conditional list elements, collapse these into a single
+          # remote-runtime block.
+          - '${has(schema.spec.remoteRuntimeEnabled) && schema.spec.remoteRuntimeEnabled == "true" ? "--remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig" : "--no-json=true"}'
+          - '${has(schema.spec.remoteRuntimeEnabled) && schema.spec.remoteRuntimeEnabled == "true" ? "--remote-runtime-infra-secret-name=" + (has(schema.spec.remoteRuntimeSecretName) && schema.spec.remoteRuntimeSecretName != "" ? schema.spec.remoteRuntimeSecretName : "platform-mesh-kubeconfig") : "--no-json=true"}'
+          - '${has(schema.spec.remoteRuntimeEnabled) && schema.spec.remoteRuntimeEnabled == "true" ? "--remote-runtime-infra-secret-key=" + (has(schema.spec.remoteRuntimeSecretKey) && schema.spec.remoteRuntimeSecretKey != "" ? schema.spec.remoteRuntimeSecretKey : "kubeconfig") : "--no-json=true"}'
+          extraVolumes:
+          - name: external-platformmesh-deployment
+            secret:
+              secretName: '${has(schema.spec.remoteRuntimeSecretName) && schema.spec.remoteRuntimeSecretName != "" ? schema.spec.remoteRuntimeSecretName : "platform-mesh-kubeconfig"}'
+              optional: true
+              defaultMode: 420
+          extraVolumeMounts:
+          - name: external-platformmesh-deployment
+            mountPath: /etc/platformmesh
+            readOnly: true
+          hostAliases:
+            enabled: '${has(schema.spec.runtimeClusterIp) && schema.spec.runtimeClusterIp != ""}'
+            entries:
+            - ip: '${has(schema.spec.runtimeClusterIp) ? schema.spec.runtimeClusterIp : ""}'
+              hostnames:
+              - portal.localhost
+              - localhost
+              - root.kcp.localhost

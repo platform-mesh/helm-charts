@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 const portalBaseUrl = 'https://portal.localhost:8443/';
@@ -18,6 +19,17 @@ const repoRoot = path.resolve(process.cwd(), '..', '..');
 const adminKubeconfigPath = process.env.ADMIN_KUBECONFIG || path.join(repoRoot, '.secret/kcp/admin.kubeconfig');
 const httpbinProviderManifestPath = path.join(repoRoot, 'local-setup', 'example-data', 'root', 'providers', 'httpbin-provider');
 const exampleDataOverlayPath = path.join(repoRoot, 'local-setup', 'kustomize', 'overlays', 'example-data');
+const exampleDataRemoteOverlayPath = path.join(repoRoot, 'local-setup', 'kustomize', 'overlays', 'example-data-remote');
+const exampleHttpbinProviderRuntimeComponentPath = path.join(repoRoot, 'local-setup', 'kustomize', 'components', 'example-httpbin-provider-runtime');
+const exampleHttpbinProviderFluxcdComponentPath = path.join(repoRoot, 'local-setup', 'kustomize', 'components', 'example-httpbin-provider-fluxcd');
+const exampleHttpbinProviderArgocdComponentPath = path.join(repoRoot, 'local-setup', 'kustomize', 'components', 'example-httpbin-provider-argocd');
+
+// Remote mode = both kubeconfigs are present (start.sh writes both when invoked
+// with --remote).  Allows the e2e helpers to switch overlay/wait targets without
+// the Taskfile having to thread an extra env var through.
+const infraKubeconfigPath = process.env.INFRA_KUBECONFIG || path.join(repoRoot, '.secret/platform-mesh-infra.kubeconfig');
+const runtimeKubeconfigPath = process.env.RUNTIME_KUBECONFIG || path.join(repoRoot, '.secret/platform-mesh.kubeconfig');
+const remoteMode = existsSync(infraKubeconfigPath) && existsSync(runtimeKubeconfigPath);
 const exampleMarketplaceEntryName = process.env.EXAMPLE_MARKETPLACE_ENTRY_NAME || 'orchestrate.platform-mesh.io-orchestrate.platform-mesh.io';
 const exampleProviderDisplayName = process.env.EXAMPLE_PROVIDER_DISPLAY_NAME || 'ABC MSP Provider';
 
@@ -64,6 +76,13 @@ export {
   adminKubeconfigPath,
   httpbinProviderManifestPath,
   exampleDataOverlayPath,
+  exampleDataRemoteOverlayPath,
+  exampleHttpbinProviderRuntimeComponentPath,
+  exampleHttpbinProviderFluxcdComponentPath,
+  exampleHttpbinProviderArgocdComponentPath,
+  infraKubeconfigPath,
+  runtimeKubeconfigPath,
+  remoteMode,
   exampleMarketplaceEntryName,
   exampleProviderDisplayName,
   primaryUser,

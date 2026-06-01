@@ -1,0 +1,30 @@
+# port-fixer: socat DaemonSet that bridges Node:8443 -> Node:31000 on the
+# runtime kind cluster.  Why:
+#   - traefik runs as a NodePort Service exposing :31000 (the Gateway listener
+#     mapping in the infra Helm chart), but the host kubeconfigs and external
+#     URLs (kcp.localhost, *.portal.localhost) are written for :8443.
+#   - kind only port-maps 8443 on the runtime cluster's control-plane node.
+#     With this DaemonSet, traffic that reaches the node on :8443 (e.g., from
+#     `https://localhost:8443/...` against the host) gets forwarded to traefik
+#     on :31000.  In-cluster pod-to-pod traffic uses the traefik clusterIP
+#     directly via hostAliases and does not need this forwarder.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: port-fixer
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: port-fixer
+  template:
+    metadata:
+      labels:
+        app: port-fixer
+    spec:
+      hostNetwork: true # This binds directly to the Node's interface
+      containers:
+      - name: socat
+        image: alpine/socat
+        # Forward Node:8443 -> Node:31000 (Localhost)
+        args: ["TCP-LISTEN:8443,fork", "TCP:127.0.0.1:31000"]

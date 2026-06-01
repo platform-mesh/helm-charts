@@ -1,0 +1,14 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: platform-mesh-operator
+  namespace: platform-mesh-system
+spec:
+  interval: 1m0s
+  insecure: true
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  url: "${PM_OP_CHART_URL}"
+  ref:
+    tag: "${PM_OP_CHART_TAG}"

@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Note: this overlay imports only the CR-only slice of platform-mesh-operator-resource
+# (components/platform-mesh-operator-resource-cr) and NOT the full component
+# which would also bring in the bundled default-profile.yaml ConfigMap.  The
+# bundled default-profile carries deploymentTechnology=fluxcd, which would
+# clobber the deployment-tech-specific profile applied separately by start.sh
+# from overlays/platform-mesh-resource-{fluxcd,argocd}/default-profile.yaml.
+resources:
+  - ../../components/platform-mesh-operator-resource-cr
+  - ../../components/ocm
+patches:
+  - target:
+      kind: Component
+      name: platform-mesh
+    patch: |
+      - op: add
+        path: /metadata/namespace
+        value: platform-mesh-system
+      - op: replace
+        path: /spec/ocmConfig/0/namespace
+        value: platform-mesh-system
+  - target:
+      kind: Repository
+      name: platform-mesh
+    patch: |
+      - op: add
+        path: /metadata/namespace
+        value: platform-mesh-system
+  - target:
+      kind: Secret
+      name: ocm-signing-public-cert
+    patch: |
+      - op: add
+        path: /metadata/namespace
+        value: platform-mesh-system

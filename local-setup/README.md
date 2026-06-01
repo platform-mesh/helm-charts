@@ -213,13 +213,33 @@ task local-setup
 
 **Sharded kcp (--sharded flag):** When using the `--sharded` flag, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally.
 
+**Remote mode (--remote and --deployment-tech flags):** When using `--remote`, the setup creates two kind clusters instead of one: `platform-mesh-infra` (where Flux/ArgoCD and the platform-mesh-operator run) and `platform-mesh` (the runtime cluster where workloads, kcp and OCM resources land). The platform-mesh-operator routes HelmReleases/Applications to the infra cluster and OCM Resources to the runtime cluster, so this is a faithful local replica of a production split-cluster topology.
+
+`--deployment-tech=fluxcd|argocd` (default `fluxcd`) selects the deployment technology used to roll out the platform components. With `argocd`, ArgoCD is installed on the infra cluster, the runtime cluster is registered as a managed cluster, and each platform service becomes a separate ArgoCD `Application` ordered through `argocd.argoproj.io/sync-wave`.
+
+```sh
+# FluxCD on a two-cluster topology
+task local-setup:remote:fluxcd
+task local-setup:remote:fluxcd:iterate
+
+# ArgoCD on a two-cluster topology
+task local-setup:remote:argocd
+task local-setup:remote:argocd:iterate
+
+# With example provider data (httpbin); requires the kubectl-kcp plugin
+task local-setup:remote:fluxcd:example-data
+task local-setup:remote:fluxcd:example-data:iterate
+task local-setup:remote:argocd:example-data
+task local-setup:remote:argocd:example-data:iterate
+```
+
 **Iterate mode (--iterate flag):** When using `--iterate` together with `--prerelease`, the setup skips cluster creation and infrastructure deployment entirely. It only rebuilds the OCM component from local charts and reapplies it to the existing cluster. This provides the fastest feedback loop during chart development.
 
 **Task Naming Convention:**
 
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `cached`, `prerelease`, `example-data`, `concurrent`, `sharded`
+- Available flags: `cached`, `prerelease`, `example-data`, `concurrent`, `sharded`, `remote`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information

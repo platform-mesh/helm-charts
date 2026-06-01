@@ -342,6 +342,10 @@ tasks:
           read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
           kind delete cluster --name platform-mesh
         fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
         ./local-setup/scripts/start.sh {{.FLAGS}}
 
   local-setup:iterate:
@@ -432,6 +436,46 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--cached --prerelease --concurrent --iterate"}
+
+  local-setup:remote:fluxcd:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+
+  local-setup:remote:fluxcd:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+
+  local-setup:remote:argocd:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+
+  local-setup:remote:argocd:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+
+  local-setup:remote:fluxcd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:remote:fluxcd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:remote:argocd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
+
+  local-setup:remote:argocd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
 
   local-setup:sharded:
     cmds:

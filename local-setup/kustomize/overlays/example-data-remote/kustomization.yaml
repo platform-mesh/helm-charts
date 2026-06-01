@@ -1,0 +1,37 @@
+# Remote-mode variant of overlays/example-data: applies only the PlatformMesh
+# CR patch that adds the httpbin provider connection.  It deliberately does
+# NOT include components/example-httpbin-provider (which carries FluxCD
+# HelmReleases without kubeConfig.secretRef, intended for single-cluster use)
+# nor components/platform-mesh-operator-resource (which would clobber the
+# remote-mode profile ConfigMap).  In remote mode start.sh applies the
+# matching example-httpbin-provider-{runtime,fluxcd,argocd} components and the
+# deployment-tech-specific profile separately.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../components/platform-mesh-operator-resource-cr
+
+patches:
+  - target:
+      kind: PlatformMesh
+      name: platform-mesh
+      namespace: platform-mesh-system
+    patch: |-
+      apiVersion: your.api.version
+      kind: PlatformMesh
+      metadata:
+        name: platform-mesh
+        namespace: platform-mesh-system
+      spec:
+        kcp:
+          extraProviderConnections:
+            - path: root:providers:httpbin-provider
+              secret: httpbin-kubeconfig
+              namespace: example-httpbin-provider
+              external: false
+              adminAuth: true
+          extraDefaultAPIBindings:
+            - workspaceTypePath: root:account
+              export: orchestrate.platform-mesh.io
+              path: root:providers:httpbin-provider
