@@ -20,6 +20,9 @@ spec:
   rootShard:
     ref:
       name: root
+  cache:
+    ref:
+      name: {{ $.Values.kcp.cacheServer.name }}
   etcd:
     endpoints:
       - http://{{ $etcdServiceName }}.{{ $.Values.kcp.namespace | default "kcp-system" }}.svc.cluster.local:{{ $mergedEtcd.service.port | default 2379 }}
