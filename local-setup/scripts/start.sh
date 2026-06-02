@@ -572,22 +572,12 @@ else
     echo -e "${COL}[$(date '+%H:%M:%S')] Running platform-mesh-resource hook ${COL_RES}"
     source "$SCRIPT_DIR/platform-mesh-resource-hook.sh"
   elif [ "$PRERELEASE" = true ]; then
-    if [ "$EXAMPLE_DATA" = true ]; then
-      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease with example-data) ${COL_RES}"
-      if [ "$SHARDED" = true ]; then
-        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
-      else
-        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
-      fi
-      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+    if [ "$SHARDED" = true ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
     else
-      if [ "$SHARDED" = true ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
-        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
-      else
-        echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
-        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
-      fi
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
     fi
   else
     if [ "$SHARDED" = true ]; then
@@ -596,13 +586,6 @@ else
     else
       echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
-    fi
-    if [ "$EXAMPLE_DATA" = true ]; then
-      if [ "$SHARDED" = true ]; then
-        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
-      else
-        kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
-      fi
     fi
   fi
 fi
@@ -648,6 +631,14 @@ fi
 if [ "$EXAMPLE_DATA" = true ]; then
   if [ "$REMOTE" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data resources. ${COL_RES}"
+  else
+    # Apply example-data overlay now that PlatformMesh is ready (non-remote only)
+    echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data overlay ${COL_RES}"
+    if [ "$SHARDED" = true ]; then
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
+    else
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+    fi
   fi
 
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
