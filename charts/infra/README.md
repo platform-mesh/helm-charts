@@ -62,6 +62,10 @@ A Helm chart for Kubernetes
 | kcp.auth.oidc.issuerUrl | string | `""` |  |
 | kcp.auth.oidc.usernameClaim | string | `"email"` |  |
 | kcp.auth.serviceAccount.enabled | bool | `true` |  |
+| kcp.cacheServer.etcd.name | string | `"etcd-cache"` |  |
+| kcp.cacheServer.etcd.service.name | string | `"etcd-cache-client"` |  |
+| kcp.cacheServer.etcd.service.port | int | `2379` |  |
+| kcp.cacheServer.name | string | `"cache-server"` |  |
 | kcp.etcd.backup.compression.enabled | bool | `false` |  |
 | kcp.etcd.backup.compression.policy | string | `"gzip"` |  |
 | kcp.etcd.backup.deltaSnapshotMemoryLimit | string | `"1Gi"` |  |
