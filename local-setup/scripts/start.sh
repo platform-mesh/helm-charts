@@ -668,14 +668,6 @@ if [ "$EXAMPLE_DATA" = true ]; then
   fi
 fi
 
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing observability stack ${COL_RES}"
-helm dependency update "$SCRIPT_DIR/../../charts/observability" > /dev/null 2>&1
-kubectl create namespace observability --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
-helm upgrade --install observability "$SCRIPT_DIR/../../charts/observability" \
-  "${RUNTIME_KC[@]}" -n observability \
-  --set prometheus.server.persistentVolume.enabled=false \
-  --wait --timeout=10m > /dev/null 2>&1
-
 echo -e "${COL}[$(date '+%H:%M:%S')] Verifying backend resources ${COL_RES}"
 WAIT_TIMEOUT=120s "$SCRIPT_DIR/check-backend-resources.sh"
 
