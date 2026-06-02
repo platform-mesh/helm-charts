@@ -1,4 +1,4 @@
-* @platform-mesh/tsc @platform-mesh/kube @platform-mesh/frame
+* @platform-mesh/tsc @platform-mesh/kube @platform-mesh/go-approvers @platform-mesh/frame
 package.json
 package-lock.json
 charts/**/Chart.yaml
