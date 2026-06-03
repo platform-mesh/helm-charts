@@ -96,5 +96,5 @@ run_prerelease_setup() {
 
   # Wait for OCM platform-mesh component to be ready (this deploys the platform-mesh-operator)
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for OCM platform-mesh component to reconcile ${COL_RES}"
-  kubectl wait --namespace default --for=condition=Ready component/platform-mesh --timeout=$KUBECTL_WAIT_TIMEOUT
+  kubectl wait --namespace platform-mesh-system --for=condition=Ready component/platform-mesh --timeout=$KUBECTL_WAIT_TIMEOUT
 }
