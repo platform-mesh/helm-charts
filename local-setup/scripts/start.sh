@@ -34,10 +34,12 @@ ITERATE=false
 
 usage() {
   echo "Usage: $0 [--prerelease] [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--help]"
+
   echo ""
   echo "Options:"
   echo "  --prerelease       Deploy with locally built OCM components instead of released versions"
   echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
+
   echo "  --concurrent       Run prerelease chart builds in parallel instead of sequentially"
   echo "  --sharded          Deploy additional kcp shards"
   echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
@@ -50,11 +52,6 @@ usage() {
 while [ $# -gt 0 ]; do
   case "$1" in
     --prerelease) PRERELEASE=true ;;
-    --cached)
-      # Deprecated: registry mirrors are always-on now; the flag is accepted
-      # for backwards compatibility with the local-setup:cached* Taskfile entries.
-      echo -e "${YELLOW}Note: --cached is deprecated; registry mirrors are now always enabled.${COL_RES}" >&2
-      ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;

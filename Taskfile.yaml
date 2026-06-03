@@ -357,16 +357,6 @@ tasks:
       - ./local-setup/scripts/start.sh {{.FLAGS}}
 
   # Convenience aliases with common flag combinations
-  local-setup:cached:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached"}
-
-  local-setup:cached:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached"}
-
   local-setup:example-data:
     cmds:
       - task: local-setup
@@ -376,16 +366,6 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--example-data"}
-
-  local-setup:cached:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --example-data"}
-
-  local-setup:cached:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --example-data"}
 
   local-setup:prerelease:
     cmds:
@@ -397,6 +377,16 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--prerelease --iterate"}
 
+  local-setup:prerelease:concurrent:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--prerelease --concurrent"}
+
+  local-setup:prerelease:concurrent:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--prerelease --concurrent --iterate"}
+
   local-setup:prerelease:example-data:
     cmds:
       - task: local-setup
@@ -406,36 +396,6 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--prerelease --example-data --iterate"}
-
-  local-setup:cached:prerelease:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --prerelease"}
-
-  local-setup:cached:prerelease:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --prerelease --iterate"}
-
-  local-setup:cached:prerelease:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --prerelease --example-data"}
-
-  local-setup:cached:prerelease:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --prerelease --example-data --iterate"}
-
-  local-setup:cached:prerelease:concurrent:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --prerelease --concurrent"}
-
-  local-setup:cached:prerelease:concurrent:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --prerelease --concurrent --iterate"}
 
   local-setup:remote:fluxcd:
     cmds:
@@ -487,16 +447,6 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--sharded"}
 
-  local-setup:cached:sharded:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --sharded"}
-
-  local-setup:cached:sharded:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --sharded"}
-
   local-setup:prerelease:sharded:
     cmds:
       - task: local-setup
@@ -507,21 +457,6 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--prerelease --sharded --iterate"}
 
-  local-setup:cached:prerelease:sharded:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --prerelease --sharded"}
-
-  local-setup:cached:prerelease:sharded:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --prerelease --sharded"}
-
-  local-setup:cached:sharded:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--cached --sharded --example-data"}
-
   local-setup:sharded:example-data:
     cmds:
       - task: local-setup
@@ -531,8 +466,3 @@ tasks:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--sharded --example-data"}
-        
-  local-setup:cached:sharded:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--cached --sharded --example-data"}
