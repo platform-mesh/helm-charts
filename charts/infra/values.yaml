@@ -78,6 +78,14 @@ kcp:
       autoCompactionRetention: "30m"
     replicas: 1
 
+  cacheServer:
+    name: cache-server
+    etcd:
+      name: etcd-cache
+      service:
+        name: etcd-cache-client
+        port: 2379
+
   webhook:
     enabled: true
     caData: ""

@@ -13,8 +13,8 @@ spec:
       kind: Issuer
       name: selfsigned
   cache:
-    embedded:
-      enabled: true
+    ref:
+      name: {{ .Values.kcp.cacheServer.name }}
   etcd:
     endpoints:
       - http://{{ .Values.kcp.etcd.service.name}}.{{ .Values.kcp.namespace}}.svc.cluster.local:{{.Values.kcp.etcd.service.port}}
