@@ -82,17 +82,7 @@ spec:
           mountPath: /certs
         - name: requestheader-client-ca
           mountPath: /requestheader-client-ca
-      {{- if .Values.deployment.hostAliases }}
-      hostAliases:
-      {{- range .Values.deployment.hostAliases }}
-        - ip: {{ .ip }}
-          hostnames:
-        {{- range .hostnames }}
-            - {{ . }}
-        {{- end }}
-      {{- end }}
-      {{- else }}
-      {{- end }}
+      {{ include "common.hostAliases" . | nindent 6 }}
       volumes:
         {{- include "common.extraVolumes" . | nindent 8 }}
         - name: external-api-server
