@@ -331,6 +331,9 @@ else
 
 fi # end of infrastructure setup (skipped when --iterate)
 
+docker build /home/akafazov/src/github.com/platform-mesh/platform-mesh-operator -t ghcr.io/platform-mesh/platform-mesh-operator:v0.75.22
+kind load docker-image ghcr.io/platform-mesh/platform-mesh-operator:v0.75.22 --name platform-mesh
+
 # Kubeconfig args for kubectl targeting the runtime cluster (empty for local)
 RUNTIME_KC=()
 if [ "$REMOTE" = true ]; then

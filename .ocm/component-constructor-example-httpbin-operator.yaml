@@ -32,7 +32,7 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: external
+        relation: local
         version: {{ .VERSION }}
         access:
           type: ociArtifact
@@ -45,7 +45,7 @@ components:
     resources:
       - name: image
         type: ociImage
-        relation: external
+        relation: local
         version: {{ .APP_VERSION }}
         access:
           type: ociArtifact

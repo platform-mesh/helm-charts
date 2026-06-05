@@ -6,21 +6,21 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: external
+        relation: local
         version: {{ .VERSION }}
         access:
           type: ociArtifact
           imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
       - name: image
         type: ociImage
-        relation: external
+        relation: local
         version: {{ .APP_VERSION }}
         access:
           type: ociArtifact
           imageReference: "{{ .IMAGE_NAME }}:{{ .APP_VERSION }}"
       - name: terminal-image
         type: ociImage
-        relation: external
+        relation: local
         version: {{ .APP_VERSION }}
         access:
           type: ociArtifact

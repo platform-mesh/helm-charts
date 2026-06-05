@@ -50,19 +50,24 @@ get_kubectl_exec_flags() {
     fi
 }
 
-# Update/download the component constructor template
+# Prepare the component constructor template from the local file
 update_constructor() {
-    echo -e "${COL}[$(date '+%H:%M:%S')] Downloading component-constructor-prerelease.yaml...${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Preparing component-constructor-prerelease.yaml from local file...${COL_RES}"
 
-    curl -o "$OCM_DIR/component-constructor-prerelease.yaml" \
-        https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
+    local src="$OCM_DIR/component-constructor-prerelease.yaml"
 
-    # Rename the component from platform-mesh to prerelease
+    if [[ ! -f "$src" ]]; then
+        echo -e "${RED}[$(date '+%H:%M:%S')] ERROR: $src not found${COL_RES}" >&2
+        exit 1
+    fi
+
+    # Rename the component from platform-mesh to prerelease in a temp copy,
+    # then replace the original so downstream steps always see the renamed version
     sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' \
-        "$OCM_DIR/component-constructor-prerelease.yaml" > "$OCM_DIR/component-constructor-prerelease.yaml.tmp" \
-        && mv "$OCM_DIR/component-constructor-prerelease.yaml.tmp" "$OCM_DIR/component-constructor-prerelease.yaml"
+        "$src" > "${src}.tmp" \
+        && mv "${src}.tmp" "$src"
 
-    echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor updated${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor ready${COL_RES}"
 }
 
 # Check if a component is local
@@ -95,6 +100,12 @@ get_component_version() {
         val=$(grep '^version:' "$PROJECT_ROOT/$chart_dir/Chart.yaml" | sed 's/^version: //')
         echo "Using LOCAL chartDir version for $short -> $val"
         export "$env_var"="$val"
+        # Transfer the component and its full reference closure from ghcr.io so the
+        # local registry has all descriptors. --no-update skips versions already present.
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+            ocm transfer componentversion --recursive --no-update \
+            "ghcr.io/platform-mesh//$component:$val" \
+            "https://$LOCAL_REGISTRY/platform-mesh" 2>/dev/null || true
         return 0
     fi
 
