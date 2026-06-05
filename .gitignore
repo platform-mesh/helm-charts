@@ -18,7 +18,6 @@ local-setup/scripts/certs
 *.pid
 .ocm/transport.ctf/
 ocm/.ocm/transport.ctf/
-.ocm/component-constructor-prerelease.yaml
 ./*.tgz
 prerelease/
 registry-ca.pem

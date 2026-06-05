@@ -23,7 +23,7 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: external
+        relation: local
         version: {{ .VERSION }}
         access:
           type: ociArtifact

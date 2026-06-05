@@ -200,7 +200,6 @@ data:
           syncWave: 1
           enabled: true
           external: true
-          helmRepo: true
           imageResource:
             enabled: true
             labels:
@@ -209,7 +208,6 @@ data:
             name: kcp-image
           targetNamespace: kcp-operator
         init-agent:
-          helmRepo: true
           absoluteReferencePath:
           - name: init-agent
           imageResources:
@@ -314,7 +312,6 @@ data:
               unsuspend: "true"
           syncWave: 2
           enabled: true
-          helmRepo: true
           external: true
           values:
             autoscaling:
