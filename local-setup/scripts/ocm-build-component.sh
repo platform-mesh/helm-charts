@@ -50,19 +50,24 @@ get_kubectl_exec_flags() {
     fi
 }
 
-# Update/download the component constructor template
+# Prepare the component constructor template from the local file
 update_constructor() {
-    echo -e "${COL}[$(date '+%H:%M:%S')] Downloading component-constructor-prerelease.yaml...${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Preparing component-constructor-prerelease.yaml from local file...${COL_RES}"
 
-    curl -o "$OCM_DIR/component-constructor-prerelease.yaml" \
-        https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
+    local src="$OCM_DIR/component-constructor-prerelease.yaml"
 
-    # Rename the component from platform-mesh to prerelease
+    if [[ ! -f "$src" ]]; then
+        echo -e "${RED}[$(date '+%H:%M:%S')] ERROR: $src not found${COL_RES}" >&2
+        exit 1
+    fi
+
+    # Rename the component from platform-mesh to prerelease in a temp copy,
+    # then replace the original so downstream steps always see the renamed version
     sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' \
-        "$OCM_DIR/component-constructor-prerelease.yaml" > "$OCM_DIR/component-constructor-prerelease.yaml.tmp" \
-        && mv "$OCM_DIR/component-constructor-prerelease.yaml.tmp" "$OCM_DIR/component-constructor-prerelease.yaml"
+        "$src" > "${src}.tmp" \
+        && mv "${src}.tmp" "$src"
 
-    echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor updated${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor ready${COL_RES}"
 }
 
 # Check if a component is local
@@ -95,6 +100,12 @@ get_component_version() {
         val=$(grep '^version:' "$PROJECT_ROOT/$chart_dir/Chart.yaml" | sed 's/^version: //')
         echo "Using LOCAL chartDir version for $short -> $val"
         export "$env_var"="$val"
+        # Transfer the component and its full reference closure from ghcr.io so the
+        # local registry has all descriptors. --no-update skips versions already present.
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+            ocm transfer componentversion --recursive --no-update \
+            "ghcr.io/platform-mesh//$component:$val" \
+            "https://$LOCAL_REGISTRY/platform-mesh" 2>/dev/null || true
         return 0
     fi
 
@@ -194,6 +205,20 @@ resolve_component_versions() {
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/platform-mesh/helm-charts/marketplace-ui:$MARKETPLACE_UI_CHART_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/platform-mesh/images/marketplace-ui:$MARKETPLACE_UI_IMAGE_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
 
+    # PM-stamped component descriptor versions for third-party components.
+    # Bump the suffix here to publish a new descriptor without touching resource versions.
+    export PM_GATEWAY_API_VERSION="0.0.1"
+    export PM_TRAEFIK_VERSION="0.0.1"
+    export PM_CERT_MANAGER_VERSION="0.0.1"
+    export PM_OPENFGA_VERSION="0.0.1"
+    export PM_KCP_OPERATOR_VERSION="0.0.1"
+    export PM_KCP_VERSION="0.0.1"
+    export PM_INIT_AGENT_VERSION="0.0.1"
+    export PM_CNPG_OPERATOR_VERSION="0.0.1"
+    export PM_PROMETHEUS_OPERATOR_CRDS_VERSION="0.0.1"
+    export PM_KUBE_PROMETHEUS_STACK_VERSION="0.0.1"
+    export PM_OPENTELEMETRY_OPERATOR_VERSION="0.0.1"
+
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
 }
 
@@ -213,7 +238,6 @@ build_final_component() {
         VERSION="$COMPONENT_PRERELEASE_VERSION" \
         ISTIO_VERSION="$ISTIO_VERSION" \
         OPENFGA_VERSION="$OPENFGA_VERSION" \
-        PM_OPENFGA_VERSION="$OPENFGA_VERSION" \
         KCP_OPERATOR_VERSION="$KCP_OPERATOR_VERSION" \
         KCP_IMAGE_VERSION="$KCP_IMAGE_VERSION" \
         GARDENER_ETCD_DRUID_VERSION="$GARDENER_ETCD_DRUID_VERSION" \
@@ -256,7 +280,18 @@ build_final_component() {
         OBSERVABILITY_VERSION="$OBSERVABILITY_VERSION" \
         PROMETHEUS_OPERATOR_CRDS_VERSION="$PROMETHEUS_OPERATOR_CRDS_VERSION" \
         KUBE_PROMETHEUS_STACK_VERSION="$KUBE_PROMETHEUS_STACK_VERSION" \
-        OPENTELEMETRY_OPERATOR_VERSION="$OPENTELEMETRY_OPERATOR_VERSION"
+        OPENTELEMETRY_OPERATOR_VERSION="$OPENTELEMETRY_OPERATOR_VERSION" \
+        PM_GATEWAY_API_VERSION="$PM_GATEWAY_API_VERSION" \
+        PM_TRAEFIK_VERSION="$PM_TRAEFIK_VERSION" \
+        PM_CERT_MANAGER_VERSION="$PM_CERT_MANAGER_VERSION" \
+        PM_OPENFGA_VERSION="$PM_OPENFGA_VERSION" \
+        PM_KCP_OPERATOR_VERSION="$PM_KCP_OPERATOR_VERSION" \
+        PM_KCP_VERSION="$PM_KCP_VERSION" \
+        PM_INIT_AGENT_VERSION="$PM_INIT_AGENT_VERSION" \
+        PM_CNPG_OPERATOR_VERSION="$PM_CNPG_OPERATOR_VERSION" \
+        PM_PROMETHEUS_OPERATOR_CRDS_VERSION="$PM_PROMETHEUS_OPERATOR_CRDS_VERSION" \
+        PM_KUBE_PROMETHEUS_STACK_VERSION="$PM_KUBE_PROMETHEUS_STACK_VERSION" \
+        PM_OPENTELEMETRY_OPERATOR_VERSION="$PM_OPENTELEMETRY_OPERATOR_VERSION"
 
     echo ""
     echo -e "${COL}[$(date '+%H:%M:%S')] Built prerelease component version $COMPONENT_PRERELEASE_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)${COL_RES}"

@@ -240,7 +240,7 @@ add_chart_to_ctf() {
 # Transfer OCM transport archive to local OCI registry
 transfer_to_local_oci() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry...${COL_RES}"
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh || true
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer ctf --overwrite --copy-local-resources .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh || true
 }
 
 # Build all local charts using two-phase parallel approach

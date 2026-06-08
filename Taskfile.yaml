@@ -224,11 +224,6 @@ tasks:
       - task: ocm:build:component
       - task: ocm:kustomize:apply
 
-  ocm:update:constructor:
-    cmds:
-      - curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
-      - sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' .ocm/component-constructor-prerelease.yaml > .ocm/component-constructor-prerelease.yaml.tmp && mv .ocm/component-constructor-prerelease.yaml.tmp .ocm/component-constructor-prerelease.yaml
-
   test:portal-e2e:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
