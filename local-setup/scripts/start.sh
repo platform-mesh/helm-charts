@@ -75,6 +75,11 @@ done
 export CONCURRENT
 export ITERATE
 
+# A stale KUBECONFIG from a previous run (e.g. pointing at .secret/kcp/admin.kubeconfig)
+# would misdirect every kubectl/helm call in this script. kind merges cluster
+# credentials into ~/.kube/config, so the default kubeconfig is always correct here.
+unset KUBECONFIG
+
 if [ "$ITERATE" = true ] && [ "$PRERELEASE" = false ]; then
   echo -e "${RED}--iterate requires --prerelease${COL_RES}" >&2
   exit 1
