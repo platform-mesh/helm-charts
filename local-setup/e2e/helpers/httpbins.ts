@@ -8,6 +8,7 @@ import {
   exampleHttpbinProviderFluxcdComponentPath,
   exampleHttpbinProviderRuntimeComponentPath,
   httpbinProviderManifestPath,
+  kcpClusterServer,
   newOrgName,
   remoteMode,
   testAccountName,
@@ -88,7 +89,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
     '--type=root:providers',
     '--ignore-existing',
     '--server',
-    'https://localhost:8443/clusters/root',
+    kcpClusterServer('root'),
   ]);
 
   runAdminKubectl([
@@ -97,7 +98,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
     '--type=root:provider',
     '--ignore-existing',
     '--server',
-    'https://localhost:8443/clusters/root:providers',
+    kcpClusterServer('root:providers'),
   ]);
 
   runAdminKubectl([
@@ -105,7 +106,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
     '-k',
     httpbinProviderManifestPath,
     '--server',
-    'https://localhost:8443/clusters/root:providers:httpbin-provider',
+    kcpClusterServer('root:providers:httpbin-provider'),
   ]);
 
   // In remote mode the operator creates source CRs + HelmReleases/Applications
@@ -167,7 +168,7 @@ function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: strin
   runAdminKubectl([
     'apply',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}:${testAccountName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}:${testAccountName}`),
     '-f',
     '-',
   ], manifest);
@@ -175,7 +176,7 @@ function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: strin
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}:${testAccountName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}:${testAccountName}`),
     '--for=condition=Ready',
     '--timeout=120s',
     '-n',

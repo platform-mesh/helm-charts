@@ -2,6 +2,9 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 const portalBaseUrl = 'https://portal.localhost:8443/';
+const baseDomain = process.env.BASE_DOMAIN || 'portal.localhost';
+const kcpUrl = process.env.KCP_URL || `https://kcp.api.${baseDomain}:8443`;
+const kindContext = process.env.KIND_CONTEXT || 'kind-platform-mesh';
 const runId = process.env.TEST_RUN_ID || `${Date.now()}`.slice(-8);
 const newOrgName = process.env.ORG_NAME || 'default';
 const testAccountName = process.env.TEST_ACCOUNT_NAME || `testaccount-${runId}`;
@@ -57,8 +60,16 @@ const invitedUser: TestUser = {
   keycloakPassword: process.env.INVITED_USER_KEYCLOAK_PASSWORD || 'password',
 };
 
+function kcpClusterServer(clusterPath: string): string {
+  return `${kcpUrl}/clusters/${clusterPath}`;
+}
+
 export {
   portalBaseUrl,
+  baseDomain,
+  kcpUrl,
+  kindContext,
+  kcpClusterServer,
   runId,
   newOrgName,
   testAccountName,

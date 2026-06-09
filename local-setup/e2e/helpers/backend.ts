@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import {
   accountReadyTimeoutSeconds,
   inviteName,
+  kcpClusterServer,
   newOrgName,
   primaryUser,
   testAccountName,
@@ -16,7 +17,7 @@ function waitForAccountReady(): void {
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '--for=condition=Ready',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `accounts.core.platform-mesh.io/${testAccountName}`,
@@ -29,7 +30,7 @@ function waitForAccountExists(): void {
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '--for=jsonpath={.metadata.name}',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `accounts.core.platform-mesh.io/${testAccountName}`,
@@ -42,7 +43,7 @@ function waitForAccountDeleted(): void {
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '--for=delete',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `accounts.core.platform-mesh.io/${testAccountName}`,
@@ -66,7 +67,7 @@ function ensureInvitedUserExists(user: TestUser): void {
   runAdminKubectl([
     'apply',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '-f',
     '-',
   ], manifest);
@@ -74,7 +75,7 @@ function ensureInvitedUserExists(user: TestUser): void {
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '--for=condition=Ready',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `invites.core.platform-mesh.io/${inviteName}`,
