@@ -13,6 +13,7 @@ export { ensureWelcomePage, switchToOrganization } from './auth';
 
 export {
   ensureInvitedUserExists,
+  verifyDownloadedKubeconfig,
 } from './backend';
 
 export {
