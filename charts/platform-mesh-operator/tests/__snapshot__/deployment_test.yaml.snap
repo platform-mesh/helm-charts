@@ -620,6 +620,7 @@ operator match the snapshot:
         resources:
           - secrets
           - configmaps
+          - namespaces
         verbs:
           - get
           - list
