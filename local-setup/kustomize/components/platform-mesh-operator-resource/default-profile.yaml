@@ -186,6 +186,16 @@ data:
               enabled: true
             hostAliases:
               enabled: true
+              entries:
+              - ip: "10.96.188.4"
+                hostnames:
+                - "localhost"
+                - "portal.localhost"
+                - "kcp.localhost"
+                - "root.kcp.localhost"
+                - "kcp.api.{{ .baseDomain }}"
+                - "nereus.kcp.localhost"
+                - "triton.kcp.localhost"
             keycloak:
               operator:
                 hostname: https://portal.localhost:8443/keycloak/
@@ -209,6 +219,8 @@ data:
               keycloakConfig:
                 url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
             kcp:
+              external:
+                hostname: kcp.api.{{ .baseDomain }}
               auth:
                 serviceAccount:
                   enabled: true
@@ -281,6 +293,7 @@ data:
                 - ip: "10.96.188.4"
                   hostnames:
                     - "localhost"
+                    - "kcp.api.{{ .baseDomain }}"
         kcp:
           external: true
         kcp-operator:
@@ -459,6 +472,7 @@ data:
                 - "portal.localhost"
                 - "kcp.localhost"
                 - "root.kcp.localhost"
+                - "kcp.api.{{ .baseDomain }}"
                 - "nereus.kcp.localhost"
                 - "triton.kcp.localhost"
             http:

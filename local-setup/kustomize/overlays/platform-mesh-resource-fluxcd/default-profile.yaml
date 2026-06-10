@@ -131,9 +131,21 @@ data:
               enabled: true
             hostAliases:
               enabled: true
+              entries:
+              - ip: "10.96.188.4"
+                hostnames:
+                - "localhost"
+                - "portal.localhost"
+                - "kcp.localhost"
+                - "root.kcp.localhost"
+                - "kcp.api.{{ .baseDomain }}"
+                - "nereus.kcp.localhost"
+                - "triton.kcp.localhost"
             istio:
               enabled: false
             kcp:
+              external:
+                hostname: kcp.api.{{ .baseDomain }}
               # Required in remote mode: serviceAccount-based kcp auth lets the
               # multicluster-provider mint workspace-scoped tokens that
               # account-operator uses to discover newly created org workspaces.
@@ -221,6 +233,7 @@ data:
                 - ip: "10.96.188.4"
                   hostnames:
                     - "localhost"
+                    - "kcp.api.{{ .baseDomain }}"
         keycloak-operator:
           enabled: true
           external: true

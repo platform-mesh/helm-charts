@@ -15,6 +15,8 @@ COL_RES='\033[0m'
 
 KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-1200s}"
 CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-docker}"
+BASE_DOMAIN="${BASE_DOMAIN:-portal.localhost}"
+export KCP_URL="${KCP_URL:-https://kcp.api.${BASE_DOMAIN}:8443}"
 
 # Helm requires an auth config file for OCI registries; create an empty one if absent.
 echo '{"auths":{}}' > /tmp/helm-no-auth.json
@@ -641,10 +643,10 @@ if [ "$EXAMPLE_DATA" = true ]; then
     fi
   fi
 
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="https://localhost:8443/clusters/root:orgs"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="${KCP_URL}/clusters/root"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="${KCP_URL}/clusters/root:providers:httpbin-provider"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="${KCP_URL}/clusters/root:orgs"
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
