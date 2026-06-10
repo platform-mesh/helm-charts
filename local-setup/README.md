@@ -158,38 +158,6 @@ kind delete cluster --name platform-mesh
 - Example provider workspace: `root:providers:httpbin-provider`
 - HTTPBin provider configuration demonstrating provider integration patterns
 
-### 3. Alternative: Bootstrap with Image Caching
-
-Image caching speeds up cluster recreation by using local Docker registry mirrors. The registry setup is automatically handled by the script.
-
-**Using Task:**
-
-```sh
-# Full setup with caching
-task local-setup:cached
-
-# Iterate on existing cluster
-task local-setup:cached:iterate
-
-# With example data + caching
-task local-setup:cached:example-data
-task local-setup:cached:example-data:iterate
-```
-
-**Without Task:**
-
-```sh
-# Full setup with caching
-kind delete cluster --name platform-mesh
-./local-setup/scripts/start.sh --cached
-
-# Iterate on existing cluster
-./local-setup/scripts/start.sh --cached
-
-# With example data + caching
-./local-setup/scripts/start.sh --cached --example-data
-```
-
 ### Understanding Version Options
 
 **Default:** By default, the setup uses the current tested OCM component version from the OCM registry. This reflects the version pinned in the repository configuration and is ideal for:
@@ -239,7 +207,7 @@ task local-setup:remote:argocd:example-data:iterate
 
 - Base tasks: `task local-setup`, `task local-setup:iterate`
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `cached`, `prerelease`, `example-data`, `concurrent`, `sharded`, `remote`
+- Available flags: `prerelease`, `example-data`, `concurrent`, `sharded`, `remote`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
@@ -514,7 +482,6 @@ npx playwright test test-register-and-navigate.test.ts
 ### Configuration
 
 - `kind/kind-config.yaml`: Kind cluster configuration
-- `kind/kind-config-cached.yaml`: Kind cluster configuration with cached images
 - `kustomize/`: Kubernetes manifests and overlays
 - `webhook-config/`: Authorization webhook certificates and configuration
 
