@@ -3,7 +3,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-KCP_URL="${KCP_URL:-https://localhost:8443}"
+BASE_DOMAIN="${BASE_DOMAIN:-portal.localhost}"
+KCP_URL="${KCP_URL:-https://kcp.api.${BASE_DOMAIN}:8443}"
 ADMIN_KUBECONFIG="${ADMIN_KUBECONFIG:-$ROOT_DIR/.secret/kcp/admin.kubeconfig}"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-30s}"
 

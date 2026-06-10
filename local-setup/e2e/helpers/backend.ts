@@ -1,22 +1,35 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import dns from 'node:dns/promises';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+
+import { expect } from '@playwright/test';
 
 import {
   accountReadyTimeoutSeconds,
   inviteName,
+  keycloakAdminPassword,
+  keycloakAdminUser,
+  keycloakBaseUrl,
+  kcpClusterServer,
+  kcpRootCaPath,
+  kcpUrl,
+  kubeconfigSmokeConfigMapName,
+  mkcertCaPath,
   newOrgName,
   primaryUser,
   testAccountName,
   type TestUser,
 } from './constants';
 import { logStep } from './log';
-import { runAdminKubectl } from './runtime';
+import { runAdminKubectl, runKubectlWithKubeconfig } from './runtime';
 
 function waitForAccountReady(): void {
   logStep(`waitForAccountReady:start account=${testAccountName} timeout=${accountReadyTimeoutSeconds}s`);
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '--for=condition=Ready',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `accounts.core.platform-mesh.io/${testAccountName}`,
@@ -29,7 +42,7 @@ function waitForAccountExists(): void {
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '--for=jsonpath={.metadata.name}',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `accounts.core.platform-mesh.io/${testAccountName}`,
@@ -42,7 +55,7 @@ function waitForAccountDeleted(): void {
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '--for=delete',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `accounts.core.platform-mesh.io/${testAccountName}`,
@@ -66,7 +79,7 @@ function ensureInvitedUserExists(user: TestUser): void {
   runAdminKubectl([
     'apply',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '-f',
     '-',
   ], manifest);
@@ -74,7 +87,7 @@ function ensureInvitedUserExists(user: TestUser): void {
   runAdminKubectl([
     'wait',
     '--server',
-    `https://localhost:8443/clusters/root:orgs:${newOrgName}`,
+    kcpClusterServer(`root:orgs:${newOrgName}`),
     '--for=condition=Ready',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `invites.core.platform-mesh.io/${inviteName}`,
@@ -83,25 +96,77 @@ function ensureInvitedUserExists(user: TestUser): void {
   logStep(`ensureInvitedUserExists:done email=${user.email}`);
 }
 
+function readPemFile(filePath: string): string {
+  if (!existsSync(filePath)) {
+    throw new Error(`CA file not found at ${filePath}. Run local-setup before the kubeconfig e2e tests.`);
+  }
+
+  return readFileSync(filePath, 'utf8').trim();
+}
+
+function encodeCombinedCa(intermediatePem: string, rootCaPem: string): string {
+  const combined = intermediatePem
+    ? `${intermediatePem.trim()}\n${rootCaPem.trim()}\n`
+    : `${rootCaPem.trim()}\n`;
+  return Buffer.from(combined).toString('base64');
+}
+
+function appendKcpRootCa(content: string, rootCaPem: string): string {
+  const caLineMatch = content.match(/^([ \t]*)certificate-authority-data:[ \t]*(.+)$/m);
+  const indent = caLineMatch?.[1] ?? '    ';
+
+  if (caLineMatch) {
+    const intermediatePem = Buffer.from(caLineMatch[2].trim(), 'base64').toString('utf8');
+    if (intermediatePem.includes(rootCaPem)) {
+      return content;
+    }
+
+    const combinedCa = encodeCombinedCa(intermediatePem, rootCaPem);
+    return content.replace(
+      /^[ \t]*certificate-authority-data:[ \t]*.+$/m,
+      `${indent}certificate-authority-data: ${combinedCa}`,
+    );
+  }
+
+  const combinedCa = encodeCombinedCa('', rootCaPem);
+  return content.replace(
+    /^([ \t]*server: .+\n)/m,
+    `${indent}certificate-authority-data: ${combinedCa}\n$1`,
+  );
+}
+
+function configureOidcExecAuth(content: string, mkcertCa: string): string {
+  let normalized = content.replace(/\s+- --insecure-skip-tls-verify\n/g, '');
+
+  const certAuthorityArg = `          - --certificate-authority=${mkcertCa}\n`;
+  if (normalized.includes('--certificate-authority=')) {
+    return normalized;
+  }
+
+  if (normalized.includes('--oidc-issuer-url=')) {
+    return normalized.replace(
+      /(\s+- --oidc-issuer-url=[^\n]+\n)/,
+      `$1${certAuthorityArg}`,
+    );
+  }
+
+  if (normalized.includes('--oidc-client-id=')) {
+    return normalized.replace(
+      /(\s+- --oidc-client-id=[^\n]+\n)/,
+      `$1${certAuthorityArg}`,
+    );
+  }
+
+  return normalized;
+}
+
 function normalizeDownloadedKubeconfig(kubeconfigPath: string): void {
   const original = readFileSync(kubeconfigPath, 'utf8');
-  let normalized = original
-    .replace(/\n(\s+)certificate-authority-data: .+\n/g, '\n$1insecure-skip-tls-verify: true\n')
-    .replace(/\n(\s+)certificate-authority: .+\n/g, '\n$1insecure-skip-tls-verify: true\n');
+  let normalized = original.replace(/\r\n/g, '\n');
 
-  if (!/\n\s+insecure-skip-tls-verify:\s*true\s*\n/.test(normalized)) {
-    normalized = normalized.replace(
-      /(\n\s+server: .+\n)/,
-      `$1      insecure-skip-tls-verify: true\n`,
-    );
-  }
-
-  if (!normalized.includes('--insecure-skip-tls-verify')) {
-    normalized = normalized.replace(
-      /(\s+- --oidc-extra-scope=email\n)/,
-      `$1          - --insecure-skip-tls-verify\n`,
-    );
-  }
+  normalized = normalized.replace(/^[ \t]*insecure-skip-tls-verify:.*\n/gm, '');
+  normalized = appendKcpRootCa(normalized, readPemFile(kcpRootCaPath));
+  normalized = configureOidcExecAuth(normalized, path.resolve(mkcertCaPath));
 
   if (!normalized.includes('--grant-type=password')) {
     normalized = normalized.replace(
@@ -115,10 +180,127 @@ function normalizeDownloadedKubeconfig(kubeconfigPath: string): void {
   }
 }
 
+function extractOidcClientId(kubeconfigPath: string): string {
+  const kubeconfig = readFileSync(kubeconfigPath, 'utf8');
+  const match = kubeconfig.match(/--oidc-client-id=([^\n]+)/);
+  if (!match) {
+    throw new Error(`Unable to find OIDC client ID in ${kubeconfigPath}`);
+  }
+
+  return match[1].trim();
+}
+
+async function ensurePortalHostnameResolves(): Promise<void> {
+  const kcpApiHostname = new URL(kcpUrl).hostname;
+  for (const hostname of ['portal.localhost', kcpApiHostname]) {
+    try {
+      await dns.lookup(hostname);
+    } catch {
+      throw new Error(`${hostname} must resolve locally for the kubeconfig smoke test. Add "127.0.0.1 ${hostname}" to /etc/hosts.`);
+    }
+  }
+}
+
+function keycloakApiRequest(method: 'GET' | 'POST' | 'PUT', url: string, body?: string, token?: string): string {
+  const args = ['-sk', '-X', method, url];
+
+  if (token) {
+    args.push('-H', `Authorization: Bearer ${token}`);
+  }
+
+  if (body) {
+    args.push('-H', 'content-type: application/json', '--data', body);
+  }
+
+  return execFileSync('curl', args, { encoding: 'utf8' }).trim();
+}
+
+function getKeycloakAdminToken(): string {
+  const response = execFileSync('curl', [
+    '-sk',
+    '-X',
+    'POST',
+    `${keycloakBaseUrl}/realms/master/protocol/openid-connect/token`,
+    '-H',
+    'content-type: application/x-www-form-urlencoded',
+    '--data',
+    `grant_type=password&client_id=admin-cli&username=${encodeURIComponent(keycloakAdminUser)}&password=${encodeURIComponent(keycloakAdminPassword)}`,
+  ], { encoding: 'utf8' }).trim();
+
+  const parsed = JSON.parse(response);
+  if (!parsed.access_token) {
+    throw new Error(`Unable to get Keycloak admin token: ${response}`);
+  }
+
+  return parsed.access_token;
+}
+
+function ensureKubectlClientAllowsDirectGrants(clientId: string): void {
+  const token = getKeycloakAdminToken();
+  const response = keycloakApiRequest(
+    'GET',
+    `${keycloakBaseUrl}/admin/realms/default/clients?clientId=${encodeURIComponent(clientId)}`,
+    undefined,
+    token,
+  );
+  const clients = JSON.parse(response);
+
+  if (!Array.isArray(clients) || clients.length === 0) {
+    throw new Error(`Unable to find Keycloak client ${clientId}`);
+  }
+
+  const client = clients[0];
+  if (client.directAccessGrantsEnabled === true) {
+    return;
+  }
+
+  client.directAccessGrantsEnabled = true;
+  keycloakApiRequest(
+    'PUT',
+    `${keycloakBaseUrl}/admin/realms/default/clients/${client.id}`,
+    JSON.stringify(client),
+    token,
+  );
+}
+
+async function verifyDownloadedKubeconfig(kubeconfigPath: string): Promise<void> {
+  logStep(`verifyDownloadedKubeconfig:start path=${kubeconfigPath}`);
+  normalizeDownloadedKubeconfig(kubeconfigPath);
+  await ensurePortalHostnameResolves();
+  ensureKubectlClientAllowsDirectGrants(extractOidcClientId(kubeconfigPath));
+
+  const manifest = [
+    'apiVersion: v1',
+    'kind: ConfigMap',
+    'metadata:',
+    `  name: ${kubeconfigSmokeConfigMapName}`,
+    '  namespace: default',
+    'data:',
+    '  smoke: ok',
+    '',
+  ].join('\n');
+
+  runKubectlWithKubeconfig(kubeconfigPath, ['auth', 'can-i', 'create', 'configmaps', '-n', 'default']);
+  runKubectlWithKubeconfig(kubeconfigPath, ['apply', '-f', '-'], manifest);
+
+  const configMapName = runKubectlWithKubeconfig(
+    kubeconfigPath,
+    ['get', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '-o', 'jsonpath={.metadata.name}'],
+  );
+  expect(configMapName).toBe(kubeconfigSmokeConfigMapName);
+
+  runKubectlWithKubeconfig(
+    kubeconfigPath,
+    ['delete', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '--ignore-not-found=true'],
+  );
+  logStep(`verifyDownloadedKubeconfig:done path=${kubeconfigPath}`);
+}
+
 export {
   waitForAccountReady,
   waitForAccountExists,
   waitForAccountDeleted,
   ensureInvitedUserExists,
   normalizeDownloadedKubeconfig,
+  verifyDownloadedKubeconfig,
 };

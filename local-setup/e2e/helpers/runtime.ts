@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 
-import { adminKubeconfigPath, infraKubeconfigPath, remoteMode, runtimeKubeconfigPath } from './constants';
+import { adminKubeconfigPath, infraKubeconfigPath, kindContext, remoteMode, runtimeKubeconfigPath } from './constants';
 
 function runKubectlWithKubeconfig(kubeconfigPath: string, args: string[], input?: string): string {
   return execFileSync('kubectl', ['--kubeconfig', kubeconfigPath, ...args], {
@@ -22,12 +23,13 @@ function runAdminKubectl(args: string[], input?: string): string {
 
 // In remote mode, pin to the runtime kubeconfig explicitly so we don't depend
 // on the developer's ambient KUBECONFIG pointing at the right cluster.  In
-// single-cluster mode, fall through to whatever KUBECONFIG already points at.
+// single-cluster mode, prefer the local-setup runtime kubeconfig when present,
+// otherwise fall back to the kind-platform-mesh context.
 function runRuntimeKubectl(args: string[], input?: string): string {
-  if (remoteMode) {
+  if (remoteMode || existsSync(runtimeKubeconfigPath)) {
     return runKubectlWithKubeconfig(runtimeKubeconfigPath, args, input);
   }
-  return execFileSync('kubectl', args, {
+  return execFileSync('kubectl', ['--context', kindContext, ...args], {
     encoding: 'utf8',
     input,
   }).trim();
