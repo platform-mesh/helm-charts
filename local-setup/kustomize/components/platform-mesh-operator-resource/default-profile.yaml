@@ -86,6 +86,30 @@ data:
         targetNamespace: default
         values:
           gatewayAPI: false
+      prometheusOperatorCRDs:
+        enabled: true
+        interval: 1m
+        name: prometheus-operator-crds
+        ocmResourceName: chart
+        ocmComponentName: prometheus-operator-crds
+        targetNamespace: observability
+        values: {}
+      opentelemetryOperator:
+        enabled: true
+        interval: 1m
+        name: opentelemetry-operator
+        ocmResourceName: chart
+        ocmComponentName: opentelemetry-operator
+        targetNamespace: observability
+        values:
+          manager:
+            featureGatesMap:
+              operator.targetallocator.mtls: true
+          admissionWebhooks:
+            certManager:
+              enabled: false
+            autoGenerateCert:
+              enabled: true
     components:
       deploymentTechnology: fluxcd
       ocm:
@@ -328,10 +352,6 @@ data:
                 audience: default
                 jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
                 trustedIssuer: 'https://{{ .baseDomainPort }}/keycloak/realms/default'
-        observability:
-          syncWave: 4
-          enabled: false
-          targetNamespace: observability
         openfga:
           enabled: true
           external: true
@@ -586,6 +606,11 @@ data:
           syncWave: 4
           enabled: false
           targetNamespace: observability
+          dependsOn:
+          - name: prometheus-operator-crds
+            namespace: platform-mesh-system
+          - name: opentelemetry-operator
+            namespace: platform-mesh-system
           values:
             opentelemetry-operator:
               manager:
