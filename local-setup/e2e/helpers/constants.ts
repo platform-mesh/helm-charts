@@ -19,6 +19,8 @@ const keycloakBaseUrl = process.env.KEYCLOAK_BASE_URL || 'https://portal.localho
 const keycloakAdminUser = process.env.KEYCLOAK_ADMIN_USER || 'keycloak-admin';
 const keycloakAdminPassword = process.env.KEYCLOAK_ADMIN_PASSWORD || 'admin';
 const repoRoot = path.resolve(process.cwd(), '..', '..');
+const kcpRootCaPath = process.env.KCP_ROOT_CA_PATH || path.join(repoRoot, 'local-setup', 'scripts', 'certs', 'root-ca.crt');
+const mkcertCaPath = process.env.MKCERT_CA_PATH || path.join(repoRoot, 'local-setup', 'scripts', 'certs', 'ca.crt');
 const adminKubeconfigPath = process.env.ADMIN_KUBECONFIG || path.join(repoRoot, '.secret/kcp/admin.kubeconfig');
 const httpbinProviderManifestPath = path.join(repoRoot, 'local-setup', 'example-data', 'root', 'providers', 'httpbin-provider');
 const exampleDataOverlayPath = path.join(repoRoot, 'local-setup', 'kustomize', 'overlays', 'example-data');
@@ -84,6 +86,8 @@ export {
   keycloakAdminUser,
   keycloakAdminPassword,
   repoRoot,
+  kcpRootCaPath,
+  mkcertCaPath,
   adminKubeconfigPath,
   httpbinProviderManifestPath,
   exampleDataOverlayPath,

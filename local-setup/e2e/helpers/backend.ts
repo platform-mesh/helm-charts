@@ -1,6 +1,7 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import dns from 'node:dns/promises';
 import { execFileSync } from 'node:child_process';
+import path from 'node:path';
 
 import { expect } from '@playwright/test';
 
@@ -11,8 +12,10 @@ import {
   keycloakAdminUser,
   keycloakBaseUrl,
   kcpClusterServer,
+  kcpRootCaPath,
   kcpUrl,
   kubeconfigSmokeConfigMapName,
+  mkcertCaPath,
   newOrgName,
   primaryUser,
   testAccountName,
@@ -93,25 +96,77 @@ function ensureInvitedUserExists(user: TestUser): void {
   logStep(`ensureInvitedUserExists:done email=${user.email}`);
 }
 
+function readPemFile(filePath: string): string {
+  if (!existsSync(filePath)) {
+    throw new Error(`CA file not found at ${filePath}. Run local-setup before the kubeconfig e2e tests.`);
+  }
+
+  return readFileSync(filePath, 'utf8').trim();
+}
+
+function encodeCombinedCa(intermediatePem: string, rootCaPem: string): string {
+  const combined = intermediatePem
+    ? `${intermediatePem.trim()}\n${rootCaPem.trim()}\n`
+    : `${rootCaPem.trim()}\n`;
+  return Buffer.from(combined).toString('base64');
+}
+
+function appendKcpRootCa(content: string, rootCaPem: string): string {
+  const caLineMatch = content.match(/^([ \t]*)certificate-authority-data:[ \t]*(.+)$/m);
+  const indent = caLineMatch?.[1] ?? '    ';
+
+  if (caLineMatch) {
+    const intermediatePem = Buffer.from(caLineMatch[2].trim(), 'base64').toString('utf8');
+    if (intermediatePem.includes(rootCaPem)) {
+      return content;
+    }
+
+    const combinedCa = encodeCombinedCa(intermediatePem, rootCaPem);
+    return content.replace(
+      /^[ \t]*certificate-authority-data:[ \t]*.+$/m,
+      `${indent}certificate-authority-data: ${combinedCa}`,
+    );
+  }
+
+  const combinedCa = encodeCombinedCa('', rootCaPem);
+  return content.replace(
+    /^([ \t]*server: .+\n)/m,
+    `${indent}certificate-authority-data: ${combinedCa}\n$1`,
+  );
+}
+
+function configureOidcExecAuth(content: string, mkcertCa: string): string {
+  let normalized = content.replace(/\s+- --insecure-skip-tls-verify\n/g, '');
+
+  const certAuthorityArg = `          - --certificate-authority=${mkcertCa}\n`;
+  if (normalized.includes('--certificate-authority=')) {
+    return normalized;
+  }
+
+  if (normalized.includes('--oidc-issuer-url=')) {
+    return normalized.replace(
+      /(\s+- --oidc-issuer-url=[^\n]+\n)/,
+      `$1${certAuthorityArg}`,
+    );
+  }
+
+  if (normalized.includes('--oidc-client-id=')) {
+    return normalized.replace(
+      /(\s+- --oidc-client-id=[^\n]+\n)/,
+      `$1${certAuthorityArg}`,
+    );
+  }
+
+  return normalized;
+}
+
 function normalizeDownloadedKubeconfig(kubeconfigPath: string): void {
   const original = readFileSync(kubeconfigPath, 'utf8');
-  let normalized = original
-    .replace(/\n(\s+)certificate-authority-data: .+\n/g, '\n$1insecure-skip-tls-verify: true\n')
-    .replace(/\n(\s+)certificate-authority: .+\n/g, '\n$1insecure-skip-tls-verify: true\n');
+  let normalized = original.replace(/\r\n/g, '\n');
 
-  if (!/\n\s+insecure-skip-tls-verify:\s*true\s*\n/.test(normalized)) {
-    normalized = normalized.replace(
-      /(\n\s+server: .+\n)/,
-      `$1      insecure-skip-tls-verify: true\n`,
-    );
-  }
-
-  if (!normalized.includes('--insecure-skip-tls-verify')) {
-    normalized = normalized.replace(
-      /(\s+- --oidc-extra-scope=email\n)/,
-      `$1          - --insecure-skip-tls-verify\n`,
-    );
-  }
+  normalized = normalized.replace(/^[ \t]*insecure-skip-tls-verify:.*\n/gm, '');
+  normalized = appendKcpRootCa(normalized, readPemFile(kcpRootCaPath));
+  normalized = configureOidcExecAuth(normalized, path.resolve(mkcertCaPath));
 
   if (!normalized.includes('--grant-type=password')) {
     normalized = normalized.replace(
@@ -210,6 +265,7 @@ function ensureKubectlClientAllowsDirectGrants(clientId: string): void {
 
 async function verifyDownloadedKubeconfig(kubeconfigPath: string): Promise<void> {
   logStep(`verifyDownloadedKubeconfig:start path=${kubeconfigPath}`);
+  normalizeDownloadedKubeconfig(kubeconfigPath);
   await ensurePortalHostnameResolves();
   ensureKubectlClientAllowsDirectGrants(extractOidcClientId(kubeconfigPath));
 
@@ -227,10 +283,16 @@ async function verifyDownloadedKubeconfig(kubeconfigPath: string): Promise<void>
   runKubectlWithKubeconfig(kubeconfigPath, ['auth', 'can-i', 'create', 'configmaps', '-n', 'default']);
   runKubectlWithKubeconfig(kubeconfigPath, ['apply', '-f', '-'], manifest);
 
-  const configMapName = runKubectlWithKubeconfig(kubeconfigPath, ['get', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '-o', 'jsonpath={.metadata.name}']);
+  const configMapName = runKubectlWithKubeconfig(
+    kubeconfigPath,
+    ['get', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '-o', 'jsonpath={.metadata.name}'],
+  );
   expect(configMapName).toBe(kubeconfigSmokeConfigMapName);
 
-  runKubectlWithKubeconfig(kubeconfigPath, ['delete', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '--ignore-not-found=true']);
+  runKubectlWithKubeconfig(
+    kubeconfigPath,
+    ['delete', 'configmap', kubeconfigSmokeConfigMapName, '-n', 'default', '--ignore-not-found=true'],
+  );
   logStep(`verifyDownloadedKubeconfig:done path=${kubeconfigPath}`);
 }
 
