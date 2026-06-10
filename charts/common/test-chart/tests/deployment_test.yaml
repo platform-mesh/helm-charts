@@ -16,16 +16,15 @@ tests:
         tag: 1.0.0
     asserts:
       - matchSnapshot: {}
-  - it: test name override
+  - it: test repository override
     set:
       image:
-        name: my-image
+        registry: my-registry.io
+        repository: my-org/my-image
     asserts:
       - matchSnapshot: {}
   - it: test sentry enabled
     set:
-      image:
-        name: my-image
       global:
         sentry:
           enabled: true
