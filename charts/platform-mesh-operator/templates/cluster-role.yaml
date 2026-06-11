@@ -125,6 +125,7 @@ rules:
   - argoproj.io
   resources:
   - appprojects
+  - applications
   verbs:
   - create
   - delete
