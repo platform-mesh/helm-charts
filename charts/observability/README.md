@@ -21,11 +21,9 @@ OpenTelemetry-based observability stack for platform-mesh
 | httproutes.prometheus.filters | list | `[]` | Optional filters (e.g., URLRewrite for path stripping) |
 | httproutes.prometheus.hostnames | list | `[]` | Hostnames for the Prometheus UI |
 | httproutes.prometheus.pathPrefix | string | `"/prometheus"` | Path prefix for Prometheus UI |
-| opentelemetry-operator | object | `{"enabled":true,"manager":{"collectorImage":{"repository":"otel/opentelemetry-collector-contrib"}}}` | ---------------------------------------------------------------------------- |
-| opentelemetry-operator.enabled | bool | `true` | Enable the OpenTelemetry Operator |
-| opentelemetry-operator.manager.collectorImage.repository | string | `"otel/opentelemetry-collector-contrib"` | Use the contrib image which includes the prometheus receiver |
-| otelCollector | object | `{"config":{"batchTimeout":"10s"},"mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
+| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0","mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
+| otelCollector.image | string | `"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0"` | Collector image (use contrib for prometheusremotewrite exporter) |
 | otelCollector.mode | string | `"statefulset"` | Deployment mode (statefulset required for Target Allocator) |
 | otelCollector.name | string | `"otel-gateway"` | Name of the OpenTelemetryCollector CR |
 | otelCollector.replicas | int | `1` | Number of collector replicas |
@@ -52,10 +50,10 @@ OpenTelemetry-based observability stack for platform-mesh
 | serviceMonitors.kcp.kubeconfig.validity | string | `"8766h"` | Validity period of the client certificate |
 | serviceMonitors.kcp.labels | object | `{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"}` | Labels to select kcp service |
 | serviceMonitors.kcp.namespace | string | `"platform-mesh-system"` | Namespace where kcp runs |
-| serviceMonitors.kcp.path | string | `"/clusters/root/metrics"` | Path to metrics endpoint (kcp-specific path) |
+| serviceMonitors.kcp.path | string | `"/clusters/root/metrics"` | Path to metrics endpoint (as of kcp 0.32, /metrics and /clusters/root/metrics return the exact same data, but /clusters/root/metrics requires fewer permissions). |
 | serviceMonitors.kcp.port | string | `"https"` | Name of the port exposing metrics (same as API port) |
 | serviceMonitors.kcp.scheme | string | `"https"` | Use HTTPS scheme |
-| serviceMonitors.kcp.tlsInsecureSkipVerify | bool | `true` | Skip TLS certificate verification (required for self-signed certs) |
+| serviceMonitors.kcp.tlsInsecureSkipVerify | bool | `true` | Skip TLS certificate verification; unless you know what you're doing, this should be left to true, since OTel Collector will connect to each Pod in the target Service using its IP, which is never part of the certificate's SANs. |
 | serviceMonitors.kcp.tlsSecretName | string | `"kcp-metrics-client-cert"` | Name of the TLS secret containing client cert/key for authentication This secret is created by the kcp-metrics-cert-job from the kubeconfig |
 | serviceMonitors.openfga | object | `{"enabled":true,"labels":{"app.kubernetes.io/name":"openfga"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"}` | OpenFGA metrics scraping |
 | serviceMonitors.openfga.enabled | bool | `true` | Enable scraping OpenFGA |
@@ -90,7 +88,7 @@ Example
 ```
 # observability
 
-![Version: 0.3.6](https://img.shields.io/badge/Version-0.3.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
 
 OpenTelemetry-based observability stack for platform-mesh
 
@@ -119,11 +117,9 @@ OpenTelemetry-based observability stack for platform-mesh
 | httproutes.prometheus.filters | list | `[]` | Optional filters (e.g., URLRewrite for path stripping) |
 | httproutes.prometheus.hostnames | list | `[]` | Hostnames for the Prometheus UI |
 | httproutes.prometheus.pathPrefix | string | `"/prometheus"` | Path prefix for Prometheus UI |
-| opentelemetry-operator | object | `{"enabled":true,"manager":{"collectorImage":{"repository":"otel/opentelemetry-collector-contrib"}}}` | ---------------------------------------------------------------------------- |
-| opentelemetry-operator.enabled | bool | `true` | Enable the OpenTelemetry Operator |
-| opentelemetry-operator.manager.collectorImage.repository | string | `"otel/opentelemetry-collector-contrib"` | Use the contrib image which includes the prometheus receiver |
-| otelCollector | object | `{"config":{"batchTimeout":"10s"},"mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
+| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0","mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
+| otelCollector.image | string | `"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0"` | Collector image (use contrib for prometheusremotewrite exporter) |
 | otelCollector.mode | string | `"statefulset"` | Deployment mode (statefulset required for Target Allocator) |
 | otelCollector.name | string | `"otel-gateway"` | Name of the OpenTelemetryCollector CR |
 | otelCollector.replicas | int | `1` | Number of collector replicas |
@@ -150,10 +146,10 @@ OpenTelemetry-based observability stack for platform-mesh
 | serviceMonitors.kcp.kubeconfig.validity | string | `"8766h"` | Validity period of the client certificate |
 | serviceMonitors.kcp.labels | object | `{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"}` | Labels to select kcp service |
 | serviceMonitors.kcp.namespace | string | `"platform-mesh-system"` | Namespace where kcp runs |
-| serviceMonitors.kcp.path | string | `"/clusters/root/metrics"` | Path to metrics endpoint (kcp-specific path) |
+| serviceMonitors.kcp.path | string | `"/clusters/root/metrics"` | Path to metrics endpoint (as of kcp 0.32, /metrics and /clusters/root/metrics return the exact same data, but /clusters/root/metrics requires fewer permissions). |
 | serviceMonitors.kcp.port | string | `"https"` | Name of the port exposing metrics (same as API port) |
 | serviceMonitors.kcp.scheme | string | `"https"` | Use HTTPS scheme |
-| serviceMonitors.kcp.tlsInsecureSkipVerify | bool | `true` | Skip TLS certificate verification (required for self-signed certs) |
+| serviceMonitors.kcp.tlsInsecureSkipVerify | bool | `true` | Skip TLS certificate verification; unless you know what you're doing, this should be left to true, since OTel Collector will connect to each Pod in the target Service using its IP, which is never part of the certificate's SANs. |
 | serviceMonitors.kcp.tlsSecretName | string | `"kcp-metrics-client-cert"` | Name of the TLS secret containing client cert/key for authentication This secret is created by the kcp-metrics-cert-job from the kubeconfig |
 | serviceMonitors.openfga | object | `{"enabled":true,"labels":{"app.kubernetes.io/name":"openfga"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"}` | OpenFGA metrics scraping |
 | serviceMonitors.openfga.enabled | bool | `true` | Enable scraping OpenFGA |

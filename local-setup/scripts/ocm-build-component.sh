@@ -24,7 +24,7 @@ REMOTE_REGISTRY="${REMOTE_REGISTRY:-ghcr.io/platform-mesh}"
 LOCAL_REGISTRY="${LOCAL_REGISTRY:-oci-registry-docker-registry.registry.svc.cluster.local}"
 
 # List of local component names (for version resolution)
-CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,keycloak-operator,kubernetes-graphql-gateway,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
+CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,keycloak-operator,kubernetes-graphql-gateway,observability,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
 
 # Fixed version overrides (empty by default)
 FIXED_VERSION_PAIRS=""

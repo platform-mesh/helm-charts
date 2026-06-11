@@ -2,19 +2,6 @@
 createNamespace: false
 
 # ------------------------------------------------------------------------------
-# OpenTelemetry Operator
-# Manages the OTel Collector via CRDs
-# https://github.com/open-telemetry/opentelemetry-helm-charts/tree/main/charts/opentelemetry-operator
-# ------------------------------------------------------------------------------
-opentelemetry-operator:
-  # -- Enable the OpenTelemetry Operator
-  enabled: true
-  manager:
-    collectorImage:
-      # -- Use the contrib image which includes the prometheus receiver
-      repository: otel/opentelemetry-collector-contrib
-
-# ------------------------------------------------------------------------------
 # Prometheus
 # Metrics storage and query backend
 # https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
@@ -54,6 +41,8 @@ otelCollector:
   mode: statefulset
   # -- Number of collector replicas
   replicas: 1
+  # -- Collector image (use contrib for prometheusremotewrite exporter)
+  image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0
   config:
     # -- Batch processor timeout before sending metrics
     batchTimeout: 10s
@@ -104,11 +93,15 @@ serviceMonitors:
       app.kubernetes.io/name: kcp
     # -- Name of the port exposing metrics (same as API port)
     port: https
-    # -- Path to metrics endpoint (kcp-specific path)
+    # -- Path to metrics endpoint (as of kcp 0.32, /metrics and /clusters/root/metrics
+    # return the exact same data, but /clusters/root/metrics requires fewer permissions).
     path: /clusters/root/metrics
     # -- Use HTTPS scheme
     scheme: https
-    # -- Skip TLS certificate verification (required for self-signed certs)
+    # -- Skip TLS certificate verification; unless you know what you're doing,
+    # this should be left to true, since OTel Collector will connect to each
+    # Pod in the target Service using its IP, which is never part of the
+    # certificate's SANs.
     tlsInsecureSkipVerify: true
     # -- Name of the TLS secret containing client cert/key for authentication
     # This secret is created by the kcp-metrics-cert-job from the kubeconfig
