@@ -24,7 +24,7 @@ REMOTE_REGISTRY="${REMOTE_REGISTRY:-ghcr.io/platform-mesh}"
 LOCAL_REGISTRY="${LOCAL_REGISTRY:-oci-registry-docker-registry.registry.svc.cluster.local}"
 
 # List of local component names (for version resolution)
-CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,keycloak-operator,kubernetes-graphql-gateway,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
+CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,keycloak-operator,kubernetes-graphql-gateway,observability,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
 
 # Fixed version overrides (empty by default)
 FIXED_VERSION_PAIRS=""
@@ -185,6 +185,9 @@ resolve_component_versions() {
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "postgresql-image") | .element.version')
     export MARKETPLACE_UI_CHART_VERSION=$(get_ocm_resource_version "github.com/platform-mesh/helm-charts/marketplace-ui" '.items[0].element | .version')
     export MARKETPLACE_UI_IMAGE_VERSION=$(get_ocm_resource_version "github.com/platform-mesh/images/marketplace-ui" '.items[0].element | .version')
+    export PROMETHEUS_OPERATOR_CRDS_VERSION=$(get_ocm_resource_version "github.com/prometheus-community/prometheus-operator-crds" '.items[0].element["version"]')
+    export KUBE_PROMETHEUS_STACK_VERSION=$(get_ocm_resource_version "github.com/prometheus-community/kube-prometheus-stack" '.items[0].element["version"]')
+    export OPENTELEMETRY_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/open-telemetry/opentelemetry-operator" '.items[0].element["version"]')
 
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite --copy-resources --no-update europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:0.4.4 oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
@@ -250,7 +253,10 @@ build_final_component() {
         CNPG_OPERATOR_CHART_VERSION="$CNPG_OPERATOR_CHART_VERSION" \
         CNPG_OPERATOR_IMAGE_VERSION="$CNPG_OPERATOR_IMAGE_VERSION" \
         TERMINAL_CONTROLLER_MANAGER_VERSION="$TERMINAL_CONTROLLER_MANAGER_VERSION" \
-        OBSERVABILITY_VERSION="$OBSERVABILITY_VERSION"
+        OBSERVABILITY_VERSION="$OBSERVABILITY_VERSION" \
+        PROMETHEUS_OPERATOR_CRDS_VERSION="$PROMETHEUS_OPERATOR_CRDS_VERSION" \
+        KUBE_PROMETHEUS_STACK_VERSION="$KUBE_PROMETHEUS_STACK_VERSION" \
+        OPENTELEMETRY_OPERATOR_VERSION="$OPENTELEMETRY_OPERATOR_VERSION"
 
     echo ""
     echo -e "${COL}[$(date '+%H:%M:%S')] Built prerelease component version $COMPONENT_PRERELEASE_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)${COL_RES}"

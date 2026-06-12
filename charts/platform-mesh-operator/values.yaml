@@ -44,3 +44,7 @@ remoteRuntime:
     # -- Name of the secret containing Runtime cluster kubeconfig
     secretName: "platform-mesh-secret"
     secretKey: "kubeconfig"
+
+providers:
+  # -- Enables the providers controller deployment.
+  enabled: false

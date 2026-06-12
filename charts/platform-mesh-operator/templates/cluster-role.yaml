@@ -42,6 +42,7 @@ rules:
   resources: 
   - secrets
   - configmaps
+  - namespaces
   verbs: 
   - get
   - list
@@ -120,3 +121,16 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - argoproj.io
+  resources:
+  - appprojects
+  - applications
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch

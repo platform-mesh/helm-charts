@@ -45,3 +45,4 @@ spec:
         - portal.localhost
         - localhost
         - root.kcp.localhost
+        - kcp.api.portal.localhost

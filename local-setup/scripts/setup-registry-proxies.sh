@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Registry Proxies Setup Script
-# This script sets up Docker/Podman registry proxies for cached mode
+# This script sets up Docker/Podman registry mirrors
 
 COL='\033[92m'
 RED='\033[91m'
 COL_RES='\033[0m'
 
 setup_registry_proxies() {
-    echo -e "${COL}[$(date '+%H:%M:%S')] Setting up registry proxies for cached mode ${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Setting up registry proxies ${COL_RES}"
 
     CONTAINER_RUNTIME=$(detect_container_runtime)
     if [ -z "$CONTAINER_RUNTIME" ]; then

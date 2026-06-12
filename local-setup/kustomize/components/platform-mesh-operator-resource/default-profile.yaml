@@ -86,6 +86,30 @@ data:
         targetNamespace: default
         values:
           gatewayAPI: false
+      prometheusOperatorCRDs:
+        enabled: true
+        interval: 1m
+        name: prometheus-operator-crds
+        ocmResourceName: chart
+        ocmComponentName: prometheus-operator-crds
+        targetNamespace: observability
+        values: {}
+      opentelemetryOperator:
+        enabled: true
+        interval: 1m
+        name: opentelemetry-operator
+        ocmResourceName: chart
+        ocmComponentName: opentelemetry-operator
+        targetNamespace: observability
+        values:
+          manager:
+            featureGatesMap:
+              operator.targetallocator.mtls: true
+          admissionWebhooks:
+            certManager:
+              enabled: false
+            autoGenerateCert:
+              enabled: true
     components:
       deploymentTechnology: fluxcd
       ocm:
@@ -162,6 +186,16 @@ data:
               enabled: true
             hostAliases:
               enabled: true
+              entries:
+              - ip: "10.96.188.4"
+                hostnames:
+                - "localhost"
+                - "portal.localhost"
+                - "kcp.localhost"
+                - "root.kcp.localhost"
+                - "kcp.api.{{ .baseDomain }}"
+                - "nereus.kcp.localhost"
+                - "triton.kcp.localhost"
             keycloak:
               operator:
                 hostname: https://portal.localhost:8443/keycloak/
@@ -185,6 +219,8 @@ data:
               keycloakConfig:
                 url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
             kcp:
+              external:
+                hostname: kcp.api.{{ .baseDomain }}
               auth:
                 serviceAccount:
                   enabled: true
@@ -257,6 +293,7 @@ data:
                 - ip: "10.96.188.4"
                   hostnames:
                     - "localhost"
+                    - "kcp.api.{{ .baseDomain }}"
         kcp:
           external: true
         kcp-operator:
@@ -315,10 +352,6 @@ data:
                 audience: default
                 jwksUrl: http://keycloak-headless.platform-mesh-system:8080/keycloak/realms/default/protocol/openid-connect/certs
                 trustedIssuer: 'https://{{ .baseDomainPort }}/keycloak/realms/default'
-        observability:
-          syncWave: 4
-          enabled: false
-          targetNamespace: observability
         openfga:
           enabled: true
           external: true
@@ -439,6 +472,7 @@ data:
                 - "portal.localhost"
                 - "kcp.localhost"
                 - "root.kcp.localhost"
+                - "kcp.api.{{ .baseDomain }}"
                 - "nereus.kcp.localhost"
                 - "triton.kcp.localhost"
             http:
@@ -572,13 +606,14 @@ data:
               kubeconfigSecret: terminal-controller-manager-kubeconfig
         observability:
           syncWave: 4
-          enabled: false
+          enabled: true
           targetNamespace: observability
+          dependsOn:
+          - name: prometheus-operator-crds
+            namespace: platform-mesh-system
+          - name: opentelemetry-operator
+            namespace: platform-mesh-system
           values:
-            opentelemetry-operator:
-              manager:
-                collectorImage:
-                  repository: otel/opentelemetry-collector-contrib
             prometheus:
               server:
                 persistentVolume:

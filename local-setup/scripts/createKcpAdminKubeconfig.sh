@@ -1,8 +1,11 @@
 #!/bin/bash
 
+set -e
+
 KCP_CA_SECRET=root-frontproxy-server
 KCP_ADMIN_SECRET=kcp-cluster-admin-client-cert
-KCP_URL=https://localhost:8443
+BASE_DOMAIN="${BASE_DOMAIN:-portal.localhost}"
+KCP_URL="${KCP_URL:-https://kcp.api.${BASE_DOMAIN}:8443}"
 #KCP_URL=https://kcp.api.portal.cc-one.showroom.apeirora.eu
 
 mkdir -p $PWD/.secret/kcp

@@ -2,6 +2,9 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 const portalBaseUrl = 'https://portal.localhost:8443/';
+const baseDomain = process.env.BASE_DOMAIN || 'portal.localhost';
+const kcpUrl = process.env.KCP_URL || `https://kcp.api.${baseDomain}:8443`;
+const kindContext = process.env.KIND_CONTEXT || 'kind-platform-mesh';
 const runId = process.env.TEST_RUN_ID || `${Date.now()}`.slice(-8);
 const newOrgName = process.env.ORG_NAME || 'default';
 const testAccountName = process.env.TEST_ACCOUNT_NAME || `testaccount-${runId}`;
@@ -16,6 +19,8 @@ const keycloakBaseUrl = process.env.KEYCLOAK_BASE_URL || 'https://portal.localho
 const keycloakAdminUser = process.env.KEYCLOAK_ADMIN_USER || 'keycloak-admin';
 const keycloakAdminPassword = process.env.KEYCLOAK_ADMIN_PASSWORD || 'admin';
 const repoRoot = path.resolve(process.cwd(), '..', '..');
+const kcpRootCaPath = process.env.KCP_ROOT_CA_PATH || path.join(repoRoot, 'local-setup', 'scripts', 'certs', 'root-ca.crt');
+const mkcertCaPath = process.env.MKCERT_CA_PATH || path.join(repoRoot, 'local-setup', 'scripts', 'certs', 'ca.crt');
 const adminKubeconfigPath = process.env.ADMIN_KUBECONFIG || path.join(repoRoot, '.secret/kcp/admin.kubeconfig');
 const httpbinProviderManifestPath = path.join(repoRoot, 'local-setup', 'example-data', 'root', 'providers', 'httpbin-provider');
 const exampleDataOverlayPath = path.join(repoRoot, 'local-setup', 'kustomize', 'overlays', 'example-data');
@@ -57,8 +62,16 @@ const invitedUser: TestUser = {
   keycloakPassword: process.env.INVITED_USER_KEYCLOAK_PASSWORD || 'password',
 };
 
+function kcpClusterServer(clusterPath: string): string {
+  return `${kcpUrl}/clusters/${clusterPath}`;
+}
+
 export {
   portalBaseUrl,
+  baseDomain,
+  kcpUrl,
+  kindContext,
+  kcpClusterServer,
   runId,
   newOrgName,
   testAccountName,
@@ -73,6 +86,8 @@ export {
   keycloakAdminUser,
   keycloakAdminPassword,
   repoRoot,
+  kcpRootCaPath,
+  mkcertCaPath,
   adminKubeconfigPath,
   httpbinProviderManifestPath,
   exampleDataOverlayPath,

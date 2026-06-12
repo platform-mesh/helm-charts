@@ -15,6 +15,8 @@ COL_RES='\033[0m'
 
 KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-1200s}"
 CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-docker}"
+BASE_DOMAIN="${BASE_DOMAIN:-portal.localhost}"
+export KCP_URL="${KCP_URL:-https://kcp.api.${BASE_DOMAIN}:8443}"
 
 # Helm requires an auth config file for OCI registries; create an empty one if absent.
 echo '{"auths":{}}' > /tmp/helm-no-auth.json
@@ -32,10 +34,12 @@ ITERATE=false
 
 usage() {
   echo "Usage: $0 [--prerelease] [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--help]"
+
   echo ""
   echo "Options:"
   echo "  --prerelease       Deploy with locally built OCM components instead of released versions"
   echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
+
   echo "  --concurrent       Run prerelease chart builds in parallel instead of sequentially"
   echo "  --sharded          Deploy additional kcp shards"
   echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
@@ -48,11 +52,6 @@ usage() {
 while [ $# -gt 0 ]; do
   case "$1" in
     --prerelease) PRERELEASE=true ;;
-    --cached)
-      # Deprecated: registry mirrors are always-on now; the flag is accepted
-      # for backwards compatibility with the local-setup:cached* Taskfile entries.
-      echo -e "${YELLOW}Note: --cached is deprecated; registry mirrors are now always enabled.${COL_RES}" >&2
-      ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
@@ -75,6 +74,11 @@ done
 # Export CONCURRENT and ITERATE for prerelease build scripts
 export CONCURRENT
 export ITERATE
+
+# A stale KUBECONFIG from a previous run (e.g. pointing at .secret/kcp/admin.kubeconfig)
+# would misdirect every kubectl/helm call in this script. kind merges cluster
+# credentials into ~/.kube/config, so the default kubeconfig is always correct here.
+unset KUBECONFIG
 
 if [ "$ITERATE" = true ] && [ "$PRERELEASE" = false ]; then
   echo -e "${RED}--iterate requires --prerelease${COL_RES}" >&2
@@ -641,10 +645,10 @@ if [ "$EXAMPLE_DATA" = true ]; then
     fi
   fi
 
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="https://localhost:8443/clusters/root:providers"
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="https://localhost:8443/clusters/root:providers:httpbin-provider"
-  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="https://localhost:8443/clusters/root:orgs"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="${KCP_URL}/clusters/root"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="${KCP_URL}/clusters/root:providers:httpbin-provider"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="${KCP_URL}/clusters/root:orgs"
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
@@ -667,14 +671,6 @@ if [ "$EXAMPLE_DATA" = true ]; then
       --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
   fi
 fi
-
-echo -e "${COL}[$(date '+%H:%M:%S')] Installing observability stack ${COL_RES}"
-helm dependency update "$SCRIPT_DIR/../../charts/observability" > /dev/null 2>&1
-kubectl create namespace observability --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
-helm upgrade --install observability "$SCRIPT_DIR/../../charts/observability" \
-  "${RUNTIME_KC[@]}" -n observability \
-  --set prometheus.server.persistentVolume.enabled=false \
-  --wait --timeout=10m > /dev/null 2>&1
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Verifying backend resources ${COL_RES}"
 WAIT_TIMEOUT=120s "$SCRIPT_DIR/check-backend-resources.sh"
