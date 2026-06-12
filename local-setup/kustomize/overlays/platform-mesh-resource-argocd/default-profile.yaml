@@ -576,6 +576,8 @@ data:
           targetNamespace: platform-mesh-system
           values:
             virtualWorkspaceSecretName: virtual-workspaces-cert
+            hostAliases:
+              enabled: true
             deployment:
               serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:8443"
               resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"

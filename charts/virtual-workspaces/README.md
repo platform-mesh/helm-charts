@@ -33,6 +33,7 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
 | deployment.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
 | deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443"` |  |
+| hostAliases.enabled | bool | `false` |  |
 | image.name | string | `"ghcr.io/platform-mesh/virtual-workspaces"` | The image repository |
 | kubeconfigSecretName | string | `"account-operator-kubeconfig"` |  |
 | requestHeaderClientCASecretName | string | `"root-requestheader-client-ca"` |  |
