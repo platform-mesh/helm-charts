@@ -6,5 +6,4 @@ kind: Kustomization
 # Helm chart on the infra cluster.
 resources:
   - ../../../../charts/platform-mesh-operator-crds/templates/core.platform-mesh.io_platformmeshes.yaml
-  - ../../../../charts/platform-mesh-operator-crds/templates/providers.platform-mesh.io_providers.yaml
   - ../../../../charts/platform-mesh-operator-crds/templates/providers.platform-mesh.io_managedproviders.yaml
