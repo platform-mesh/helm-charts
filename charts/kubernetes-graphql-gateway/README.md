@@ -47,8 +47,10 @@ kubeConfig:
 | health.startup.path | string | `"/readyz"` |  |
 | health.startup.periodSeconds | int | `10` |  |
 | hostAliases.enabled | bool | `false` |  |
-| image.name | string | `"ghcr.io/platform-mesh/kubernetes-graphql-gateway"` |  |
+| image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
+| image.registry | string | `"ghcr.io"` | The image registry |
+| image.repository | string | `"platform-mesh/kubernetes-graphql-gateway"` | The image repository path (without registry) |
 | kcp.enabled | bool | `true` | Controls kcp-specific RBAC. Set to true when provider is "kcp" or "multi". |
 | kubeConfig.createSecret | bool | `false` |  |
 | kubeConfig.enabled | bool | `true` | Mounts an external kubeconfig (for kcp provider). When provider is "kcp" or "multi", this provides the kcp kubeconfig. |
