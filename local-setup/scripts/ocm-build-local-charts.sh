@@ -27,6 +27,7 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "infra:charts/infra"
     "keycloak-operator:charts/keycloak-operator"
     "kubernetes-graphql-gateway:charts/kubernetes-graphql-gateway"
+    "observability:charts/observability"
     "platform-mesh-operator:charts/platform-mesh-operator"
     "platform-mesh-operator-components:charts/platform-mesh-operator-components"
     "platform-mesh-operator-infra-components:charts/platform-mesh-operator-infra-components"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 KCP_CA_SECRET=root-frontproxy-server
 KCP_ADMIN_SECRET=kcp-cluster-admin-client-cert
 BASE_DOMAIN="${BASE_DOMAIN:-portal.localhost}"

@@ -10,11 +10,8 @@ The simplest way to test local chart changes is using the `--prerelease` flag:
 # Full setup with locally built components (deletes existing cluster)
 task local-setup:prerelease
 
-# With caching for faster image pulls
-task local-setup:cached:prerelease
-
 # With concurrent chart builds (faster on multi-core systems)
-task local-setup:cached:prerelease:concurrent
+task local-setup:prerelease:concurrent
 ```
 
 This automatically:
@@ -31,11 +28,8 @@ If you already have a running cluster and want to test prerelease changes withou
 # Reuse existing cluster (faster, no cluster recreation)
 task local-setup:prerelease:iterate
 
-# With caching
-task local-setup:cached:prerelease:iterate
-
 # With concurrent chart builds
-task local-setup:cached:prerelease:concurrent:iterate
+task local-setup:prerelease:concurrent:iterate
 ```
 
 This is the recommended approach for iterative development as it:

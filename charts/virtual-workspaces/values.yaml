@@ -24,6 +24,9 @@ deployment:
   mainEntityName: main
   accountEntityName: core_platform-mesh_io_account
 
+hostAliases:
+  enabled: false
+
 clusterAccess:
   marketplace:
     enabled: true
