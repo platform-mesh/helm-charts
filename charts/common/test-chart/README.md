@@ -6,7 +6,10 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| image.name | string | `"ghcr.io/your-org/your-image"` |  |
+| image.digest | string | `""` | The image digest; when set it overrides the tag (registry/repository@digest) |
+| image.registry | string | `"ghcr.io"` | The image registry |
+| image.repository | string | `"your-org/your-image"` | The image repository path (without registry) |
+| image.tag | string | `""` | The image tag (defaults to the chart appVersion when empty) |
 
 ## Overriding Values
 
@@ -36,11 +39,14 @@ A Helm chart for Kubernetes
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://.. | common | 0.12.0 |
+| file://.. | common | 0.13.0 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| image.name | string | `"ghcr.io/your-org/your-image"` |  |
+| image.digest | string | `""` | The image digest; when set it overrides the tag (registry/repository@digest) |
+| image.registry | string | `"ghcr.io"` | The image registry |
+| image.repository | string | `"your-org/your-image"` | The image repository path (without registry) |
+| image.tag | string | `""` | The image tag (defaults to the chart appVersion when empty) |
 

@@ -532,7 +532,7 @@ test host aliases:
           terminationGracePeriodSeconds: 10
           volumeMounts: null
           volumes: null
-test name override:
+test repository override:
   1: |
     apiVersion: apps/v1
     kind: Deployment
@@ -564,11 +564,11 @@ test name override:
                 - --region=local
                 - --environment=local
                 - --image-tag=0.1.0
-                - --image-name="my-image"
+                - --image-name="my-registry.io/my-org/my-image"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env: null
-              image: my-image:0.1.0
+              image: my-registry.io/my-org/my-image:0.1.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -650,7 +650,7 @@ test sentry enabled:
                 - --region=local
                 - --environment=test
                 - --image-tag=0.1.0
-                - --image-name="my-image"
+                - --image-name="ghcr.io/your-org/your-image"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
               env:
@@ -659,7 +659,7 @@ test sentry enabled:
                     secretKeyRef:
                       key: dsn
                       name: RELEASE-NAME-test-chart-sentry
-              image: my-image:0.1.0
+              image: ghcr.io/your-org/your-image:0.1.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1

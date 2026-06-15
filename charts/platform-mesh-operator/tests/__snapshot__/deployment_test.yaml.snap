@@ -663,6 +663,14 @@ operator match the snapshot:
           - list
           - watch
       - apiGroups:
+          - apiextensions.k8s.io
+        resources:
+          - customresourcedefinitions
+        verbs:
+          - get
+          - list
+          - watch
+      - apiGroups:
           - cert-manager.io
         resources:
           - certificates

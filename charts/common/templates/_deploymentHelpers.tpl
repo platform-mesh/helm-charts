@@ -183,13 +183,15 @@ securityContext:
 {{- end }}
 
 {{- define "common.image.name" -}}
-{{- if (.Values.image).name }}
-{{- .Values.image.name }}
-{{- else }}
-{{- .Chart.Name }}
-{{- end }}
+{{- printf "%s/%s" .Values.image.registry .Values.image.repository -}}
 {{- end }}
 
 {{- define "common.image" -}}
-{{ include "common.image.name" . }}:{{ include "common.image.tag" . }}
+{{- $sep := ":" -}}
+{{- $term := include "common.image.tag" . -}}
+{{- if (.Values.image).digest -}}
+{{- $sep = "@" -}}
+{{- $term = .Values.image.digest -}}
+{{- end -}}
+{{- printf "%s%s%s" (include "common.image.name" .) $sep $term -}}
 {{- end }}
