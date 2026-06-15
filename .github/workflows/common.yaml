@@ -6,6 +6,7 @@ on:
     paths:
       - 'charts/common/**'
       - '.github/workflows/common.yaml'
+  workflow_dispatch:
 
 permissions:
   contents: read
