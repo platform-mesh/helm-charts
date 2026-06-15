@@ -16,7 +16,12 @@ deployment:
       memory: "50Mi"
 
 image:
-  name: ghcr.io/platform-mesh/rebac-authz-webhook
+  # -- The image registry
+  registry: ghcr.io
+  # -- The image repository path (without registry)
+  repository: platform-mesh/rebac-authz-webhook
+  # -- The image digest (when set, overrides tag: registry/repository@digest)
+  digest: ""
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 

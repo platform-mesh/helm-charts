@@ -1,5 +1,6 @@
 image:
-  name: ghcr.io/openmfp/kubernetes-graphql-gateway
+  registry: ghcr.io
+  repository: openmfp/kubernetes-graphql-gateway
 
 gateway:
   healthCheck:

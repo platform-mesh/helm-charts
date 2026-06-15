@@ -5,8 +5,12 @@ virtualWorkspaceSecretName: virtual-workspaces-cert
 requestHeaderClientCASecretName: root-requestheader-client-ca
 
 image:
-  # -- The image repository
-  name: ghcr.io/platform-mesh/virtual-workspaces
+  # -- The image registry
+  registry: ghcr.io
+  # -- The image repository path (without registry)
+  repository: platform-mesh/virtual-workspaces
+  # -- The image digest (when set, overrides tag: registry/repository@digest)
+  digest: ""
   # Overwrite image.tag to use a different image tag then .chart.appVersion
   #  tag: latest
 

@@ -10,7 +10,9 @@ A Helm chart to automate bootstrapping of new environment
 | deployment.replicas | int | `1` |  |
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |
 | idp.registrationAllowed | bool | `false` |  |
-| image.name | string | `"ghcr.io/platform-mesh/platform-mesh-operator"` |  |
+| image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
+| image.registry | string | `"ghcr.io"` | The image registry |
+| image.repository | string | `"platform-mesh/platform-mesh-operator"` | The image repository path (without registry) |
 | istio.enabled | bool | `false` |  |
 | log.level | string | `"debug"` |  |
 | operator.leaderElect | bool | `true` |  |

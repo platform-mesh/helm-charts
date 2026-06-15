@@ -35,7 +35,7 @@ spec:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
           - --kcp-api-export-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}
-          - --terminal-image={{ .Values.terminal.image.name }}:{{ .Values.terminal.image.tag | default .Chart.AppVersion }}
+          - --terminal-image={{ .Values.terminal.image.registry }}/{{ .Values.terminal.image.repository }}:{{ .Values.terminal.image.tag | default .Chart.AppVersion }}
           - --terminal-namespace={{ .Values.terminal.namespace }}
           - --terminal-lifetime={{ .Values.terminal.lifetime }}
           {{- if .Values.terminal.hostAliasIP }}
