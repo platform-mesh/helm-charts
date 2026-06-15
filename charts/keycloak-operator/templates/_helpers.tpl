@@ -1,5 +1,10 @@
 {{- define "keycloak-operator.keycloakImage" -}}
-{{ .Values.keycloakImage.repository }}:{{ .Values.keycloakImage.tag | default .Chart.AppVersion }}
+{{- $tag := .Values.keycloakImage.tag | default .Chart.AppVersion -}}
+{{- if .Values.keycloakImage.registry -}}
+{{- printf "%s/%s:%s" .Values.keycloakImage.registry .Values.keycloakImage.repository $tag -}}
+{{- else -}}
+{{- printf "%s:%s" .Values.keycloakImage.repository $tag -}}
+{{- end -}}
 {{- end }}
 
 {{- define "keycloak-operator.watchNamespace" -}}

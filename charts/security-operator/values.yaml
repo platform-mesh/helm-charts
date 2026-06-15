@@ -1,5 +1,10 @@
 image:
-  name: ghcr.io/platform-mesh/security-operator
+  # -- The image registry
+  registry: ghcr.io
+  # -- The image repository path (without registry)
+  repository: platform-mesh/security-operator
+  # -- The image digest (when set, overrides tag: registry/repository@digest)
+  digest: ""
 
 # -- environment indicator, used for logging and observability
 environment: local

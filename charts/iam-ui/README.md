@@ -13,8 +13,10 @@ Helm Chart for the iam-ui
 | health.port | int | `8080` |  |
 | health.readiness.path | string | `"/healthz"` |  |
 | health.startup.path | string | `"/healthz"` |  |
-| image.name | string | `"ghcr.io/platform-mesh/iam-ui"` |  |
+| image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
+| image.registry | string | `"ghcr.io"` | The image registry |
+| image.repository | string | `"platform-mesh/iam-ui"` | The image repository path (without registry) |
 | port | int | `8080` |  |
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 

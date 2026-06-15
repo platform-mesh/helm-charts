@@ -11,7 +11,12 @@ operator:
   leaderElect: true
 
 image:
-  name: ghcr.io/platform-mesh/platform-mesh-operator
+  # -- The image registry
+  registry: ghcr.io
+  # -- The image repository path (without registry)
+  repository: platform-mesh/platform-mesh-operator
+  # -- The image digest (when set, overrides tag: registry/repository@digest)
+  digest: ""
 
 tracing:
   enabled: false

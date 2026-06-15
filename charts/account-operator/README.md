@@ -19,7 +19,9 @@ A Helm chart to deploy platform-mesh Account-Operator
 | deployment.specTemplate.annotations | object | `{}` | The annotations for the deployment |
 | deployment.specTemplate.labels | object | `{}` | The labels for the deployment |
 | hostAliases.enabled | bool | `false` |  |
-| image.name | string | `"ghcr.io/platform-mesh/account-operator"` | The image repository |
+| image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
+| image.registry | string | `"ghcr.io"` | The image registry |
+| image.repository | string | `"platform-mesh/account-operator"` | The image repository path (without registry) |
 | istio.enabled | bool | `false` |  |
 | kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The kcp configuration |
 | kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | kcp APIExportEndpointSliceName |

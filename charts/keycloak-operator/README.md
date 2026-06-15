@@ -36,9 +36,12 @@ This fetches the CRD manifests from the [OperatorHub community-operators](https:
 | deployment.resources.requests.memory | string | `"450Mi"` | Memory request |
 | deployment.specTemplate.annotations | object | `{}` | Annotations for the pod template |
 | deployment.specTemplate.labels | object | `{}` | Labels for the pod template |
-| image.name | string | `"quay.io/keycloak/keycloak-operator"` | The image repository |
+| image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
+| image.registry | string | `"quay.io"` | The image registry |
+| image.repository | string | `"keycloak/keycloak-operator"` | The image repository path (without registry) |
 | image.tag | string | `"26.6.0"` | The image tag (defaults to appVersion) |
-| keycloakImage.repository | string | `"ghcr.io/platform-mesh/custom-images/keycloak"` | The Keycloak image repository |
+| keycloakImage.registry | string | `"ghcr.io"` | The Keycloak image registry |
+| keycloakImage.repository | string | `"platform-mesh/custom-images/keycloak"` | The Keycloak image repository path (without registry). When registry is empty, this is treated as a full path (backward compatible). |
 | keycloakImage.tag | string | `"v26.6.0"` | The Keycloak image tag (defaults to appVersion) |
 | watchNamespaces | string | `""` | Namespace to watch for Keycloak CRs. Defaults to the release namespace. |
 

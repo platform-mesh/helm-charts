@@ -21,7 +21,7 @@ spec:
       {{- if .Values.initContainer.enabled }}
       initContainers:
       - name: bootstrap-keycloak-clients
-        image: {{ .Values.image.name }}:{{ .Chart.AppVersion }}
+        image: {{ include "common.image" . }}
         imagePullPolicy: IfNotPresent
         {{- include "common.container.securityContext" . | indent 8 }}
         args:
