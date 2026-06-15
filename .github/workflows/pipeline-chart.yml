@@ -57,7 +57,7 @@ jobs:
   # Chart.yaml version bump for every change.
   # ──────────────────────────────────────────────
   verify-version:
-    if: github.ref == format('refs/heads/{0}', inputs.release_branch)
+    if: ${{ !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -134,7 +134,7 @@ jobs:
   # Release jobs (main branch only)
   # ──────────────────────────────────────────────
   release:
-    if: github.ref == format('refs/heads/{0}', inputs.release_branch)
+    if: ${{ always() && github.ref == format('refs/heads/{0}', inputs.release_branch) && (needs.verify-version.result == 'success' || needs.verify-version.result == 'skipped') }}
     needs: [verify-version]
     uses: platform-mesh/.github/.github/workflows/job-release-chart.yml@9ddacafbe3260312cb1cc3f9974ad2fece8effe0
     secrets: inherit
