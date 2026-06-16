@@ -161,7 +161,8 @@ prepare_and_push_chart() {
 
     # Get image name and prepare variables
     local image_name commit chart_oci_path local_chart_path
-    image_name=$(yq '.image["name"] // ""' "$PROJECT_ROOT/$chart_dir/values.yaml")
+    # Construct full image name from registry/repository
+    image_name=$(yq '.image.registry + "/" + .image.repository' "$PROJECT_ROOT/$chart_dir/values.yaml" 2>/dev/null || echo "")
     commit=$(git -C "$PROJECT_ROOT" rev-parse HEAD)
     chart_oci_path="oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh/$comp"
     local_chart_path="../$chart_dir"
