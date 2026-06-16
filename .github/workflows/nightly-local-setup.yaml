@@ -44,9 +44,9 @@ jobs:
           kubectl krew install kcp-dev/ws
           kubectl krew install kcp-dev/create-workspace
           kubectl krew install oidc-login
-      - name: Run local-setup with example data
+      - name: Run local-setup with sharded example data
         run: |
-          task local-setup:example-data
+          task local-setup:sharded:example-data
       - name: Check/wait for all components to be ready
         run: |
           sleep 10
@@ -74,7 +74,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          task test:portal-e2e:video
+          task test:portal-e2e:video:sharded
 
       - name: Upload Playwright artefacts
         if: failure()

@@ -233,17 +233,30 @@ tasks:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     cmds:
       - task: test:portal-e2e:marketplace-ui
-        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
       - task: test:portal-e2e:httpbins
-        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
       - task: test:portal-e2e:account-kubeconfig
-        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
       - task: test:portal-e2e:authorization
-        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
       - task: test:portal-e2e:deletion
-        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
+
+  test:portal-e2e:sharded:
+    desc: Run portal e2e tests against a sharded setup
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      HEADED: '{{.HEADED | default ""}}'
+    cmds:
+      - task: test:portal-e2e
+        vars:
+          ORG_NAME: '{{.ORG_NAME}}'
+          HEADED: '{{.HEADED}}'
+          EXAMPLE_DATA_OVERLAY_PATH: '{{.ROOT_DIR}}/local-setup/kustomize/overlays/example-data-sharded'
 
   test:portal-e2e:setup:
     run: once
@@ -257,70 +270,90 @@ tasks:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     deps: [test:portal-e2e:setup]
     dir: local-setup/e2e
     cmds:
-      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
+      - ORG_NAME={{.ORG_NAME}} {{if .EXAMPLE_DATA_OVERLAY_PATH}}EXAMPLE_DATA_OVERLAY_PATH={{.EXAMPLE_DATA_OVERLAY_PATH}}{{end}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:marketplace:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     cmds:
       - task: test:portal-e2e:marketplace-ui
-        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}' }
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
 
   test:portal-e2e:marketplace-ui:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     deps: [test:portal-e2e:setup]
     dir: local-setup/e2e
     cmds:
-      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-marketplace-ui.test.ts {{if .HEADED}}--headed{{end}}
+      - ORG_NAME={{.ORG_NAME}} {{if .EXAMPLE_DATA_OVERLAY_PATH}}EXAMPLE_DATA_OVERLAY_PATH={{.EXAMPLE_DATA_OVERLAY_PATH}}{{end}} npx playwright test portal-marketplace-ui.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:account-kubeconfig:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     deps: [test:portal-e2e:setup]
     dir: local-setup/e2e
     cmds:
-      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
+      - ORG_NAME={{.ORG_NAME}} {{if .EXAMPLE_DATA_OVERLAY_PATH}}EXAMPLE_DATA_OVERLAY_PATH={{.EXAMPLE_DATA_OVERLAY_PATH}}{{end}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:authorization:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     deps: [test:portal-e2e:setup]
     dir: local-setup/e2e
     cmds:
-      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
+      - ORG_NAME={{.ORG_NAME}} {{if .EXAMPLE_DATA_OVERLAY_PATH}}EXAMPLE_DATA_OVERLAY_PATH={{.EXAMPLE_DATA_OVERLAY_PATH}}{{end}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:headed:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     cmds:
       - task: test:portal-e2e
-        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: 'true' }
+        vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: 'true', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
 
   test:portal-e2e:video:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     deps: [test:portal-e2e:setup]
     dir: local-setup/e2e
     cmds:
-      - VIDEO=true ORG_NAME={{.ORG_NAME}} npx playwright test portal-marketplace-ui.test.ts portal-httpbins.test.ts portal-account-kubeconfig.test.ts portal-authorization.test.ts portal-account-deletion.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
+      - VIDEO=true ORG_NAME={{.ORG_NAME}} {{if .EXAMPLE_DATA_OVERLAY_PATH}}EXAMPLE_DATA_OVERLAY_PATH={{.EXAMPLE_DATA_OVERLAY_PATH}}{{end}} npx playwright test portal-marketplace-ui.test.ts portal-httpbins.test.ts portal-account-kubeconfig.test.ts portal-authorization.test.ts portal-account-deletion.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
+
+  test:portal-e2e:video:sharded:
+    desc: Run portal e2e tests with video recording against a sharded setup
+    vars:
+      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS | default ""}}'
+    cmds:
+      - task: test:portal-e2e:video
+        vars:
+          ORG_NAME: '{{.ORG_NAME}}'
+          PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS}}'
+          EXAMPLE_DATA_OVERLAY_PATH: '{{.ROOT_DIR}}/local-setup/kustomize/overlays/example-data-sharded'
 
   test:portal-e2e:deletion:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
     deps: [test:portal-e2e:setup]
     dir: local-setup/e2e
     cmds:
-      - ORG_NAME={{.ORG_NAME}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
+      - ORG_NAME={{.ORG_NAME}} {{if .EXAMPLE_DATA_OVERLAY_PATH}}EXAMPLE_DATA_OVERLAY_PATH={{.EXAMPLE_DATA_OVERLAY_PATH}}{{end}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
 
   test:backend-resources:
     cmds:
