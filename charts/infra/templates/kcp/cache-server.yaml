@@ -15,3 +15,7 @@ spec:
       name: selfsigned
       kind: Issuer
       group: cert-manager.io
+{{ with .Values.kcp.image.tag }}
+  image:
+    tag: {{ . }}
+{{- end }}
