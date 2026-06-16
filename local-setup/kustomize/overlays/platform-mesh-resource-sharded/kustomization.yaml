@@ -15,7 +15,6 @@ patches:
             infra:
               values:
                 kcp:
-                # TODO remove commit image tag when released version is compatible
                   image:
                     tag: "v0.32.0"
                   external:
