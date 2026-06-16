@@ -178,6 +178,9 @@ disable istio:
                 properties:
                   account:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -240,6 +243,9 @@ disable istio:
                     type: object
                   organization:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -266,6 +272,9 @@ disable istio:
                     type: object
                   parentAccount:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -799,6 +808,9 @@ operator match the snapshot:
                 properties:
                   account:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -861,6 +873,9 @@ operator match the snapshot:
                     type: object
                   organization:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -887,6 +902,9 @@ operator match the snapshot:
                     type: object
                   parentAccount:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -1421,6 +1439,9 @@ operator match the snapshot (with kubeconfigSecret):
                 properties:
                   account:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -1483,6 +1504,9 @@ operator match the snapshot (with kubeconfigSecret):
                     type: object
                   organization:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -1509,6 +1533,9 @@ operator match the snapshot (with kubeconfigSecret):
                     type: object
                   parentAccount:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -2049,6 +2076,9 @@ operator match the snapshot with webhook enabled:
                 properties:
                   account:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -2111,6 +2141,9 @@ operator match the snapshot with webhook enabled:
                     type: object
                   organization:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -2137,6 +2170,9 @@ operator match the snapshot with webhook enabled:
                     type: object
                   parentAccount:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string

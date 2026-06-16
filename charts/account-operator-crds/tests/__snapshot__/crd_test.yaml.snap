@@ -71,6 +71,9 @@ crds match the snapshot:
                 properties:
                   account:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -133,6 +136,9 @@ crds match the snapshot:
                     type: object
                   organization:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -159,6 +165,9 @@ crds match the snapshot:
                     type: object
                   parentAccount:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -444,6 +453,9 @@ crds with kcp enabled match the snapshot:
                 properties:
                   account:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -506,6 +518,9 @@ crds with kcp enabled match the snapshot:
                     type: object
                   organization:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
@@ -532,6 +547,9 @@ crds with kcp enabled match the snapshot:
                     type: object
                   parentAccount:
                     properties:
+                      creator:
+                        description: The initial creator of the account resource that led to this workspace
+                        type: string
                       generatedClusterId:
                         description: The GeneratedClusterId represents the cluster id of the workspace that was generated for a given account
                         type: string
