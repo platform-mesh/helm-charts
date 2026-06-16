@@ -190,7 +190,7 @@ resolve_component_versions() {
     export OPENTELEMETRY_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/open-telemetry/opentelemetry-operator" '.items[0].element["version"]')
 
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite --copy-resources --no-update europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:0.4.4 oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:0.6.0 oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/platform-mesh/helm-charts/marketplace-ui:$MARKETPLACE_UI_CHART_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/platform-mesh/images/marketplace-ui:$MARKETPLACE_UI_IMAGE_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive
 
