@@ -2433,6 +2433,8 @@ match snapshots:
       etcd:
         endpoints:
           - http://etcd-cache-client.platform-mesh-system.svc.cluster.local:2379
+      image:
+        tag: 0.0.0
   6: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
@@ -3815,6 +3817,8 @@ match snapshots w. kcp version:
       etcd:
         endpoints:
           - http://etcd-cache-client.platform-mesh-system.svc.cluster.local:2379
+      image:
+        tag: v0.1.0
   6: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: FrontProxy
