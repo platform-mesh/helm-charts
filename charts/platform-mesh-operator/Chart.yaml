@@ -2,8 +2,8 @@ apiVersion: v2
 name: platform-mesh-operator
 description: A Helm chart to automate bootstrapping of new environment
 type: application
-version: 0.29.0
-appVersion: "v0.76.0"
+version: 0.29.1
+appVersion: "v0.76.1"
 dependencies:
   - name: common
     version: 0.13.0
