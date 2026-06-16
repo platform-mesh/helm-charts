@@ -18,7 +18,9 @@ A Helm chart for Kubernetes
 | deployment.resources.requests.memory | string | `"50Mi"` |  |
 | health.port | int | `8081` |  |
 | healthProbeBindAddress | string | `":8081"` |  |
-| image.name | string | `"ghcr.io/platform-mesh/rebac-authz-webhook"` |  |
+| image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
+| image.registry | string | `"ghcr.io"` | The image registry |
+| image.repository | string | `"platform-mesh/rebac-authz-webhook"` | The image repository path (without registry) |
 | image.tag | string | `""` |  |
 | istio.dnsNames | list | `[]` |  |
 | istio.enabled | bool | `false` |  |

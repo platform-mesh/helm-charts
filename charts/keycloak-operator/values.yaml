@@ -1,12 +1,18 @@
 image:
-  # -- The image repository
-  name: quay.io/keycloak/keycloak-operator
+  # -- The image registry
+  registry: quay.io
+  # -- The image repository path (without registry)
+  repository: keycloak/keycloak-operator
+  # -- The image digest (when set, overrides tag: registry/repository@digest)
+  digest: ""
   # -- The image tag (defaults to appVersion)
   tag: "26.6.0"
 
 keycloakImage:
-  # -- The Keycloak image repository
-  repository: ghcr.io/platform-mesh/custom-images/keycloak
+  # -- The Keycloak image registry
+  registry: ghcr.io
+  # -- The Keycloak image repository path (without registry). When registry is empty, this is treated as a full path (backward compatible).
+  repository: platform-mesh/custom-images/keycloak
   # -- The Keycloak image tag (defaults to appVersion)
   tag: "v26.6.0"
 

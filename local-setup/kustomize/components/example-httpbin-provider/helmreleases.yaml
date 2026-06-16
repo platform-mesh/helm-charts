@@ -45,6 +45,7 @@ spec:
   chart:
     spec:
       chart: api-syncagent
+      version: 0.6.0
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
@@ -54,7 +55,7 @@ spec:
   targetNamespace: example-httpbin-provider
   timeout: 15m
   values:
-    apiExportName: orchestrate.platform-mesh.io
+    apiExportEndpointSliceName: orchestrate.platform-mesh.io
     agentName: kcp-api-syncagent
     kcpKubeconfig: httpbin-kubeconfig
     hostAliases:

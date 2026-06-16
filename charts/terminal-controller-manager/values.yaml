@@ -1,13 +1,19 @@
 image:
-  # -- The image repository
-  name: ghcr.io/platform-mesh/terminal-controller-manager
+  # -- The image registry
+  registry: ghcr.io
+  # -- The image repository path (without registry)
+  repository: platform-mesh/terminal-controller-manager
+  # -- The image digest (when set, overrides tag: registry/repository@digest)
+  digest: ""
   # Overwrite image.tag to use a different image tag then .chart.appVersion
   #  tag: latest
 
 terminal:
   image:
-    # -- The terminal pod image repository
-    name: ghcr.io/platform-mesh/terminal
+    # -- The terminal pod image registry
+    registry: ghcr.io
+    # -- The terminal pod image repository path (without registry)
+    repository: platform-mesh/terminal
     # -- Override terminal image tag (defaults to appVersion)
     tag: ""
   # -- The namespace where terminal pods are created

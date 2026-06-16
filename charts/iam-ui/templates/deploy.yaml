@@ -26,7 +26,7 @@ spec:
         runAsGroup: 101
       containers:
       - name: {{ include "common.entity.name" . }}
-        image: {{ .Values.image.name }}:{{ .Chart.AppVersion }}
+        image: {{ include "common.image" . }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         {{- include "common.operatorHealthAndReadyness" . | indent 8 }}
         securityContext:

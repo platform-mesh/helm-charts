@@ -17,10 +17,10 @@ spec:
   source:
     chart: api-syncagent
     repoURL: https://kcp-dev.github.io/helm-charts
-    targetRevision: "0.4.4"
+    targetRevision: "0.6.0"
     helm:
       values: |
-        apiExportName: orchestrate.platform-mesh.io
+        apiExportEndpointSliceName: orchestrate.platform-mesh.io
         agentName: kcp-api-syncagent
         kcpKubeconfig: httpbin-kubeconfig
         hostAliases:

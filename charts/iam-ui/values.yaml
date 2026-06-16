@@ -1,5 +1,10 @@
 image:
-  name: ghcr.io/platform-mesh/iam-ui
+  # -- The image registry
+  registry: ghcr.io
+  # -- The image repository path (without registry)
+  repository: platform-mesh/iam-ui
+  # -- The image digest (when set, overrides tag: registry/repository@digest)
+  digest: ""
   pullPolicy: IfNotPresent
 
 deployment:

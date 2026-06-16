@@ -49,7 +49,7 @@ spec:
         - name: IMAGE_TAG
           value: "{{ .Chart.AppVersion }}"
         - name: IMAGE_NAME
-          value: "{{ .Values.image.name }}"
+          value: "{{ include "common.image.name" . }}"
         {{- if .Values.cookieDomain }}
         - name: COOKIE_DOMAIN
           value: {{ .Values.cookieDomain }}
