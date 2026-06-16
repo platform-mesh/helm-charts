@@ -21,7 +21,5 @@ patches:
                   external:
                     hostname: kcp.api.portal.localhost
                   shards:
-                    - name: nereus
-                      hostname: nereus.kcp.localhost
                     - name: triton
                       hostname: triton.kcp.localhost
