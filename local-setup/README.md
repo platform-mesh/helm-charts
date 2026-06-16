@@ -330,6 +330,20 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
+#### Image Registries
+
+The kind cluster mounts `local-setup/kind/containerd-certs.d/` into every node at `/etc/containerd/certs.d` (see `kind-config.yaml`), so any registry configuration placed there is automatically picked up by the cluster's containerd.
+
+Three pull-through caches are configured and started automatically by `setup-registry-proxies.sh`:
+
+| Registry | Backed by |
+|---|---|
+| `ghcr.io` | `proxy-ghcr` container |
+| `quay.io` | `proxy-quay` container |
+| `registry.k8s.io` | `proxy-k8s-io` container |
+
+**Custom local registries:** To make a local registry accessible to the cluster, add a `hosts.toml` entry under `containerd-certs.d/<registry-host>/`. See the [kind local registry documentation](https://kind.sigs.k8s.io/docs/user/local-registry/) for the recommended setup pattern.
+
 #### Hook Scripts
 
 The local setup provides three extension points (hook scripts) that run at different stages. All are gitignored, so your local customizations won't be committed.
