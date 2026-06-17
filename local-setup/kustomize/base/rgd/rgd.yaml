@@ -141,9 +141,9 @@ spec:
             mountPath: /etc/platformmesh
             readOnly: true
           hostAliases:
-            enabled: '${has(schema.spec.runtimeClusterIp) && schema.spec.runtimeClusterIp != ""}'
+            enabled: true
             entries:
-            - ip: '${has(schema.spec.runtimeClusterIp) ? schema.spec.runtimeClusterIp : ""}'
+            - ip: '${has(schema.spec.runtimeClusterIp) ? schema.spec.runtimeClusterIp : "10.96.188.4"}'
               hostnames:
               - portal.localhost
               - localhost
