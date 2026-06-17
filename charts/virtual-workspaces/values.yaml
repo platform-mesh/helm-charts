@@ -1,6 +1,6 @@
 kubeconfigSecretName: account-operator-kubeconfig
 authenticationKubeconfigSecretName: portal-kubeconfig
-clientCASecretName: root-front-proxy-client-ca
+clientCASecretName: frontproxy-merged-client-ca
 virtualWorkspaceSecretName: virtual-workspaces-cert
 requestHeaderClientCASecretName: root-requestheader-client-ca
 

@@ -22,7 +22,7 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | cert.key.size | int | `4096` | Key size (e.g. 2048, 3072, 4096 for RSA or 256, 384, 521 for ECDSA) |
 | cert.renewBefore | string | `"168h0m0s"` | Certificate renew before |
 | cert.secretName | string | `"virtual-workspaces-cert"` | Secret name to store the certificate |
-| clientCASecretName | string | `"root-front-proxy-client-ca"` |  |
+| clientCASecretName | string | `"frontproxy-merged-client-ca"` |  |
 | clusterAccess.marketplace.auth | object | `{"kubeconfigSecretRef":{"key":"kubeconfig","name":"virtual-workspace-clusteraccess-kubeconfig"}}` | Path for gateway url path: "" |
 | clusterAccess.marketplace.enabled | bool | `true` |  |
 | deployment.accountEntityName | string | `"core_platform-mesh_io_account"` |  |
