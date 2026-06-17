@@ -225,8 +225,9 @@ tasks:
       - task: ocm:kustomize:apply
 
   ocm:update:constructor:
+    desc: Prepare .ocm/component-constructor-prerelease.yaml from the local aggregate descriptor.
     cmds:
-      - curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
+      - cp .ocm/component-constructor-aggregate.yaml .ocm/component-constructor-prerelease.yaml
       - sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' .ocm/component-constructor-prerelease.yaml > .ocm/component-constructor-prerelease.yaml.tmp && mv .ocm/component-constructor-prerelease.yaml.tmp .ocm/component-constructor-prerelease.yaml
 
   test:portal-e2e:
