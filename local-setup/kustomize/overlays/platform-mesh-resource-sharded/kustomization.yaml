@@ -15,10 +15,10 @@ patches:
             infra:
               values:
                 kcp:
-                  image:
-                    tag: "v0.32.0"
                   external:
                     hostname: kcp.api.portal.localhost
                   shards:
                     - name: triton
                       hostname: triton.kcp.localhost
+#                   - name: nereus
+#                     hostname: nereus.kcp.localhost

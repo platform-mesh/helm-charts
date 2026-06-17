@@ -233,7 +233,7 @@ tasks:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       HEADED: '{{.HEADED | default ""}}'
-      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default ""}}'
+      EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH | default "{{.ROOT_DIR}}/local-setup/kustomize/overlays/example-data-sharded"}}'
     cmds:
       - task: test:portal-e2e:marketplace-ui
         vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
@@ -245,18 +245,6 @@ tasks:
         vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
       - task: test:portal-e2e:deletion
         vars: { ORG_NAME: '{{.ORG_NAME}}', HEADED: '{{.HEADED}}', EXAMPLE_DATA_OVERLAY_PATH: '{{.EXAMPLE_DATA_OVERLAY_PATH}}' }
-
-  test:portal-e2e:sharded:
-    desc: Run portal e2e tests against a sharded setup
-    vars:
-      ORG_NAME: '{{.ORG_NAME | default "default"}}'
-      HEADED: '{{.HEADED | default ""}}'
-    cmds:
-      - task: test:portal-e2e
-        vars:
-          ORG_NAME: '{{.ORG_NAME}}'
-          HEADED: '{{.HEADED}}'
-          EXAMPLE_DATA_OVERLAY_PATH: '{{.ROOT_DIR}}/local-setup/kustomize/overlays/example-data-sharded'
 
   test:portal-e2e:setup:
     run: once
@@ -333,18 +321,6 @@ tasks:
     cmds:
       - VIDEO=true ORG_NAME={{.ORG_NAME}} {{if .EXAMPLE_DATA_OVERLAY_PATH}}EXAMPLE_DATA_OVERLAY_PATH={{.EXAMPLE_DATA_OVERLAY_PATH}}{{end}} npx playwright test portal-marketplace-ui.test.ts portal-httpbins.test.ts portal-account-kubeconfig.test.ts portal-authorization.test.ts portal-account-deletion.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
 
-  test:portal-e2e:video:sharded:
-    desc: Run portal e2e tests with video recording against a sharded setup
-    vars:
-      ORG_NAME: '{{.ORG_NAME | default "default"}}'
-      PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS | default ""}}'
-    cmds:
-      - task: test:portal-e2e:video
-        vars:
-          ORG_NAME: '{{.ORG_NAME}}'
-          PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS}}'
-          EXAMPLE_DATA_OVERLAY_PATH: '{{.ROOT_DIR}}/local-setup/kustomize/overlays/example-data-sharded'
-
   test:portal-e2e:deletion:
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
@@ -368,7 +344,7 @@ tasks:
     deps:
       - task: setup:mkcert
     vars:
-      FLAGS: '{{.FLAGS | default ""}}'
+      FLAGS: '{{.FLAGS | default "--sharded"}}'
     cmds:
       - |
         if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
@@ -385,117 +361,178 @@ tasks:
     deps:
       - task: setup:mkcert
     vars:
-      FLAGS: '{{.FLAGS | default ""}}'
+      FLAGS: '{{.FLAGS | default "--sharded"}}'
     cmds:
       - ./local-setup/scripts/start.sh {{.FLAGS}}
-
   # Convenience aliases with common flag combinations
+
   local-setup:example-data:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--example-data"}
+        vars: {FLAGS: "--sharded --example-data"}
 
   local-setup:example-data:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--example-data"}
+        vars: {FLAGS: "--sharded --example-data"}
 
   local-setup:prerelease:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--prerelease"}
+        vars: {FLAGS: "--sharded --prerelease"}
 
   local-setup:prerelease:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --iterate"}
+        vars: {FLAGS: "--sharded --prerelease --iterate"}
 
   local-setup:prerelease:concurrent:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--prerelease --concurrent"}
+        vars: {FLAGS: "--sharded --prerelease --concurrent"}
 
   local-setup:prerelease:concurrent:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --concurrent --iterate"}
+        vars: {FLAGS: "--sharded --prerelease --concurrent --iterate"}
 
   local-setup:prerelease:example-data:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--prerelease --example-data"}
+        vars: {FLAGS: "--sharded --prerelease --example-data"}
 
   local-setup:prerelease:example-data:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --example-data --iterate"}
+        vars: {FLAGS: "--sharded --prerelease --example-data --iterate"}
 
   local-setup:remote:fluxcd:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+        vars: {FLAGS: "--sharded --remote --deployment-tech=fluxcd"}
 
   local-setup:remote:fluxcd:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+        vars: {FLAGS: "--sharded --remote --deployment-tech=fluxcd"}
 
   local-setup:remote:argocd:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+        vars: {FLAGS: "--sharded --remote --deployment-tech=argocd"}
 
   local-setup:remote:argocd:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+        vars: {FLAGS: "--sharded --remote --deployment-tech=argocd"}
 
   local-setup:remote:fluxcd:example-data:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+        vars: {FLAGS: "--sharded --remote --deployment-tech=fluxcd --example-data"}
 
   local-setup:remote:fluxcd:example-data:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+        vars: {FLAGS: "--sharded --remote --deployment-tech=fluxcd --example-data"}
 
   local-setup:remote:argocd:example-data:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
+        vars: {FLAGS: "--sharded --remote --deployment-tech=argocd --example-data"}
 
   local-setup:remote:argocd:example-data:iterate:
     cmds:
       - task: local-setup:iterate
+        vars: {FLAGS: "--sharded --remote --deployment-tech=argocd --example-data"}
+
+  local-setup:single-shard:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - |
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
+          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh
+        fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
+        ./local-setup/scripts/start.sh
+
+  local-setup:single-shard:iterate:
+    deps:
+      - task: setup:mkcert
+    cmds:
+      - ./local-setup/scripts/start.sh
+
+  local-setup:single-shard:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--example-data"}
+
+  local-setup:single-shard:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--example-data"}
+
+  local-setup:prerelease:single-shard:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--prerelease"}
+
+  local-setup:prerelease:single-shard:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--prerelease --iterate"}
+
+  local-setup:single-shard:prerelease:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--prerelease --example-data"}
+
+  local-setup:single-shard:prerelease:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--prerelease --example-data --iterate"}
+
+  local-setup:single-shard:remote:fluxcd:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+
+  local-setup:single-shard:remote:fluxcd:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+
+  local-setup:single-shard:remote:argocd:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+
+  local-setup:single-shard:remote:argocd:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+
+  local-setup:single-shard:remote:fluxcd:example-data:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:single-shard:remote:fluxcd:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:single-shard:remote:argocd:example-data:
+    cmds:
+      - task: local-setup
         vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
 
-  local-setup:sharded:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--sharded"}
-
-  local-setup:sharded:iterate:
+  local-setup:single-shard:remote:argocd:example-data:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--sharded"}
-
-  local-setup:prerelease:sharded:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--prerelease --sharded"}
-
-  local-setup:prerelease:sharded:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --sharded --iterate"}
-
-  local-setup:sharded:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--sharded --example-data"}
-
-  local-setup:sharded:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--sharded --example-data"}
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
