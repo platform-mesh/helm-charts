@@ -52,10 +52,9 @@ get_kubectl_exec_flags() {
 
 # Update/download the component constructor template
 update_constructor() {
-    echo -e "${COL}[$(date '+%H:%M:%S')] Downloading component-constructor-prerelease.yaml...${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Preparing component-constructor-prerelease.yaml...${COL_RES}"
 
-    curl -o "$OCM_DIR/component-constructor-prerelease.yaml" \
-        https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
+    cp "$OCM_DIR/component-constructor-aggregate.yaml" "$OCM_DIR/component-constructor-prerelease.yaml"
 
     # Rename the component from platform-mesh to prerelease
     sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' \
