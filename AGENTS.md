@@ -12,7 +12,7 @@
 ## Project Structure
 - `charts/`: Helm charts, values, templates, tests, chart locks, and chart READMEs.
 - `docs-templates/`: templates used by `helm-docs` to generate chart documentation.
-- `.ocm/`: OCM constructor descriptors for packaging charts and components.
+- `.ocm/`: OCM constructor descriptors, including the aggregator (`component-constructor-aggregate.yaml`) and service-component (`component-constructor-service-component.yaml`) consumed by `ocm-aggregator.yaml` / `ocm-service-component.yaml`, plus signing material under `.ocm/signature/`.
 - `local-setup/`: scripts, manifests, kustomize overlays, and e2e assets for local Platform Mesh development.
 - `.github/workflows/`: chart validation, publishing, local setup, and component workflows.
 - `Taskfile.yaml`: primary local automation entrypoint.
@@ -28,6 +28,7 @@ This is a deployment and packaging repo, not a service runtime.
 ### Local setup and OCM model
 - `local-setup/` is the supported path for bootstrapping and testing a local Platform Mesh instance.
 - `.ocm/` and related `task ocm:*` targets build and transfer OCM component artifacts for local and release workflows.
+- The aggregator workflow (`ocm-aggregator.yaml`) builds and signs the top-level `github.com/platform-mesh/platform-mesh` component from `.ocm/component-constructor-aggregate.yaml`; per-chart workflows fan out to `ocm-service-component.yaml` via `platform-mesh/.github`'s `job-ocm.yml`.
 - Workflow changes can affect chart publishing and full platform bootstrap behavior.
 
 ## Commands
@@ -40,6 +41,9 @@ This is a deployment and packaging repo, not a service runtime.
 - `task validate` — run test, docs, dependency update, lint, and OCI packaging checks.
 - `task vulnerability` — run kube-linter against charts.
 - `task oci` — package charts into the local `oci/` output directory.
+- `bash hack/ocm/fetch-versions.sh` — inspect component version data used by release helpers.
+- `bash hack/ocm/draft-release.sh` — orchestrate draft-release generation (changelog, release notes).
+- `bash hack/ocm/validate-links.sh` — validate links in OCM-related docs.
 
 ## Code Conventions
 - Bump the chart version for any chart whose rendered behavior changes.
@@ -58,10 +62,12 @@ This is a deployment and packaging repo, not a service runtime.
 - Hand-edit generated chart documentation as a substitute for changing chart metadata or values.
 - Commit local secrets from `.secret/`, generated binaries from `bin/`, or local OCI output.
 - Introduce new chart publishing or local setup paths when existing `task` targets cover the workflow.
+- Change OCM signing or release behavior casually; treat workflow edits under `.github/workflows/ocm-*.yaml` and descriptor edits under `.ocm/component-constructor-aggregate.yaml` / `.ocm/component-constructor-service-component.yaml` as production changes.
+- Introduce new OCM release paths when an existing `ocm-*.yaml` workflow already covers the task.
 
 ## Hard Boundaries
 - Ask before changing chart publishing, OCM packaging, or local setup bootstrap semantics.
-- Be especially careful with changes under `.github/workflows/`, `.ocm/`, and `local-setup/`.
+- Be especially careful with changes under `.github/workflows/`, `.ocm/` (in particular `.ocm/signature/` and the aggregate/service-component descriptors), and `local-setup/`.
 
 ## Human-Facing Guidance
 - Use `README.md` for local certificate setup, startup arguments, and service context.
