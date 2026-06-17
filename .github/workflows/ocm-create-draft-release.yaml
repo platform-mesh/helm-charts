@@ -220,7 +220,7 @@ jobs:
           fi
           echo ""
 
-          ./hack/fetch-versions.sh "$FROM_VERSION" "$PRERELEASE_VERSION"
+          ./hack/ocm/fetch-versions.sh "$FROM_VERSION" "$PRERELEASE_VERSION"
 
           if [ ! -f generated/component-versions.json ]; then
             echo "Error: Failed to fetch component versions"
@@ -235,7 +235,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "=== Generating changelog ==="
-          ./hack/generate-changelog.sh
+          ./hack/ocm/generate-changelog.sh
 
           if [ ! -f generated/changelog.json ]; then
             echo "Error: Failed to generate changelog"
@@ -252,7 +252,7 @@ jobs:
           RELEASE_VERSION="${TO_VERSION%%-rc.*}"
 
           echo "=== Formatting release notes for version: $RELEASE_VERSION ==="
-          ./hack/format-notes.sh "$RELEASE_VERSION"
+          ./hack/ocm/format-notes.sh "$RELEASE_VERSION"
 
           if [ ! -f dist/release-notes.md ]; then
             echo "Error: Failed to format release notes"
