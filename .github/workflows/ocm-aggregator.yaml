@@ -40,19 +40,17 @@ on:
           - build
           - rc
           - full
-  schedule:
-    - cron: "0 * * * *"
   push:
     branches:
       - main
     paths:
-      - ".github/workflows/ocm.yaml"
-      - "constructor/component-constructor.yaml"
+      - ".github/workflows/ocm-aggregator.yaml"
+      - ".ocm/component-constructor-aggregate.yaml"
 permissions:
   contents: read
 
 concurrency:
-  group: ocm-${{ github.ref }}
+  group: ocm-aggregator-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   ocm:
@@ -505,7 +503,7 @@ jobs:
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
           ocm_ctf=.ocm/transport.ctf
-          ./ocm add components -c --templater=go --file "$ocm_ctf" constructor/component-constructor.yaml -- \
+          ./ocm add components -c --templater=go --file "$ocm_ctf" .ocm/component-constructor-aggregate.yaml -- \
             VERSION=${{ env.VERSION }} \
             ACCOUNT_OPERATOR_VERSION=${{ env.ACCOUNT_OPERATOR_VERSION }} \
             EXTENSION_MANAGER_OPERATOR_VERSION=${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }} \
@@ -561,7 +559,7 @@ jobs:
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
           ./ocm sign componentversions --signature ocm.platform-mesh --private-key /tmp/ocm-signing.priv \
           --public-key /tmp/ocm-signing.cert \
-          --ca-cert signature/ca.cert \
+          --ca-cert .ocm/signature/ca.cert \
             "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
           rm -f /tmp/ocm-signing.priv
           rm -f /tmp/ocm-signing.cert
