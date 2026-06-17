@@ -15,9 +15,8 @@ patches:
             infra:
               values:
                 kcp:
-                # TODO remove commit image tag when released version is compatible
                   image:
-                    tag: "15923aca7"
+                    tag: "v0.32.0"
                   external:
                     hostname: kcp.api.portal.localhost
                   shards:
