@@ -125,7 +125,7 @@ virtual-workspaces match the snapshot:
                 secretName: portal-kubeconfig
             - name: client-ca-secret
               secret:
-                secretName: root-front-proxy-client-ca
+                secretName: frontproxy-merged-client-ca
             - name: vws-cert
               secret:
                 secretName: virtual-workspaces-cert
