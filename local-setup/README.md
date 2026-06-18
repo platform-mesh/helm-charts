@@ -179,7 +179,7 @@ task local-setup
 
 **Concurrent builds (--concurrent flag):** When using the `--concurrent` flag together with `--prerelease`, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
 
-**Sharded kcp (--sharded flag):** When using the `--sharded` flag, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally.
+**Sharded kcp (default behavior):** By default, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally. All `local-setup` tasks now run with the `--sharded` flag by default. To explicitly run a single-shard setup without additional shards, use the `:single-shard` task variants (e.g., `task local-setup:single-shard`).
 
 **Remote mode (--remote and --deployment-tech flags):** When using `--remote`, the setup creates two kind clusters instead of one: `platform-mesh-infra` (where Flux/ArgoCD and the platform-mesh-operator run) and `platform-mesh` (the runtime cluster where workloads, kcp and OCM resources land). The platform-mesh-operator routes HelmReleases/Applications to the infra cluster and OCM Resources to the runtime cluster, so this is a faithful local replica of a production split-cluster topology.
 
@@ -205,9 +205,11 @@ task local-setup:remote:argocd:example-data:iterate
 
 **Task Naming Convention:**
 
-- Base tasks: `task local-setup`, `task local-setup:iterate`
+- Base tasks: `task local-setup`, `task local-setup:iterate` (now run with `--sharded` by default)
+- Single-shard variants: `task local-setup:single-shard`, `task local-setup:single-shard:iterate` (run without `--sharded` flag)
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `prerelease`, `example-data`, `concurrent`, `sharded`, `remote`
+- Available flags: `prerelease`, `example-data`, `concurrent`, `remote`
+- Single-shard with flags: `task local-setup:single-shard:<flag1>:<flag2>:...`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information

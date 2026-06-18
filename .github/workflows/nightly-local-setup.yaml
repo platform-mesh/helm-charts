@@ -44,7 +44,7 @@ jobs:
           kubectl krew install kcp-dev/ws
           kubectl krew install kcp-dev/create-workspace
           kubectl krew install oidc-login
-      - name: Run local-setup with example data
+      - name: Run local-setup with sharded example data
         run: |
           task local-setup:example-data
       - name: Check/wait for all components to be ready
