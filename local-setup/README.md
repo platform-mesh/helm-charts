@@ -171,13 +171,23 @@ git checkout 0.2.0  # or any released tag like 0.1.1, 0.2, etc.
 task local-setup
 ```
 
-**Prerelease (--prerelease flag):** When using the `--prerelease` flag, the setup deploys locally built OCM components instead of versions from the registry. This is useful for:
+**OCM aggregate version (`PLATFORM_MESH_VERSION` env var):** By default, `task local-setup` builds the OCM aggregate locally from the working tree and deploys it via an in-cluster OCI registry. To deploy a published aggregate from `ghcr.io/platform-mesh` instead, set `PLATFORM_MESH_VERSION` to the version you want:
+
+```sh
+# Build locally from the working tree (default)
+task local-setup
+
+# Pull a specific published version from ghcr.io/platform-mesh
+PLATFORM_MESH_VERSION=0.4.0-build.510 task local-setup
+```
+
+The build-locally path is useful for:
 
 - Testing local chart changes without going through the official release process
 - Chart development and iteration workflows
 - Note: Requires the `task` CLI to be installed
 
-**Concurrent builds (--concurrent flag):** When using the `--concurrent` flag together with `--prerelease`, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
+**Concurrent builds (--concurrent flag):** When using the `--concurrent` flag, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
 
 **Sharded kcp (default behavior):** By default, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally. All `local-setup` tasks now run with the `--sharded` flag by default. To explicitly run a single-shard setup without additional shards, use the `:single-shard` task variants (e.g., `task local-setup:single-shard`).
 
@@ -201,14 +211,14 @@ task local-setup:remote:argocd:example-data
 task local-setup:remote:argocd:example-data:iterate
 ```
 
-**Iterate mode (--iterate flag):** When using `--iterate` together with `--prerelease`, the setup skips cluster creation and infrastructure deployment entirely. It only rebuilds the OCM component from local charts and reapplies it to the existing cluster. This provides the fastest feedback loop during chart development.
+**Iterate mode (--iterate flag):** When using `--iterate`, the setup skips cluster creation and infrastructure deployment entirely. It only rebuilds the OCM component from local charts and reapplies it to the existing cluster. This provides the fastest feedback loop during chart development.
 
 **Task Naming Convention:**
 
 - Base tasks: `task local-setup`, `task local-setup:iterate` (now run with `--sharded` by default)
 - Single-shard variants: `task local-setup:single-shard`, `task local-setup:single-shard:iterate` (run without `--sharded` flag)
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `prerelease`, `example-data`, `concurrent`, `remote`
+- Available flags: `example-data`, `concurrent`, `remote`
 - Single-shard with flags: `task local-setup:single-shard:<flag1>:<flag2>:...`
 - All tasks support both full setup and `:iterate` variants
 
