@@ -1,0 +1,570 @@
+name: Build Platform Mesh OCM Component (aggregator)
+on:
+  workflow_call:
+    inputs:
+      force_version_upgrade:
+        required: false
+        default: false
+        type: boolean
+      version_increment:
+        required: false
+        default: "none"
+        type: string
+      release_type:
+        required: false
+        default: "build"
+        type: string
+  workflow_dispatch:
+    inputs:
+      force_version_upgrade:
+        description: "Force version upgrade even without dependency changes"
+        required: false
+        default: false
+        type: boolean
+      version_increment:
+        description: "Version component to increment (only applies when force_version_upgrade is true, use none to keep version and only change release type)"
+        required: false
+        default: "minor"
+        type: choice
+        options:
+          - none
+          - minor
+          - major
+          - patch
+      release_type:
+        description: "Type of release to create (only applies when force_version_upgrade is true)"
+        required: false
+        default: "build"
+        type: choice
+        options:
+          - build
+          - rc
+          - full
+  schedule:
+    - cron: "0 * * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/ocm.yaml"
+      - "constructor/component-constructor.yaml"
+permissions:
+  contents: read
+
+concurrency:
+  group: ocm-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  ocm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      # Third-party dependency versions
+      KCP_OPERATOR_CHART_VERSION: "0.7.4"
+      KCP_OPERATOR_IMAGE_VERSION: "v0.8.0"
+      KCP_VERSION: "v0.32.0"
+      INIT_AGENT_CHART_VERSION: "0.2.0"
+      INIT_AGENT_IMAGE_VERSION: "v0.2.0"
+      PM_OPENFGA_VERSION: "0.2.62"
+      PM_KEYCLOAK_VERSION: "26.6.0"
+      OPENFGA_VERSION: "0.2.62"
+      OPENFGA_IMAGE_VERSION: "v1.14.0"
+      OPENFGA_POSTGRESQL_IMAGE_VERSION: "17.9.0-debian-12-r3"
+      GATEWAY_API_VERSION: "v1.4.1"
+      GATEWAY_API_COMMIT: "477d172e6ac5eccb82b65781ddb8f924afec4170"
+      TRAEFIK_VERSION: "39.0.8"
+      TRAEFIK_CHART_VERSION: "39.0.7"
+      TRAEFIK_IMAGE_VERSION: "v3.6.13"
+      TRAEFIK_CRD_VERSION: "1.14.0"
+      CERT_MANAGER_VERSION: "v1.20.1"
+      CNPG_OPERATOR_CHART_VERSION: "0.28.0"
+      CNPG_OPERATOR_IMAGE_VERSION: "1.29.0"
+      PROMETHEUS_OPERATOR_CRDS_VERSION: "29.0.0"
+      KUBE_PROMETHEUS_STACK_VERSION: "27.0.0"
+      OPENTELEMETRY_OPERATOR_VERSION: "0.114.1"
+    steps:
+      - name: Setup yq@latest
+        run: |
+          if ! command -v yq &>/dev/null
+          then
+            mkdir -p /home/runner/.local/bin
+            wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /home/runner/.local/bin/yq &&\
+              chmod +x /home/runner/.local/bin/yq
+          fi
+      - name: Check out the repo
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Login to Docker Hub
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: setup OCM CLI
+        run: |
+          REPO=${repo:=open-component-model/ocm}
+          if [ -z "$version" -o "$version" == latest ]; then
+            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
+            echo "Selecting latest version: $version"
+          fi
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          echo "Installing ocm-cli version $version from $REPO"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          chmod a+x ocm
+      - name: Write Credentials file
+        run: |
+          cat <<EOF > $HOME/.ocmconfig
+          type: generic.config.ocm.software/v1
+          configurations:
+            - type: credentials.config.ocm.software
+              consumers:
+                - identity:
+                    type: OCIRegistry
+                    scheme: https
+                    hostname: ghcr.io
+                    pathprefix: platform-mesh
+                  credentials:
+                    - type: Credentials
+                      properties:
+                        username: github
+                        password: ${{ secrets.GITHUB_TOKEN }}
+                - identity:
+                    type: OCIRegistry
+                    scheme: https
+                    hostname: registry-1.docker.io
+                  credentials:
+                    - type: Credentials
+                      properties:
+                        username: ${{ secrets.DOCKERHUB_USERNAME }}
+                        password: ${{ secrets.DOCKERHUB_TOKEN }}
+            - type: ocm.config.ocm.software
+              resolvers:
+                - repository:
+                    type: OCIRegistry/v1
+                    baseUrl: europe-docker.pkg.dev
+                    subPath: gardener-project/releases
+                  componentNamePattern: "github.com/gardener/*"
+          EOF
+      - name: Get versions
+        run: |
+          set -e
+          echo ACCOUNT_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/account-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo SECURITY_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/security-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo EXTENSION_MANAGER_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/extension-manager-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo INFRA_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/infra --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo REBAC_AUTHZ_WEBHOOK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/rebac-authz-webhook --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo PORTAL_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/portal --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo PLATFORM_MESH_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo KEYCLOAK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/keycloak --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kubernetes-graphql-gateway --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo VIRTUAL_WORKSPACES_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/virtual-workspaces --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo EXAMPLE_HTTPBIN_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/example-httpbin-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo IAM_SERVICE_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-service --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo IAM_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo MARKETPLACE_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/marketplace-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo TERMINAL_CONTROLLER_MANAGER_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/terminal-controller-manager --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo KEYCLOAK_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/helm-charts/keycloak-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          echo OBSERVABILITY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/observability --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+
+          # Fetch etcd-druid version from Gardener registry
+          echo GARDENER_ETCD_DRUID_VERSION=$(./ocm get componentversions --latest github.com/gardener/etcd-druid --repo europe-docker.pkg.dev/gardener-project/releases -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          # Get current platform-mesh version
+          PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
+          PM_VERSION=${PM_VERSION:-0.0.0}
+          echo CURRENT_PM_VERSION="$PM_VERSION" >> $GITHUB_ENV
+
+          # Calculate next version for potential use with release logic
+          # Check if force upgrade is requested with specific version increment
+          if [ "${{ inputs.force_version_upgrade }}" = "true" ]; then
+            # Check if current version has a prerelease suffix and we want to promote to full release
+            if [[ "$PM_VERSION" =~ -(build|rc)\.([0-9]+)$ ]] && [ "${{ inputs.release_type }}" = "full" ]; then
+              # Promote prerelease to full release by stripping suffix
+              NEXT_VERSION=${PM_VERSION%-*.*}
+            else
+              # Strip prerelease suffix if present to get base version for incrementing
+              BASE_VERSION=${PM_VERSION%-*.*}
+              IFS='.' read -r major minor patch <<< "$BASE_VERSION"
+              case "${{ inputs.version_increment }}" in
+                "none")
+                  # Keep base version, only change release type
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.$patch"
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
+                    if [[ "$PM_VERSION" =~ -rc\.([0-9]+)$ ]]; then
+                      NEXT_VERSION="$major.$minor.$patch-rc.$(( ${BASH_REMATCH[1]} + 1 ))"
+                    else
+                      NEXT_VERSION="$major.$minor.$patch-rc.1"
+                    fi
+                  else
+                    if [[ "$PM_VERSION" =~ -build\.([0-9]+)$ ]]; then
+                      NEXT_VERSION="$major.$minor.$patch-build.$(( ${BASH_REMATCH[1]} + 1 ))"
+                    else
+                      NEXT_VERSION="$major.$minor.$patch-build.1"
+                    fi
+                  fi
+                  ;;
+                "major")
+                  major=$((major + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.0.0"
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
+                    NEXT_VERSION="$major.0.0-rc.1"
+                  else
+                    NEXT_VERSION="$major.0.0-build.1"
+                  fi
+                  ;;
+                "minor")
+                  minor=$((minor + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.0"
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
+                    NEXT_VERSION="$major.$minor.0-rc.1"
+                  else
+                    NEXT_VERSION="$major.$minor.0-build.1"
+                  fi
+                  ;;
+                "patch")
+                  patch=$((patch + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.$patch"
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
+                    NEXT_VERSION="$major.$minor.$patch-rc.1"
+                  else
+                    NEXT_VERSION="$major.$minor.$patch-build.1"
+                  fi
+                  ;;
+                *)
+                  # Default to minor increment
+                  minor=$((minor + 1))
+                  if [ "${{ inputs.release_type }}" = "full" ]; then
+                    NEXT_VERSION="$major.$minor.0"
+                  elif [ "${{ inputs.release_type }}" = "rc" ]; then
+                    NEXT_VERSION="$major.$minor.0-rc.1"
+                  else
+                    NEXT_VERSION="$major.$minor.0-build.1"
+                  fi
+                  ;;
+              esac
+            fi
+          elif [[ "$PM_VERSION" =~ -build\.([0-9]+)$ ]]; then
+            # Current version is already a build release, increment the build number
+            BUILD_NUM=${BASH_REMATCH[1]}
+            NEW_BUILD_NUM=$((BUILD_NUM + 1))
+            BASE_VERSION=${PM_VERSION%-build.*}
+            NEXT_VERSION="$BASE_VERSION-build.$NEW_BUILD_NUM"
+          elif [[ "$PM_VERSION" =~ -rc\.([0-9]+)$ ]]; then
+            # Current version is already a release candidate, increment the rc number
+            RC_NUM=${BASH_REMATCH[1]}
+            NEW_RC_NUM=$((RC_NUM + 1))
+            BASE_VERSION=${PM_VERSION%-rc.*}
+            NEXT_VERSION="$BASE_VERSION-rc.$NEW_RC_NUM"
+          else
+            # Default behavior: increment minor version and add -build.1
+            IFS='.' read -r major minor patch <<< "$PM_VERSION"
+            minor=$((minor + 1))
+            NEXT_VERSION="$major.$minor.0-build.1"
+          fi
+          echo NEXT_VERSION="$NEXT_VERSION" >> $GITHUB_ENV
+
+      - name: Check if version update needed
+        id: version_check
+        run: |
+          set -e
+
+          # Get the latest platform-mesh component descriptor to compare dependencies
+          ./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o yaml > current_pm_component.yaml || echo "No existing platform-mesh component found"
+
+          # Extract current dependency versions from the existing component (if it exists)
+          if [ -f current_pm_component.yaml ] && [ -s current_pm_component.yaml ]; then
+            CURRENT_ACCOUNT_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "account-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_SECURITY_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "security-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_EXTENSION_MANAGER_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "extension-manager-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_INFRA=$(yq eval '.component.componentReferences[] | select(.name == "infra") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_REBAC_AUTHZ_WEBHOOK=$(yq eval '.component.componentReferences[] | select(.name == "rebac-authz-webhook") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PORTAL=$(yq eval '.component.componentReferences[] | select(.name == "portal") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PLATFORM_MESH_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "platform-mesh-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KEYCLOAK=$(yq eval '.component.componentReferences[] | select(.name == "keycloak") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KUBERNETES_GRAPHQL_GATEWAY=$(yq eval '.component.componentReferences[] | select(.name == "kubernetes-graphql-gateway") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_VIRTUAL_WORKSPACES=$(yq eval '.component.componentReferences[] | select(.name == "virtual-workspaces") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PLATFORM_MESH_OPERATOR_COMPONENTS=$(yq eval '.component.componentReferences[] | select(.name == "platform-mesh-operator-components") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS=$(yq eval '.component.componentReferences[] | select(.name == "platform-mesh-operator-infra-components") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_EXAMPLE_HTTPBIN_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "example-httpbin-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_IAM_SERVICE=$(yq eval '.component.componentReferences[] | select(.name == "iam-service") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_IAM_UI=$(yq eval '.component.componentReferences[] | select(.name == "iam-ui") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_MARKETPLACE_UI=$(yq eval '.component.componentReferences[] | select(.name == "marketplace-ui") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_TERMINAL_CONTROLLER_MANAGER=$(yq eval '.component.componentReferences[] | select(.name == "terminal-controller-manager") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KEYCLOAK_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "keycloak-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_OBSERVABILITY=$(yq eval '.component.componentReferences[] | select(.name == "observability") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+
+            # Extract third-party dependency versions
+            CURRENT_ISTIO=$(yq eval '.component.componentReferences[] | select(.name == "istio-base") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KCP_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "kcp-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_INIT_AGENT=$(yq eval '.component.componentReferences[] | select(.name == "init-agent") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KCP=$(yq eval '.component.componentReferences[] | select(.name == "kcp") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_ETCD_DRUID=$(yq eval '.component.componentReferences[] | select(.name == "etcd-druid") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_OPENFGA=$(yq eval '.component.componentReferences[] | select(.name == "openfga") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_GATEWAY_API=$(yq eval '.component.componentReferences[] | select(.name == "gateway-api") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_TRAEFIK=$(yq eval '.component.componentReferences[] | select(.name == "traefik") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_CERT_MANAGER=$(yq eval '.component.componentReferences[] | select(.name == "cert-manager") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_CNPG_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "cnpg-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_PROMETHEUS_OPERATOR_CRDS=$(yq eval '.component.componentReferences[] | select(.name == "prometheus-operator-crds") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_KUBE_PROMETHEUS_STACK=$(yq eval '.component.componentReferences[] | select(.name == "kube-prometheus-stack") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_OPENTELEMETRY_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "opentelemetry-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+          else
+            # No existing component, so we need to create one
+            echo "No existing platform-mesh component found, creating initial version"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # Check if force upgrade is requested
+          if [ "${{ inputs.force_version_upgrade }}" = "true" ]; then
+            echo "Force version upgrade requested, creating new version"
+            echo "Previous platform-mesh version: ${{ env.CURRENT_PM_VERSION }}"
+            echo "New platform-mesh version: ${{ env.NEXT_VERSION }}"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # Compare versions to detect changes
+          NEEDS_UPDATE=false
+
+          if [ "$CURRENT_ACCOUNT_OPERATOR" != "${{ env.ACCOUNT_OPERATOR_VERSION }}" ]; then
+            echo "Account operator: $CURRENT_ACCOUNT_OPERATOR -> ${{ env.ACCOUNT_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_SECURITY_OPERATOR" != "${{ env.SECURITY_OPERATOR_VERSION }}" ]; then
+            echo "Security operator: $CURRENT_SECURITY_OPERATOR -> ${{ env.SECURITY_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_EXTENSION_MANAGER_OPERATOR" != "${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }}" ]; then
+            echo "Extension manager operator: $CURRENT_EXTENSION_MANAGER_OPERATOR -> ${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_INFRA" != "${{ env.INFRA_VERSION }}" ]; then
+            echo "Infra: $CURRENT_INFRA -> ${{ env.INFRA_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_REBAC_AUTHZ_WEBHOOK" != "${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }}" ]; then
+            echo "Rebac authz webhook: $CURRENT_REBAC_AUTHZ_WEBHOOK -> ${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_PORTAL" != "${{ env.PORTAL_VERSION }}" ]; then
+            echo "Portal: $CURRENT_PORTAL -> ${{ env.PORTAL_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_PLATFORM_MESH_OPERATOR" != "${{ env.PLATFORM_MESH_OPERATOR_VERSION }}" ]; then
+            echo "Platform mesh operator: $CURRENT_PLATFORM_MESH_OPERATOR -> ${{ env.PLATFORM_MESH_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_KEYCLOAK_OPERATOR" != "${{ env.KEYCLOAK_OPERATOR_VERSION }}" ]; then
+            echo "Keycloak operator: $CURRENT_KEYCLOAK_OPERATOR -> ${{ env.KEYCLOAK_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_KEYCLOAK" != "${{ env.PM_KEYCLOAK_VERSION }}" ]; then
+            echo "Keycloak: $CURRENT_KEYCLOAK -> ${{ env.PM_KEYCLOAK_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_KUBERNETES_GRAPHQL_GATEWAY" != "${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }}" ]; then
+            echo "Kubernetes GraphQL gateway: $CURRENT_KUBERNETES_GRAPHQL_GATEWAY -> ${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_VIRTUAL_WORKSPACES" != "${{ env.VIRTUAL_WORKSPACES_VERSION }}" ]; then
+            echo "Virtual workspaces: $CURRENT_VIRTUAL_WORKSPACES -> ${{ env.VIRTUAL_WORKSPACES_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_EXAMPLE_HTTPBIN_OPERATOR" != "${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }}" ]; then
+            echo "Example HTTPBin operator: $CURRENT_EXAMPLE_HTTPBIN_OPERATOR -> ${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_IAM_SERVICE" != "${{ env.IAM_SERVICE_VERSION }}" ]; then
+            echo "IAM service: $CURRENT_IAM_SERVICE -> ${{ env.IAM_SERVICE_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_IAM_UI" != "${{ env.IAM_UI_VERSION }}" ]; then
+            echo "IAM UI: $CURRENT_IAM_UI -> ${{ env.IAM_UI_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_MARKETPLACE_UI" != "${{ env.MARKETPLACE_UI_VERSION }}" ]; then
+            echo "Marketplace UI: $CURRENT_MARKETPLACE_UI -> ${{ env.MARKETPLACE_UI_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_TERMINAL_CONTROLLER_MANAGER" != "${{ env.TERMINAL_CONTROLLER_MANAGER_VERSION }}" ]; then
+            echo "Terminal controller manager: $CURRENT_TERMINAL_CONTROLLER_MANAGER -> ${{ env.TERMINAL_CONTROLLER_MANAGER_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_OBSERVABILITY" != "${{ env.OBSERVABILITY_VERSION }}" ]; then
+            echo "Observability: $CURRENT_OBSERVABILITY -> ${{ env.OBSERVABILITY_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          # Check third-party dependency versions
+          if [ "$CURRENT_KCP_OPERATOR" != "${{ env.KCP_OPERATOR_CHART_VERSION }}" ]; then
+            echo "KCP Operator: $CURRENT_KCP_OPERATOR -> ${{ env.KCP_OPERATOR_CHART_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_KCP" != "${{ env.KCP_VERSION }}" ]; then
+            echo "KCP: $CURRENT_KCP -> ${{ env.KCP_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_INIT_AGENT" != "${{ env.INIT_AGENT_CHART_VERSION }}" ]; then
+            echo "Init Agent: $CURRENT_INIT_AGENT -> ${{ env.INIT_AGENT_CHART_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_ETCD_DRUID" != "${{ env.GARDENER_ETCD_DRUID_VERSION }}" ]; then
+            echo "Gardener etcd-druid: $CURRENT_ETCD_DRUID -> ${{ env.GARDENER_ETCD_DRUID_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_OPENFGA" != "${{ env.PM_OPENFGA_VERSION }}" ]; then
+            echo "OpenFGA: $CURRENT_OPENFGA -> ${{ env.PM_OPENFGA_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_GATEWAY_API" != "${{ env.GATEWAY_API_VERSION }}" ]; then
+            echo "Gateway API: $CURRENT_GATEWAY_API -> ${{ env.GATEWAY_API_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_TRAEFIK" != "${{ env.TRAEFIK_VERSION }}" ]; then
+            echo "Traefik: $CURRENT_TRAEFIK -> ${{ env.TRAEFIK_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_CERT_MANAGER" != "${{ env.CERT_MANAGER_VERSION }}" ]; then
+            echo "Cert Manager: $CURRENT_CERT_MANAGER -> ${{ env.CERT_MANAGER_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_CNPG_OPERATOR" != "${{ env.CNPG_OPERATOR_CHART_VERSION }}" ]; then
+            echo "CNPG Operator: $CURRENT_CNPG_OPERATOR -> ${{ env.CNPG_OPERATOR_CHART_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_PROMETHEUS_OPERATOR_CRDS" != "${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }}" ]; then
+            echo "Prometheus Operator CRDs: $CURRENT_PROMETHEUS_OPERATOR_CRDS -> ${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_KUBE_PROMETHEUS_STACK" != "${{ env.KUBE_PROMETHEUS_STACK_VERSION }}" ]; then
+            echo "Kube Prometheus Stack: $CURRENT_KUBE_PROMETHEUS_STACK -> ${{ env.KUBE_PROMETHEUS_STACK_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$CURRENT_OPENTELEMETRY_OPERATOR" != "${{ env.OPENTELEMETRY_OPERATOR_VERSION }}" ]; then
+            echo "OpenTelemetry Operator: $CURRENT_OPENTELEMETRY_OPERATOR -> ${{ env.OPENTELEMETRY_OPERATOR_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
+
+          if [ "$NEEDS_UPDATE" = "true" ]; then
+            echo "Component dependencies have changed, creating new version"
+            echo "Previous platform-mesh version: ${{ env.CURRENT_PM_VERSION }}"
+            echo "New platform-mesh version: ${{ env.NEXT_VERSION }}"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_ENV
+          else
+            echo "No dependency changes detected, skipping component creation"
+            echo "Current platform-mesh version: ${{ env.CURRENT_PM_VERSION }} (no update needed)"
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Copy external component references to local CTF
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          ocm_ctf=.ocm/transport.ctf
+          mkdir -p "$(dirname "$ocm_ctf")"
+          ./ocm transfer componentversions --copy-resources --recursive \
+            "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
+            "$ocm_ctf"
+
+      - name: create OCM ComponentArchive
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          ocm_ctf=.ocm/transport.ctf
+          ./ocm add components -c --templater=go --file "$ocm_ctf" constructor/component-constructor.yaml -- \
+            VERSION=${{ env.VERSION }} \
+            ACCOUNT_OPERATOR_VERSION=${{ env.ACCOUNT_OPERATOR_VERSION }} \
+            EXTENSION_MANAGER_OPERATOR_VERSION=${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }} \
+            INFRA_VERSION=${{ env.INFRA_VERSION }} \
+            SECURITY_OPERATOR_VERSION=${{ env.SECURITY_OPERATOR_VERSION }} \
+            REBAC_AUTHZ_WEBHOOK_VERSION=${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }} \
+            PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
+            PLATFORM_MESH_OPERATOR_VERSION=${{ env.PLATFORM_MESH_OPERATOR_VERSION }} \
+            VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
+            KCP_OPERATOR_CHART_VERSION=${{ env.KCP_OPERATOR_CHART_VERSION }} \
+            KCP_OPERATOR_IMAGE_VERSION=${{ env.KCP_OPERATOR_IMAGE_VERSION }} \
+            KCP_VERSION=${{ env.KCP_VERSION }} \
+            INIT_AGENT_CHART_VERSION=${{ env.INIT_AGENT_CHART_VERSION }} \
+            INIT_AGENT_IMAGE_VERSION=${{ env.INIT_AGENT_IMAGE_VERSION }} \
+            GARDENER_ETCD_DRUID_VERSION=${{ env.GARDENER_ETCD_DRUID_VERSION }} \
+            OPENFGA_VERSION=${{ env.OPENFGA_VERSION }} \
+            OPENFGA_IMAGE_VERSION=${{ env.OPENFGA_IMAGE_VERSION }} \
+            OPENFGA_POSTGRESQL_IMAGE_VERSION=${{ env.OPENFGA_POSTGRESQL_IMAGE_VERSION }} \
+            PM_OPENFGA_VERSION=${{ env.PM_OPENFGA_VERSION }} \
+            GATEWAY_API_VERSION=${{ env.GATEWAY_API_VERSION }} \
+            GATEWAY_API_COMMIT=${{ env.GATEWAY_API_COMMIT }} \
+            TRAEFIK_VERSION=${{ env.TRAEFIK_VERSION }} \
+            TRAEFIK_CHART_VERSION=${{ env.TRAEFIK_CHART_VERSION }} \
+            TRAEFIK_IMAGE_VERSION=${{ env.TRAEFIK_IMAGE_VERSION }} \
+            TRAEFIK_CRD_VERSION=${{ env.TRAEFIK_CRD_VERSION }} \
+            CERT_MANAGER_VERSION=${{ env.CERT_MANAGER_VERSION }} \
+            KUBERNETES_GRAPHQL_GATEWAY_VERSION=${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }} \
+            KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION}} \
+            PM_KEYCLOAK_VERSION=${{ env.PM_KEYCLOAK_VERSION }} \
+            EXAMPLE_HTTPBIN_OPERATOR_VERSION=${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }} \
+            IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \
+            IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
+            MARKETPLACE_UI_VERSION=${{ env.MARKETPLACE_UI_VERSION }} \
+            TERMINAL_CONTROLLER_MANAGER_VERSION=${{ env.TERMINAL_CONTROLLER_MANAGER_VERSION }} \
+            KEYCLOAK_OPERATOR_VERSION=${{ env.KEYCLOAK_OPERATOR_VERSION }} \
+            OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }} \
+            CNPG_OPERATOR_CHART_VERSION=${{ env.CNPG_OPERATOR_CHART_VERSION }} \
+            CNPG_OPERATOR_IMAGE_VERSION=${{ env.CNPG_OPERATOR_IMAGE_VERSION }} \
+            PROMETHEUS_OPERATOR_CRDS_VERSION=${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }} \
+            KUBE_PROMETHEUS_STACK_VERSION=${{ env.KUBE_PROMETHEUS_STACK_VERSION }} \
+            OPENTELEMETRY_OPERATOR_VERSION=${{ env.OPENTELEMETRY_OPERATOR_VERSION }}
+
+      - name: Transfer to OCM REPO
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          ./ocm hash components --lookup ghcr.io/platform-mesh .ocm/transport.ctf
+          ./ocm transfer ctf --lookup ghcr.io/platform-mesh .ocm/transport.ctf "ghcr.io/platform-mesh"
+
+      - name: Sign OCM Component
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
+          printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
+          ./ocm sign componentversions --signature ocm.platform-mesh --private-key /tmp/ocm-signing.priv \
+          --public-key /tmp/ocm-signing.cert \
+          --ca-cert signature/ca.cert \
+            "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
+          rm -f /tmp/ocm-signing.priv
+          rm -f /tmp/ocm-signing.cert
+        env:
+          OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
+          OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}

@@ -1,0 +1,120 @@
+name: Build Service OCM Component
+on:
+  workflow_dispatch:
+    inputs:
+      componentName:
+        description: "Service component name (e.g., github.com/platform-mesh/security-operator)"
+        required: true
+        type: string
+      chartName:
+        description: "Chart name (e.g., security-operator)"
+        required: true
+        type: string
+      chartVersion:
+        description: "Chart version (semver)"
+        required: true
+        type: string
+      appVersion:
+        description: "App/image version (semver)"
+        required: true
+        type: string
+      imageComponentName:
+        description: "Image component name suffix (defaults to repo name, e.g., security-operator)"
+        required: false
+        type: string
+      componentConstructorFile:
+        description: "Service component constructor file path"
+        required: false
+        type: string
+        default: "constructor/service-component.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  service-component:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Setup OCM CLI
+        run: |
+          REPO=${repo:=open-component-model/ocm}
+          if [ -z "$version" -o "$version" == latest ]; then
+            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
+            echo "Selecting latest version: $version"
+          fi
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          echo "Installing ocm-cli version $version from $REPO"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          chmod a+x ocm
+
+      - name: Write OCM credentials file
+        run: |
+          cat <<EOF > $HOME/.ocmconfig
+          type: generic.config.ocm.software/v1
+          configurations:
+            - type: credentials.config.ocm.software
+              consumers:
+                - identity:
+                    type: OCIRegistry
+                    scheme: https
+                    hostname: ghcr.io
+                    pathprefix: platform-mesh
+                  credentials:
+                    - type: Credentials
+                      properties:
+                        username: github
+                        password: ${{ secrets.GITHUB_TOKEN }}
+          EOF
+
+      - name: Determine image component name
+        run: |
+          # Use imageComponentName if provided, otherwise derive from chartName
+          IMAGE_COMPONENT_NAME="${{ inputs.imageComponentName }}"
+          if [ -z "$IMAGE_COMPONENT_NAME" ]; then
+            IMAGE_COMPONENT_NAME="${{ inputs.chartName }}"
+          fi
+          echo "IMAGE_COMPONENT_NAME=$IMAGE_COMPONENT_NAME" >> $GITHUB_ENV
+
+      - name: Create OCM ComponentArchive
+        run: |
+          ocm_ctf=transport.ctf
+          ./ocm add components -c --templater=go --file "$ocm_ctf" ${{ inputs.componentConstructorFile }} -- \
+            COMPONENT_NAME=${{ inputs.componentName }} \
+            VERSION=${{ inputs.chartVersion }} \
+            CHART_NAME=${{ inputs.chartName }} \
+            IMAGE_COMPONENT_NAME=${{ env.IMAGE_COMPONENT_NAME }} \
+            APP_VERSION=${{ inputs.appVersion }}
+
+      - name: Transfer to OCM registry
+        run: ./ocm transfer ctf transport.ctf "ghcr.io/platform-mesh"
+
+      - name: Sign OCM Component
+        run: |
+          printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
+          printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
+          ./ocm sign componentversion --signature ocm.platform-mesh --private-key /tmp/ocm-signing.priv \
+          --public-key /tmp/ocm-signing.cert \
+          --ca-cert signature/ca.cert \
+            "oci://ghcr.io/platform-mesh//${{ inputs.componentName }}:${{ inputs.chartVersion }}"
+          rm -f /tmp/ocm-signing.priv
+          rm -f /tmp/ocm-signing.cert
+        env:
+          OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
+          OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
+
+  trigger-aggregator:
+    needs: service-component
+    uses: ./.github/workflows/ocm.yaml
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
