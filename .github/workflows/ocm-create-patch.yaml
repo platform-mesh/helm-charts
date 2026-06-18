@@ -1,0 +1,309 @@
+name: Create Patch OCM Component
+
+run-name: "Patch OCM: ${{ inputs.base_version }} → ${{ inputs.target_version }}${{ inputs.dry_run && ' [DRY RUN]' || '' }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_version:
+        description: 'Base version to copy components from (e.g., 0.1.0)'
+        required: true
+        type: string
+      target_version:
+        description: 'Target version to publish (e.g., 0.1.1, 0.1.1-rc.1, 0.1.1-build.1)'
+        required: true
+        type: string
+      component_overrides:
+        description: 'Component version overrides (comma-separated: component1=version1,component2=version2)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run mode - create component archive but do not transfer to registry'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: patch-ocm-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  create-patch-ocm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Validate version format
+        run: |
+          BASE_VERSION="${{ inputs.base_version }}"
+          TARGET_VERSION="${{ inputs.target_version }}"
+          DRY_RUN="${{ inputs.dry_run }}"
+
+          # Simple version format validation (allows semver and RC/build versions)
+          if ! [[ "$TARGET_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-z]+\.[0-9]+)?$ ]]; then
+            echo "Error: target_version must be in format X.Y.Z, X.Y.Z-rc.N, or X.Y.Z-build.N"
+            exit 1
+          fi
+
+          echo "✓ Version format is valid: $TARGET_VERSION"
+          echo "  Base version: $BASE_VERSION"
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "  Mode: DRY RUN (will not transfer to registry)"
+          fi
+
+      - name: Setup yq
+        run: |
+          if ! command -v yq &>/dev/null; then
+            mkdir -p /home/runner/.local/bin
+            wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /home/runner/.local/bin/yq
+            chmod +x /home/runner/.local/bin/yq
+            echo "/home/runner/.local/bin" >> $GITHUB_PATH
+          fi
+
+      - name: Setup jq
+        run: |
+          if ! command -v jq &>/dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+
+      - name: Setup OCM CLI
+        run: |
+          REPO="open-component-model/ocm"
+          version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
+          echo "Installing OCM CLI version: $version"
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          chmod a+x ocm
+          sudo mv ocm /usr/local/bin/
+          ocm version
+
+      - name: Write OCM credentials
+        run: |
+          cat <<EOF > $HOME/.ocmconfig
+          type: generic.config.ocm.software/v1
+          configurations:
+            - type: credentials.config.ocm.software
+              consumers:
+                - identity:
+                    type: OCIRegistry
+                    scheme: https
+                    hostname: ghcr.io
+                    pathprefix: platform-mesh
+                  credentials:
+                    - type: Credentials
+                      properties:
+                        username: github
+                        password: ${{ secrets.GITHUB_TOKEN }}
+          EOF
+
+      - name: Fetch base component descriptor
+        run: |
+          BASE_VERSION="${{ inputs.base_version }}"
+
+          echo "=== Fetching base component descriptor from OCM registry ==="
+          echo "Base version: $BASE_VERSION"
+          echo ""
+
+          # Fetch the base component descriptor
+          ocm get component "github.com/platform-mesh/platform-mesh:${BASE_VERSION}" \
+            --repo ghcr.io/platform-mesh -o yaml > base-component.yaml
+
+          if [ ! -s base-component.yaml ]; then
+            echo "Error: Could not fetch OCM component for version ${BASE_VERSION}"
+            exit 1
+          fi
+
+          echo "✓ Fetched base component descriptor"
+          echo ""
+          echo "Component includes:"
+          echo "  - $(yq eval '.component.componentReferences | length' base-component.yaml) component references"
+          echo ""
+
+      - name: Generate patch component descriptor
+        run: |
+          TARGET_VERSION="${{ inputs.target_version }}"
+          COMPONENT_OVERRIDES="${{ inputs.component_overrides }}"
+
+          echo "=== Generating patch component descriptor ==="
+          echo ""
+
+          # Copy base descriptor to patch descriptor
+          cp base-component.yaml patch-component.yaml
+
+          # Update the main component version
+          echo "Setting component version to: $TARGET_VERSION"
+          yq eval ".component.version = \"$TARGET_VERSION\"" -i patch-component.yaml
+
+          # Apply component overrides if provided
+          if [ -n "$COMPONENT_OVERRIDES" ]; then
+            echo ""
+            echo "Applying component overrides:"
+
+            # Split by comma and process each override
+            IFS=',' read -ra OVERRIDES <<< "$COMPONENT_OVERRIDES"
+            for override in "${OVERRIDES[@]}"; do
+              # Trim whitespace
+              override=$(echo "$override" | xargs)
+
+              # Skip empty entries
+              if [ -z "$override" ]; then
+                continue
+              fi
+
+              # Parse component=version
+              if [[ "$override" =~ ^([a-zA-Z0-9_-]+)=(.+)$ ]]; then
+                component="${BASH_REMATCH[1]}"
+                version="${BASH_REMATCH[2]}"
+
+                echo "  - $component: $version"
+
+                # Apply override using yq
+                yq eval "(.component.componentReferences[] | select(.name == \"$component\") | .version) = \"$version\"" -i patch-component.yaml
+              else
+                echo "  Warning: Ignoring invalid override: $override"
+              fi
+            done
+          else
+            echo "No component overrides specified - using all versions from base"
+          fi
+
+          echo ""
+          echo "Converting descriptor to OCM component list format..."
+          # Transform from descriptor format to component list format
+          # From: {component: {..., provider: "string", repositoryContexts: [...], creationTime: "..."}, meta: {...}}
+          # To: {components: [{..., provider: {name: "string"}}]}
+
+          # Step 1: Remove runtime metadata fields that are not allowed in component specs
+          yq eval 'del(.component.repositoryContexts) | del(.component.creationTime)' patch-component.yaml > patch-component-clean.yaml
+
+          # Step 2: Extract component and wrap in array
+          yq eval '{"components": [.component]}' patch-component-clean.yaml > patch-component-list.yaml
+
+          # Step 3: Transform provider from string to object
+          yq eval '.components[].provider |= {"name": .}' -i patch-component-list.yaml
+
+          echo "✓ Generated patch component descriptor"
+
+      - name: Show component references comparison
+        run: |
+          BASE_VERSION="${{ inputs.base_version }}"
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          echo "=== Component References Comparison ==="
+          echo ""
+
+          echo "Base version ($BASE_VERSION) component references:"
+          yq eval '.component.componentReferences[] | "  - " + .name + ": " + .version' base-component.yaml | sort
+
+          echo ""
+
+          echo "Patch version ($TARGET_VERSION) component references:"
+          yq eval '.component.componentReferences[] | "  - " + .name + ": " + .version' patch-component.yaml | sort
+
+          echo ""
+          echo "================================"
+          echo ""
+
+      - name: Show full descriptor diff
+        run: |
+          BASE_VERSION="${{ inputs.base_version }}"
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          echo "=== Diff: Base vs Patch Component Descriptor ==="
+          echo ""
+          echo "Comparing:"
+          echo "  Base:  $BASE_VERSION"
+          echo "  Patch: $TARGET_VERSION"
+          echo ""
+          echo "Differences (base -> patch):"
+          echo "---"
+
+          # Show diff with context, suppress "No differences" if files are identical
+          if diff -u base-component.yaml patch-component.yaml; then
+            echo ""
+            echo "✓ No differences found (components are identical except version)"
+          fi || true
+
+          echo ""
+          echo "================================"
+          echo ""
+
+      - name: Create OCM component from descriptor
+        run: |
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          echo "=== Creating OCM component from descriptor ==="
+          echo "Target version: $TARGET_VERSION"
+          echo ""
+
+          # Create CTF directory
+          ocm_ctf=.ocm/transport.ctf
+          mkdir -p "$(dirname "$ocm_ctf")"
+
+          # Add component using descriptor directly (no templating!)
+          ocm add components -c --templater=none --file "$ocm_ctf" patch-component-list.yaml
+
+          echo ""
+          echo "✓ OCM component created in local CTF"
+
+      - name: Display created component information
+        run: |
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          echo "=== Created OCM Component Information ==="
+          echo ""
+          echo "Component: github.com/platform-mesh/platform-mesh:$TARGET_VERSION"
+          echo ""
+
+          # Show component descriptor
+          echo "Component descriptor:"
+          echo "---"
+          ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
+            --repo .ocm/transport.ctf -o yaml
+          echo ""
+
+          echo "================================"
+
+      - name: Transfer to OCM repository
+        if: inputs.dry_run == false
+        run: |
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          echo "=== Transferring to OCM repository ==="
+          echo "Target: ghcr.io/platform-mesh"
+          echo "Version: $TARGET_VERSION"
+          echo ""
+
+          ocm transfer ctf .ocm/transport.ctf "ghcr.io/platform-mesh"
+
+          echo ""
+          echo "✓ Successfully published OCM component"
+          echo ""
+          echo "Published: github.com/platform-mesh/platform-mesh:$TARGET_VERSION"
+          echo ""
+          echo "Verify with:"
+          echo "  ocm get component github.com/platform-mesh/platform-mesh:$TARGET_VERSION --repo ghcr.io/platform-mesh"
+
+      - name: Dry run summary
+        if: inputs.dry_run == true
+        run: |
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          echo ""
+          echo "=== DRY RUN MODE ==="
+          echo ""
+          echo "✓ Component created successfully in local CTF"
+          echo "✗ Transfer to registry SKIPPED (dry-run mode)"
+          echo ""
+          echo "Component version: $TARGET_VERSION"
+          echo "Location: .ocm/transport.ctf"
+          echo ""
+          echo "To publish this component, re-run with dry_run=false"
