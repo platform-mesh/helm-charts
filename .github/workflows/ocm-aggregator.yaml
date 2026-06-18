@@ -149,26 +149,28 @@ jobs:
       - name: Get versions
         run: |
           set -e
-          echo ACCOUNT_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/account-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo SECURITY_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/security-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo EXTENSION_MANAGER_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/extension-manager-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo INFRA_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/infra --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo REBAC_AUTHZ_WEBHOOK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/rebac-authz-webhook --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo PORTAL_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/portal --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo PLATFORM_MESH_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo KEYCLOAK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/keycloak --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/kubernetes-graphql-gateway --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo VIRTUAL_WORKSPACES_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/virtual-workspaces --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo EXAMPLE_HTTPBIN_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/example-httpbin-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo IAM_SERVICE_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-service --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo IAM_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/iam-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo MARKETPLACE_UI_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/marketplace-ui --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo TERMINAL_CONTROLLER_MANAGER_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/terminal-controller-manager --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo KEYCLOAK_OPERATOR_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/helm-charts/keycloak-operator --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo OBSERVABILITY_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/observability --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          # Versions that can be resolved from working tree
+          echo ACCOUNT_OPERATOR_VERSION=$(yq '.version' charts/account-operator/Chart.yaml) >> $GITHUB_ENV
+          echo SECURITY_OPERATOR_VERSION=$(yq '.version' charts/security-operator/Chart.yaml) >> $GITHUB_ENV
+          echo EXTENSION_MANAGER_OPERATOR_VERSION=$(yq '.version' charts/extension-manager-operator/Chart.yaml) >> $GITHUB_ENV
+          echo INFRA_VERSION=$(yq '.version' charts/infra/Chart.yaml) >> $GITHUB_ENV
+          echo REBAC_AUTHZ_WEBHOOK_VERSION=$(yq '.version' charts/rebac-authz-webhook/Chart.yaml) >> $GITHUB_ENV
+          echo PORTAL_VERSION=$(yq '.version' charts/portal/Chart.yaml) >> $GITHUB_ENV
+          echo PLATFORM_MESH_OPERATOR_VERSION=$(yq '.version' charts/platform-mesh-operator/Chart.yaml) >> $GITHUB_ENV
+          echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(yq '.version' charts/kubernetes-graphql-gateway/Chart.yaml) >> $GITHUB_ENV
+          echo VIRTUAL_WORKSPACES_VERSION=$(yq '.version' charts/virtual-workspaces/Chart.yaml) >> $GITHUB_ENV
+          echo EXAMPLE_HTTPBIN_OPERATOR_VERSION=$(yq '.version' charts/example-httpbin-operator/Chart.yaml) >> $GITHUB_ENV
+          echo IAM_SERVICE_VERSION=$(yq '.version' charts/iam-service/Chart.yaml) >> $GITHUB_ENV
+          echo IAM_UI_VERSION=$(yq '.version' charts/iam-ui/Chart.yaml) >> $GITHUB_ENV
+          echo MARKETPLACE_UI_VERSION=$(yq '.version' charts/marketplace-ui/Chart.yaml) >> $GITHUB_ENV
+          echo TERMINAL_CONTROLLER_MANAGER_VERSION=$(yq '.version' charts/terminal-controller-manager/Chart.yaml) >> $GITHUB_ENV
+          echo KEYCLOAK_OPERATOR_VERSION=$(yq '.version' charts/keycloak-operator/Chart.yaml) >> $GITHUB_ENV
+          echo OBSERVABILITY_VERSION=$(yq '.version' charts/observability/Chart.yaml) >> $GITHUB_ENV
 
-          # Fetch etcd-druid version from Gardener registry
+          # Remote components
+          echo KEYCLOAK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/keycloak --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo GARDENER_ETCD_DRUID_VERSION=$(./ocm get componentversions --latest github.com/gardener/etcd-druid --repo europe-docker.pkg.dev/gardener-project/releases -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+
           # Get current platform-mesh version
           PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
