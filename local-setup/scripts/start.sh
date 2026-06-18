@@ -32,26 +32,36 @@ REMOTE=false
 DEPLOYMENT_TECH="fluxcd"
 ITERATE=false
 
+# PLATFORM_MESH_VERSION selects the OCM aggregate to deploy.
+#   unset      builds the aggregate from the working tree
+#   <version>  pulls github.com/platform-mesh/platform-mesh:<version>
+PLATFORM_MESH_VERSION="${PLATFORM_MESH_VERSION:-}"
+if [ -z "$PLATFORM_MESH_VERSION" ]; then
+  PRERELEASE=true
+fi
+
 usage() {
-  echo "Usage: $0 [--prerelease] [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--help]"
+  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--help]"
 
   echo ""
   echo "Options:"
-  echo "  --prerelease       Deploy with locally built OCM components instead of released versions"
   echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
 
-  echo "  --concurrent       Run prerelease chart builds in parallel instead of sequentially"
+  echo "  --concurrent       Run chart builds in parallel instead of sequentially"
   echo "  --sharded          Deploy additional kcp shards"
   echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
   echo "  --deployment-tech  Choose deployment technology: fluxcd or argocd (only with --remote). Default: fluxcd"
-  echo "  --iterate          Skip infrastructure setup; rebuild and reapply the OCM component only (requires --prerelease)"
+  echo "  --iterate          Skip infrastructure setup; rebuild and reapply the OCM component only (requires PLATFORM_MESH_VERSION unset)"
   echo "  --help             Show this help message"
+  echo ""
+  echo "Environment variables:"
+  echo "  PLATFORM_MESH_VERSION   OCM aggregate version to deploy. Unset builds from the working tree"
+  echo "                          Set to e.g. 0.4.0-build.510 pulls that version from the registry"
   exit 1
 }
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --prerelease) PRERELEASE=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
@@ -71,7 +81,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# Export CONCURRENT and ITERATE for prerelease build scripts
+# Export CONCURRENT and ITERATE for build scripts
 export CONCURRENT
 export ITERATE
 
@@ -81,7 +91,7 @@ export ITERATE
 unset KUBECONFIG
 
 if [ "$ITERATE" = true ] && [ "$PRERELEASE" = false ]; then
-  echo -e "${RED}--iterate requires --prerelease${COL_RES}" >&2
+  echo -e "${RED}--iterate requires PLATFORM_MESH_VERSION to be unset${COL_RES}" >&2
   exit 1
 fi
 
@@ -444,10 +454,12 @@ if [ "$PRERELEASE" = true ]; then
     unset KUBECONFIG
   fi
 else
-  OCM_VERSION=$(yq '.spec.semver' "$SCRIPT_DIR/../kustomize/components/ocm/component.yaml")
-  echo -e "${COL}[$(date '+%H:%M:%S')] Using OCM Component version: ${OCM_VERSION} ${COL_RES}"
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using OCM Component version: ${PLATFORM_MESH_VERSION} ${COL_RES}"
   if [ "$REMOTE" != true ]; then
-    kubectl apply -k "$SCRIPT_DIR/../kustomize/overlays/default"
+    export PLATFORM_MESH_VERSION
+    kubectl kustomize "$SCRIPT_DIR/../kustomize/overlays/default" \
+      | yq '(select(.kind == "Component" and .metadata.name == "platform-mesh") | .spec.semver) = strenv(PLATFORM_MESH_VERSION)' \
+      | kubectl apply -f -
   fi
 fi
 

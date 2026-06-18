@@ -209,14 +209,6 @@ tasks:
     cmds:
       - ./local-setup/scripts/check-ocm-images.sh
 
-  bump-local-setup-component-version:
-    deps:
-      - task: setup:ocm
-    cmds:
-      - |
-        LATEST_VERSION=$({{ .LOCAL_BIN }}/ocm --config .ocm/config get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
-        yq -i '.spec.semver = "'$LATEST_VERSION'"' local-setup/kustomize/components/ocm/component.yaml
-
   ocm:build-apply:iterate:
     cmds:
       - task: ocm:build:component
@@ -366,35 +358,25 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--example-data"}
 
-  local-setup:prerelease:
+  local-setup:concurrent:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--prerelease"}
+        vars: {FLAGS: "--concurrent"}
 
-  local-setup:prerelease:iterate:
+  local-setup:concurrent:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --iterate"}
+        vars: {FLAGS: "--concurrent"}
 
-  local-setup:prerelease:concurrent:
+  local-setup:concurrent:example-data:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--prerelease --concurrent"}
+        vars: {FLAGS: "--concurrent --example-data"}
 
-  local-setup:prerelease:concurrent:iterate:
+  local-setup:concurrent:example-data:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --concurrent --iterate"}
-
-  local-setup:prerelease:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--prerelease --example-data"}
-
-  local-setup:prerelease:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --example-data --iterate"}
+        vars: {FLAGS: "--concurrent --example-data"}
 
   local-setup:remote:fluxcd:
     cmds:
@@ -471,25 +453,25 @@ tasks:
       - task: local-setup:single-shard:iterate
         vars: {FLAGS: "--example-data"}
 
-  local-setup:prerelease:single-shard:
+  local-setup:single-shard:concurrent:
     cmds:
       - task: local-setup:single-shard
-        vars: {FLAGS: "--prerelease"}
+        vars: {FLAGS: "--concurrent"}
 
-  local-setup:prerelease:single-shard:iterate:
+  local-setup:single-shard:concurrent:iterate:
     cmds:
       - task: local-setup:single-shard:iterate
-        vars: {FLAGS: "--prerelease --iterate"}
+        vars: {FLAGS: "--concurrent"}
 
-  local-setup:single-shard:prerelease:example-data:
+  local-setup:single-shard:concurrent:example-data:
     cmds:
       - task: local-setup:single-shard
-        vars: {FLAGS: "--prerelease --example-data"}
+        vars: {FLAGS: "--concurrent --example-data"}
 
-  local-setup:single-shard:prerelease:example-data:iterate:
+  local-setup:single-shard:concurrent:example-data:iterate:
     cmds:
       - task: local-setup:single-shard:iterate
-        vars: {FLAGS: "--prerelease --example-data --iterate"}
+        vars: {FLAGS: "--concurrent --example-data"}
 
   local-setup:single-shard:remote:fluxcd:
     cmds:

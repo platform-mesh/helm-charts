@@ -321,9 +321,9 @@ my-service:
   # ...
 ```
 
-## Step 6: Local Prerelease Build Registration
+## Step 6: Local Build Registration
 
-To test your service locally with `task local-setup:prerelease`, register it in the build scripts.
+To test your service locally with `task local-setup`, register it in the build scripts.
 
 ### Add to Local Charts List
 
@@ -362,10 +362,10 @@ After completing all the above steps:
 
 ```sh
 # Full setup from scratch with local charts
-task local-setup:prerelease
+task local-setup
 
 # Iterate on an existing cluster (faster)
-task local-setup:prerelease:iterate
+task local-setup:iterate
 
 # Just rebuild and redeploy OCM component
 task ocm:build ocm:apply
@@ -393,4 +393,4 @@ Use this checklist when adding a new service:
 - [ ] **Image pipeline** — image repo publishes to `ghcr.io/platform-mesh/my-service`
 - [ ] **Version update automation** — Renovate or workflow dispatch configured for appVersion bumps
 - [ ] **Chart version bumped** — run `task update-changed` if other charts depend on yours
-- [ ] **Local test passed** — verified with `task local-setup:prerelease`
+- [ ] **Local test passed** — verified with `task local-setup`
