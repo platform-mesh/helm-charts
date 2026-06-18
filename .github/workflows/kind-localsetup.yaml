@@ -7,6 +7,19 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'charts/**'
+      - 'local-setup/**'
+      - '.ocm/**'
+      - 'Taskfile.yaml'
+      - 'hack/ocm/**'
+      - '.github/workflows/kind-localsetup.yaml'
+      - '.github/workflows/nightly-local-setup.yaml'
+      - '.github/workflows/pipeline-chart.yml'
+      - '.github/workflows/ocm-aggregator.yaml'
+      - '.github/workflows/ocm-service-component.yaml'
+      - '!**/*.md'
+      - '!**/README.md.gotmpl'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -14,36 +27,7 @@ concurrency:
 
 jobs:
 
-  checkout-and-detect-changes:
-    runs-on: ubuntu-latest
-    outputs:
-      local_setup_changed: ${{ steps.local_setup.outputs.changed }}
-
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          fetch-depth: 0
-
-      - name: Did local-setup change?
-        id: local_setup
-        run: |
-          if git diff --quiet origin/${{ github.base_ref }} -- local-setup; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-
-  kind-localsetup-skip:
-    needs: checkout-and-detect-changes
-    if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Skip — local-setup unchanged
-        run: echo "local-setup unchanged, skipping kind-localsetup"
-
-  kind-localsetup-run:
-    needs: checkout-and-detect-changes
-    if: needs.checkout-and-detect-changes.outputs.local_setup_changed == 'true'
+  kind-localsetup:
     runs-on: ubuntu-latest-large
 
     steps:
@@ -113,14 +97,3 @@ jobs:
             local-setup/e2e/test-results/
             local-setup/e2e/*.png
           retention-days: 5
-
-  kind-localsetup:
-    if: always()
-    needs: [kind-localsetup-skip, kind-localsetup-run]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check result
-        run: |
-          if [[ "${{ needs.kind-localsetup-run.result }}" == "failure" || "${{ needs.kind-localsetup-run.result }}" == "cancelled" ]]; then
-            exit 1
-          fi
