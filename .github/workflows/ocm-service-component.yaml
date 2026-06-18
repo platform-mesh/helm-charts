@@ -101,7 +101,7 @@ jobs:
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
-          ./ocm sign componentversion --signature ocm.platform-mesh --private-key /tmp/ocm-signing.priv \
+          ./ocm sign componentversion --signature helm-charts.platform-mesh --private-key /tmp/ocm-signing.priv \
           --public-key /tmp/ocm-signing.cert \
           --ca-cert .ocm/signature/ca.cert \
             "oci://ghcr.io/platform-mesh//${{ inputs.componentName }}:${{ inputs.chartVersion }}"
