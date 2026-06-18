@@ -12,8 +12,8 @@ spec:
   secretRef:
     name: kubeconfig-kcp-admin
   target:
-    rootShardRef:
-      name: root
+    frontProxyRef:
+      name: {{.Values.kcp.frontProxy.name }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
