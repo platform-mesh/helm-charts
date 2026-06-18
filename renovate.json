@@ -7,19 +7,6 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "OCM Component version",
-      "managerFilePatterns": [
-        "/(^|/)local-setup/kustomize/components/ocm/component\\.yaml$/"
-      ],
-      "matchStrings": [
-        "semver:\\s*(?<currentValue>[\\d\\.]+-[\\w\\.-]+)"
-      ],
-      "versioningTemplate": "semver",
-      "depNameTemplate": "ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/platform-mesh",
-      "datasourceTemplate": "docker"
-    },
-    {
-      "customType": "regex",
       "description": "OCM toolkit version",
       "managerFilePatterns": [
         "/(^|/)local-setup/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit\\.yaml$/"
