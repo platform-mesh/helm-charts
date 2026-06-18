@@ -148,8 +148,6 @@ resolve_component_versions() {
     get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
     get_component_version keycloak github.com/platform-mesh/keycloak "../helm-charts/keycloak/" KEYCLOAK_VERSION
     get_component_version keycloak-operator github.com/platform-mesh/keycloak-operator charts/keycloak-operator KEYCLOAK_OPERATOR_VERSION
-    get_component_version platform-mesh-operator-components github.com/platform-mesh/platform-mesh-operator-components charts/platform-mesh-operator-components PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION
-    get_component_version platform-mesh-operator-infra-components github.com/platform-mesh/platform-mesh-operator-infra-components charts/platform-mesh-operator-infra-components PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION
     get_component_version iam-service github.com/platform-mesh/iam-service charts/iam-service IAM_SERVICE_VERSION
     get_component_version iam-ui github.com/platform-mesh/iam-ui charts/iam-ui IAM_UI_VERSION
     get_component_version marketplace-ui github.com/platform-mesh/marketplace-ui charts/marketplace-ui MARKETPLACE_UI_VERSION
@@ -229,7 +227,6 @@ build_final_component() {
         PM_KEYCLOAK_VERSION="$KEYCLOAK_VERSION" \
         KEYCLOAK_OPERATOR_VERSION="$KEYCLOAK_OPERATOR_VERSION" \
         VIRTUAL_WORKSPACES_VERSION="$VIRTUAL_WORKSPACES_VERSION" \
-        PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION="$PLATFORM_MESH_OPERATOR_COMPONENTS_VERSION" \
         EXAMPLE_HTTPBIN_OPERATOR_VERSION="$EXAMPLE_HTTPBIN_OPERATOR_VERSION" \
         IAM_SERVICE_VERSION="$IAM_SERVICE_VERSION" \
         IAM_UI_VERSION="$IAM_UI_VERSION" \
@@ -240,7 +237,6 @@ build_final_component() {
         TRAEFIK_CRD_VERSION="$TRAEFIK_CRD_VERSION" \
         TRAEFIK_CHART_VERSION="$TRAEFIK_CHART_VERSION" \
         CERT_MANAGER_VERSION="$CERT_MANAGER_VERSION" \
-        PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION="$PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS_VERSION" \
         KCP_OPERATOR_CHART_VERSION="$KCP_OPERATOR_CHART_VERSION" \
         KCP_OPERATOR_IMAGE_VERSION="$KCP_OPERATOR_IMAGE_VERSION" \
         KCP_VERSION="$KCP_VERSION" \

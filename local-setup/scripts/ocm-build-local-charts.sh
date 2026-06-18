@@ -29,8 +29,6 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "kubernetes-graphql-gateway:charts/kubernetes-graphql-gateway"
     "observability:charts/observability"
     "platform-mesh-operator:charts/platform-mesh-operator"
-    "platform-mesh-operator-components:charts/platform-mesh-operator-components"
-    "platform-mesh-operator-infra-components:charts/platform-mesh-operator-infra-components"
     "portal:charts/portal"
     "rebac-authz-webhook:charts/rebac-authz-webhook"
     "security-operator:charts/security-operator"

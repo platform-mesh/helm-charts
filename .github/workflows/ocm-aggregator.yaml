@@ -287,8 +287,6 @@ jobs:
             CURRENT_KEYCLOAK=$(yq eval '.component.componentReferences[] | select(.name == "keycloak") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_KUBERNETES_GRAPHQL_GATEWAY=$(yq eval '.component.componentReferences[] | select(.name == "kubernetes-graphql-gateway") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_VIRTUAL_WORKSPACES=$(yq eval '.component.componentReferences[] | select(.name == "virtual-workspaces") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_PLATFORM_MESH_OPERATOR_COMPONENTS=$(yq eval '.component.componentReferences[] | select(.name == "platform-mesh-operator-components") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            CURRENT_PLATFORM_MESH_OPERATOR_INFRA_COMPONENTS=$(yq eval '.component.componentReferences[] | select(.name == "platform-mesh-operator-infra-components") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_EXAMPLE_HTTPBIN_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "example-httpbin-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_IAM_SERVICE=$(yq eval '.component.componentReferences[] | select(.name == "iam-service") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_IAM_UI=$(yq eval '.component.componentReferences[] | select(.name == "iam-ui") | .version' current_pm_component.yaml 2>/dev/null || echo "")
