@@ -44,7 +44,7 @@ if ! gh auth status &> /dev/null; then
 fi
 
 # Repository details
-REPO="platform-mesh/ocm"
+REPO="platform-mesh/helm-charts"
 
 echo "=== Creating Draft Release ===" >&2
 echo "Version: $VERSION" >&2
