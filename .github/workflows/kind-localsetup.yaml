@@ -24,10 +24,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Did local-setup change?
+      - name: Did relevant paths change?
         id: local_setup
         run: |
-          if git diff --quiet origin/${{ github.base_ref }} -- local-setup; then
+          if
+            git diff --quiet origin/${{ github.base_ref }} -- \
+              charts \
+              local-setup \
+              .ocm \
+              Taskfile.yaml \
+              hack/ocm \
+              .github/workflows/kind-localsetup.yaml \
+              .github/workflows/nightly-local-setup.yaml \
+              .github/workflows/pipeline-chart.yml \
+              .github/workflows/ocm-aggregator.yaml \
+              .github/workflows/ocm-service-component.yaml \
+              ':(exclude)**/*.md' \
+              ':(exclude)**/README.md.gotmpl'
+          then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
