@@ -38,7 +38,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "=== Platform Mesh OCM Draft Release Creator ===" >&2
 echo "" >&2
 echo "Version: $RELEASE_VERSION (from $TO_VERSION)" >&2
-echo "Repository: platform-mesh/ocm" >&2
+echo "Repository: platform-mesh/helm-charts" >&2
 echo "Dry run: $DRY_RUN" >&2
 echo "" >&2
 

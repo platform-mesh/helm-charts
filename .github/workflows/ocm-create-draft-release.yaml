@@ -283,7 +283,7 @@ jobs:
           # Extract release version (strip RC suffix if present)
           TO_VERSION="${{ inputs.to_version }}"
           RELEASE_VERSION="${TO_VERSION%%-rc.*}"
-          REPO="platform-mesh/ocm"
+          REPO="platform-mesh/helm-charts"
 
           echo "=== Creating or updating draft release for version: $RELEASE_VERSION ==="
 
