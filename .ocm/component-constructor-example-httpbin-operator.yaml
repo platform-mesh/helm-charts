@@ -12,7 +12,8 @@ components:
         version: {{ .APP_VERSION }}
       - name: api-syncagent
         componentName: github.com/kcp-dev/api-syncagent
-        version: "0.7.0"
+        # chart version
+        version: "0.6.1"
       - name: ingress-nginx
         componentName: github.com/kubernetes/ingress-nginx
         version: "4.11.3"

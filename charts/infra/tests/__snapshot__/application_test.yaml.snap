@@ -64,8 +64,8 @@ Gateway API enabled:
       secretRef:
         name: kubeconfig-kcp-admin
       target:
-        rootShardRef:
-          name: root
+        frontProxyRef:
+          name: frontproxy
       username: kcp-admin
       validity: 8766h
   3: |
@@ -716,8 +716,8 @@ Istio disabled:
       secretRef:
         name: kubeconfig-kcp-admin
       target:
-        rootShardRef:
-          name: root
+        frontProxyRef:
+          name: frontproxy
       username: kcp-admin
       validity: 8766h
   3: |
@@ -1368,8 +1368,8 @@ Istio enabled:
       secretRef:
         name: kubeconfig-kcp-admin
       target:
-        rootShardRef:
-          name: root
+        frontProxyRef:
+          name: frontproxy
       username: kcp-admin
       validity: 8766h
   3: |
@@ -2339,8 +2339,8 @@ match snapshots:
       secretRef:
         name: kubeconfig-kcp-admin
       target:
-        rootShardRef:
-          name: root
+        frontProxyRef:
+          name: frontproxy
       username: kcp-admin
       validity: 8766h
   3: |
@@ -3007,8 +3007,8 @@ match snapshots w. hostAliases enabled:
       secretRef:
         name: kubeconfig-kcp-admin
       target:
-        rootShardRef:
-          name: root
+        frontProxyRef:
+          name: frontproxy
       username: kcp-admin
       validity: 8766h
   3: |
@@ -3730,8 +3730,8 @@ match snapshots w. kcp version:
       secretRef:
         name: kubeconfig-kcp-admin
       target:
-        rootShardRef:
-          name: root
+        frontProxyRef:
+          name: frontproxy
       username: kcp-admin
       validity: 8766h
   3: |
@@ -4398,8 +4398,8 @@ match snapshots with mailpit enabled:
       secretRef:
         name: kubeconfig-kcp-admin
       target:
-        rootShardRef:
-          name: root
+        frontProxyRef:
+          name: frontproxy
       username: kcp-admin
       validity: 8766h
   3: |

@@ -23,8 +23,6 @@ vars:
     - infra: charts/infra
     - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
     - platform-mesh-operator: charts/platform-mesh-operator
-    - platform-mesh-operator-components: charts/platform-mesh-operator-components
-    - platform-mesh-operator-infra-components: charts/platform-mesh-operator-infra-components
     - portal: charts/portal
     - rebac-authz-webhook: charts/rebac-authz-webhook
     - security-operator: charts/security-operator
@@ -225,8 +223,9 @@ tasks:
       - task: ocm:kustomize:apply
 
   ocm:update:constructor:
+    desc: Prepare .ocm/component-constructor-prerelease.yaml from the local aggregate descriptor.
     cmds:
-      - curl -o .ocm/component-constructor-prerelease.yaml https://raw.githubusercontent.com/platform-mesh/ocm/refs/heads/main/constructor/component-constructor.yaml
+      - cp .ocm/component-constructor-aggregate.yaml .ocm/component-constructor-prerelease.yaml
       - sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' .ocm/component-constructor-prerelease.yaml > .ocm/component-constructor-prerelease.yaml.tmp && mv .ocm/component-constructor-prerelease.yaml.tmp .ocm/component-constructor-prerelease.yaml
 
   test:portal-e2e:
@@ -335,7 +334,7 @@ tasks:
     deps:
       - task: setup:mkcert
     vars:
-      FLAGS: '{{.FLAGS | default ""}}'
+      FLAGS: '--sharded {{.FLAGS}}'
     cmds:
       - |
         if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
@@ -352,11 +351,11 @@ tasks:
     deps:
       - task: setup:mkcert
     vars:
-      FLAGS: '{{.FLAGS | default ""}}'
+      FLAGS: '--sharded {{.FLAGS}}'
     cmds:
       - ./local-setup/scripts/start.sh {{.FLAGS}}
-
   # Convenience aliases with common flag combinations
+
   local-setup:example-data:
     cmds:
       - task: local-setup
@@ -437,32 +436,97 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
 
-  local-setup:sharded:
+  local-setup:single-shard:
+    deps:
+      - task: setup:mkcert
+    vars:
+      FLAGS: '{{.FLAGS}}'
     cmds:
-      - task: local-setup
-        vars: {FLAGS: "--sharded"}
+      - |
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
+          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh
+        fi
+        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
+          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
+          kind delete cluster --name platform-mesh-infra
+        fi
+        ./local-setup/scripts/start.sh {{.FLAGS}}
 
-  local-setup:sharded:iterate:
+  local-setup:single-shard:iterate:
+    deps:
+      - task: setup:mkcert
+    vars:
+      FLAGS: '{{.FLAGS}}'
     cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--sharded"}
+      - ./local-setup/scripts/start.sh {{.FLAGS}}
 
-  local-setup:prerelease:sharded:
+  local-setup:single-shard:example-data:
     cmds:
-      - task: local-setup
-        vars: {FLAGS: "--prerelease --sharded"}
+      - task: local-setup:single-shard
+        vars: {FLAGS: "--example-data"}
 
-  local-setup:prerelease:sharded:iterate:
+  local-setup:single-shard:example-data:iterate:
     cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --sharded --iterate"}
+      - task: local-setup:single-shard:iterate
+        vars: {FLAGS: "--example-data"}
 
-  local-setup:sharded:example-data:
+  local-setup:prerelease:single-shard:
     cmds:
-      - task: local-setup
-        vars: {FLAGS: "--sharded --example-data"}
+      - task: local-setup:single-shard
+        vars: {FLAGS: "--prerelease"}
 
-  local-setup:sharded:example-data:iterate:
+  local-setup:prerelease:single-shard:iterate:
     cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--sharded --example-data"}
+      - task: local-setup:single-shard:iterate
+        vars: {FLAGS: "--prerelease --iterate"}
+
+  local-setup:single-shard:prerelease:example-data:
+    cmds:
+      - task: local-setup:single-shard
+        vars: {FLAGS: "--prerelease --example-data"}
+
+  local-setup:single-shard:prerelease:example-data:iterate:
+    cmds:
+      - task: local-setup:single-shard:iterate
+        vars: {FLAGS: "--prerelease --example-data --iterate"}
+
+  local-setup:single-shard:remote:fluxcd:
+    cmds:
+      - task: local-setup:single-shard
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+
+  local-setup:single-shard:remote:fluxcd:iterate:
+    cmds:
+      - task: local-setup:single-shard:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd"}
+
+  local-setup:single-shard:remote:argocd:
+    cmds:
+      - task: local-setup:single-shard
+        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+
+  local-setup:single-shard:remote:argocd:iterate:
+    cmds:
+      - task: local-setup:single-shard:iterate
+        vars: {FLAGS: "--remote --deployment-tech=argocd"}
+
+  local-setup:single-shard:remote:fluxcd:example-data:
+    cmds:
+      - task: local-setup:single-shard
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:single-shard:remote:fluxcd:example-data:iterate:
+    cmds:
+      - task: local-setup:single-shard:iterate
+        vars: {FLAGS: "--remote --deployment-tech=fluxcd --example-data"}
+
+  local-setup:single-shard:remote:argocd:example-data:
+    cmds:
+      - task: local-setup:single-shard
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
+
+  local-setup:single-shard:remote:argocd:example-data:iterate:
+    cmds:
+      - task: local-setup:single-shard:iterate
+        vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}

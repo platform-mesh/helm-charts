@@ -1,0 +1,82 @@
+name: Mirror Helm Chart to OCI
+
+# Pulls a chart from a public Helm HTTP repository and pushes it as an OCI
+# artifact under ghcr.io/platform-mesh/ocm/charts. Idempotent: re-pushing the
+# same chart+version is a no-op on the registry side.
+#
+# Used to mirror external charts referenced by the OCM constructor so that
+# `ocm transfer` produces a self-contained, air-gapped-installable artifact.
+
+on:
+  workflow_dispatch:
+    inputs:
+      helm_repo:
+        description: "Source Helm repository URL (e.g. https://traefik.github.io/charts)"
+        required: true
+        type: string
+      chart:
+        description: "Chart name (e.g. traefik)"
+        required: true
+        type: string
+      version:
+        description: "Chart version (e.g. 39.0.7)"
+        required: true
+        type: string
+      destination_namespace:
+        description: "OCI destination namespace"
+        required: false
+        default: "ghcr.io/platform-mesh/ocm/charts"
+        type: string
+  workflow_call:
+    inputs:
+      helm_repo:
+        required: true
+        type: string
+      chart:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      destination_namespace:
+        required: false
+        default: "ghcr.io/platform-mesh/ocm/charts"
+        type: string
+
+permissions: {}
+
+jobs:
+  mirror:
+    name: Mirror ${{ inputs.chart }}@${{ inputs.version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      packages: write
+    steps:
+      - name: Pull chart from source Helm repo
+        run: |
+          set -euo pipefail
+          helm repo add src "${{ inputs.helm_repo }}"
+          helm repo update src
+          helm pull "src/${{ inputs.chart }}" --version "${{ inputs.version }}" --destination .
+          ls -l "${{ inputs.chart }}-${{ inputs.version }}.tgz"
+
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io \
+            --username "${{ github.actor }}" \
+            --password-stdin
+
+      - name: Push chart to OCI
+        run: |
+          set -euo pipefail
+          helm push "${{ inputs.chart }}-${{ inputs.version }}.tgz" \
+            "oci://${{ inputs.destination_namespace }}"
+
+      - name: Verify chart is pullable from OCI
+        run: |
+          set -euo pipefail
+          rm -f "${{ inputs.chart }}-${{ inputs.version }}.tgz"
+          helm pull "oci://${{ inputs.destination_namespace }}/${{ inputs.chart }}" \
+            --version "${{ inputs.version }}" --destination .
+          test -f "${{ inputs.chart }}-${{ inputs.version }}.tgz"

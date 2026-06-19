@@ -179,7 +179,7 @@ task local-setup
 
 **Concurrent builds (--concurrent flag):** When using the `--concurrent` flag together with `--prerelease`, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
 
-**Sharded kcp (--sharded flag):** When using the `--sharded` flag, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally.
+**Sharded kcp (default behavior):** By default, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally. All `local-setup` tasks now run with the `--sharded` flag by default. To explicitly run a single-shard setup without additional shards, use the `:single-shard` task variants (e.g., `task local-setup:single-shard`).
 
 **Remote mode (--remote and --deployment-tech flags):** When using `--remote`, the setup creates two kind clusters instead of one: `platform-mesh-infra` (where Flux/ArgoCD and the platform-mesh-operator run) and `platform-mesh` (the runtime cluster where workloads, kcp and OCM resources land). The platform-mesh-operator routes HelmReleases/Applications to the infra cluster and OCM Resources to the runtime cluster, so this is a faithful local replica of a production split-cluster topology.
 
@@ -205,9 +205,11 @@ task local-setup:remote:argocd:example-data:iterate
 
 **Task Naming Convention:**
 
-- Base tasks: `task local-setup`, `task local-setup:iterate`
+- Base tasks: `task local-setup`, `task local-setup:iterate` (now run with `--sharded` by default)
+- Single-shard variants: `task local-setup:single-shard`, `task local-setup:single-shard:iterate` (run without `--sharded` flag)
 - With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `prerelease`, `example-data`, `concurrent`, `sharded`, `remote`
+- Available flags: `prerelease`, `example-data`, `concurrent`, `remote`
+- Single-shard with flags: `task local-setup:single-shard:<flag1>:<flag2>:...`
 - All tasks support both full setup and `:iterate` variants
 
 #### Developer information
@@ -330,9 +332,52 @@ kind delete cluster --name platform-mesh
 
 ### Development Workflow
 
+#### Image Registries
+
+The kind cluster mounts `local-setup/kind/containerd-certs.d/` into every node at `/etc/containerd/certs.d` (see `kind-config.yaml`), so any registry configuration placed there is automatically picked up by the cluster's containerd.
+
+Three pull-through caches are configured and started automatically by `setup-registry-proxies.sh`:
+
+| Registry | Backed by |
+|---|---|
+| `ghcr.io` | `proxy-ghcr` container |
+| `quay.io` | `proxy-quay` container |
+| `registry.k8s.io` | `proxy-k8s-io` container |
+
+**Custom local registries:** To make a local registry accessible to the cluster, add a `hosts.toml` entry under `containerd-certs.d/<registry-host>/`. See the [kind local registry documentation](https://kind.sigs.k8s.io/docs/user/local-registry/) for the recommended setup pattern.
+
 #### Hook Scripts
 
-The local setup provides three extension points (hook scripts) that run at different stages. All are gitignored, so your local customizations won't be committed.
+The local setup provides four extension points (hook scripts) that run at different stages. All are gitignored, so your local customizations won't be committed.
+
+##### Load Custom Images Hook
+
+Runs after the Kind cluster is created, before Flux or any platform components are installed. Use this to pre-load locally built images into the cluster's containerd image store.
+
+Create `local-setup/scripts/load-custom-images.sh` — it is already gitignored:
+
+```sh
+#!/bin/bash
+SCRIPT_DIR=$(dirname "$0")
+
+# Example: replace the operator image with a locally built one instead of pulling from ghcr.io.
+# The tag is read dynamically from the chart so it stays in sync with version bumps.
+OPERATOR_TAG=$(grep '^appVersion:' "$SCRIPT_DIR/../../charts/platform-mesh-operator/Chart.yaml" | awk '{print $2}' | tr -d '"')
+OPERATOR_IMAGE="ghcr.io/platform-mesh/platform-mesh-operator:${OPERATOR_TAG}"
+
+echo "Injecting local operator image as ${OPERATOR_IMAGE}"
+$CONTAINER_RUNTIME tag localhost:5001/platform-mesh-operator:latest "${OPERATOR_IMAGE}"
+$CONTAINER_RUNTIME save "${OPERATOR_IMAGE}" | kind load image-archive /dev/stdin -n platform-mesh
+$CONTAINER_RUNTIME rmi "${OPERATOR_IMAGE}"  # remove the temporary re-tag from the host
+```
+
+**Available at this point:** Kind cluster. Flux and all platform components are not yet installed.
+
+**Notes:**
+
+- `$CONTAINER_RUNTIME` is set by `start.sh` (`docker` or `podman`); use it instead of hardcoding either.
+- `kind load image-archive /dev/stdin` works for both Docker and Podman (unlike `kind load docker-image` which is Docker-only).
+- Because the operator chart uses `imagePullPolicy: IfNotPresent`, containerd will use the pre-loaded image and skip the ghcr.io pull — provided the tag matches exactly what the OCM component references. The dynamic `appVersion` read above ensures this.
 
 ##### Post-Flux Hook
 
