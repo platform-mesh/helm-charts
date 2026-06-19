@@ -53,6 +53,7 @@ jobs:
             exit 1
           fi
       - name: Update appVersion in Chart.yaml
+        id: bump
         env:
           INPUT_CHART: ${{ inputs.chart }}
           INPUT_APP_VERSION: ${{ inputs.appVersion }}
@@ -63,17 +64,29 @@ jobs:
 
           if git diff --quiet -- "$chart_file"; then
             echo "Chart.yaml unchanged; nothing to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           new_chart_version=$(yq '.version' "$chart_file")
           new_app_version=$(yq '.appVersion' "$chart_file" | tr -d '"')
+          branch="bump/${INPUT_CHART}-${new_chart_version}"
+          git checkout -b "$branch"
           git add "$chart_file"
           git commit -m "Set $new_chart_version / $new_app_version in $chart_file"
-      - name: Git push
+          {
+            echo "changed=true"
+            echo "branch=$branch"
+            echo "title=Set $new_chart_version / $new_app_version in $chart_file"
+          } >> "$GITHUB_OUTPUT"
+      - name: Open PR
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BRANCH: ${{ steps.bump.outputs.branch }}
+          TITLE: ${{ steps.bump.outputs.title }}
         run: |
-          git push origin main
-          echo "Pushed changes to main"
-          git show HEAD
+          git push --force-with-lease origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "Automated chart bump."
 
 
