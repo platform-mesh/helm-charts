@@ -97,8 +97,13 @@ proxy:
   image:
     tag: {{ . }}
 {{- end }}
-{{- if .root.Values.kcp.auth.oidc.enabled }}
+{{- if or .root.Values.kcp.auth.serviceAccount.enabled .root.Values.kcp.auth.oidc.enabled }}
 auth:
+  {{- if .root.Values.kcp.auth.serviceAccount.enabled }}
+  serviceAccount:
+    enabled: true
+  {{- end }}
+  {{- if .root.Values.kcp.auth.oidc.enabled }}
   {{- with .root.Values.kcp.auth.oidc }}
   oidc:
     enabled: true
@@ -109,6 +114,7 @@ auth:
     clientID: {{ .clientID }}
     groupsClaim: {{ .groupsClaim }}
     usernameClaim: {{ .usernameClaim }}
+  {{- end }}
   {{- end }}
 {{- end }}
 external:
