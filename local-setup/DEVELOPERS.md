@@ -4,32 +4,38 @@ This section is for chart developers who want to test changes locally without go
 
 ## Quick Start: Fresh Setup with Local Charts
 
-The simplest way to test local chart changes is using the `--prerelease` flag:
+By default, `task local-setup` builds the OCM aggregate locally from the working tree.
 
 ```sh
 # Full setup with locally built components (deletes existing cluster)
-task local-setup:prerelease
+task local-setup
 
 # With concurrent chart builds (faster on multi-core systems)
-task local-setup:prerelease:concurrent
+task local-setup:concurrent
 ```
 
 This automatically:
 1. Creates a fresh kind cluster
 2. Deploys OCM infrastructure (OCI registry, transfer pod)
-3. Builds your local chart changes into a prerelease OCM component
-4. Deploys platform mesh using the prerelease component
+3. Builds your local chart changes into a OCM component
+4. Deploys platform mesh using the component
+
+To deploy a *published* aggregate from `ghcr.io/platform-mesh` instead, set `PLATFORM_MESH_VERSION`:
+
+```sh
+PLATFORM_MESH_VERSION=0.4.0-build.510 task local-setup
+```
 
 ## Testing with an Existing Cluster
 
-If you already have a running cluster and want to test prerelease changes without recreating it, use the `:iterate` variant:
+If you already have a running cluster and want to test changes without recreating it, use the `:iterate` variant:
 
 ```sh
 # Reuse existing cluster (faster, no cluster recreation)
-task local-setup:prerelease:iterate
+task local-setup:iterate
 
 # With concurrent chart builds
-task local-setup:prerelease:concurrent:iterate
+task local-setup:concurrent:iterate
 ```
 
 This is the recommended approach for iterative development as it:
@@ -39,32 +45,32 @@ This is the recommended approach for iterative development as it:
 - Only rebuilds the OCM component from local charts and reapplies it
 - Reconfigures the transfer pod CA trust if certificates changed
 
-The `--iterate` flag requires `--prerelease` — it has no effect on released-version setups since there is nothing to rebuild.
+The `--iterate` flag requires `PLATFORM_MESH_VERSION` to be unset (build-locally path) — it has no effect on published-version setups since there is nothing to rebuild.
 
 ## Iterating on Chart Changes
 
-After making chart changes on an already running prerelease setup, rebuild and redeploy:
+After making chart changes on an already running setup, rebuild and redeploy:
 
 ```sh
 task ocm:build ocm:apply
 ```
 
-This builds a new prerelease OCM component with your changes and applies it to the cluster.
+This builds a new OCM component with your changes and applies it to the cluster.
 
 ## Configuration (Optional)
 
 Edit `Taskfile.yaml` to configure:
-- `COMPONENT_PRERELEASE_VERSION`: Version for the prerelease component
+- `COMPONENT_PRERELEASE_VERSION`: Version for the component
 - `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS`: Maps component names to local chart paths
 - `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS`: Override specific dependency versions
 
-## Advanced: Starting from Existing Released Setup
+## Advanced: Starting from Existing Published Setup
 
-If you have a running local-setup with released components and want to switch to prerelease mode:
+If you have a running local-setup with published components (`PLATFORM_MESH_VERSION=...`) and want to switch to a locally built component:
 
 ```sh
 task ocm:deploy           # Deploy OCM infrastructure (once)
-task ocm:build ocm:apply  # Build and deploy prerelease component
+task ocm:build ocm:apply  # Build and deploy component
 ```
 
 ## Cleanup
