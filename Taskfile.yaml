@@ -209,14 +209,6 @@ tasks:
     cmds:
       - ./local-setup/scripts/check-ocm-images.sh
 
-  bump-local-setup-component-version:
-    deps:
-      - task: setup:ocm
-    cmds:
-      - |
-        LATEST_VERSION=$({{ .LOCAL_BIN }}/ocm --config .ocm/config get componentversions --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items[0].component.version')
-        yq -i '.spec.semver = "'$LATEST_VERSION'"' local-setup/kustomize/components/ocm/component.yaml
-
   ocm:build-apply:iterate:
     cmds:
       - task: ocm:build:component
@@ -330,11 +322,13 @@ tasks:
       - task: test:backend-resources
       - task: test:portal-e2e
 
-  local-setup:
+  local-setup:base:
+    internal: true
     deps:
       - task: setup:mkcert
     vars:
-      FLAGS: '--sharded {{.FLAGS}}'
+      SHARDED: '{{.SHARDED}}'
+      FLAGS: '{{.FLAGS}}'
     cmds:
       - |
         if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
@@ -345,15 +339,27 @@ tasks:
           read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
           kind delete cluster --name platform-mesh-infra
         fi
-        ./local-setup/scripts/start.sh {{.FLAGS}}
+        ./local-setup/scripts/start.sh {{.SHARDED}} {{.FLAGS}}
 
-  local-setup:iterate:
+  local-setup:base:iterate:
+    internal: true
     deps:
       - task: setup:mkcert
     vars:
-      FLAGS: '--sharded {{.FLAGS}}'
+      SHARDED: '{{.SHARDED}}'
+      FLAGS: '{{.FLAGS}}'
     cmds:
-      - ./local-setup/scripts/start.sh {{.FLAGS}}
+      - ./local-setup/scripts/start.sh {{.SHARDED}} {{.FLAGS}}
+
+  local-setup:
+    cmds:
+      - task: local-setup:base
+        vars: { SHARDED: "--sharded", FLAGS: "{{.FLAGS}}" }
+
+  local-setup:iterate:
+    cmds:
+      - task: local-setup:base:iterate
+        vars: { SHARDED: "--sharded", FLAGS: "{{.FLAGS}}" }
   # Convenience aliases with common flag combinations
 
   local-setup:example-data:
@@ -366,35 +372,25 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--example-data"}
 
-  local-setup:prerelease:
+  local-setup:concurrent:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--prerelease"}
+        vars: {FLAGS: "--concurrent"}
 
-  local-setup:prerelease:iterate:
+  local-setup:concurrent:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --iterate"}
+        vars: {FLAGS: "--concurrent"}
 
-  local-setup:prerelease:concurrent:
+  local-setup:concurrent:example-data:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--prerelease --concurrent"}
+        vars: {FLAGS: "--concurrent --example-data"}
 
-  local-setup:prerelease:concurrent:iterate:
+  local-setup:concurrent:example-data:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --concurrent --iterate"}
-
-  local-setup:prerelease:example-data:
-    cmds:
-      - task: local-setup
-        vars: {FLAGS: "--prerelease --example-data"}
-
-  local-setup:prerelease:example-data:iterate:
-    cmds:
-      - task: local-setup:iterate
-        vars: {FLAGS: "--prerelease --example-data --iterate"}
+        vars: {FLAGS: "--concurrent --example-data"}
 
   local-setup:remote:fluxcd:
     cmds:
@@ -437,29 +433,14 @@ tasks:
         vars: {FLAGS: "--remote --deployment-tech=argocd --example-data"}
 
   local-setup:single-shard:
-    deps:
-      - task: setup:mkcert
-    vars:
-      FLAGS: '{{.FLAGS}}'
     cmds:
-      - |
-        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
-          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
-          kind delete cluster --name platform-mesh
-        fi
-        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
-          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
-          kind delete cluster --name platform-mesh-infra
-        fi
-        ./local-setup/scripts/start.sh {{.FLAGS}}
+      - task: local-setup:base
+        vars: { SHARDED: "", FLAGS: "{{.FLAGS}}" }
 
   local-setup:single-shard:iterate:
-    deps:
-      - task: setup:mkcert
-    vars:
-      FLAGS: '{{.FLAGS}}'
     cmds:
-      - ./local-setup/scripts/start.sh {{.FLAGS}}
+      - task: local-setup:base:iterate
+        vars: { SHARDED: "", FLAGS: "{{.FLAGS}}" }
 
   local-setup:single-shard:example-data:
     cmds:
@@ -471,25 +452,25 @@ tasks:
       - task: local-setup:single-shard:iterate
         vars: {FLAGS: "--example-data"}
 
-  local-setup:prerelease:single-shard:
+  local-setup:single-shard:concurrent:
     cmds:
       - task: local-setup:single-shard
-        vars: {FLAGS: "--prerelease"}
+        vars: {FLAGS: "--concurrent"}
 
-  local-setup:prerelease:single-shard:iterate:
+  local-setup:single-shard:concurrent:iterate:
     cmds:
       - task: local-setup:single-shard:iterate
-        vars: {FLAGS: "--prerelease --iterate"}
+        vars: {FLAGS: "--concurrent"}
 
-  local-setup:single-shard:prerelease:example-data:
+  local-setup:single-shard:concurrent:example-data:
     cmds:
       - task: local-setup:single-shard
-        vars: {FLAGS: "--prerelease --example-data"}
+        vars: {FLAGS: "--concurrent --example-data"}
 
-  local-setup:single-shard:prerelease:example-data:iterate:
+  local-setup:single-shard:concurrent:example-data:iterate:
     cmds:
       - task: local-setup:single-shard:iterate
-        vars: {FLAGS: "--prerelease --example-data --iterate"}
+        vars: {FLAGS: "--concurrent --example-data"}
 
   local-setup:single-shard:remote:fluxcd:
     cmds:

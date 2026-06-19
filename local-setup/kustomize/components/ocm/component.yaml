@@ -6,10 +6,15 @@ spec:
   repositoryRef:
     name: platform-mesh
   component: github.com/platform-mesh/platform-mesh
-  semver: 0.4.0-build.515
+  semver: PLACEHOLDER # Replace with PLATFORM_MESH_VERSION when set
   interval: 1m
   verify:
-    - signature: ocm.platform-mesh
+    # ocm.platform-mesh is for PM <= 0.4.0-build.513
+    # - signature: ocm.platform-mesh
+    #   secretRef:
+    #     name: ocm-signing-public-cert
+    # helm-charts.platform-mesh is for PM >= 0.4.0-build.516
+    - signature: helm-charts.platform-mesh
       secretRef:
         name: ocm-signing-public-cert
   ocmConfig:
