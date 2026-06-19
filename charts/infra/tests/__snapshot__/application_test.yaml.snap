@@ -272,6 +272,9 @@ Gateway API enabled:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -398,6 +401,9 @@ Gateway API enabled:
       name: nereus
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -522,6 +528,9 @@ Gateway API enabled:
       name: triton
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -924,6 +933,9 @@ Istio disabled:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -1050,6 +1062,9 @@ Istio disabled:
       name: nereus
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -1174,6 +1189,9 @@ Istio disabled:
       name: triton
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -1576,6 +1594,9 @@ Istio enabled:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -1702,6 +1723,9 @@ Istio enabled:
       name: nereus
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -1826,6 +1850,9 @@ Istio enabled:
       name: triton
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -2025,6 +2052,9 @@ configure etcd backup store:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -2203,6 +2233,9 @@ configure rootshard resources:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -2551,6 +2584,9 @@ match snapshots:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -2681,6 +2717,9 @@ match snapshots:
       name: nereus
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -2809,6 +2848,9 @@ match snapshots:
       name: triton
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -3226,6 +3268,9 @@ match snapshots w. hostAliases enabled:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -3372,6 +3417,9 @@ match snapshots w. hostAliases enabled:
       name: nereus
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -3516,6 +3564,9 @@ match snapshots w. hostAliases enabled:
       name: triton
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -3942,6 +3993,9 @@ match snapshots w. kcp version:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -4072,6 +4126,9 @@ match snapshots w. kcp version:
       name: nereus
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -4200,6 +4257,9 @@ match snapshots w. kcp version:
       name: triton
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -4606,6 +4666,9 @@ match snapshots with mailpit enabled:
       name: root
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -4732,6 +4795,9 @@ match snapshots with mailpit enabled:
       name: nereus
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -4856,6 +4922,9 @@ match snapshots with mailpit enabled:
       name: triton
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
@@ -5048,6 +5117,9 @@ render additional shard with explicit hostname:
       name: shard-1
       namespace: platform-mesh-system
     spec:
+      auth:
+        serviceAccount:
+          enabled: true
       authorization:
         webhook:
           configSecretName: kcp-webhook-secret
