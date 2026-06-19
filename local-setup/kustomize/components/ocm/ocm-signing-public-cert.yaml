@@ -4,6 +4,7 @@ metadata:
   name: ocm-signing-public-cert
 type: Opaque
 stringData:
+  # ocm.platform-mesh is for PM <= 0.4.0-build.513
   ocm.platform-mesh: |
     -----BEGIN CERTIFICATE-----
     MIIDHDCCAgSgAwIBAgIQTBfx4G6QIFoB3EfYaZZfAzANBgkqhkiG9w0BAQsFADAw
@@ -23,4 +24,25 @@ stringData:
     USYQEYWleziQPK2WsIyrUQIk+vbfelezm0ZMFaGxWyXxUvIilsKWJMLbNenHtnbG
     jKy9URJ7BhSsD0BHQxP7/RGDgECE3HKNLzGRzL5umizURfzbkbrTAizXnexvn+Y7
     CGmLhO/M52fTVWj1nJRUZ+iZwVRZ91kaYCH+snkKSO8=
+    -----END CERTIFICATE-----
+  # helm-charts.platform-mesh is for PM >= 0.4.0-build.516
+  helm-charts.platform-mesh: |
+    -----BEGIN CERTIFICATE-----
+    MIIDJTCCAg2gAwIBAgIRAOQbL/00v+AIVfzPtA7gB74wDQYJKoZIhvcNAQELBQAw
+    MDEWMBQGA1UECgwNUGxhdGZvcm0gTWVzaDEWMBQGA1UEAwwNcGxhdGZvcm0tbWVz
+    aDAeFw0yNjA0MDkxNDE4NDJaFw0zNjA0MDYxNDE4NDJaMCQxIjAgBgNVBAMTGWhl
+    bG0tY2hhcnRzLnBsYXRmb3JtLW1lc2gwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
+    ggEKAoIBAQCfi+637ZtXoA5dPhW2F/h12cjaTGTTENlujolfZsyd+m77uftAseD+
+    t4VWl+QnUtw/C6vZiLjDIz9Xoxn9TxHvKmnV4T5yc1kOK/k+p3fPe2BguTpGcwmF
+    6LQtkBSPUiLik5Cds/RF2s0zFaRsX/b5idtotQwNO+7jQjzaa041sJnK2gyAB9t8
+    zVxfCSJuJYKEgc6ezKBEtdKC+xjWnwGNALL9zd027iuSNPud5WmyOGOeke3Os1JT
+    uDlCq3NZzQd8MEQFc0Mn45lzLoblAZFJEGt9AkGjJpHkibquPO977cV0hQr0P1YF
+    YJFQyx12fbyDt9a0sZFGZKxPtFZkIWAVAgMBAAGjRjBEMBMGA1UdJQQMMAoGCCsG
+    AQUFBwMDMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUyoPHxtTZ7d3FQyoAPI/O
+    ga9P+KUwDQYJKoZIhvcNAQELBQADggEBADNYLvmmXq3eVlYF37qn8S86vHlFJtBT
+    oJNSjvvEWXZmd4COgW5au8rWr7+ZZE3Fx0FHqETguHambD6Cvqab0o7DEiuAGTVv
+    OiGW3oAVj/n3zUg5QqiR5cwHVX6G8X8vPF6BNiGQyHmdN5iwBDcT8QVMrL0ICzs0
+    9AB+kceG/FrUjbNEBwC4QN8gh9b2oSd1godKWxJWqU8542S52nRClwT9jcfsy4sg
+    rfCnWros84HAi10shwcW38onK4pdnfjgv3NIt0DGZT+ATYA2Fmp0gDoYjsY4iJUy
+    TUBiZmEb9sPGteTmpJwDTy1GeZwGNc+eb16/6sA9jdurTa57deJfsoo=
     -----END CERTIFICATE-----
