@@ -42,7 +42,7 @@ otelCollector:
   # -- Number of collector replicas
   replicas: 1
   # -- Collector image (use contrib for prometheusremotewrite exporter)
-  image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0
+  image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0@sha256:93aad750175cbf1a973ae1c5886c3371f4d800f61be25cdd26870b8441ffe9fa
   config:
     # -- Batch processor timeout before sending metrics
     batchTimeout: 10s
