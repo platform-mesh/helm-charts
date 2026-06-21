@@ -315,9 +315,10 @@ async function ensureWelcomePage(page: Page, user: TestUser): Promise<void> {
   }
 }
 
-async function ensurePortalHome(page: Page, user?: TestUser): Promise<void> {
+async function ensurePortalHome(page: Page, user?: TestUser, orgName?: string): Promise<void> {
+  const org = orgName ?? newOrgName;
   const welcome = page.getByText("Welcome! Let's get started.", { exact: true });
-  const orgPortalBaseUrl = `https://${newOrgName}.portal.localhost:8443/`;
+  const orgPortalBaseUrl = `https://${org}.portal.localhost:8443/`;
 
   logStep(`ensurePortalHome:start url=${page.url()}`);
   if (!page.url().startsWith(orgPortalBaseUrl)) {
@@ -338,36 +339,37 @@ async function ensurePortalHome(page: Page, user?: TestUser): Promise<void> {
   logStep(`ensurePortalHome:done url=${page.url()}`);
 }
 
-async function switchToOrganization(page: Page, user: TestUser, createIfMissing: boolean): Promise<void> {
+async function switchToOrganization(page: Page, user: TestUser, createIfMissing: boolean, orgName?: string): Promise<void> {
+  const org = orgName ?? newOrgName;
   const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
-  const orgPortalUrl = `https://${newOrgName}.portal.localhost:8443/home`;
-  const orgPortalBaseUrl = `https://${newOrgName}.portal.localhost:8443/`;
-  const existingOrgAlert = page.getByText(new RegExp(`organization.*${newOrgName}.*already exists|${newOrgName}.*already exists`, 'i')).first();
+  const orgPortalUrl = `https://${org}.portal.localhost:8443/home`;
+  const orgPortalBaseUrl = `https://${org}.portal.localhost:8443/`;
+  const existingOrgAlert = page.getByText(new RegExp(`organization.*${org}.*already exists|${org}.*already exists`, 'i')).first();
   const alertCloseButton = page.getByRole('button', { name: 'Close' }).first();
 
-  let orgSelected = await selectExistingOrganization(page, newOrgName);
+  let orgSelected = await selectExistingOrganization(page, org);
 
   if (createIfMissing) {
     const onboardButton = page.locator('[test-id="organization-management-onboard-button"]').locator('button');
     if (!orgSelected && await onboardButton.isVisible().catch(() => false)) {
-      logStep(`switchToOrganization:onboard-missing-org org=${newOrgName}`);
-      await fillOrganizationField(page, newOrgName);
+      logStep(`switchToOrganization:onboard-missing-org org=${org}`);
+      await fillOrganizationField(page, org);
       await onboardButton.click();
 
       if (await existingOrgAlert.isVisible().catch(() => false)) {
-        logStep(`switchToOrganization:org-already-exists org=${newOrgName}`);
+        logStep(`switchToOrganization:org-already-exists org=${org}`);
         if (await alertCloseButton.isVisible().catch(() => false)) {
           await alertCloseButton.click().catch(() => {});
         }
       }
 
-      orgSelected = await selectExistingOrganization(page, newOrgName);
+      orgSelected = await selectExistingOrganization(page, org);
       await waitForOrganizationSwitchReady(page);
     }
   }
 
   if (!orgSelected) {
-    throw new Error(`Organization ${newOrgName} was not found in the switch dropdown`);
+    throw new Error(`Organization ${org} was not found in the switch dropdown`);
   }
 
   await switchButton.waitFor({ state: 'visible', timeout: 60000 });
@@ -385,7 +387,48 @@ async function switchToOrganization(page: Page, user: TestUser, createIfMissing:
     throw new Error(`Organization switch did not land on ${orgPortalBaseUrl}, final URL=${page.url()}`);
   }
 
-  await ensurePortalHome(page, user);
+  await ensurePortalHome(page, user, org);
 }
 
-export { ensurePortalHome, ensureWelcomePage, switchToOrganization };
+async function inviteUserToOrg(page: Page, userEmailToInvite: string): Promise<void> {
+  logStep(`inviteUserToOrg:start email=${userEmailToInvite}`);
+
+  await page.locator('[data-testid="members_members"]').click();
+  await page.waitForLoadState('networkidle', { timeout: 10000 });
+
+  const membersFrame = page.frameLocator('iframe[src*="organization/members"]');
+  const addButton = membersFrame.locator('[data-testid="app-iam-member-list-add-button"]');
+  await addButton.waitFor({ state: 'visible', timeout: 10000 });
+  await expect(addButton).toBeEnabled({ timeout: 10000 });
+  await addButton.scrollIntoViewIfNeeded();
+  await addButton.click();
+
+  const addMembersFrame = page.frameLocator('iframe[src*="organization/add-members"]');
+  const userInput = addMembersFrame.locator('[data-testid="app-iam-member-add-dialog-user-search-input"]').locator('input');
+  await userInput.waitFor({ state: 'visible', timeout: 10000 });
+  await userInput.fill(userEmailToInvite);
+  await addMembersFrame.getByRole('button', { name: 'Select Options' }).click();
+  await page.waitForTimeout(1000);
+
+  const inviteInFrame = addMembersFrame.locator('li.fd-combobox-list-item').filter({ hasText: 'Invite' }).filter({ hasText: userEmailToInvite });
+  const inviteInPage = page.locator('li.fd-combobox-list-item').filter({ hasText: 'Invite' }).filter({ hasText: userEmailToInvite });
+  const inviteOption = inviteInFrame.or(inviteInPage);
+  await inviteOption.waitFor({ state: 'visible', timeout: 10000 });
+  await inviteOption.click();
+  await expect(addMembersFrame.getByRole('row').filter({ hasText: userEmailToInvite })).toBeVisible({ timeout: 15000 });
+  await addMembersFrame.locator('[data-testid="app-iam-member-add-dialog-add-button"]').click();
+
+  const memberEmailInList = membersFrame.locator('span.member-extra-information').filter({ hasText: userEmailToInvite });
+  await expect(memberEmailInList).toBeVisible({ timeout: 15000 });
+
+  logStep(`inviteUserToOrg:done email=${userEmailToInvite}`);
+}
+
+export {
+  ensurePortalHome,
+  ensureWelcomePage,
+  fillOrganizationField,
+  inviteUserToOrg,
+  selectExistingOrganization,
+  switchToOrganization,
+};

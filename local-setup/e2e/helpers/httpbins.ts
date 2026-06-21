@@ -15,7 +15,7 @@ import {
   testNamespaceHttpBinName,
   testNamespaceName,
 } from './constants';
-import { logStep, portalOrgUrl } from './log';
+import { logStep } from './log';
 import { runAdminKubectl, runInfraKubectl, runRuntimeKubectl } from './runtime';
 
 async function clickRobust(locator: Locator): Promise<void> {
@@ -155,7 +155,10 @@ function ensureExampleHttpbinProviderWorkspace(): void {
   }
 }
 
-function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: string): void {
+function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: string, orgName?: string, accountName?: string): void {
+  const org = orgName ?? newOrgName;
+  const account = accountName ?? testAccountName;
+
   const manifest = [
     'apiVersion: orchestrate.platform-mesh.io/v1alpha1',
     'kind: HttpBin',
@@ -168,7 +171,7 @@ function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: strin
   runAdminKubectl([
     'apply',
     '--server',
-    kcpClusterServer(`root:orgs:${newOrgName}:${testAccountName}`),
+    kcpClusterServer(`root:orgs:${org}:${account}`),
     '-f',
     '-',
   ], manifest);
@@ -176,7 +179,7 @@ function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: strin
   runAdminKubectl([
     'wait',
     '--server',
-    kcpClusterServer(`root:orgs:${newOrgName}:${testAccountName}`),
+    kcpClusterServer(`root:orgs:${org}:${account}`),
     '--for=condition=Ready',
     '--timeout=120s',
     '-n',
@@ -185,9 +188,13 @@ function ensureHttpBinExistsViaBackend(namespaceName: string, httpBinName: strin
   ]);
 }
 
-async function ensureExampleHttpbinProvider(page: Page): Promise<void> {
+async function ensureExampleHttpbinProvider(page: Page, orgName?: string, accountName?: string): Promise<void> {
+  const org = orgName ?? newOrgName;
+  const account = accountName ?? testAccountName;
+
   ensureExampleHttpbinProviderWorkspace();
-  await page.goto(portalOrgUrl(`/home/accounts/${testAccountName}/orchestrate_platform-mesh_io_httpbins`), { waitUntil: 'domcontentloaded' });
+  const url = `https://${org}.portal.localhost:8443/home/accounts/${account}/orchestrate_platform-mesh_io_httpbins`;
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
 }
 
@@ -255,8 +262,8 @@ async function ensureNamespaceExists(page: Page, namespaceName: string): Promise
   logStep(`ensureNamespaceExists:done namespace=${namespaceName}`);
 }
 
-async function openHttpBinsView(page: Page): Promise<void> {
-  await ensureExampleHttpbinProvider(page);
+async function openHttpBinsView(page: Page, orgName?: string, accountName?: string): Promise<void> {
+  await ensureExampleHttpbinProvider(page, orgName, accountName);
 
   const httpBinsReadyLocators = [
     page.locator('[data-testid="namespace-selection-combobox"]').first(),
@@ -302,10 +309,10 @@ async function selectNamespaceScope(page: Page, namespaceName: string): Promise<
   throw new Error(`Unable to select namespace scope ${namespaceName}`);
 }
 
-async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinName: string): Promise<void> {
+async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinName: string, orgName?: string, accountName?: string): Promise<void> {
   logStep(`ensureHttpBinExists:start namespace=${namespaceName} name=${httpBinName}`);
   for (let attempt = 0; attempt < 2; attempt++) {
-    await openHttpBinsView(page);
+    await openHttpBinsView(page, orgName, accountName);
     await selectNamespaceScope(page, namespaceName);
 
     const httpBinRow = page.getByRole('row').filter({ hasText: httpBinName }).first();
@@ -315,6 +322,19 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
       await createDialog.waitFor({ state: "visible", timeout: 10000 });
 
       await page.getByRole('textbox').first().fill(httpBinName);
+
+      // Select namespace in the create dialog dropdown
+      const namespaceSelect = page.locator('[test-id="generic-form-field-metadata.namespace"]').first();
+      if (await namespaceSelect.isVisible().catch(() => false)) {
+        await namespaceSelect.click();
+        await page.waitForTimeout(300);
+
+        // Click on the namespace option
+        const namespaceOption = page.locator(`[test-id="generic-form-field-metadata.namespace-option-${namespaceName}"]`).first();
+        await expect(namespaceOption).toBeVisible({ timeout: 5000 });
+        await namespaceOption.click();
+        await page.waitForTimeout(300);
+      }
 
       const submitButton = page.getByRole('button', { name: /^(Save|Submit)$/ }).first();
       for (let attempt = 0; attempt < 3; attempt++) {
@@ -349,7 +369,7 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
     }
 
     if (await httpBinRow.isVisible().catch(() => false)) {
-      ensureHttpBinExistsViaBackend(namespaceName, httpBinName);
+      ensureHttpBinExistsViaBackend(namespaceName, httpBinName, orgName, accountName);
       logStep(`ensureHttpBinExists:done namespace=${namespaceName} name=${httpBinName}`);
       return;
     }
@@ -359,17 +379,17 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
     await page.waitForTimeout(3000);
   }
 
-  ensureHttpBinExistsViaBackend(namespaceName, httpBinName);
-  await openHttpBinsView(page);
+  ensureHttpBinExistsViaBackend(namespaceName, httpBinName, orgName, accountName);
+  await openHttpBinsView(page, orgName, accountName);
   await selectNamespaceScope(page, namespaceName);
   const nameCell = page.getByRole('row').filter({ hasText: httpBinName }).first();
   await expect(nameCell).toBeVisible({ timeout: 30000 });
   logStep(`ensureHttpBinExists:done namespace=${namespaceName} name=${httpBinName}`);
 }
 
-async function assertHttpBinLinkWorks(page: Page, namespaceName: string, httpBinName: string): Promise<void> {
+async function assertHttpBinLinkWorks(page: Page, namespaceName: string, httpBinName: string, orgName?: string, accountName?: string): Promise<void> {
   logStep(`assertHttpBinLinkWorks:start namespace=${namespaceName} name=${httpBinName}`);
-  await openHttpBinsView(page);
+  await openHttpBinsView(page, orgName, accountName);
   await selectNamespaceScope(page, namespaceName);
 
   const row = page.getByRole('row').filter({ hasText: httpBinName }).first();

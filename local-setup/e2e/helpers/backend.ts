@@ -18,52 +18,60 @@ import {
   mkcertCaPath,
   newOrgName,
   primaryUser,
-  testAccountName,
+  testAccountName as defaultAccountName,
   type TestUser,
 } from './constants';
 import { logStep } from './log';
 import { runAdminKubectl, runKubectlWithKubeconfig } from './runtime';
 
-function waitForAccountReady(): void {
-  logStep(`waitForAccountReady:start account=${testAccountName} timeout=${accountReadyTimeoutSeconds}s`);
+function waitForAccountReady(orgName?: string, accountName?: string): void {
+  const org = orgName ?? newOrgName;
+  const account = accountName ?? defaultAccountName;
+  logStep(`waitForAccountReady:start account=${account} timeout=${accountReadyTimeoutSeconds}s`);
   runAdminKubectl([
     'wait',
     '--server',
-    kcpClusterServer(`root:orgs:${newOrgName}`),
+    kcpClusterServer(`root:orgs:${org}`),
     '--for=condition=Ready',
     `--timeout=${accountReadyTimeoutSeconds}s`,
-    `accounts.core.platform-mesh.io/${testAccountName}`,
+    `accounts.core.platform-mesh.io/${account}`,
   ]);
-  logStep(`waitForAccountReady:done account=${testAccountName}`);
+  logStep(`waitForAccountReady:done account=${account}`);
 }
 
-function waitForAccountExists(): void {
-  logStep(`waitForAccountExists:start account=${testAccountName} timeout=${accountReadyTimeoutSeconds}s`);
+function waitForAccountExists(orgName?: string, accountName?: string): void {
+  const org = orgName ?? newOrgName;
+  const account = accountName ?? defaultAccountName;
+  logStep(`waitForAccountExists:start account=${account} timeout=${accountReadyTimeoutSeconds}s`);
   runAdminKubectl([
     'wait',
     '--server',
-    kcpClusterServer(`root:orgs:${newOrgName}`),
+    kcpClusterServer(`root:orgs:${org}`),
     '--for=jsonpath={.metadata.name}',
     `--timeout=${accountReadyTimeoutSeconds}s`,
-    `accounts.core.platform-mesh.io/${testAccountName}`,
+    `accounts.core.platform-mesh.io/${account}`,
   ]);
-  logStep(`waitForAccountExists:done account=${testAccountName}`);
+  logStep(`waitForAccountExists:done account=${account}`);
 }
 
-function waitForAccountDeleted(): void {
-  logStep(`waitForAccountDeleted:start account=${testAccountName} timeout=${accountReadyTimeoutSeconds}s`);
+function waitForAccountDeleted(orgName?: string, accountName?: string, timeoutSeconds?: number): void {
+  const org = orgName ?? newOrgName;
+  const account = accountName ?? defaultAccountName;
+  const timeout = timeoutSeconds ?? Number(accountReadyTimeoutSeconds);
+  logStep(`waitForAccountDeleted:start account=${account} timeout=${timeout}s`);
   runAdminKubectl([
     'wait',
     '--server',
-    kcpClusterServer(`root:orgs:${newOrgName}`),
+    kcpClusterServer(`root:orgs:${org}`),
     '--for=delete',
-    `--timeout=${accountReadyTimeoutSeconds}s`,
-    `accounts.core.platform-mesh.io/${testAccountName}`,
+    `--timeout=${timeout}s`,
+    `accounts.core.platform-mesh.io/${account}`,
   ]);
-  logStep(`waitForAccountDeleted:done account=${testAccountName}`);
+  logStep(`waitForAccountDeleted:done account=${account}`);
 }
 
-function ensureInvitedUserExists(user: TestUser): void {
+function ensureInvitedUserExists(user: TestUser, orgName?: string): void {
+  const org = orgName ?? newOrgName;
   logStep(`ensureInvitedUserExists:start email=${user.email}`);
 
   const manifest = [
@@ -79,7 +87,7 @@ function ensureInvitedUserExists(user: TestUser): void {
   runAdminKubectl([
     'apply',
     '--server',
-    kcpClusterServer(`root:orgs:${newOrgName}`),
+    kcpClusterServer(`root:orgs:${org}`),
     '-f',
     '-',
   ], manifest);
@@ -87,7 +95,7 @@ function ensureInvitedUserExists(user: TestUser): void {
   runAdminKubectl([
     'wait',
     '--server',
-    kcpClusterServer(`root:orgs:${newOrgName}`),
+    kcpClusterServer(`root:orgs:${org}`),
     '--for=condition=Ready',
     `--timeout=${accountReadyTimeoutSeconds}s`,
     `invites.core.platform-mesh.io/${inviteName}`,
@@ -190,6 +198,18 @@ function extractOidcClientId(kubeconfigPath: string): string {
   return match[1].trim();
 }
 
+function extractOidcRealm(kubeconfigPath: string): string {
+  const kubeconfig = readFileSync(kubeconfigPath, 'utf8');
+  // Extract realm from --oidc-issuer-url=https://portal.localhost:8443/keycloak/realms/<realm>
+  const match = kubeconfig.match(/--oidc-issuer-url=.*\/keycloak\/realms\/([^\s\n]+)/);
+  if (!match) {
+    // Fall back to default realm if not found
+    return 'default';
+  }
+
+  return match[1].trim();
+}
+
 async function ensurePortalHostnameResolves(): Promise<void> {
   const kcpApiHostname = new URL(kcpUrl).hostname;
   for (const hostname of ['portal.localhost', kcpApiHostname]) {
@@ -235,18 +255,18 @@ function getKeycloakAdminToken(): string {
   return parsed.access_token;
 }
 
-function ensureKubectlClientAllowsDirectGrants(clientId: string): void {
+function ensureKubectlClientAllowsDirectGrants(clientId: string, realm: string = 'default'): void {
   const token = getKeycloakAdminToken();
   const response = keycloakApiRequest(
     'GET',
-    `${keycloakBaseUrl}/admin/realms/default/clients?clientId=${encodeURIComponent(clientId)}`,
+    `${keycloakBaseUrl}/admin/realms/${realm}/clients?clientId=${encodeURIComponent(clientId)}`,
     undefined,
     token,
   );
   const clients = JSON.parse(response);
 
   if (!Array.isArray(clients) || clients.length === 0) {
-    throw new Error(`Unable to find Keycloak client ${clientId}`);
+    throw new Error(`Unable to find Keycloak client ${clientId} in realm ${realm}`);
   }
 
   const client = clients[0];
@@ -257,7 +277,7 @@ function ensureKubectlClientAllowsDirectGrants(clientId: string): void {
   client.directAccessGrantsEnabled = true;
   keycloakApiRequest(
     'PUT',
-    `${keycloakBaseUrl}/admin/realms/default/clients/${client.id}`,
+    `${keycloakBaseUrl}/admin/realms/${realm}/clients/${client.id}`,
     JSON.stringify(client),
     token,
   );
@@ -267,7 +287,9 @@ async function verifyDownloadedKubeconfig(kubeconfigPath: string): Promise<void>
   logStep(`verifyDownloadedKubeconfig:start path=${kubeconfigPath}`);
   normalizeDownloadedKubeconfig(kubeconfigPath);
   await ensurePortalHostnameResolves();
-  ensureKubectlClientAllowsDirectGrants(extractOidcClientId(kubeconfigPath));
+  const clientId = extractOidcClientId(kubeconfigPath);
+  const realm = extractOidcRealm(kubeconfigPath);
+  ensureKubectlClientAllowsDirectGrants(clientId, realm);
 
   const manifest = [
     'apiVersion: v1',

@@ -1,6 +1,6 @@
 import { expect, Page } from '@playwright/test';
 
-import { exampleMarketplaceEntryName, exampleProviderDisplayName, testAccountName } from './constants';
+import { exampleMarketplaceEntryName, exampleProviderDisplayName, testAccountName as defaultAccountName } from './constants';
 import { logStep, portalOrgUrl } from './log';
 
 const marketplaceFrameSelector = 'iframe[src*="/ui/marketplace/ui/"]';
@@ -11,24 +11,26 @@ async function waitForMarketplaceFrame(page: Page, srcPattern: RegExp = /\/ui\/m
   await expect(marketplaceFrame).toHaveAttribute('src', srcPattern);
 }
 
-async function openOrganizationMarketplace(page: Page): Promise<void> {
-  const marketplaceUrl = portalOrgUrl('/home/marketplace');
+async function openOrganizationMarketplace(page: Page, orgName?: string): Promise<void> {
+  const marketplaceUrl = portalOrgUrl('/home/marketplace', orgName);
   logStep(`openOrganizationMarketplace:url=${marketplaceUrl}`);
   await page.goto(marketplaceUrl, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
   await waitForMarketplaceFrame(page);
 }
 
-async function openAccountMarketplace(page: Page): Promise<void> {
-  const marketplaceUrl = portalOrgUrl(`/home/accounts/${testAccountName}/marketplace`);
+async function openAccountMarketplace(page: Page, orgName?: string, accountName?: string): Promise<void> {
+  const account = accountName ?? defaultAccountName;
+  const marketplaceUrl = portalOrgUrl(`/home/accounts/${account}/marketplace`, orgName);
   logStep(`openAccountMarketplace:url=${marketplaceUrl}`);
   await page.goto(marketplaceUrl, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
   await waitForMarketplaceFrame(page);
 }
 
-async function openAccountMarketplaceProvider(page: Page): Promise<void> {
-  const providerUrl = portalOrgUrl(`/home/accounts/${testAccountName}/provider/${exampleMarketplaceEntryName}`);
+async function openAccountMarketplaceProvider(page: Page, orgName?: string, accountName?: string): Promise<void> {
+  const account = accountName ?? defaultAccountName;
+  const providerUrl = portalOrgUrl(`/home/accounts/${account}/provider/${exampleMarketplaceEntryName}`, orgName);
   logStep(`openAccountMarketplaceProvider:url=${providerUrl}`);
   await page.goto(providerUrl, { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
@@ -81,9 +83,9 @@ async function expectMarketplaceActionVisible(page: Page, action: 'Enable' | 'Di
   await expect(marketplaceActionButton(page, action)).toBeVisible({ timeout: 30000 });
 }
 
-async function waitForMarketplaceAction(page: Page, action: 'Enable' | 'Disable'): Promise<void> {
+async function waitForMarketplaceAction(page: Page, action: 'Enable' | 'Disable', orgName?: string, accountName?: string): Promise<void> {
   for (let attempt = 0; attempt < 10; attempt++) {
-    await openAccountMarketplaceProvider(page);
+    await openAccountMarketplaceProvider(page, orgName, accountName);
     const button = marketplaceActionButton(page, action);
     if (await button.isVisible().catch(() => false)) {
       logStep(`waitForMarketplaceAction:done action=${action} attempt=${attempt}`);
@@ -92,7 +94,7 @@ async function waitForMarketplaceAction(page: Page, action: 'Enable' | 'Disable'
     logStep(`waitForMarketplaceAction:retry action=${action} attempt=${attempt}`);
     await page.waitForTimeout(3000);
   }
-  await openAccountMarketplaceProvider(page);
+  await openAccountMarketplaceProvider(page, orgName, accountName);
   await expectMarketplaceActionVisible(page, action);
 }
 
