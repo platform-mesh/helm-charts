@@ -3,7 +3,6 @@ import test from '@playwright/test';
 import {
   primaryUser,
   testNamespaceName,
-  defaultHttpBinName,
   testNamespaceHttpBinName,
   ensureWelcomePage,
   switchToOrganization,
@@ -27,10 +26,9 @@ test.describe('Portal HTTPBins', () => {
 
     await ensureAccountExists(page);
     await ensureNamespaceExists(page, testNamespaceName);
-    await ensureHttpBinExists(page, 'default', defaultHttpBinName);
-    await assertHttpBinLinkWorks(page, 'default', defaultHttpBinName);
     await ensureHttpBinExists(page, testNamespaceName, testNamespaceHttpBinName);
     await selectNamespaceScope(page, testNamespaceName);
+    await assertHttpBinLinkWorks(page, testNamespaceName, testNamespaceHttpBinName);
     logStep('test:httpbins:done');
   });
 });

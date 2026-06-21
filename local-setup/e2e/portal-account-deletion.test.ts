@@ -7,8 +7,10 @@ import {
   ensureExampleHttpbinProviderWorkspace,
   ensureAccountExists,
   deleteAccount,
+  waitForAccountDeleted,
   logStep,
 } from './helpers/portal';
+import { newOrgName, testAccountName } from './helpers/constants';
 
 test.describe('Portal Account Deletion', () => {
   test.setTimeout(600000);
@@ -19,8 +21,11 @@ test.describe('Portal Account Deletion', () => {
     await switchToOrganization(page, primaryUser, true);
     ensureExampleHttpbinProviderWorkspace();
 
-    const accountUrl = await ensureAccountExists(page);
-    await deleteAccount(page, accountUrl);
+    const url = await ensureAccountExists(page);
+    await deleteAccount(page, url);
+    waitForAccountDeleted(newOrgName, testAccountName, 120);
+    logStep(`deleteAccount:done account=${testAccountName}`);
+
     logStep('test:account-deletion:done');
   });
 });

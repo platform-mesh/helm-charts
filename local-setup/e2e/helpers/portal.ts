@@ -7,13 +7,16 @@ export {
 } from './constants';
 export type { TestUser } from './constants';
 
-export { logStep } from './log';
+export { logStep, portalOrgUrl } from './log';
 
-export { ensureWelcomePage, switchToOrganization } from './auth';
+export { ensureWelcomePage, inviteUserToOrg, switchToOrganization } from './auth';
 
 export {
   ensureInvitedUserExists,
   verifyDownloadedKubeconfig,
+  waitForAccountReady,
+  waitForAccountExists,
+  waitForAccountDeleted,
 } from './backend';
 
 export {

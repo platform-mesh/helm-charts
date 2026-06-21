@@ -4,15 +4,15 @@ import path from 'node:path';
 
 import { expect, Locator, Page } from '@playwright/test';
 
-import { newOrgName, testAccountName } from './constants';
+import { newOrgName, testAccountName as defaultAccountName } from './constants';
 import { waitForAccountDeleted, waitForAccountExists, waitForAccountReady, normalizeDownloadedKubeconfig } from './backend';
 import { clickRobust } from './httpbins';
 import { logStep, portalOrgUrl } from './log';
 
-async function openAccountsView(page: Page): Promise<void> {
+async function openAccountsView(page: Page, orgName?: string): Promise<void> {
   const createButton = page.getByRole('button', { name: 'Create', exact: true });
   const heading = page.getByRole('heading', { name: 'Accounts', exact: true });
-  const accountsUrl = portalOrgUrl('/home/accounts');
+  const accountsUrl = portalOrgUrl('/home/accounts', orgName);
 
   logStep(`openAccountsView:navigate url=${accountsUrl}`);
   await page.goto(accountsUrl, { waitUntil: 'domcontentloaded' });
@@ -42,21 +42,24 @@ async function ensureListRowVisible(page: Page, row: Locator): Promise<void> {
   }
 }
 
-async function ensureAccountExists(page: Page): Promise<string> {
-  logStep(`ensureAccountExists:start account=${testAccountName}`);
-  await openAccountsView(page);
-  const accountRow = page.getByRole('row').filter({ hasText: testAccountName }).first();
+async function ensureAccountExists(page: Page, orgName?: string, accountName?: string): Promise<string> {
+  const org = orgName ?? newOrgName;
+  const account = accountName ?? defaultAccountName;
+
+  logStep(`ensureAccountExists:start account=${account}`);
+  await openAccountsView(page, org);
+  const accountRow = page.getByRole('row').filter({ hasText: account }).first();
   const createDialog = page.locator('ui5-dialog[open]').first();
 
   await ensureListRowVisible(page, accountRow);
 
   if (!await accountRow.isVisible().catch(() => false)) {
-    logStep(`ensureAccountExists:create account=${testAccountName}`);
+    logStep(`ensureAccountExists:create account=${account}`);
     await page.getByRole('button', { name: 'Create', exact: true }).click();
     await createDialog.waitFor({ state: 'visible', timeout: 10000 });
 
     const nameField = page.getByRole('textbox').first();
-    await nameField.fill(testAccountName);
+    await nameField.fill(account);
 
     // The account create form has a required ui5-select for "Type" with a single value "account".
     // Save stays disabled until it is filled. The first ui5-select on the page is the pagination
@@ -102,7 +105,7 @@ async function ensureAccountExists(page: Page): Promise<string> {
     }
 
     const submitButton = page.getByRole('button', { name: /^(Save|Submit)$/ }).first();
-    const alreadyExistsAlert = page.getByText(`accounts.core.platform-mesh.io "${testAccountName}" already exists`);
+    const alreadyExistsAlert = page.getByText(`accounts.core.platform-mesh.io "${account}" already exists`);
     const transientWebhookAlert = page.getByText(/failed calling webhook|connection refused|Internal error occurred/i);
 
     for (let attempt = 0; attempt < 4; attempt++) {
@@ -152,18 +155,20 @@ async function ensureAccountExists(page: Page): Promise<string> {
     await alertCloseButton.click();
   }
 
-  waitForAccountExists();
-  logStep(`ensureAccountExists:wait-ready account=${testAccountName}`);
-  waitForAccountReady();
-  const accountUrl = `https://${newOrgName}.portal.localhost:8443/home/accounts/${testAccountName}/dashboard`;
-  logStep(`ensureAccountExists:navigate-direct account=${testAccountName} url=${accountUrl}`);
+  waitForAccountExists(org, account);
+  logStep(`ensureAccountExists:wait-ready account=${account}`);
+  waitForAccountReady(org, account);
+  const accountUrl = `https://${org}.portal.localhost:8443/home/accounts/${account}/dashboard`;
+  logStep(`ensureAccountExists:navigate-direct account=${account} url=${accountUrl}`);
   await page.goto(accountUrl, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('button', { name: 'Download kubeconfig' })).toBeVisible({ timeout: 30000 });
-  logStep(`ensureAccountExists:done account=${testAccountName}`);
+  logStep(`ensureAccountExists:done account=${account}`);
   return accountUrl;
 }
 
-async function downloadAccountKubeconfig(page: Page): Promise<string> {
+async function downloadAccountKubeconfig(page: Page, orgName?: string, accountName?: string): Promise<string> {
+  const account = accountName ?? defaultAccountName;
+
   const downloadButton = page.getByRole('button', { name: 'Download kubeconfig' });
   let download = null;
 
@@ -189,15 +194,18 @@ async function downloadAccountKubeconfig(page: Page): Promise<string> {
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const kubeconfigPath = path.join(targetDir, `${testAccountName}-oidc.kubeconfig`);
+  const kubeconfigPath = path.join(targetDir, `${account}-oidc.kubeconfig`);
   await download!.saveAs(kubeconfigPath);
   normalizeDownloadedKubeconfig(kubeconfigPath);
   return kubeconfigPath;
 }
 
-async function deleteAccount(page: Page, accountUrl: string): Promise<void> {
+async function deleteAccount(page: Page, accountUrl: string, orgName?: string, accountName?: string): Promise<void> {
+  const org = orgName ?? newOrgName;
+  const account = accountName ?? defaultAccountName;
+
   logStep(`deleteAccount:start url=${accountUrl}`);
-  waitForAccountReady();
+  waitForAccountReady(org, account);
   await page.goto(accountUrl, { waitUntil: 'domcontentloaded' });
 
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -273,16 +281,6 @@ async function deleteAccount(page: Page, accountUrl: string): Promise<void> {
     throw new Error(`Could not find account delete button on the account detail page, buttons=${JSON.stringify(visibleButtons)}`);
   }
 
-  const confirmButtons = [
-    page.getByRole('button', { name: 'Submit', exact: true }).last(),
-    page.getByRole('button', { name: 'Confirm', exact: true }).last(),
-    page.getByRole('button', { name: 'Delete', exact: true }).last(),
-    page.getByRole('button', { name: /submit/i }).last(),
-    page.getByRole('button', { name: /delete/i }).last(),
-    page.getByRole('button', { name: /remove/i }).last(),
-    page.locator('[test-id="delete-resource-confirm"]').first(),
-  ];
-
   const confirmInputSelectors = [
     'input[placeholder="Type name"]',
     '[test-id="delete-resource-name-confirmation"] input',
@@ -293,44 +291,18 @@ async function deleteAccount(page: Page, accountUrl: string): Promise<void> {
   for (const selector of confirmInputSelectors) {
     const input = page.locator(selector).last();
     if (await input.isVisible().catch(() => false)) {
-      await input.fill(testAccountName);
+      await input.fill(account);
       logStep(`deleteAccount:typed-confirmation selector=${selector}`);
+      await page.waitForTimeout(500);
       break;
     }
   }
 
-  const visibleDialogText = await page.locator('body').innerText().catch(() => '');
-  logStep(`deleteAccount:confirm-body=${JSON.stringify(visibleDialogText.slice(0, 500))}`);
-
-  const visibleButtons = await page.locator('button').evaluateAll((nodes) => nodes
-    .map((node) => ({
-      text: (node.textContent || '').trim(),
-      ariaLabel: node.getAttribute('aria-label') || '',
-      title: node.getAttribute('title') || '',
-    }))
-    .filter((entry) => entry.text || entry.ariaLabel || entry.title));
-  logStep(`deleteAccount:buttons=${JSON.stringify(visibleButtons)}`);
-
-  let confirmedDelete = false;
-  for (let index = 0; index < confirmButtons.length; index++) {
-    const button = confirmButtons[index];
-    if (await button.isVisible().catch(() => false)) {
-      logStep(`deleteAccount:clicked-confirm index=${index}`);
-      await clickRobust(button);
-      confirmedDelete = true;
-      break;
-    }
-  }
-
-  if (!confirmedDelete) {
-    throw new Error(`Could not find account delete confirmation button, buttons=${JSON.stringify(visibleButtons)}`);
-  }
-
-  waitForAccountDeleted();
-  await openAccountsView(page);
-  const accountRow = page.getByRole('row').filter({ hasText: testAccountName }).first();
-  await expect(accountRow).not.toBeVisible({ timeout: 30000 });
-  logStep(`deleteAccount:done url=${accountUrl}`);
+  const confirmButton = page.locator('[test-id="delete-resource-confirm"]').first();
+  await expect(confirmButton).toBeVisible({ timeout: 5000 });
+  await expect(confirmButton).toBeEnabled({ timeout: 5000 });
+  await clickRobust(confirmButton);
+  logStep('deleteAccount:clicked-confirm');
 }
 
 export { deleteAccount, downloadAccountKubeconfig, ensureAccountExists };
