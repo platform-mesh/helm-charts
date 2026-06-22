@@ -88,7 +88,15 @@ jobs:
           BRANCH: ${{ steps.bump.outputs.branch }}
           TITLE: ${{ steps.bump.outputs.title }}
         run: |
-          git push --force-with-lease origin "$BRANCH"
-          gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "Automated chart bump."
+          # Bot-owned, disposable bump branch: a plain force push is safe and
+          # avoids the "stale info" rejection from --force-with-lease, which
+          # needs a remote-tracking ref this fresh checkout never fetched.
+          git push --force origin "$BRANCH"
+          # Reuse an existing PR for this branch if one is already open.
+          if ! gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+            gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "Automated chart bump."
+          else
+            echo "PR already exists for $BRANCH; skipping create."
+          fi
 
 
