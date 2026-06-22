@@ -167,6 +167,7 @@ async function ensureAccountExists(page: Page, orgName?: string, accountName?: s
 }
 
 async function downloadAccountKubeconfig(page: Page, orgName?: string, accountName?: string): Promise<string> {
+  const org = orgName ?? newOrgName;
   const account = accountName ?? defaultAccountName;
 
   const downloadButton = page.getByRole('button', { name: 'Download kubeconfig' });
@@ -194,7 +195,7 @@ async function downloadAccountKubeconfig(page: Page, orgName?: string, accountNa
     mkdirSync(targetDir, { recursive: true });
   }
 
-  const kubeconfigPath = path.join(targetDir, `${account}-oidc.kubeconfig`);
+  const kubeconfigPath = path.join(targetDir, `${org}-${account}-oidc.kubeconfig`);
   await download!.saveAs(kubeconfigPath);
   normalizeDownloadedKubeconfig(kubeconfigPath);
   return kubeconfigPath;
