@@ -70,6 +70,12 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'local-setup/e2e'
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('local-setup/e2e/package-lock.json') }}
+
       - name: Run e2e tests with video recording
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
