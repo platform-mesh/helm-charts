@@ -44,6 +44,14 @@ jobs:
           kubectl krew install kcp-dev/ws
           kubectl krew install kcp-dev/create-workspace
           kubectl krew install oidc-login
+      - name: Resolve third-party OCM versions
+        id: ocm-versions
+        run: local-setup/scripts/ocm-resolve-thirdparty-versions.sh
+      - name: Cache OCM etcd-druid
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: .ocm/cache/etcd-druid
+          key: ocm-thirdparty-etcd-druid-${{ steps.ocm-versions.outputs.etcd_druid }}
       - name: Run local-setup with sharded example data
         run: |
           task local-setup:concurrent:example-data
