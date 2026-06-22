@@ -83,6 +83,19 @@ check_kubectl_dependency() {
     return 0
 }
 
+check_jq_dependency() {
+    if ! command -v jq &> /dev/null; then
+        echo -e "${RED}❌ Error: 'jq' is not installed${COL_RES}"
+        echo -e "${COL}📦 jq is required to parse JSON output from OCM CLI commands during component builds.${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://jqlang.org/download/${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ jq is available${COL_RES}"
+    return 0
+}
+
 check_container_runtime_dependency() {
     local docker_available=false
     local podman_available=false
@@ -268,6 +281,11 @@ run_environment_checks() {
         checks_failed=$((checks_failed + 1))
     fi
 
+    # Check jq dependency (OCM component version resolution)
+    if ! check_jq_dependency; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
     # Check mkcert dependency
     if ! setup_mkcert_command; then
         checks_failed=$((checks_failed + 1))
@@ -309,6 +327,7 @@ export -f check_kind_cluster
 export -f check_kind_infra_cluster
 export -f check_kind_dependency
 export -f check_kubectl_dependency
+export -f check_jq_dependency
 export -f check_docker_dependency
 export -f check_container_runtime_dependency
 export -f setup_mkcert_command
