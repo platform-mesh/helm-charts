@@ -27,9 +27,12 @@ jobs:
 
       - name: Did relevant paths change?
         id: local_setup
+        env:
+          BASE_REF: ${{ github.base_ref || github.event.merge_group.base_ref }}
         run: |
+          base="${BASE_REF#refs/heads/}"
           if
-            git diff --quiet origin/${{ github.base_ref }} -- \
+            git diff --quiet "origin/${base}" -- \
               charts \
               local-setup \
               .ocm \
