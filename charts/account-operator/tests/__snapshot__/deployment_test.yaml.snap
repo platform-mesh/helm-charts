@@ -30,7 +30,7 @@ deployment with tracing:
                 - --region=local
                 - --environment=local
                 - --image-tag=0.0.0
-                - --image-name="ghcr.io/platform-mesh/account-operator"
+                - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
                 - --tracing-enabled=true
@@ -48,7 +48,7 @@ deployment with tracing:
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=account
               env: null
-              image: ghcr.io/platform-mesh/account-operator:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -578,7 +578,7 @@ disable istio:
                 - --region=local
                 - --environment=local
                 - --image-tag=0.0.0
-                - --image-name="ghcr.io/platform-mesh/account-operator"
+                - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
                 - --subroutines-workspace-type-enabled=true
@@ -592,7 +592,7 @@ disable istio:
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=account
               env: null
-              image: ghcr.io/platform-mesh/account-operator:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -1199,7 +1199,7 @@ operator match the snapshot:
                 - --region=local
                 - --environment=local
                 - --image-tag=0.0.0
-                - --image-name="ghcr.io/platform-mesh/account-operator"
+                - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
                 - --subroutines-workspace-type-enabled=true
@@ -1213,7 +1213,7 @@ operator match the snapshot:
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=my-type,my-other-type
               env: null
-              image: ghcr.io/platform-mesh/account-operator:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -1821,7 +1821,7 @@ operator match the snapshot (with kubeconfigSecret):
                 - --region=local
                 - --environment=local
                 - --image-tag=0.0.0
-                - --image-name="ghcr.io/platform-mesh/account-operator"
+                - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
                 - --subroutines-workspace-type-enabled=true
@@ -1837,7 +1837,7 @@ operator match the snapshot (with kubeconfigSecret):
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/account-operator:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -2449,7 +2449,7 @@ operator match the snapshot with webhook enabled:
                 - --region=local
                 - --environment=local
                 - --image-tag=0.0.0
-                - --image-name="ghcr.io/platform-mesh/account-operator"
+                - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
                 - --max-concurrent-reconciles=10
                 - --subroutines-workspace-type-enabled=true
@@ -2463,7 +2463,7 @@ operator match the snapshot with webhook enabled:
                 - --webhooks-deny-list=admin,root,system,www
                 - --webhooks-additional-account-types=account
               env: null
-              image: ghcr.io/platform-mesh/account-operator:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/account-operator:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
