@@ -53,7 +53,11 @@ fi
 IFS='.' read -r OLD_MAJOR OLD_MINOR OLD_PATCH <<<"$OLD_CLEAN"
 IFS='.' read -r NEW_MAJOR NEW_MINOR NEW_PATCH <<<"$NEW_CLEAN"
 
-if [ "$OLD_CLEAN" = "$NEW_CLEAN" ]; then
+# Compare the *full* appVersion (normalizing only a leading "v"), so that a
+# pre-release -> final transition (e.g. v0.15.0-rc3 -> v0.15.0) is treated as a
+# real change rather than a no-op. When the clean triplets match but the full
+# strings differ, the BUMP logic below falls through to a patch bump.
+if [ "${OLD_APP_VERSION#v}" = "${NEW_APP_VERSION#v}" ]; then
   echo "appVersion unchanged ($OLD_APP_VERSION); nothing to do"
   exit 0
 fi
