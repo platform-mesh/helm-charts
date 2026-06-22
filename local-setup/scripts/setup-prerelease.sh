@@ -45,9 +45,8 @@ deploy_transfer_pod() {
   kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- mkdir -p .ocm
 
-  # Configure CA on the pod
-  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > $SCRIPT_DIR/registry-ca.pem
-  kubectl cp $SCRIPT_DIR/registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
+  # Configure CA on the pod (trust the mkcert root CA used to issue the registry leaf cert)
+  kubectl cp $SCRIPT_DIR/certs/ca.crt -n default ocm-transfer-pod:registry-ca.pem
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo update-ca-certificates
 }
@@ -62,8 +61,7 @@ build_prerelease_component() {
 reconfigure_transfer_pod_ca() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Reconfiguring CA on existing OCM transfer pod ${COL_RES}"
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- mkdir -p .ocm
-  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null | openssl x509 -outform PEM > $SCRIPT_DIR/registry-ca.pem
-  kubectl cp $SCRIPT_DIR/registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
+  kubectl cp $SCRIPT_DIR/certs/ca.crt -n default ocm-transfer-pod:registry-ca.pem
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo update-ca-certificates
 }

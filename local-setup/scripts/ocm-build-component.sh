@@ -64,9 +64,8 @@ update_constructor() {
     # Rename the component from platform-mesh to prerelease in a temp copy,
     # then replace the original so downstream steps always see the renamed version
     sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' \
-        "$src" > "${src}.tmp" \
-        && mv "${src}.tmp" "$src"
-
+        "$OCM_DIR/component-constructor-prerelease.yaml" > "$OCM_DIR/component-constructor-prerelease.yaml.tmp" \
+        && mv "$OCM_DIR/component-constructor-prerelease.yaml.tmp" "$OCM_DIR/component-constructor-prerelease.yaml"
     echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor ready${COL_RES}"
 }
 
