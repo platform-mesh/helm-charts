@@ -193,3 +193,14 @@ tests:
           cpu: 2000m
           memory: 2Gi
     documentIndex: 1
+- it: test keycloak route has no filters when both are empty
+  templates:
+    - keycloak/httproute.yaml
+  set:
+    keycloak:
+      gatewayApi:
+        filters: []
+        corsFilters: []
+  asserts:
+  - notExists:
+      path: spec.rules[0].filters

@@ -18,13 +18,13 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.keycloak.gatewayApi.pathPrefix }}
-    {{- if or .Values.keycloak.gatewayApi.filters $.Values.traefik.enabled }}
+    {{- if or .Values.keycloak.gatewayApi.filters .Values.keycloak.gatewayApi.corsFilters }}
     filters:
     {{- with .Values.keycloak.gatewayApi.filters }}
     {{ toYaml . | nindent 4 }}
     {{- end }}
-    {{- if $.Values.traefik.enabled }}
-    {{ toYaml .Values.keycloak.gatewayApi.corsFilters | nindent 4 }}
+    {{- with .Values.keycloak.gatewayApi.corsFilters }}
+    {{ toYaml . | nindent 4 }}
     {{- end }}
     {{- end }}
     backendRefs:
