@@ -611,9 +611,47 @@ fi
 ###############################################################################
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
+if [[ -n "$CI" ]]; then
+    # Dedupe consecutive watch lines per object.
+    # kubectl emits a row on every resourceVersion bump, we only want rows where status columns changed.
+    # TIME is stripped from the comparison so a refreshed transition time without a status change doesn't reprint.
+    # Key is $2 $3 (NS+NAME for HR, NAME+READY for PM).
+    dedupe_by_object() {
+        awk '{ rest=$0; sub(/^[^ ]+ +/, "", rest); key=$2 FS $3; if (rest != last[key]) { print; last[key]=rest } fflush() }'
+    }
+
+    # Background watcher: log HelmRelease ready-state transitions while we wait,
+    # so the slow chart is visible in CI logs.
+    HR_READY_CONDITION='.status.conditions[?(@.type=="Ready")]'
+    HR_COLUMNS="TIME:${HR_READY_CONDITION}.lastTransitionTime"
+    HR_COLUMNS+=",NS:.metadata.namespace"
+    HR_COLUMNS+=",NAME:.metadata.name"
+    HR_COLUMNS+=",READY:${HR_READY_CONDITION}.status"
+    HR_COLUMNS+=",REASON:${HR_READY_CONDITION}.reason"
+    kubectl "${RUNTIME_KC[@]}" get hr -A -w -o "custom-columns=$HR_COLUMNS" | dedupe_by_object &
+    HR_WATCHER_PID=$!
+
+    # Background watcher: log PlatformMesh ready-state transitions alongside.
+    PM_READY_CONDITION='.status.conditions[?(@.type=="Ready")]'
+    PM_COLUMNS="TIME:${PM_READY_CONDITION}.lastTransitionTime"
+    PM_COLUMNS+=",NAME:.metadata.name"
+    PM_COLUMNS+=",READY:${PM_READY_CONDITION}.status"
+    PM_COLUMNS+=",REASON:${PM_READY_CONDITION}.reason"
+    PM_COLUMNS+=",MESSAGE:${PM_READY_CONDITION}.message"
+    kubectl "${RUNTIME_KC[@]}" get platformmesh -n platform-mesh-system -w -o "custom-columns=$PM_COLUMNS" | dedupe_by_object &
+    PM_WATCHER_PID=$!
+
+    trap "kill $HR_WATCHER_PID $PM_WATCHER_PID 2>/dev/null || true" EXIT
+fi
+
 kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
   --for=condition=Ready platformmesh \
   --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
+
+if [[ -n "$HR_WATCHER_PID" ]]; then
+    kill $HR_WATCHER_PID $PM_WATCHER_PID 2>/dev/null || true
+    trap - EXIT
+fi
 
 ###############################################################################
 # Remote: post-install waits
