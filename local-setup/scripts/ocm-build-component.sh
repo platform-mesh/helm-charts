@@ -157,34 +157,33 @@ resolve_component_versions() {
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Resolving third-party component versions...${COL_RES}"
 
-    # Third-party components (always remote)
+    # Third-party version pins live in .github/workflows/ocm-aggregator.yaml's env block.
+    local agg="$PROJECT_ROOT/.github/workflows/ocm-aggregator.yaml"
+    export KCP_OPERATOR_CHART_VERSION=$(yq -r '.jobs.ocm.env.KCP_OPERATOR_CHART_VERSION' "$agg")
+    export KCP_OPERATOR_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.KCP_OPERATOR_IMAGE_VERSION' "$agg")
+    export KCP_VERSION=$(yq -r '.jobs.ocm.env.KCP_VERSION' "$agg")
+    export INIT_AGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_CHART_VERSION' "$agg")
+    export INIT_AGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_IMAGE_VERSION' "$agg")
+    export OPENFGA_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_VERSION' "$agg")
+    export OPENFGA_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_IMAGE_VERSION' "$agg")
+    export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_POSTGRESQL_IMAGE_VERSION' "$agg")
+    export GATEWAY_API_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_VERSION' "$agg")
+    export GATEWAY_API_COMMIT=$(yq -r '.jobs.ocm.env.GATEWAY_API_COMMIT' "$agg")
+    export TRAEFIK_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_VERSION' "$agg")
+    export TRAEFIK_CHART_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_CHART_VERSION' "$agg")
+    export TRAEFIK_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_IMAGE_VERSION' "$agg")
+    export TRAEFIK_CRD_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_CRD_VERSION' "$agg")
+    export CERT_MANAGER_VERSION=$(yq -r '.jobs.ocm.env.CERT_MANAGER_VERSION' "$agg")
+    export CNPG_OPERATOR_CHART_VERSION=$(yq -r '.jobs.ocm.env.CNPG_OPERATOR_CHART_VERSION' "$agg")
+    export CNPG_OPERATOR_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.CNPG_OPERATOR_IMAGE_VERSION' "$agg")
+    export PROMETHEUS_OPERATOR_CRDS_VERSION=$(yq -r '.jobs.ocm.env.PROMETHEUS_OPERATOR_CRDS_VERSION' "$agg")
+    export KUBE_PROMETHEUS_STACK_VERSION=$(yq -r '.jobs.ocm.env.KUBE_PROMETHEUS_STACK_VERSION' "$agg")
+    export OPENTELEMETRY_OPERATOR_VERSION=$(yq -r '.jobs.ocm.env.OPENTELEMETRY_OPERATOR_VERSION' "$agg")
+
+    # Versions not pinned in the aggregator: keep remote lookups.
     export GARDENER_ETCD_DRUID_VERSION=$(get_external_component_version github.com/gardener/etcd-druid europe-docker.pkg.dev/gardener-project/releases)
-    export ISTIO_VERSION=$(get_ocm_resource_version "github.com/istio/istio/base" '.items[0].element["version"]')
-    export OPENFGA_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[0].element["version"]')
-    export CNPG_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[0].element["version"]')
-    export CNPG_OPERATOR_CHART_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[] | select(.element.name == "chart") | .element.version')
-    export CNPG_OPERATOR_IMAGE_VERSION=$(get_ocm_resource_version "github.com/cloudnative-pg/cloudnative-pg" '.items[] | select(.element.type == "ociImage") | .element.version')
-    export KCP_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[0].element["version"]')
-    export KCP_IMAGE_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[] | select(.element.type == "ociImage") | .element.version' | sed 's/^0\.0\.0-//')
-    export GATEWAY_API_VERSION=$(get_ocm_resource_version "github.com/kubernetes-sigs/gateway-api" '.items[0].element["version"]')
-    export GATEWAY_API_COMMIT=$(get_ocm_resource_version "github.com/kubernetes-sigs/gateway-api" '.items[0].element.access["commit"]')
-    export TRAEFIK_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[0].element["version"]')
-    export TRAEFIK_CHART_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[] | select(.element.name == "chart") | .element.version')
-    export TRAEFIK_CRD_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[1].element["version"]')
-    export CERT_MANAGER_VERSION=$(get_ocm_resource_version "github.com/cert-manager/cert-manager" '.items[0].element["version"]')
-    export KCP_OPERATOR_CHART_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[0].element["version"]')
-    export KCP_OPERATOR_IMAGE_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp-operator" '.items[] | select(.element.type == "ociImage") | .element.version')
-    export KCP_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/kcp" '.items[0].element["version"]')
-    export INIT_AGENT_CHART_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/init-agent" '.items[0].element["version"]')
-    export INIT_AGENT_IMAGE_VERSION=$(get_ocm_resource_version "github.com/kcp-dev/init-agent" '.items[] | select(.element.type == "ociImage") | .element.version')
-    export TRAEFIK_IMAGE_VERSION=$(get_ocm_resource_version "github.com/traefik/traefik" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
-    export OPENFGA_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "image") | .element.version')
-    export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(get_ocm_resource_version "github.com/openfga/openfga" '.items[] | select(.element.type == "ociImage" and .element.name == "postgresql-image") | .element.version')
     export MARKETPLACE_UI_CHART_VERSION=$(get_ocm_resource_version "github.com/platform-mesh/helm-charts/marketplace-ui" '.items[0].element | .version')
     export MARKETPLACE_UI_IMAGE_VERSION=$(get_ocm_resource_version "github.com/platform-mesh/images/marketplace-ui" '.items[0].element | .version')
-    export PROMETHEUS_OPERATOR_CRDS_VERSION=$(get_ocm_resource_version "github.com/prometheus-community/prometheus-operator-crds" '.items[0].element["version"]')
-    export KUBE_PROMETHEUS_STACK_VERSION=$(get_ocm_resource_version "github.com/prometheus-community/kube-prometheus-stack" '.items[0].element["version"]')
-    export OPENTELEMETRY_OPERATOR_VERSION=$(get_ocm_resource_version "github.com/open-telemetry/opentelemetry-operator" '.items[0].element["version"]')
 
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --overwrite --copy-resources --no-update europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
     # TODO: the api-syncagent OCM CV must be updated
@@ -213,7 +212,6 @@ build_final_component() {
         OPENFGA_VERSION="$OPENFGA_VERSION" \
         PM_OPENFGA_VERSION="$OPENFGA_VERSION" \
         KCP_OPERATOR_VERSION="$KCP_OPERATOR_VERSION" \
-        KCP_IMAGE_VERSION="$KCP_IMAGE_VERSION" \
         GARDENER_ETCD_DRUID_VERSION="$GARDENER_ETCD_DRUID_VERSION" \
         ACCOUNT_OPERATOR_VERSION="$ACCOUNT_OPERATOR_VERSION" \
         PLATFORM_MESH_OPERATOR_VERSION="$PLATFORM_MESH_OPERATOR_VERSION" \
