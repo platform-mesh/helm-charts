@@ -281,20 +281,20 @@ build_local_charts() {
             # Start background job
             prepare_and_push_chart "$comp" "$chart_dir" &
             pids+=($!)
-            ((running++))
+            running=$((running + 1))
 
             # Limit concurrency
             if ((running >= MAX_PARALLEL)); then
                 # Wait for any one job to finish
                 wait -n 2>/dev/null || true
-                ((running--))
+                running=$((running - 1))
             fi
         done
 
         # Wait for all remaining jobs to complete
         for pid in "${pids[@]}"; do
             if ! wait "$pid"; then
-                ((failed++))
+                failed=$((failed + 1))
             fi
         done
     else
@@ -304,7 +304,7 @@ build_local_charts() {
             local chart_dir="${pair#*:}"
 
             if ! prepare_and_push_chart "$comp" "$chart_dir"; then
-                ((failed++))
+                failed=$((failed + 1))
             fi
         done
     fi
