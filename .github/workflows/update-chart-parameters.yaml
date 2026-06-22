@@ -37,7 +37,7 @@ jobs:
           fi
       - name: Configure GIT
         run: |
-          git config --global user.name "Platform Mesh Publisher"
+          git config --global user.name "Platform Mesh Publisher[bot]"
           git config --global user.email "platformmesh@gmail.com"
       - name: Validate inputs
         env:
