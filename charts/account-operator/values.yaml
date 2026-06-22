@@ -2,7 +2,7 @@ image:
   # -- The image registry
   registry: ghcr.io
   # -- The image repository path (without registry)
-  repository: platform-mesh/account-operator
+  repository: platform-mesh/platform-mesh/account-operator
   # -- The image digest (when set, overrides tag: registry/repository@digest)
   digest: ""
   # Overwrite image.tag to use a different image tag then .chart.appVersion
