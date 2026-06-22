@@ -223,6 +223,20 @@ resolve_component_versions() {
     transfer_etcd_druid_with_cache &
     wait
 
+    # PM-stamped component descriptor versions for third-party components.
+    # Bump the suffix here to publish a new descriptor without touching resource versions.
+    # Must match the values in .github/workflows/ocm-aggregator.yaml.
+    export PM_GATEWAY_API_VERSION="0.0.1"
+    export PM_TRAEFIK_VERSION="0.0.1"
+    export PM_CERT_MANAGER_VERSION="0.0.1"
+    export PM_KCP_OPERATOR_VERSION="0.0.1"
+    export PM_KCP_VERSION="0.0.2"
+    export PM_INIT_AGENT_VERSION="0.0.1"
+    export PM_CNPG_OPERATOR_VERSION="0.0.1"
+    export PM_PROMETHEUS_OPERATOR_CRDS_VERSION="0.0.1"
+    export PM_KUBE_PROMETHEUS_STACK_VERSION="0.0.1"
+    export PM_OPENTELEMETRY_OPERATOR_VERSION="0.0.1"
+
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
 }
 
@@ -282,7 +296,17 @@ build_final_component() {
         OBSERVABILITY_VERSION="$OBSERVABILITY_VERSION" \
         PROMETHEUS_OPERATOR_CRDS_VERSION="$PROMETHEUS_OPERATOR_CRDS_VERSION" \
         KUBE_PROMETHEUS_STACK_VERSION="$KUBE_PROMETHEUS_STACK_VERSION" \
-        OPENTELEMETRY_OPERATOR_VERSION="$OPENTELEMETRY_OPERATOR_VERSION"
+        OPENTELEMETRY_OPERATOR_VERSION="$OPENTELEMETRY_OPERATOR_VERSION" \
+        PM_GATEWAY_API_VERSION="$PM_GATEWAY_API_VERSION" \
+        PM_TRAEFIK_VERSION="$PM_TRAEFIK_VERSION" \
+        PM_CERT_MANAGER_VERSION="$PM_CERT_MANAGER_VERSION" \
+        PM_KCP_OPERATOR_VERSION="$PM_KCP_OPERATOR_VERSION" \
+        PM_KCP_VERSION="$PM_KCP_VERSION" \
+        PM_INIT_AGENT_VERSION="$PM_INIT_AGENT_VERSION" \
+        PM_CNPG_OPERATOR_VERSION="$PM_CNPG_OPERATOR_VERSION" \
+        PM_PROMETHEUS_OPERATOR_CRDS_VERSION="$PM_PROMETHEUS_OPERATOR_CRDS_VERSION" \
+        PM_KUBE_PROMETHEUS_STACK_VERSION="$PM_KUBE_PROMETHEUS_STACK_VERSION" \
+        PM_OPENTELEMETRY_OPERATOR_VERSION="$PM_OPENTELEMETRY_OPERATOR_VERSION"
 
     echo ""
     echo -e "${COL}[$(date '+%H:%M:%S')] Built prerelease component version $COMPONENT_PRERELEASE_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)${COL_RES}"
