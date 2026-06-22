@@ -245,7 +245,7 @@ tasks:
     dir: local-setup/e2e
     cmds:
       - npm ci
-      - npx playwright install
+      - npx playwright install chromium ffmpeg
 
   test:portal-e2e:httpbins:
     vars:
