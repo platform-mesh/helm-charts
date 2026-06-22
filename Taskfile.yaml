@@ -220,7 +220,9 @@ tasks:
       - cp .ocm/component-constructor-aggregate.yaml .ocm/component-constructor-prerelease.yaml
       - sed 's/name:\ github.com\/platform-mesh\/platform-mesh/name:\ github.com\/platform-mesh\/prerelease/' .ocm/component-constructor-prerelease.yaml > .ocm/component-constructor-prerelease.yaml.tmp && mv .ocm/component-constructor-prerelease.yaml.tmp .ocm/component-constructor-prerelease.yaml
 
-  test:portal-e2e:
+  # Internal task to run portal tests for a specific org/account
+  test:portal-e2e:run:
+    internal: true
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
@@ -295,22 +297,25 @@ tasks:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:headed:
+    desc: Run portal e2e tests with browser visible
     vars:
-      ORG_NAME: '{{.ORG_NAME | default "default"}}'
+      ORG_NAME: '{{.ORG_NAME | default ""}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
     cmds:
       - task: test:portal-e2e
         vars: { ORG_NAME: '{{.ORG_NAME}}', TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME}}', HEADED: 'true' }
 
   test:portal-e2e:video:
+    desc: Run portal e2e tests with video recording (sharded, sequential)
     vars:
-      ORG_NAME: '{{.ORG_NAME | default "default"}}'
-      TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
-      PLAYWRIGHT_WORKERS: '{{.PLAYWRIGHT_WORKERS | default ""}}'
+      TEST_RUN_ID: '{{.TEST_RUN_ID | default (now | unixEpoch | printf "%.8s")}}'
     deps: [test:portal-e2e:setup]
     dir: local-setup/e2e
     cmds:
-      - VIDEO=true ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-marketplace-ui.test.ts portal-httpbins.test.ts portal-account-kubeconfig.test.ts portal-authorization.test.ts portal-account-deletion.test.ts {{if .PLAYWRIGHT_WORKERS}}--workers={{.PLAYWRIGHT_WORKERS}}{{else}}--workers=1{{end}}
+      - VIDEO=true TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD=root npx playwright test test-register-and-navigate.test.ts
+      - VIDEO=true TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD=triton npx playwright test test-register-and-navigate.test.ts
+      - VIDEO=true ORG_NAME=org-root-{{.TEST_RUN_ID}} TEST_ACCOUNT_NAME=acc-root-{{.TEST_RUN_ID}} npx playwright test portal-*.test.ts --workers=1
+      - VIDEO=true ORG_NAME=org-triton-{{.TEST_RUN_ID}} TEST_ACCOUNT_NAME=acc-triton-{{.TEST_RUN_ID}} npx playwright test portal-*.test.ts --workers=1
 
   test:portal-e2e:deletion:
     vars:
@@ -323,18 +328,18 @@ tasks:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
 
 
-  test:portal-e2e:sharded:
+  test:portal-e2e:
     desc: Run portal e2e tests with workspaces on different shards (2 orgs in parallel, 2 accounts each)
     vars:
       TEST_RUN_ID: '{{.TEST_RUN_ID | default (now | unixEpoch | printf "%.8s")}}'
       HEADED: '{{.HEADED | default ""}}'
     deps:
-      - task: test:portal-e2e:sharded:root
+      - task: test:portal-e2e:shard:root
         vars: { TEST_RUN_ID: '{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
-      - task: test:portal-e2e:sharded:triton
+      - task: test:portal-e2e:shard:triton
         vars: { TEST_RUN_ID: '{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
 
-  test:portal-e2e:sharded:root:
+  test:portal-e2e:shard:root:
     desc: Run portal e2e tests with org on root shard
     vars:
       TEST_RUN_ID: '{{.TEST_RUN_ID | default (now | unixEpoch | printf "%.8s")}}'
@@ -342,21 +347,21 @@ tasks:
     cmds:
       - task: test:portal-e2e:sharding-setup
         vars: { TEST_RUN_ID: '{{.TEST_RUN_ID}}', SHARDING_ORG_SHARD: 'root', HEADED: '{{.HEADED}}' }
-      - task: test:portal-e2e:sharded:root:accounts
+      - task: test:portal-e2e:shard:root:accounts
         vars: { TEST_RUN_ID: '{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
 
-  test:portal-e2e:sharded:root:accounts:
+  test:portal-e2e:shard:root:accounts:
     internal: true
     vars:
       TEST_RUN_ID: '{{.TEST_RUN_ID}}'
       HEADED: '{{.HEADED | default ""}}'
     deps:
-      - task: test:portal-e2e
+      - task: test:portal-e2e:run
         vars: { ORG_NAME: 'org-root-{{.TEST_RUN_ID}}', TEST_ACCOUNT_NAME: 'acc-triton-{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
-      - task: test:portal-e2e
+      - task: test:portal-e2e:run
         vars: { ORG_NAME: 'org-root-{{.TEST_RUN_ID}}', TEST_ACCOUNT_NAME: 'acc-root-{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
 
-  test:portal-e2e:sharded:triton:
+  test:portal-e2e:shard:triton:
     desc: Run portal e2e tests with org on triton shard
     vars:
       TEST_RUN_ID: '{{.TEST_RUN_ID | default (now | unixEpoch | printf "%.8s")}}'
@@ -364,18 +369,18 @@ tasks:
     cmds:
       - task: test:portal-e2e:sharding-setup
         vars: { TEST_RUN_ID: '{{.TEST_RUN_ID}}', SHARDING_ORG_SHARD: 'triton', HEADED: '{{.HEADED}}' }
-      - task: test:portal-e2e:sharded:triton:accounts
+      - task: test:portal-e2e:shard:triton:accounts
         vars: { TEST_RUN_ID: '{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
 
-  test:portal-e2e:sharded:triton:accounts:
+  test:portal-e2e:shard:triton:accounts:
     internal: true
     vars:
       TEST_RUN_ID: '{{.TEST_RUN_ID}}'
       HEADED: '{{.HEADED | default ""}}'
     deps:
-      - task: test:portal-e2e
+      - task: test:portal-e2e:run
         vars: { ORG_NAME: 'org-triton-{{.TEST_RUN_ID}}', TEST_ACCOUNT_NAME: 'acc-triton-{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
-      - task: test:portal-e2e
+      - task: test:portal-e2e:run
         vars: { ORG_NAME: 'org-triton-{{.TEST_RUN_ID}}', TEST_ACCOUNT_NAME: 'acc-root-{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
 
   test:portal-e2e:sharding-setup:
@@ -394,6 +399,7 @@ tasks:
       - ./local-setup/scripts/check-backend-resources.sh
 
   test:local-setup:
+    desc: Run backend resource checks and portal e2e tests
     cmds:
       - task: test:backend-resources
       - task: test:portal-e2e
