@@ -17,6 +17,7 @@ local-setup/scripts/certs
 *.log
 *.pid
 .ocm/transport.ctf/
+.ocm/cache/
 ocm/.ocm/transport.ctf/
 .ocm/component-constructor-prerelease.yaml
 ./*.tgz

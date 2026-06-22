@@ -132,6 +132,37 @@ get_external_component_version() {
     "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get componentversions --latest "$component" --repo "$repo" -o json | jq -r '.items[0].component.version'
 }
 
+# Transfer etcd-druid into the cluster OCI registry, via a host-side CTF cache
+# directory. On CI cache hit the upstream pull is skipped — we just push the
+# cached CTF into the cluster registry. On miss the upstream transfer
+# populates the cache directory for future runs (actions/cache saves it
+# post-job if its key didn't match on restore).
+transfer_etcd_druid_with_cache() {
+    local cache_dir="$OCM_DIR/cache/etcd-druid"
+    local ref="europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION"
+    local cluster_oci="$LOCAL_REGISTRY/platform-mesh"
+
+    if [ -d "$cache_dir" ] && [ -n "$(ls -A "$cache_dir" 2>/dev/null)" ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: using cached CTF at $cache_dir${COL_RES}"
+    else
+        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: cache miss, transferring from gardener registry${COL_RES}"
+        rm -rf "$cache_dir"
+        mkdir -p "$(dirname "$cache_dir")"
+        "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer componentversion \
+            --overwrite --copy-resources --no-update "$ref" "$cache_dir"
+    fi
+
+    # Push from the host cache directory into the in-cluster OCI registry via
+    # the transfer pod (the pod is the only thing that can reach the cluster
+    # registry's TLS service over its self-signed cert chain).
+    local pod_path=".ocm/cache-etcd-druid"
+    kubectl exec -i ocm-transfer-pod -- rm -rf "$pod_path"
+    kubectl exec -i ocm-transfer-pod -- mkdir -p "$pod_path"
+    kubectl cp "$cache_dir" -n default "ocm-transfer-pod:$pod_path/"
+    kubectl exec -i ocm-transfer-pod -- ocm transfer ctf --overwrite \
+        "$pod_path/$(basename "$cache_dir")" "$cluster_oci"
+}
+
 # Resolve all component versions
 resolve_component_versions() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Resolving component versions...${COL_RES}"
@@ -185,11 +216,11 @@ resolve_component_versions() {
     export MARKETPLACE_UI_CHART_VERSION=$(get_ocm_resource_version "github.com/platform-mesh/helm-charts/marketplace-ui" '.items[0].element | .version')
     export MARKETPLACE_UI_IMAGE_VERSION=$(get_ocm_resource_version "github.com/platform-mesh/images/marketplace-ui" '.items[0].element | .version')
 
-    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite --copy-resources --no-update europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh &
     # TODO: the api-syncagent OCM CV must be updated
     kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:0.4.4 oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
     kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/platform-mesh/helm-charts/marketplace-ui:$MARKETPLACE_UI_CHART_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
     kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/platform-mesh/images/marketplace-ui:$MARKETPLACE_UI_IMAGE_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
+    transfer_etcd_druid_with_cache &
     wait
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
