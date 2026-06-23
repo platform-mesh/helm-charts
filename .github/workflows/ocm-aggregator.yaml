@@ -46,6 +46,14 @@ on:
     paths:
       - ".github/workflows/ocm-aggregator.yaml"
       - ".ocm/component-constructor-aggregate.yaml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/ocm-aggregator.yaml"
+      - ".ocm/component-constructor-aggregate.yaml"
+      - "charts/*/Chart.yaml"
+  merge_group:
 permissions:
   contents: read
 
@@ -184,6 +192,13 @@ jobs:
           echo KEYCLOAK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/keycloak --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
           echo GARDENER_ETCD_DRUID_VERSION=$(./ocm get componentversions --latest github.com/gardener/etcd-druid --repo europe-docker.pkg.dev/gardener-project/releases -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
 
+          # On PRs / merge queue, we only build the aggregate to dry-run reference
+          # resolution; the version is never published so any placeholder works.
+          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ github.event_name }}" = "merge_group" ]; then
+            echo NEXT_VERSION="0.0.0-dryrun" >> $GITHUB_ENV
+            exit 0
+          fi
+
           # Get current platform-mesh version
           PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
@@ -286,6 +301,15 @@ jobs:
         id: version_check
         run: |
           set -e
+
+          # On PRs / merge queue, skip the dependency diff and always build the
+          # aggregate to dry-run reference resolution.
+          if [ "${{ github.event_name }}" = "pull_request" ] || [ "${{ github.event_name }}" = "merge_group" ]; then
+            echo "Dry-run: building aggregate to validate references"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "VERSION=${{ env.NEXT_VERSION }}" >> $GITHUB_ENV
+            exit 0
+          fi
 
           # Get the latest platform-mesh component descriptor to compare dependencies
           ./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o yaml > current_pm_component.yaml || echo "No existing platform-mesh component found"
@@ -571,14 +595,28 @@ jobs:
             PM_KUBE_PROMETHEUS_STACK_VERSION=${{ env.PM_KUBE_PROMETHEUS_STACK_VERSION }} \
             PM_OPENTELEMETRY_OPERATOR_VERSION=${{ env.PM_OPENTELEMETRY_OPERATOR_VERSION }}
 
-      - name: Transfer to OCM REPO
+      - name: Resolve references (dry-run)
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ./ocm hash components --lookup ghcr.io/platform-mesh .ocm/transport.ctf
+          # Sign into the local CTF with a throwaway key. This walks every
+          # transitive component reference against the lookup repo and fails
+          # hard if any reference can't be resolved — the same error the
+          # production sign step would hit after publish.
+          openssl genpkey -algorithm Ed25519 -out /tmp/ocm-dryrun.priv
+          ./ocm sign componentversions \
+            --signature dryrun \
+            --private-key /tmp/ocm-dryrun.priv \
+            --lookup ghcr.io/platform-mesh \
+            ".ocm/transport.ctf//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
+          rm -f /tmp/ocm-dryrun.priv
+
+      - name: Transfer to OCM REPO
+        if: steps.version_check.outputs.needs_update == 'true' && github.event_name != 'pull_request' && github.event_name != 'merge_group'
+        run: |
           ./ocm transfer ctf --lookup ghcr.io/platform-mesh .ocm/transport.ctf "ghcr.io/platform-mesh"
 
       - name: Sign OCM Component
-        if: steps.version_check.outputs.needs_update == 'true'
+        if: steps.version_check.outputs.needs_update == 'true' && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
