@@ -105,6 +105,19 @@ tests:
             memory: 256Mi
   asserts:
   - matchSnapshot: {}
+- it: root-shard TLSRoute uses kcp.external.hostname
+  templates:
+    - kcp/root-shard.yaml
+  set:
+    kcp:
+      external:
+        hostname: example.com
+        port: 8443
+  asserts:
+  - documentIndex: 2
+    equal:
+      path: spec.hostnames[0]
+      value: root.kcp.example.com
 - it: configure etcd backup store
   templates:
     - kcp/root-shard.yaml
