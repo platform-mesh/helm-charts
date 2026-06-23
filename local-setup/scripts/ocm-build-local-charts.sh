@@ -27,6 +27,7 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "infra:charts/infra"
     "keycloak-operator:charts/keycloak-operator"
     "kubernetes-graphql-gateway:charts/kubernetes-graphql-gateway"
+    "marketplace-ui:charts/marketplace-ui"
     "observability:charts/observability"
     "platform-mesh-operator:charts/platform-mesh-operator"
     "portal:charts/portal"
