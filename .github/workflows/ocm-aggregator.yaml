@@ -158,6 +158,15 @@ jobs:
                     baseUrl: europe-docker.pkg.dev
                     subPath: gardener-project/releases
                   componentNamePattern: "github.com/gardener/*"
+                # The OCM signer defaults to "the same repo i am in" and the OCM CV is published to ghcr.io/platform-mesh.
+                # However some components (like security- and accounts-operator) are published from the
+                # github.com/platform-mesh/platform-mesh repo to ghcr.io/platform-mesh/platform-mesh/...
+                # To handle this the OCM requires this resolver.
+                - repository:
+                    type: OCIRegistry/v1
+                    baseUrl: ghcr.io
+                    subPath: platform-mesh/platform-mesh
+                  componentNamePattern: "github.com/platform-mesh/images/*"
           EOF
       - name: Get versions
         run: |

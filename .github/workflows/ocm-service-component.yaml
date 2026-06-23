@@ -73,6 +73,17 @@ jobs:
                       properties:
                         username: github
                         password: ${{ secrets.GITHUB_TOKEN }}
+            # The OCM signer defaults to "the same repo i am in" and the OCM CV is published to ghcr.io/platform-mesh.
+            # However some components (like security- and accounts-operator) are published from the
+            # github.com/platform-mesh/platform-mesh repo to ghcr.io/platform-mesh/platform-mesh/...
+            # To handle this the OCM requires this resolver.
+            - type: ocm.config.ocm.software
+              resolvers:
+                - repository:
+                    type: OCIRegistry/v1
+                    baseUrl: ghcr.io
+                    subPath: platform-mesh/platform-mesh
+                  componentNamePattern: "github.com/platform-mesh/images/*"
           EOF
 
       - name: Determine image component name
