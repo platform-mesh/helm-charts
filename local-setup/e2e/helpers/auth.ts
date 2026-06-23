@@ -305,9 +305,9 @@ async function ensureWelcomePage(page: Page, user: TestUser): Promise<void> {
   await page.waitForLoadState('load', { timeout: 10000 }).catch(() => {});
 
   const landingState = await Promise.race([
-    page.getByText('Welcome to the Platform Mesh Portal!').waitFor({ state: 'visible', timeout: 10000 }).then(() => 'welcome'),
-    page.locator('[test-id="organization-management-input"]').waitFor({ state: 'visible', timeout: 10000 }).then(() => 'org-management'),
-    page.getByText("Welcome! Let's get started.", { exact: true }).waitFor({ state: 'visible', timeout: 10000 }).then(() => 'home'),
+    page.getByText('Welcome to the Platform Mesh Portal!').waitFor({ state: 'visible', timeout: 5000 }).then(() => 'welcome'),
+    page.locator('[test-id="organization-management-input"]').waitFor({ state: 'visible', timeout: 5000 }).then(() => 'org-management'),
+    page.getByText("Welcome! Let's get started.", { exact: true }).waitFor({ state: 'visible', timeout: 5000 }).then(() => 'home'),
   ]).catch(() => 'none');
 
   if (landingState === 'none') {
