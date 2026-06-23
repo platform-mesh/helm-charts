@@ -8,6 +8,7 @@ on:
       - '.github/workflows/example-httpbin-operator.yaml'
       - '.ocm/component-constructor-chart-only.yaml'
       - '.ocm/component-constructor-example-httpbin-operator.yaml'
+      - '.ocm/component-constructor-service-example-httpbin-operator.yaml'
 
 permissions:
   contents: read
