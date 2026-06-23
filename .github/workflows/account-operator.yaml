@@ -25,7 +25,6 @@ jobs:
       chartName: account-operator
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
-      imageComponentName: platform-mesh/account-operator
     secrets: inherit
 
 
