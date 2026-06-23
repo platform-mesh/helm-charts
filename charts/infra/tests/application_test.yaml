@@ -118,6 +118,19 @@ tests:
     equal:
       path: spec.hostnames[0]
       value: root.kcp.example.com
+- it: root-shard shardBaseURL derived from kcp.external.hostname
+  templates:
+    - kcp/root-shard.yaml
+  set:
+    kcp:
+      external:
+        hostname: example.com
+        port: 8443
+  asserts:
+  - documentIndex: 1
+    equal:
+      path: spec.shardBaseURL
+      value: https://root.kcp.example.com:8443/
 - it: configure etcd backup store
   templates:
     - kcp/root-shard.yaml
