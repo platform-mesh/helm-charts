@@ -269,6 +269,7 @@ data:
             hostAliases:
               enabled: true
         init-agent:
+          helmRepo: true
           absoluteReferencePath:
           - name: init-agent
           imageResources:
@@ -299,6 +300,7 @@ data:
           syncWave: 1
           external: true
           enabled: true
+          helmRepo: true
           targetNamespace: kcp-operator
         keycloak-operator:
           enabled: true
@@ -354,6 +356,7 @@ data:
           enabled: true
           external: true
           syncWave: 2
+          helmRepo: true
           suspend: true
           imageResources:
           - name: openfga-image
