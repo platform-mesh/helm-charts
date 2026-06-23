@@ -34,6 +34,11 @@ on:
         required: false
         type: boolean
         default: false
+      imageComponentRepo:
+        description: "Image component repository for service component (defaults to ghcr.io/platform-mesh/images)"
+        required: false
+        type: string
+        default: 'ghcr.io/platform-mesh/images'
       imageComponentName:
         description: "Image component name suffix for service component (defaults to chart name)"
         required: false
@@ -161,6 +166,7 @@ jobs:
       componentName: ${{ inputs.chartOnly && format('github.com/platform-mesh/helm-charts/{0}', inputs.chartName) || format('github.com/platform-mesh/{0}', inputs.chartName) }}
       componentConstructorFile: ${{ inputs.componentConstructorFile }}
       chartOnly: ${{ inputs.chartOnly }}
+      imageComponentRepo: ${{ inputs.imageComponentRepo }}
       imageComponentName: ${{ inputs.imageComponentName }}
       serviceComponentConstructorFile: ${{ inputs.serviceComponentConstructorFile }}
 

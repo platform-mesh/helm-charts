@@ -25,6 +25,7 @@ jobs:
       chartName: account-operator
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
+      imageComponentName: ghcr.io/platform-mesh/platform-mesh/images
     secrets: inherit
 
 

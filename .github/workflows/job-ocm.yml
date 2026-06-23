@@ -20,6 +20,11 @@ on:
         required: false
         type: boolean
         default: false
+      imageComponentRepo:
+        description: "Image component repository for service component (defaults to ghcr.io/platform-mesh/images)"
+        required: false
+        type: string
+        default: 'ghcr.io/platform-mesh/images'
       imageComponentName:
         description: "Image component name suffix for service component (defaults to chart name)"
         required: false
@@ -187,6 +192,7 @@ jobs:
             -f chartName="${{ env.CHART_NAME }}" \
             -f chartVersion="${{ env.VERSION }}" \
             -f appVersion="${{ env.APP_VERSION }}" \
+            -f imageComponentRepo="${{ inputs.imageComponentRepo }}" \
             -f imageComponentName="$IMAGE_COMPONENT_NAME" \
             ${SERVICE_COMPONENT_CONSTRUCTOR_FILE:+-f componentConstructorFile="$SERVICE_COMPONENT_CONSTRUCTOR_FILE"}
         env:

@@ -18,6 +18,11 @@ on:
         description: "App/image version (semver)"
         required: true
         type: string
+      imageComponentRepo:
+        description: "Image component repository for service component (defaults to ghcr.io/platform-mesh/images)"
+        required: false
+        type: string
+        default: 'ghcr.io/platform-mesh/images'
       imageComponentName:
         description: "Image component name suffix (defaults to repo name, e.g., security-operator)"
         required: false
@@ -102,6 +107,7 @@ jobs:
             COMPONENT_NAME=${{ inputs.componentName }} \
             VERSION=${{ inputs.chartVersion }} \
             CHART_NAME=${{ inputs.chartName }} \
+            IMAGE_COMPONENT_REPO=${{ inputs.imageComponentRepo }} \
             IMAGE_COMPONENT_NAME=${{ env.IMAGE_COMPONENT_NAME }} \
             APP_VERSION=${{ inputs.appVersion }}
 

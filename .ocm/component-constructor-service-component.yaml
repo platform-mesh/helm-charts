@@ -9,6 +9,6 @@ components:
         version: "{{ .VERSION }}"
       {{- if ne .APP_VERSION "0.0.0" }}
       - name: image
-        componentName: "github.com/platform-mesh/images/{{ .IMAGE_COMPONENT_NAME }}"
+        componentName: "{{ .IMAGE_COMPONENT_REPO }}/{{ .IMAGE_COMPONENT_NAME }}"
         version: "{{ .APP_VERSION }}"
       {{- end }}
