@@ -263,6 +263,27 @@ Create organizations and accounts via the browser (e.g., `default` org and its s
 >   still-valid provider's kubeconfig and rewrite the path) and reconcile. Durable fix:
 >   cert-manager-managed provider certs so this never recurs on restore.
 
+> **🔧 Field note — NEVER delete-and-recreate an APIBinding to "refresh" or re-point it**
+> The most destructive trap we hit. Deleting a KCP **APIBinding cascade-deletes every CR of the
+> types it bound** — no confirmation, no undo. Deleting `root:orgs`'s `core.platform-mesh.io`
+> binding (to re-point it during an idp `core`→`system` migration) took out **all org Account
+> CRs → their workspaces → every sub-account** in one stroke. To change a binding's export
+> reference, **patch it in place** or add a *second* binding — never delete-then-create on a
+> populated workspace; if a replace is unavoidable, snapshot every CR of the bound types first.
+> During a stuck de-init, clear only **leaf** finalizers (`account.core.platform-mesh.io/fga`,
+> `core.platform-mesh.io/idp-finalizer`) — never `apis.kcp.io/apibinding-finalizer`, the guard
+> that holds the tree together.
+
+> **🔧 Field note — idp now exports from `system`; each org workspace must bind it to serve the page**
+> 0.3 exports `identityproviderconfigurations` from the **`system.platform-mesh.io`** APIExport
+> (the schema *group* stays `core.platform-mesh.io` — only the exporter moved). The per-org
+> portal page queries the idp CR **inside the org workspace**, but after the rebuild org
+> workspaces bind only `core`/`tenancy`/`topology` and the idp CR sits in the parent `root:orgs`
+> — so the org page loads blank. Per org: add an APIBinding to `system.platform-mesh.io` (export
+> `root:platform-mesh-system`) **and** copy the idp CR spec from `root:orgs` into the org
+> workspace; the controller reuses the surviving realm (logs `Realm updated`). Verify
+> `Ready=True` with `managedClients` populated in the org workspace.
+
 ### 5.3 Migrate OpenFGA tuples
 
 Stop operators that reconcile tuples:
@@ -363,6 +384,30 @@ kubectl -n platform-mesh-system rollout status deployment/kubernetes-graphql-gat
 >   no-ops against the deployed URL — the data is actually present). Both are routing/rewrite
 >   mismatches, not missing data. Align the gateway route prefix and rewrite target with the
 >   portal image's expected shape.
+
+> **🔧 Field note — scaling `kcp-operator` to 0 silently kills every kubeconfig-dependent component**
+> The §3.2 front-proxy port mismatch is often worked around by scaling **`kcp-operator` to 0**
+> and hand-exposing both ports. The hidden cost: kcp-operator **mints the per-component
+> kubeconfig secrets**, so while it's down nothing (re)creates them and every consumer that
+> mounts one fails **silently** — `security-operator-terminator` (de-init finalizers never
+> clear), `kubernetes-graphql-gateway-listener` (`Init:0/2 FailedMount` → no schema feed → empty
+> org dropdown), and the gateway's clusteraccess controller (the contentconfigurations virtual
+> workspace never registers → org content 404). Hand-mint the missing secrets: the listener
+> kubeconfig must point at `…/clusters/root:platform-mesh-system` (it must serve `apis.kcp.io`,
+> **not** the core apiexport virtual workspace); the clusteraccess one mirrors `portal-kubeconfig`
+> (`…/services/contentconfigurations`). Restart the consumer after.
+
+> **🔧 Field note — the blank content page can be a portal↔gateway *version* skew, not just a rewrite**
+> Sharpening the "content page renders blank" point above: on the real cluster it was a hard contract
+> mismatch between two stock images. The portal content-service
+> (`@platform-mesh/portal-server-lib@0.6.15`, confirmed from npm) hardcodes a gateway route
+> `…/clusters/virtual-workspace/contentconfigurations/<ws>/graphql`, but the deployed
+> `kubernetes-graphql-gateway@v1.10.1` routes by ClusterAccess identity (→ `single-marketplace`)
+> and the literal `virtual-workspace` appears in **no** gateway release (`v1.10`–`v1.16`,
+> source-verified). The portal asks for a path no gateway version serves; the bridge must come
+> from the chart/integration (the `virtual-workspaces` chart's ClusterAccess name + the listener
+> `--clusteraccess-controller-providers` value) or a gateway/Istio rewrite. Pin a **compatible
+> portal / gateway / virtual-workspaces-chart set** — bumping one alone won't fix it.
 
 ---
 
