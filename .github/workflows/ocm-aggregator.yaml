@@ -65,7 +65,6 @@ jobs:
       KCP_VERSION: "v0.32.0"
       INIT_AGENT_CHART_VERSION: "0.2.0"
       INIT_AGENT_IMAGE_VERSION: "v0.2.0"
-      PM_OPENFGA_VERSION: "0.2.62"
       PM_KEYCLOAK_VERSION: "26.6.0"
       OPENFGA_VERSION: "0.2.62"
       OPENFGA_IMAGE_VERSION: "v1.14.0"
@@ -81,6 +80,20 @@ jobs:
       CNPG_OPERATOR_IMAGE_VERSION: "1.29.0"
       PROMETHEUS_OPERATOR_CRDS_VERSION: "29.0.0"
       KUBE_PROMETHEUS_STACK_VERSION: "27.0.0"
+      # PM-stamped component descriptor versions for third-party components.
+      # Bump these to publish a new descriptor without touching resource versions. If resource
+      # versions change, make sure to bump those as well.
+      PM_GATEWAY_API_VERSION: "0.0.1"
+      PM_TRAEFIK_VERSION: "0.0.1"
+      PM_CERT_MANAGER_VERSION: "0.0.1"
+      PM_OPENFGA_VERSION: "0.0.1"
+      PM_KCP_OPERATOR_VERSION: "0.0.1"
+      PM_KCP_VERSION: "0.0.2"
+      PM_INIT_AGENT_VERSION: "0.0.1"
+      PM_CNPG_OPERATOR_VERSION: "0.0.1"
+      PM_PROMETHEUS_OPERATOR_CRDS_VERSION: "0.0.1"
+      PM_KUBE_PROMETHEUS_STACK_VERSION: "0.0.1"
+      PM_OPENTELEMETRY_OPERATOR_VERSION: "0.0.1"
       OPENTELEMETRY_OPERATOR_VERSION: "0.114.1"
     steps:
       - name: Setup yq@latest
@@ -417,19 +430,21 @@ jobs:
             NEEDS_UPDATE=true
           fi
 
-          # Check third-party dependency versions
-          if [ "$CURRENT_KCP_OPERATOR" != "${{ env.KCP_OPERATOR_CHART_VERSION }}" ]; then
-            echo "KCP Operator: $CURRENT_KCP_OPERATOR -> ${{ env.KCP_OPERATOR_CHART_VERSION }}"
+          # Check third-party dependency versions. Third-party component descriptors are
+          # published with PM-stamped versions (PM_* env vars above), independent of the
+          # upstream resource versions, so compare against the PM-stamped value.
+          if [ "$CURRENT_KCP_OPERATOR" != "${{ env.PM_KCP_OPERATOR_VERSION }}" ]; then
+            echo "KCP Operator: $CURRENT_KCP_OPERATOR -> ${{ env.PM_KCP_OPERATOR_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_KCP" != "${{ env.KCP_VERSION }}" ]; then
-            echo "KCP: $CURRENT_KCP -> ${{ env.KCP_VERSION }}"
+          if [ "$CURRENT_KCP" != "${{ env.PM_KCP_VERSION }}" ]; then
+            echo "KCP: $CURRENT_KCP -> ${{ env.PM_KCP_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_INIT_AGENT" != "${{ env.INIT_AGENT_CHART_VERSION }}" ]; then
-            echo "Init Agent: $CURRENT_INIT_AGENT -> ${{ env.INIT_AGENT_CHART_VERSION }}"
+          if [ "$CURRENT_INIT_AGENT" != "${{ env.PM_INIT_AGENT_VERSION }}" ]; then
+            echo "Init Agent: $CURRENT_INIT_AGENT -> ${{ env.PM_INIT_AGENT_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
@@ -443,38 +458,38 @@ jobs:
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_GATEWAY_API" != "${{ env.GATEWAY_API_VERSION }}" ]; then
-            echo "Gateway API: $CURRENT_GATEWAY_API -> ${{ env.GATEWAY_API_VERSION }}"
+          if [ "$CURRENT_GATEWAY_API" != "${{ env.PM_GATEWAY_API_VERSION }}" ]; then
+            echo "Gateway API: $CURRENT_GATEWAY_API -> ${{ env.PM_GATEWAY_API_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_TRAEFIK" != "${{ env.TRAEFIK_VERSION }}" ]; then
-            echo "Traefik: $CURRENT_TRAEFIK -> ${{ env.TRAEFIK_VERSION }}"
+          if [ "$CURRENT_TRAEFIK" != "${{ env.PM_TRAEFIK_VERSION }}" ]; then
+            echo "Traefik: $CURRENT_TRAEFIK -> ${{ env.PM_TRAEFIK_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_CERT_MANAGER" != "${{ env.CERT_MANAGER_VERSION }}" ]; then
-            echo "Cert Manager: $CURRENT_CERT_MANAGER -> ${{ env.CERT_MANAGER_VERSION }}"
+          if [ "$CURRENT_CERT_MANAGER" != "${{ env.PM_CERT_MANAGER_VERSION }}" ]; then
+            echo "Cert Manager: $CURRENT_CERT_MANAGER -> ${{ env.PM_CERT_MANAGER_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_CNPG_OPERATOR" != "${{ env.CNPG_OPERATOR_CHART_VERSION }}" ]; then
-            echo "CNPG Operator: $CURRENT_CNPG_OPERATOR -> ${{ env.CNPG_OPERATOR_CHART_VERSION }}"
+          if [ "$CURRENT_CNPG_OPERATOR" != "${{ env.PM_CNPG_OPERATOR_VERSION }}" ]; then
+            echo "CNPG Operator: $CURRENT_CNPG_OPERATOR -> ${{ env.PM_CNPG_OPERATOR_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_PROMETHEUS_OPERATOR_CRDS" != "${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }}" ]; then
-            echo "Prometheus Operator CRDs: $CURRENT_PROMETHEUS_OPERATOR_CRDS -> ${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }}"
+          if [ "$CURRENT_PROMETHEUS_OPERATOR_CRDS" != "${{ env.PM_PROMETHEUS_OPERATOR_CRDS_VERSION }}" ]; then
+            echo "Prometheus Operator CRDs: $CURRENT_PROMETHEUS_OPERATOR_CRDS -> ${{ env.PM_PROMETHEUS_OPERATOR_CRDS_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_KUBE_PROMETHEUS_STACK" != "${{ env.KUBE_PROMETHEUS_STACK_VERSION }}" ]; then
-            echo "Kube Prometheus Stack: $CURRENT_KUBE_PROMETHEUS_STACK -> ${{ env.KUBE_PROMETHEUS_STACK_VERSION }}"
+          if [ "$CURRENT_KUBE_PROMETHEUS_STACK" != "${{ env.PM_KUBE_PROMETHEUS_STACK_VERSION }}" ]; then
+            echo "Kube Prometheus Stack: $CURRENT_KUBE_PROMETHEUS_STACK -> ${{ env.PM_KUBE_PROMETHEUS_STACK_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
-          if [ "$CURRENT_OPENTELEMETRY_OPERATOR" != "${{ env.OPENTELEMETRY_OPERATOR_VERSION }}" ]; then
-            echo "OpenTelemetry Operator: $CURRENT_OPENTELEMETRY_OPERATOR -> ${{ env.OPENTELEMETRY_OPERATOR_VERSION }}"
+          if [ "$CURRENT_OPENTELEMETRY_OPERATOR" != "${{ env.PM_OPENTELEMETRY_OPERATOR_VERSION }}" ]; then
+            echo "OpenTelemetry Operator: $CURRENT_OPENTELEMETRY_OPERATOR -> ${{ env.PM_OPENTELEMETRY_OPERATOR_VERSION }}"
             NEEDS_UPDATE=true
           fi
 
@@ -544,7 +559,17 @@ jobs:
             CNPG_OPERATOR_IMAGE_VERSION=${{ env.CNPG_OPERATOR_IMAGE_VERSION }} \
             PROMETHEUS_OPERATOR_CRDS_VERSION=${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }} \
             KUBE_PROMETHEUS_STACK_VERSION=${{ env.KUBE_PROMETHEUS_STACK_VERSION }} \
-            OPENTELEMETRY_OPERATOR_VERSION=${{ env.OPENTELEMETRY_OPERATOR_VERSION }}
+            OPENTELEMETRY_OPERATOR_VERSION=${{ env.OPENTELEMETRY_OPERATOR_VERSION }} \
+            PM_GATEWAY_API_VERSION=${{ env.PM_GATEWAY_API_VERSION }} \
+            PM_TRAEFIK_VERSION=${{ env.PM_TRAEFIK_VERSION }} \
+            PM_CERT_MANAGER_VERSION=${{ env.PM_CERT_MANAGER_VERSION }} \
+            PM_KCP_OPERATOR_VERSION=${{ env.PM_KCP_OPERATOR_VERSION }} \
+            PM_KCP_VERSION=${{ env.PM_KCP_VERSION }} \
+            PM_INIT_AGENT_VERSION=${{ env.PM_INIT_AGENT_VERSION }} \
+            PM_CNPG_OPERATOR_VERSION=${{ env.PM_CNPG_OPERATOR_VERSION }} \
+            PM_PROMETHEUS_OPERATOR_CRDS_VERSION=${{ env.PM_PROMETHEUS_OPERATOR_CRDS_VERSION }} \
+            PM_KUBE_PROMETHEUS_STACK_VERSION=${{ env.PM_KUBE_PROMETHEUS_STACK_VERSION }} \
+            PM_OPENTELEMETRY_OPERATOR_VERSION=${{ env.PM_OPENTELEMETRY_OPERATOR_VERSION }}
 
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
