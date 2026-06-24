@@ -22,7 +22,7 @@ A Helm chart for extension-manager-operator which manages resources like Content
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
-| image.repository | string | `"platform-mesh/extension-manager-operator"` | The image repository path (without registry) |
+| image.repository | string | `"platform-mesh/platform-mesh/extension-manager-operator"` | The image repository path (without registry) |
 | istio.enabled | bool | `false` | enable Istio VirtualService |
 | kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` |  |
 | kcp.kubeconfig.secret | string | `"extension-manager-operator-kubeconfig"` |  |
