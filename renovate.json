@@ -17,6 +17,17 @@
       "versioningTemplate": "semver",
       "depNameTemplate": "ghcr.io/open-component-model/kubernetes/controller/chart",
       "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Pinned third-party OCM component versions in the aggregator workflow",
+      "managerFilePatterns": [
+        "/(^|/)\\.github/workflows/ocm-aggregator\\.yaml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?\\s*\\n\\s*\\S+:\\s*\"?(?<currentValue>[^\"\\s]+)\"?"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{versioning}}{{else}}semver{{/if}}"
     }
   ],
   "packageRules": [
