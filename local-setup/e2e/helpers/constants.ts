@@ -46,12 +46,8 @@ type TestUser = {
   keycloakPassword: string;
 };
 
-const primaryUserShard = process.env.SHARDING_ORG_SHARD
-  || process.env.ORG_NAME?.match(/^org-(root|triton)-/)?.[1]
-  || '';
-const primaryUserEmailShard = primaryUserShard ? `-${primaryUserShard}` : '';
 const primaryUser: TestUser = {
-  email: process.env.TEST_USER_EMAIL || `username${primaryUserEmailShard}@sap.com`,
+  email: process.env.TEST_USER_EMAIL || 'username@sap.com',
   password: process.env.TEST_USER_PASSWORD || 'MyPass1234',
   firstName: process.env.TEST_USER_FIRST_NAME || 'Firstname',
   lastName: process.env.TEST_USER_LAST_NAME || 'Lastname',

@@ -72,7 +72,7 @@ jobs:
 
           new_chart_version=$(yq '.version' "$chart_file")
           new_app_version=$(yq '.appVersion' "$chart_file" | tr -d '"')
-          branch="bump/${INPUT_CHART}-${new_chart_version}"
+          branch="bump/${INPUT_CHART}-${new_app_version}--${new_chart_version}"
           git checkout -b "$branch"
           git add "$chart_file"
           git commit -s -m "Set $new_chart_version / $new_app_version in $chart_file"
