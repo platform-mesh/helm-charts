@@ -16,7 +16,7 @@ A Helm chart for Kubernetes
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.registry | string | `"ghcr.io"` | The image registry |
-| image.repository | string | `"platform-mesh/iam-service"` | The image repository path (without registry) |
+| image.repository | string | `"platform-mesh/platform-mesh/iam-service"` | The image repository path (without registry) |
 | jwt.userIdClaim | string | `"email"` |  |
 | kcp.kubeconfig.secretName | string | `"iam-service-kubeconfig"` |  |
 | keycloak.baseUrl | string | `"https://portal.localhost:8443/keycloak"` |  |
