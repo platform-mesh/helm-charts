@@ -281,14 +281,20 @@ dex:
   # -- Dex issuer URL (must match external browser-reachable URL)
   issuer: https://portal.localhost:8443/dex
   image:
+    # -- Dex image repository
     repository: ghcr.io/dexidp/dex
+    # -- Dex image tag
     tag: v2.42.0
   service:
+    # -- Dex service name
     name: dex
+    # -- Dex service port
     port: 5556
   health:
     periodSeconds: 10
     liveness:
+      # Main HTTP server only exposes /healthz (prefixed by issuer path).
+      # /healthz/live is on the optional telemetry port, not port 5556.
       path: /dex/healthz
       failureThreshold: 3
     readiness:
@@ -303,10 +309,14 @@ dex:
       cpu: 50m
       memory: 64Mi
   gatewayApi:
+    # -- hostnames for the Dex HTTPRoute
     hostnames:
       - portal.localhost
+    # -- path prefix for the Dex HTTPRoute
     pathPrefix: /dex
+    # -- list of HTTPRoute filters (default: none)
     filters: []
+    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
     corsFilters: []
   staticClient:
     # -- OIDC client ID for Keycloak identity broker
@@ -319,7 +329,7 @@ dex:
     redirectURIs:
       - https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint
   staticPasswords:
-    # -- Local test user for Dex password connector
+    # -- Local test user for Dex password connector (dex@portal.localhost/dex/dex)
     - email: dex@portal.localhost
       # bcrypt hash of password "dex"
       hash: "$2a$10$mhivFdR/0pGuCR85LuEerOcYhCuiU294J3dHbtSU3UKDHLNQ6gNHm"
