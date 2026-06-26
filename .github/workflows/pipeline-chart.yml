@@ -169,3 +169,6 @@ jobs:
     needs: [ocm]
     uses: ./.github/workflows/ocm-aggregator.yaml
     secrets: inherit
+    permissions:
+      contents: read
+      packages: write
