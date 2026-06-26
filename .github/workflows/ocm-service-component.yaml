@@ -1,5 +1,32 @@
 name: Build Service OCM Component
 on:
+  workflow_call:
+    inputs:
+      componentName:
+        description: "Service component name (e.g., github.com/platform-mesh/security-operator)"
+        required: true
+        type: string
+      chartName:
+        description: "Chart name (e.g., security-operator)"
+        required: true
+        type: string
+      chartVersion:
+        description: "Chart version (semver)"
+        required: true
+        type: string
+      appVersion:
+        description: "App/image version (semver)"
+        required: true
+        type: string
+      imageComponentName:
+        description: "Image component name suffix (defaults to repo name, e.g., security-operator)"
+        required: false
+        type: string
+      componentConstructorFile:
+        description: "Service component constructor file path"
+        required: false
+        type: string
+        default: ".ocm/component-constructor-service-component.yaml"
   workflow_dispatch:
     inputs:
       componentName:

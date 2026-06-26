@@ -1,0 +1,36 @@
+name: Check Helm Chart Docs
+on:
+  workflow_call:
+    inputs:
+      chartFolder:
+        description: 'The folder where the helm chart is located'
+        required: true
+        default: ''
+        type: string
+      headerFile:
+        description: 'The header file to use for the helm-docs'
+        required: false
+        default: '../../docs-templates/header.md.gotmpl'
+        type: string
+      footerFile:
+        description: 'The footer file to use for the helm-docs'
+        required: false
+        default: '../../docs-templates/footer.md.gotmpl'
+        type: string
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Task
+        uses: arduino/setup-task@b91d5d2c96a56797b48ac1e0e89220bf64044611 # v2.0.0
+        with:
+          version: 3.44.1
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Test task
+        run: task docs
+      - run: git diff --exit-code
