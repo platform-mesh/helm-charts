@@ -44,7 +44,7 @@ A Helm chart for Kubernetes
 | dex.staticClient.name | string | `"Keycloak Broker"` | Display name for the static OIDC client |
 | dex.staticClient.redirectURIs | list | `["https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint"]` | Allowed redirect URIs (Keycloak broker callback URLs) |
 | dex.staticClient.secret | string | `"local-dev-broker-secret"` | OIDC client secret for Keycloak identity broker |
-| dex.staticPasswords[0] | object | `{"email":"dex@portal.localhost","hash":"$2a$10$mhivFdR/0pGuCR85LuEerOcYhCuiU294J3dHbtSU3UKDHLNQ6gNHm","userID":"08a868f8-4b4b-42f3-9d23-5f46eda2c3a0","username":"dex"}` | Local test user for Dex password connector |
+| dex.staticPasswords[0] | object | `{"email":"dex@portal.localhost","hash":"$2a$10$mhivFdR/0pGuCR85LuEerOcYhCuiU294J3dHbtSU3UKDHLNQ6gNHm","userID":"08a868f8-4b4b-42f3-9d23-5f46eda2c3a0","username":"dex"}` | Local test user for Dex password connector(`dex@portal.localhost`/`dex`/`dex`) |
 | externalSecrets.enabled | bool | `false` |  |
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
