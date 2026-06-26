@@ -70,7 +70,7 @@ it should render the application manifests:
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/rebac-authz-webhook:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -209,7 +209,7 @@ it should render the application manifests with service account:
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/rebac-authz-webhook:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -348,7 +348,7 @@ it should render the application manifests with service monitor:
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/rebac-authz-webhook:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -487,7 +487,7 @@ it should render the application manifests with useInClusterClient:
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/rebac-authz-webhook:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -626,7 +626,7 @@ it should render the cert-manager manifests with certManager enabled:
               env:
                 - name: KUBECONFIG
                   value: /api-kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/rebac-authz-webhook:0.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/rebac-authz-webhook:0.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1

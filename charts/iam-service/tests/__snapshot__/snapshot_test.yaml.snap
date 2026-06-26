@@ -32,7 +32,7 @@ match the snapshots:
                     secretKeyRef:
                       key: client_secret
                       name: iam-client-secret
-              image: ghcr.io/platform-mesh/iam-service:12345
+              image: ghcr.io/platform-mesh/platform-mesh/iam-service:12345
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
