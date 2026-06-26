@@ -1,0 +1,77 @@
+name: Test Helm Chart
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'branch to checkout'
+        required: false
+        default: ''
+        type: string
+      chartRepos:
+        required: false
+        type: string
+        default: ''
+      chartsFolder:
+        required: false
+        type: string
+        default: 'charts'
+      chartName:
+        required: true
+        type: string
+      additionalTestFilesCommand:
+        required: false
+        type: string
+        default: '-f chart/test-values.yaml'
+
+jobs:
+  unittest:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/platform-mesh/infra/helm-unittest:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ inputs.branch }}
+      - name: Unit Testing Chart
+        run: helm unittest ${{ inputs.chartsFolder }}/${{ inputs.chartName }}
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+      - name: Set up Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+        with:
+          version: v3.14.4
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: '3.x'
+          check-latest: true
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
+        with:
+          version: 'v3.14.0'
+          yamllint_version: '1.37.0'
+          yamale_version: '5.2.1'
+      - name: Log in to ghcr.io
+        run: |
+          echo "${GITHUB_TOKEN}" | helm registry login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --chart-dirs=${{ inputs.chartsFolder }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run chart-testing (lint)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --chart-dirs=${{ inputs.chartsFolder }} --validate-maintainers=false --chart-repos=${{ inputs.chartRepos }}
+  
