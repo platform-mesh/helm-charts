@@ -180,7 +180,7 @@ jobs:
         id: componentName
         run: |
           componentName="${{ inputs.componentName }}"
-          echo "componentName=${componentName#*/}" >> $GITHUB_OUTPUT
+          echo "componentName=${componentName##*/}" >> $GITHUB_OUTPUT
 
   service-component:
     needs: ocm
