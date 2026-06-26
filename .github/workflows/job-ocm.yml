@@ -157,10 +157,6 @@ jobs:
               CHART_OCI_PATH=${{ env.CHART_OCI_PATH }} \
               LOCAL_CHART_PATH=${{ inputs.chartPath }}
           fi
-      - name: Download CA certificate
-        run: gh api repos/platform-mesh/helm-charts/contents/.ocm/signature/ca.cert --jq '.content' | base64 -d > /tmp/ca.cert
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Sign OCM component
         run: |
@@ -170,9 +166,9 @@ jobs:
             --signature "helm-charts.platform-mesh" \
             --private-key /tmp/ocm-signing.priv \
             --public-key /tmp/ocm-signing.cert \
-            --ca-cert /tmp/ca.cert \
+            --ca-cert .ocm/signature/ca.cert \
             .ocm/transport.ctf
-          rm -f /tmp/ocm-signing.priv /tmp/ocm-signing.cert /tmp/ca.cert
+          rm -f /tmp/ocm-signing.priv /tmp/ocm-signing.cert .ocm/signature/ca.cert
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
