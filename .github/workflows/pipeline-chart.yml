@@ -167,5 +167,5 @@ jobs:
   pm-ocm:
     if: ${{ !inputs.chartOnly && !inputs.disableOCM && github.ref == format('refs/heads/{0}', inputs.release_branch) }}
     needs: [ocm]
-    uses: ./.github/workflows/job-ocm-version-update.yml
+    uses: ./.github/workflows/ocm-aggregator.yaml
     secrets: inherit

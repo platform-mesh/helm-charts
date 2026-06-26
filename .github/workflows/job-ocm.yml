@@ -186,13 +186,6 @@ jobs:
           componentName="${{ inputs.componentName }}"
           echo "componentName=${componentName#*/}" >> $GITHUB_OUTPUT
 
-      - name: Trigger PlatformMesh OCM build (monolithic mode)
-        if: ${{ inputs.chartOnly != true }}
-        run: |
-          gh workflow run ocm-aggregator.yaml --repo "platform-mesh/helm-charts"
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-
   service-component:
     needs: ocm
     if: ${{ inputs.chartOnly == true }}
@@ -206,3 +199,8 @@ jobs:
       imageComponentName: ${{ needs.ocm.outputs.imageComponentName }}
       componentConstructorFile: ${{ inputs.serviceComponentConstructorFile || '.ocm/component-constructor-service-component.yaml' }}
 
+  aggregator:
+    needs: ocm
+    if: ${{ inputs.chartOnly != true }}
+    uses: ./.github/workflows/ocm-aggregator.yaml
+    secrets: inherit
