@@ -169,6 +169,7 @@ data:
               operator:
                 hostname: https://portal.localhost:8443/keycloak/
                 enabled: true
+                caSecret: domain-certificate-ca
                 health:
                   port: 9000
                   periodSeconds: 10
@@ -187,6 +188,12 @@ data:
                 port: 8080
               keycloakConfig:
                 url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
+            dex:
+              enabled: true
+              issuer: https://portal.localhost:8443/dex
+              staticClient:
+                redirectURIs:
+                - https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint
             traefik:
               accessControlAllowOriginList:
               - http://localhost:4200
