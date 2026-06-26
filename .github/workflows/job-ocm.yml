@@ -37,6 +37,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      componentName: ${{ steps.componentName.outputs.componentName }}
+      chartName: ${{ steps.vars.outputs.CHART_NAME }}
+      version: ${{ steps.vars.outputs.VERSION }}
+      appVersion: ${{ steps.vars.outputs.APP_VERSION }}
+      imageComponentName: ${{ inputs.imageComponentName || steps.vars.outputs.CHART_NAME }}
     steps:
       - name: Create Github App Token
         uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
@@ -70,6 +76,7 @@ jobs:
           tar --overwrite -xvzf ocm-cli.tgz >/dev/null
           chmod a+x ocm
       - name: Prepare Template Variables
+        id: vars
         run: |
           CHART_NAME=$(yq '.name' ${{ inputs.chartPath }}/Chart.yaml)
           VERSION=$(yq '.version' ${{ inputs.chartPath }}/Chart.yaml)
@@ -82,6 +89,10 @@ jobs:
           echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
           echo "CHART_REPO=$CHART_REPO" >> $GITHUB_ENV
           echo "CHART_OCI_PATH=$CHART_OCI_PATH" >> $GITHUB_ENV
+
+          echo "CHART_NAME=$CHART_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=$APP_VERSION" >> $GITHUB_OUTPUT
 
           # Only fetch image-related info for monolithic components (not chart-only)
           if [ "${{ inputs.chartOnly }}" != "true" ]; then
@@ -169,29 +180,11 @@ jobs:
       - name: Transfer to OCM REPO
         run: ./ocm transfer ctf .ocm/transport.ctf "${{ inputs.ocmRegistryUrl }}"
 
-      - name: Trigger service component pipeline (chart-only mode)
-        if: ${{ inputs.chartOnly == true }}
+      - name: Cut helm-charts/ from componentName
+        id: componentName
         run: |
-          # Determine image component name
-          IMAGE_COMPONENT_NAME="${{ inputs.imageComponentName }}"
-          if [ -z "$IMAGE_COMPONENT_NAME" ]; then
-            IMAGE_COMPONENT_NAME="${{ env.CHART_NAME }}"
-          fi
-
-          # Derive service component name from chart component name by stripping helm-charts/ prefix
-          SERVICE_COMPONENT_NAME="${{ inputs.componentName }}"
-          SERVICE_COMPONENT_NAME="${SERVICE_COMPONENT_NAME/helm-charts\//}"
-
-          gh workflow run ocm-service-component.yaml --repo "platform-mesh/helm-charts" \
-            -f componentName="$SERVICE_COMPONENT_NAME" \
-            -f chartName="${{ env.CHART_NAME }}" \
-            -f chartVersion="${{ env.VERSION }}" \
-            -f appVersion="${{ env.APP_VERSION }}" \
-            -f imageComponentName="$IMAGE_COMPONENT_NAME" \
-            ${SERVICE_COMPONENT_CONSTRUCTOR_FILE:+-f componentConstructorFile="$SERVICE_COMPONENT_CONSTRUCTOR_FILE"}
-        env:
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          SERVICE_COMPONENT_CONSTRUCTOR_FILE: ${{ inputs.serviceComponentConstructorFile }}
+          componentName="${{ inputs.componentName }}"
+          echo "componentName=${componentName#*/}" >> $GITHUB_OUTPUT
 
       - name: Trigger PlatformMesh OCM build (monolithic mode)
         if: ${{ inputs.chartOnly != true }}
@@ -199,3 +192,17 @@ jobs:
           gh workflow run ocm-aggregator.yaml --repo "platform-mesh/helm-charts"
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  service-component:
+    needs: ocm
+    if: ${{ inputs.chartOnly == true }}
+    uses: ./.github/workflows/ocm-service-component.yaml
+    secrets: inherit
+    with:
+      componentName: ${{ needs.ocm.outputs.componentName }}
+      chartName: ${{ needs.ocm.outputs.chartName }}
+      chartVersion: ${{ needs.ocm.outputs.version }}
+      appVersion: ${{ needs.ocm.outputs.appVersion }}
+      imageComponentName: ${{ needs.ocm.outputs.imageComponentName }}
+      componentConstructorFile: ${{ inputs.serviceComponentConstructorFile || '.ocm/component-constructor-service-component.yaml' }}
+
