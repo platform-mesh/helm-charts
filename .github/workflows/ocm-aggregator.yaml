@@ -82,6 +82,10 @@ jobs:
       CNPG_OPERATOR_IMAGE_VERSION: "1.29.0"
       PROMETHEUS_OPERATOR_CRDS_VERSION: "29.0.0"
       KUBE_PROMETHEUS_STACK_VERSION: "27.0.0"
+      # renovate: datasource=docker depName=europe-docker.pkg.dev/gardener-project/releases/component-descriptors/github.com/gardener/etcd-druid
+      GARDENER_ETCD_DRUID_VERSION: "v0.36.4"
+      # renovate: datasource=docker depName=ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/keycloak
+      PM_KEYCLOAK_VERSION: "26.6.0"
       # PM-stamped component descriptor versions for third-party components.
       # Bump these to publish a new descriptor without touching resource versions. If resource
       # versions change, make sure to bump those as well.
@@ -183,9 +187,8 @@ jobs:
           echo KEYCLOAK_OPERATOR_VERSION=$(yq '.version' charts/keycloak-operator/Chart.yaml) >> $GITHUB_ENV
           echo OBSERVABILITY_VERSION=$(yq '.version' charts/observability/Chart.yaml) >> $GITHUB_ENV
 
-          # Remote components
-          echo KEYCLOAK_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/keycloak --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
-          echo GARDENER_ETCD_DRUID_VERSION=$(./ocm get componentversions --latest github.com/gardener/etcd-druid --repo europe-docker.pkg.dev/gardener-project/releases -o json | jq -r '.items[0].component.version') >> $GITHUB_ENV
+          # KEYCLOAK_VERSION (the platform-mesh keycloak component descriptor) tracks PM_KEYCLOAK_VERSION above.
+          echo KEYCLOAK_VERSION=${PM_KEYCLOAK_VERSION} >> $GITHUB_ENV
 
           # Get current platform-mesh version
           PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')

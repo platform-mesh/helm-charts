@@ -428,7 +428,7 @@ renders default multi-mode with all features enabled:
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
