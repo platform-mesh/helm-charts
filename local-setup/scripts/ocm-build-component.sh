@@ -195,6 +195,9 @@ resolve_component_versions() {
     export KCP_VERSION=$(yq -r '.jobs.ocm.env.KCP_VERSION' "$agg")
     export INIT_AGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_CHART_VERSION' "$agg")
     export INIT_AGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_IMAGE_VERSION' "$agg")
+    export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
+    export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
+    export PM_API_SYNCAGENT_VERSION=$(yq -r '.jobs.ocm.env.PM_API_SYNCAGENT_VERSION' "$agg")
     export OPENFGA_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_VERSION' "$agg")
     export OPENFGA_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_IMAGE_VERSION' "$agg")
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_POSTGRESQL_IMAGE_VERSION' "$agg")
@@ -213,8 +216,8 @@ resolve_component_versions() {
     # Versions not pinned in the aggregator: keep remote lookups.
     export GARDENER_ETCD_DRUID_VERSION=$(get_external_component_version github.com/gardener/etcd-druid europe-docker.pkg.dev/gardener-project/releases)
 
-    # TODO: the api-syncagent OCM CV must be updated
-    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:0.4.4 oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
+    # Transfer api-syncagent using version from aggregator
+    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:$PM_API_SYNCAGENT_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
     transfer_etcd_druid_with_cache &
     wait
 
@@ -281,6 +284,8 @@ build_final_component() {
         KCP_VERSION="$KCP_VERSION" \
         INIT_AGENT_CHART_VERSION="$INIT_AGENT_CHART_VERSION" \
         INIT_AGENT_IMAGE_VERSION="$INIT_AGENT_IMAGE_VERSION" \
+        API_SYNCAGENT_CHART_VERSION="$API_SYNCAGENT_CHART_VERSION" \
+        API_SYNCAGENT_IMAGE_VERSION="$API_SYNCAGENT_IMAGE_VERSION" \
         TRAEFIK_IMAGE_VERSION="$TRAEFIK_IMAGE_VERSION" \
         OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
         OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
@@ -298,6 +303,7 @@ build_final_component() {
         PM_KCP_OPERATOR_VERSION="$PM_KCP_OPERATOR_VERSION" \
         PM_KCP_VERSION="$PM_KCP_VERSION" \
         PM_INIT_AGENT_VERSION="$PM_INIT_AGENT_VERSION" \
+        PM_API_SYNCAGENT_VERSION="$PM_API_SYNCAGENT_VERSION" \
         PM_CNPG_OPERATOR_VERSION="$PM_CNPG_OPERATOR_VERSION" \
         PM_PROMETHEUS_OPERATOR_CRDS_VERSION="$PM_PROMETHEUS_OPERATOR_CRDS_VERSION" \
         PM_KUBE_PROMETHEUS_STACK_VERSION="$PM_KUBE_PROMETHEUS_STACK_VERSION" \

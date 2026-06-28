@@ -221,6 +221,11 @@ add_chart_to_ctf() {
         constructor=".ocm/component-constructor-local-prerelease.yaml"
     fi
 
+    # Read third-party component versions from aggregator
+    local agg="$PROJECT_ROOT/.github/workflows/ocm-aggregator.yaml"
+    PM_API_SYNCAGENT_VERSION=$(yq -r '.jobs.ocm.env.PM_API_SYNCAGENT_VERSION' "$agg")
+    export PM_API_SYNCAGENT_VERSION
+
     # Add component to OCM transport archive
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" "$constructor" -- \
         VERSION="$VERSION" \
@@ -233,7 +238,8 @@ add_chart_to_ctf() {
         COMPONENT_NAME="$COMPONENT_NAME" \
         COMPONENT_SHORT_NAME="$comp" \
         CHART_OCI_PATH="$CHART_OCI_PATH" \
-        LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
+        LOCAL_CHART_PATH="$LOCAL_CHART_PATH" \
+        PM_API_SYNCAGENT_VERSION="$PM_API_SYNCAGENT_VERSION"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Done: $COMPONENT_NAME${COL_RES}"
 }
