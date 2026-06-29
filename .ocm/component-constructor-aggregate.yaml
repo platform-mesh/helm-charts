@@ -149,7 +149,7 @@ components:
           type: ociArtifact
           imageReference: "ghcr.io/kcp-dev/init-agent:{{ .INIT_AGENT_IMAGE_VERSION }}"
   - name: github.com/kcp-dev/api-syncagent
-    version: {{ .PM_API_SYNCAGENT_VERSION }}
+    version: {{ .API_SYNCAGENT_CHART_VERSION }}
     provider:
       name: kcp
     resources:
