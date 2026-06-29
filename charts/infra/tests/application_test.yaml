@@ -113,6 +113,9 @@ tests:
       external:
         hostname: example.com
         port: 8443
+      rootShard:
+        hostname: null
+        shardBaseURL: null
   asserts:
   - documentIndex: 2
     equal:
@@ -126,11 +129,66 @@ tests:
       external:
         hostname: example.com
         port: 8443
+      rootShard:
+        hostname: null
+        shardBaseURL: null
   asserts:
   - documentIndex: 1
     equal:
       path: spec.shardBaseURL
       value: https://root.kcp.example.com:8443/
+- it: root-shard defaults to root.kcp.localhost
+  templates:
+    - kcp/root-shard.yaml
+  asserts:
+  - documentIndex: 1
+    equal:
+      path: spec.shardBaseURL
+      value: https://root.kcp.localhost:8443/
+  - documentIndex: 2
+    equal:
+      path: spec.hostnames[0]
+      value: root.kcp.localhost
+  - documentIndex: 1
+    contains:
+      path: spec.certificateTemplates.server.spec.dnsNames
+      content: root.kcp.localhost
+- it: root-shard honors explicit kcp.rootShard.hostname override
+  templates:
+    - kcp/root-shard.yaml
+  set:
+    kcp:
+      external:
+        hostname: example.com
+        port: 8443
+      rootShard:
+        hostname: my-root.example.org
+        shardBaseURL: null
+  asserts:
+  - documentIndex: 1
+    equal:
+      path: spec.shardBaseURL
+      value: https://my-root.example.org:8443/
+  - documentIndex: 2
+    equal:
+      path: spec.hostnames[0]
+      value: my-root.example.org
+- it: root-shard honors explicit kcp.rootShard.shardBaseURL override
+  templates:
+    - kcp/root-shard.yaml
+  set:
+    kcp:
+      external:
+        hostname: example.com
+        port: 8443
+      rootShard:
+        hostname: null
+        shardBaseURL: https://custom-shard.example.org:9999/
+  asserts:
+  - documentIndex: 1
+    equal:
+      path: spec.shardBaseURL
+      value: https://custom-shard.example.org:9999/
 - it: configure etcd backup store
   templates:
     - kcp/root-shard.yaml

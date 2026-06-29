@@ -1,5 +1,5 @@
-{{- $rootShardHostname := printf "root.kcp.%s" .Values.kcp.external.hostname }}
-{{- $rootShardBaseURL := printf "https://%s:%v/" $rootShardHostname .Values.kcp.external.port }}
+{{- $rootShardHostname := .Values.kcp.rootShard.hostname | default (printf "root.kcp.%s" .Values.kcp.external.hostname) }}
+{{- $rootShardBaseURL := .Values.kcp.rootShard.shardBaseURL | default (printf "https://%s:%v/" $rootShardHostname .Values.kcp.external.port) }}
 {{ include "kcp.etcd" (dict "name" (.Values.kcp.etcd.name | default "etcd-kcp-client") "namespace" (.Values.kcp.namespace | default "kcp-system") "etcd" .Values.kcp.etcd) }}
 ---
 apiVersion: operator.kcp.io/v1alpha1
@@ -27,6 +27,6 @@ spec:
           - root-kcp
           - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}
           - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}.svc.cluster.local
-          - root.kcp.{{ .Values.kcp.external.hostname }}
+          - {{ $rootShardHostname }}
 ---
-{{ include "kcp.tlsroute" (dict "name" "kcp-root-shard-tlsroute" "hostname" (printf "root.kcp.%s" .Values.kcp.external.hostname) "serviceName" "root-kcp" "namespace" (.Values.kcp.namespace | default "kcp-system") "gatewayName" .Values.gatewayApi.name) }}
+{{ include "kcp.tlsroute" (dict "name" "kcp-root-shard-tlsroute" "hostname" $rootShardHostname "serviceName" "root-kcp" "namespace" (.Values.kcp.namespace | default "kcp-system") "gatewayName" .Values.gatewayApi.name) }}
