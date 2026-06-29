@@ -216,7 +216,7 @@ resolve_component_versions() {
     export GARDENER_ETCD_DRUID_VERSION=$(get_external_component_version github.com/gardener/etcd-druid europe-docker.pkg.dev/gardener-project/releases)
 
     # Transfer api-syncagent using version from aggregator
-    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:$PM_API_SYNCAGENT_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
+    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:$API_SYNCAGENT_CHART_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
     transfer_etcd_druid_with_cache &
     wait
 
@@ -302,7 +302,6 @@ build_final_component() {
         PM_KCP_OPERATOR_VERSION="$PM_KCP_OPERATOR_VERSION" \
         PM_KCP_VERSION="$PM_KCP_VERSION" \
         PM_INIT_AGENT_VERSION="$PM_INIT_AGENT_VERSION" \
-        PM_API_SYNCAGENT_VERSION="$PM_API_SYNCAGENT_VERSION" \
         PM_CNPG_OPERATOR_VERSION="$PM_CNPG_OPERATOR_VERSION" \
         PM_PROMETHEUS_OPERATOR_CRDS_VERSION="$PM_PROMETHEUS_OPERATOR_CRDS_VERSION" \
         PM_KUBE_PROMETHEUS_STACK_VERSION="$PM_KUBE_PROMETHEUS_STACK_VERSION" \
