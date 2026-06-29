@@ -197,7 +197,6 @@ resolve_component_versions() {
     export INIT_AGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_IMAGE_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
     export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
-    export PM_API_SYNCAGENT_VERSION=$(yq -r '.jobs.ocm.env.PM_API_SYNCAGENT_VERSION' "$agg")
     export OPENFGA_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_VERSION' "$agg")
     export OPENFGA_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_IMAGE_VERSION' "$agg")
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_POSTGRESQL_IMAGE_VERSION' "$agg")
