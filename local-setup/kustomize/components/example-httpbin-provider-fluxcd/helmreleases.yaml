@@ -1,7 +1,7 @@
 # FluxCD HelmReleases for the example-httpbin-provider demo in remote mode.
 # These live on the infra cluster; their kubeConfig.secretRef makes flux deploy
 # the actual workloads to the runtime cluster.  The OCIRepository
-# `example-httpbin-provider` and HelmRepository `api-syncagent` referenced below
+# `example-httpbin-provider` and `api-syncagent` referenced below
 # are auto-created on the infra cluster by the platform-mesh-operator's
 # ResourceSubroutine, watching the corresponding OCM Resource objects on the
 # runtime cluster (applied via example-httpbin-provider-runtime).
@@ -52,14 +52,10 @@ spec:
     secretRef:
       name: platform-mesh-kubeconfig
       key: kubeconfig
-  chart:
-    spec:
-      chart: api-syncagent
-      version: 0.6.0
-      reconcileStrategy: ChartVersion
-      sourceRef:
-        kind: HelmRepository
-        name: api-syncagent
+  chartRef:
+    kind: OCIRepository
+    name: api-syncagent
+    namespace: platform-mesh-system
   interval: 1m
   releaseName: api-syncagent
   targetNamespace: example-httpbin-provider
