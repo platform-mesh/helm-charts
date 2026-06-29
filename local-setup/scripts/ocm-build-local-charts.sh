@@ -233,7 +233,7 @@ add_chart_to_ctf() {
         COMPONENT_NAME="$COMPONENT_NAME" \
         COMPONENT_SHORT_NAME="$comp" \
         CHART_OCI_PATH="$CHART_OCI_PATH" \
-        LOCAL_CHART_PATH="$LOCAL_CHART_PATH" \
+        LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Done: $COMPONENT_NAME${COL_RES}"
 }
