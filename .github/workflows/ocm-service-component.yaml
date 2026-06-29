@@ -111,11 +111,6 @@ jobs:
           fi
           echo "IMAGE_COMPONENT_NAME=$IMAGE_COMPONENT_NAME" >> $GITHUB_ENV
 
-      - name: Resolve third-party component versions
-        run: |
-          PM_API_SYNCAGENT_VERSION=$(yq -r '.jobs.ocm.env.PM_API_SYNCAGENT_VERSION' .github/workflows/ocm-aggregator.yaml)
-          echo "PM_API_SYNCAGENT_VERSION=$PM_API_SYNCAGENT_VERSION" >> $GITHUB_ENV
-
       - name: Create OCM ComponentArchive
         run: |
           ocm_ctf=transport.ctf
@@ -124,8 +119,7 @@ jobs:
             VERSION=${{ inputs.chartVersion }} \
             CHART_NAME=${{ inputs.chartName }} \
             IMAGE_COMPONENT_NAME=${{ env.IMAGE_COMPONENT_NAME }} \
-            APP_VERSION=${{ inputs.appVersion }} \
-            PM_API_SYNCAGENT_VERSION=${{ env.PM_API_SYNCAGENT_VERSION }}
+            APP_VERSION=${{ inputs.appVersion }}
 
       - name: Transfer to OCM registry
         run: ./ocm transfer ctf transport.ctf "ghcr.io/platform-mesh"
