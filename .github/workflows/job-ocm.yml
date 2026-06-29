@@ -1,0 +1,205 @@
+name: OCM
+on:
+  workflow_call:
+    inputs:
+      chartPath:
+        required: true
+        type: string
+      componentName:
+        required: true
+        type: string
+      componentConstructorFile:
+        required: false
+        type: string
+        default: .ocm/component-constructor.yaml
+      ocmRegistryUrl:
+        type: string
+        default: ghcr.io/platform-mesh
+      chartOnly:
+        description: "If true, builds chart-only component and triggers service component pipeline"
+        required: false
+        type: boolean
+        default: false
+      imageComponentName:
+        description: "Image component name suffix for service component (defaults to chart name)"
+        required: false
+        type: string
+        default: ''
+      serviceComponentConstructorFile:
+        description: "Custom service component constructor file in the helm-charts repo (defaults to .ocm/component-constructor-service-component.yaml)"
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  ocm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      componentName: ${{ steps.componentName.outputs.componentName }}
+      chartName: ${{ steps.vars.outputs.CHART_NAME }}
+      version: ${{ steps.vars.outputs.VERSION }}
+      appVersion: ${{ steps.vars.outputs.APP_VERSION }}
+      imageComponentName: ${{ inputs.imageComponentName || steps.vars.outputs.CHART_NAME }}
+    steps:
+      - name: Create Github App Token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
+        id: app-token
+        with:
+          app-id: "1415820"
+          private-key: ${{ secrets.PM_PUBLISHER_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Setup yq@latest
+        run: |
+          if ! command -v yq &>/dev/null
+          then
+            mkdir -p /home/runner/.local/bin
+            wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /home/runner/.local/bin/yq &&\
+              chmod +x /home/runner/.local/bin/yq
+          fi
+      - name: Check out the repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: setup OCM CLI
+        run: |
+          REPO=${repo:=open-component-model/ocm}
+          if [ -z "$version" -o "$version" == latest ]; then
+            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
+            echo "Selecting latest version: $version"
+          fi
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          echo "Installing ocm-cli version $version from $REPO"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          chmod a+x ocm
+      - name: Prepare Template Variables
+        id: vars
+        run: |
+          CHART_NAME=$(yq '.name' ${{ inputs.chartPath }}/Chart.yaml)
+          VERSION=$(yq '.version' ${{ inputs.chartPath }}/Chart.yaml)
+          APP_VERSION=$(yq '.appVersion' ${{ inputs.chartPath }}/Chart.yaml)
+          CHART_REPO=https://github.com/${{ github.repository }}
+          CHART_OCI_PATH=ghcr.io/${{ github.repository }}/$CHART_NAME
+
+          echo "CHART_NAME=$CHART_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
+          echo "CHART_REPO=$CHART_REPO" >> $GITHUB_ENV
+          echo "CHART_OCI_PATH=$CHART_OCI_PATH" >> $GITHUB_ENV
+
+          echo "CHART_NAME=$CHART_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=$APP_VERSION" >> $GITHUB_OUTPUT
+
+          # Only fetch image-related info for monolithic components (not chart-only)
+          if [ "${{ inputs.chartOnly }}" != "true" ]; then
+            IMAGE_NAME=$(yq '.image.name' ${{ inputs.chartPath }}/values.yaml)
+            ORG_REPO=$(echo "$IMAGE_NAME" | sed 's|ghcr.io/||')
+            IMAGE_REPO=https://github.com/$ORG_REPO
+            IMAGE_REPO_SHA=$(gh api repos/$ORG_REPO/git/ref/tags/$APP_VERSION | jq -r '.object.sha')
+
+            echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+            echo "ORG_REPO=$ORG_REPO" >> $GITHUB_ENV
+            echo "IMAGE_REPO=$IMAGE_REPO" >> $GITHUB_ENV
+            echo "IMAGE_REPO_SHA=$IMAGE_REPO_SHA" >> $GITHUB_ENV
+          fi
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Write Credentials file
+        run: |
+          OCM_REGISTRY_URL="${{ inputs.ocmRegistryUrl }}"
+          OCM_HOSTNAME="${OCM_REGISTRY_URL%%/*}"
+          OCM_PATHPREFIX="${OCM_REGISTRY_URL#*/}"
+          cat <<EOF > $HOME/.ocmconfig
+          type: generic.config.ocm.software/v1
+          configurations:
+            - type: credentials.config.ocm.software
+              consumers:
+                - identity:
+                    type: OCIRegistry
+                    scheme: https
+                    hostname: ${OCM_HOSTNAME}
+                    pathprefix: ${OCM_PATHPREFIX}
+                  credentials:
+                    - type: Credentials
+                      properties:
+                        username: github
+                        password: ${{ secrets.GITHUB_TOKEN }}
+          EOF
+      - name: create OCM ComponentArchive
+        run: |
+          ocm_ctf=.ocm/transport.ctf
+          mkdir -p "$(dirname "$ocm_ctf")"
+          if [ "${{ inputs.chartOnly }}" == "true" ]; then
+            ./ocm add components -c --templater=go --file "$ocm_ctf" ${{ inputs.componentConstructorFile }} -- \
+              VERSION=${{ env.VERSION }} \
+              APP_VERSION=${{ env.APP_VERSION }} \
+              COMMIT=${{ github.sha }} \
+              CHART_REPO=${{ env.CHART_REPO }} \
+              COMPONENT_NAME=${{ inputs.componentName }} \
+              CHART_NAME=${{ env.CHART_NAME }} \
+              CHART_OCI_PATH=${{ env.CHART_OCI_PATH }} \
+              LOCAL_CHART_PATH=${{ inputs.chartPath }}
+          else
+            ./ocm add components -c --templater=go --file "$ocm_ctf" ${{ inputs.componentConstructorFile }} -- \
+              VERSION=${{ env.VERSION }} \
+              APP_VERSION=${{ env.APP_VERSION }} \
+              IMAGE_NAME=${{ env.IMAGE_NAME }} \
+              COMMIT=${{ github.sha }} \
+              IMAGE_REPO=${{ env.IMAGE_REPO }} \
+              IMAGE_REPO_SHA=${{ env.IMAGE_REPO_SHA }} \
+              CHART_REPO=${{ env.CHART_REPO }} \
+              COMPONENT_NAME=${{ inputs.componentName }} \
+              CHART_NAME=${{ env.CHART_NAME }} \
+              CHART_OCI_PATH=${{ env.CHART_OCI_PATH }} \
+              LOCAL_CHART_PATH=${{ inputs.chartPath }}
+          fi
+
+      - name: Sign OCM component
+        run: |
+          printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
+          printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
+          ./ocm sign componentversion \
+            --signature "helm-charts.platform-mesh" \
+            --private-key /tmp/ocm-signing.priv \
+            --public-key /tmp/ocm-signing.cert \
+            --ca-cert .ocm/signature/ca.cert \
+            .ocm/transport.ctf
+          rm -f /tmp/ocm-signing.priv /tmp/ocm-signing.cert .ocm/signature/ca.cert
+        env:
+          OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
+          OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
+
+      - name: Transfer to OCM REPO
+        run: ./ocm transfer ctf .ocm/transport.ctf "${{ inputs.ocmRegistryUrl }}"
+
+      - name: Cut helm-charts/ from componentName
+        id: componentName
+        run: |
+          # github.com/platform-mesh/helm-charts/<chart>
+          componentName="${{ inputs.componentName }}"
+          # github.com/platform-mesh/<chart>
+          componentName="${componentName//helm-charts\//}"
+          echo "componentName=${componentName}" >> $GITHUB_OUTPUT
+
+  service-component:
+    needs: ocm
+    if: ${{ inputs.chartOnly == true }}
+    uses: ./.github/workflows/ocm-service-component.yaml
+    secrets: inherit
+    with:
+      componentName: ${{ needs.ocm.outputs.componentName }}
+      chartName: ${{ needs.ocm.outputs.chartName }}
+      chartVersion: ${{ needs.ocm.outputs.version }}
+      appVersion: ${{ needs.ocm.outputs.appVersion }}
+      imageComponentName: ${{ needs.ocm.outputs.imageComponentName }}
+      componentConstructorFile: ${{ inputs.serviceComponentConstructorFile || '.ocm/component-constructor-service-component.yaml' }}
+
+  aggregator:
+    needs: ocm
+    if: ${{ inputs.chartOnly != true }}
+    uses: ./.github/workflows/ocm-aggregator.yaml
+    secrets: inherit
