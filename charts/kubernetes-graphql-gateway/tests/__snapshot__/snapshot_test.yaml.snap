@@ -32,7 +32,7 @@ match the Snapshot:
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1
@@ -124,7 +124,7 @@ match the Snapshot:
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
-              image: ghcr.io/platform-mesh/kubernetes-graphql-gateway:1.0.0
+              image: ghcr.io/platform-mesh/platform-mesh/kubernetes-graphql-gateway:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 1

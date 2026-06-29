@@ -36,7 +36,7 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | hostAliases.enabled | bool | `false` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
-| image.repository | string | `"platform-mesh/virtual-workspaces"` | The image repository path (without registry) |
+| image.repository | string | `"platform-mesh/platform-mesh/virtual-workspaces"` | The image repository path (without registry) |
 | kubeconfigSecretName | string | `"account-operator-kubeconfig"` |  |
 | requestHeaderClientCASecretName | string | `"root-requestheader-client-ca"` |  |
 | service.port | int | `8443` |  |

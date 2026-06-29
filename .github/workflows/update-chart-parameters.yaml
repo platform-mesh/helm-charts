@@ -13,22 +13,14 @@ on:
         default: '0.0.0'
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   version-update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
-        id: app-token
-        with:
-          app-id: "1415820"
-          private-key: ${{ secrets.PM_PUBLISHER_PRIVATE_KEY }}
-          permission-contents: write
-          permission-pull-requests: write
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          token: ${{ steps.app-token.outputs.token }}
       - name: Setup yq@latest
         run: |
           if ! command -v yq &>/dev/null
@@ -39,8 +31,8 @@ jobs:
           fi
       - name: Configure GIT
         run: |
-          git config --global user.name "Platform Mesh Publisher[bot]"
-          git config --global user.email "platformmesh@gmail.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Validate inputs
         env:
           INPUT_CHART: ${{ inputs.chart }}
@@ -82,9 +74,10 @@ jobs:
             echo "title=Set $new_chart_version / $new_app_version in $chart_file"
           } >> "$GITHUB_OUTPUT"
       - name: Open PR
+        id: pr
         if: steps.bump.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: ${{ steps.bump.outputs.branch }}
           TITLE: ${{ steps.bump.outputs.title }}
         run: |
@@ -93,12 +86,25 @@ jobs:
           # needs a remote-tracking ref this fresh checkout never fetched.
           git push --force origin "$BRANCH"
           # Reuse an existing PR for this branch if one is already open.
-          if ! gh pr view "$BRANCH" --json number >/dev/null 2>&1; then
+          if ! url=$(gh pr view "$BRANCH" --json url --jq .url 2>/dev/null); then
             # Create the PR and mark it for auto-merge.
             url=$(gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "Automated chart bump.")
             gh pr merge "$url" --auto
           else
             echo "PR already exists for $BRANCH; skipping create."
           fi
-
-
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        id: app-token
+        if: steps.bump.outputs.changed == 'true'
+        with:
+          app-id: "1415820"
+          private-key: ${{ secrets.PM_PUBLISHER_PRIVATE_KEY }}
+          permission-pull-requests: write
+      - name: Approve PR
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: |
+          gh pr review "$PR_URL" --approve

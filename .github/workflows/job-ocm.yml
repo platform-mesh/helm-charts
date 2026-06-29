@@ -179,8 +179,11 @@ jobs:
       - name: Cut helm-charts/ from componentName
         id: componentName
         run: |
+          # github.com/platform-mesh/helm-charts/<chart>
           componentName="${{ inputs.componentName }}"
-          echo "componentName=${componentName#*/}" >> $GITHUB_OUTPUT
+          # github.com/platform-mesh/<chart>
+          componentName="${componentName//helm-charts\//}"
+          echo "componentName=${componentName}" >> $GITHUB_OUTPUT
 
   service-component:
     needs: ocm
