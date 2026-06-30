@@ -1,9 +1,9 @@
 dependencies:
 - name: extension-manager-operator-crds
   repository: oci://ghcr.io/platform-mesh/helm-charts
-  version: 0.3.2
+  version: 0.3.3
 - name: common
   repository: oci://ghcr.io/platform-mesh/helm-charts
   version: 0.13.0
-digest: sha256:850d78be161ea70663d0bb2dac52dd1417125a522f492d26044b8d8289bdeb5b
-generated: "2026-06-15T14:23:19.275264+02:00"
+digest: sha256:fa90cf195a72371e968d443a4dfa39bd51446cb6393bb733a4f22e03400e667d
+generated: "2026-06-30T22:44:40.966756282Z"
