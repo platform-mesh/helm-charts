@@ -231,7 +231,7 @@ data:
                 tag: v0.32.0
               rootShard:
                 extraArgs:
-                - --feature-gates=WorkspaceAuthentication=true
+                - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
               shards: []
               webhook:
                 enabled: true

@@ -110,7 +110,7 @@ kcp:
     #     cpu: "1"
     #     memory: "1Gi"
     extraArgs:
-    - --feature-gates=WorkspaceAuthentication=true
+    - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
   shards:
     - name: nereus
     - name: triton

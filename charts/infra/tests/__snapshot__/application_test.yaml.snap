@@ -309,7 +309,7 @@ Gateway API enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -433,7 +433,7 @@ Gateway API enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -560,7 +560,7 @@ Gateway API enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -970,7 +970,7 @@ Istio disabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -1094,7 +1094,7 @@ Istio disabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -1221,7 +1221,7 @@ Istio disabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -1631,7 +1631,7 @@ Istio enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -1755,7 +1755,7 @@ Istio enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -1882,7 +1882,7 @@ Istio enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -2089,7 +2089,7 @@ configure etcd backup store:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -2270,7 +2270,7 @@ configure rootshard resources:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -2621,7 +2621,7 @@ match snapshots:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
         tag: 0.0.0
       proxy:
@@ -2749,7 +2749,7 @@ match snapshots:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
         tag: 0.0.0
       proxy:
@@ -2880,7 +2880,7 @@ match snapshots:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
         tag: 0.0.0
       proxy:
@@ -3315,7 +3315,7 @@ match snapshots w. hostAliases enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -3459,7 +3459,7 @@ match snapshots w. hostAliases enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -3606,7 +3606,7 @@ match snapshots w. hostAliases enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -4030,7 +4030,7 @@ match snapshots w. kcp version:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
         tag: v0.1.0
       proxy:
@@ -4158,7 +4158,7 @@ match snapshots w. kcp version:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
         tag: v0.1.0
       proxy:
@@ -4289,7 +4289,7 @@ match snapshots w. kcp version:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
         tag: v0.1.0
       proxy:
@@ -4703,7 +4703,7 @@ match snapshots with mailpit enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -4827,7 +4827,7 @@ match snapshots with mailpit enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -4954,7 +4954,7 @@ match snapshots with mailpit enabled:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
@@ -5149,7 +5149,7 @@ render additional shard with explicit hostname:
         hostname: localhost
         port: 8443
       extraArgs:
-        - --feature-gates=WorkspaceAuthentication=true
+        - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
         deploymentTemplate:
           spec:
