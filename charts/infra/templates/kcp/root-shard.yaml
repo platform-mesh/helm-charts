@@ -1,3 +1,5 @@
+{{- $rootShardHostname := .Values.kcp.rootShard.hostname | default (printf "root.kcp.%s" .Values.kcp.external.hostname) }}
+{{- $rootShardBaseURL := .Values.kcp.rootShard.shardBaseURL | default (printf "https://%s:%v/" $rootShardHostname .Values.kcp.external.port) }}
 {{ include "kcp.etcd" (dict "name" (.Values.kcp.etcd.name | default "etcd-kcp-client") "namespace" (.Values.kcp.namespace | default "kcp-system") "etcd" .Values.kcp.etcd) }}
 ---
 apiVersion: operator.kcp.io/v1alpha1
@@ -6,7 +8,7 @@ metadata:
   name: root
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
-{{- include "kcp.shard.spec" (dict "root" $ "replicas" .Values.kcp.rootShard.replicas "shardBaseURL" .Values.kcp.rootShard.shardBaseURL "extraArgs" .Values.kcp.rootShard.extraArgs "resources" .Values.kcp.rootShard.resources "hostname" .Values.kcp.external.hostname "port" .Values.kcp.external.port "webhookPort" .Values.kcp.webhook.port) | nindent 2 }}
+{{- include "kcp.shard.spec" (dict "root" $ "replicas" .Values.kcp.rootShard.replicas "shardBaseURL" $rootShardBaseURL "extraArgs" .Values.kcp.rootShard.extraArgs "resources" .Values.kcp.rootShard.resources "hostname" .Values.kcp.external.hostname "port" .Values.kcp.external.port "webhookPort" .Values.kcp.webhook.port) | nindent 2 }}
   certificates:
     issuerRef:
       group: cert-manager.io
@@ -25,6 +27,6 @@ spec:
           - root-kcp
           - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}
           - root-kcp.{{ .Values.kcp.namespace | default "kcp-system" }}.svc.cluster.local
-          - root.kcp.localhost
+          - {{ $rootShardHostname }}
 ---
-{{ include "kcp.tlsroute" (dict "name" "kcp-root-shard-tlsroute" "hostname" "root.kcp.localhost" "serviceName" "root-kcp" "namespace" (.Values.kcp.namespace | default "kcp-system") "gatewayName" .Values.gatewayApi.name) }}
+{{ include "kcp.tlsroute" (dict "name" "kcp-root-shard-tlsroute" "hostname" $rootShardHostname "serviceName" "root-kcp" "namespace" (.Values.kcp.namespace | default "kcp-system") "gatewayName" .Values.gatewayApi.name) }}

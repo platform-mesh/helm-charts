@@ -96,6 +96,9 @@ kcp:
 
   rootShard:
     replicas: 1
+    # -- Hostname for the root shard. Defaults to "root.kcp.<kcp.external.hostname>" when unset.
+    hostname: root.kcp.localhost
+    # -- Base URL the root shard advertises. Defaults to "https://<rootShard.hostname>:<kcp.external.port>/" when unset.
     shardBaseURL: https://root.kcp.localhost:8443/
     # -- Optional resource requests and limits for the root shard
     resources: {}
@@ -107,7 +110,7 @@ kcp:
     #     cpu: "1"
     #     memory: "1Gi"
     extraArgs:
-    - --feature-gates=WorkspaceAuthentication=true
+    - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
   shards:
     - name: nereus
     - name: triton

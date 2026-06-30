@@ -21,7 +21,7 @@ jobs:
       local_setup_changed: ${{ steps.local_setup.outputs.changed }}
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
 
@@ -66,7 +66,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
 
@@ -94,7 +94,7 @@ jobs:
         id: ocm-versions
         run: local-setup/scripts/ocm-resolve-thirdparty-versions.sh
       - name: Cache OCM etcd-druid
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: .ocm/cache/etcd-druid
           key: ocm-thirdparty-etcd-druid-${{ steps.ocm-versions.outputs.etcd_druid }}
@@ -117,7 +117,7 @@ jobs:
           cache-dependency-path: 'local-setup/e2e'
 
       - name: Cache Playwright browsers
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('local-setup/e2e/package-lock.json') }}

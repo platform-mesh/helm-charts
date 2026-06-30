@@ -42,7 +42,6 @@ spec:
           {{- if .Values.idp.registrationAllowed }}
           - --idp-registration-allowed
           {{- end }}
-          {{- include "common.extraArgs" . | nindent 10 }}
         ports:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         env:

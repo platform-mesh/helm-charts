@@ -42,14 +42,10 @@ metadata:
   name: api-syncagent
   namespace: platform-mesh-system
 spec:
-  chart:
-    spec:
-      chart: api-syncagent
-      version: 0.6.0
-      reconcileStrategy: ChartVersion
-      sourceRef:
-        kind: HelmRepository
-        name: api-syncagent
+  chartRef:
+    kind: OCIRepository
+    name: api-syncagent
+    namespace: platform-mesh-system
   interval: 1m
   releaseName: api-syncagent
   targetNamespace: example-httpbin-provider

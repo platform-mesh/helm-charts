@@ -53,7 +53,7 @@ kind: Resource
 metadata:
   labels:
     artifact: chart
-    repo: helm
+    repo: oci
   name: api-syncagent
   namespace: platform-mesh-system
 spec:

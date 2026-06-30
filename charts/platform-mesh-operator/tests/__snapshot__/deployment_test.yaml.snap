@@ -39,7 +39,6 @@ configure extraVolumes and extraVolumeMounts:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -133,7 +132,6 @@ configure hosAliases:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -231,7 +229,6 @@ deployment with tracing:
                 - --tracing-config-collector-endpoint=test:4317
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -320,7 +317,6 @@ disables istio sidecar injection:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -413,7 +409,6 @@ enable remote PlatformMesh and Infra:
                 - --remote-runtime-infra-secret-name=kubeconfig-platformmesh
                 - --remote-runtime-infra-secret-key=kubeconfig
                 - --remote-infra-kubeconfig=/etc/infra/kubeconfig
-                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -524,7 +519,6 @@ enables istio sidecar injection:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=true
-                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent
@@ -791,7 +785,6 @@ operator match the snapshot:
                 - --max-concurrent-reconciles=10
                 - --subroutines-feature-toggles-enabled=true
                 - --subroutines-deployment-enable-istio=false
-                - --subroutines-feature-toggles-enabled=true
               env: null
               image: ghcr.io/platform-mesh/platform-mesh-operator:0.0.0
               imagePullPolicy: IfNotPresent

@@ -138,10 +138,11 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.resources | object | `{}` | Optional resource requests and limits for the front proxy |
 | kcp.image.tag | string | `""` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
-| kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
+| kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true,CacheAPIs=true"` |  |
+| kcp.rootShard.hostname | string | `"root.kcp.localhost"` | Hostname for the root shard. Defaults to "root.kcp.<kcp.external.hostname>" when unset. |
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.rootShard.resources | object | `{}` | Optional resource requests and limits for the root shard |
-| kcp.rootShard.shardBaseURL | string | `"https://root.kcp.localhost:8443/"` |  |
+| kcp.rootShard.shardBaseURL | string | `"https://root.kcp.localhost:8443/"` | Base URL the root shard advertises. Defaults to "https://<rootShard.hostname>:<kcp.external.port>/" when unset. |
 | kcp.shards[0].name | string | `"nereus"` |  |
 | kcp.shards[1].name | string | `"triton"` |  |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
