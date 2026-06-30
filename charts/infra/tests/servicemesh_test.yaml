@@ -54,3 +54,35 @@ tests:
           tag: "mail"
   asserts:
   - matchSnapshot: {}
+- it: keycloak pod gets hostAliases when enabled
+  templates:
+  - keycloak/keycloak.yaml
+  set:
+    keycloak:
+      operator:
+        enabled: true
+    hostAliases:
+      enabled: true
+      entries:
+      - ip: "10.96.188.4"
+        hostnames:
+        - "portal.localhost"
+  asserts:
+  - equal:
+      path: spec.unsupported.podTemplate.spec.hostAliases[0].ip
+      value: "10.96.188.4"
+  - contains:
+      path: spec.unsupported.podTemplate.spec.hostAliases[0].hostnames
+      content: portal.localhost
+- it: keycloak truststores configured when caSecret set
+  templates:
+  - keycloak/keycloak.yaml
+  set:
+    keycloak:
+      operator:
+        enabled: true
+        caSecret: domain-certificate-ca
+  asserts:
+  - equal:
+      path: spec.truststores.domain-ca.secret.name
+      value: domain-certificate-ca

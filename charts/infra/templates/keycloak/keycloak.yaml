@@ -34,9 +34,16 @@ spec:
   bootstrapAdmin:
     user:
       secret: keycloak-admin
+  {{- if .Values.keycloak.operator.caSecret }}
+  truststores:
+    domain-ca:
+      secret:
+        name: {{ .Values.keycloak.operator.caSecret }}
+  {{- end }}
   unsupported:
     podTemplate:
       spec:
+        {{- include "common.hostAliases" . | nindent 8 }}
         initContainers:
           - name: wait-for-db
             image: busybox:1.37

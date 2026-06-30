@@ -274,6 +274,8 @@ The `scripts/start.sh` script performs the following operations:
    - Deploys Platform Mesh operator and components
    - CNPG provisions a shared PostgreSQL cluster for Keycloak and OpenFGA
    - Keycloak Operator deploys a Keycloak instance via Custom Resource
+   - Deploys Dex as a local upstream OIDC identity provider (see
+     [upstream-identity-provider-dex.md](docs/upstream-identity-provider-dex.md))
    - Installs supporting services (RBAC webhook, observability, etc.)
 
 6. **Post-Installation Setup**

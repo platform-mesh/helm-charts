@@ -188,6 +188,8 @@ keycloak:
       password: admin
       # -- Bootstrap admin client secret (written to keycloak-admin secret)
       secret: admin
+    # -- Secret with PEM CA for outbound HTTPS trust (e.g. local mkcert CA)
+    caSecret: ""
     resources:
       limits:
         cpu: "2"
@@ -275,6 +277,67 @@ keycloak:
             name: keycloak-admin
             # -- key of the password in the secret
             key: secret
+
+dex:
+  # -- Enable Dex as a local upstream OIDC identity provider
+  enabled: false
+  # -- Dex issuer URL (must match external browser-reachable URL)
+  issuer: https://portal.localhost:8443/dex
+  image:
+    # -- Dex image repository
+    repository: ghcr.io/dexidp/dex
+    # -- Dex image tag
+    tag: v2.42.0
+  service:
+    # -- Dex service name
+    name: dex
+    # -- Dex service port
+    port: 5556
+  health:
+    periodSeconds: 10
+    liveness:
+      # Main HTTP server only exposes /healthz (prefixed by issuer path).
+      # /healthz/live is on the optional telemetry port, not port 5556.
+      path: /dex/healthz
+      failureThreshold: 3
+    readiness:
+      path: /dex/healthz
+      initialDelaySeconds: 0
+      periodSeconds: 10
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  gatewayApi:
+    # -- hostnames for the Dex HTTPRoute
+    hostnames:
+      - portal.localhost
+    # -- path prefix for the Dex HTTPRoute
+    pathPrefix: /dex
+    # -- list of HTTPRoute filters (default: none)
+    filters: []
+    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
+    corsFilters: []
+  staticClient:
+    # -- OIDC client ID for Keycloak identity broker
+    id: keycloak-broker
+    # -- OIDC client secret for Keycloak identity broker (local dev only)
+    secret: local-dev-broker-secret
+    # -- Display name for the static OIDC client
+    name: Keycloak Broker
+    # -- Allowed redirect URIs (Keycloak broker callback URLs)
+    redirectURIs:
+      - https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint
+  staticPasswords:
+    # -- Local test user for Dex password connector (dex@portal.localhost/dex/dex)
+    - email: dex@portal.localhost
+      # bcrypt hash of password "dex"
+      hash: "$2a$10$mhivFdR/0pGuCR85LuEerOcYhCuiU294J3dHbtSU3UKDHLNQ6gNHm"
+      username: dex
+      userID: "08a868f8-4b4b-42f3-9d23-5f46eda2c3a0"
 
 cnpg:
   enabled: false
