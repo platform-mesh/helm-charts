@@ -113,7 +113,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.resources | object | `{}` | Optional resource requests and limits for the front proxy |
 | kcp.image.tag | string | `""` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
-| kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
+| kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true,CacheAPIs=true"` |  |
 | kcp.rootShard.hostname | string | `"root.kcp.localhost"` | Hostname for the root shard. Defaults to "root.kcp.<kcp.external.hostname>" when unset. |
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.rootShard.resources | object | `{}` | Optional resource requests and limits for the root shard |
