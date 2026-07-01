@@ -32,10 +32,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "core.platform-mesh.io",
+                    "apiGroup": "core_platform_mesh_io",
                     "version": "v1alpha1",
-                    "kind": "Account",
-                    "plural": "Accounts",
+                    "entity": "Account",
+                    "entityCollection": "Accounts",
                     "singular": "account",
                     "scope": "Cluster"
                   }
@@ -56,10 +56,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "ui.platform-mesh.io",
+                    "apiGroup": "ui_platform_mesh_io",
                     "version": "v1alpha1",
-                    "kind": "ContentConfiguration",
-                    "plural": "ContentConfigurations",
+                    "entity": "ContentConfiguration",
+                    "entityCollection": "ContentConfigurations",
                     "singular": "contentconfiguration",
                     "scope": "Cluster"
                   }
@@ -80,10 +80,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "ui.platform-mesh.io",
+                    "apiGroup": "ui_platform_mesh_io",
                     "version": "v1alpha1",
-                    "kind": "ProviderMetadata",
-                    "plural": "ProviderMetadatas",
+                    "entity": "ProviderMetadata",
+                    "entityCollection": "ProviderMetadatas",
                     "singular": "providermetadata",
                     "scope": "Cluster"
                   }
