@@ -33,7 +33,7 @@ KCP_ADMIN_KUBECONFIG="${SCRIPT_DIR}/../../.secret/kcp/admin.kubeconfig"
 if [ -f "${KCP_ADMIN_KUBECONFIG}" ]; then
     echo "Applying showcase KCP resources to root:platform-mesh-system..."
     KUBECONFIG="${KCP_ADMIN_KUBECONFIG}" kubectl apply -k "${SCRIPT_DIR}/../showcase/kcp/root/platform-mesh-system" \
-      --server="https://localhost:8443/clusters/root:platform-mesh-system"
+      --server="https://kcp.api.portal.localhost:8443/clusters/root:platform-mesh-system"
 else
     echo "Warning: KCP admin kubeconfig not found, skipping KCP resource application."
 fi
