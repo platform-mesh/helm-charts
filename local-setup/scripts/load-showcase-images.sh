@@ -5,7 +5,7 @@
 # packages. Kind nodes do not inherit host GHCR credentials, so we pull on the
 # host (which is authenticated) and side-load into the cluster.
 
-set -euo pipefail
+set -eo pipefail
 
 IMAGES=(
   "ghcr.io/platform-mesh/generic-resource-ui:v0.2.1"
