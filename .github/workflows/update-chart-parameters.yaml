@@ -85,13 +85,16 @@ jobs:
           # avoids the "stale info" rejection from --force-with-lease, which
           # needs a remote-tracking ref this fresh checkout never fetched.
           git push --force origin "$BRANCH"
-          # Reuse an existing PR for this branch if one is already open.
-          if ! url=$(gh pr view "$BRANCH" --json url --jq .url 2>/dev/null); then
+          # Reuse an existing PR for this branch only if one is still open;
+          # closed PRs are ignored so re-running the workflow after a manual
+          # close creates a fresh PR off current main.
+          url=$(gh pr list --head "$BRANCH" --state open --json url --jq '.[0].url')
+          if [ -z "$url" ]; then
             # Create the PR and mark it for auto-merge.
             url=$(gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "Automated chart bump.")
             gh pr merge "$url" --auto
           else
-            echo "PR already exists for $BRANCH; skipping create."
+            echo "Open PR already exists for $BRANCH; skipping create."
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
