@@ -20,6 +20,31 @@ A Helm chart for Kubernetes
 | cnpg.roles.keycloak.username | string | `"keycloak"` |  |
 | cnpg.roles.openfga.password | string | `"openfga-password"` |  |
 | cnpg.roles.openfga.username | string | `"openfga"` |  |
+| dex.enabled | bool | `false` | Enable Dex as a local upstream OIDC identity provider |
+| dex.gatewayApi.corsFilters | list | `[]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
+| dex.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
+| dex.gatewayApi.hostnames | list | `["portal.localhost"]` | hostnames for the Dex HTTPRoute |
+| dex.gatewayApi.pathPrefix | string | `"/dex"` | path prefix for the Dex HTTPRoute |
+| dex.health.liveness.failureThreshold | int | `3` |  |
+| dex.health.liveness.path | string | `"/dex/healthz"` |  |
+| dex.health.periodSeconds | int | `10` |  |
+| dex.health.readiness.initialDelaySeconds | int | `0` |  |
+| dex.health.readiness.path | string | `"/dex/healthz"` |  |
+| dex.health.readiness.periodSeconds | int | `10` |  |
+| dex.image.repository | string | `"ghcr.io/dexidp/dex"` | Dex image repository |
+| dex.image.tag | string | `"v2.42.0"` | Dex image tag |
+| dex.issuer | string | `"https://portal.localhost:8443/dex"` | Dex issuer URL (must match external browser-reachable URL) |
+| dex.resources.limits.cpu | string | `"200m"` |  |
+| dex.resources.limits.memory | string | `"256Mi"` |  |
+| dex.resources.requests.cpu | string | `"50m"` |  |
+| dex.resources.requests.memory | string | `"64Mi"` |  |
+| dex.service.name | string | `"dex"` | Dex service name |
+| dex.service.port | int | `5556` | Dex service port |
+| dex.staticClient.id | string | `"keycloak-broker"` | OIDC client ID for Keycloak identity broker |
+| dex.staticClient.name | string | `"Keycloak Broker"` | Display name for the static OIDC client |
+| dex.staticClient.redirectURIs | list | `["https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint"]` | Allowed redirect URIs (Keycloak broker callback URLs) |
+| dex.staticClient.secret | string | `"local-dev-broker-secret"` | OIDC client secret for Keycloak identity broker (local dev only) |
+| dex.staticPasswords[0] | object | `{"email":"dex@portal.localhost","hash":"$2a$10$mhivFdR/0pGuCR85LuEerOcYhCuiU294J3dHbtSU3UKDHLNQ6gNHm","userID":"08a868f8-4b4b-42f3-9d23-5f46eda2c3a0","username":"dex"}` | Local test user for Dex password connector (dex@portal.localhost/dex/dex) |
 | externalSecrets.enabled | bool | `false` |  |
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
@@ -152,6 +177,7 @@ A Helm chart for Kubernetes
 | keycloak.operator.admin.password | string | `"admin"` | Bootstrap admin password (written to keycloak-admin secret) |
 | keycloak.operator.admin.secret | string | `"admin"` | Bootstrap admin client secret (written to keycloak-admin secret) |
 | keycloak.operator.admin.username | string | `"keycloak-admin"` | Bootstrap admin username (written to keycloak-admin secret) |
+| keycloak.operator.caSecret | string | `""` | Secret with PEM CA for outbound HTTPS trust (e.g. local mkcert CA) |
 | keycloak.operator.db.database | string | `"keycloak"` | Database name |
 | keycloak.operator.db.host | string | `"platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local"` | PostgreSQL host |
 | keycloak.operator.db.password | string | `"keycloak-password"` | Database password (written to keycloak-db-credentials secret) |
