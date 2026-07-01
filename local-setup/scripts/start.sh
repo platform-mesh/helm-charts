@@ -627,6 +627,29 @@ fi
 ###############################################################################
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
+
+# Background watcher: pods scheduled before their kubeconfig secret exists get
+# stuck in ContainerCreating with FailedMount and kubelet does not retry
+# aggressively enough. Recycle any such pod once the secret it needs shows up.
+recycle_stuck_mounts() {
+  while true; do
+    kubectl "${RUNTIME_KC[@]}" -n platform-mesh-system get events \
+      --field-selector=reason=FailedMount \
+      -o jsonpath='{range .items[?(@.type=="Warning")]}{.involvedObject.name}{"\n"}{end}' 2>/dev/null \
+      | sort -u \
+      | while read -r pod; do
+          [ -z "$pod" ] && continue
+          phase=$(kubectl "${RUNTIME_KC[@]}" -n platform-mesh-system get pod "$pod" -o jsonpath='{.status.phase}' 2>/dev/null)
+          [ "$phase" = "Pending" ] || continue
+          kubectl "${RUNTIME_KC[@]}" -n platform-mesh-system delete pod "$pod" --wait=false >/dev/null 2>&1 || true
+        done
+    sleep 20
+  done
+}
+recycle_stuck_mounts &
+STUCK_MOUNT_PID=$!
+trap "kill $STUCK_MOUNT_PID 2>/dev/null || true" EXIT
+
 if [[ -n "$CI" ]]; then
     # Dedupe consecutive watch lines per object.
     # kubectl emits a row on every resourceVersion bump, we only want rows where status columns changed.
@@ -657,7 +680,7 @@ if [[ -n "$CI" ]]; then
     kubectl "${RUNTIME_KC[@]}" get platformmesh -n platform-mesh-system -w -o "custom-columns=$PM_COLUMNS" | dedupe_by_object &
     PM_WATCHER_PID=$!
 
-    trap "kill $HR_WATCHER_PID $PM_WATCHER_PID 2>/dev/null || true" EXIT
+    trap "kill $HR_WATCHER_PID $PM_WATCHER_PID $STUCK_MOUNT_PID 2>/dev/null || true" EXIT
 fi
 
 kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
@@ -668,6 +691,9 @@ if [[ -n "$HR_WATCHER_PID" ]]; then
     kill $HR_WATCHER_PID $PM_WATCHER_PID 2>/dev/null || true
     trap - EXIT
 fi
+
+kill $STUCK_MOUNT_PID 2>/dev/null || true
+trap - EXIT
 
 ###############################################################################
 # Remote: post-install waits
