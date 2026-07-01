@@ -558,8 +558,6 @@ data:
               - --idp-registration-allowed
             terminator:
               kubeconfigSecret: security-terminator-kubeconfig
-        terminal-controller-manager:
-          enabled: false
         virtual-workspaces:
           imageResources:
           - annotations:
