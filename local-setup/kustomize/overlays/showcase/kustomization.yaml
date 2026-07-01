@@ -36,6 +36,50 @@ patches:
           portal:
             values:
               featureToggles: "enableSessionAutoRefresh=true,terminal=true"
+          infra:
+            values:
+              gatewayApi:
+                # The terminal-controller-manager creates HTTPRoutes in the
+                # terminal-sessions namespace but the k8sapi-gateway's default
+                # listeners are `from: Same` so cross-namespace routes are not
+                # attached. Broaden to allow terminal routes to bind.
+                listeners:
+                  - name: terminate
+                    hostname: portal.localhost
+                    port: 8443
+                    protocol: HTTPS
+                    tls:
+                      mode: Terminate
+                      certificateRefs:
+                        - group: ""
+                          kind: Secret
+                          name: domain-certificate
+                          namespace: platform-mesh-system
+                    allowedRoutes:
+                      namespaces:
+                        from: All
+                  - name: terminate-wildstar
+                    hostname: '*.portal.localhost'
+                    port: 8443
+                    protocol: HTTPS
+                    tls:
+                      mode: Terminate
+                      certificateRefs:
+                        - group: ""
+                          kind: Secret
+                          name: domain-certificate
+                          namespace: platform-mesh-system
+                    allowedRoutes:
+                      namespaces:
+                        from: All
+                  - name: passthrough
+                    port: 8443
+                    protocol: TLS
+                    tls:
+                      mode: Passthrough
+                    allowedRoutes:
+                      namespaces:
+                        from: All
           marketplace-ui:
             enabled: true
           terminal-controller-manager:
