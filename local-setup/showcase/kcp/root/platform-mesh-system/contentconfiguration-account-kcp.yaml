@@ -32,10 +32,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "apis.kcp.io",
+                    "apiGroup": "apis_kcp_io",
                     "version": "v1alpha2",
-                    "kind": "APIBinding",
-                    "plural": "APIBindings",
+                    "entity": "APIBinding",
+                    "entityCollection": "APIBindings",
                     "singular": "apibinding",
                     "scope": "Cluster"
                   }
@@ -56,10 +56,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "apis.kcp.io",
+                    "apiGroup": "apis_kcp_io",
                     "version": "v1alpha2",
-                    "kind": "APIExport",
-                    "plural": "APIExports",
+                    "entity": "APIExport",
+                    "entityCollection": "APIExports",
                     "singular": "apiexport",
                     "scope": "Cluster"
                   }
@@ -80,10 +80,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "apis.kcp.io",
+                    "apiGroup": "apis_kcp_io",
                     "version": "v1alpha1",
-                    "kind": "APIExportEndpointSlice",
-                    "plural": "APIExportEndpointSlices",
+                    "entity": "APIExportEndpointSlice",
+                    "entityCollection": "APIExportEndpointSlices",
                     "singular": "apiexportendpointslice",
                     "scope": "Cluster"
                   }
@@ -104,10 +104,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "apis.kcp.io",
+                    "apiGroup": "apis_kcp_io",
                     "version": "v1alpha1",
-                    "kind": "APIResourceSchema",
-                    "plural": "APIResourceSchemas",
+                    "entity": "APIResourceSchema",
+                    "entityCollection": "APIResourceSchemas",
                     "singular": "apiresourceschema",
                     "scope": "Cluster"
                   }

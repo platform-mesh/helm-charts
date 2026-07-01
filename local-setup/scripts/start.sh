@@ -618,13 +618,6 @@ else
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
     fi
   fi
-
-  # Apply showcase overlay on top (patches PlatformMesh with terminal-controller-manager
-  # provider connection and event-related feature toggles). Local mode only.
-  if [ "$SHOWCASE" = true ]; then
-    echo -e "${COL}[$(date '+%H:%M:%S')] Applying showcase overlay ${COL_RES}"
-    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/showcase
-  fi
 fi
 
 ###############################################################################
@@ -739,6 +732,13 @@ if [ "$EXAMPLE_DATA" = true ]; then
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
     else
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+    fi
+    # Re-apply showcase on top so its featureToggles/values combine with the
+    # example-data extraDefaultAPIBindings/extraProviderConnections (kubectl
+    # apply replaces list fields, not merges).
+    if [ "$SHOWCASE" = true ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Re-applying showcase overlay on top of example-data ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/showcase
     fi
   fi
 

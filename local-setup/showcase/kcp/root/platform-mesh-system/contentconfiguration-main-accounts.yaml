@@ -30,10 +30,10 @@ spec:
                           },
                           "context": {
                               "resourceDefinition": {
-                                  "group": "core.platform-mesh.io",
-                                  "plural": "accounts",
+                                  "apiGroup": "core_platform_mesh_io",
+                                  "entityCollection": "Accounts",
                                   "singular": "account",
-                                  "kind": "Account",
+                                  "entity": "Account",
                                   "scope": "Cluster",
                                   "version": "v1alpha1",
                                   "readyCondition": {

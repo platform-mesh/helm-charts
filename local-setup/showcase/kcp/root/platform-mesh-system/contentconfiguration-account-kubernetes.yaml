@@ -32,10 +32,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "",
+                    "apiGroup": "",
                     "version": "v1",
-                    "kind": "ConfigMap",
-                    "plural": "ConfigMaps",
+                    "entity": "ConfigMap",
+                    "entityCollection": "ConfigMaps",
                     "singular": "configmap",
                     "scope": "Namespaced"
                   },
@@ -57,10 +57,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "",
+                    "apiGroup": "",
                     "version": "v1",
-                    "kind": "Namespace",
-                    "plural": "Namespaces",
+                    "entity": "Namespace",
+                    "entityCollection": "Namespaces",
                     "singular": "namespace",
                     "scope": "Cluster"
                   }
@@ -81,10 +81,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "",
+                    "apiGroup": "",
                     "version": "v1",
-                    "kind": "Secret",
-                    "plural": "Secrets",
+                    "entity": "Secret",
+                    "entityCollection": "Secrets",
                     "singular": "secret",
                     "scope": "Namespaced"
                   },
@@ -106,10 +106,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "",
+                    "apiGroup": "",
                     "version": "v1",
-                    "kind": "ServiceAccount",
-                    "plural": "ServiceAccounts",
+                    "entity": "ServiceAccount",
+                    "entityCollection": "ServiceAccounts",
                     "singular": "serviceaccount",
                     "scope": "Namespaced"
                   },
@@ -131,10 +131,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "rbac.authorization.k8s.io",
+                    "apiGroup": "rbac_authorization_k8s_io",
                     "version": "v1",
-                    "kind": "ClusterRole",
-                    "plural": "ClusterRoles",
+                    "entity": "ClusterRole",
+                    "entityCollection": "ClusterRoles",
                     "singular": "clusterrole",
                     "scope": "Cluster"
                   }
@@ -155,10 +155,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "rbac.authorization.k8s.io",
+                    "apiGroup": "rbac_authorization_k8s_io",
                     "version": "v1",
-                    "kind": "ClusterRoleBinding",
-                    "plural": "ClusterRoleBindings",
+                    "entity": "ClusterRoleBinding",
+                    "entityCollection": "ClusterRoleBindings",
                     "singular": "clusterrolebinding",
                     "scope": "Cluster"
                   }
@@ -179,10 +179,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "rbac.authorization.k8s.io",
+                    "apiGroup": "rbac_authorization_k8s_io",
                     "version": "v1",
-                    "kind": "Role",
-                    "plural": "Roles",
+                    "entity": "Role",
+                    "entityCollection": "Roles",
                     "singular": "role",
                     "scope": "Namespaced"
                   }
@@ -203,10 +203,10 @@ spec:
                 "url": "https://{context.organization}.portal.localhost:8443/ui/generic-resource/#/",
                 "context": {
                   "resourceDefinition": {
-                    "group": "rbac.authorization.k8s.io",
+                    "apiGroup": "rbac_authorization_k8s_io",
                     "version": "v1",
-                    "kind": "RoleBinding",
-                    "plural": "RoleBindings",
+                    "entity": "RoleBinding",
+                    "entityCollection": "RoleBindings",
                     "singular": "rolebinding",
                     "scope": "Namespaced"
                   }
