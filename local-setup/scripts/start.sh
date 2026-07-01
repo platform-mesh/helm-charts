@@ -47,7 +47,7 @@ usage() {
   echo ""
   echo "Options:"
   echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
-  echo "  --showcase         Install showcase components (generic-resource-ui, terminal-controller-manager)"
+  echo "  --showcase         Install showcase components (generic-resource-ui, terminal-controller-manager). Requires --example-data."
 
   echo "  --concurrent       Run chart builds in parallel instead of sequentially"
   echo "  --sharded          Deploy additional kcp shards"
@@ -95,6 +95,11 @@ unset KUBECONFIG
 
 if [ "$ITERATE" = true ] && [ "$PRERELEASE" = false ]; then
   echo -e "${RED}--iterate requires PLATFORM_MESH_VERSION to be unset${COL_RES}" >&2
+  exit 1
+fi
+
+if [ "$SHOWCASE" = true ] && [ "$EXAMPLE_DATA" != true ]; then
+  echo -e "${RED}--showcase requires --example-data${COL_RES}" >&2
   exit 1
 fi
 
