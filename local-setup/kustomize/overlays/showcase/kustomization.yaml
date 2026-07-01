@@ -40,6 +40,9 @@ patches:
             enabled: true
           terminal-controller-manager:
             enabled: true
+            values:
+              hostAliases:
+                enabled: true
           security-operator:
             values:
               coreModule: |-
