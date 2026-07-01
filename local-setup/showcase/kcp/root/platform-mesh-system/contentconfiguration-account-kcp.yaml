@@ -33,9 +33,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "apis_kcp_io",
+                    "group": "apis_kcp_io",
                     "version": "v1alpha2",
                     "entity": "APIBinding",
+                    "kind": "APIBinding",
                     "entityCollection": "APIBindings",
+                    "plural": "apibindings",
                     "singular": "apibinding",
                     "scope": "Cluster"
                   }
@@ -57,9 +60,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "apis_kcp_io",
+                    "group": "apis_kcp_io",
                     "version": "v1alpha2",
                     "entity": "APIExport",
+                    "kind": "APIExport",
                     "entityCollection": "APIExports",
+                    "plural": "apiexports",
                     "singular": "apiexport",
                     "scope": "Cluster"
                   }
@@ -81,9 +87,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "apis_kcp_io",
+                    "group": "apis_kcp_io",
                     "version": "v1alpha1",
                     "entity": "APIExportEndpointSlice",
+                    "kind": "APIExportEndpointSlice",
                     "entityCollection": "APIExportEndpointSlices",
+                    "plural": "apiexportendpointslices",
                     "singular": "apiexportendpointslice",
                     "scope": "Cluster"
                   }
@@ -105,9 +114,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "apis_kcp_io",
+                    "group": "apis_kcp_io",
                     "version": "v1alpha1",
                     "entity": "APIResourceSchema",
+                    "kind": "APIResourceSchema",
                     "entityCollection": "APIResourceSchemas",
+                    "plural": "apiresourceschemas",
                     "singular": "apiresourceschema",
                     "scope": "Cluster"
                   }

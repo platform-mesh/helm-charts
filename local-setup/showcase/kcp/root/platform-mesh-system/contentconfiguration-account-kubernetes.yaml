@@ -33,9 +33,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "",
+                    "group": "",
                     "version": "v1",
                     "entity": "ConfigMap",
+                    "kind": "ConfigMap",
                     "entityCollection": "ConfigMaps",
+                    "plural": "configmaps",
                     "singular": "configmap",
                     "scope": "Namespaced"
                   },
@@ -58,9 +61,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "",
+                    "group": "",
                     "version": "v1",
                     "entity": "Namespace",
+                    "kind": "Namespace",
                     "entityCollection": "Namespaces",
+                    "plural": "namespaces",
                     "singular": "namespace",
                     "scope": "Cluster"
                   }
@@ -82,9 +88,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "",
+                    "group": "",
                     "version": "v1",
                     "entity": "Secret",
+                    "kind": "Secret",
                     "entityCollection": "Secrets",
+                    "plural": "secrets",
                     "singular": "secret",
                     "scope": "Namespaced"
                   },
@@ -107,9 +116,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "",
+                    "group": "",
                     "version": "v1",
                     "entity": "ServiceAccount",
+                    "kind": "ServiceAccount",
                     "entityCollection": "ServiceAccounts",
+                    "plural": "serviceaccounts",
                     "singular": "serviceaccount",
                     "scope": "Namespaced"
                   },
@@ -132,9 +144,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "rbac_authorization_k8s_io",
+                    "group": "rbac_authorization_k8s_io",
                     "version": "v1",
                     "entity": "ClusterRole",
+                    "kind": "ClusterRole",
                     "entityCollection": "ClusterRoles",
+                    "plural": "clusterroles",
                     "singular": "clusterrole",
                     "scope": "Cluster"
                   }
@@ -156,9 +171,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "rbac_authorization_k8s_io",
+                    "group": "rbac_authorization_k8s_io",
                     "version": "v1",
                     "entity": "ClusterRoleBinding",
+                    "kind": "ClusterRoleBinding",
                     "entityCollection": "ClusterRoleBindings",
+                    "plural": "clusterrolebindings",
                     "singular": "clusterrolebinding",
                     "scope": "Cluster"
                   }
@@ -180,9 +198,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "rbac_authorization_k8s_io",
+                    "group": "rbac_authorization_k8s_io",
                     "version": "v1",
                     "entity": "Role",
+                    "kind": "Role",
                     "entityCollection": "Roles",
+                    "plural": "roles",
                     "singular": "role",
                     "scope": "Namespaced"
                   }
@@ -204,9 +225,12 @@ spec:
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "rbac_authorization_k8s_io",
+                    "group": "rbac_authorization_k8s_io",
                     "version": "v1",
                     "entity": "RoleBinding",
+                    "kind": "RoleBinding",
                     "entityCollection": "RoleBindings",
+                    "plural": "rolebindings",
                     "singular": "rolebinding",
                     "scope": "Namespaced"
                   }
