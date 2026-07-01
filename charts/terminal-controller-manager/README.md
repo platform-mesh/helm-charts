@@ -39,7 +39,7 @@ A Helm chart to deploy platform-mesh Terminal Controller Manager
 | terminal.hostAliasNames | list | `[]` | Host alias names for local development (optional) |
 | terminal.image.registry | string | `"ghcr.io"` | The terminal pod image registry |
 | terminal.image.repository | string | `"platform-mesh/terminal"` | The terminal pod image repository path (without registry) |
-| terminal.image.tag | string | `""` | Override terminal image tag (defaults to appVersion) |
+| terminal.image.tag | string | `"@sha256:2905b87cbb33d2c438b2b0f7338245e9339eba0c7ab8f7397d7b2e52d5d8c813"` | Override terminal image tag (defaults to appVersion) |
 | terminal.lifetime | string | `"2h"` | The terminal session lifetime (Go duration format) |
 | terminal.namespace | string | `"terminal-sessions"` | The namespace where terminal pods are created |
 

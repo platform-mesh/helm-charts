@@ -21,9 +21,9 @@ OpenTelemetry-based observability stack for platform-mesh
 | httproutes.prometheus.filters | list | `[]` | Optional filters (e.g., URLRewrite for path stripping) |
 | httproutes.prometheus.hostnames | list | `[]` | Hostnames for the Prometheus UI |
 | httproutes.prometheus.pathPrefix | string | `"/prometheus"` | Path prefix for Prometheus UI |
-| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0","mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
+| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0@sha256:93aad750175cbf1a973ae1c5886c3371f4d800f61be25cdd26870b8441ffe9fa","mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
-| otelCollector.image | string | `"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0"` | Collector image (use contrib for prometheusremotewrite exporter) |
+| otelCollector.image | string | `"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0@sha256:93aad750175cbf1a973ae1c5886c3371f4d800f61be25cdd26870b8441ffe9fa"` | Collector image (use contrib for prometheusremotewrite exporter) |
 | otelCollector.mode | string | `"statefulset"` | Deployment mode (statefulset required for Target Allocator) |
 | otelCollector.name | string | `"otel-gateway"` | Name of the OpenTelemetryCollector CR |
 | otelCollector.replicas | int | `1` | Number of collector replicas |
@@ -117,9 +117,9 @@ OpenTelemetry-based observability stack for platform-mesh
 | httproutes.prometheus.filters | list | `[]` | Optional filters (e.g., URLRewrite for path stripping) |
 | httproutes.prometheus.hostnames | list | `[]` | Hostnames for the Prometheus UI |
 | httproutes.prometheus.pathPrefix | string | `"/prometheus"` | Path prefix for Prometheus UI |
-| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0","mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
+| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0@sha256:93aad750175cbf1a973ae1c5886c3371f4d800f61be25cdd26870b8441ffe9fa","mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
-| otelCollector.image | string | `"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0"` | Collector image (use contrib for prometheusremotewrite exporter) |
+| otelCollector.image | string | `"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0@sha256:93aad750175cbf1a973ae1c5886c3371f4d800f61be25cdd26870b8441ffe9fa"` | Collector image (use contrib for prometheusremotewrite exporter) |
 | otelCollector.mode | string | `"statefulset"` | Deployment mode (statefulset required for Target Allocator) |
 | otelCollector.name | string | `"otel-gateway"` | Name of the OpenTelemetryCollector CR |
 | otelCollector.replicas | int | `1` | Number of collector replicas |
