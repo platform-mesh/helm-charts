@@ -25,7 +25,5 @@ spec:
     name: ocm-k8s-toolkit
   values:
     manager:
-      image:
-        tag: "0.0.0-5f5c53f"
       concurrency:
         resource: 3
