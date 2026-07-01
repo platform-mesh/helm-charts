@@ -29,6 +29,25 @@ if [ -f "${KCP_ADMIN_KUBECONFIG}" ]; then
     echo "Applying showcase KCP resources to root:platform-mesh-system..."
     KUBECONFIG="${KCP_ADMIN_KUBECONFIG}" kubectl apply -k "${SCRIPT_DIR}/../showcase/kcp/root/platform-mesh-system" \
       --server="https://kcp.api.portal.localhost:8443/clusters/root:platform-mesh-system"
+
+    # Patch the terminal.platform-mesh.io APIExport's permission claim on
+    # accountinfos to reference the current core.platform-mesh.io identityHash.
+    # The operator ships a hardcoded stale hash which never matches a fresh
+    # install, so the accountinfos claim never surfaces on the terminal
+    # virtual workspace and the terminal-controller-manager cannot get
+    # AccountInfo → terminals hang forever in "starting terminal...".
+    KCP_SERVER="https://kcp.api.portal.localhost:8443/clusters/root:platform-mesh-system"
+    CORE_HASH=$(KUBECONFIG="${KCP_ADMIN_KUBECONFIG}" kubectl --server="${KCP_SERVER}" \
+      get apiexport core.platform-mesh.io -o jsonpath='{.status.identityHash}' 2>/dev/null)
+    if [ -n "${CORE_HASH}" ]; then
+      echo "Patching terminal.platform-mesh.io APIExport accountinfos identityHash to ${CORE_HASH}..."
+      KUBECONFIG="${KCP_ADMIN_KUBECONFIG}" kubectl --server="${KCP_SERVER}" \
+        patch apiexport terminal.platform-mesh.io --type=json \
+        -p="[{\"op\":\"replace\",\"path\":\"/spec/permissionClaims/0/identityHash\",\"value\":\"${CORE_HASH}\"}]" \
+        || echo "Warning: failed to patch terminal APIExport identityHash"
+    else
+      echo "Warning: could not read core.platform-mesh.io identityHash; skipping terminal APIExport patch"
+    fi
 else
     echo "Warning: KCP admin kubeconfig not found, skipping KCP resource application."
 fi
