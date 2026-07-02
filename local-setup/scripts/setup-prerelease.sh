@@ -24,7 +24,8 @@ deploy_oci_registry() {
     --set tlsSecretName=domain-certificate \
     --set image.repository=ghcr.io/distribution/distribution \
     --set image.tag=3.0.0 \
-    --set ingress.enabled=false
+    --set ingress.enabled=false \
+    --set configData.storage.delete.enabled=true
 
   kubectl create secret generic domain-certificate -n registry \
     --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
