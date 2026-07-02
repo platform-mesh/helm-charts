@@ -469,10 +469,20 @@ tasks:
       - task: local-setup
         vars: {FLAGS: "--concurrent --example-data"}
 
+  local-setup:concurrent:example-data:showcase:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--concurrent --example-data --showcase"}
+
   local-setup:concurrent:example-data:iterate:
     cmds:
       - task: local-setup:iterate
         vars: {FLAGS: "--concurrent --example-data"}
+
+  local-setup:concurrent:example-data:showcase:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--concurrent --example-data --showcase"}
 
   local-setup:remote:fluxcd:
     cmds:
