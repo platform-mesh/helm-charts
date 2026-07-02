@@ -200,16 +200,9 @@ resolve_component_versions() {
     export KEYCLOAK_VERSION=$(yq -r '.jobs.ocm.env.PM_KEYCLOAK_VERSION' "$agg")
     export GARDENER_ETCD_DRUID_VERSION=$(yq -r '.jobs.ocm.env.GARDENER_ETCD_DRUID_VERSION' "$agg")
 
-    # Transfer api-syncagent using version from aggregator
-    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion \
-        "ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:$API_SYNCAGENT_CHART_VERSION" \
-        oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh \
-        --recursive &
     transfer_from_cache etcd-druid \
         europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid \
-        "$GARDENER_ETCD_DRUID_VERSION" \
-        &
-    wait
+        "$GARDENER_ETCD_DRUID_VERSION"
 
     # PM-stamped component descriptor versions for third-party components.
     # Bump the suffix here to publish a new descriptor without touching resource versions.
