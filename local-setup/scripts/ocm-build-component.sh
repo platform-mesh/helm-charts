@@ -142,10 +142,15 @@ transfer_etcd_druid_with_cache() {
     local ref="europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION"
     local cluster_oci="$LOCAL_REGISTRY/platform-mesh"
 
-    if [ -d "$cache_dir" ] && [ -n "$(ls -A "$cache_dir" 2>/dev/null)" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: using cached CTF at $cache_dir${COL_RES}"
+    local cached_tag=""
+    if [ -f "$cache_dir/artifact-index.json" ]; then
+        cached_tag=$(jq -r '.artifacts[0].tag // ""' "$cache_dir/artifact-index.json" 2>/dev/null || echo "")
+    fi
+
+    if [ "$cached_tag" = "$GARDENER_ETCD_DRUID_VERSION" ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: using cached CTF $cached_tag at $cache_dir${COL_RES}"
     else
-        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: cache miss, transferring from gardener registry${COL_RES}"
+        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: cache miss (have '${cached_tag:-none}', want $GARDENER_ETCD_DRUID_VERSION), transferring from gardener registry${COL_RES}"
         rm -rf "$cache_dir"
         mkdir -p "$(dirname "$cache_dir")"
         "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer componentversion \
