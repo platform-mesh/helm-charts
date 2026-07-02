@@ -178,7 +178,7 @@ resolve_component_versions() {
     get_component_version extension-manager-operator github.com/platform-mesh/extension-manager-operator charts/extension-manager-operator EXTENSION_MANAGER_OPERATOR_VERSION
     get_component_version infra github.com/platform-mesh/infra charts/infra INFRA_VERSION
     get_component_version rebac-authz-webhook github.com/platform-mesh/rebac-authz-webhook charts/rebac-authz-webhook REBAC_AUTHZ_WEBHOOK_VERSION
-    get_component_version portal github.com/platform-mesh/portal "../helm-charts/charts/portal/" PORTAL_VERSION
+    get_component_version portal github.com/platform-mesh/portal charts/portal/ PORTAL_VERSION
     get_component_version platform-mesh-operator github.com/platform-mesh/platform-mesh-operator charts/platform-mesh-operator/ PLATFORM_MESH_OPERATOR_VERSION
     get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
     get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
