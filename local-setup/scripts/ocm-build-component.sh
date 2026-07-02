@@ -69,7 +69,7 @@ is_local() {
     echo ",$CUSTOM_LOCAL_COMPONENTS," | grep -q ",$1,"
 }
 
-# Get component version (local or remote)
+# Get local component version
 get_component_version() {
     local short="$1"
     local component="$2"
@@ -97,25 +97,8 @@ get_component_version() {
         return 0
     fi
 
-    # 3. Get from remote registry
-    local repo="ghcr.io/platform-mesh"
-    local val
-    val=$(kubectl exec ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
-
-    if [ -z "$val" ] || [ "$val" = "null" ]; then
-        repo="ghcr.io/platform-mesh/images"
-        echo "Primary repo lookup failed for $component, trying fallback repo $repo"
-        val=$(kubectl exec ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
-    fi
-
-    if [ -z "$val" ] || [ "$val" = "null" ]; then
-        echo -e "${RED}Failed to resolve remote version for $component${COL_RES}" >&2
-        exit 1
-    fi
-
-    echo "Using REMOTE component version for $short -> $val"
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --copy-resources --overwrite "$repo//$component:$val" .ocm/transport.ctf
-    export "$env_var"="$val"
+    echo "Trying to resolve non-local component $shart / $component"
+    exit 1
 }
 
 # Get resource version from OCM
