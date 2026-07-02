@@ -203,7 +203,10 @@ resolve_component_versions() {
     export GARDENER_ETCD_DRUID_VERSION=$(yq -r '.jobs.ocm.env.GARDENER_ETCD_DRUID_VERSION' "$agg")
 
     # Transfer api-syncagent using version from aggregator
-    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:$API_SYNCAGENT_CHART_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
+    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion \
+        "ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:$API_SYNCAGENT_CHART_VERSION" \
+        oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh \
+        --recursive &
     transfer_etcd_druid_with_cache &
     wait
 
