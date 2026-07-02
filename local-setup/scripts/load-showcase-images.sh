@@ -8,7 +8,7 @@
 set -eo pipefail
 
 IMAGES=(
-  "ghcr.io/platform-mesh/generic-resource-ui:v0.2.1"
+  "ghcr.io/platform-mesh/generic-resource-ui:v0.2.43"
   "ghcr.io/platform-mesh/terminal-controller-manager:v0.6.2"
   "ghcr.io/platform-mesh/terminal:v0.6.2"
 )
