@@ -115,14 +115,17 @@ get_external_component_version() {
     "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get componentversions --latest "$component" --repo "$repo" -o json | jq -r '.items[0].component.version'
 }
 
-# Transfer etcd-druid into the cluster OCI registry, via a host-side CTF cache
-# directory. On CI cache hit the upstream pull is skipped — we just push the
-# cached CTF into the cluster registry. On miss the upstream transfer
-# populates the cache directory for future runs (actions/cache saves it
-# post-job if its key didn't match on restore).
-transfer_etcd_druid_with_cache() {
-    local cache_dir="$OCM_DIR/cache/etcd-druid"
-    local ref="europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION"
+# poor mans persistence for heavy deps.
+# Built for CI speedup, adjusted for our own good.
+transfer_from_cache() {
+    # etcd-druid
+    local name="$1"
+    # europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid
+    local ref="$2"
+    # vA.B.C
+    local ver="$3"
+
+    local cache_dir="$OCM_DIR/cache/$name"
     local cluster_oci="$LOCAL_REGISTRY/platform-mesh"
 
     local cached_tag=""
@@ -130,20 +133,15 @@ transfer_etcd_druid_with_cache() {
         cached_tag=$(jq -r '.artifacts[0].tag // ""' "$cache_dir/artifact-index.json" 2>/dev/null || echo "")
     fi
 
-    if [ "$cached_tag" = "$GARDENER_ETCD_DRUID_VERSION" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: using cached CTF $cached_tag at $cache_dir${COL_RES}"
-    else
-        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: cache miss (have '${cached_tag:-none}', want $GARDENER_ETCD_DRUID_VERSION), transferring from gardener registry${COL_RES}"
+    if [ "$cached_tag" != "$ver" ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] $name: cache miss (have '${cached_tag:-none}', want $ver), transferring${COL_RES}"
         rm -rf "$cache_dir"
         mkdir -p "$(dirname "$cache_dir")"
         "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer componentversion \
-            --overwrite --copy-resources --no-update "$ref" "$cache_dir"
+            --overwrite --copy-resources --no-update "$ref:$ver" "$cache_dir"
     fi
 
-    # Push from the host cache directory into the in-cluster OCI registry via
-    # the transfer pod (the pod is the only thing that can reach the cluster
-    # registry's TLS service over its self-signed cert chain).
-    local pod_path=".ocm/cache-etcd-druid"
+    local pod_path=".ocm/cache-$name"
     kubectl exec -i ocm-transfer-pod -- rm -rf "$pod_path"
     kubectl exec -i ocm-transfer-pod -- mkdir -p "$pod_path"
     kubectl cp "$cache_dir" -n default "ocm-transfer-pod:$pod_path/"
@@ -207,7 +205,10 @@ resolve_component_versions() {
         "ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:$API_SYNCAGENT_CHART_VERSION" \
         oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh \
         --recursive &
-    transfer_etcd_druid_with_cache &
+    transfer_from_cache etcd-druid \
+        europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid \
+        "$GARDENER_ETCD_DRUID_VERSION" \
+        &
     wait
 
     # PM-stamped component descriptor versions for third-party components.
