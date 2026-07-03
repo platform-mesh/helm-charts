@@ -93,11 +93,11 @@ jobs:
       - name: Resolve third-party OCM versions
         id: ocm-versions
         run: local-setup/scripts/ocm-resolve-thirdparty-versions.sh
-      - name: Cache OCM etcd-druid
+      - name: Cache expensive OCM
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
-          path: .ocm/cache/etcd-druid
-          key: ocm-thirdparty-etcd-druid-${{ steps.ocm-versions.outputs.etcd_druid }}
+          path: .ocm/cache/
+          key: ocm-thirdparty
       - name: Run local-setup with sharded example data
         run: |
           task local-setup:concurrent:example-data

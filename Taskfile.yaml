@@ -431,7 +431,7 @@ tasks:
       SHARDED: '{{.SHARDED}}'
       FLAGS: '{{.FLAGS}}'
     cmds:
-      - ./local-setup/scripts/start.sh {{.SHARDED}} {{.FLAGS}}
+      - ./local-setup/scripts/start.sh --iterate {{.SHARDED}} {{.FLAGS}}
 
   local-setup:
     cmds:
