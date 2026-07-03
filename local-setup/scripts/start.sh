@@ -644,9 +644,29 @@ if [[ -n "$CI" ]]; then
     trap "kill $HR_WATCHER_PID $PM_WATCHER_PID 2>/dev/null || true" EXIT
 fi
 
-kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
-  --for=condition=Ready platformmesh \
-  --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
+wait_for_pm() {
+    kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
+      --for=condition=Ready platformmesh \
+      --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
+
+    if [[ -n "$CI" ]]; then
+        sleep 10
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m component --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m resource --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m hr --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout=10m deployment --all -A
+    fi
+}
+
+# If the wait hits timeout dump information for later analysis to see what blocked
+if ! wait_for_pm; then
+    mkdir -p runtime-artifacts
+    kubectl "${RUNTIME_KC[@]}" get platformmesh,component,resource,helmrelease,helmchart,helmrepository,ocirepository,kustomization,deployment -A -o yaml > runtime-artifacts/resources.yaml
+    kubectl "${RUNTIME_KC[@]}" logs -n platform-mesh-system deploy/platform-mesh-operator --all-containers > runtime-artifacts/platform-mesh-operator.log
+    kubectl "${RUNTIME_KC[@]}" get pods -A -o wide > runtime-artifacts/pods.yaml
+    kubectl "${RUNTIME_KC[@]}" get events -A -o yaml --sort-by=.lastTimestamp > runtime-artifacts/events.yaml
+    exit 1
+fi
 
 if [[ -n "$HR_WATCHER_PID" ]]; then
     kill $HR_WATCHER_PID $PM_WATCHER_PID 2>/dev/null || true
