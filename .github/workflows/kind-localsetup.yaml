@@ -98,9 +98,19 @@ jobs:
         with:
           path: .ocm/cache/etcd-druid
           key: ocm-thirdparty-etcd-druid-${{ steps.ocm-versions.outputs.etcd_druid }}
+
       - name: Run local-setup with sharded example data
         run: |
           task local-setup:concurrent:example-data
+      - name: Upload runtime artefacts
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: runtime-artifacts
+          path: |
+            runtime-artifacts/
+          retention-days: 5
+
       - name: Check/wait for all components to be ready
         run: |
           sleep 10
