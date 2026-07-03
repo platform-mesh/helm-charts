@@ -111,14 +111,6 @@ jobs:
             runtime-artifacts/
           retention-days: 5
 
-      - name: Check/wait for all components to be ready
-        run: |
-          sleep 10
-          kubectl wait --for=condition=ready --timeout=10m component --all -A
-          kubectl wait --for=condition=ready --timeout=10m resource --all -A
-          kubectl wait --for=condition=ready --timeout=10m hr --all -A
-          kubectl wait --for=condition=Available --timeout=10m deployment --all -A
-
       - name: Setup Node.js 22
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:

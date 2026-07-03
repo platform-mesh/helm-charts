@@ -648,6 +648,14 @@ wait_for_pm() {
     kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
       --for=condition=Ready platformmesh \
       --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
+
+    if [[ -n "$CI" ]]; then
+        sleep 10
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m component --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m resource --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m hr --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout=10m deployment --all -A
+    fi
 }
 
 # If the wait hits timeout dump information for later analysis to see what blocked
