@@ -69,7 +69,7 @@ is_local() {
     echo ",$CUSTOM_LOCAL_COMPONENTS," | grep -q ",$1,"
 }
 
-# Get component version (local or remote)
+# Get local component version
 get_component_version() {
     local short="$1"
     local component="$2"
@@ -97,25 +97,8 @@ get_component_version() {
         return 0
     fi
 
-    # 3. Get from remote registry
-    local repo="ghcr.io/platform-mesh"
-    local val
-    val=$(kubectl exec ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
-
-    if [ -z "$val" ] || [ "$val" = "null" ]; then
-        repo="ghcr.io/platform-mesh/images"
-        echo "Primary repo lookup failed for $component, trying fallback repo $repo"
-        val=$(kubectl exec ocm-transfer-pod -- ocm get componentversions --latest "$component" --repo "$repo" -o json 2>/dev/null | jq -r '.items[0].component.version' 2>/dev/null || true)
-    fi
-
-    if [ -z "$val" ] || [ "$val" = "null" ]; then
-        echo -e "${RED}Failed to resolve remote version for $component${COL_RES}" >&2
-        exit 1
-    fi
-
-    echo "Using REMOTE component version for $short -> $val"
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --copy-resources --overwrite "$repo//$component:$val" .ocm/transport.ctf
-    export "$env_var"="$val"
+    echo "Trying to resolve non-local component $shart / $component"
+    exit 1
 }
 
 # Get resource version from OCM
@@ -132,14 +115,17 @@ get_external_component_version() {
     "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get componentversions --latest "$component" --repo "$repo" -o json | jq -r '.items[0].component.version'
 }
 
-# Transfer etcd-druid into the cluster OCI registry, via a host-side CTF cache
-# directory. On CI cache hit the upstream pull is skipped — we just push the
-# cached CTF into the cluster registry. On miss the upstream transfer
-# populates the cache directory for future runs (actions/cache saves it
-# post-job if its key didn't match on restore).
-transfer_etcd_druid_with_cache() {
-    local cache_dir="$OCM_DIR/cache/etcd-druid"
-    local ref="europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:$GARDENER_ETCD_DRUID_VERSION"
+# poor mans persistence for heavy deps.
+# Built for CI speedup, adjusted for our own good.
+transfer_from_cache() {
+    # etcd-druid
+    local name="$1"
+    # europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid
+    local ref="$2"
+    # vA.B.C
+    local ver="$3"
+
+    local cache_dir="$OCM_DIR/cache/$name"
     local cluster_oci="$LOCAL_REGISTRY/platform-mesh"
 
     local cached_tag=""
@@ -147,20 +133,15 @@ transfer_etcd_druid_with_cache() {
         cached_tag=$(jq -r '.artifacts[0].tag // ""' "$cache_dir/artifact-index.json" 2>/dev/null || echo "")
     fi
 
-    if [ "$cached_tag" = "$GARDENER_ETCD_DRUID_VERSION" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: using cached CTF $cached_tag at $cache_dir${COL_RES}"
-    else
-        echo -e "${COL}[$(date '+%H:%M:%S')] etcd-druid: cache miss (have '${cached_tag:-none}', want $GARDENER_ETCD_DRUID_VERSION), transferring from gardener registry${COL_RES}"
+    if [ "$cached_tag" != "$ver" ]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] $name: cache miss (have '${cached_tag:-none}', want $ver), transferring${COL_RES}"
         rm -rf "$cache_dir"
         mkdir -p "$(dirname "$cache_dir")"
         "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer componentversion \
-            --overwrite --copy-resources --no-update "$ref" "$cache_dir"
+            --overwrite --copy-resources --no-update "$ref:$ver" "$cache_dir"
     fi
 
-    # Push from the host cache directory into the in-cluster OCI registry via
-    # the transfer pod (the pod is the only thing that can reach the cluster
-    # registry's TLS service over its self-signed cert chain).
-    local pod_path=".ocm/cache-etcd-druid"
+    local pod_path=".ocm/cache-$name"
     kubectl exec -i ocm-transfer-pod -- rm -rf "$pod_path"
     kubectl exec -i ocm-transfer-pod -- mkdir -p "$pod_path"
     kubectl cp "$cache_dir" -n default "ocm-transfer-pod:$pod_path/"
@@ -178,11 +159,10 @@ resolve_component_versions() {
     get_component_version extension-manager-operator github.com/platform-mesh/extension-manager-operator charts/extension-manager-operator EXTENSION_MANAGER_OPERATOR_VERSION
     get_component_version infra github.com/platform-mesh/infra charts/infra INFRA_VERSION
     get_component_version rebac-authz-webhook github.com/platform-mesh/rebac-authz-webhook charts/rebac-authz-webhook REBAC_AUTHZ_WEBHOOK_VERSION
-    get_component_version portal github.com/platform-mesh/portal "../helm-charts/charts/portal/" PORTAL_VERSION
+    get_component_version portal github.com/platform-mesh/portal charts/portal/ PORTAL_VERSION
     get_component_version platform-mesh-operator github.com/platform-mesh/platform-mesh-operator charts/platform-mesh-operator/ PLATFORM_MESH_OPERATOR_VERSION
     get_component_version kubernetes-graphql-gateway github.com/platform-mesh/kubernetes-graphql-gateway charts/kubernetes-graphql-gateway KUBERNETES_GRAPHQL_GATEWAY_VERSION
     get_component_version virtual-workspaces github.com/platform-mesh/virtual-workspaces charts/virtual-workspaces VIRTUAL_WORKSPACES_VERSION
-    get_component_version keycloak github.com/platform-mesh/keycloak "../helm-charts/keycloak/" KEYCLOAK_VERSION
     get_component_version keycloak-operator github.com/platform-mesh/keycloak-operator charts/keycloak-operator KEYCLOAK_OPERATOR_VERSION
     get_component_version iam-service github.com/platform-mesh/iam-service charts/iam-service IAM_SERVICE_VERSION
     get_component_version iam-ui github.com/platform-mesh/iam-ui charts/iam-ui IAM_UI_VERSION
@@ -217,13 +197,12 @@ resolve_component_versions() {
     export PROMETHEUS_OPERATOR_CRDS_VERSION=$(yq -r '.jobs.ocm.env.PROMETHEUS_OPERATOR_CRDS_VERSION' "$agg")
     export KUBE_PROMETHEUS_STACK_VERSION=$(yq -r '.jobs.ocm.env.KUBE_PROMETHEUS_STACK_VERSION' "$agg")
     export OPENTELEMETRY_OPERATOR_VERSION=$(yq -r '.jobs.ocm.env.OPENTELEMETRY_OPERATOR_VERSION' "$agg")
-    # Versions not pinned in the aggregator: keep remote lookups.
-    export GARDENER_ETCD_DRUID_VERSION=$(get_external_component_version github.com/gardener/etcd-druid europe-docker.pkg.dev/gardener-project/releases)
+    export KEYCLOAK_VERSION=$(yq -r '.jobs.ocm.env.PM_KEYCLOAK_VERSION' "$agg")
+    export GARDENER_ETCD_DRUID_VERSION=$(yq -r '.jobs.ocm.env.GARDENER_ETCD_DRUID_VERSION' "$agg")
 
-    # Transfer api-syncagent using version from aggregator
-    kubectl exec -i ocm-transfer-pod -- ocm transfer componentversion --overwrite ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:$API_SYNCAGENT_CHART_VERSION oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh --recursive &
-    transfer_etcd_druid_with_cache &
-    wait
+    transfer_from_cache etcd-druid \
+        europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid \
+        "$GARDENER_ETCD_DRUID_VERSION"
 
     # PM-stamped component descriptor versions for third-party components.
     # Bump the suffix here to publish a new descriptor without touching resource versions.
