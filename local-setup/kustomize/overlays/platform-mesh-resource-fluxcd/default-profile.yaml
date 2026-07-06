@@ -716,4 +716,8 @@ data:
         targetNamespace: etcd-druid-system
         interval: 1m
         ocmResourceName: etcd-druid
-        values: {}
+        values:
+          operatorConfig:
+            controllers:
+              etcd:
+                enableEtcdSpecAutoReconcile: true

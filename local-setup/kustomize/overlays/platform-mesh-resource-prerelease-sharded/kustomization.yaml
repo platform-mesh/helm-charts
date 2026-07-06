@@ -20,5 +20,5 @@ patches:
                   shards:
                     - name: triton
                       hostname: triton.kcp.localhost
-#                   - name: nereus
-#                     hostname: nereus.kcp.localhost
+                    - name: nereus
+                      hostname: nereus.kcp.localhost
