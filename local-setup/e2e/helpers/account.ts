@@ -224,7 +224,7 @@ async function deleteAccount(page: Page, accountUrl: string, orgName?: string, a
   }
 
   const deleteSelectors = [
-    '[test-id="delete-resource-button"]',
+    '[data-testid="delete-resource-button"]',
     'button:has-text("Delete")',
     '[role="button"][aria-label="Delete"]',
   ];
@@ -282,13 +282,13 @@ async function deleteAccount(page: Page, accountUrl: string, orgName?: string, a
     throw new Error(`Could not find account delete button on the account detail page, buttons=${JSON.stringify(visibleButtons)}`);
   }
 
-  // Wait for the delete confirmation dialog to appear using test-id
-  const deleteDialog = page.locator('[test-id="delete-resource-dialog"]');
+  // Wait for the delete confirmation dialog to appear using data-testid
+  const deleteDialog = page.locator('[data-testid="delete-resource-dialog"]');
   await expect(deleteDialog).toBeVisible({ timeout: 10000 });
 
-  // Find and fill the confirmation input inside the dialog using test-id
+  // Find and fill the confirmation input inside the dialog using data-testid
   // UI5 web components have shadow DOM, so we need to target the inner input element
-  const confirmInput = page.locator('[test-id="delete-resource-input"]');
+  const confirmInput = page.locator('[data-testid="delete-resource-input"]');
   await expect(confirmInput).toBeVisible({ timeout: 5000 });
 
   // Fill the input by targeting the actual input element inside the ui5-input shadow root
@@ -297,7 +297,7 @@ async function deleteAccount(page: Page, accountUrl: string, orgName?: string, a
   logStep(`deleteAccount:typed-confirmation account=${account}`);
   await page.waitForTimeout(500);
 
-  const confirmButton = page.locator('[test-id="delete-resource-confirm"]');
+  const confirmButton = page.locator('[data-testid="delete-resource-confirm"]');
   await expect(confirmButton).toBeVisible({ timeout: 5000 });
   await expect(confirmButton).toBeEnabled({ timeout: 5000 });
   await clickRobust(confirmButton);

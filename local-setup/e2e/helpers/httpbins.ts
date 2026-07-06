@@ -324,13 +324,13 @@ async function ensureHttpBinExists(page: Page, namespaceName: string, httpBinNam
       await page.getByRole('textbox').first().fill(httpBinName);
 
       // Select namespace in the create dialog dropdown
-      const namespaceSelect = page.locator('[test-id="generic-form-field-metadata.namespace"]').first();
+      const namespaceSelect = page.locator('[data-testid="generic-form-field-metadata.namespace"]').first();
       if (await namespaceSelect.isVisible().catch(() => false)) {
         await namespaceSelect.click();
         await page.waitForTimeout(300);
 
         // Click on the namespace option
-        const namespaceOption = page.locator(`[test-id="generic-form-field-metadata.namespace-option-${namespaceName}"]`).first();
+        const namespaceOption = page.locator(`[data-testid="generic-form-field-metadata.namespace-option-${namespaceName}"]`).first();
         await expect(namespaceOption).toBeVisible({ timeout: 5000 });
         await namespaceOption.click();
         await page.waitForTimeout(300);
