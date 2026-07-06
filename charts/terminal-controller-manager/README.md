@@ -23,7 +23,7 @@ A Helm chart to deploy platform-mesh Terminal Controller Manager
 | hostAliases.enabled | bool | `false` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
-| image.repository | string | `"platform-mesh/terminal-controller-manager"` | The image repository path (without registry) |
+| image.repository | string | `"platform-mesh/platform-mesh/terminal-controller-manager"` | The image repository path (without registry) |
 | istio.enabled | bool | `false` |  |
 | kcp | object | `{"apiExportEndpointSliceName":"terminal.platform-mesh.io","kubeconfigSecret":""}` | The kcp configuration |
 | kcp.apiExportEndpointSliceName | string | `"terminal.platform-mesh.io"` | kcp APIExportEndpointSliceName |
@@ -38,7 +38,7 @@ A Helm chart to deploy platform-mesh Terminal Controller Manager
 | terminal.hostAliasIP | string | `""` | Host alias IP for local development (optional) |
 | terminal.hostAliasNames | list | `[]` | Host alias names for local development (optional) |
 | terminal.image.registry | string | `"ghcr.io"` | The terminal pod image registry |
-| terminal.image.repository | string | `"platform-mesh/terminal"` | The terminal pod image repository path (without registry) |
+| terminal.image.repository | string | `"platform-mesh/platform-mesh/terminal"` | The terminal pod image repository path (without registry) |
 | terminal.image.tag | string | `""` | Override terminal image tag (defaults to appVersion) |
 | terminal.lifetime | string | `"2h"` | The terminal session lifetime (Go duration format) |
 | terminal.namespace | string | `"terminal-sessions"` | The namespace where terminal pods are created |
