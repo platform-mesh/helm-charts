@@ -6,7 +6,7 @@ image:
   # -- The image digest (when set, overrides tag: registry/repository@digest)
   digest: ""
   # -- The image tag (defaults to appVersion)
-  tag: "26.6.0"
+  tag: "26.6.0@sha256:92de7908a4a64177c0d703ef08c25a8560121c61e194fa681f29c7e910a49ab3"
 
 keycloakImage:
   # -- The Keycloak image registry
@@ -14,7 +14,7 @@ keycloakImage:
   # -- The Keycloak image repository path (without registry). When registry is empty, this is treated as a full path (backward compatible).
   repository: platform-mesh/custom-images/keycloak
   # -- The Keycloak image tag (defaults to appVersion)
-  tag: "v26.6.0"
+  tag: "v26.6.0@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
 
 # -- Namespace to watch for Keycloak CRs. Defaults to the release namespace.
 watchNamespaces: ""
