@@ -170,7 +170,7 @@ async function gotoWithRetry(page: Page, url: string): Promise<void> {
 
 async function fillOrganizationField(page: Page, value: string): Promise<void> {
   const host = page
-    .locator('[test-id="organization-management-onboard-input"]')
+    .locator('[data-testid="organization-management-onboard-input"]')
     .or(page.locator('ui5-input[placeholder="Enter organization name"]'))
     .first();
   const nativeInput = host.locator('input').first();
@@ -279,7 +279,7 @@ async function selectExistingOrganization(page: Page, value: string): Promise<bo
 }
 
 async function waitForOrganizationSwitchReady(page: Page): Promise<void> {
-  const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
+  const switchButton = page.locator('[data-testid="organization-management-switch-button"]').locator('button');
 
   await expect.poll(async () => {
     const enabled = await switchButton.isEnabled().catch(() => false);
@@ -306,7 +306,7 @@ async function ensureWelcomePage(page: Page, user: TestUser): Promise<void> {
 
   const landingState = await Promise.race([
     page.getByText('Welcome to the Platform Mesh Portal!').waitFor({ state: 'visible', timeout: 10000 }).then(() => 'welcome'),
-    page.locator('[test-id="organization-management-input"]').waitFor({ state: 'visible', timeout: 10000 }).then(() => 'org-management'),
+    page.locator('[data-testid="organization-management-input"]').waitFor({ state: 'visible', timeout: 10000 }).then(() => 'org-management'),
     page.getByText("Welcome! Let's get started.", { exact: true }).waitFor({ state: 'visible', timeout: 10000 }).then(() => 'home'),
   ]).catch(() => 'none');
 
@@ -341,7 +341,7 @@ async function ensurePortalHome(page: Page, user?: TestUser, orgName?: string): 
 
 async function switchToOrganization(page: Page, user: TestUser, createIfMissing: boolean, orgName?: string): Promise<void> {
   const org = orgName ?? newOrgName;
-  const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
+  const switchButton = page.locator('[data-testid="organization-management-switch-button"]').locator('button');
   const orgPortalUrl = `https://${org}.portal.localhost:8443/home`;
   const orgPortalBaseUrl = `https://${org}.portal.localhost:8443/`;
   const existingOrgAlert = page.getByText(new RegExp(`organization.*${org}.*already exists|${org}.*already exists`, 'i')).first();
@@ -350,7 +350,7 @@ async function switchToOrganization(page: Page, user: TestUser, createIfMissing:
   let orgSelected = await selectExistingOrganization(page, org);
 
   if (createIfMissing) {
-    const onboardButton = page.locator('[test-id="organization-management-onboard-button"]').locator('button');
+    const onboardButton = page.locator('[data-testid="organization-management-onboard-button"]').locator('button');
     if (!orgSelected && await onboardButton.isVisible().catch(() => false)) {
       logStep(`switchToOrganization:onboard-missing-org org=${org}`);
       await fillOrganizationField(page, org);
