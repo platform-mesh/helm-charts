@@ -71,15 +71,15 @@ test.describe('Home Page', () => {
     preCreateShardedOrgWorkspace(orgName, ORG_SHARD);
 
     // 3. Create org via UI
-    await page.locator('[test-id="organization-management-input"]').locator('input').fill(orgName);
-    await page.locator('[test-id="organization-management-onboard-button"]').locator('button').click();
+    await page.locator('[data-testid="organization-management-input"]').locator('input').fill(orgName);
+    await page.locator('[data-testid="organization-management-onboard-button"]').locator('button').click();
 
     // 4. Wait for org workspace to be ready on shard
     waitForWorkspaceOnShard(orgName, 'root:orgs', ORG_SHARD);
 
     // 5. Switch to org
     await selectExistingOrganization(page, orgName);
-    const switchButton = page.locator('[test-id="organization-management-switch-button"]').locator('button');
+    const switchButton = page.locator('[data-testid="organization-management-switch-button"]').locator('button');
     await expect(switchButton).toBeEnabled({ timeout: 100000 });
     await switchButton.click();
 
