@@ -112,6 +112,10 @@ spec:
           log:
             noJson: true
           image:
+            # The operator cannot localize its own image — kro interpolates the
+            # coordinates the OCM controller resolved into status.additional.
+            registry: ${resourceImage.status.additional.?registry}
+            repository: ${resourceImage.status.additional.?repository}
             tag: ${resourceImage.status.?resource.?version}
           idp:
             registrationAllowed: true
