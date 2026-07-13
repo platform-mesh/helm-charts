@@ -25,5 +25,6 @@ jobs:
       chartName: infra
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
+      serviceComponentConstructorFile: .ocm/component-constructor-service-infra.yaml
     secrets: inherit
 

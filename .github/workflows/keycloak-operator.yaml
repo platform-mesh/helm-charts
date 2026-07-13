@@ -37,5 +37,6 @@ jobs:
       chartName: keycloak-operator
       componentConstructorFile: .ocm/component-constructor-chart-only.yaml
       chartOnly: true
+      serviceComponentConstructorFile: .ocm/component-constructor-service-keycloak-operator.yaml
     secrets: inherit
 
