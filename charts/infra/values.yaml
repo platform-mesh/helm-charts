@@ -162,10 +162,24 @@ keycloak:
     # -- Number of Keycloak instances
     instances: 1
     image:
-      # -- Keycloak image repository
-      repository: ghcr.io/platform-mesh/custom-images/keycloak
-      # -- Keycloak image tag
-      tag: "latest@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
+      # -- Keycloak image registry
+      registry: ghcr.io
+      # -- Keycloak image repository (without registry)
+      repository: platform-mesh/custom-images/keycloak
+      # -- Keycloak image tag (defaults to appVersion)
+      tag: "v26.6.0"
+      # -- Keycloak image digest (when set, overrides tag: registry/repository@digest)
+      digest: "sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
+    waitForDb:
+      image:
+        # -- wait-for-db init container image registry
+        registry: docker.io
+        # -- wait-for-db init container image repository (without registry)
+        repository: library/busybox
+        # -- wait-for-db init container image tag
+        tag: "1.37"
+        # -- wait-for-db init container image digest (when set, overrides tag)
+        digest: ""
     # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).
     # Must not include a path — the operator auto-derives http-relative-path from
     # any path component, which conflicts with the value baked into the image.
@@ -284,10 +298,14 @@ dex:
   # -- Dex issuer URL (must match external browser-reachable URL)
   issuer: https://portal.localhost:8443/dex
   image:
-    # -- Dex image repository
-    repository: ghcr.io/dexidp/dex
+    # -- Dex image registry
+    registry: ghcr.io
+    # -- Dex image repository (without registry)
+    repository: dexidp/dex
     # -- Dex image tag
     tag: v2.42.0
+    # -- Dex image digest (when set, overrides tag: registry/repository@digest)
+    digest: "sha256:1b4a6eee8550240b0faedad04d984ca939513650e1d9bd423502c67355e3822f"
   service:
     # -- Dex service name
     name: dex
@@ -343,6 +361,15 @@ cnpg:
   enabled: false
   cluster:
     name: platform-mesh-pg
+    image:
+      # -- PostgreSQL image registry
+      registry: ghcr.io
+      # -- PostgreSQL image repository (without registry)
+      repository: cloudnative-pg/postgresql
+      # -- PostgreSQL image tag
+      tag: "17.5"
+      # -- PostgreSQL image digest (when set, overrides tag)
+      digest: ""
     instances: 2
     storage:
       size: 2Gi

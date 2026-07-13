@@ -51,7 +51,10 @@ tests:
       operator:
         enabled: true
         image:
-          tag: "mail"
+          registry: ghcr.io
+          repository: platform-mesh/custom-images/keycloak
+          tag: "v26.6.0"
+          digest: ""
   asserts:
   - matchSnapshot: {}
 - it: keycloak pod gets hostAliases when enabled
