@@ -280,6 +280,9 @@ data:
           - name: keycloak-operator-keycloak-image
             resource: keycloak-image
             resourceName: keycloak-image
+            absoluteReferencePath:
+              - name: keycloak-operator
+              - name: image
             annotations:
               repo: oci
               artifact: image
@@ -288,6 +291,9 @@ data:
           - name: keycloak-operator-image
             resource: manager-image
             resourceName: manager-image
+            absoluteReferencePath:
+              - name: keycloak-operator
+              - name: image
             annotations:
               repo: oci
               artifact: image
