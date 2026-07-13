@@ -106,7 +106,39 @@ data:
               enabled: false
         infra:
           # -- Allow the configuration of additional ocm resources
-          imageResources: []
+          imageResources:
+          - name: keycloak-image
+            resource: keycloak-image
+            resourceName: keycloak-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: infra
+              path: keycloak.operator.image.tag
+          - name: busybox-image
+            resource: busybox-image
+            resourceName: busybox-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: infra
+              path: keycloak.operator.waitForDb.image.tag
+          - name: postgres-image
+            resource: postgres-image
+            resourceName: postgres-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: infra
+              path: cnpg.cluster.image.tag
+          - name: dex-image
+            resource: dex-image
+            resourceName: dex-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: infra
+              path: dex.image.tag
           ignoreDifferences:
           - group: operator.kcp.io
             kind: FrontProxy
@@ -298,6 +330,23 @@ data:
         keycloak-operator:
           enabled: true
           external: true
+          imageResources:
+          - name: keycloak-operator-keycloak-image
+            resource: keycloak-image
+            resourceName: keycloak-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: keycloak-operator
+              path: keycloakImage.tag
+          - name: keycloak-operator-image
+            resource: manager-image
+            resourceName: manager-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: keycloak-operator
+              path: image.tag
           absoluteReferencePath:
             - name: keycloak-operator
             - name: chart
@@ -374,6 +423,23 @@ data:
           syncWave: 4
           enabled: false
           targetNamespace: observability
+          imageResources:
+          - name: otel-collector-image
+            resource: otel-collector-image
+            resourceName: otel-collector-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: observability
+              path: otelCollector.image.tag
+          - name: kubectl-image
+            resource: kubectl-image
+            resourceName: kubectl-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: observability
+              path: serviceMonitors.kcp.certExtractor.image.tag
           values:
             opentelemetry-collector:
               ports:
