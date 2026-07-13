@@ -42,7 +42,15 @@ otelCollector:
   # -- Number of collector replicas
   replicas: 1
   # -- Collector image (use contrib for prometheusremotewrite exporter)
-  image: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0
+  image:
+    # -- Collector image registry
+    registry: ghcr.io
+    # -- Collector image repository (without registry)
+    repository: open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
+    # -- Collector image tag
+    tag: "0.153.0"
+    # -- Collector image digest (when set, overrides tag)
+    digest: ""
   config:
     # -- Batch processor timeout before sending metrics
     batchTimeout: 10s
@@ -106,6 +114,17 @@ serviceMonitors:
     # -- Name of the TLS secret containing client cert/key for authentication
     # This secret is created by the kcp-metrics-cert-job from the kubeconfig
     tlsSecretName: kcp-metrics-client-cert
+    # -- cert-extractor Job image (kubectl); localizable for air-gap
+    certExtractor:
+      image:
+        # -- cert-extractor job image registry
+        registry: docker.io
+        # -- cert-extractor job image repository (without registry)
+        repository: bitnami/kubectl
+        # -- cert-extractor job image tag (cosmetic; digest pins the image)
+        tag: "latest"
+        # -- cert-extractor job image digest (pins the mutable :latest tag)
+        digest: "sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7"
     # -- Kubeconfig configuration for kcp authentication
     # The kcp-operator creates a kubeconfig with client certificates
     kubeconfig:

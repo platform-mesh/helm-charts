@@ -21,9 +21,13 @@ OpenTelemetry-based observability stack for platform-mesh
 | httproutes.prometheus.filters | list | `[]` | Optional filters (e.g., URLRewrite for path stripping) |
 | httproutes.prometheus.hostnames | list | `[]` | Hostnames for the Prometheus UI |
 | httproutes.prometheus.pathPrefix | string | `"/prometheus"` | Path prefix for Prometheus UI |
-| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0","mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
+| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"},"mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
-| otelCollector.image | string | `"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0"` | Collector image (use contrib for prometheusremotewrite exporter) |
+| otelCollector.image | object | `{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"}` | Collector image (use contrib for prometheusremotewrite exporter) |
+| otelCollector.image.digest | string | `""` | Collector image digest (when set, overrides tag) |
+| otelCollector.image.registry | string | `"ghcr.io"` | Collector image registry |
+| otelCollector.image.repository | string | `"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"` | Collector image repository (without registry) |
+| otelCollector.image.tag | string | `"0.153.0"` | Collector image tag |
 | otelCollector.mode | string | `"statefulset"` | Deployment mode (statefulset required for Target Allocator) |
 | otelCollector.name | string | `"otel-gateway"` | Name of the OpenTelemetryCollector CR |
 | otelCollector.replicas | int | `1` | Number of collector replicas |
@@ -33,14 +37,19 @@ OpenTelemetry-based observability stack for platform-mesh
 | prometheus.server.extraFlags[0] | string | `"web.enable-remote-write-receiver"` | Enable remote write receiver (required for OTel Collector to push metrics) |
 | prometheus.server.extraFlags[1] | string | `"web.enable-lifecycle"` | Enable lifecycle API (required for config reloader sidecar) |
 | prometheus.server.persistentVolume.enabled | bool | `false` | Disable persistence for local development |
-| serviceMonitors | object | `{"accountOperator":{"enabled":true,"labels":{"app":"account-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"},"kcp":{"enabled":true,"kubeconfig":{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"},"labels":{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"},"namespace":"platform-mesh-system","path":"/clusters/root/metrics","port":"https","scheme":"https","tlsInsecureSkipVerify":true,"tlsSecretName":"kcp-metrics-client-cert"},"openfga":{"enabled":true,"labels":{"app.kubernetes.io/name":"openfga"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"},"securityOperator":{"enabled":true,"labels":{"app":"security-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"}}` | ---------------------------------------------------------------------------- |
+| serviceMonitors | object | `{"accountOperator":{"enabled":true,"labels":{"app":"account-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"},"kcp":{"certExtractor":{"image":{"digest":"sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7","registry":"docker.io","repository":"bitnami/kubectl","tag":"latest"}},"enabled":true,"kubeconfig":{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"},"labels":{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"},"namespace":"platform-mesh-system","path":"/clusters/root/metrics","port":"https","scheme":"https","tlsInsecureSkipVerify":true,"tlsSecretName":"kcp-metrics-client-cert"},"openfga":{"enabled":true,"labels":{"app.kubernetes.io/name":"openfga"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"},"securityOperator":{"enabled":true,"labels":{"app":"security-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"}}` | ---------------------------------------------------------------------------- |
 | serviceMonitors.accountOperator | object | `{"enabled":true,"labels":{"app":"account-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"}` | account-operator metrics scraping |
 | serviceMonitors.accountOperator.enabled | bool | `true` | Enable scraping account-operator |
 | serviceMonitors.accountOperator.labels | object | `{"app":"account-operator"}` | Labels to select account-operator metrics service |
 | serviceMonitors.accountOperator.namespace | string | `"platform-mesh-system"` | Namespace where account-operator runs |
 | serviceMonitors.accountOperator.path | string | `"/metrics"` | Path to metrics endpoint |
 | serviceMonitors.accountOperator.port | string | `"metrics"` | Name of the port exposing metrics |
-| serviceMonitors.kcp | object | `{"enabled":true,"kubeconfig":{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"},"labels":{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"},"namespace":"platform-mesh-system","path":"/clusters/root/metrics","port":"https","scheme":"https","tlsInsecureSkipVerify":true,"tlsSecretName":"kcp-metrics-client-cert"}` | kcp (root shard) metrics scraping Requires client certificate authentication |
+| serviceMonitors.kcp | object | `{"certExtractor":{"image":{"digest":"sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7","registry":"docker.io","repository":"bitnami/kubectl","tag":"latest"}},"enabled":true,"kubeconfig":{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"},"labels":{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"},"namespace":"platform-mesh-system","path":"/clusters/root/metrics","port":"https","scheme":"https","tlsInsecureSkipVerify":true,"tlsSecretName":"kcp-metrics-client-cert"}` | kcp (root shard) metrics scraping Requires client certificate authentication |
+| serviceMonitors.kcp.certExtractor | object | `{"image":{"digest":"sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7","registry":"docker.io","repository":"bitnami/kubectl","tag":"latest"}}` | cert-extractor Job image (kubectl); localizable for air-gap |
+| serviceMonitors.kcp.certExtractor.image.digest | string | `"sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7"` | cert-extractor job image digest (pins the mutable :latest tag) |
+| serviceMonitors.kcp.certExtractor.image.registry | string | `"docker.io"` | cert-extractor job image registry |
+| serviceMonitors.kcp.certExtractor.image.repository | string | `"bitnami/kubectl"` | cert-extractor job image repository (without registry) |
+| serviceMonitors.kcp.certExtractor.image.tag | string | `"latest"` | cert-extractor job image tag (cosmetic; digest pins the image) |
 | serviceMonitors.kcp.enabled | bool | `true` | Enable scraping kcp |
 | serviceMonitors.kcp.kubeconfig | object | `{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"}` | Kubeconfig configuration for kcp authentication The kcp-operator creates a kubeconfig with client certificates |
 | serviceMonitors.kcp.kubeconfig.groups | list | `["system:monitoring"]` | Groups embedded in the client certificate system:monitoring grants read access to /clusters/root/metrics endpoints |
@@ -88,7 +97,7 @@ Example
 ```
 # observability
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
 
 OpenTelemetry-based observability stack for platform-mesh
 
@@ -97,6 +106,7 @@ OpenTelemetry-based observability stack for platform-mesh
 | Repository | Name | Version |
 |------------|------|---------|
 | https://prometheus-community.github.io/helm-charts | prometheus | 29.6.0 |
+| oci://ghcr.io/platform-mesh/helm-charts | common | 0.13.0 |
 
 ## Values
 
@@ -117,9 +127,13 @@ OpenTelemetry-based observability stack for platform-mesh
 | httproutes.prometheus.filters | list | `[]` | Optional filters (e.g., URLRewrite for path stripping) |
 | httproutes.prometheus.hostnames | list | `[]` | Hostnames for the Prometheus UI |
 | httproutes.prometheus.pathPrefix | string | `"/prometheus"` | Path prefix for Prometheus UI |
-| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0","mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
+| otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"},"mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
-| otelCollector.image | string | `"ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0"` | Collector image (use contrib for prometheusremotewrite exporter) |
+| otelCollector.image | object | `{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"}` | Collector image (use contrib for prometheusremotewrite exporter) |
+| otelCollector.image.digest | string | `""` | Collector image digest (when set, overrides tag) |
+| otelCollector.image.registry | string | `"ghcr.io"` | Collector image registry |
+| otelCollector.image.repository | string | `"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"` | Collector image repository (without registry) |
+| otelCollector.image.tag | string | `"0.153.0"` | Collector image tag |
 | otelCollector.mode | string | `"statefulset"` | Deployment mode (statefulset required for Target Allocator) |
 | otelCollector.name | string | `"otel-gateway"` | Name of the OpenTelemetryCollector CR |
 | otelCollector.replicas | int | `1` | Number of collector replicas |
@@ -129,14 +143,19 @@ OpenTelemetry-based observability stack for platform-mesh
 | prometheus.server.extraFlags[0] | string | `"web.enable-remote-write-receiver"` | Enable remote write receiver (required for OTel Collector to push metrics) |
 | prometheus.server.extraFlags[1] | string | `"web.enable-lifecycle"` | Enable lifecycle API (required for config reloader sidecar) |
 | prometheus.server.persistentVolume.enabled | bool | `false` | Disable persistence for local development |
-| serviceMonitors | object | `{"accountOperator":{"enabled":true,"labels":{"app":"account-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"},"kcp":{"enabled":true,"kubeconfig":{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"},"labels":{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"},"namespace":"platform-mesh-system","path":"/clusters/root/metrics","port":"https","scheme":"https","tlsInsecureSkipVerify":true,"tlsSecretName":"kcp-metrics-client-cert"},"openfga":{"enabled":true,"labels":{"app.kubernetes.io/name":"openfga"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"},"securityOperator":{"enabled":true,"labels":{"app":"security-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"}}` | ---------------------------------------------------------------------------- |
+| serviceMonitors | object | `{"accountOperator":{"enabled":true,"labels":{"app":"account-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"},"kcp":{"certExtractor":{"image":{"digest":"sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7","registry":"docker.io","repository":"bitnami/kubectl","tag":"latest"}},"enabled":true,"kubeconfig":{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"},"labels":{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"},"namespace":"platform-mesh-system","path":"/clusters/root/metrics","port":"https","scheme":"https","tlsInsecureSkipVerify":true,"tlsSecretName":"kcp-metrics-client-cert"},"openfga":{"enabled":true,"labels":{"app.kubernetes.io/name":"openfga"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"},"securityOperator":{"enabled":true,"labels":{"app":"security-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"}}` | ---------------------------------------------------------------------------- |
 | serviceMonitors.accountOperator | object | `{"enabled":true,"labels":{"app":"account-operator"},"namespace":"platform-mesh-system","path":"/metrics","port":"metrics"}` | account-operator metrics scraping |
 | serviceMonitors.accountOperator.enabled | bool | `true` | Enable scraping account-operator |
 | serviceMonitors.accountOperator.labels | object | `{"app":"account-operator"}` | Labels to select account-operator metrics service |
 | serviceMonitors.accountOperator.namespace | string | `"platform-mesh-system"` | Namespace where account-operator runs |
 | serviceMonitors.accountOperator.path | string | `"/metrics"` | Path to metrics endpoint |
 | serviceMonitors.accountOperator.port | string | `"metrics"` | Name of the port exposing metrics |
-| serviceMonitors.kcp | object | `{"enabled":true,"kubeconfig":{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"},"labels":{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"},"namespace":"platform-mesh-system","path":"/clusters/root/metrics","port":"https","scheme":"https","tlsInsecureSkipVerify":true,"tlsSecretName":"kcp-metrics-client-cert"}` | kcp (root shard) metrics scraping Requires client certificate authentication |
+| serviceMonitors.kcp | object | `{"certExtractor":{"image":{"digest":"sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7","registry":"docker.io","repository":"bitnami/kubectl","tag":"latest"}},"enabled":true,"kubeconfig":{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"},"labels":{"app.kubernetes.io/component":"rootshard","app.kubernetes.io/name":"kcp"},"namespace":"platform-mesh-system","path":"/clusters/root/metrics","port":"https","scheme":"https","tlsInsecureSkipVerify":true,"tlsSecretName":"kcp-metrics-client-cert"}` | kcp (root shard) metrics scraping Requires client certificate authentication |
+| serviceMonitors.kcp.certExtractor | object | `{"image":{"digest":"sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7","registry":"docker.io","repository":"bitnami/kubectl","tag":"latest"}}` | cert-extractor Job image (kubectl); localizable for air-gap |
+| serviceMonitors.kcp.certExtractor.image.digest | string | `"sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7"` | cert-extractor job image digest (pins the mutable :latest tag) |
+| serviceMonitors.kcp.certExtractor.image.registry | string | `"docker.io"` | cert-extractor job image registry |
+| serviceMonitors.kcp.certExtractor.image.repository | string | `"bitnami/kubectl"` | cert-extractor job image repository (without registry) |
+| serviceMonitors.kcp.certExtractor.image.tag | string | `"latest"` | cert-extractor job image tag (cosmetic; digest pins the image) |
 | serviceMonitors.kcp.enabled | bool | `true` | Enable scraping kcp |
 | serviceMonitors.kcp.kubeconfig | object | `{"groups":["system:monitoring"],"name":"metrics-viewer","secretName":"kubeconfig-metrics-viewer","username":"metrics-viewer","validity":"8766h"}` | Kubeconfig configuration for kcp authentication The kcp-operator creates a kubeconfig with client certificates |
 | serviceMonitors.kcp.kubeconfig.groups | list | `["system:monitoring"]` | Groups embedded in the client certificate system:monitoring grants read access to /clusters/root/metrics endpoints |
