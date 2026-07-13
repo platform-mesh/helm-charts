@@ -74,6 +74,7 @@ tasks:
   lint:
     deps: []
     cmds:
+      - "./hack/lint-image-schema.sh"
       - "ct lint --target-branch main --chart-dirs=charts --validate-maintainers=false --chart-repos=bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts"
   helmtest:
     cmds:
