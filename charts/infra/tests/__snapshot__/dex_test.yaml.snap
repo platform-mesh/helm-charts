@@ -52,7 +52,7 @@ match snapshots with dex enabled:
                 - dex
                 - serve
                 - /etc/dex/config.yaml
-              image: ghcr.io/dexidp/dex:v2.42.0
+              image: ghcr.io/dexidp/dex@sha256:1b4a6eee8550240b0faedad04d984ca939513650e1d9bd423502c67355e3822f
               livenessProbe:
                 failureThreshold: 3
                 httpGet:
