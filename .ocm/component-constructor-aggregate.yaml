@@ -222,6 +222,27 @@ components:
         access:
           type: ociArtifact
           imageReference: ghcr.io/open-telemetry/opentelemetry-helm-charts/opentelemetry-operator:{{ .OPENTELEMETRY_OPERATOR_VERSION }}
+      - name: manager-image
+        type: ociImage
+        relation: local
+        version: {{ .OTEL_OPERATOR_IMAGE_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator:{{ .OTEL_OPERATOR_IMAGE_VERSION }}"
+      - name: collector-image
+        type: ociImage
+        relation: local
+        version: {{ .OTEL_COLLECTOR_IMAGE_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s:{{ .OTEL_COLLECTOR_IMAGE_VERSION }}"
+      - name: target-allocator-image
+        type: ociImage
+        relation: local
+        version: {{ .OTEL_TARGET_ALLOCATOR_VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/open-telemetry/opentelemetry-operator/target-allocator:{{ .OTEL_TARGET_ALLOCATOR_VERSION }}"
   - name: github.com/platform-mesh/platform-mesh
     version: {{ .VERSION }}
     provider:
