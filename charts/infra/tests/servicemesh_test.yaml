@@ -32,7 +32,12 @@ tests:
   - equal:
       path: spec.infrastructure.annotations
       value:
+        cert.gardener.cloud/secretname: domain-certificate
+        cert.gardener.cloud/purpose: managed
+        cert.gardener.cloud/dnsnames: 'portal.localhost,*.portal.localhost,*.services.portal.localhost'
         dns.gardener.cloud/class: garden
+        dns.gardener.cloud/dnsnames: 'portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost'
+        dns.gardener.cloud/ttl: "600"
 - it: keycloak operator disabled by default
   templates:
   - keycloak/db-secret.yaml

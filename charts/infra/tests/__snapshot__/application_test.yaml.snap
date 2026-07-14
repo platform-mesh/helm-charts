@@ -6,7 +6,15 @@ Gateway API enabled:
       name: k8sapi-gateway
       namespace: platform-mesh-system
     spec:
-      gatewayClassName: traefik
+      gatewayClassName: istio
+      infrastructure:
+        annotations:
+          cert.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost
+          cert.gardener.cloud/purpose: managed
+          cert.gardener.cloud/secretname: domain-certificate
+          dns.gardener.cloud/class: garden
+          dns.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost
+          dns.gardener.cloud/ttl: "600"
       listeners:
         - hostname: portal.localhost
           name: terminate
@@ -642,23 +650,6 @@ Gateway API enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  19: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: cors-header
-      namespace: platform-mesh-system
-    spec:
-      headers:
-        accessControlAllowCredentials: true
-        accessControlAllowHeaders:
-          - '*'
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - POST
-        accessControlMaxAge: 100
-        addVaryHeader: true
 Istio disabled:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -667,7 +658,15 @@ Istio disabled:
       name: k8sapi-gateway
       namespace: platform-mesh-system
     spec:
-      gatewayClassName: traefik
+      gatewayClassName: istio
+      infrastructure:
+        annotations:
+          cert.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost
+          cert.gardener.cloud/purpose: managed
+          cert.gardener.cloud/secretname: domain-certificate
+          dns.gardener.cloud/class: garden
+          dns.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost
+          dns.gardener.cloud/ttl: "600"
       listeners:
         - hostname: portal.localhost
           name: terminate
@@ -1303,23 +1302,6 @@ Istio disabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  19: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: cors-header
-      namespace: platform-mesh-system
-    spec:
-      headers:
-        accessControlAllowCredentials: true
-        accessControlAllowHeaders:
-          - '*'
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - POST
-        accessControlMaxAge: 100
-        addVaryHeader: true
 Istio enabled:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -1328,7 +1310,15 @@ Istio enabled:
       name: k8sapi-gateway
       namespace: platform-mesh-system
     spec:
-      gatewayClassName: traefik
+      gatewayClassName: istio
+      infrastructure:
+        annotations:
+          cert.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost
+          cert.gardener.cloud/purpose: managed
+          cert.gardener.cloud/secretname: domain-certificate
+          dns.gardener.cloud/class: garden
+          dns.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost
+          dns.gardener.cloud/ttl: "600"
       listeners:
         - hostname: portal.localhost
           name: terminate
@@ -1964,23 +1954,6 @@ Istio enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  19: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: cors-header
-      namespace: platform-mesh-system
-    spec:
-      headers:
-        accessControlAllowCredentials: true
-        accessControlAllowHeaders:
-          - '*'
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - POST
-        accessControlMaxAge: 100
-        addVaryHeader: true
 configure etcd backup store:
   1: |
     apiVersion: druid.gardener.cloud/v1alpha1
@@ -2314,7 +2287,15 @@ match snapshots:
       name: k8sapi-gateway
       namespace: platform-mesh-system
     spec:
-      gatewayClassName: traefik
+      gatewayClassName: istio
+      infrastructure:
+        annotations:
+          cert.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost
+          cert.gardener.cloud/purpose: managed
+          cert.gardener.cloud/secretname: domain-certificate
+          dns.gardener.cloud/class: garden
+          dns.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost
+          dns.gardener.cloud/ttl: "600"
       listeners:
         - hostname: portal.localhost
           name: terminate
@@ -2966,23 +2947,6 @@ match snapshots:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  19: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: cors-header
-      namespace: platform-mesh-system
-    spec:
-      headers:
-        accessControlAllowCredentials: true
-        accessControlAllowHeaders:
-          - '*'
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - POST
-        accessControlMaxAge: 100
-        addVaryHeader: true
 match snapshots w. hostAliases enabled:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -2991,7 +2955,15 @@ match snapshots w. hostAliases enabled:
       name: k8sapi-gateway
       namespace: platform-mesh-system
     spec:
-      gatewayClassName: traefik
+      gatewayClassName: istio
+      infrastructure:
+        annotations:
+          cert.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost
+          cert.gardener.cloud/purpose: managed
+          cert.gardener.cloud/secretname: domain-certificate
+          dns.gardener.cloud/class: garden
+          dns.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost
+          dns.gardener.cloud/ttl: "600"
       listeners:
         - hostname: portal.localhost
           name: terminate
@@ -3698,23 +3670,6 @@ match snapshots w. hostAliases enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  19: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: cors-header
-      namespace: platform-mesh-system
-    spec:
-      headers:
-        accessControlAllowCredentials: true
-        accessControlAllowHeaders:
-          - '*'
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - POST
-        accessControlMaxAge: 100
-        addVaryHeader: true
 match snapshots w. kcp version:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -3723,7 +3678,15 @@ match snapshots w. kcp version:
       name: k8sapi-gateway
       namespace: platform-mesh-system
     spec:
-      gatewayClassName: traefik
+      gatewayClassName: istio
+      infrastructure:
+        annotations:
+          cert.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost
+          cert.gardener.cloud/purpose: managed
+          cert.gardener.cloud/secretname: domain-certificate
+          dns.gardener.cloud/class: garden
+          dns.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost
+          dns.gardener.cloud/ttl: "600"
       listeners:
         - hostname: portal.localhost
           name: terminate
@@ -4375,23 +4338,6 @@ match snapshots w. kcp version:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  19: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: cors-header
-      namespace: platform-mesh-system
-    spec:
-      headers:
-        accessControlAllowCredentials: true
-        accessControlAllowHeaders:
-          - '*'
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - POST
-        accessControlMaxAge: 100
-        addVaryHeader: true
 match snapshots with mailpit enabled:
   1: |
     apiVersion: gateway.networking.k8s.io/v1
@@ -4400,7 +4346,15 @@ match snapshots with mailpit enabled:
       name: k8sapi-gateway
       namespace: platform-mesh-system
     spec:
-      gatewayClassName: traefik
+      gatewayClassName: istio
+      infrastructure:
+        annotations:
+          cert.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost
+          cert.gardener.cloud/purpose: managed
+          cert.gardener.cloud/secretname: domain-certificate
+          dns.gardener.cloud/class: garden
+          dns.gardener.cloud/dnsnames: portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost
+          dns.gardener.cloud/ttl: "600"
       listeners:
         - hostname: portal.localhost
           name: terminate
@@ -5036,23 +4990,6 @@ match snapshots with mailpit enabled:
             - path:
                 type: PathPrefix
                 value: /keycloak
-  19: |
-    apiVersion: traefik.io/v1alpha1
-    kind: Middleware
-    metadata:
-      name: cors-header
-      namespace: platform-mesh-system
-    spec:
-      headers:
-        accessControlAllowCredentials: true
-        accessControlAllowHeaders:
-          - '*'
-        accessControlAllowMethods:
-          - GET
-          - OPTIONS
-          - POST
-        accessControlMaxAge: 100
-        addVaryHeader: true
 render additional shard with explicit hostname:
   1: |
     apiVersion: druid.gardener.cloud/v1alpha1

@@ -368,9 +368,19 @@ gatewayApi:
   # -- Name of the Gateway resource
   name: k8sapi-gateway
   # -- GatewayClass name
-  gatewayClassName: traefik
-  # -- HTTPS Terminate configuration
-  infrastructure: {}
+  gatewayClassName: istio
+  # -- Infrastructure config applied to the resources Istio auto-provisions for
+  # this Gateway (Service, Deployment, etc.). `annotations` and `labels` are
+  # propagated to the generated Service. Override the DNS/cert values per
+  # environment — the defaults below target the localhost dev setup.
+  infrastructure:
+    annotations:
+      cert.gardener.cloud/secretname: domain-certificate
+      cert.gardener.cloud/purpose: managed
+      cert.gardener.cloud/dnsnames: 'portal.localhost,*.portal.localhost,*.services.portal.localhost'
+      dns.gardener.cloud/class: garden
+      dns.gardener.cloud/dnsnames: 'portal.localhost,*.portal.localhost,*.services.portal.localhost,root.kcp.localhost'
+      dns.gardener.cloud/ttl: "600"
   listeners:
     - name: terminate
       hostname: portal.localhost
