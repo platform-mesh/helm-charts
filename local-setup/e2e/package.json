@@ -4,6 +4,6 @@
     "playwright": "1.61.1"
   },
   "devDependencies": {
-    "@types/node": "25.9.4"
+    "@types/node": "25.9.5"
   }
 }
