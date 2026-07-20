@@ -145,3 +145,39 @@ deploymentTemplate:
 extraArgs:
 {{ toYaml .extraArgs | indent 2 }}
 {{- end -}}
+
+{{- define "kcp.certificates" -}}
+{{- $certs := .Values.kcp.certificates | default dict -}}
+{{- $issuerRef := $certs.issuerRef | default dict -}}
+{{- $caSecretRef := $certs.caSecretRef | default dict -}}
+{{- if and $issuerRef $caSecretRef -}}
+{{- fail "kcp.certificates.issuerRef and kcp.certificates.caSecretRef are mutually exclusive, set at most one" -}}
+{{- end -}}
+{{- if and $caSecretRef (not $caSecretRef.name) -}}
+{{- fail "kcp.certificates.caSecretRef.name is required when caSecretRef is set" -}}
+{{- end -}}
+{{- if and $issuerRef (not $issuerRef.name) -}}
+{{- fail "kcp.certificates.issuerRef.name is required when issuerRef is set" -}}
+{{- end -}}
+{{- if $caSecretRef -}}
+caSecretRef:
+  name: {{ $caSecretRef.name }}
+{{- else if $issuerRef -}}
+issuerRef:
+  group: {{ $issuerRef.group | default "cert-manager.io" }}
+  kind: {{ $issuerRef.kind | default "Issuer" }}
+  name: {{ $issuerRef.name }}
+{{- else -}}
+issuerRef:
+  group: cert-manager.io
+  kind: Issuer
+  name: selfsigned
+{{- end -}}
+{{- end -}}
+
+{{- define "kcp.certificates.createIssuer" -}}
+{{- $certs := .Values.kcp.certificates | default dict -}}
+{{- if not (or ($certs.issuerRef | default dict) ($certs.caSecretRef | default dict)) -}}
+true
+{{- end -}}
+{{- end -}}

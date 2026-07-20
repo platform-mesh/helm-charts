@@ -8,6 +8,9 @@ kcp:
   image:
     tag: ""
   namespace: platform-mesh-system
+  certificates:
+    issuerRef: {}
+    caSecretRef: {}
   external:
     hostname: localhost
     port: 8443
