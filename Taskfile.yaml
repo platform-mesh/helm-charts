@@ -395,6 +395,7 @@ tasks:
       - TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD={{.SHARDING_ORG_SHARD}} npx playwright test test-register-and-navigate.test.ts {{if .HEADED}}--headed{{end}}
 
   test:backend-resources:
+    desc: Wait for backend resources to become Ready
     cmds:
       - ./local-setup/scripts/check-backend-resources.sh
 
@@ -403,6 +404,18 @@ tasks:
     cmds:
       - task: test:backend-resources
       - task: test:portal-e2e
+
+  local-setup:dex-callback:
+    desc: Register Dex broker redirect URI for an org realm
+    vars:
+      ORG: '{{.ORG | default ""}}'
+    cmds:
+      - |
+        if [ -z "{{.ORG}}" ]; then
+          echo "ORG is required. Usage: task local-setup:dex-callback ORG=<org-name>" >&2
+          exit 1
+        fi
+      - ORG={{.ORG}} ./local-setup/scripts/register-dex-org-callback.sh
 
   local-setup:base:
     internal: true
