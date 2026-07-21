@@ -45,6 +45,9 @@ spec:
           {{- if not .Values.initializer.subroutines.workspaceAuthEnabled }}
           - --initializer-workspace-auth-enabled=false
           {{- end }}
+          {{- if .Values.initializer.idpSeed.enabled }}
+          - --idp-seed-config-file=/config/idp-seed.yaml
+          {{- end }}
           {{- with .Values.fga.storeIDCacheTTL }}
           - --fga-store-id-cache-ttl={{ . }}
           {{- end }}
@@ -62,6 +65,10 @@ spec:
           {{- end }}
           - name: core-module
             mountPath: /data
+          {{- if .Values.initializer.idpSeed.enabled }}
+          - name: idp-seed-config
+            mountPath: /config
+          {{- end }}
       volumes:
         {{- include "common.extraVolumes" . | nindent 8 }}
         {{- if .Values.initializer.kubeconfigSecret }}
@@ -72,3 +79,8 @@ spec:
         - name: core-module
           configMap:
             name: {{ include "common.entity.name" . }}-core-module
+        {{- if .Values.initializer.idpSeed.enabled }}
+        - name: idp-seed-config
+          configMap:
+            name: {{ include "common.entity.name" . }}-idp-seed-config
+        {{- end }}
