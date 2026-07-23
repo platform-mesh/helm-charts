@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "observability.labels" . | nindent 4 }}
 spec:
-  image: {{ .Values.otelCollector.image }}
+  image: {{ include "common.image" (dict "Values" (dict "image" .Values.otelCollector.image) "Chart" .Chart) }}
   mode: {{ .Values.otelCollector.mode }}
   replicas: {{ .Values.otelCollector.replicas }}
   targetAllocator:

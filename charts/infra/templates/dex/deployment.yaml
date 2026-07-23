@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: dex
-        image: {{ .Values.dex.image.repository }}:{{ .Values.dex.image.tag }}
+        image: {{ include "common.image" (dict "Values" (dict "image" .Values.dex.image) "Chart" .Chart) }}
         args:
         - dex
         - serve

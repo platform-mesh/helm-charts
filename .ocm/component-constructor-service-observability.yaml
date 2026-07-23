@@ -1,0 +1,32 @@
+components:
+  - name: "{{ .COMPONENT_NAME }}"
+    version: "{{ .VERSION }}"
+    provider:
+      name: The Platform Mesh Team
+    componentReferences:
+      - name: chart
+        componentName: "github.com/platform-mesh/helm-charts/{{ .CHART_NAME }}"
+        version: "{{ .VERSION }}"
+      - name: image
+        componentName: "github.com/platform-mesh/images/{{ .IMAGE_COMPONENT_NAME }}"
+        version: "{{ .VERSION }}"
+
+  - name: "github.com/platform-mesh/images/{{ .IMAGE_COMPONENT_NAME }}"
+    version: "{{ .VERSION }}"
+    provider:
+      name: The Platform Mesh Team
+    resources:
+      - name: otel-collector-image
+        type: ociImage
+        relation: external
+        version: "0.153.0"
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.153.0"
+      - name: kubectl-image
+        type: ociImage
+        relation: external
+        version: "1.0.0"
+        access:
+          type: ociArtifact
+          imageReference: "docker.io/bitnami/kubectl:latest@sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7"

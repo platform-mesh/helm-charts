@@ -98,7 +98,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: extractor
-          image: bitnami/kubectl:latest
+          image: {{ include "common.image" (dict "Values" (dict "image" .Values.serviceMonitors.kcp.certExtractor.image) "Chart" .Chart) }}
           command:
             - /bin/bash
             - -c

@@ -11,10 +11,12 @@ image:
 keycloakImage:
   # -- The Keycloak image registry
   registry: ghcr.io
-  # -- The Keycloak image repository path (without registry). When registry is empty, this is treated as a full path (backward compatible).
+  # -- The Keycloak image repository path (without registry).
   repository: platform-mesh/custom-images/keycloak
   # -- The Keycloak image tag (defaults to appVersion)
   tag: "v26.6.0"
+  # -- The Keycloak image digest (when set, overrides tag: registry/repository@digest)
+  digest: "sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
 
 # -- Namespace to watch for Keycloak CRs. Defaults to the release namespace.
 watchNamespaces: ""
