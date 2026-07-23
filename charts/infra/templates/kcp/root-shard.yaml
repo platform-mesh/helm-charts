@@ -10,10 +10,7 @@ metadata:
 spec:
 {{- include "kcp.shard.spec" (dict "root" $ "replicas" .Values.kcp.rootShard.replicas "shardBaseURL" $rootShardBaseURL "extraArgs" .Values.kcp.rootShard.extraArgs "resources" .Values.kcp.rootShard.resources "hostname" .Values.kcp.external.hostname "port" .Values.kcp.external.port "webhookPort" .Values.kcp.webhook.port) | nindent 2 }}
   certificates:
-    issuerRef:
-      group: cert-manager.io
-      kind: Issuer
-      name: selfsigned
+{{- include "kcp.certificates" $ | nindent 4 }}
   cache:
     ref:
       name: {{ .Values.kcp.cacheServer.name }}

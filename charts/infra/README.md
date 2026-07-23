@@ -91,6 +91,8 @@ A Helm chart for Kubernetes
 | kcp.cacheServer.etcd.service.name | string | `"etcd-cache-client"` |  |
 | kcp.cacheServer.etcd.service.port | int | `2379` |  |
 | kcp.cacheServer.name | string | `"cache-server"` |  |
+| kcp.certificates.caSecretRef | object | `{}` | Existing CA to sign from directly. Secret must be of type kubernetes.io/tls and contain the CA certificate and its private key. Mutually exclusive with issuerRef. |
+| kcp.certificates.issuerRef | object | `{}` | Existing Issuer/ClusterIssuer that signs the kcp certificate chain. It must be able to issue CA certificates. Mutually exclusive with caSecretRef. |
 | kcp.etcd.backup.compression.enabled | bool | `false` |  |
 | kcp.etcd.backup.compression.policy | string | `"gzip"` |  |
 | kcp.etcd.backup.deltaSnapshotMemoryLimit | string | `"1Gi"` |  |

@@ -8,6 +8,11 @@ kcp:
   image:
     tag: ""
   namespace: platform-mesh-system
+  certificates:
+    # -- Existing Issuer/ClusterIssuer that signs the kcp certificate chain. It must be able to issue CA certificates. Mutually exclusive with caSecretRef.
+    issuerRef: {}
+    # -- Existing CA to sign from directly. Secret must be of type kubernetes.io/tls and contain the CA certificate and its private key. Mutually exclusive with issuerRef.
+    caSecretRef: {}
   external:
     hostname: localhost
     port: 8443
