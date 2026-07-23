@@ -467,6 +467,26 @@ data:
               enabled: true
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
+              idpSeed:
+                enabled: true
+                seedUpstreamIdentityProviders:
+                  realms:
+                    - default
+                  providers:
+                    - alias: dex
+                      displayName: Dex
+                      type: oidc
+                      hideOnLoginPage: true
+                      emailDomainRouting:
+                        domains:
+                          - portal.localhost
+                        autoRedirect: true
+                        hideUntilDomainMatch: true
+                      clientSecret: local-dev-broker-secret
+                      oidc:
+                        discoveryUrl: https://portal.localhost:8443/dex/.well-known/openid-configuration
+                        clientId: keycloak-broker
+                        clientAuthentication: client_secret_post
               extraArgs:
                 - --domain-ca-lookup
                 # remove arguments below when the operator and the portal are ready

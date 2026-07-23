@@ -66,6 +66,13 @@ initializer:
   # -- The kubeconfig secret for the initializer
   kubeconfigSecret: ""
   extraArgs: []
+  idpSeed:
+    # -- Enable upstream identity provider seeding for local development
+    enabled: false
+    seedUpstreamIdentityProviders:
+      # -- Org/realm names that receive seeded upstream providers (empty = none)
+      realms: []
+      providers: []
   subroutines:
     # -- Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup)
     workspaceEnabled: true

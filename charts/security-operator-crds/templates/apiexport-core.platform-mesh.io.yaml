@@ -6,5 +6,6 @@ metadata:
 spec:
   latestResourceSchemas:
   - v250718-a64f278.authorizationmodels.core.platform-mesh.io
+  - v260720-b1d6fa37.identityproviderconfigurations.core.platform-mesh.io
   - v250718-a64f278.stores.core.platform-mesh.io
 status: {}
