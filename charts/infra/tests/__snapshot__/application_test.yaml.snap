@@ -194,12 +194,6 @@ Gateway API enabled:
           name: root
       serviceTemplate:
         spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
           type: ClusterIP
   7: |
     apiVersion: cert-manager.io/v1
@@ -855,12 +849,6 @@ Istio disabled:
           name: root
       serviceTemplate:
         spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
           type: ClusterIP
   7: |
     apiVersion: cert-manager.io/v1
@@ -1516,12 +1504,6 @@ Istio enabled:
           name: root
       serviceTemplate:
         spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
           type: ClusterIP
   7: |
     apiVersion: cert-manager.io/v1
@@ -2162,12 +2144,6 @@ configure frontproxy resources:
           name: root
       serviceTemplate:
         spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
           type: ClusterIP
 configure rootshard resources:
   1: |
@@ -2506,12 +2482,6 @@ match snapshots:
           name: root
       serviceTemplate:
         spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
           type: ClusterIP
   7: |
     apiVersion: cert-manager.io/v1
@@ -3190,12 +3160,6 @@ match snapshots w. hostAliases enabled:
       serviceTemplate:
         spec:
           clusterIP: 10.0.0.1
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
           type: ClusterIP
   7: |
     apiVersion: cert-manager.io/v1
@@ -3915,12 +3879,6 @@ match snapshots w. kcp version:
           name: root
       serviceTemplate:
         spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
           type: ClusterIP
   7: |
     apiVersion: cert-manager.io/v1
@@ -4588,12 +4546,6 @@ match snapshots with mailpit enabled:
           name: root
       serviceTemplate:
         spec:
-          ports:
-            - appProtocol: https
-              name: https
-              port: 8443
-              protocol: TCP
-              targetPort: 6443
           type: ClusterIP
   7: |
     apiVersion: cert-manager.io/v1
