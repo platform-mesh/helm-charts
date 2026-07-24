@@ -90,6 +90,23 @@ tests:
             memory: 128Mi
   asserts:
   - matchSnapshot: {}
+- it: frontproxy serviceTemplate only sets fields the CRD declares
+  templates:
+    - kcp/front-proxy.yaml
+  set:
+    kcp:
+      frontProxy:
+        clusterIP: "10.96.0.100"
+        port: 9443
+  asserts:
+  - notExists:
+      path: spec.serviceTemplate.spec.ports
+  - equal:
+      path: spec.serviceTemplate.spec.clusterIP
+      value: "10.96.0.100"
+  - equal:
+      path: spec.serviceTemplate.spec.type
+      value: ClusterIP
 - it: configure rootshard resources
   templates:
     - kcp/root-shard.yaml
