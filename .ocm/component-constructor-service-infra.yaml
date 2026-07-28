@@ -1,0 +1,46 @@
+components:
+  - name: "{{ .COMPONENT_NAME }}"
+    version: "{{ .VERSION }}"
+    provider:
+      name: The Platform Mesh Team
+    componentReferences:
+      - name: chart
+        componentName: "github.com/platform-mesh/helm-charts/{{ .CHART_NAME }}"
+        version: "{{ .VERSION }}"
+      - name: image
+        componentName: "github.com/platform-mesh/images/{{ .IMAGE_COMPONENT_NAME }}"
+        version: "{{ .VERSION }}"
+
+  - name: "github.com/platform-mesh/images/{{ .IMAGE_COMPONENT_NAME }}"
+    version: "{{ .VERSION }}"
+    provider:
+      name: The Platform Mesh Team
+    resources:
+      - name: keycloak-image
+        type: ociImage
+        relation: external
+        version: "v26.6.0"
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/platform-mesh/custom-images/keycloak:v26.6.0@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
+      - name: busybox-image
+        type: ociImage
+        relation: external
+        version: "1.37"
+        access:
+          type: ociArtifact
+          imageReference: "docker.io/library/busybox:1.37"
+      - name: postgres-image
+        type: ociImage
+        relation: external
+        version: "17.5"
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/cloudnative-pg/postgresql:17.5"
+      - name: dex-image
+        type: ociImage
+        relation: external
+        version: "v2.42.0"
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/dexidp/dex:v2.42.0@sha256:1b4a6eee8550240b0faedad04d984ca939513650e1d9bd423502c67355e3822f"

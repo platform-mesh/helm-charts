@@ -1,0 +1,53 @@
+components:
+  - name: {{ .COMPONENT_NAME }}
+    version: {{ .VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    componentReferences:
+      - name: chart
+        componentName: github.com/platform-mesh/helm-charts/{{ .COMPONENT_SHORT_NAME }}
+        version: {{ .VERSION }}
+      - name: image
+        componentName: github.com/platform-mesh/images/{{ .COMPONENT_SHORT_NAME }}
+        version: {{ .VERSION }}
+    sources:
+      - name: chart
+        type: git
+        version: {{ .VERSION }}
+        access:
+          commit: {{ .COMMIT }}
+          repoUrl: {{ .CHART_REPO }}
+          type: gitHub
+
+  - name: github.com/platform-mesh/helm-charts/{{ .COMPONENT_SHORT_NAME }}
+    version: {{ .VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    resources:
+      - name: chart
+        type: helmChart
+        relation: external
+        version: {{ .VERSION }}
+        access:
+          type: ociArtifact
+          imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
+
+  - name: github.com/platform-mesh/images/{{ .COMPONENT_SHORT_NAME }}
+    version: {{ .VERSION }}
+    provider:
+      name: The Platform Mesh Team
+    resources:
+      - name: keycloak-image
+        type: ociImage
+        relation: external
+        version: "v26.6.0"
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/platform-mesh/custom-images/keycloak:v26.6.0@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
+      - name: manager-image
+        type: ociImage
+        relation: external
+        version: "26.6.0"
+        access:
+          type: ociArtifact
+          imageReference: "quay.io/keycloak/keycloak-operator:26.6.0"
