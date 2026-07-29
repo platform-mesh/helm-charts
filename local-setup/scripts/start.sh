@@ -660,11 +660,7 @@ wait_for_pm() {
 
 # If the wait hits timeout dump information for later analysis to see what blocked
 if ! wait_for_pm; then
-    mkdir -p runtime-artifacts
-    kubectl "${RUNTIME_KC[@]}" get platformmesh,component,resource,helmrelease,helmchart,helmrepository,ocirepository,kustomization,deployment -A -o yaml > runtime-artifacts/resources.yaml
-    kubectl "${RUNTIME_KC[@]}" logs -n platform-mesh-system deploy/platform-mesh-operator --all-containers > runtime-artifacts/platform-mesh-operator.log
-    kubectl "${RUNTIME_KC[@]}" get pods -A -o wide > runtime-artifacts/pods.yaml
-    kubectl "${RUNTIME_KC[@]}" get events -A -o yaml --sort-by=.lastTimestamp > runtime-artifacts/events.yaml
+    RUNTIME_KUBECONFIG="${RUNTIME_KC[1]:-}" "$SCRIPT_DIR/dump-diagnostics.sh"
     exit 1
 fi
 
