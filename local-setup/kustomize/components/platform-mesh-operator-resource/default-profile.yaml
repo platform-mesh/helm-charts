@@ -316,6 +316,7 @@ data:
               repo: oci
               artifact: image
               for: init-agent
+              image-ref: combined
             absoluteReferencePath:
             - name: init-agent
           syncWave: 4
@@ -339,6 +340,13 @@ data:
           syncWave: 1
           external: true
           enabled: true
+          imageResources:
+          - name: kcp-operator-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: kcp-operator
+              image-ref: combined
           targetNamespace: kcp-operator
         keycloak-operator:
           enabled: true
@@ -424,6 +432,7 @@ data:
               repo: oci
               artifact: image
               for: openfga
+              image-ref: combined
           - name: openfga-postgresql-image
             resource: postgresql-image
             resourceName: postgresql-image
