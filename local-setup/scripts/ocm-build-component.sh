@@ -219,7 +219,7 @@ resolve_component_versions() {
     export PM_CNPG_OPERATOR_VERSION="0.0.1"
     export PM_PROMETHEUS_OPERATOR_CRDS_VERSION="0.0.1"
     export PM_KUBE_PROMETHEUS_STACK_VERSION="0.0.1"
-    export PM_OPENTELEMETRY_OPERATOR_VERSION="0.0.1"
+    export PM_OPENTELEMETRY_OPERATOR_VERSION="0.0.2"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
 }
