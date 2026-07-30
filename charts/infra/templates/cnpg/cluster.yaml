@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.cnpg.cluster.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  imageName: {{ include "common.image" (dict "Values" (dict "image" .Values.cnpg.cluster.image) "Chart" .Chart) }}
+  imageName: {{ printf "%s:%s" (include "common.image.name" (dict "Values" (dict "image" .Values.cnpg.cluster.image) "Chart" .Chart)) (include "common.image.tag" (dict "Values" (dict "image" .Values.cnpg.cluster.image) "Chart" .Chart)) }}{{ with .Values.cnpg.cluster.image.digest }}@{{ . }}{{ end }}
   instances: {{ .Values.cnpg.cluster.instances }}
   storage:
     size: {{ .Values.cnpg.cluster.storage.size }}
