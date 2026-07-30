@@ -5,3 +5,4 @@ resources:
   - providermetadata.yaml
   - contentconfiguration.yaml
   - rbac.yaml
+  - syncagent-rbac.yaml

@@ -1,0 +1,44 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager-syncagent
+  namespace: platform-mesh-system
+spec:
+  interval: 1m
+  timeout: 15m
+  releaseName: cert-manager-syncagent
+  targetNamespace: cert-manager-provider
+  chart:
+    spec:
+      chart: api-syncagent
+      version: 0.6.0
+      sourceRef:
+        kind: HelmRepository
+        name: kcp-helm-charts
+        namespace: platform-mesh-system
+  values:
+    # INTEGRATION CONTRACT: must match the APIExport name in
+    # example-data/root/providers/cert-manager-provider/apiexport.yaml
+    apiExportEndpointSliceName: certmanager.ca
+    agentName: cert-manager-provider
+    # Secret created by the platform-mesh-operator from extraProviderConnections
+    # (path: root:providers:cert-manager-provider, adminAuth: true).
+    kcpKubeconfig: cert-manager-kubeconfig
+    replicas: 1
+    enableLeaderElection: false
+    # Scope this agent to only its own PublishedResources; prevents cross-agent interference
+    # when multiple syncagents share a cluster (PublishedResources are cluster-scoped).
+    publishedResourceSelector: "app.kubernetes.io/instance=cert-manager-provider"
+    crds:
+      enabled: true
+    hostAliases:
+      enabled: true
+      values:
+        # Traefik service ClusterIP — routes root.kcp.localhost via TLS passthrough to root-kcp:6443.
+        # This is the same pattern as the httpbin syncagent. The virtual workspace URL
+        # (https://root.kcp.localhost:8443/services/apiexport/...) must reach the kcp root shard
+        # directly, not via the front-proxy (which would add an extra routing hop and break auth).
+        - ip: "10.96.188.4"
+          hostnames:
+            - root.kcp.localhost
+            - kcp.localhost
