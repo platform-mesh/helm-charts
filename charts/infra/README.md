@@ -104,6 +104,8 @@ A Helm chart for Kubernetes
 | kcp.etcd.backup.fullSnapshotSchedule | string | `"0 */24 * * *"` |  |
 | kcp.etcd.backup.garbageCollectionPeriod | string | `"43200s"` |  |
 | kcp.etcd.backup.garbageCollectionPolicy | string | `"Exponential"` |  |
+| kcp.etcd.backup.image.repository | string | `""` |  |
+| kcp.etcd.backup.image.tag | string | `""` |  |
 | kcp.etcd.backup.leaderElection.etcdConnectionTimeout | string | `"5s"` |  |
 | kcp.etcd.backup.leaderElection.reelectionPeriod | string | `"5s"` |  |
 | kcp.etcd.backup.port | int | `8080` |  |
@@ -112,6 +114,8 @@ A Helm chart for Kubernetes
 | kcp.etcd.backup.resources.requests.cpu | string | `"23m"` |  |
 | kcp.etcd.backup.resources.requests.memory | string | `"128Mi"` |  |
 | kcp.etcd.defragmentationSchedule | string | `"0 */24 * * *"` |  |
+| kcp.etcd.image.repository | string | `""` |  |
+| kcp.etcd.image.tag | string | `""` |  |
 | kcp.etcd.name | string | `"etcd-kcp"` |  |
 | kcp.etcd.quota | string | `"8Gi"` |  |
 | kcp.etcd.replicas | int | `1` |  |
@@ -142,6 +146,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.port | int | `8443` |  |
 | kcp.frontProxy.replicas | int | `1` |  |
 | kcp.frontProxy.resources | object | `{}` | Optional resource requests and limits for the front proxy |
+| kcp.image.repository | string | `""` |  |
 | kcp.image.tag | string | `""` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true,CacheAPIs=true"` |  |

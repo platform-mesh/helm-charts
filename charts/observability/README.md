@@ -24,7 +24,7 @@ OpenTelemetry-based observability stack for platform-mesh
 | otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"},"mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
 | otelCollector.image | object | `{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"}` | Collector image (use contrib for prometheusremotewrite exporter) |
-| otelCollector.image.digest | string | `""` | Collector image digest (when set, overrides tag) |
+| otelCollector.image.digest | string | `""` | Collector image digest (when set, appended to tag as repo:tag@digest) |
 | otelCollector.image.registry | string | `"ghcr.io"` | Collector image registry |
 | otelCollector.image.repository | string | `"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"` | Collector image repository (without registry) |
 | otelCollector.image.tag | string | `"0.153.0"` | Collector image tag |
@@ -130,7 +130,7 @@ OpenTelemetry-based observability stack for platform-mesh
 | otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"},"mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
 | otelCollector.image | object | `{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"}` | Collector image (use contrib for prometheusremotewrite exporter) |
-| otelCollector.image.digest | string | `""` | Collector image digest (when set, overrides tag) |
+| otelCollector.image.digest | string | `""` | Collector image digest (when set, appended to tag as repo:tag@digest) |
 | otelCollector.image.registry | string | `"ghcr.io"` | Collector image registry |
 | otelCollector.image.repository | string | `"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"` | Collector image repository (without registry) |
 | otelCollector.image.tag | string | `"0.153.0"` | Collector image tag |
