@@ -44,7 +44,6 @@ spec:
                                   "ui": {
                                       "logoUrl": "https://www.kcp.io/icons/logo.svg",
                                       "listView": {
-                                          "deletable": true,
                                           "fields": [
                                               {
                                                   "label": "Name",
@@ -62,6 +61,25 @@ spec:
                                                   "property": "status.url",
                                                   "uiSettings": {
                                                     "displayAs": "link"
+                                                  }
+                                              },
+                                              {
+                                                  "property": "metadata.name",
+                                                  "uiSettings": {
+                                                      "align": "end",
+                                                      "displayAs": "button",
+                                                      "columnWidth": "90px",
+                                                      "buttonSettings": {
+                                                          "icon": "decline",
+                                                          "design": "Transparent",
+                                                          "action": "delete-resource",
+                                                          "tooltip": "Delete"
+                                                      }
+                                                  },
+                                                  "group": {
+                                                      "name": "actions",
+                                                      "label": "",
+                                                      "multiline": false
                                                   }
                                               }
                                           ]
