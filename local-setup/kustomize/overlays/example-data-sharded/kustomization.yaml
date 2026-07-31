@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../platform-mesh-resource-sharded
   - ../../components/example-httpbin-provider
+  - ../../components/example-kro-provider
 
 patches:
   - target:
@@ -24,7 +25,15 @@ patches:
               namespace: example-httpbin-provider
               external: false
               adminAuth: true
+            - path: root:providers:kro-provider
+              secret: kro-provider-kubeconfig
+              namespace: kro-composition-operator
+              external: false
+              adminAuth: true
           extraDefaultAPIBindings:
             - workspaceTypePath: root:account
               export: orchestrate.platform-mesh.io
               path: root:providers:httpbin-provider
+            - workspaceTypePath: root:account
+              export: kro.run
+              path: root:providers:kro-provider
