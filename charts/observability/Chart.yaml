@@ -10,5 +10,5 @@ dependencies:
     repository: https://prometheus-community.github.io/helm-charts
     condition: prometheus.enabled
   - name: common
-    version: 0.13.1
+    version: 0.13.0
     repository: oci://ghcr.io/platform-mesh/helm-charts
