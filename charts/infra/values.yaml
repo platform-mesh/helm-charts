@@ -6,6 +6,7 @@ externalSecrets:
 
 kcp:
   image:
+    repository: ""
     tag: ""
   namespace: platform-mesh-system
   external:
@@ -36,6 +37,9 @@ kcp:
     service:
       name: etcd-kcp-client
       port: 2379
+    image:
+      repository: ""
+      tag: ""
     defragmentationSchedule: "0 */24 * * *"
     resources:
       limits:
@@ -47,6 +51,9 @@ kcp:
     serverPort: 2380
     quota: 8Gi
     backup:
+      image:
+        repository: ""
+        tag: ""
       port: 8080
       fullSnapshotSchedule: "0 */24 * * *"
       resources:
