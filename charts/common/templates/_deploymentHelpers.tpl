@@ -195,3 +195,9 @@ securityContext:
 {{- end -}}
 {{- printf "%s%s%s" (include "common.image.name" .) $sep $term -}}
 {{- end }}
+
+{{/* repository:tag, with @digest appended when set (common.image is tag-XOR-digest) */}}
+{{- define "common.image.tagAndDigest" -}}
+{{- printf "%s:%s" (include "common.image.name" .) (include "common.image.tag" .) -}}
+{{- with (.Values.image).digest }}@{{ . }}{{- end -}}
+{{- end }}
