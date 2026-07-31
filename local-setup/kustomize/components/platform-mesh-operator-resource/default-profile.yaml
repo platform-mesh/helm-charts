@@ -304,6 +304,7 @@ data:
             caSecret: domain-certificate-ca
             extraArgs:
             - --no-json
+            - --use-provider-permissions-retriever
             cors:
               enabled: true
             hostAliases:
