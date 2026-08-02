@@ -95,5 +95,21 @@ jobs:
           SHA: ${{ steps.push.outputs.sha }}
         run: |
           set -euo pipefail
-          # Pinning to the pushed SHA in case renovate updated in between.
+
+          # Wait until the PR head matches the commit that was just pushed
+          for _ in $(seq 30); do
+            head=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR}" --jq '.head.sha')
+            if [ "$head" = "$SHA" ]; then
+              break
+            fi
+            sleep 2
+          done
+
+          # Skip approving if the head never moved to the pushed commit
+          if [ "$head" != "$SHA" ]; then
+            echo "::warning::PR head is $head, not the pushed $SHA"
+            exit 1
+          fi
+
+          # Still pinning approval to the pushed commit, just in case.
           gh api --method POST "repos/${GITHUB_REPOSITORY}/pulls/${PR}/reviews" -f "commit_id=${SHA}" -f 'event=APPROVE'
