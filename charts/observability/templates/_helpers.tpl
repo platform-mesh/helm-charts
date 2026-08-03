@@ -54,3 +54,9 @@ Prometheus remote write endpoint
 {{- define "observability.prometheusEndpoint" -}}
 http://{{ .Release.Name }}-prometheus-server:80/api/v1/write
 {{- end }}
+
+{{/* repository:tag, with @digest appended when set (common.image is tag-XOR-digest) */}}
+{{- define "observability.image.tagAndDigest" -}}
+{{- printf "%s:%s" (include "common.image.name" .) (include "common.image.tag" .) -}}
+{{- with (.Values.image).digest }}@{{ . }}{{- end -}}
+{{- end }}

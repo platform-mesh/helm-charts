@@ -51,3 +51,17 @@ components:
         access:
           type: ociArtifact
           imageReference: "docker.io/bitnami/kubectl:latest@sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7"
+      - name: prometheus-server-image
+        type: ociImage
+        relation: external
+        version: "v3.11.3"
+        access:
+          type: ociArtifact
+          imageReference: "quay.io/prometheus/prometheus:v3.11.3@sha256:c0b857aead0d5793aa566adb8f49a9983d6f6031652098759d521a330cfa050f"
+      - name: prometheus-config-reloader-image
+        type: ociImage
+        relation: external
+        version: "v0.91.0"
+        access:
+          type: ociArtifact
+          imageReference: "quay.io/prometheus-operator/prometheus-config-reloader:v0.91.0@sha256:7d9e4eea5f1139e602508871f422b0116c60e87c662f3dcd234d5ab60cd0d8c1"

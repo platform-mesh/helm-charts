@@ -145,6 +145,32 @@ data:
               artifact: image
               for: infra
               path: dex.image.tag
+          - name: kcp-server-image
+            resource: image
+            absoluteReferencePath:
+            - name: kcp
+            annotations:
+              repo: oci
+              artifact: image
+              for: infra
+              path: kcp.image.tag
+              image-ref: combined
+          - name: etcd-wrapper-image
+            resource: etcd-wrapper-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: infra
+              path: kcp.etcd.image.tag
+              image-ref: combined
+          - name: etcdbrctl-image
+            resource: etcdbrctl-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: infra
+              path: kcp.etcd.backup.image.tag
+              image-ref: combined
           syncWave: 4
           dependsOn:
           - name: kcp-operator
@@ -240,12 +266,6 @@ data:
           enabled: true
           external: true
           helmRepo: true
-          imageResource:
-            enabled: true
-            labels:
-              component: infra
-              infra: "true"
-            name: kcp-image
           imageResources:
           - name: kcp-operator-image
             annotations:
@@ -318,6 +338,13 @@ data:
           targetNamespace: platform-mesh-system
           absoluteReferencePath:
           - name: cnpg-operator
+          imageResources:
+          - name: cnpg-operator-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: cnpg-operator
+              image-ref: combined
         kubernetes-graphql-gateway:
           # -- Allow the configuration of additional ocm resources
           imageResources:
@@ -376,6 +403,22 @@ data:
               artifact: image
               for: observability
               path: serviceMonitors.kcp.certExtractor.image.tag
+          - name: prometheus-server-image
+            resource: prometheus-server-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: observability
+              path: prometheus.server.image.tag
+              image-ref: combined
+          - name: prometheus-config-reloader-image
+            resource: prometheus-config-reloader-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: observability
+              path: prometheus.configmapReload.prometheus.image.tag
+              image-ref: combined
           values:
             opentelemetry-collector:
               ports:
