@@ -15,7 +15,4 @@ spec:
       name: selfsigned
       kind: Issuer
       group: cert-manager.io
-{{ with .Values.kcp.image.tag }}
-  image:
-    tag: {{ . }}
-{{- end }}
+  {{- with (include "kcp.image.block" .Values.kcp.image) }}{{ . | nindent 2 }}{{- end }}
