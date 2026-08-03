@@ -8,7 +8,7 @@ metadata:
   name: root
   namespace: {{ .Values.kcp.namespace | default "kcp-system" }}
 spec:
-{{- include "kcp.shard.spec" (dict "root" $ "replicas" .Values.kcp.rootShard.replicas "shardBaseURL" $rootShardBaseURL "extraArgs" .Values.kcp.rootShard.extraArgs "resources" .Values.kcp.rootShard.resources "hostname" .Values.kcp.external.hostname "port" .Values.kcp.external.port "webhookPort" .Values.kcp.webhook.port) | nindent 2 }}
+{{- include "kcp.shard.spec" (dict "root" $ "replicas" .Values.kcp.rootShard.replicas "shardBaseURL" $rootShardBaseURL "extraArgs" .Values.kcp.rootShard.extraArgs "resources" .Values.kcp.rootShard.resources "hostname" .Values.kcp.external.hostname "port" .Values.kcp.external.port "webhookPort" .Values.kcp.webhook.port "includeExternal" true) | nindent 2 }}
   certificates:
     issuerRef:
       group: cert-manager.io

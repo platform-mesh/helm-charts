@@ -117,9 +117,11 @@ auth:
   {{- end }}
   {{- end }}
 {{- end }}
+{{- if .includeExternal }}
 external:
   hostname: {{ .hostname }}
   port: {{ .port }}
+{{- end }}
 {{- if (.root.Values.kcp.webhook).enabled }}
 authorization:
   webhook:

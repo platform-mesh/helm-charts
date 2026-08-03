@@ -423,9 +423,6 @@ Gateway API enabled:
       etcd:
         endpoints:
           - http://etcd-kcp-nereus-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -550,9 +547,6 @@ Gateway API enabled:
       etcd:
         endpoints:
           - http://etcd-kcp-triton-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -1078,9 +1072,6 @@ Istio disabled:
       etcd:
         endpoints:
           - http://etcd-kcp-nereus-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -1205,9 +1196,6 @@ Istio disabled:
       etcd:
         endpoints:
           - http://etcd-kcp-triton-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -1733,9 +1721,6 @@ Istio enabled:
       etcd:
         endpoints:
           - http://etcd-kcp-nereus-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -1860,9 +1845,6 @@ Istio enabled:
       etcd:
         endpoints:
           - http://etcd-kcp-triton-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -2715,9 +2697,6 @@ match snapshots:
       etcd:
         endpoints:
           - http://etcd-kcp-nereus-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
@@ -2846,9 +2825,6 @@ match snapshots:
       etcd:
         endpoints:
           - http://etcd-kcp-triton-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
@@ -3419,9 +3395,6 @@ match snapshots w. hostAliases enabled:
       etcd:
         endpoints:
           - http://etcd-kcp-nereus-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -3566,9 +3539,6 @@ match snapshots w. hostAliases enabled:
       etcd:
         endpoints:
           - http://etcd-kcp-triton-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -4112,9 +4082,6 @@ match snapshots w. kcp version:
       etcd:
         endpoints:
           - http://etcd-kcp-nereus-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
@@ -4243,9 +4210,6 @@ match snapshots w. kcp version:
       etcd:
         endpoints:
           - http://etcd-kcp-triton-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       image:
@@ -4775,9 +4739,6 @@ match snapshots with mailpit enabled:
       etcd:
         endpoints:
           - http://etcd-kcp-nereus-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -4902,9 +4863,6 @@ match snapshots with mailpit enabled:
       etcd:
         endpoints:
           - http://etcd-kcp-triton-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
@@ -5097,9 +5055,6 @@ render additional shard with explicit hostname:
       etcd:
         endpoints:
           - http://etcd-kcp-shard-1-client.platform-mesh-system.svc.cluster.local:2379
-      external:
-        hostname: localhost
-        port: 8443
       extraArgs:
         - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
       proxy:
