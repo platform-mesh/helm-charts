@@ -182,7 +182,7 @@ fetch_component_refs() {
 
 # Fetch third-party versions from workflow YAML
 fetch_third_party_versions() {
-  local workflow_file=".github/workflows/ocm.yaml"
+  local workflow_file=".github/workflows/ocm-aggregator.yaml"
 
   if [[ ! -f "$workflow_file" ]]; then
     echo "{}"
@@ -190,8 +190,21 @@ fetch_third_party_versions() {
   fi
 
   # Extract env vars from the workflow and convert to JSON
-  yq eval '.jobs.ocm.env' "$workflow_file" -o=json 2>/dev/null || echo "{}"
+  local out
+  out=$(yq eval '.jobs.ocm.env' "$workflow_file" -o=json 2>/dev/null)
+  # yq exits 0 emitting "null"/empty on a missing key, so || above never fires
+  [[ -z "$out" || "$out" == "null" ]] && out="{}"
+  echo "$out"
 }
+
+# version_lt A B → true when A sorts strictly before B (semver-ish, ignores 'v')
+version_lt() {
+  local a="${1#v}" b="${2#v}"
+  [[ "$a" != "$b" ]] && [[ "$(printf '%s\n%s\n' "$a" "$b" | sort -V | head -1)" == "$a" ]]
+}
+
+# Releases 0.1.0–0.3.0 lived in platform-mesh/ocm; 0.4.0 is the first in platform-mesh/helm-charts.
+OCM_MIGRATION_VERSION="0.4.0"
 
 # Fetch latest release version from GitHub for a component
 fetch_github_latest_version() {
@@ -308,9 +321,14 @@ if [[ "$FROM_VERSION" != "0.0.0" ]]; then
     "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp"
   mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
 
-  # Try to fetch previous third-party versions from git
-  if git rev-parse --verify "refs/tags/${FROM_VERSION}" >/dev/null 2>&1 || \
-     git rev-parse --verify "refs/tags/v${FROM_VERSION}" >/dev/null 2>&1; then
+  if version_lt "$FROM_VERSION" "$OCM_MIGRATION_VERSION"; then
+    echo "  Fetching previous third-party versions from platform-mesh/ocm tag $FROM_VERSION..." >&2
+    prev_third_party=$(gh api \
+      "repos/platform-mesh/ocm/contents/.github/workflows/ocm.yaml?ref=${FROM_VERSION}" \
+      --jq '.content' 2>/dev/null | base64 -d 2>/dev/null | \
+      yq eval '.jobs.ocm.env' - -o=json 2>/dev/null)
+  elif git rev-parse --verify "refs/tags/${FROM_VERSION}" >/dev/null 2>&1 || \
+       git rev-parse --verify "refs/tags/v${FROM_VERSION}" >/dev/null 2>&1; then
 
     prev_tag="$FROM_VERSION"
     if ! git rev-parse --verify "refs/tags/${prev_tag}" >/dev/null 2>&1; then
@@ -318,16 +336,19 @@ if [[ "$FROM_VERSION" != "0.0.0" ]]; then
     fi
 
     echo "  Fetching previous third-party versions from git tag $prev_tag..." >&2
-
-    prev_third_party=$(git show "${prev_tag}:.github/workflows/ocm.yaml" 2>/dev/null | \
-      yq eval '.jobs.ocm.env' - -o=json 2>/dev/null || echo "{}")
-
-    jq \
-      --argjson prev_tp "$prev_third_party" \
-      '.previous_third_party = $prev_tp' \
-      "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp"
-    mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
+    prev_third_party=$(git show "${prev_tag}:.github/workflows/ocm-aggregator.yaml" 2>/dev/null | \
+      yq eval '.jobs.ocm.env' - -o=json 2>/dev/null)
+  else
+    prev_third_party=""
   fi
+
+  [[ -z "$prev_third_party" || "$prev_third_party" == "null" ]] && prev_third_party="{}"
+
+  jq \
+    --argjson prev_tp "$prev_third_party" \
+    '.previous_third_party = $prev_tp' \
+    "$OUTPUT_FILE" > "$OUTPUT_FILE.tmp"
+  mv "$OUTPUT_FILE.tmp" "$OUTPUT_FILE"
 fi
 
 echo >&2
