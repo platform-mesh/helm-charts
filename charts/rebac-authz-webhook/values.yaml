@@ -57,7 +57,6 @@ service:
   type: ClusterIP
   port: 9443
   metricsPort: 8080
-  annotations: {}
 
 openfga:
   url: openfga:8081
@@ -71,6 +70,31 @@ webhook:
 istio:
   enabled: false
   dnsNames: []
+
+traefik:
+  enabled: true
+
+gatewayApi:
+  httpRoute:
+    enabled: false
+    pathPrefix: /authz/batch
+    hostnames:
+      - "portal.localhost"
+      - "*.portal.localhost"
+    parentRefs:
+      - name: k8sapi-gateway
+    filters:
+      - type: URLRewrite
+        urlRewrite:
+          path:
+            type: ReplacePrefixMatch
+            replacePrefixMatch: /batch-authz
+    corsFilters:
+      - type: ExtensionRef
+        extensionRef:
+          group: traefik.io
+          kind: Middleware
+          name: cors-header
 
 # Horizontal Pod Autoscaler configuration
 # hpa:

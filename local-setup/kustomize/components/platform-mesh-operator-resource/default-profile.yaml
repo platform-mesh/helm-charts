@@ -562,6 +562,9 @@ data:
             certManager:
               createCA: true
               enabled: true
+            gatewayApi:
+              httpRoute:
+                enabled: true
             istio:
               dnsNames:
               - rebac-authz-webhook.platform-mesh-system.svc.cluster.local

@@ -16,6 +16,18 @@ A Helm chart for Kubernetes
 | deployment.resources.limits.memory | string | `"128Mi"` |  |
 | deployment.resources.requests.cpu | string | `"40m"` |  |
 | deployment.resources.requests.memory | string | `"50Mi"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
+| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
+| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
+| gatewayApi.httpRoute.enabled | bool | `false` |  |
+| gatewayApi.httpRoute.filters[0].type | string | `"URLRewrite"` |  |
+| gatewayApi.httpRoute.filters[0].urlRewrite.path.replacePrefixMatch | string | `"/batch-authz"` |  |
+| gatewayApi.httpRoute.filters[0].urlRewrite.path.type | string | `"ReplacePrefixMatch"` |  |
+| gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
+| gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |
+| gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
+| gatewayApi.httpRoute.pathPrefix | string | `"/authz/batch"` |  |
 | health.port | int | `8081` |  |
 | healthProbeBindAddress | string | `":8081"` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
@@ -27,7 +39,6 @@ A Helm chart for Kubernetes
 | kcp.apiExportEndpointSliceName | string | `""` | kcp APIExportEndpointSliceName to watch. Empty string means auto-discover all slices |
 | kcp.kubeconfig.secret | string | `"rebac-authz-webhook-kubeconfig"` |  |
 | openfga.url | string | `"openfga:8081"` |  |
-| service.annotations | object | `{}` |  |
 | service.clusterIP | string | `""` |  |
 | service.metricsPort | int | `8080` |  |
 | service.port | int | `9443` |  |
@@ -35,6 +46,7 @@ A Helm chart for Kubernetes
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.automount | bool | `true` |  |
 | serviceAccount.create | bool | `true` |  |
+| traefik.enabled | bool | `true` |  |
 | webhook.cacheMissCleanupInterval | string | `"2m"` |  |
 | webhook.cacheMissMaxRetries | int | `1` |  |
 | webhook.cacheMissRetryAfter | string | `"1s"` |  |
