@@ -498,7 +498,8 @@ if [ "$REMOTE" = true ]; then
     --server=https://$RUNTIME_CLUSTER_IP:6443 \
     --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
   # Create the secret early so the operator pod's volume mount succeeds on first start.
-  # It will be overwritten with the correct KCP kubeconfig after createKcpAdminKubeconfig.sh.
+  # The operator uses this kubeconfig to reach the runtime cluster API (port 6443) and
+  # fetch the kcp-cluster-admin-client-cert secret for its KCP rest.Config.
   kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
     --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
   kubectl create secret generic platform-mesh-kubeconfig -n default \
@@ -584,10 +585,11 @@ if [ "$REMOTE" = true ]; then
   if [ "$PRERELEASE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
-    # Apply the deployment-tech default profile and the remote-mode example-data
-    # overlay (PlatformMesh patch only) to the runtime cluster.
+    # Apply the deployment-tech default profile only (without example-data patch).
+    # The example-data-remote overlay (which adds extraDefaultAPIBindings referencing
+    # root:providers:httpbin-provider) is applied later, after that workspace and its
+    # APIExport exist in KCP, to avoid a reconciliation failure on the operator.
     envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
-    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-remote
     # Apply runtime-side example-data resources (namespace + OCM Resources for
     # the fluxcd path) to RUNTIME cluster.
     kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-runtime
@@ -704,27 +706,6 @@ fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
 
-if [ "$REMOTE" = true ]; then
-  # Build the platform-mesh-kubeconfig secret from the KCP admin kubeconfig so the
-  # operator on the infra cluster connects to KCP (not the kind API server).
-  # The KCP kubeconfig uses kcp.api.portal.localhost:8443 which matches the frontproxy
-  # TLS cert SANs. The operator pod's hostAliases resolve that hostname to the runtime
-  # node IP, which socat forwards to the traefik ClusterIP -> frontproxy.
-  # We use the 'base' context (kcp.api.portal.localhost) and set it as current-context.
-  cp .secret/kcp/admin.kubeconfig .secret/platform-mesh.kubeconfig.tmp
-  kubectl config use-context base --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
-  kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
-    --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
-  kubectl create secret generic platform-mesh-kubeconfig -n default \
-    --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
-  rm -f .secret/platform-mesh.kubeconfig.tmp
-  # Restart the operator so it picks up the updated KCP kubeconfig from the mounted secret.
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig rollout restart \
-    deployment/platform-mesh-operator -n platform-mesh-system
-  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig rollout status \
-    deployment/platform-mesh-operator -n platform-mesh-system --timeout=$KUBECTL_WAIT_TIMEOUT
-fi
-
 # Run post-platform-mesh hook if it exists (PlatformMesh is ready, kcp is accessible)
 if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Running post-platform-mesh hook ${COL_RES}"
@@ -738,8 +719,7 @@ fi
 if [ "$EXAMPLE_DATA" = true ]; then
   if [ "$REMOTE" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data resources. ${COL_RES}"
-  else
-    # Apply example-data overlay now that PlatformMesh is ready (non-remote only)
+  else    # Apply example-data overlay now that PlatformMesh is ready (non-remote only)
     echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data overlay ${COL_RES}"
     if [ "$SHARDED" = true ]; then
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
@@ -752,6 +732,13 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="${KCP_URL}/clusters/root:providers:httpbin-provider"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="${KCP_URL}/clusters/root:orgs"
+
+  if [ "$REMOTE" = true ]; then
+    # Now that root:providers:httpbin-provider exists with its orchestrate.platform-mesh.io
+    # APIExport, apply the example-data-remote overlay which patches PlatformMesh with
+    # extraDefaultAPIBindings referencing that export.
+    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-remote
+  fi
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 
