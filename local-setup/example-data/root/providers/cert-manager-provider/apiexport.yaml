@@ -1,0 +1,6 @@
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIExport
+metadata:
+  name: certmanager.ca
+  labels:
+    ui.platform-mesh.io/content-for: certmanager.ca

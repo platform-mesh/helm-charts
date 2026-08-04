@@ -1,0 +1,106 @@
+# certmanager-agent-config.yaml
+#
+# Applied by start.sh AFTER the cert-manager + cert-manager-syncagent HelmReleases are Ready,
+# because these objects require CRDs installed by those charts:
+#   - ClusterIssuer (cert-manager.io CRD — needs cert-manager HelmRelease)
+#   - ResourceGraphDefinition (kro.run CRD — kro is in kustomize/base/kro)
+#   - PublishedResource (syncagent.kcp.io CRD — needs cert-manager-syncagent HelmRelease)
+#
+# Applied with: kubectl apply -f .../certmanager-agent-config.yaml
+---
+# Self-signed ClusterIssuer — signs all certificates ordered via certmanager.ca/Certificate.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-cert-manager-issuer
+spec:
+  selfSigned: {}
+---
+# kro ResourceGraphDefinition — registers certmanager.ca/v1alpha1/Certificate CRD and
+# translates each instance into a real cert-manager.io/v1/Certificate.
+# kro is installed by kustomize/base/kro and is available before this apply runs.
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: certificates.certmanager.ca
+spec:
+  schema:
+    group: certmanager.ca
+    apiVersion: v1alpha1
+    kind: Certificate
+    spec:
+      fqdn: string
+    status:
+      conditions: ${certificate.status.conditions}
+  resources:
+    - id: certificate
+      template:
+        apiVersion: cert-manager.io/v1
+        kind: Certificate
+        metadata:
+          name: ${schema.metadata.name}
+          namespace: ${schema.metadata.namespace}
+        spec:
+          commonName: ${schema.spec.fqdn}
+          dnsNames:
+            - ${schema.spec.fqdn}
+          secretName: ${schema.metadata.name}
+          privateKey:
+            algorithm: ECDSA
+            size: 256
+          issuerRef:
+            name: selfsigned-cert-manager-issuer
+            kind: ClusterIssuer
+            group: cert-manager.io
+---
+# RBAC — grants the api-syncagent ServiceAccount access to certmanager.ca/Certificate
+# and the related TLS Secrets on the cluster.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kcp-api-syncagent:cert-manager-certificates
+rules:
+  - apiGroups: ["certmanager.ca"]
+    resources: ["certificates", "certificates/status"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kcp-api-syncagent:cert-manager-certificates
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kcp-api-syncagent:cert-manager-certificates
+subjects:
+  - kind: ServiceAccount
+    name: cert-manager-syncagent-api-syncagent
+    namespace: cert-manager-provider
+---
+# PublishedResource — tells the agent to publish certmanager.ca/v1alpha1/Certificate into kcp
+# and sync the resulting TLS Secret back to the consumer workspace.
+apiVersion: syncagent.kcp.io/v1alpha1
+kind: PublishedResource
+metadata:
+  name: cert-manager-certificates
+  namespace: cert-manager-provider
+  labels:
+    app.kubernetes.io/instance: cert-manager-provider
+spec:
+  resource:
+    kind: Certificate
+    apiGroup: certmanager.ca
+    versions:
+      - v1alpha1
+  related:
+    - identifier: tls-secret
+      origin: service
+      group: ""
+      version: v1
+      resource: secrets
+      object:
+        template:
+          template: "{{ .Object.metadata.name }}"

@@ -709,11 +709,17 @@ if [ "$EXAMPLE_DATA" = true ]; then
     else
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
     fi
+    # Apply cert-manager provider cluster resources explicitly. The kustomize
+    # component reference is correct but kubectl apply -k silently skips new
+    # components in some environments. This apply is idempotent.
+    kubectl apply -k $SCRIPT_DIR/../kustomize/components/example-cert-manager-provider
   fi
 
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="${KCP_URL}/clusters/root"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="${KCP_URL}/clusters/root:providers:httpbin-provider"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace cert-manager-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/cert-manager-provider --server="${KCP_URL}/clusters/root:providers:cert-manager-provider"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="${KCP_URL}/clusters/root:orgs"
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
@@ -735,6 +741,17 @@ if [ "$EXAMPLE_DATA" = true ]; then
     kubectl wait --namespace platform-mesh-system \
       --for=condition=Ready helmreleases \
       --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for cert-manager MSP ${COL_RES}"
+
+    kubectl wait --namespace platform-mesh-system \
+      --for=condition=Ready helmreleases \
+      --timeout=$KUBECTL_WAIT_TIMEOUT cert-manager-syncagent
+
+    # Apply CRD-dependent cert-manager MSP config now that cert-manager and the
+    # api-syncagent CRDs (PublishedResource, ClusterIssuer, ResourceGraphDefinition) are installed.
+    echo -e "${COL}[$(date '+%H:%M:%S')] Applying cert-manager MSP agent config ${COL_RES}"
+    kubectl apply -f $SCRIPT_DIR/../kustomize/components/example-cert-manager-provider/certmanager-agent-config.yaml
   fi
 fi
 

@@ -140,6 +140,7 @@ A Helm chart for Kubernetes
 | kcp.frontProxy.additionalPathMappings[1].path | string | `"/services/marketplace"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_cert | string | `"/etc/kcp-front-proxy/requestheader-client/tls.crt"` |  |
 | kcp.frontProxy.additionalPathMappings[1].proxy_client_key | string | `"/etc/kcp-front-proxy/requestheader-client/tls.key"` |  |
+| kcp.frontProxy.certificateTemplates | object | `{"server":{"spec":{"dnsNames":[]}}}` | Optional extra DNS SANs for the front-proxy server certificate. Needed when consumers connect to kcp via a hostname not in the default SAN list (e.g. root.kcp.localhost for local virtual-workspace routing). |
 | kcp.frontProxy.clusterIP | string | `""` |  |
 | kcp.frontProxy.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | kcp.frontProxy.name | string | `"frontproxy"` |  |

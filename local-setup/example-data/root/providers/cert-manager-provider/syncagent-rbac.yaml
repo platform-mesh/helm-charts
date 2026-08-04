@@ -1,0 +1,33 @@
+# kcp-side RBAC — grants the api-syncagent SA permission to access the
+# certmanager.ca virtual workspace from within the backing cluster.
+# The SA authenticates to kcp's front-proxy using its in-cluster token,
+# which is mapped to the identity
+# "system:serviceaccount:cert-manager-provider:cert-manager-syncagent-api-syncagent".
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-manager-syncagent-virtualworkspace
+rules:
+  - apiGroups: ["apis.kcp.io"]
+    resources: ["apiexports/virtualworkspaces"]
+    verbs: ["use"]
+    resourceNames: ["certmanager.ca"]
+  - apiGroups: ["certmanager.ca"]
+    resources: ["certificates", "certificates/status"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["namespaces", "secrets", "events"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-manager-syncagent-virtualworkspace
+subjects:
+  - kind: User
+    name: "system:serviceaccount:cert-manager-provider:cert-manager-syncagent-api-syncagent"
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cert-manager-syncagent-virtualworkspace
+  apiGroup: rbac.authorization.k8s.io

@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../platform-mesh-resource-sharded
   - ../../components/example-httpbin-provider
+  - ../../components/example-cert-manager-provider
 
 patches:
   - target:
@@ -24,7 +25,15 @@ patches:
               namespace: example-httpbin-provider
               external: false
               adminAuth: true
+            - path: root:providers:cert-manager-provider
+              secret: cert-manager-kubeconfig
+              namespace: cert-manager-provider
+              external: false
+              adminAuth: true
           extraDefaultAPIBindings:
             - workspaceTypePath: root:account
               export: orchestrate.platform-mesh.io
               path: root:providers:httpbin-provider
+            - workspaceTypePath: root:account
+              export: certmanager.ca
+              path: root:providers:cert-manager-provider

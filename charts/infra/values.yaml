@@ -126,6 +126,13 @@ kcp:
     name: frontproxy
     clusterIP: ""
     port: 8443
+    # -- Optional extra DNS SANs for the front-proxy server certificate.
+    # Needed when consumers connect to kcp via a hostname not in the default SAN list
+    # (e.g. root.kcp.localhost for local virtual-workspace routing).
+    certificateTemplates:
+      server:
+        spec:
+          dnsNames: []
     # -- Optional resource requests and limits for the front proxy
     resources: {}
     # resources:

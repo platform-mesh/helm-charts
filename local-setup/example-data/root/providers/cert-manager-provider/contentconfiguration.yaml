@@ -1,0 +1,115 @@
+# config/provider/contentconfiguration.yaml — owner: portal-expert
+#
+# Adds a "Certificates" entry to the account-scoped Platform Mesh portal nav for accounts that
+# have bound the `certmanager.ca` APIExport. Uses the DEFAULT PM portal's built-in web component
+# `generic-list-view` / `generic-detail-view` (no separate portal service needed) — the same
+# pattern as the postgres-localsetup variant.
+#
+# `metadata.labels.ui.platform-mesh.io/content-for` MUST equal the APIExport name `certmanager.ca`.
+# The GraphQL identifier for group `certmanager.ca` is `certmanager_ca` (dots replaced by
+# underscores — the standard PM portal convention).
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  name: certmanager-ca-ui
+  labels:
+    ui.platform-mesh.io/entity: core_platform-mesh_io_account
+    ui.platform-mesh.io/content-for: certmanager.ca
+spec:
+  inlineConfiguration:
+    contentType: json
+    content: |-
+      {
+        "name": "certmanager-ca-certificates",
+        "luigiConfigFragment": {
+          "data": {
+            "nodes": [
+              {
+                "pathSegment": "certmanager_ca_certificates",
+                "navigationContext": "certmanager_ca_certificates",
+                "label": "Certificates",
+                "icon": "key",
+                "order": 860,
+                "entityType": "main.core_platform-mesh_io_account",
+                "keepSelectedForChildren": true,
+                "url": "/assets/platform-mesh-portal-ui-wc.js#generic-list-view",
+                "webcomponent": { "selfRegistered": true },
+                "context": {
+                  "resourceDefinition": {
+                    "apiGroup": "certmanager_ca",
+                    "version": "v1alpha1",
+                    "entity": "Certificate",
+                    "entityCollection": "Certificates",
+                    "scope": "Namespaced",
+                    "namespace": null,
+                    "readyCondition": {
+                      "jsonPathExpression": "status.conditions[?(@.type=='Ready')].status",
+                      "property": ["status.conditions"]
+                    },
+                    "ui": {
+                      "listView": {
+                        "fields": [
+                          { "label": "Name",      "property": "metadata.name" },
+                          { "label": "Namespace", "property": "metadata.namespace" },
+                          { "label": "FQDN",      "property": "spec.fqdn" },
+                          { "label": "Ready",     "property": "status.conditions" }
+                        ]
+                      },
+                      "detailView": {
+                        "fields": [
+                          { "label": "Name",       "property": "metadata.name" },
+                          { "label": "Namespace",  "property": "metadata.namespace" },
+                          { "label": "FQDN",       "property": "spec.fqdn" },
+                          { "label": "Conditions", "property": "status.conditions" }
+                        ]
+                      },
+                      "createView": {
+                        "fields": [
+                          { "label": "Name",      "property": "metadata.name",      "required": true },
+                          { "label": "Namespace", "property": "metadata.namespace", "required": true, "values": ["default"] },
+                          { "label": "FQDN",      "property": "spec.fqdn",          "required": true }
+                        ]
+                      }
+                    }
+                  }
+                },
+                "children": [
+                  {
+                    "pathSegment": ":certificateId",
+                    "hideFromNav": true,
+                    "keepSelectedForChildren": false,
+                    "defineEntity": {
+                      "id": "certmanager_ca_certificate",
+                      "contextKey": "certificateId",
+                      "graphqlEntity": {
+                        "group": "certmanager_ca",
+                        "version": "v1alpha1",
+                        "kind": "Certificate",
+                        "query": "{ metadata { name namespace } }"
+                      }
+                    },
+                    "context": {
+                      "accountId": ":accountId",
+                      "certificateId": ":certificateId",
+                      "resourceId": ":certificateId"
+                    }
+                  }
+                ]
+              },
+              {
+                "entityType": "main.core_platform-mesh_io_account.certmanager_ca_certificate",
+                "pathSegment": "dashboard",
+                "label": "Dashboard",
+                "url": "/assets/platform-mesh-portal-ui-wc.js#generic-detail-view",
+                "webcomponent": { "selfRegistered": true },
+                "defineEntity": { "id": "dashboard" },
+                "compound": { "children": [] }
+              }
+            ],
+            "texts": [
+              { "locale": "",   "textDictionary": { "certmanager-ca-certificates": "Certificates" } },
+              { "locale": "en", "textDictionary": { "certmanager-ca-certificates": "Certificates" } }
+            ]
+          }
+        }
+      }

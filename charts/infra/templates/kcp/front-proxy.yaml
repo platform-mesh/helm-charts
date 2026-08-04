@@ -45,6 +45,13 @@ spec:
   resources:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.kcp.frontProxy.certificateTemplates.server.spec.dnsNames }}
+  certificateTemplates:
+    server:
+      spec:
+        dnsNames:
+          {{- toYaml . | nindent 10 }}
+  {{- end }}
   deploymentTemplate:
     spec:
       template:

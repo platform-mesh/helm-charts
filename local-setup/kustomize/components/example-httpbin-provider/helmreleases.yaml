@@ -54,6 +54,9 @@ spec:
     apiExportEndpointSliceName: orchestrate.platform-mesh.io
     agentName: kcp-api-syncagent
     kcpKubeconfig: httpbin-kubeconfig
+    # Scope this agent to only its own PublishedResources; prevents cross-agent interference
+    # when multiple syncagents share a cluster (PublishedResources are cluster-scoped).
+    publishedResourceSelector: "app.kubernetes.io/instance=example-httpbin-provider"
     hostAliases:
       enabled: true
       values:

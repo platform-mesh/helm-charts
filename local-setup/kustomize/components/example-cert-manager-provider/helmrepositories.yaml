@@ -1,0 +1,8 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: kcp-helm-charts
+  namespace: platform-mesh-system
+spec:
+  interval: 1h
+  url: https://kcp-dev.github.io/helm-charts

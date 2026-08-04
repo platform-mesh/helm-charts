@@ -215,6 +215,14 @@ data:
               frontProxy:
                 clusterIP: 10.96.0.100
                 port: 8443
+                # root.kcp.localhost is needed for virtual-workspace routing: the syncagent
+                # connects to the APIExport virtual workspace URL via Traefik TLS passthrough
+                # at root.kcp.localhost:8443, which must be in the front-proxy server cert SANs.
+                certificateTemplates:
+                  server:
+                    spec:
+                      dnsNames:
+                        - root.kcp.localhost
               image:
                 tag: v0.32.2
               rootShard:
