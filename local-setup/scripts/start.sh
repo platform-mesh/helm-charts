@@ -151,7 +151,14 @@ kustomize_apply() {
   local kustomize_path="${kubeconfig_args[${#kubeconfig_args[@]}-1]}"
   unset 'kubeconfig_args[${#kubeconfig_args[@]}-1]'
 
+  if [ -n "$PLATFORM_MESH_VERSION" ]; then
+    kubectl kustomize "$kustomize_path" \
+      | yq '(select(.kind == "Component" and .metadata.name == "platform-mesh") | .spec.semver) = strenv(PLATFORM_MESH_VERSION)' \
+      | envsubst '$RUNTIME_CLUSTER_IP' \
+      | kubectl "${kubeconfig_args[@]}" apply -f -
+  else
   kubectl kustomize "$kustomize_path" | envsubst '$RUNTIME_CLUSTER_IP' | kubectl "${kubeconfig_args[@]}" apply -f -
+  fi
 }
 
 # Helper to apply a file with envsubst for RUNTIME_CLUSTER_IP substitution
@@ -295,6 +302,12 @@ wait_for_deployment_resource() {
 
 if [ "$REMOTE" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Using deployment technology: ${DEPLOYMENT_TECH} ${COL_RES}"
+
+  # check that PLATFORM_MESH_VERSION env var is set for remote mode, since we don't support building from source in that case
+  if [ -z "$PLATFORM_MESH_VERSION" ]; then
+    echo -e "${RED}PLATFORM_MESH_VERSION must be set for remote mode${COL_RES}" >&2
+    exit 1
+  fi
 fi
 
 if [ "$ITERATE" = true ]; then
@@ -476,13 +489,16 @@ fi
 ###############################################################################
 
 if [ "$REMOTE" = true ]; then
-  # Add platform-mesh kubeconfig to the infra cluster as a secret
-  cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
   export RUNTIME_CLUSTER_IP=$(${CONTAINER_RUNTIME} inspect platform-mesh-control-plane | jq '.[0].NetworkSettings.Networks.kind.IPAddress' -r)
   echo -e "${COL}[$(date '+%H:%M:%S')] Runtime cluster IP: ${RUNTIME_CLUSTER_IP} ${COL_RES}"
+  # Create a kind-kubeconfig tmp file with the runtime node IP for setup_argocd and other
+  # consumers that need Kubernetes API (port 6443) credentials before KCP is ready.
+  cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
   kubectl config set-cluster kind-platform-mesh \
     --server=https://$RUNTIME_CLUSTER_IP:6443 \
     --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
+  # Create the secret early so the operator pod's volume mount succeeds on first start.
+  # It will be overwritten with the correct KCP kubeconfig after createKcpAdminKubeconfig.sh.
   kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
     --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
   kubectl create secret generic platform-mesh-kubeconfig -n default \
@@ -561,7 +577,7 @@ if [ "$REMOTE" = true ]; then
     --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
-  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
+  kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/runtime
 
   # Re-apply Platform-Mesh resource after operator setup
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
@@ -687,6 +703,27 @@ fi
 
 echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
 $SCRIPT_DIR/createKcpAdminKubeconfig.sh
+
+if [ "$REMOTE" = true ]; then
+  # Build the platform-mesh-kubeconfig secret from the KCP admin kubeconfig so the
+  # operator on the infra cluster connects to KCP (not the kind API server).
+  # The KCP kubeconfig uses kcp.api.portal.localhost:8443 which matches the frontproxy
+  # TLS cert SANs. The operator pod's hostAliases resolve that hostname to the runtime
+  # node IP, which socat forwards to the traefik ClusterIP -> frontproxy.
+  # We use the 'base' context (kcp.api.portal.localhost) and set it as current-context.
+  cp .secret/kcp/admin.kubeconfig .secret/platform-mesh.kubeconfig.tmp
+  kubectl config use-context base --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
+  kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
+    --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
+  kubectl create secret generic platform-mesh-kubeconfig -n default \
+    --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
+  rm -f .secret/platform-mesh.kubeconfig.tmp
+  # Restart the operator so it picks up the updated KCP kubeconfig from the mounted secret.
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig rollout restart \
+    deployment/platform-mesh-operator -n platform-mesh-system
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig rollout status \
+    deployment/platform-mesh-operator -n platform-mesh-system --timeout=$KUBECTL_WAIT_TIMEOUT
+fi
 
 # Run post-platform-mesh hook if it exists (PlatformMesh is ready, kcp is accessible)
 if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then

@@ -495,6 +495,75 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--remote --deployment-tech=argocd"}
 
+  local-setup:remote:test-kcp-access:
+    desc: Deploy a test pod on the infra cluster with platform-mesh-operator hostAliases and verify kubectl access to KCP on the runtime cluster
+    vars:
+      INFRA_KC: .secret/platform-mesh-infra.kubeconfig
+      RUNTIME_CLUSTER_IP:
+        sh: docker inspect platform-mesh-control-plane | jq -r '.[0].NetworkSettings.Networks.kind.IPAddress'
+    cmds:
+      - |
+        INFRA_KC="{{.INFRA_KC}}"
+        RUNTIME_CLUSTER_IP="{{.RUNTIME_CLUSTER_IP}}"
+
+        echo "Runtime cluster IP: ${RUNTIME_CLUSTER_IP}"
+
+        # Extract the kubeconfig from the secret and base64-encode it for the pod env
+        KUBECONFIG_B64=$(kubectl --kubeconfig "${INFRA_KC}" get secret platform-mesh-kubeconfig \
+          -n platform-mesh-system -o jsonpath='{.data.kubeconfig}')
+
+        # Deploy the test pod
+        kubectl --kubeconfig "${INFRA_KC}" apply -f - <<EOF
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: kcp-access-test
+          namespace: platform-mesh-system
+        spec:
+          restartPolicy: Never
+          hostAliases:
+          - ip: "${RUNTIME_CLUSTER_IP}"
+            hostnames:
+            - portal.localhost
+            - localhost
+            - kcp.localhost
+            - root.kcp.localhost
+            - nereus.kcp.localhost
+            - triton.kcp.localhost
+            - kcp.api.portal.localhost
+          containers:
+          - name: test
+            image: bitnami/kubectl:latest
+            command:
+            - sh
+            - -c
+            - |
+              echo "\$KUBECONFIG_DATA" | base64 -d > /tmp/kubeconfig
+              echo "=== kubectl api-resources against KCP ==="
+              kubectl --kubeconfig /tmp/kubeconfig --context base \
+                --server https://kcp.api.portal.localhost:8443/clusters/root \
+                api-resources --request-timeout=10s
+              echo "=== done ==="
+            env:
+            - name: KUBECONFIG_DATA
+              value: "${KUBECONFIG_B64}"
+        EOF
+
+        echo "Waiting for pod kcp-access-test to complete..."
+        kubectl --kubeconfig "${INFRA_KC}" wait pod/kcp-access-test \
+          -n platform-mesh-system \
+          --for=condition=Ready \
+          --timeout=60s || true
+
+        kubectl --kubeconfig "${INFRA_KC}" wait pod/kcp-access-test \
+          -n platform-mesh-system \
+          --for=jsonpath='{.status.phase}'=Succeeded \
+          --timeout=120s
+
+        echo "=== Pod logs ==="
+        kubectl --kubeconfig "${INFRA_KC}" logs pod/kcp-access-test -n platform-mesh-system
+      - defer: kubectl --kubeconfig {{.INFRA_KC}} delete pod kcp-access-test -n platform-mesh-system --ignore-not-found
+
   local-setup:remote:fluxcd:example-data:
     cmds:
       - task: local-setup
