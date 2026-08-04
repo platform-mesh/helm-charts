@@ -1,0 +1,5 @@
+server = "https://oci-registry-docker-registry.registry.svc.cluster.local"
+
+[host."https://platform-mesh-control-plane:30500"]
+  capabilities = ["pull", "resolve"]
+  skip_verify = true
