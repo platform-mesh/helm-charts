@@ -13,17 +13,6 @@ on:
     - 'local-setup/kustomize/overlays/platform-mesh-resource-argocd/**'
     - 'local-setup/kustomize/components/platform-mesh-operator-fluxcd/**'
     - '.github/workflows/kind-localsetup-remote.yaml'
-      # - 'local-setup/kustomize/base/rgd/**'
-      # - 'local-setup/kustomize/base/port-fixer/**'
-      # - 'local-setup/kustomize/overlays/infra/**'
-      # - 'local-setup/kustomize/overlays/example-data-remote/**'
-      # - 'local-setup/kustomize/components/example-httpbin-provider-runtime/**'
-      # - 'local-setup/kustomize/components/example-httpbin-provider-fluxcd/**'
-      # - 'local-setup/kustomize/components/platform-mesh-operator-fluxcd/**'
-      # - 'local-setup/kind/kind-config-infra.yaml'
-      # - 'local-setup/scripts/start.sh'
-      # - 'local-setup/e2e/**'
-      # - 'Taskfile.yaml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

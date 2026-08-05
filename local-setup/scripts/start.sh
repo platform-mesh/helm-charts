@@ -491,15 +491,12 @@ fi
 if [ "$REMOTE" = true ]; then
   export RUNTIME_CLUSTER_IP=$(${CONTAINER_RUNTIME} inspect platform-mesh-control-plane | jq '.[0].NetworkSettings.Networks.kind.IPAddress' -r)
   echo -e "${COL}[$(date '+%H:%M:%S')] Runtime cluster IP: ${RUNTIME_CLUSTER_IP} ${COL_RES}"
-  # Create a kind-kubeconfig tmp file with the runtime node IP for setup_argocd and other
-  # consumers that need Kubernetes API (port 6443) credentials before KCP is ready.
+  # Create a tmp kubeconfig with the runtime node IP for consumers that need port 6443.
   cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
   kubectl config set-cluster kind-platform-mesh \
     --server=https://$RUNTIME_CLUSTER_IP:6443 \
     --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
-  # Create the secret early so the operator pod's volume mount succeeds on first start.
-  # The operator uses this kubeconfig to reach the runtime cluster API (port 6443) and
-  # fetch the kcp-cluster-admin-client-cert secret for its KCP rest.Config.
+  # Create early so the operator's volume mount succeeds on first start.
   kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
     --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
   kubectl create secret generic platform-mesh-kubeconfig -n default \
@@ -585,13 +582,9 @@ if [ "$REMOTE" = true ]; then
   if [ "$PRERELEASE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
-    # Apply the deployment-tech default profile only (without example-data patch).
-    # The example-data-remote overlay (which adds extraDefaultAPIBindings referencing
-    # root:providers:httpbin-provider) is applied later, after that workspace and its
-    # APIExport exist in KCP, to avoid a reconciliation failure on the operator.
+    # Apply profile without example-data patch; the overlay is applied later once
+    # the KCP workspace exists to avoid a reconciliation failure on the operator.
     envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
-    # Apply runtime-side example-data resources (namespace + OCM Resources for
-    # the fluxcd path) to RUNTIME cluster.
     kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-runtime
     # Apply infra-side example-data resources (HelmReleases for fluxcd, ArgoCD
     # Applications for argocd) to INFRA cluster.
@@ -672,10 +665,8 @@ wait_for_pm() {
         kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" component --all -A
         kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" resource --all -A
         kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" hr --all -A
-        # In remote mode ArgoCD deploys workloads to the runtime cluster asynchronously
-        # after PlatformMesh is Ready, so a broad deployment wait here races with ArgoCD
-        # sync waves and always times out.  Targeted waits happen later in the remote
-        # post-install section (wait_for_deployment_resource calls).
+        # Remote: ArgoCD deploys to the runtime cluster asynchronously; targeted waits
+        # happen in the post-install section below.
         if [[ "$REMOTE" != true ]]; then
             kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout="$KUBECTL_WAIT_TIMEOUT" deployment --all -A
         fi
@@ -740,9 +731,7 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="${KCP_URL}/clusters/root:orgs"
 
   if [ "$REMOTE" = true ]; then
-    # Now that root:providers:httpbin-provider exists with its orchestrate.platform-mesh.io
-    # APIExport, apply the example-data-remote overlay which patches PlatformMesh with
-    # extraDefaultAPIBindings referencing that export.
+    # Apply after the KCP workspace exists so extraDefaultAPIBindings resolves.
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-remote
   fi
 
