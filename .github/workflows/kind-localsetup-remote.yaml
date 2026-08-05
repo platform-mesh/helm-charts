@@ -95,6 +95,7 @@ jobs:
       - name: Run remote local-setup (ArgoCD + example-data)
         env:
           PLATFORM_MESH_VERSION: ${{ steps.pm-version.outputs.version }}
+          DEBUG: true
         run: |
           task local-setup:remote:argocd:example-data
 
