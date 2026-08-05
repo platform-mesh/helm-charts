@@ -1,0 +1,134 @@
+name: test-local-setup-remote
+permissions:
+  contents: read
+on:
+  schedule:
+    - cron: '37 2 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+    - 'local-setup/kustomize/overlays/example-data-remote/**'
+    - 'local-setup/kustomize/overlays/platform-mesh-resource-argocd/**'
+    - 'local-setup/kustomize/components/platform-mesh-operator-fluxcd/**'
+    - '.github/workflows/kind-localsetup-remote.yaml'
+      # - 'local-setup/kustomize/base/rgd/**'
+      # - 'local-setup/kustomize/base/port-fixer/**'
+      # - 'local-setup/kustomize/overlays/infra/**'
+      # - 'local-setup/kustomize/overlays/example-data-remote/**'
+      # - 'local-setup/kustomize/components/example-httpbin-provider-runtime/**'
+      # - 'local-setup/kustomize/components/example-httpbin-provider-fluxcd/**'
+      # - 'local-setup/kustomize/components/platform-mesh-operator-fluxcd/**'
+      # - 'local-setup/kind/kind-config-infra.yaml'
+      # - 'local-setup/scripts/start.sh'
+      # - 'local-setup/e2e/**'
+      # - 'Taskfile.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  kind-localsetup-remote:
+    runs-on: ubuntu-latest-large
+    timeout-minutes: 90
+
+    steps:
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+
+      - name: Install the gh cli
+        uses: ksivamuthu/actions-setup-gh-cli@c78dbed4be2f8d6133a14a9a597ee12fd4ed5c93 # v3
+        with:
+          version: 2.24.3
+      - name: Install Task
+        uses: arduino/setup-task@c0bc642852239c2689f73f4ea6459c29405f3c52 # v3.0.0
+        with:
+          version: 3.44.1
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install kubectl kcp plugins
+        run: |
+          set -e
+          ( set -x; cd "$(mktemp -d)" && curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew-linux_amd64.tar.gz" && tar zxvf krew-linux_amd64.tar.gz && KREW_ROOT="$HOME/.krew" ./krew-linux_amd64 install krew )
+          echo "$HOME/.krew/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.krew/bin:$PATH"
+          kubectl krew index add kcp-dev https://github.com/kcp-dev/krew-index.git
+          kubectl krew install kcp-dev/kcp
+          kubectl krew install kcp-dev/ws
+          kubectl krew install kcp-dev/create-workspace
+          kubectl krew install oidc-login
+      - name: Resolve third-party OCM versions
+        id: ocm-versions
+        run: local-setup/scripts/ocm-resolve-thirdparty-versions.sh
+      - name: Resolve platform-mesh OCM version
+        id: pm-version
+        run: |
+          source local-setup/scripts/ocm-setup.sh
+          setup_ocm_cli >/dev/null
+          export_ocm_path
+          VERSION=$(bin/ocm --config .ocm/config get componentversions --latest \
+            github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json \
+            | jq -r '.items[0].component.version')
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "Failed to resolve platform-mesh version" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved platform-mesh version: $VERSION"
+      - name: Cache expensive OCM
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .ocm/cache/
+          key: ocm-thirdparty
+
+      - name: Run remote local-setup (ArgoCD + example-data)
+        env:
+          PLATFORM_MESH_VERSION: ${{ steps.pm-version.outputs.version }}
+        run: |
+          task local-setup:remote:argocd:example-data
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'local-setup/e2e'
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('local-setup/e2e/package-lock.json') }}
+
+      - name: Run remote e2e tests
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          task test:portal-e2e:remote
+
+      - name: Dump cluster diagnostics
+        if: failure()
+        run: local-setup/scripts/dump-diagnostics.sh
+
+      - name: Upload runtime artifacts
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: runtime-artifacts-remote
+          path: |
+            runtime-artifacts/
+          retention-days: 5
+
+      - name: Upload Playwright artefacts
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playwright-artifacts-remote
+          path: |
+            local-setup/e2e/test-results/
+            local-setup/e2e/*.png
+          retention-days: 5
