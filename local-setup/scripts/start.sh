@@ -669,10 +669,10 @@ wait_for_pm() {
 
     if [[ -n "$CI" ]]; then
         sleep 10
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m component --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m resource --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m hr --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout=10m deployment --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" component --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" resource --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" hr --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout="$KUBECTL_WAIT_TIMEOUT" deployment --all -A
     fi
 }
 
