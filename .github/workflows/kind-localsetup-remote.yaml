@@ -85,6 +85,9 @@ jobs:
           path: .ocm/cache/
           key: ocm-thirdparty
 
+      - name: Generate webhook certs
+        run: local-setup/scripts/gen-certs.sh
+
       - name: Run remote local-setup (ArgoCD + example-data)
         env:
           PLATFORM_MESH_VERSION: ${{ steps.pm-version.outputs.version }}
