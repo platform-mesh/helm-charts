@@ -49,7 +49,7 @@ otelCollector:
     repository: open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib
     # -- Collector image tag
     tag: "0.153.0"
-    # -- Collector image digest (when set, overrides tag)
+    # -- Collector image digest (when set, appended to tag as repo:tag@digest)
     digest: ""
   config:
     # -- Batch processor timeout before sending metrics

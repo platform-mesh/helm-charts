@@ -25,10 +25,7 @@ spec:
     {{- end }}
     {{- end }}
   {{- end }}
-  {{ with .Values.kcp.image.tag }}
-  image:
-    tag: {{ .}}
-  {{- end }}
+  {{- with (include "kcp.image.block" .Values.kcp.image) }}{{ . | nindent 2 }}{{- end }}
   additionalPathMappings:
 {{ toYaml .Values.kcp.frontProxy.additionalPathMappings | indent 4 }}
   external:

@@ -96,6 +96,32 @@ check_jq_dependency() {
     return 0
 }
 
+check_helm_dependency() {
+    if ! command -v helm &> /dev/null; then
+        echo -e "${RED}❌ Error: 'helm' is not installed${COL_RES}"
+        echo -e "${COL}⎈ Helm is required to install charts (Flux, Argo CD, OCI registry) and build/push local charts.${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://helm.sh/docs/intro/install/${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ helm is available${COL_RES}"
+    return 0
+}
+
+check_yq_dependency() {
+    if ! command -v yq &> /dev/null; then
+        echo -e "${RED}❌ Error: 'yq' is not installed${COL_RES}"
+        echo -e "${COL}📦 yq is required to parse and edit YAML files (kubeconfigs, chart manifests, OCM component descriptors).${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://github.com/mikefarah/yq#install${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ yq is available${COL_RES}"
+    return 0
+}
+
 check_container_runtime_dependency() {
     local docker_available=false
     local podman_available=false
@@ -286,6 +312,16 @@ run_environment_checks() {
         checks_failed=$((checks_failed + 1))
     fi
 
+    # Check helm dependency (chart installs and local chart builds)
+    if ! check_helm_dependency; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
+    # Check yq dependency (YAML parsing/editing)
+    if ! check_yq_dependency; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
     # Check mkcert dependency
     if ! setup_mkcert_command; then
         checks_failed=$((checks_failed + 1))
@@ -328,6 +364,8 @@ export -f check_kind_infra_cluster
 export -f check_kind_dependency
 export -f check_kubectl_dependency
 export -f check_jq_dependency
+export -f check_helm_dependency
+export -f check_yq_dependency
 export -f check_docker_dependency
 export -f check_container_runtime_dependency
 export -f setup_mkcert_command

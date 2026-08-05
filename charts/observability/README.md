@@ -24,7 +24,7 @@ OpenTelemetry-based observability stack for platform-mesh
 | otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"},"mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
 | otelCollector.image | object | `{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"}` | Collector image (use contrib for prometheusremotewrite exporter) |
-| otelCollector.image.digest | string | `""` | Collector image digest (when set, overrides tag) |
+| otelCollector.image.digest | string | `""` | Collector image digest (when set, appended to tag as repo:tag@digest) |
 | otelCollector.image.registry | string | `"ghcr.io"` | Collector image registry |
 | otelCollector.image.repository | string | `"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"` | Collector image repository (without registry) |
 | otelCollector.image.tag | string | `"0.153.0"` | Collector image tag |
@@ -97,7 +97,7 @@ Example
 ```
 # observability
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.5.2](https://img.shields.io/badge/Version-0.5.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
 
 OpenTelemetry-based observability stack for platform-mesh
 
@@ -105,7 +105,7 @@ OpenTelemetry-based observability stack for platform-mesh
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://prometheus-community.github.io/helm-charts | prometheus | 29.6.0 |
+| https://prometheus-community.github.io/helm-charts | prometheus | 29.19.0 |
 | oci://ghcr.io/platform-mesh/helm-charts | common | 0.13.0 |
 
 ## Values
@@ -130,7 +130,7 @@ OpenTelemetry-based observability stack for platform-mesh
 | otelCollector | object | `{"config":{"batchTimeout":"10s"},"image":{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"},"mode":"statefulset","name":"otel-gateway","replicas":1}` | ---------------------------------------------------------------------------- |
 | otelCollector.config.batchTimeout | string | `"10s"` | Batch processor timeout before sending metrics |
 | otelCollector.image | object | `{"digest":"","registry":"ghcr.io","repository":"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib","tag":"0.153.0"}` | Collector image (use contrib for prometheusremotewrite exporter) |
-| otelCollector.image.digest | string | `""` | Collector image digest (when set, overrides tag) |
+| otelCollector.image.digest | string | `""` | Collector image digest (when set, appended to tag as repo:tag@digest) |
 | otelCollector.image.registry | string | `"ghcr.io"` | Collector image registry |
 | otelCollector.image.repository | string | `"open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib"` | Collector image repository (without registry) |
 | otelCollector.image.tag | string | `"0.153.0"` | Collector image tag |

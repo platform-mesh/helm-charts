@@ -1,3 +1,28 @@
+{{/*
+Image reference as repository:tag, for CRD fields that take a single string
+(etcd-druid's spec.etcd.image / spec.backup.image). Caller must guard on
+.repository before including.
+*/}}
+{{- define "kcp.image.string" -}}
+{{- .repository }}{{ if .tag }}:{{ .tag }}{{ end -}}
+{{- end }}
+
+{{/*
+Image block as repository:/tag: keys, for CRD fields that take an ImageSpec
+object (kcp-operator's RootShard/Shard/FrontProxy/CacheServer).
+*/}}
+{{- define "kcp.image.block" -}}
+{{- if or .repository .tag -}}
+image:
+  {{- with .repository }}
+  repository: {{ . }}
+  {{- end }}
+  {{- with .tag }}
+  tag: {{ . }}
+  {{- end }}
+{{- end -}}
+{{- end }}
+
 {{- define "kcp.etcd" -}}
 apiVersion: druid.gardener.cloud/v1alpha1
 kind: Etcd
@@ -19,6 +44,9 @@ spec:
     role: kcp
   etcd:
     metrics: basic
+    {{- if .etcd.image.repository }}
+    image: {{ include "kcp.image.string" .etcd.image }}  # image-schema:allow values come from OCM-injected repository/tag, not a literal
+    {{- end }}
     defragmentationSchedule: {{ .etcd.defragmentationSchedule | default "\"0 */24 * * *\"" }}
     resources:
       limits:
@@ -31,6 +59,9 @@ spec:
     serverPort: {{ .etcd.serverPort | default 2380 }}
     quota: {{ .etcd.quota | default "8Gi" }}
   backup:
+    {{- if .etcd.backup.image.repository }}
+    image: {{ include "kcp.image.string" .etcd.backup.image }}  # image-schema:allow values come from OCM-injected repository/tag, not a literal
+    {{- end }}
     port: {{ .etcd.backup.port | default 8080 }}
     fullSnapshotSchedule: {{ .etcd.backup.fullSnapshotSchedule | default "\"0 */24 * * *\"" }}
     resources:
@@ -93,10 +124,7 @@ proxy:
       template:
         spec:
           {{- include "common.hostAliases" .root | nindent 10 }}
-{{ with .root.Values.kcp.image.tag }}
-  image:
-    tag: {{ . }}
-{{- end }}
+  {{- with (include "kcp.image.block" .root.Values.kcp.image) }}{{ . | nindent 2 }}{{- end }}
 {{- if or .root.Values.kcp.auth.serviceAccount.enabled .root.Values.kcp.auth.oidc.enabled }}
 auth:
   {{- if .root.Values.kcp.auth.serviceAccount.enabled }}
@@ -126,9 +154,8 @@ authorization:
     configSecretName: {{ .root.Values.kcp.webhook.authorizationWebhookSecretName }}
     version: {{ .root.Values.kcp.webhook.version | default "v1" }}
 {{- end }}
-{{ with .root.Values.kcp.image.tag }}
-image:
-  tag: {{ . }}
+{{- with (include "kcp.image.block" .root.Values.kcp.image) }}
+{{ . }}
 {{- end }}
 {{- if gt (len .resources) 0 }}
 resources:
