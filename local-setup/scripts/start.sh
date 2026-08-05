@@ -672,7 +672,13 @@ wait_for_pm() {
         kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" component --all -A
         kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" resource --all -A
         kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" hr --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout="$KUBECTL_WAIT_TIMEOUT" deployment --all -A
+        # In remote mode ArgoCD deploys workloads to the runtime cluster asynchronously
+        # after PlatformMesh is Ready, so a broad deployment wait here races with ArgoCD
+        # sync waves and always times out.  Targeted waits happen later in the remote
+        # post-install section (wait_for_deployment_resource calls).
+        if [[ "$REMOTE" != true ]]; then
+            kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout="$KUBECTL_WAIT_TIMEOUT" deployment --all -A
+        fi
     fi
 }
 
