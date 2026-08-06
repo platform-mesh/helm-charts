@@ -73,14 +73,10 @@ jobs:
 
       - name: Setup OCM CLI
         run: |
-          REPO="open-component-model/ocm"
+          REPO="open-component-model/open-component-model"
           version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
           echo "Installing OCM CLI version: $version"
-          VERSION=${version#v}
-          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
-          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
-          curl -LsS -o ocm-cli.tgz "$URL"
-          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
           chmod a+x ocm
           sudo mv ocm /usr/local/bin/
           ocm version
@@ -113,8 +109,8 @@ jobs:
           echo ""
 
           # Fetch the base component descriptor
-          ocm get component "github.com/platform-mesh/platform-mesh:${BASE_VERSION}" \
-            --repo ghcr.io/platform-mesh -o yaml > base-component.yaml
+          ocm get component-version "ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${BASE_VERSION}" \
+            -o yaml > base-component.yaml
 
           if [ ! -s base-component.yaml ]; then
             echo "Error: Could not fetch OCM component for version ${BASE_VERSION}"
@@ -245,11 +241,11 @@ jobs:
           echo ""
 
           # Create CTF directory
-          ocm_ctf=.ocm/transport.ctf
+          ocm_ctf=ctf::.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
 
-          # Add component using descriptor directly (no templating!)
-          ocm add components -c --templater=none --file "$ocm_ctf" patch-component-list.yaml
+          # Add component using descriptor directly (no templating needed)
+          ocm add component-versions --repository "$ocm_ctf" --constructor patch-component-list.yaml
 
           echo ""
           echo "✓ OCM component created in local CTF"
@@ -266,8 +262,8 @@ jobs:
           # Show component descriptor
           echo "Component descriptor:"
           echo "---"
-          ocm get component "github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
-            --repo .ocm/transport.ctf -o yaml
+          ocm get component-version "ctf::.ocm/transport.ctf//github.com/platform-mesh/platform-mesh:$TARGET_VERSION" \
+            -o yaml
           echo ""
 
           echo "================================"
@@ -282,7 +278,7 @@ jobs:
           echo "Version: $TARGET_VERSION"
           echo ""
 
-          ocm transfer ctf .ocm/transport.ctf "ghcr.io/platform-mesh"
+          ocm transfer component-version "ctf::.ocm/transport.ctf" "ghcr.io/platform-mesh"
 
           echo ""
           echo "✓ Successfully published OCM component"
@@ -290,7 +286,7 @@ jobs:
           echo "Published: github.com/platform-mesh/platform-mesh:$TARGET_VERSION"
           echo ""
           echo "Verify with:"
-          echo "  ocm get component github.com/platform-mesh/platform-mesh:$TARGET_VERSION --repo ghcr.io/platform-mesh"
+          echo "  ocm get component-version ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:$TARGET_VERSION"
 
       - name: Dry run summary
         if: inputs.dry_run == true

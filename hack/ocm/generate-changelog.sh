@@ -269,8 +269,8 @@ fetch_ocm_component_details() {
   fi
 
   local result
-  result=$(ocm get component "github.com/platform-mesh/${component}:${version}" \
-    --repo ghcr.io/platform-mesh -o yaml 2>/dev/null)
+  result=$(ocm get component-version "ghcr.io/platform-mesh//github.com/platform-mesh/${component}:${version}" \
+    -o yaml 2>/dev/null)
 
   if [[ -z "$result" ]] || [[ "$result" == *"Error"* ]]; then
     echo "{}"

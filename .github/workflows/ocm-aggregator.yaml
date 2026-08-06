@@ -121,17 +121,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: setup OCM CLI
         run: |
-          REPO=${repo:=open-component-model/ocm}
+          REPO=${repo:=open-component-model/open-component-model}
           if [ -z "$version" -o "$version" == latest ]; then
             version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
             echo "Selecting latest version: $version"
           fi
-          VERSION=${version#v}
-          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
-          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
           echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm-cli.tgz "$URL"
-          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
           chmod a+x ocm
       - name: Write Credentials file
         run: |
@@ -193,7 +189,7 @@ jobs:
           echo KEYCLOAK_VERSION=${PM_KEYCLOAK_VERSION} >> $GITHUB_ENV
 
           # Get current platform-mesh version
-          PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
+          PM_VERSION=$(./ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o json | jq -r '.items[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
           echo CURRENT_PM_VERSION="$PM_VERSION" >> $GITHUB_ENV
 
@@ -296,7 +292,7 @@ jobs:
           set -e
 
           # Get the latest platform-mesh component descriptor to compare dependencies
-          ./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o yaml > current_pm_component.yaml || echo "No existing platform-mesh component found"
+          ./ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o yaml > current_pm_component.yaml || echo "No existing platform-mesh component found"
 
           # Extract current dependency versions from the existing component (if it exists)
           if [ -f current_pm_component.yaml ] && [ -s current_pm_component.yaml ]; then
@@ -516,9 +512,9 @@ jobs:
       - name: Copy external component references to local CTF
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ocm_ctf=.ocm/transport.ctf
+          ocm_ctf=ctf::.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
-          ./ocm transfer componentversions --copy-resources --recursive \
+          ./ocm transfer component-version --copy-resources --recursive \
             "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
             "$ocm_ctf"
 
@@ -588,15 +584,14 @@ jobs:
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ./ocm hash components --lookup ghcr.io/platform-mesh .ocm/transport.ctf
-          ./ocm transfer ctf --lookup ghcr.io/platform-mesh .ocm/transport.ctf "ghcr.io/platform-mesh"
+          ./ocm transfer component-version "ctf::.ocm/transport.ctf" "ghcr.io/platform-mesh"
 
       - name: Sign OCM Component
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
-          ./ocm sign componentversions --signature helm-charts.platform-mesh --private-key /tmp/ocm-signing.priv \
+          ./ocm sign component-version --signature helm-charts.platform-mesh --private-key /tmp/ocm-signing.priv \
           --public-key /tmp/ocm-signing.cert \
           --ca-cert .ocm/signature/ca.cert \
             "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"

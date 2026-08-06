@@ -1,39 +1,39 @@
 components:
-  - name: {{ .COMPONENT_NAME }}
-    version: {{ .VERSION }}
+  - name: ${COMPONENT_NAME}
+    version: ${VERSION}
     provider:
       name: The Platform Mesh Team
     componentReferences:
       - name: chart
-        componentName: github.com/platform-mesh/helm-charts/{{ .COMPONENT_SHORT_NAME }}
-        version: {{ .VERSION }}
+        componentName: github.com/platform-mesh/helm-charts/${COMPONENT_SHORT_NAME}
+        version: ${VERSION}
       - name: image
-        componentName: github.com/platform-mesh/images/{{ .COMPONENT_SHORT_NAME }}
-        version: {{ .VERSION }}
+        componentName: github.com/platform-mesh/images/${COMPONENT_SHORT_NAME}
+        version: ${VERSION}
     sources:
       - name: chart
         type: git
-        version: {{ .VERSION }}
+        version: ${VERSION}
         access:
-          commit: {{ .COMMIT }}
-          repoUrl: {{ .CHART_REPO }}
+          commit: ${COMMIT}
+          repoUrl: ${CHART_REPO}
           type: gitHub
 
-  - name: github.com/platform-mesh/helm-charts/{{ .COMPONENT_SHORT_NAME }}
-    version: {{ .VERSION }}
+  - name: github.com/platform-mesh/helm-charts/${COMPONENT_SHORT_NAME}
+    version: ${VERSION}
     provider:
       name: The Platform Mesh Team
     resources:
       - name: chart
         type: helmChart
         relation: external
-        version: {{ .VERSION }}
+        version: ${VERSION}
         access:
           type: ociArtifact
-          imageReference: "{{ .CHART_OCI_PATH }}:{{ .VERSION }}"
+          imageReference: "${CHART_OCI_PATH}:${VERSION}"
 
-  - name: github.com/platform-mesh/images/{{ .COMPONENT_SHORT_NAME }}
-    version: {{ .VERSION }}
+  - name: github.com/platform-mesh/images/${COMPONENT_SHORT_NAME}
+    version: ${VERSION}
     provider:
       name: The Platform Mesh Team
     resources:
