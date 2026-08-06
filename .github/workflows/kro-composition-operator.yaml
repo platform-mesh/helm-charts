@@ -1,0 +1,28 @@
+name: Build kro-composition-operator Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/kro-composition-operator/**'
+      - '.github/workflows/kro-composition-operator.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    concurrency:
+      group: kro-composition-operator-${{ github.ref }}
+      cancel-in-progress: true
+    uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
+    with:
+      chartFolder: charts
+      chartName: kro-composition-operator
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
+    secrets: inherit
