@@ -557,6 +557,9 @@ data:
               - sh
               - -c
               - cat /domain-ca/tls.crt /webhook-ca/ca.crt > /combined-ca/ca-bundle.crt
+              # busybox runs as root by default, but pod has runAsNonRoot
+              securityContext:
+                runAsUser: 1000
               volumeMounts:
               - name: domain-ca
                 mountPath: /domain-ca
