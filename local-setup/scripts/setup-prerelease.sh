@@ -21,6 +21,8 @@ deploy_oci_registry() {
   kubectl create ns registry || true
   helm upgrade --install oci-registry twuni/docker-registry -n registry \
     --set service.port=443 \
+    --set service.type=NodePort \
+    --set service.nodePort=30500 \
     --set tlsSecretName=domain-certificate \
     --set image.repository=ghcr.io/distribution/distribution \
     --set image.tag=3.0.0 \

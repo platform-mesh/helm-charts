@@ -31,7 +31,7 @@ dump_runtime() {
     mkdir -p "$1/logs"
     runtime_kubectl get pods -A -o custom-columns=NS:.metadata.namespace,N:.metadata.name --no-headers | while read -r ns pod; do
         [[ -z "$ns" || -z "$pod" ]] && continue
-        mkdir -p "$OUT_DIR/logs/$ns"
+        mkdir -p "$1/logs/$ns"
         runtime_kubectl logs -n "$ns" "$pod" --all-containers --tail=-1 > "$1/logs/$ns/$pod.log" 2>&1
         runtime_kubectl logs -n "$ns" "$pod" --all-containers --previous --tail=-1 > "$1/logs/$ns/$pod.previous.log" 2>/dev/null || true
     done
@@ -52,7 +52,7 @@ dump_kcp() {
     kcp_kubectl root:orgs get workspaces.tenancy.kcp.io -o yaml > "$out/workspaces-root_orgs.yaml"
     kcp_kubectl root:orgs get workspacetypes.tenancy.kcp.io -o yaml > "$out/workspacetypes.yaml"
 
-    kcp_kubectl root:orgs get workspaces.tenancy.kcp.io -o custom-columns=N:.metadata.name --no-headers | while read -r orgs; do
+    kcp_kubectl root:orgs get workspaces.tenancy.kcp.io -o custom-columns=N:.metadata.name --no-headers | while read -r org; do
         [[ -z "$org" ]] && continue
         kcp_kubectl "root:orgs:$org" get workspaces.tenancy.kcp.io -o yaml > "$out/workspaces-org-$org.yaml"
         kcp_kubectl "root:orgs:$org" get accounts.core.platform-mesh.io -A -o yaml > "$out/accounts-$org.yaml"
