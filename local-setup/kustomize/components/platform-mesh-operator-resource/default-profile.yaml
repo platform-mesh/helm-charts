@@ -572,7 +572,7 @@ data:
                 secretName: domain-certificate-ca
             - name: webhook-ca
               secret:
-                secretName: rebac-authz-webhook-webhook-ca
+                secretName: rebac-authz-webhook-cert
             - name: combined-ca
               emptyDir: {}
             extraVolumeMounts:
