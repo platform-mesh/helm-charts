@@ -27,6 +27,7 @@ A Helm chart for Kubernetes
 | kcp.apiExportEndpointSliceName | string | `""` | kcp APIExportEndpointSliceName to watch. Empty string means auto-discover all slices |
 | kcp.kubeconfig.secret | string | `"rebac-authz-webhook-kubeconfig"` |  |
 | openfga.url | string | `"openfga:8081"` |  |
+| service.annotations | object | `{}` |  |
 | service.clusterIP | string | `""` |  |
 | service.metricsPort | int | `8080` |  |
 | service.port | int | `9443` |  |
