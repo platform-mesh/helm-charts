@@ -260,6 +260,9 @@ components:
       - name: example-httpbin-operator
         componentName: github.com/platform-mesh/example-httpbin-operator
         version: {{ .EXAMPLE_HTTPBIN_OPERATOR_VERSION }}
+      - name: kro-composition-operator
+        componentName: github.com/platform-mesh/kro-composition-operator
+        version: {{ .KRO_COMPOSITION_OPERATOR_VERSION }}
       - name: infra
         componentName: github.com/platform-mesh/infra
         version: {{ .INFRA_VERSION }}

@@ -1,0 +1,87 @@
+# Static provider-level "kro" nav node: lists/inspects the ResourceGraphDefinitions
+# an Account has authored, via the default portal generic views. Applied into
+# root:providers:kro-provider; projected to bound Accounts via the content-for label.
+# (Per-generated-type nav — e.g. the instances a given RGD produces — is emitted at
+# runtime by the operator, one ContentConfiguration per generated type.)
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ContentConfiguration
+metadata:
+  name: kro-run-ui
+  labels:
+    ui.platform-mesh.io/entity: core_platform-mesh_io_account
+    ui.platform-mesh.io/content-for: kro.run
+spec:
+  inlineConfiguration:
+    contentType: json
+    content: |-
+      {
+        "name": "kro-resourcegraphdefinitions",
+        "luigiConfigFragment": {
+          "data": {
+            "nodes": [
+              {
+                "pathSegment": "kro_run_resourcegraphdefinitions",
+                "navigationContext": "kro_run_resourcegraphdefinitions",
+                "label": "kro",
+                "icon": "process",
+                "order": 850,
+                "entityType": "main.core_platform-mesh_io_account",
+                "keepSelectedForChildren": true,
+                "url": "/assets/platform-mesh-portal-ui-wc.js#generic-list-view",
+                "webcomponent": { "selfRegistered": true },
+                "context": {
+                  "resourceDefinition": {
+                    "apiGroup": "kro_run",
+                    "version": "v1alpha1",
+                    "entity": "ResourceGraphDefinition",
+                    "entityCollection": "ResourceGraphDefinitions",
+                    "scope": "Cluster",
+                    "namespace": null,
+                    "readyCondition": { "jsonPathExpression": "status.state", "property": ["status.state"] },
+                    "ui": {
+                      "listView": { "fields": [
+                        { "label": "Name", "property": "metadata.name" },
+                        { "label": "State", "property": "status.state" }
+                      ] },
+                      "detailView": { "fields": [
+                        { "label": "Name", "property": "metadata.name" },
+                        { "label": "State", "property": "status.state" },
+                        { "label": "Topological order", "property": "status.topologicalOrder" }
+                      ] }
+                    }
+                  }
+                },
+                "children": [
+                  {
+                    "pathSegment": ":resourceId",
+                    "hideFromNav": true,
+                    "keepSelectedForChildren": false,
+                    "defineEntity": {
+                      "id": "kro_run_resourcegraphdefinition",
+                      "contextKey": "resourceId",
+                      "graphqlEntity": {
+                        "group": "kro_run", "version": "v1alpha1", "kind": "ResourceGraphDefinition",
+                        "query": "{ metadata { name } }"
+                      }
+                    },
+                    "context": { "accountId": ":accountId", "resourceId": ":resourceId" }
+                  }
+                ]
+              },
+              {
+                "entityType": "main.core_platform-mesh_io_account.kro_run_resourcegraphdefinition",
+                "pathSegment": "dashboard",
+                "label": "Dashboard",
+                "url": "/assets/platform-mesh-portal-ui-wc.js#generic-detail-view",
+                "webcomponent": { "selfRegistered": true },
+                "defineEntity": { "id": "dashboard" },
+                "compound": { "children": [] }
+              }
+            ],
+            "texts": [
+              { "locale": "",   "textDictionary": { "kro-resourcegraphdefinitions": "kro" } },
+              { "locale": "en", "textDictionary": { "kro-resourcegraphdefinitions": "kro" } }
+            ]
+          }
+        }
+      }

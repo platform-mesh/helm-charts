@@ -1,0 +1,10 @@
+# Mirror of the operator's config/provider (source of truth in platform-mesh/platform-mesh); keep in sync.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - apiresourceschema.yaml
+  - apiexport.yaml
+  # No APIExportEndpointSlice here: kcp auto-creates one named after the APIExport
+  # (owned by it, with the correct export path). Shipping our own collides on apply.
+  - providermetadata.yaml
+  - contentconfiguration.yaml

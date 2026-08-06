@@ -1,0 +1,12 @@
+# The kro.run APIExport publishes kro's ResourceGraphDefinition type into consumer
+# workspaces (so Accounts can author RGDs). Applied into root:providers:kro-provider.
+# The content-for label MUST equal the ProviderMetadata name for the Marketplace.
+apiVersion: apis.kcp.io/v1alpha1
+kind: APIExport
+metadata:
+  name: kro.run
+  labels:
+    ui.platform-mesh.io/content-for: kro.run
+spec:
+  latestResourceSchemas:
+    - v1.resourcegraphdefinitions.kro.run

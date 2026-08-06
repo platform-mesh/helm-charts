@@ -1,0 +1,12 @@
+# Marketplace listing for KROaaS. name MUST equal the APIExport name (kro.run).
+# Applied into root:providers:kro-provider.
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ProviderMetadata
+metadata:
+  name: kro.run
+spec:
+  displayName: kro (composition)
+  description: |
+    Compose Platform Mesh services with kro ResourceGraphDefinitions. Author an
+    RGD in your Account to define a composite API built from other providers'
+    resources; create an instance and the composed resources are created for you.
