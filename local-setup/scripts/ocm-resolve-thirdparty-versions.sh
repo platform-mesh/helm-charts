@@ -21,10 +21,13 @@ OCM_DIR="${OCM_DIR:-$PROJECT_ROOT/.ocm}"
 setup_ocm_cli >/dev/null
 export_ocm_path
 
-# etcd-druid: --latest from gardener releases
-ETCD_DRUID_VERSION=$("$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get component-version --latest \
-    europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid -o json \
-    | jq -r '.items[0].component.version')
+# etcd-druid: resolve latest via OCI tags API.
+# ocm get component-version --latest triggers a DAG traversal in v2 that fails against
+# registries without a root aggregate (europe-docker.pkg.dev). Use the standard OCI
+# tags/list endpoint instead and pick the highest semver tag.
+ETCD_DRUID_VERSION=$(curl -sf \
+    "https://europe-docker.pkg.dev/v2/gardener-project/releases/component-descriptors/github.com/gardener/etcd-druid/tags/list" \
+    | jq -r '.tags | map(select(test("^v[0-9]"))) | sort_by(ltrimstr("v") | split(".") | map(tonumber)) | last')
 
 if [ -z "$ETCD_DRUID_VERSION" ] || [ "$ETCD_DRUID_VERSION" = "null" ]; then
     echo "Failed to resolve etcd-druid version" >&2
