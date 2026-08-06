@@ -34,7 +34,6 @@ A Helm chart for Kubernetes
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.automount | bool | `true` |  |
 | serviceAccount.create | bool | `true` |  |
-| traefik.enabled | bool | `true` |  |
 | webhook.cacheMissCleanupInterval | string | `"2m"` |  |
 | webhook.cacheMissMaxRetries | int | `1` |  |
 | webhook.cacheMissRetryAfter | string | `"1s"` |  |

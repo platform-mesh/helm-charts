@@ -71,9 +71,6 @@ istio:
   enabled: false
   dnsNames: []
 
-traefik:
-  enabled: true
-
 # Horizontal Pod Autoscaler configuration
 # hpa:
 #   enabled: true
