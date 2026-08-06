@@ -209,15 +209,22 @@ add_chart_to_ctf() {
     # 1. Component-specific constructor (e.g. component-constructor-example-httpbin-operator.yaml) takes priority,
     #    but only if it has no 'input:' blocks — constructors with input blocks reference local files that only
     #    exist in CI/CD (e.g. component-constructor-platform-mesh-operator.yaml embeds a local rgd blob).
-    #    Also skip component-specific constructors that reference external (non-platform-mesh) components:
-    #    v2 resolves componentReferences during graph discovery and fails if they're absent from the local CTF.
+    #    Also skip component-specific constructors that reference external components not pre-populated
+    #    in the local CTF: v2 resolves componentReferences during graph discovery and fails if they're absent.
+    #    Known pre-populated externals (gateway-api, ingress-nginx, kcp-div/*) are allowed through.
     # 2. Chart-only constructor for components without an image
     # 3. Generic constructor as fallback
     local constructor
     local specific="$OCM_DIR/component-constructor-${comp}.yaml"
     local has_external_refs=false
     if [ -f "$specific" ]; then
-        if grep -q 'componentName:' "$specific" && grep -v 'componentName:.*github\.com/platform-mesh/' "$specific" | grep -q 'componentName:'; then
+        # External = non-platform-mesh AND not one of the known pre-populated third-party components
+        if grep -v \
+            -e 'componentName:.*github\.com/platform-mesh/' \
+            -e 'componentName:.*github\.com/kcp-dev/' \
+            -e 'componentName:.*github\.com/kubernetes-sigs/' \
+            -e 'componentName:.*github\.com/kubernetes/' \
+            "$specific" | grep -q 'componentName:'; then
             has_external_refs=true
         fi
     fi

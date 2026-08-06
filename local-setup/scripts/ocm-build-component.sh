@@ -268,6 +268,17 @@ resolve_component_versions() {
         "$LOCAL_REGISTRY/platform-mesh"
     echo -e "${COL}[$(date '+%H:%M:%S')] gateway-api transferred${COL_RES}"
 
+    # ingress-nginx is referenced by the example-httpbin-operator component-specific constructor.
+    # Transfer from ghcr.io/platform-mesh into CTF (for v2 graph discovery) and local OCI (for toolkit).
+    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring ingress-nginx from ghcr.io/platform-mesh to CTF and local OCI...${COL_RES}"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
+        "ghcr.io/platform-mesh//github.com/kubernetes/ingress-nginx:4.11.3" \
+        "ctf::.ocm/transport.ctf"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
+        "ghcr.io/platform-mesh//github.com/kubernetes/ingress-nginx:4.11.3" \
+        "$LOCAL_REGISTRY/platform-mesh"
+    echo -e "${COL}[$(date '+%H:%M:%S')] ingress-nginx transferred${COL_RES}"
+
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
 }
 
