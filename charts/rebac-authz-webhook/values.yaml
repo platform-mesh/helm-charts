@@ -74,28 +74,6 @@ istio:
 traefik:
   enabled: true
 
-gatewayApi:
-  httpRoute:
-    enabled: false
-    pathPrefix: /authz/batch
-    hostnames:
-      - "portal.localhost"
-      - "*.portal.localhost"
-    parentRefs:
-      - name: k8sapi-gateway
-    filters:
-      - type: URLRewrite
-        urlRewrite:
-          path:
-            type: ReplacePrefixMatch
-            replacePrefixMatch: /batch-authz
-    corsFilters:
-      - type: ExtensionRef
-        extensionRef:
-          group: traefik.io
-          kind: Middleware
-          name: cors-header
-
 # Horizontal Pod Autoscaler configuration
 # hpa:
 #   enabled: true

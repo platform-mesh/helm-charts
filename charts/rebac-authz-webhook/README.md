@@ -16,18 +16,6 @@ A Helm chart for Kubernetes
 | deployment.resources.limits.memory | string | `"128Mi"` |  |
 | deployment.resources.requests.cpu | string | `"40m"` |  |
 | deployment.resources.requests.memory | string | `"50Mi"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
-| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
-| gatewayApi.httpRoute.enabled | bool | `false` |  |
-| gatewayApi.httpRoute.filters[0].type | string | `"URLRewrite"` |  |
-| gatewayApi.httpRoute.filters[0].urlRewrite.path.replacePrefixMatch | string | `"/batch-authz"` |  |
-| gatewayApi.httpRoute.filters[0].urlRewrite.path.type | string | `"ReplacePrefixMatch"` |  |
-| gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
-| gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |
-| gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
-| gatewayApi.httpRoute.pathPrefix | string | `"/authz/batch"` |  |
 | health.port | int | `8081` |  |
 | healthProbeBindAddress | string | `":8081"` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
