@@ -268,7 +268,7 @@ EOF
       echo ""
       echo "**OCM Component Descriptor:**"
       echo '```bash'
-      echo "ocm get cv github.com/platform-mesh/${component}:${new_ver} --repo ghcr.io/platform-mesh -o yaml"
+      echo "ocm get component-version ghcr.io/platform-mesh//github.com/platform-mesh/${component}:${new_ver} -o yaml"
       echo '```'
 
       # Extract and display PR details as collapsible list
@@ -389,7 +389,7 @@ EOF
 To fetch the full Platform Mesh component descriptor:
 
 \`\`\`bash
-ocm get cv github.com/platform-mesh/platform-mesh:${version} --repo ghcr.io/platform-mesh -o yaml
+ocm get component-version ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${version} -o yaml
 \`\`\`
 
 EOF
@@ -402,7 +402,7 @@ For installation instructions, see the [Getting Started Guide](https://platform-
 To fetch the component using OCM CLI:
 
 \`\`\`bash
-ocm get component github.com/platform-mesh/platform-mesh:${version} --repo ghcr.io/platform-mesh
+ocm get component-version ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${version}
 \`\`\`
 EOF
 }

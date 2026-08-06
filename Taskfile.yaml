@@ -12,7 +12,7 @@ vars:
     sh: go env GOOS
   GOARCH:
     sh: go env GOARCH
-  OCM_VERSION: 0.33.0
+  OCM_VERSION: 0.12.0
   COMPONENT_PRERELEASE_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
@@ -158,6 +158,8 @@ tasks:
 
   ocm:deploy:transfer-pod:
     internal: true
+    deps:
+      - task: setup:ocm
     cmds:
       - |
         set -e
@@ -167,6 +169,10 @@ tasks:
         kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
         kubectl exec -i ocm-transfer-pod -- mkdir -p .ocm
 
+        # Copy the host OCM CLI binary into the pod so it runs v2 regardless of what the image ships
+        cat {{.LOCAL_BIN}}/ocm | kubectl exec -i ocm-transfer-pod -- tee /tmp/ocm > /dev/null
+        kubectl exec -i ocm-transfer-pod -- sudo install -m 0755 /tmp/ocm /usr/local/bin/ocm
+
         # configure RootCA truststore on the pod
         kubectl exec -i ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
         kubectl cp registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
@@ -175,7 +181,7 @@ tasks:
 
   ocm:transfer:dir-to-local-oci:
     cmds:
-      - cmd: kubectl exec -i ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+      - cmd: kubectl exec -i ocm-transfer-pod -- ocm transfer component-version "ctf::.ocm/transport.ctf//github.com/platform-mesh/prerelease:{{ .COMPONENT_PRERELEASE_VERSION }}" oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
         ignore_error: true
 
   ocm:deploy:

@@ -22,8 +22,8 @@ setup_ocm_cli >/dev/null
 export_ocm_path
 
 # etcd-druid: --latest from gardener releases
-ETCD_DRUID_VERSION=$("$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get componentversions --latest \
-    github.com/gardener/etcd-druid --repo europe-docker.pkg.dev/gardener-project/releases -o json \
+ETCD_DRUID_VERSION=$("$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get component-version --latest \
+    europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid -o json \
     | jq -r '.items[0].component.version')
 
 if [ -z "$ETCD_DRUID_VERSION" ] || [ "$ETCD_DRUID_VERSION" = "null" ]; then
