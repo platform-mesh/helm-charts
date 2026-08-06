@@ -9,6 +9,11 @@ createNamespace: false
 prometheus:
   # -- Enable Prometheus deployment
   enabled: true
+  external:
+    # -- Prometheus-compatible remote-write endpoint. When set, the OTel Collector
+    # sends metrics here instead of to the bundled Prometheus. Set prometheus.enabled
+    # to false separately to disable the bundled deployment.
+    url: ""
   server:
     persistentVolume:
       # -- Disable persistence for local development

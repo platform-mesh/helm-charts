@@ -24,7 +24,7 @@ spec:
         timeout: {{ .Values.otelCollector.config.batchTimeout }}
     exporters:
       prometheusremotewrite:
-        endpoint: {{ include "observability.prometheusEndpoint" . }}
+        endpoint: {{ include "observability.prometheusEndpoint" . | quote }}
     service:
       pipelines:
         metrics:

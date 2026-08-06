@@ -31,9 +31,10 @@ OpenTelemetry-based observability stack for platform-mesh
 | otelCollector.mode | string | `"statefulset"` | Deployment mode (statefulset required for Target Allocator) |
 | otelCollector.name | string | `"otel-gateway"` | Name of the OpenTelemetryCollector CR |
 | otelCollector.replicas | int | `1` | Number of collector replicas |
-| prometheus | object | `{"alertmanager":{"enabled":false},"enabled":true,"kube-state-metrics":{"enabled":false},"prometheus-node-exporter":{"enabled":false},"prometheus-pushgateway":{"enabled":false},"server":{"extraFlags":["web.enable-remote-write-receiver","web.enable-lifecycle"],"persistentVolume":{"enabled":false},"service":{"type":"ClusterIP"}}}` | ---------------------------------------------------------------------------- |
+| prometheus | object | `{"alertmanager":{"enabled":false},"enabled":true,"external":{"url":""},"kube-state-metrics":{"enabled":false},"prometheus-node-exporter":{"enabled":false},"prometheus-pushgateway":{"enabled":false},"server":{"extraFlags":["web.enable-remote-write-receiver","web.enable-lifecycle"],"persistentVolume":{"enabled":false},"service":{"type":"ClusterIP"}}}` | ---------------------------------------------------------------------------- |
 | prometheus.alertmanager | object | `{"enabled":false}` | Disable components not needed for this POC |
 | prometheus.enabled | bool | `true` | Enable Prometheus deployment |
+| prometheus.external.url | string | `""` | Prometheus-compatible remote-write endpoint. When set, the OTel Collector sends metrics here instead of to the bundled Prometheus. Set prometheus.enabled to false separately to disable the bundled deployment. |
 | prometheus.server.extraFlags[0] | string | `"web.enable-remote-write-receiver"` | Enable remote write receiver (required for OTel Collector to push metrics) |
 | prometheus.server.extraFlags[1] | string | `"web.enable-lifecycle"` | Enable lifecycle API (required for config reloader sidecar) |
 | prometheus.server.persistentVolume.enabled | bool | `false` | Disable persistence for local development |
@@ -97,7 +98,7 @@ Example
 ```
 # observability
 
-![Version: 0.5.2](https://img.shields.io/badge/Version-0.5.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.5.3](https://img.shields.io/badge/Version-0.5.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
 
 OpenTelemetry-based observability stack for platform-mesh
 
@@ -137,9 +138,10 @@ OpenTelemetry-based observability stack for platform-mesh
 | otelCollector.mode | string | `"statefulset"` | Deployment mode (statefulset required for Target Allocator) |
 | otelCollector.name | string | `"otel-gateway"` | Name of the OpenTelemetryCollector CR |
 | otelCollector.replicas | int | `1` | Number of collector replicas |
-| prometheus | object | `{"alertmanager":{"enabled":false},"enabled":true,"kube-state-metrics":{"enabled":false},"prometheus-node-exporter":{"enabled":false},"prometheus-pushgateway":{"enabled":false},"server":{"extraFlags":["web.enable-remote-write-receiver","web.enable-lifecycle"],"persistentVolume":{"enabled":false},"service":{"type":"ClusterIP"}}}` | ---------------------------------------------------------------------------- |
+| prometheus | object | `{"alertmanager":{"enabled":false},"enabled":true,"external":{"url":""},"kube-state-metrics":{"enabled":false},"prometheus-node-exporter":{"enabled":false},"prometheus-pushgateway":{"enabled":false},"server":{"extraFlags":["web.enable-remote-write-receiver","web.enable-lifecycle"],"persistentVolume":{"enabled":false},"service":{"type":"ClusterIP"}}}` | ---------------------------------------------------------------------------- |
 | prometheus.alertmanager | object | `{"enabled":false}` | Disable components not needed for this POC |
 | prometheus.enabled | bool | `true` | Enable Prometheus deployment |
+| prometheus.external.url | string | `""` | Prometheus-compatible remote-write endpoint. When set, the OTel Collector sends metrics here instead of to the bundled Prometheus. Set prometheus.enabled to false separately to disable the bundled deployment. |
 | prometheus.server.extraFlags[0] | string | `"web.enable-remote-write-receiver"` | Enable remote write receiver (required for OTel Collector to push metrics) |
 | prometheus.server.extraFlags[1] | string | `"web.enable-lifecycle"` | Enable lifecycle API (required for config reloader sidecar) |
 | prometheus.server.persistentVolume.enabled | bool | `false` | Disable persistence for local development |
