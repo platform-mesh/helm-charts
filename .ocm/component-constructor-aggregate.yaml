@@ -263,9 +263,6 @@ components:
       - name: infra
         componentName: github.com/platform-mesh/infra
         version: ${INFRA_VERSION}
-      - name: keycloak
-        componentName: github.com/platform-mesh/keycloak
-        version: ${PM_KEYCLOAK_VERSION}
       - name: keycloak-operator
         componentName: github.com/platform-mesh/keycloak-operator
         version: ${KEYCLOAK_OPERATOR_VERSION}
