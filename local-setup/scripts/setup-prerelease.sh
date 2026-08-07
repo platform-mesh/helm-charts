@@ -43,10 +43,20 @@ deploy_oci_registry() {
 # Deploy transfer pod for OCM operations
 deploy_transfer_pod() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Deploying OCM transfer pod ${COL_RES}"
+
+  # Ensure the OCM CLI binary is present on the host before copying it into the pod
+  source "$SCRIPT_DIR/ocm-setup.sh"
+  setup_ocm_cli
+
   kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
-  kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/images/ocmbuilder:pr-4 -- sleep infinity
+  kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-ed2cf7f -- sleep infinity
   kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- mkdir -p .ocm
+
+  # Copy the host OCM CLI binary into the pod so it runs v2 regardless of what the image ships
+  local host_ocm="${LOCAL_BIN:-$(cd "$SCRIPT_DIR/../.." && pwd)/bin}/ocm"
+  cat "$host_ocm" | kubectl exec -i ocm-transfer-pod -- tee /tmp/ocm > /dev/null
+  kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- sudo install -m 0755 /tmp/ocm /usr/local/bin/ocm
 
   # Configure CA on the pod
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > $SCRIPT_DIR/registry-ca.pem

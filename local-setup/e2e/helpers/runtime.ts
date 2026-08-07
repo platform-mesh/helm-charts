@@ -29,8 +29,10 @@ function runRuntimeKubectl(args: string[], input?: string): string {
   if (remoteMode || existsSync(runtimeKubeconfigPath)) {
     return runKubectlWithKubeconfig(runtimeKubeconfigPath, args, input);
   }
+  const { KUBECONFIG: _omit, ...envWithoutKubeconfig } = process.env;
   return execFileSync('kubectl', ['--context', kindContext, ...args], {
     encoding: 'utf8',
+    env: envWithoutKubeconfig,
     input,
   }).trim();
 }

@@ -121,17 +121,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: setup OCM CLI
         run: |
-          REPO=${repo:=open-component-model/ocm}
+          REPO=${repo:=open-component-model/open-component-model}
           if [ -z "$version" -o "$version" == latest ]; then
             version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
             echo "Selecting latest version: $version"
           fi
-          VERSION=${version#v}
-          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
-          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
           echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm-cli.tgz "$URL"
-          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
           chmod a+x ocm
       - name: Write Credentials file
         run: |
@@ -192,7 +188,7 @@ jobs:
           echo KEYCLOAK_VERSION=${PM_KEYCLOAK_VERSION} >> $GITHUB_ENV
 
           # Get current platform-mesh version
-          PM_VERSION=$(./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json | jq -r '.items[0].component.version')
+          PM_VERSION=$(./ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o json | jq -r '.items[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
           echo CURRENT_PM_VERSION="$PM_VERSION" >> $GITHUB_ENV
 
@@ -295,7 +291,7 @@ jobs:
           set -e
 
           # Get the latest platform-mesh component descriptor to compare dependencies
-          ./ocm get componentversions --latest github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o yaml > current_pm_component.yaml || echo "No existing platform-mesh component found"
+          ./ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o yaml > current_pm_component.yaml || echo "No existing platform-mesh component found"
 
           # Extract current dependency versions from the existing component (if it exists)
           if [ -f current_pm_component.yaml ] && [ -s current_pm_component.yaml ]; then
@@ -515,86 +511,29 @@ jobs:
       - name: Copy external component references to local CTF
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ocm_ctf=.ocm/transport.ctf
+          ocm_ctf=ctf::.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
-          ./ocm transfer componentversions --copy-resources --recursive \
+          ./ocm transfer component-version --copy-resources --recursive \
             "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
             "$ocm_ctf"
 
       - name: create OCM ComponentArchive
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ocm_ctf=.ocm/transport.ctf
-          ./ocm add components -c --templater=go --file "$ocm_ctf" .ocm/component-constructor-aggregate.yaml -- \
-            VERSION=${{ env.VERSION }} \
-            ACCOUNT_OPERATOR_VERSION=${{ env.ACCOUNT_OPERATOR_VERSION }} \
-            EXTENSION_MANAGER_OPERATOR_VERSION=${{ env.EXTENSION_MANAGER_OPERATOR_VERSION }} \
-            INFRA_VERSION=${{ env.INFRA_VERSION }} \
-            SECURITY_OPERATOR_VERSION=${{ env.SECURITY_OPERATOR_VERSION }} \
-            REBAC_AUTHZ_WEBHOOK_VERSION=${{ env.REBAC_AUTHZ_WEBHOOK_VERSION }} \
-            PORTAL_VERSION=${{ env.PORTAL_VERSION }} \
-            PLATFORM_MESH_OPERATOR_VERSION=${{ env.PLATFORM_MESH_OPERATOR_VERSION }} \
-            VIRTUAL_WORKSPACES_VERSION=${{ env.VIRTUAL_WORKSPACES_VERSION }} \
-            KCP_OPERATOR_CHART_VERSION=${{ env.KCP_OPERATOR_CHART_VERSION }} \
-            KCP_OPERATOR_IMAGE_VERSION=${{ env.KCP_OPERATOR_IMAGE_VERSION }} \
-            KCP_VERSION=${{ env.KCP_VERSION }} \
-            INIT_AGENT_CHART_VERSION=${{ env.INIT_AGENT_CHART_VERSION }} \
-            INIT_AGENT_IMAGE_VERSION=${{ env.INIT_AGENT_IMAGE_VERSION }} \
-            API_SYNCAGENT_CHART_VERSION=${{ env.API_SYNCAGENT_CHART_VERSION }} \
-            API_SYNCAGENT_IMAGE_VERSION=${{ env.API_SYNCAGENT_IMAGE_VERSION }} \
-            GARDENER_ETCD_DRUID_VERSION=${{ env.GARDENER_ETCD_DRUID_VERSION }} \
-            OPENFGA_VERSION=${{ env.OPENFGA_VERSION }} \
-            OPENFGA_IMAGE_VERSION=${{ env.OPENFGA_IMAGE_VERSION }} \
-            OPENFGA_POSTGRESQL_IMAGE_VERSION=${{ env.OPENFGA_POSTGRESQL_IMAGE_VERSION }} \
-            PM_OPENFGA_VERSION=${{ env.PM_OPENFGA_VERSION }} \
-            GATEWAY_API_VERSION=${{ env.GATEWAY_API_VERSION }} \
-            GATEWAY_API_COMMIT=${{ env.GATEWAY_API_COMMIT }} \
-            TRAEFIK_VERSION=${{ env.TRAEFIK_VERSION }} \
-            TRAEFIK_CHART_VERSION=${{ env.TRAEFIK_CHART_VERSION }} \
-            TRAEFIK_IMAGE_VERSION=${{ env.TRAEFIK_IMAGE_VERSION }} \
-            TRAEFIK_CRD_VERSION=${{ env.TRAEFIK_CRD_VERSION }} \
-            CERT_MANAGER_VERSION=${{ env.CERT_MANAGER_VERSION }} \
-            KUBERNETES_GRAPHQL_GATEWAY_VERSION=${{ env.KUBERNETES_GRAPHQL_GATEWAY_VERSION }} \
-            KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION}} \
-            PM_KEYCLOAK_VERSION=${{ env.PM_KEYCLOAK_VERSION }} \
-            EXAMPLE_HTTPBIN_OPERATOR_VERSION=${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }} \
-            IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \
-            IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
-            MARKETPLACE_UI_VERSION=${{ env.MARKETPLACE_UI_VERSION }} \
-            TERMINAL_CONTROLLER_MANAGER_VERSION=${{ env.TERMINAL_CONTROLLER_MANAGER_VERSION }} \
-            KEYCLOAK_OPERATOR_VERSION=${{ env.KEYCLOAK_OPERATOR_VERSION }} \
-            OBSERVABILITY_VERSION=${{ env.OBSERVABILITY_VERSION }} \
-            CNPG_OPERATOR_CHART_VERSION=${{ env.CNPG_OPERATOR_CHART_VERSION }} \
-            CNPG_OPERATOR_IMAGE_VERSION=${{ env.CNPG_OPERATOR_IMAGE_VERSION }} \
-            PROMETHEUS_OPERATOR_CRDS_VERSION=${{ env.PROMETHEUS_OPERATOR_CRDS_VERSION }} \
-            KUBE_PROMETHEUS_STACK_VERSION=${{ env.KUBE_PROMETHEUS_STACK_VERSION }} \
-            OPENTELEMETRY_OPERATOR_VERSION=${{ env.OPENTELEMETRY_OPERATOR_VERSION }} \
-            OTEL_OPERATOR_IMAGE_VERSION=${{ env.OTEL_OPERATOR_IMAGE_VERSION }} \
-            OTEL_COLLECTOR_IMAGE_VERSION=${{ env.OTEL_COLLECTOR_IMAGE_VERSION }} \
-            OTEL_TARGET_ALLOCATOR_VERSION=${{ env.OTEL_TARGET_ALLOCATOR_VERSION }} \
-            PM_GATEWAY_API_VERSION=${{ env.PM_GATEWAY_API_VERSION }} \
-            PM_TRAEFIK_VERSION=${{ env.PM_TRAEFIK_VERSION }} \
-            PM_CERT_MANAGER_VERSION=${{ env.PM_CERT_MANAGER_VERSION }} \
-            PM_KCP_OPERATOR_VERSION=${{ env.PM_KCP_OPERATOR_VERSION }} \
-            PM_KCP_VERSION=${{ env.PM_KCP_VERSION }} \
-            PM_INIT_AGENT_VERSION=${{ env.PM_INIT_AGENT_VERSION }} \
-            PM_CNPG_OPERATOR_VERSION=${{ env.PM_CNPG_OPERATOR_VERSION }} \
-            PM_PROMETHEUS_OPERATOR_CRDS_VERSION=${{ env.PM_PROMETHEUS_OPERATOR_CRDS_VERSION }} \
-            PM_KUBE_PROMETHEUS_STACK_VERSION=${{ env.PM_KUBE_PROMETHEUS_STACK_VERSION }} \
-            PM_OPENTELEMETRY_OPERATOR_VERSION=${{ env.PM_OPENTELEMETRY_OPERATOR_VERSION }}
+          ocm_ctf=ctf::.ocm/transport.ctf
+          ./ocm add component-versions --repository "$ocm_ctf" --constructor .ocm/component-constructor-aggregate.yaml
 
       - name: Transfer to OCM REPO
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ./ocm hash components --lookup ghcr.io/platform-mesh .ocm/transport.ctf
-          ./ocm transfer ctf --lookup ghcr.io/platform-mesh .ocm/transport.ctf "ghcr.io/platform-mesh"
+          ./ocm transfer component-version "ctf::.ocm/transport.ctf" "ghcr.io/platform-mesh"
 
       - name: Sign OCM Component
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
-          ./ocm sign componentversions --signature helm-charts.platform-mesh --private-key /tmp/ocm-signing.priv \
+          ./ocm sign component-version --signature helm-charts.platform-mesh --private-key /tmp/ocm-signing.priv \
           --public-key /tmp/ocm-signing.cert \
           --ca-cert .ocm/signature/ca.cert \
             "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
