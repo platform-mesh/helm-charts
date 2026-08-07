@@ -4,8 +4,8 @@ templates:
 values:
   - ../test-values.yaml
 chart:
-  version: 0.1.0
-  appVersion: v1.4.1
+  version: 1.4.1
+  appVersion: "0.0.0"
 tests:
   - it: GatewayClass CRD matches snapshot
     asserts:
