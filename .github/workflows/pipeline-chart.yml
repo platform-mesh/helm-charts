@@ -77,13 +77,17 @@ jobs:
           echo "Chart version: $VERSION"
       - name: setup OCM CLI
         run: |
-          REPO=${repo:=open-component-model/open-component-model}
+          REPO=${repo:=open-component-model/ocm}
           if [ -z "$version" -o "$version" == latest ]; then
             version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
             echo "Selecting latest version: $version"
           fi
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
           echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
           chmod a+x ocm
       - name: Verify OCM component version does not exist
         env:
@@ -107,7 +111,8 @@ jobs:
           # release; only a definitive "not found" is a pass.
           set +e
           out=$(./ocm get cv \
-            "ghcr.io/platform-mesh//${COMPONENT_NAME}:${VERSION}" 2>&1)
+            "${COMPONENT_NAME}:${VERSION}" \
+            --repo ghcr.io/platform-mesh 2>&1)
           rc=$?
           set -e
 
