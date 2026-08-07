@@ -65,9 +65,10 @@ update_constructor() {
         "$OCM_DIR/component-constructor-prerelease.yaml" > "$OCM_DIR/component-constructor-prerelease.yaml.tmp" \
         && mv "$OCM_DIR/component-constructor-prerelease.yaml.tmp" "$OCM_DIR/component-constructor-prerelease.yaml"
 
-    # Strip gateway-api inline component: it uses 'type: github' which OCM v2 cannot
-    # resolve locally. The pre-built component is transferred from ghcr.io/platform-mesh
-    # into the CTF by prefill_ctf() before build_final_component() runs.
+    # TODO(gateway-api-crds): Remove this strip once CI has published
+    # ghcr.io/platform-mesh/helm-charts/charts/gateway-api-crds. Until then,
+    # build_final_component() would 403 trying to resolve the ociArtifact reference;
+    # prefill_ctf() builds the component inline from the local OCI registry instead.
     yq eval '.components |= map(select(.name != "github.com/kubernetes-sigs/gateway-api"))' \
         -i "$OCM_DIR/component-constructor-prerelease.yaml"
 
@@ -208,8 +209,7 @@ resolve_component_versions() {
     export OPENFGA_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_VERSION' "$agg")
     export OPENFGA_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_IMAGE_VERSION' "$agg")
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_POSTGRESQL_IMAGE_VERSION' "$agg")
-    export GATEWAY_API_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_VERSION' "$agg")
-    export GATEWAY_API_COMMIT=$(yq -r '.jobs.ocm.env.GATEWAY_API_COMMIT' "$agg")
+    export GATEWAY_API_CHART_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_CHART_VERSION' "$agg")
     export TRAEFIK_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_VERSION' "$agg")
     export TRAEFIK_CHART_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_CHART_VERSION' "$agg")
     export TRAEFIK_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_IMAGE_VERSION' "$agg")
@@ -255,16 +255,43 @@ resolve_component_versions() {
 prefill_ctf() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Pre-filling CTF with external components...${COL_RES}"
 
-    # gateway-api: inline constructor uses 'type: github' which OCM v2 has no plugin for.
-    # The inline definition is stripped in update_constructor(); the componentReference is kept,
-    # so the pre-built component must be in the CTF for the prerelease graph to resolve.
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
-        "ghcr.io/platform-mesh//github.com/kubernetes-sigs/gateway-api:${PM_GATEWAY_API_VERSION}" \
-        "ctf::.ocm/transport.ctf"
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
-        "ghcr.io/platform-mesh//github.com/kubernetes-sigs/gateway-api:${PM_GATEWAY_API_VERSION}" \
-        "$LOCAL_REGISTRY/platform-mesh"
-    echo -e "${COL}[$(date '+%H:%M:%S')] gateway-api pre-filled${COL_RES}"
+    # TODO(gateway-api-crds): Remove this entire block once CI has published
+    # ghcr.io/platform-mesh/helm-charts/charts/gateway-api-crds. After that,
+    # build_final_component() will build github.com/kubernetes-sigs/gateway-api inline
+    # from ghcr.io (same as traefik), and the strip in update_constructor() can go too.
+    #
+    # gateway-api: chart not yet on ghcr.io, so package it locally, push to the local OCI
+    # registry, and build the OCM component inline so status.resource.access.imageReference
+    # is populated correctly for the operator.
+    local gateway_api_tarball
+    gateway_api_tarball=$(helm package "$PROJECT_ROOT/charts/gateway-api-crds" -d /tmp --version "$GATEWAY_API_CHART_VERSION" | awk -F': ' '/saved it to:/ {print $2}')
+    kubectl cp "$gateway_api_tarball" -n default "ocm-transfer-pod:$(basename "$gateway_api_tarball")"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        helm push "$(basename "$gateway_api_tarball")" "oci://$LOCAL_REGISTRY/platform-mesh"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- bash -c "cat > .ocm/component-constructor-gateway-api.yaml << 'EOCTOR'
+components:
+  - name: github.com/kubernetes-sigs/gateway-api
+    version: \${PM_GATEWAY_API_VERSION}
+    provider:
+      name: gateway-api
+    resources:
+      - name: crds
+        type: helmChart
+        relation: local
+        version: \${GATEWAY_API_CHART_VERSION}
+        access:
+          type: ociArtifact
+          imageReference: oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh/gateway-api-crds:\${GATEWAY_API_CHART_VERSION}
+EOCTOR"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        env \
+        PM_GATEWAY_API_VERSION="$PM_GATEWAY_API_VERSION" \
+        GATEWAY_API_CHART_VERSION="$GATEWAY_API_CHART_VERSION" \
+        ocm add component-versions \
+        --component-version-conflict-policy replace \
+        --repository "ctf::.ocm/transport.ctf" \
+        --constructor .ocm/component-constructor-gateway-api.yaml
+    echo -e "${COL}[$(date '+%H:%M:%S')] gateway-api built into CTF${COL_RES}"
 
     # ingress-nginx: referenced by the component-specific constructor for example-httpbin-operator,
     # which is used during build_local_charts Phase 2 — must be in CTF before that phase runs.
@@ -347,8 +374,7 @@ build_final_component() {
         IAM_SERVICE_VERSION="$IAM_SERVICE_VERSION" \
         IAM_UI_VERSION="$IAM_UI_VERSION" \
         MARKETPLACE_UI_VERSION="$MARKETPLACE_UI_VERSION" \
-        GATEWAY_API_VERSION="$GATEWAY_API_VERSION" \
-        GATEWAY_API_COMMIT="$GATEWAY_API_COMMIT" \
+        GATEWAY_API_CHART_VERSION="$GATEWAY_API_CHART_VERSION" \
         TRAEFIK_VERSION="$TRAEFIK_VERSION" \
         TRAEFIK_CRD_VERSION="$TRAEFIK_CRD_VERSION" \
         TRAEFIK_CHART_VERSION="$TRAEFIK_CHART_VERSION" \
@@ -412,6 +438,9 @@ build_final_component() {
             ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$LOCAL_REGISTRY/platform-mesh" \
             || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
     }
+    # TODO(gateway-api-crds): Remove once CI publishes the chart; build_final_component()
+    # will then build and transfer it like the other third-party components below.
+    _transfer_third_party "github.com/kubernetes-sigs/gateway-api:${PM_GATEWAY_API_VERSION}"
     _transfer_third_party "github.com/traefik/traefik:${PM_TRAEFIK_VERSION}"
     _transfer_third_party "github.com/cert-manager/cert-manager:${PM_CERT_MANAGER_VERSION}"
     _transfer_third_party "github.com/openfga/openfga:${PM_OPENFGA_VERSION}"
@@ -446,6 +475,7 @@ build_component() {
     export PM_GATEWAY_API_VERSION="0.0.1"
     export INGRESS_NGINX_VERSION="4.11.3"
     local agg="$PROJECT_ROOT/.github/workflows/ocm-aggregator.yaml"
+    export GATEWAY_API_CHART_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_CHART_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
     export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
     export API_SYNCAGENT_COMPONENT_VERSION="1.0.0"
