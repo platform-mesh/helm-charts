@@ -6,6 +6,10 @@
 
 set -e
 
+if [ "${DEBUG}" = "true" ]; then
+  set -x
+fi
+
 # Script directory and project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -61,6 +65,13 @@ update_constructor() {
         "$OCM_DIR/component-constructor-prerelease.yaml" > "$OCM_DIR/component-constructor-prerelease.yaml.tmp" \
         && mv "$OCM_DIR/component-constructor-prerelease.yaml.tmp" "$OCM_DIR/component-constructor-prerelease.yaml"
 
+    # TODO(gateway-api-crds): Remove this strip once CI has published
+    # ghcr.io/platform-mesh/helm-charts/charts/gateway-api-crds. Until then,
+    # build_final_component() would 403 trying to resolve the ociArtifact reference;
+    # prefill_ctf() builds the component inline from the local OCI registry instead.
+    yq eval '.components |= map(select(.name != "github.com/kubernetes-sigs/gateway-api"))' \
+        -i "$OCM_DIR/component-constructor-prerelease.yaml"
+
     echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor updated${COL_RES}"
 }
 
@@ -83,7 +94,7 @@ get_component_version() {
         if [ "$short" = "$name" ] && [ -n "$ver" ] && [ "$ver" != "$name" ]; then
             echo "Using FIXED override version for $short -> $ver"
             export "$env_var"="$ver"
-            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer componentversion --recursive --copy-resources --no-update ghcr.io/platform-mesh//$component:$ver https://$LOCAL_REGISTRY/platform-mesh
+            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version --recursive --copy-resources "ghcr.io/platform-mesh//$component:$ver" "https://$LOCAL_REGISTRY/platform-mesh"
             return 0
         fi
     done
@@ -112,7 +123,7 @@ get_ocm_resource_version() {
 get_external_component_version() {
     local component="$1"
     local repo="$2"
-    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get componentversions --latest "$component" --repo "$repo" -o json | jq -r '.items[0].component.version'
+    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get component-version --latest "$repo//$component" -o json | jq -r '.items[0].component.version'
 }
 
 # poor mans persistence for heavy deps.
@@ -137,16 +148,28 @@ transfer_from_cache() {
         echo -e "${COL}[$(date '+%H:%M:%S')] $name: cache miss (have '${cached_tag:-none}', want $ver), transferring${COL_RES}"
         rm -rf "$cache_dir"
         mkdir -p "$(dirname "$cache_dir")"
-        "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer componentversion \
-            --overwrite --copy-resources --no-update "$ref:$ver" "$cache_dir"
+        "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer component-version \
+            "$ref:$ver" "$cache_dir"
     fi
 
     local pod_path=".ocm/cache-$name"
     kubectl exec -i ocm-transfer-pod -- rm -rf "$pod_path"
     kubectl exec -i ocm-transfer-pod -- mkdir -p "$pod_path"
     kubectl cp "$cache_dir" -n default "ocm-transfer-pod:$pod_path/"
-    kubectl exec -i ocm-transfer-pod -- ocm transfer ctf --overwrite \
-        "$pod_path/$(basename "$cache_dir")" "$cluster_oci"
+    local component_name
+    component_name=$(jq -r '.artifacts[0].repository // ""' "$cache_dir/artifact-index.json" 2>/dev/null | sed 's|^component-descriptors/||')
+    kubectl exec -i ocm-transfer-pod -- ocm transfer component-version \
+        "ctf::$pod_path/$(basename "$cache_dir")//$component_name:$ver" "$cluster_oci"
+
+    # OCM v2 graph discovery requires all componentReferences and their transitive deps to be
+    # present in the target CTF before 'add component-versions' runs. Transfer the full tree
+    # (--recursive) from upstream into both the CTF (for discovery) and the local OCI registry
+    # (for the OCM toolkit to follow componentReference chains at runtime).
+    echo -e "${COL}[$(date '+%H:%M:%S')] $name: pre-populating CTF and local OCI with recursive transfer...${COL_RES}"
+    kubectl exec -i ocm-transfer-pod -- ocm transfer component-version --recursive \
+        "$ref:$ver" "ctf::.ocm/transport.ctf"
+    kubectl exec -i ocm-transfer-pod -- ocm transfer component-version --recursive \
+        "$ref:$ver" "$cluster_oci"
 }
 
 # Resolve all component versions
@@ -182,11 +205,11 @@ resolve_component_versions() {
     export INIT_AGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_IMAGE_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
     export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
+    export API_SYNCAGENT_COMPONENT_VERSION="1.0.0"
     export OPENFGA_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_VERSION' "$agg")
     export OPENFGA_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_IMAGE_VERSION' "$agg")
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_POSTGRESQL_IMAGE_VERSION' "$agg")
-    export GATEWAY_API_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_VERSION' "$agg")
-    export GATEWAY_API_COMMIT=$(yq -r '.jobs.ocm.env.GATEWAY_API_COMMIT' "$agg")
+    export GATEWAY_API_CHART_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_CHART_VERSION' "$agg")
     export TRAEFIK_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_VERSION' "$agg")
     export TRAEFIK_CHART_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_CHART_VERSION' "$agg")
     export TRAEFIK_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_IMAGE_VERSION' "$agg")
@@ -203,10 +226,6 @@ resolve_component_versions() {
     export KEYCLOAK_VERSION=$(yq -r '.jobs.ocm.env.PM_KEYCLOAK_VERSION' "$agg")
     export GARDENER_ETCD_DRUID_VERSION=$(yq -r '.jobs.ocm.env.GARDENER_ETCD_DRUID_VERSION' "$agg")
 
-    transfer_from_cache etcd-druid \
-        europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid \
-        "$GARDENER_ETCD_DRUID_VERSION"
-
     # PM-stamped component descriptor versions for third-party components.
     # Bump the suffix here to publish a new descriptor without touching resource versions.
     # Must match the values in .github/workflows/ocm-aggregator.yaml.
@@ -214,14 +233,113 @@ resolve_component_versions() {
     export PM_TRAEFIK_VERSION="0.0.1"
     export PM_CERT_MANAGER_VERSION="0.0.1"
     export PM_KCP_OPERATOR_VERSION="0.0.1"
-    export PM_KCP_VERSION="0.0.2"
+    export PM_KCP_VERSION="0.0.3"
     export PM_INIT_AGENT_VERSION="0.0.1"
+    export PM_OPENFGA_VERSION="0.0.1"
     export PM_CNPG_OPERATOR_VERSION="0.0.1"
     export PM_PROMETHEUS_OPERATOR_CRDS_VERSION="0.0.1"
     export PM_KUBE_PROMETHEUS_STACK_VERSION="0.0.1"
     export PM_OPENTELEMETRY_OPERATOR_VERSION="0.0.2"
 
+    transfer_from_cache etcd-druid \
+        europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid \
+        "$GARDENER_ETCD_DRUID_VERSION"
+
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
+}
+
+# Pre-populate the CTF with external components that must be present before any
+# 'ocm add component-versions' runs (both build_local_charts Phase 2 and build_final_component).
+# OCM v2 performs graph discovery against the CTF before constructing — any componentReference
+# pointing at a missing component causes an immediate failure.
+prefill_ctf() {
+    echo -e "${COL}[$(date '+%H:%M:%S')] Pre-filling CTF with external components...${COL_RES}"
+
+    # TODO(gateway-api-crds): Remove this entire block once CI has published
+    # ghcr.io/platform-mesh/helm-charts/charts/gateway-api-crds. After that,
+    # build_final_component() will build github.com/kubernetes-sigs/gateway-api inline
+    # from ghcr.io (same as traefik), and the strip in update_constructor() can go too.
+    #
+    # gateway-api: chart not yet on ghcr.io, so package it locally, push to the local OCI
+    # registry, and build the OCM component inline so status.resource.access.imageReference
+    # is populated correctly for the operator.
+    local gateway_api_tarball
+    gateway_api_tarball=$(helm package "$PROJECT_ROOT/charts/gateway-api-crds" -d /tmp --version "$GATEWAY_API_CHART_VERSION" | awk -F': ' '/saved it to:/ {print $2}')
+    kubectl cp "$gateway_api_tarball" -n default "ocm-transfer-pod:$(basename "$gateway_api_tarball")"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        helm push "$(basename "$gateway_api_tarball")" "oci://$LOCAL_REGISTRY/platform-mesh"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- bash -c "cat > .ocm/component-constructor-gateway-api.yaml << 'EOCTOR'
+components:
+  - name: github.com/kubernetes-sigs/gateway-api
+    version: \${PM_GATEWAY_API_VERSION}
+    provider:
+      name: gateway-api
+    resources:
+      - name: crds
+        type: helmChart
+        relation: local
+        version: \${GATEWAY_API_CHART_VERSION}
+        access:
+          type: ociArtifact
+          imageReference: oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh/gateway-api-crds:\${GATEWAY_API_CHART_VERSION}
+EOCTOR"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        env \
+        PM_GATEWAY_API_VERSION="$PM_GATEWAY_API_VERSION" \
+        GATEWAY_API_CHART_VERSION="$GATEWAY_API_CHART_VERSION" \
+        ocm add component-versions \
+        --component-version-conflict-policy replace \
+        --repository "ctf::.ocm/transport.ctf" \
+        --constructor .ocm/component-constructor-gateway-api.yaml
+    echo -e "${COL}[$(date '+%H:%M:%S')] gateway-api built into CTF${COL_RES}"
+
+    # ingress-nginx: referenced by the component-specific constructor for example-httpbin-operator,
+    # which is used during build_local_charts Phase 2 — must be in CTF before that phase runs.
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
+        "ghcr.io/platform-mesh//github.com/kubernetes/ingress-nginx:${INGRESS_NGINX_VERSION}" \
+        "ctf::.ocm/transport.ctf"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
+        "ghcr.io/platform-mesh//github.com/kubernetes/ingress-nginx:${INGRESS_NGINX_VERSION}" \
+        "$LOCAL_REGISTRY/platform-mesh"
+    echo -e "${COL}[$(date '+%H:%M:%S')] ingress-nginx pre-filled${COL_RES}"
+
+    # api-syncagent: referenced by the component-specific constructor for example-httpbin-operator
+    # (used in build_local_charts Phase 2) but only built inline during build_final_component().
+    # Build it standalone into the CTF here so Phase 2 can resolve it.
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- bash -c "cat > .ocm/component-constructor-api-syncagent.yaml << 'EOCTOR'
+components:
+  - name: github.com/platform-mesh/api-syncagent
+    version: \${API_SYNCAGENT_COMPONENT_VERSION}
+    provider:
+      name: kcp
+    resources:
+      - name: chart
+        type: helmChart
+        relation: local
+        version: \${API_SYNCAGENT_CHART_VERSION}
+        access:
+          type: ociArtifact
+          imageReference: ghcr.io/platform-mesh/ocm/charts/api-syncagent:\${API_SYNCAGENT_CHART_VERSION}
+      - name: image
+        type: ociImage
+        relation: local
+        version: \${API_SYNCAGENT_IMAGE_VERSION}
+        access:
+          type: ociArtifact
+          imageReference: ghcr.io/kcp-dev/api-syncagent:\${API_SYNCAGENT_IMAGE_VERSION}
+EOCTOR"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        env \
+        API_SYNCAGENT_COMPONENT_VERSION="$API_SYNCAGENT_COMPONENT_VERSION" \
+        API_SYNCAGENT_CHART_VERSION="$API_SYNCAGENT_CHART_VERSION" \
+        API_SYNCAGENT_IMAGE_VERSION="$API_SYNCAGENT_IMAGE_VERSION" \
+        ocm add component-versions \
+        --component-version-conflict-policy replace \
+        --repository "ctf::.ocm/transport.ctf" \
+        --constructor .ocm/component-constructor-api-syncagent.yaml
+    echo -e "${COL}[$(date '+%H:%M:%S')] api-syncagent pre-built into CTF${COL_RES}"
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] CTF pre-fill complete${COL_RES}"
 }
 
 # Build the final prerelease component
@@ -232,15 +350,12 @@ build_final_component() {
     kubectl cp "$OCM_DIR/component-constructor-prerelease.yaml" -n default ocm-transfer-pod:.ocm/component-constructor-prerelease.yaml
 
     # Build the component
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components \
-        --lookup "$LOCAL_REGISTRY" \
-        -c --templater=go \
-        --file ".ocm/transport.ctf" \
-        .ocm/component-constructor-prerelease.yaml -- \
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        env \
         VERSION="$COMPONENT_PRERELEASE_VERSION" \
         ISTIO_VERSION="$ISTIO_VERSION" \
         OPENFGA_VERSION="$OPENFGA_VERSION" \
-        PM_OPENFGA_VERSION="$OPENFGA_VERSION" \
+        PM_OPENFGA_VERSION="$PM_OPENFGA_VERSION" \
         KCP_OPERATOR_VERSION="$KCP_OPERATOR_VERSION" \
         GARDENER_ETCD_DRUID_VERSION="$GARDENER_ETCD_DRUID_VERSION" \
         ACCOUNT_OPERATOR_VERSION="$ACCOUNT_OPERATOR_VERSION" \
@@ -259,8 +374,7 @@ build_final_component() {
         IAM_SERVICE_VERSION="$IAM_SERVICE_VERSION" \
         IAM_UI_VERSION="$IAM_UI_VERSION" \
         MARKETPLACE_UI_VERSION="$MARKETPLACE_UI_VERSION" \
-        GATEWAY_API_VERSION="$GATEWAY_API_VERSION" \
-        GATEWAY_API_COMMIT="$GATEWAY_API_COMMIT" \
+        GATEWAY_API_CHART_VERSION="$GATEWAY_API_CHART_VERSION" \
         TRAEFIK_VERSION="$TRAEFIK_VERSION" \
         TRAEFIK_CRD_VERSION="$TRAEFIK_CRD_VERSION" \
         TRAEFIK_CHART_VERSION="$TRAEFIK_CHART_VERSION" \
@@ -272,6 +386,7 @@ build_final_component() {
         INIT_AGENT_IMAGE_VERSION="$INIT_AGENT_IMAGE_VERSION" \
         API_SYNCAGENT_CHART_VERSION="$API_SYNCAGENT_CHART_VERSION" \
         API_SYNCAGENT_IMAGE_VERSION="$API_SYNCAGENT_IMAGE_VERSION" \
+        API_SYNCAGENT_COMPONENT_VERSION="$API_SYNCAGENT_COMPONENT_VERSION" \
         TRAEFIK_IMAGE_VERSION="$TRAEFIK_IMAGE_VERSION" \
         OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
         OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
@@ -295,10 +410,49 @@ build_final_component() {
         PM_CNPG_OPERATOR_VERSION="$PM_CNPG_OPERATOR_VERSION" \
         PM_PROMETHEUS_OPERATOR_CRDS_VERSION="$PM_PROMETHEUS_OPERATOR_CRDS_VERSION" \
         PM_KUBE_PROMETHEUS_STACK_VERSION="$PM_KUBE_PROMETHEUS_STACK_VERSION" \
-        PM_OPENTELEMETRY_OPERATOR_VERSION="$PM_OPENTELEMETRY_OPERATOR_VERSION"
+        PM_OPENTELEMETRY_OPERATOR_VERSION="$PM_OPENTELEMETRY_OPERATOR_VERSION" \
+        ocm add component-versions \
+        --component-version-conflict-policy replace \
+        --repository "ctf::.ocm/transport.ctf" \
+        --constructor .ocm/component-constructor-prerelease.yaml
 
     echo ""
     echo -e "${COL}[$(date '+%H:%M:%S')] Built prerelease component version $COMPONENT_PRERELEASE_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)${COL_RES}"
+
+    # Transfer the prerelease component to the local OCI registry
+    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring prerelease component to local OCI registry...${COL_RES}"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        ocm transfer component-version \
+        "ctf::.ocm/transport.ctf//github.com/platform-mesh/prerelease:$COMPONENT_PRERELEASE_VERSION" \
+        "$LOCAL_REGISTRY/platform-mesh"
+
+    # Transfer all inline third-party components (traefik, cert-manager, kcp, etc.) to the local OCI registry.
+    # These are built as part of the prerelease constructor and must be resolvable by the OCM toolkit.
+    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring inline third-party components to local OCI registry...${COL_RES}"
+    local _transfer_third_party
+    _transfer_third_party() {
+        local ref="$1"
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+            ocm get component-version "ctf::.ocm/transport.ctf//$ref" >/dev/null 2>&1 || return 0
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+            ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$LOCAL_REGISTRY/platform-mesh" \
+            || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
+    }
+    # TODO(gateway-api-crds): Remove once CI publishes the chart; build_final_component()
+    # will then build and transfer it like the other third-party components below.
+    _transfer_third_party "github.com/kubernetes-sigs/gateway-api:${PM_GATEWAY_API_VERSION}"
+    _transfer_third_party "github.com/traefik/traefik:${PM_TRAEFIK_VERSION}"
+    _transfer_third_party "github.com/cert-manager/cert-manager:${PM_CERT_MANAGER_VERSION}"
+    _transfer_third_party "github.com/openfga/openfga:${PM_OPENFGA_VERSION}"
+    _transfer_third_party "github.com/kcp-dev/kcp-operator:${PM_KCP_OPERATOR_VERSION}"
+    _transfer_third_party "github.com/kcp-dev/kcp:${PM_KCP_VERSION}"
+    _transfer_third_party "github.com/kcp-dev/init-agent:${PM_INIT_AGENT_VERSION}"
+    _transfer_third_party "github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}"
+    _transfer_third_party "github.com/cloudnative-pg/cloudnative-pg:${PM_CNPG_OPERATOR_VERSION}"
+    _transfer_third_party "github.com/prometheus-community/prometheus-operator-crds:${PM_PROMETHEUS_OPERATOR_CRDS_VERSION}"
+    _transfer_third_party "github.com/prometheus-community/kube-prometheus-stack:${PM_KUBE_PROMETHEUS_STACK_VERSION}"
+    _transfer_third_party "github.com/open-telemetry/opentelemetry-operator:${PM_OPENTELEMETRY_OPERATOR_VERSION}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Prerelease component transferred successfully${COL_RES}"
 }
 
 # Main build function
@@ -314,6 +468,21 @@ build_component() {
 
     # Update constructor template
     update_constructor
+
+    # Export version pins needed by prefill_ctf before build_local_charts runs.
+    # The full set is exported later in resolve_component_versions; these are
+    # needed early because prefill_ctf must run before Phase 2 of build_local_charts.
+    export PM_GATEWAY_API_VERSION="0.0.1"
+    export INGRESS_NGINX_VERSION="4.11.3"
+    local agg="$PROJECT_ROOT/.github/workflows/ocm-aggregator.yaml"
+    export GATEWAY_API_CHART_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_CHART_VERSION' "$agg")
+    export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
+    export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
+    export API_SYNCAGENT_COMPONENT_VERSION="1.0.0"
+
+    # Pre-populate CTF with externals that component-specific constructors reference
+    # (gateway-api, ingress-nginx). Must happen before build_local_charts Phase 2.
+    prefill_ctf
 
     # Build local charts (this also sets up the transport archive)
     build_local_charts

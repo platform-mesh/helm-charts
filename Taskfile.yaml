@@ -12,7 +12,7 @@ vars:
     sh: go env GOOS
   GOARCH:
     sh: go env GOARCH
-  OCM_VERSION: 0.33.0
+  OCM_VERSION: 0.12.0
   COMPONENT_PRERELEASE_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
@@ -163,7 +163,7 @@ tasks:
         set -e
         echo "Transferring OCM transport archive to local registry from a pod..."
         kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
-        kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/images/ocmbuilder:pr-4 -- sleep infinity || true
+        kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-ed2cf7f -- sleep infinity || true
         kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
         kubectl exec -i ocm-transfer-pod -- mkdir -p .ocm
 
@@ -175,7 +175,7 @@ tasks:
 
   ocm:transfer:dir-to-local-oci:
     cmds:
-      - cmd: kubectl exec -i ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
+      - cmd: kubectl exec -i ocm-transfer-pod -- ocm transfer component-version "ctf::.ocm/transport.ctf//github.com/platform-mesh/prerelease:{{ .COMPONENT_PRERELEASE_VERSION }}" oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
         ignore_error: true
 
   ocm:deploy:

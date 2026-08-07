@@ -1,0 +1,12 @@
+suite: crds
+templates:
+  - gateway.networking.k8s.io_gatewayclasses.yaml
+values:
+  - ../test-values.yaml
+chart:
+  version: 1.4.1
+  appVersion: "0.0.0"
+tests:
+  - it: GatewayClass CRD matches snapshot
+    asserts:
+      - matchSnapshot: {}

@@ -41,7 +41,7 @@ declare -A THIRD_PARTY_COMPONENTS=(
 # Check if OCM CLI is available
 if ! command -v ocm &> /dev/null; then
   echo "Warning: OCM CLI not found. Cannot fetch platform-mesh component versions." >&2
-  echo "Install from: https://github.com/open-component-model/ocm/releases" >&2
+  echo "Install from: https://github.com/open-component-model/open-component-model/releases" >&2
 fi
 
 # Find the previous release version to compare against
@@ -153,8 +153,8 @@ find_rc_versions() {
   fi
 
   # Query OCM for all versions matching the RC pattern
-  ocm get componentversions github.com/platform-mesh/platform-mesh \
-    --repo ghcr.io/platform-mesh -o json 2>/dev/null | \
+  ocm get component-version ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh \
+    -o json 2>/dev/null | \
     jq -r ".items[] | select(.component.version | startswith(\"${target}-rc\")) | .component.version" | \
     sort -V || echo ""
 }
@@ -168,8 +168,8 @@ fetch_component_refs() {
   fi
 
   local result
-  result=$(ocm get component "github.com/platform-mesh/platform-mesh:${ocm_version}" \
-    --repo ghcr.io/platform-mesh -o yaml 2>/dev/null)
+  result=$(ocm get component-version "ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${ocm_version}" \
+    -o yaml 2>/dev/null)
 
   if [[ -z "$result" ]] || [[ "$result" == *"Error"* ]]; then
     echo "{}"
