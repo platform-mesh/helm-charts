@@ -65,25 +65,10 @@ update_constructor() {
         "$OCM_DIR/component-constructor-prerelease.yaml" > "$OCM_DIR/component-constructor-prerelease.yaml.tmp" \
         && mv "$OCM_DIR/component-constructor-prerelease.yaml.tmp" "$OCM_DIR/component-constructor-prerelease.yaml"
 
-    # Strip only the gateway-api inline component: it uses 'type: github' which OCM v2 cannot
-    # resolve locally. All other inline third-party components use 'type: ociArtifact' and
-    # can be built directly from the constructor by v2.
-    # Also strip api-syncagent: it is referenced by the example-httpbin-operator component-specific
-    # constructor (built in Phase 2 of build_local_charts). The pre-filled version from
-    # ghcr.io/platform-mesh (ociArtifactDigest/v1) gets locked into that component's descriptor.
-    # Rebuilding it inline here (genericBlobDigest/v1) would produce a different component digest
-    # and cause a toolkit verification failure at runtime.
-    yq eval '.components |= map(select(.name != "github.com/kubernetes-sigs/gateway-api" and .name != "github.com/kcp-dev/api-syncagent"))' \
-        -i "$OCM_DIR/component-constructor-prerelease.yaml"
-
-    # Strip componentReferences to components that v2 cannot resolve locally:
-    # - keycloak: external component (github.com/platform-mesh/keycloak) not built locally
-    #             and not defined inline in the aggregate constructor
-    # gateway-api: inline component definition stripped above (type: github), but the componentReference
-    #              is KEPT — the pre-built component is transferred from ghcr.io/platform-mesh into
-    #              the CTF by transfer_gateway_api() before build_final_component() runs.
-    # etcd-druid:  kept — its full dep tree is pre-populated in the CTF by transfer_from_cache().
-    yq eval '.components[].componentReferences |= map(select(.name != "keycloak"))' \
+    # Strip gateway-api inline component: it uses 'type: github' which OCM v2 cannot
+    # resolve locally. The pre-built component is transferred from ghcr.io/platform-mesh
+    # into the CTF by prefill_ctf() before build_final_component() runs.
+    yq eval '.components |= map(select(.name != "github.com/kubernetes-sigs/gateway-api"))' \
         -i "$OCM_DIR/component-constructor-prerelease.yaml"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Component constructor updated${COL_RES}"
@@ -219,6 +204,7 @@ resolve_component_versions() {
     export INIT_AGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_IMAGE_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
     export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
+    export API_SYNCAGENT_COMPONENT_VERSION="1.0.0"
     export OPENFGA_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_VERSION' "$agg")
     export OPENFGA_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_IMAGE_VERSION' "$agg")
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_POSTGRESQL_IMAGE_VERSION' "$agg")
@@ -290,16 +276,41 @@ prefill_ctf() {
         "$LOCAL_REGISTRY/platform-mesh"
     echo -e "${COL}[$(date '+%H:%M:%S')] ingress-nginx pre-filled${COL_RES}"
 
-    # api-syncagent: referenced by the component-specific constructor for example-httpbin-operator.
-    # Built inline by the aggregate constructor in build_final_component, but that runs after
-    # build_local_charts — pre-populate from ghcr.io/platform-mesh so Phase 2 can resolve it.
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
-        "ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:${API_SYNCAGENT_CHART_VERSION}" \
-        "ctf::.ocm/transport.ctf"
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
-        "ghcr.io/platform-mesh//github.com/kcp-dev/api-syncagent:${API_SYNCAGENT_CHART_VERSION}" \
-        "$LOCAL_REGISTRY/platform-mesh"
-    echo -e "${COL}[$(date '+%H:%M:%S')] api-syncagent pre-filled${COL_RES}"
+    # api-syncagent: referenced by the component-specific constructor for example-httpbin-operator
+    # (used in build_local_charts Phase 2) but only built inline during build_final_component().
+    # Build it standalone into the CTF here so Phase 2 can resolve it.
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- bash -c "cat > .ocm/component-constructor-api-syncagent.yaml << 'EOCTOR'
+components:
+  - name: github.com/platform-mesh/api-syncagent
+    version: \${API_SYNCAGENT_COMPONENT_VERSION}
+    provider:
+      name: kcp
+    resources:
+      - name: chart
+        type: helmChart
+        relation: local
+        version: \${API_SYNCAGENT_CHART_VERSION}
+        access:
+          type: ociArtifact
+          imageReference: ghcr.io/platform-mesh/ocm/charts/api-syncagent:\${API_SYNCAGENT_CHART_VERSION}
+      - name: image
+        type: ociImage
+        relation: local
+        version: \${API_SYNCAGENT_IMAGE_VERSION}
+        access:
+          type: ociArtifact
+          imageReference: ghcr.io/kcp-dev/api-syncagent:\${API_SYNCAGENT_IMAGE_VERSION}
+EOCTOR"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        env \
+        API_SYNCAGENT_COMPONENT_VERSION="$API_SYNCAGENT_COMPONENT_VERSION" \
+        API_SYNCAGENT_CHART_VERSION="$API_SYNCAGENT_CHART_VERSION" \
+        API_SYNCAGENT_IMAGE_VERSION="$API_SYNCAGENT_IMAGE_VERSION" \
+        ocm add component-versions \
+        --component-version-conflict-policy replace \
+        --repository "ctf::.ocm/transport.ctf" \
+        --constructor .ocm/component-constructor-api-syncagent.yaml
+    echo -e "${COL}[$(date '+%H:%M:%S')] api-syncagent pre-built into CTF${COL_RES}"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] CTF pre-fill complete${COL_RES}"
 }
@@ -349,6 +360,7 @@ build_final_component() {
         INIT_AGENT_IMAGE_VERSION="$INIT_AGENT_IMAGE_VERSION" \
         API_SYNCAGENT_CHART_VERSION="$API_SYNCAGENT_CHART_VERSION" \
         API_SYNCAGENT_IMAGE_VERSION="$API_SYNCAGENT_IMAGE_VERSION" \
+        API_SYNCAGENT_COMPONENT_VERSION="$API_SYNCAGENT_COMPONENT_VERSION" \
         TRAEFIK_IMAGE_VERSION="$TRAEFIK_IMAGE_VERSION" \
         OPENFGA_IMAGE_VERSION="$OPENFGA_IMAGE_VERSION" \
         OPENFGA_POSTGRESQL_IMAGE_VERSION="$OPENFGA_POSTGRESQL_IMAGE_VERSION" \
@@ -406,7 +418,7 @@ build_final_component() {
     _transfer_third_party "github.com/kcp-dev/kcp-operator:${PM_KCP_OPERATOR_VERSION}"
     _transfer_third_party "github.com/kcp-dev/kcp:${PM_KCP_VERSION}"
     _transfer_third_party "github.com/kcp-dev/init-agent:${PM_INIT_AGENT_VERSION}"
-    _transfer_third_party "github.com/kcp-dev/api-syncagent:${API_SYNCAGENT_CHART_VERSION}"
+    _transfer_third_party "github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}"
     _transfer_third_party "github.com/cloudnative-pg/cloudnative-pg:${PM_CNPG_OPERATOR_VERSION}"
     _transfer_third_party "github.com/prometheus-community/prometheus-operator-crds:${PM_PROMETHEUS_OPERATOR_CRDS_VERSION}"
     _transfer_third_party "github.com/prometheus-community/kube-prometheus-stack:${PM_KUBE_PROMETHEUS_STACK_VERSION}"
@@ -435,6 +447,8 @@ build_component() {
     export INGRESS_NGINX_VERSION="4.11.3"
     local agg="$PROJECT_ROOT/.github/workflows/ocm-aggregator.yaml"
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
+    export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
+    export API_SYNCAGENT_COMPONENT_VERSION="1.0.0"
 
     # Pre-populate CTF with externals that component-specific constructors reference
     # (gateway-api, ingress-nginx). Must happen before build_local_charts Phase 2.
