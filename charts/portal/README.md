@@ -33,6 +33,7 @@ Helm Chart for the Platform Mesh Portal
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/portal"` | The image repository path (without registry) |
+| initContainers | list | `[]` | init containers to run before the main container |
 | kcp.kubeconfigSecret | string | `""` |  |
 | kcp.url | string | `""` | kcp API URL (e.g. https://localhost:8443 for local setup) |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
