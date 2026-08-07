@@ -69,10 +69,14 @@ jobs:
 
       - name: Setup OCM CLI
         run: |
-          REPO="open-component-model/open-component-model"
+          REPO="open-component-model/ocm"
           version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
           echo "Installing OCM CLI version: $version"
-          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
+          VERSION=${version#v}
+          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
+          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          curl -LsS -o ocm-cli.tgz "$URL"
+          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
           chmod a+x ocm
           sudo mv ocm /usr/local/bin/
           ocm version
@@ -91,8 +95,9 @@ jobs:
           # Use semver constraint to filter at the source instead of fetching all versions
           # Constraint ">=${TARGET_VERSION}-0, <${NEXT_PATCH}" matches all prereleases of TARGET_VERSION
           # --latest returns only the highest matching version
-          LATEST_PRERELEASE=$(ocm get component-version ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh \
-            --semver-constraint ">=${TARGET_VERSION}-0, <${NEXT_PATCH}" \
+          LATEST_PRERELEASE=$(ocm get componentversions github.com/platform-mesh/platform-mesh \
+            --repo ghcr.io/platform-mesh \
+            --constraints ">=${TARGET_VERSION}-0, <${NEXT_PATCH}" \
             --latest \
             -o json 2>/dev/null | \
             jq -r '.items[0].component.version // empty' || echo "")

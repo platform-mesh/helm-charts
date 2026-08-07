@@ -63,9 +63,6 @@ traefik:
   # -- toggle to enable traefik CORS filter in HTTPRoute
   enabled: true
 
-# -- init containers to run before the main container
-initContainers: []
-
 gatewayApi:
   # -- toggle to enable the Gateway API
   enabled: true
