@@ -95,7 +95,7 @@ jobs:
             --semver-constraint ">=${TARGET_VERSION}-0, <${NEXT_PATCH}" \
             --latest \
             -o json 2>/dev/null | \
-            jq -r '.items[0].component.version // empty' || echo "")
+            jq -r '.[0].component.version // empty' || echo "")
 
           if [[ -n "$LATEST_PRERELEASE" ]]; then
             echo "prerelease_version=$LATEST_PRERELEASE" >> $GITHUB_OUTPUT

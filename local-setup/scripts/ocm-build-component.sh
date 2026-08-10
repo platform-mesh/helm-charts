@@ -123,7 +123,7 @@ get_ocm_resource_version() {
 get_external_component_version() {
     local component="$1"
     local repo="$2"
-    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get component-version --latest "$repo//$component" -o json | jq -r '.items[0].component.version'
+    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get component-version --latest "$repo//$component" -o json | jq -r '.[0].component.version'
 }
 
 # poor mans persistence for heavy deps.

@@ -188,7 +188,7 @@ jobs:
           echo KEYCLOAK_VERSION=${PM_KEYCLOAK_VERSION} >> $GITHUB_ENV
 
           # Get current platform-mesh version
-          PM_VERSION=$(./ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o json | jq -r '.items[0].component.version')
+          PM_VERSION=$(./ocm get componentversions --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o json | jq -r '.[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
           echo CURRENT_PM_VERSION="$PM_VERSION" >> $GITHUB_ENV
 
