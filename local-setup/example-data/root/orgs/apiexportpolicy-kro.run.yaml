@@ -1,0 +1,13 @@
+# Shares the kro.run APIExport to org/account workspaces so it is discoverable in
+# the Marketplace and bindable by Accounts. Applied into root:orgs (NOT the provider
+# workspace). Mirror of the operator's config/provider (source of truth); keep in sync.
+apiVersion: core.platform-mesh.io/v1alpha1
+kind: APIExportPolicy
+metadata:
+  name: kro.run
+spec:
+  apiExportRef:
+    name: kro.run
+    clusterPath: root:providers:kro-provider
+  allowPathExpressions:
+    - :root:orgs:*
