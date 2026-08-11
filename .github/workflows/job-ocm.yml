@@ -129,11 +129,7 @@ jobs:
         run: |
           ocm_ctf=ctf::.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
-          if [ "${{ inputs.chartOnly }}" == "true" ]; then
-            ./ocm add component-versions --repository "$ocm_ctf" --constructor ${{ inputs.componentConstructorFile }}
-          else
-            ./ocm add component-versions --repository "$ocm_ctf" --constructor ${{ inputs.componentConstructorFile }}
-          fi
+          ./ocm add component-versions --repository "$ocm_ctf" --constructor ${{ inputs.componentConstructorFile }}
         env:
           VERSION: ${{ env.VERSION }}
           APP_VERSION: ${{ env.APP_VERSION }}
