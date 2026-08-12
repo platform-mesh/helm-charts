@@ -7,9 +7,9 @@ image:
   digest: ""
 
 # -- environment indicator, used for logging and observability
-environment: local
+environment: ""
 # -- region indicator, used for logging and observability
-region: local
+region: ""
 
 deployment:
   revisionHistoryLimit: 3
@@ -54,7 +54,7 @@ kubeconfigSecret: ""
 keycloakSecret: "keycloak-admin"
 caSecret: ""
 
-baseDomain: "portal.localhost:8443"
+baseDomain: ""
 
 keycloak:
   client:
