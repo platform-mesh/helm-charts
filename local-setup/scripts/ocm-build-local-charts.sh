@@ -26,6 +26,7 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "iam-ui:charts/iam-ui"
     "infra:charts/infra"
     "keycloak-operator:charts/keycloak-operator"
+    "kro-composition-operator:charts/kro-composition-operator"
     "kubernetes-graphql-gateway:charts/kubernetes-graphql-gateway"
     "marketplace-ui:charts/marketplace-ui"
     "observability:charts/observability"

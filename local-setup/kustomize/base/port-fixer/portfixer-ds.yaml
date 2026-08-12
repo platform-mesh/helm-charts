@@ -1,13 +1,12 @@
-# port-fixer: socat DaemonSet that bridges Node:8443 -> Node:31000 on the
-# runtime kind cluster.  Why:
-#   - traefik runs as a NodePort Service exposing :31000 (the Gateway listener
-#     mapping in the infra Helm chart), but the host kubeconfigs and external
-#     URLs (kcp.localhost, *.portal.localhost) are written for :8443.
-#   - kind only port-maps 8443 on the runtime cluster's control-plane node.
-#     With this DaemonSet, traffic that reaches the node on :8443 (e.g., from
-#     `https://localhost:8443/...` against the host) gets forwarded to traefik
-#     on :31000.  In-cluster pod-to-pod traffic uses the traefik clusterIP
-#     directly via hostAliases and does not need this forwarder.
+# port-fixer: socat DaemonSet that bridges Node:8443 -> traefik ClusterIP:8443
+# on the runtime kind cluster.  Why:
+#   - host kubeconfigs and external URLs (kcp.localhost, *.portal.localhost) use
+#     :8443, but kind only port-maps 8443 on the control-plane node.
+#   - Forwarding to 127.0.0.1:31000 (the traefik NodePort) does NOT work: nftables
+#     NodePort DNAT only fires for traffic arriving on the node's external interface,
+#     not loopback — so socat's outbound connection to 127.0.0.1 bypasses the rule.
+#   - Forwarding directly to the traefik ClusterIP (10.96.188.4:8443) works because
+#     the ClusterIP DNAT fires for all interfaces, including loopback on the host.
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -26,5 +25,5 @@ spec:
       containers:
       - name: socat
         image: alpine/socat
-        # Forward Node:8443 -> Node:31000 (Localhost)
-        args: ["TCP-LISTEN:8443,fork", "TCP:127.0.0.1:31000"]
+        # Forward Node:8443 -> traefik ClusterIP:8443 (fixed IP defined in infra values)
+        args: ["TCP-LISTEN:8443,fork", "TCP:10.96.188.4:8443"]

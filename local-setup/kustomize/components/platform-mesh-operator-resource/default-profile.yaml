@@ -548,15 +548,41 @@ data:
             - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
               value: https://${org-subdomain}portal.localhost:8443/gateway/api/clusters/root:orgs:${org-name}/graphql
             - name: NODE_EXTRA_CA_CERTS
-              value: /etc/ssl/certs/domain-ca.crt
+              value: /etc/ssl/certs/ca-bundle.crt
+            - name: REBAC_AUTHZ_BATCH_URL
+              value: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/batch-authz
+            initContainers:
+            - name: combine-ca
+              image: busybox:1.36
+              command:
+              - sh
+              - -c
+              - cat /domain-ca/tls.crt /webhook-ca/ca.crt > /combined-ca/ca-bundle.crt
+              # busybox runs as root by default, but pod has runAsNonRoot
+              securityContext:
+                runAsUser: 1000
+              volumeMounts:
+              - name: domain-ca
+                mountPath: /domain-ca
+                readOnly: true
+              - name: webhook-ca
+                mountPath: /webhook-ca
+                readOnly: true
+              - name: combined-ca
+                mountPath: /combined-ca
             extraVolumes:
             - name: domain-ca
               secret:
                 secretName: domain-certificate-ca
+            - name: webhook-ca
+              secret:
+                secretName: rebac-authz-webhook-cert
+            - name: combined-ca
+              emptyDir: {}
             extraVolumeMounts:
-            - name: domain-ca
-              mountPath: /etc/ssl/certs/domain-ca.crt
-              subPath: tls.crt
+            - name: combined-ca
+              mountPath: /etc/ssl/certs/ca-bundle.crt
+              subPath: ca-bundle.crt
               readOnly: true
             frontendPort: '8443'
             gatewayApi:

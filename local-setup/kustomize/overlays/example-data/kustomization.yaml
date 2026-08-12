@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../../components/platform-mesh-operator-resource
   - ../../components/example-httpbin-provider
+  - ../../components/example-kro-provider
 
 patches:
   - target:
@@ -24,7 +25,21 @@ patches:
               namespace: example-httpbin-provider
               external: false
               adminAuth: true
+            # KROaaS: the operator publishes composite types + materializes children
+            # into consumer workspaces as this connection's identity; adminAuth: true
+            # makes it cluster-admin. The kubeconfig lands in the secret the
+            # kro-composition-operator chart mounts (kubeconfigSecret).
+            - path: root:providers:kro-provider
+              secret: kro-provider-kubeconfig
+              namespace: kro-composition-operator
+              external: false
+              adminAuth: true
           extraDefaultAPIBindings:
             - workspaceTypePath: root:account
               export: orchestrate.platform-mesh.io
               path: root:providers:httpbin-provider
+            # Bind the kro.run RGD API into every Account so consumers can author
+            # ResourceGraphDefinitions ("install KROaaS" per Account).
+            - workspaceTypePath: root:account
+              export: kro.run
+              path: root:providers:kro-provider

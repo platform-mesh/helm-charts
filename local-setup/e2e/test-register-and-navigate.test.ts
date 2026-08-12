@@ -13,9 +13,15 @@ import {
   verifyShardAssignments,
 } from './helpers/sharding';
 
-// ORG_SHARD controls which shard to create the org on
+// ORG_SHARD controls which shard to create the org on.
+// SHARDING_ACCOUNT_SHARDS is a comma-separated list of shards for accounts (default: triton,root).
+// Set SHARDING_ACCOUNT_SHARDS=root for single-shard setups (e.g. remote local-setup).
+// SKIP_INVITE=true skips the inviteUserToOrg step (required for setups without example-data/mailpit).
 const ORG_SHARD: ShardName = (process.env.SHARDING_ORG_SHARD as ShardName) || 'triton';
-const ACCOUNT_SHARDS: ShardName[] = ['triton', 'root'];
+const ACCOUNT_SHARDS: ShardName[] = process.env.SHARDING_ACCOUNT_SHARDS
+  ? (process.env.SHARDING_ACCOUNT_SHARDS.split(',') as ShardName[])
+  : ['triton', 'root'];
+const SKIP_INVITE = process.env.SKIP_INVITE === 'true';
 
 const orgName = `org-${ORG_SHARD}-${runId}`;
 const accounts = ACCOUNT_SHARDS.map((shard) => ({
@@ -89,8 +95,10 @@ test.describe('Home Page', () => {
     await page.getByRole('button', { name: 'Sign In' }).click();
     await completeKeycloakSetup(page);
 
-    // 7. Invite user
-    await inviteUserToOrg(page, invitedUser.email);
+    // 7. Invite user (requires example-data/mailpit; skip in minimal setups)
+    if (!SKIP_INVITE) {
+      await inviteUserToOrg(page, invitedUser.email);
+    }
 
     // 8. Create accounts with shard selectors
     for (const account of accounts) {

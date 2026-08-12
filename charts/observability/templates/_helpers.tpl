@@ -52,7 +52,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Prometheus remote write endpoint
 */}}
 {{- define "observability.prometheusEndpoint" -}}
-http://{{ .Release.Name }}-prometheus-server:80/api/v1/write
+{{- default (printf "http://%s-prometheus-server:80/api/v1/write" .Release.Name) .Values.prometheus.external.url -}}
 {{- end }}
 
 {{/* repository:tag, with @digest appended when set (common.image is tag-XOR-digest) */}}

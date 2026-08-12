@@ -62,6 +62,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
+      packages: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Read chart version
@@ -89,6 +90,33 @@ jobs:
           curl -LsS -o ocm-cli.tgz "$URL"
           tar --overwrite -xvzf ocm-cli.tgz >/dev/null
           chmod a+x ocm
+      - name: Write OCM credentials
+        # Authenticate the lookup so ghcr.io returns a clean "not found" for a
+        # component that has never been published. Anonymously, ghcr.io answers
+        # a request for a nonexistent repo with "403 denied" (it does not leak
+        # existence), which the fail-closed guard below cannot tell apart from a
+        # real permission error. With a token the response becomes a definitive
+        # "not found", which the guard treats as "component is new".
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          cat <<EOF > "$HOME/.ocmconfig"
+          type: generic.config.ocm.software/v1
+          configurations:
+            - type: credentials.config.ocm.software
+              consumers:
+                - identity:
+                    type: OCIRegistry
+                    scheme: https
+                    hostname: ghcr.io
+                    pathprefix: platform-mesh
+                  credentials:
+                    - type: Credentials
+                      properties:
+                        username: github
+                        password: ${GITHUB_TOKEN}
+          EOF
       - name: Verify OCM component version does not exist
         env:
           VERSION: ${{ steps.read.outputs.version }}

@@ -151,7 +151,14 @@ kustomize_apply() {
   local kustomize_path="${kubeconfig_args[${#kubeconfig_args[@]}-1]}"
   unset 'kubeconfig_args[${#kubeconfig_args[@]}-1]'
 
+  if [ -n "$PLATFORM_MESH_VERSION" ]; then
+    kubectl kustomize "$kustomize_path" \
+      | yq '(select(.kind == "Component" and .metadata.name == "platform-mesh") | .spec.semver) = strenv(PLATFORM_MESH_VERSION)' \
+      | envsubst '$RUNTIME_CLUSTER_IP' \
+      | kubectl "${kubeconfig_args[@]}" apply -f -
+  else
   kubectl kustomize "$kustomize_path" | envsubst '$RUNTIME_CLUSTER_IP' | kubectl "${kubeconfig_args[@]}" apply -f -
+  fi
 }
 
 # Helper to apply a file with envsubst for RUNTIME_CLUSTER_IP substitution
@@ -295,6 +302,12 @@ wait_for_deployment_resource() {
 
 if [ "$REMOTE" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Using deployment technology: ${DEPLOYMENT_TECH} ${COL_RES}"
+
+  # check that PLATFORM_MESH_VERSION env var is set for remote mode, since we don't support building from source in that case
+  if [ -z "$PLATFORM_MESH_VERSION" ]; then
+    echo -e "${RED}PLATFORM_MESH_VERSION must be set for remote mode${COL_RES}" >&2
+    exit 1
+  fi
 fi
 
 if [ "$ITERATE" = true ]; then
@@ -476,13 +489,14 @@ fi
 ###############################################################################
 
 if [ "$REMOTE" = true ]; then
-  # Add platform-mesh kubeconfig to the infra cluster as a secret
-  cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
   export RUNTIME_CLUSTER_IP=$(${CONTAINER_RUNTIME} inspect platform-mesh-control-plane | jq '.[0].NetworkSettings.Networks.kind.IPAddress' -r)
   echo -e "${COL}[$(date '+%H:%M:%S')] Runtime cluster IP: ${RUNTIME_CLUSTER_IP} ${COL_RES}"
+  # Create a tmp kubeconfig with the runtime node IP for consumers that need port 6443.
+  cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
   kubectl config set-cluster kind-platform-mesh \
     --server=https://$RUNTIME_CLUSTER_IP:6443 \
     --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
+  # Create early so the operator's volume mount succeeds on first start.
   kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
     --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
   kubectl create secret generic platform-mesh-kubeconfig -n default \
@@ -561,19 +575,16 @@ if [ "$REMOTE" = true ]; then
     --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
   kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
 
-  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/runtime
+  kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/runtime
 
   # Re-apply Platform-Mesh resource after operator setup
   echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
   if [ "$PRERELEASE" = true ]; then
     kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
   elif [ "$EXAMPLE_DATA" = true ]; then
-    # Apply the deployment-tech default profile and the remote-mode example-data
-    # overlay (PlatformMesh patch only) to the runtime cluster.
+    # Apply profile without example-data patch; the overlay is applied later once
+    # the KCP workspace exists to avoid a reconciliation failure on the operator.
     envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
-    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-remote
-    # Apply runtime-side example-data resources (namespace + OCM Resources for
-    # the fluxcd path) to RUNTIME cluster.
     kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-runtime
     # Apply infra-side example-data resources (HelmReleases for fluxcd, ArgoCD
     # Applications for argocd) to INFRA cluster.
@@ -651,10 +662,14 @@ wait_for_pm() {
 
     if [[ -n "$CI" ]]; then
         sleep 10
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m component --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m resource --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout=10m hr --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout=10m deployment --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" component --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" resource --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" hr --all -A
+        # Remote: ArgoCD deploys to the runtime cluster asynchronously; targeted waits
+        # happen in the post-install section below.
+        if [[ "$REMOTE" != true ]]; then
+            kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout="$KUBECTL_WAIT_TIMEOUT" deployment --all -A
+        fi
     fi
 }
 
@@ -701,8 +716,7 @@ fi
 if [ "$EXAMPLE_DATA" = true ]; then
   if [ "$REMOTE" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data resources. ${COL_RES}"
-  else
-    # Apply example-data overlay now that PlatformMesh is ready (non-remote only)
+  else    # Apply example-data overlay now that PlatformMesh is ready (non-remote only)
     echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data overlay ${COL_RES}"
     if [ "$SHARDED" = true ]; then
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
@@ -714,7 +728,14 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="${KCP_URL}/clusters/root"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="${KCP_URL}/clusters/root:providers:httpbin-provider"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace kro-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/kro-provider --server="${KCP_URL}/clusters/root:providers:kro-provider"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="${KCP_URL}/clusters/root:orgs"
+
+  if [ "$REMOTE" = true ]; then
+    # Apply after the KCP workspace exists so extraDefaultAPIBindings resolves.
+    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-remote
+  fi
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
 

@@ -181,6 +181,7 @@ jobs:
           echo KUBERNETES_GRAPHQL_GATEWAY_VERSION=$(yq '.version' charts/kubernetes-graphql-gateway/Chart.yaml) >> $GITHUB_ENV
           echo VIRTUAL_WORKSPACES_VERSION=$(yq '.version' charts/virtual-workspaces/Chart.yaml) >> $GITHUB_ENV
           echo EXAMPLE_HTTPBIN_OPERATOR_VERSION=$(yq '.version' charts/example-httpbin-operator/Chart.yaml) >> $GITHUB_ENV
+          echo KRO_COMPOSITION_OPERATOR_VERSION=$(yq '.version' charts/kro-composition-operator/Chart.yaml) >> $GITHUB_ENV
           echo IAM_SERVICE_VERSION=$(yq '.version' charts/iam-service/Chart.yaml) >> $GITHUB_ENV
           echo IAM_UI_VERSION=$(yq '.version' charts/iam-ui/Chart.yaml) >> $GITHUB_ENV
           echo MARKETPLACE_UI_VERSION=$(yq '.version' charts/marketplace-ui/Chart.yaml) >> $GITHUB_ENV
@@ -558,6 +559,7 @@ jobs:
             KEYCLOAK_VERSION=${{ env.KEYCLOAK_VERSION}} \
             PM_KEYCLOAK_VERSION=${{ env.PM_KEYCLOAK_VERSION }} \
             EXAMPLE_HTTPBIN_OPERATOR_VERSION=${{ env.EXAMPLE_HTTPBIN_OPERATOR_VERSION }} \
+            KRO_COMPOSITION_OPERATOR_VERSION=${{ env.KRO_COMPOSITION_OPERATOR_VERSION }} \
             IAM_SERVICE_VERSION=${{ env.IAM_SERVICE_VERSION }} \
             IAM_UI_VERSION=${{ env.IAM_UI_VERSION }} \
             MARKETPLACE_UI_VERSION=${{ env.MARKETPLACE_UI_VERSION }} \
