@@ -684,7 +684,7 @@ disable istio:
       name: account-operator-ca-cert
     spec:
       commonName: account-operator-ca
-      duration: 8760h
+      duration: 2160h
       isCA: true
       issuerRef:
         kind: Issuer
@@ -1306,7 +1306,7 @@ operator match the snapshot:
       name: account-operator-ca-cert
     spec:
       commonName: account-operator-ca
-      duration: 8760h
+      duration: 2160h
       isCA: true
       issuerRef:
         kind: Issuer
@@ -1934,7 +1934,7 @@ operator match the snapshot (with kubeconfigSecret):
       name: account-operator-ca-cert
     spec:
       commonName: account-operator-ca
-      duration: 8760h
+      duration: 2160h
       isCA: true
       issuerRef:
         kind: Issuer
@@ -2556,7 +2556,7 @@ operator match the snapshot with webhook enabled:
       name: account-operator-ca-cert
     spec:
       commonName: account-operator-ca
-      duration: 8760h
+      duration: 2160h
       isCA: true
       issuerRef:
         kind: Issuer
