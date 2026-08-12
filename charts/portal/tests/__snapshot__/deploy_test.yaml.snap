@@ -25,7 +25,7 @@ matches the snapshot:
           containers:
             - env:
                 - name: HTTP_PROTOCOL
-                  value: http
+                  value: null
                 - name: DISCOVERY_ENDPOINT
                   value: null
                 - name: OIDC_CLIENT_ID_DEFAULT
@@ -33,7 +33,7 @@ matches the snapshot:
                 - name: BASE_DOMAINS_DEFAULT
                   value: null
                 - name: DEVELOPMENT_INSTANCE
-                  value: "true"
+                  value: "false"
                 - name: FEATURE_TOGGLES
                   value: enableSessionAutoRefresh=true
                 - name: UI_OPTIONS
@@ -48,12 +48,8 @@ matches the snapshot:
                   value: 1.0.0
                 - name: IMAGE_NAME
                   value: ghcr.io/platform-mesh/portal
-                - name: COOKIE_DOMAIN
-                  value: localhost
                 - name: FRONTEND_PORT
                   value: "8000"
-                - name: ENVIRONMENT
-                  value: local
                 - name: VALID_WEBCOMPONENT_URLS
                   value: .?
                 - name: TEST_TEST
@@ -134,7 +130,7 @@ test hosAliases:
           containers:
             - env:
                 - name: HTTP_PROTOCOL
-                  value: http
+                  value: null
                 - name: DISCOVERY_ENDPOINT
                   value: null
                 - name: OIDC_CLIENT_ID_DEFAULT
@@ -142,7 +138,7 @@ test hosAliases:
                 - name: BASE_DOMAINS_DEFAULT
                   value: null
                 - name: DEVELOPMENT_INSTANCE
-                  value: "true"
+                  value: "false"
                 - name: FEATURE_TOGGLES
                   value: enableSessionAutoRefresh=true
                 - name: UI_OPTIONS
@@ -157,12 +153,8 @@ test hosAliases:
                   value: 1.0.0
                 - name: IMAGE_NAME
                   value: ghcr.io/platform-mesh/portal
-                - name: COOKIE_DOMAIN
-                  value: localhost
                 - name: FRONTEND_PORT
                   value: "8000"
-                - name: ENVIRONMENT
-                  value: local
                 - name: VALID_WEBCOMPONENT_URLS
                   value: .?
               image: ghcr.io/platform-mesh/portal:1.0.0
