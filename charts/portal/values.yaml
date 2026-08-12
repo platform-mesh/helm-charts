@@ -54,9 +54,13 @@ hostAliases:
   entries: []
 
 validation:
+  # -- Port of the extension-manager validation webhook
   port: 8088
+  # -- Path of the extension-manager validation webhook
   path: /validate
+  # -- Service name of the extension-manager validation webhook
   service: "extension-manager-operator-server"
+  # -- Protocol used to reach the extension-manager validation webhook. Permissible values: http, https
   protocol: "http"
 
 traefik:
