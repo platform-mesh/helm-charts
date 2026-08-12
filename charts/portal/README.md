@@ -40,10 +40,10 @@ Helm Chart for the Platform Mesh Portal
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 | uiOptions | string | `"enableFeatureToggleSetting"` |  |
 | validWebcomponentUrls | string | `".?"` |  |
-| validation.path | string | `"/validate"` |  |
-| validation.port | int | `8088` |  |
-| validation.protocol | string | `"http"` |  |
-| validation.service | string | `"extension-manager-operator-server"` |  |
+| validation.path | string | `"/validate"` | Path of the extension-manager validation webhook |
+| validation.port | int | `8088` | Port of the extension-manager validation webhook |
+| validation.protocol | string | `"http"` | Protocol used to reach the extension-manager validation webhook. Permissible values: http, https |
+| validation.service | string | `"extension-manager-operator-server"` | Service name of the extension-manager validation webhook |
 
 ## Overriding Values
 
