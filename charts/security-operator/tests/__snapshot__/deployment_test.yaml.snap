@@ -65,7 +65,7 @@ operator match the snapshot:
   3: |
     apiVersion: v1
     data:
-      coreModule.fga: |-
+      coreModule.fga: |2-
         module core
 
         type user
@@ -157,7 +157,6 @@ operator match the snapshot:
             - args:
                 - fga
                 - --core-module-path=/data/coreModule.fga
-                - --base-domain=portal.localhost:8443
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --webhooks-enabled=true
@@ -167,8 +166,8 @@ operator match the snapshot:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -307,8 +306,8 @@ operator match the snapshot:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -397,7 +396,6 @@ operator match the snapshot:
             - args:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
-                - --base-domain=portal.localhost:8443
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --test=myval
@@ -406,8 +404,8 @@ operator match the snapshot:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -514,15 +512,14 @@ operator match the snapshot:
           containers:
             - args:
                 - system
-                - --base-domain=portal.localhost:8443
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -614,15 +611,14 @@ operator match the snapshot:
             - args:
                 - terminator
                 - --core-module-path=/data/coreModule.fga
-                - --base-domain=portal.localhost:8443
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -810,7 +806,7 @@ operator match the snapshot w. sentry:
   3: |
     apiVersion: v1
     data:
-      coreModule.fga: |-
+      coreModule.fga: |2-
         module core
 
         type user
@@ -902,7 +898,6 @@ operator match the snapshot w. sentry:
             - args:
                 - fga
                 - --core-module-path=/data/coreModule.fga
-                - --base-domain=portal.localhost:8443
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
@@ -911,8 +906,8 @@ operator match the snapshot w. sentry:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -1058,8 +1053,8 @@ operator match the snapshot w. sentry:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -1156,14 +1151,13 @@ operator match the snapshot w. sentry:
             - args:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
-                - --base-domain=portal.localhost:8443
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -1299,14 +1293,13 @@ operator match the snapshot w. sentry:
           containers:
             - args:
                 - system
-                - --base-domain=portal.localhost:8443
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
@@ -1406,14 +1399,13 @@ operator match the snapshot w. sentry:
             - args:
                 - terminator
                 - --core-module-path=/data/coreModule.fga
-                - --base-domain=portal.localhost:8443
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/security-operator"
                 - --shutdown-timeout=1m
