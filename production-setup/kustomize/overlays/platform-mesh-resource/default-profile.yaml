@@ -332,6 +332,8 @@ data:
                 discoveryUrl: 'https://{{ .baseDomainPort }}/keycloak/realms/${org-name}/.well-known/openid-configuration'
             cookieDomain: '{{ .baseDomain }}'
             crdGatewayApiUrl: 'https://${org-subdomain}{{ .baseDomain }}/api/kubernetes-graphql-gateway/root:orgs:${org-name}/graphql'
+            developmentLandcsape: "false"
+            environment: production
             frontendPort: '443'
             gatewayApi:
               enabled: true
@@ -424,6 +426,9 @@ data:
               artifact: image
               for: marketplace-ui
           values:
+            contentConfig:
+              baseDomain: '{{ .baseDomain }}'
+              protocol: https
             gatewayApi:
               enabled: true
         terminal-controller-manager:
