@@ -21,9 +21,9 @@ A Helm chart for Kubernetes
 | cnpg.databases[1].owner | string | `"openfga"` |  |
 | cnpg.enabled | bool | `false` |  |
 | cnpg.roles.keycloak.password | string | `""` | REQUIRED: set to a strong random value. |
-| cnpg.roles.keycloak.username | string | `"keycloak"` |  |
+| cnpg.roles.keycloak.username | string | `"keycloak"` | PostgreSQL username for Keycloak. Written to the cnpg-keycloak-user secret. |
 | cnpg.roles.openfga.password | string | `""` | REQUIRED: set to a strong random value. |
-| cnpg.roles.openfga.username | string | `"openfga"` |  |
+| cnpg.roles.openfga.username | string | `"openfga"` | PostgreSQL username for OpenFGA. Written to the cnpg-openfga-user secret. |
 | dex.enabled | bool | `false` | Enable Dex as a local upstream OIDC identity provider |
 | dex.gatewayApi.corsFilters | list | `[]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | dex.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |

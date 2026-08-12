@@ -6,21 +6,21 @@ A Helm chart for security-operator
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| baseDomain | string | `""` |  |
-| caSecret | string | `""` |  |
+| baseDomain | string | `""` | Base domain of the platform deployment (e.g. platform.example.com). Used to derive internal service URLs when explicit URLs are not set. Required. |
+| caSecret | string | `""` | Name of the secret containing the CA certificate for outbound TLS trust (key: tls.crt or ca.crt) |
 | coreModule | string | `"\nmodule core\n\ntype user\n\ntype role\n  relations\n    define assignee: [user,user:*]\n\ntype core_platform-mesh_io_account\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define owner: [role#assignee] or owner from parent\n    define member: [role#assignee] or owner\n\n    define get: member\n    define update: member\n    define patch: member\n    define delete: owner\n\n    define create_core_platform-mesh_io_accounts: member\n    define list_core_platform-mesh_io_accounts: member\n    define watch_core_platform-mesh_io_accounts: member\n\n    # org and account specific\n    define watch: member\n\n    define create_core_platform-mesh_io_accountinfos: member\n    define list_core_platform-mesh_io_accountinfos: member\n    define watch_core_platform-mesh_io_accountinfos: member\n\n    define list_core_kcp_io_logicalclusters: member\n    define watch_core_kcp_io_logicalclusters: member\n\n    # IAM specific\n    define manage_iam_roles: owner\n    define get_iam_roles: member\n    define get_iam_users: member\n\n    # APIExport binding control\n    define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent\n    define bind: [apis_kcp_io_apiexport] or bind_inherited\n\ntype core_platform-mesh_io_accountinfo\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define member: member from parent\n    define owner: owner from parent\n\n    define get: member\n    define watch: member\n\n    # IAM specific\n    define manage_iam_roles: owner\n    define get_iam_roles: member\n    define get_iam_users: member\n\ntype core_kcp_io_logicalcluster\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define member: member from parent\n\n    define get: member\n    define watch: member"` |  |
-| crds.enabled | bool | `false` |  |
+| crds.enabled | bool | `false` | Install bundled CRDs. Set to false when CRDs are managed separately (e.g. via security-operator-crds chart) |
 | deployment.resources.limits.cpu | string | `"260m"` |  |
 | deployment.resources.limits.memory | string | `"512Mi"` |  |
 | deployment.resources.requests.cpu | string | `"150m"` |  |
 | deployment.resources.requests.memory | string | `"128Mi"` |  |
-| deployment.revisionHistoryLimit | int | `3` |  |
+| deployment.revisionHistoryLimit | int | `3` | Number of old ReplicaSets to retain for rollback |
 | environment | string | `""` | environment indicator, used for logging and observability |
-| fga.extraArgs | list | `[]` |  |
-| fga.inviteKeycloakBaseUrl | string | `""` |  |
+| fga.extraArgs | list | `[]` | Extra arguments passed to the fga binary |
+| fga.inviteKeycloakBaseUrl | string | `""` | Keycloak base URL used for invite email links (e.g. https://platform.example.com). Defaults to baseDomain-derived URL when empty. |
 | fga.storeIDCacheTTL | string | `""` | TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m). |
-| fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
-| generator.extraArgs | list | `[]` |  |
+| fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` | OpenFGA gRPC endpoint (host:port) |
+| generator.extraArgs | list | `[]` | Extra arguments passed to the generator binary |
 | hostAliases.enabled | bool | `false` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
@@ -39,12 +39,12 @@ A Helm chart for security-operator
 | initializer.subroutines.workspaceEnabled | bool | `true` | Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup) |
 | keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"security-operator-client-secret"` |  |
-| keycloakSecret | string | `"keycloak-admin"` |  |
+| keycloakSecret | string | `"keycloak-admin"` | Name of the secret containing Keycloak admin credentials (keys: username, password, secret) |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
-| logLevel | string | `"info"` |  |
+| logLevel | string | `"info"` | Log level for all operator components. Permissible values: debug, info, warn, error |
 | region | string | `""` | region indicator, used for logging and observability |
-| system.extraArgs | list | `[]` |  |
-| system.kubeconfigSecret | string | `""` |  |
+| system.extraArgs | list | `[]` | Extra arguments passed to the system binary |
+| system.kubeconfigSecret | string | `""` | The kubeconfig secret for the system component |
 | terminator.extraArgs | list | `[]` |  |
 | terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
 | webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
