@@ -35,7 +35,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 | subroutines.workspaceReady.enabled | bool | `true` | Enable workspace ready subroutine |
 | subroutines.workspaceType.enabled | bool | `true` | Enable workspace type subroutine |
 | webhooks.additionalAccountTypes[0] | string | `"account"` |  |
-| webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
+| webhooks.caDuration | string | `"2160h"` | CA certificate duration (default: 3 months) |
 | webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
 | webhooks.certDir | string | `"/certs"` | The directory for webhook certificates |
 | webhooks.certDuration | string | `"2160h"` | Serving certificate duration (default: 3 months) |

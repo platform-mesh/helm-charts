@@ -47,7 +47,7 @@ A Helm chart for security-operator
 | system.kubeconfigSecret | string | `""` | The kubeconfig secret for the system component |
 | terminator.extraArgs | list | `[]` |  |
 | terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
-| webhooks.caDuration | string | `"8760h"` | CA certificate duration (default: 1 year) |
+| webhooks.caDuration | string | `"2160h"` | CA certificate duration (default: 3 months) |
 | webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
 | webhooks.certDir | string | `"/certs"` | The directory for webhook certificates (mounted from the serving cert secret) |
 | webhooks.certDuration | string | `"2160h"` | Serving certificate duration (default: 3 months) |
