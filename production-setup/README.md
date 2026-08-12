@@ -95,6 +95,41 @@ kubectl get keycloak -n platform-mesh-system
 
 ---
 
+## TLS Secrets (must be created manually before applying)
+
+Two TLS secrets must exist in `platform-mesh-system` before the overlay is applied. They are **not** created by `bootstrap.sh` — they depend on your external certificate authority.
+
+### `domain-certificate`
+
+Holds the wildcard TLS certificate for your base domain. Referenced by the Gateway API listeners for HTTPS termination.
+
+```bash
+kubectl create secret generic domain-certificate \
+  -n platform-mesh-system \
+  --from-file=tls.crt=/path/to/wildcard.crt \
+  --from-file=tls.key=/path/to/wildcard.key \
+  --from-file=ca.crt=/path/to/ca.crt \
+  --type=kubernetes.io/tls \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+The certificate must cover at minimum `*.platform.example.com` (substitute your actual base domain).
+
+### `domain-certificate-ca`
+
+Holds only the CA certificate. Used by operators (`security-operator`, `iam-service`, `search-operator`) to trust outbound HTTPS connections to services signed by your CA (e.g. Keycloak, KCP front-proxy).
+
+```bash
+kubectl create secret generic domain-certificate-ca \
+  -n platform-mesh-system \
+  --from-file=tls.crt=/path/to/ca.crt \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+> **Note:** These secrets are not automatically rotated. If you use cert-manager, you can manage them as `Certificate` resources pointing at your cluster issuer. If you manage certificates externally (e.g. Let's Encrypt via DNS-01), set up a rotation mechanism (e.g. `external-secrets`, a renewal cron job) to keep these secrets current.
+
+---
+
 ## Secrets Created by bootstrap.sh
 
 | Secret | Namespace | Contents |
