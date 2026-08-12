@@ -62,16 +62,27 @@ spec:
                                                   "uiSettings": {
                                                     "displayAs": "link"
                                                   }
+                                              },
+                                              {
+                                                  "property": "metadata.name",
+                                                  "uiSettings": {
+                                                      "align": "end",
+                                                      "displayAs": "button",
+                                                      "columnWidth": "90px",
+                                                      "buttonSettings": {
+                                                          "icon": "decline",
+                                                          "design": "Transparent",
+                                                          "action": "delete-resource",
+                                                          "tooltip": "Delete"
+                                                      }
+                                                  },
+                                                  "group": {
+                                                      "name": "actions",
+                                                      "label": "",
+                                                      "multiline": false
+                                                  }
                                               }
                                           ]
-                                      },
-                                      "detailView": {
-                                        "fields": [
-                                          {
-                                            "label": "Name",
-                                            "property": "metadata.name"
-                                          }
-                                        ]
                                       },
                                       "createView": {
                                           "fields": [
@@ -84,44 +95,7 @@ spec:
                                       }
                                   }
                               }
-                          },
-                          "children": [
-                            {
-                                "pathSegment": ":httpbinId",
-                                "hideFromNav": true,
-                                "keepSelectedForChildren": false,
-                                "defineEntity": {
-                                    "id": "orchestrate_platform-mesh_io_httpbin",
-                                    "contextKey": "httpbinId",
-                                    "graphqlEntity": {
-                                        "group": "orchestrate_platform-mesh_io",
-                                        "version": "v1alpha1",
-                                        "kind": "HttpBin",
-                                        "query": "{ metadata { name } }"
-                                    }
-                                },
-                                "context": {
-                                    "accountId": ":accountId",
-                                    "httpbinId": ":httpbinId",
-                                    "resourceId": ":httpbinId"
-                                }
-                            }
-                          ]
-                      },
-                      {
-                        "entityType": "main.core_platform-mesh_io_account.orchestrate_platform-mesh_io_httpbin",
-                        "pathSegment": "dashboard",
-                        "label": "Dashboard",
-                        "url": "/assets/platform-mesh-portal-ui-wc.js#generic-detail-view",
-                        "webcomponent": {
-                          "selfRegistered": true
-                        },
-                        "defineEntity": {
-                            "id": "dashboard"
-                        },
-                        "compound": {
-                            "children": []
-                        }
+                          }
                       }
                   ]
               }

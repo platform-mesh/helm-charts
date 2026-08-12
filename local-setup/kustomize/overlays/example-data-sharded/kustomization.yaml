@@ -37,3 +37,6 @@ patches:
             - workspaceTypePath: root:account
               export: kro.run
               path: root:providers:kro-provider
+            - workspaceTypePath: root:account
+              export: certmanager.ca
+              path: root:providers:cert-manager-provider
