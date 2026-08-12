@@ -1,0 +1,29 @@
+# config/provider/providermetadata.yaml — owner: portal-expert
+#
+# ProviderMetadata applied into :root:providers:cert-manager-provider on cluster A. Surfaces this
+# provider in the default Platform Mesh portal's provider listing (icon, description, contacts,
+# support channels). `metadata.name` MUST equal the APIExport name `certmanager.ca` — the portal
+# joins ProviderMetadata <-> APIExport on that name.
+apiVersion: ui.platform-mesh.io/v1alpha1
+kind: ProviderMetadata
+metadata:
+  name: certmanager.ca
+spec:
+  displayName: Certificate Manager
+  description: |
+    Self-service TLS certificates via cert-manager, exposed through Platform Mesh as the
+    `certificates.certmanager.ca` API. Order a Certificate in your account workspace and
+    the signed TLS Secret is synced back to you.
+  contacts:
+    - displayName: Platform Mesh Contrib Examples
+      email: noreply@platform-mesh.io
+      role: ["Maintainer"]
+  preferredSupportChannels:
+    - displayName: contrib-examples (GitHub)
+      url: https://github.com/platform-mesh/contrib-examples
+  icon:
+    # "CM" badge on a teal background (#0d9488). Inline SVG → base64.
+    light:
+      data: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjkwIiBmaWxsPSIjMGQ5NDg4Ii8+PHRleHQgeD0iMTAwIiB5PSIxMjUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjYwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+Q008L3RleHQ+PC9zdmc+"
+    dark:
+      data: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMDAiIHI9IjkwIiBmaWxsPSIjMGQ5NDg4Ii8+PHRleHQgeD0iMTAwIiB5PSIxMjUiIGZvbnQtZmFtaWx5PSJBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjYwIiBmb250LXdlaWdodD0iYm9sZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+Q008L3RleHQ+PC9zdmc+"

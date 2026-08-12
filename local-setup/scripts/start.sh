@@ -730,6 +730,75 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="${KCP_URL}/clusters/root:providers:httpbin-provider"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace kro-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/kro-provider --server="${KCP_URL}/clusters/root:providers:kro-provider"
+
+  if [ "$REMOTE" = false ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Setting up cert-manager provider workspace ${COL_RES}"
+    KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace cert-manager-provider \
+      --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
+    KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply \
+      -k $SCRIPT_DIR/../example-data/root/providers/cert-manager-provider \
+      --server="${KCP_URL}/clusters/root:providers:cert-manager-provider"
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] Cloning contrib-examples (fresh) ${COL_RES}"
+    CONTRIB_DIR="$(pwd)/.secret/contrib-examples"
+    rm -rf "$CONTRIB_DIR"
+    git clone --depth=1 https://github.com/platform-mesh/contrib-examples "$CONTRIB_DIR"
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] Starting cert-manager MSP backing cluster ${COL_RES}"
+    BACKING_KC="$CONTRIB_DIR/msp-cert-manager/.kube/kind.kubeconfig"
+    mkdir -p "$CONTRIB_DIR/msp-cert-manager/.kcp"
+    ln -sf "$(pwd)/.secret/kcp/admin.kubeconfig" "$CONTRIB_DIR/msp-cert-manager/.kcp/admin.kubeconfig"
+
+    task --dir "$CONTRIB_DIR/msp-cert-manager" \
+      PROVIDER_WS=root:providers:cert-manager-provider \
+      KCP_EXTERNAL_HOST=kcp.api.portal.localhost \
+      kind:up kro:install certmanager:install syncagent:kubeconfig
+
+    # Fix kubeconfig port: syncagent runs in msp-cert-manager cluster and must reach PM kcp
+    # via Docker kind network (NodePort 31000), not the host port mapping (8443).
+    FIXED_KC="$(mktemp)"
+    kubectl --kubeconfig "$BACKING_KC" get secret kcp-kubeconfig -n kcp-system \
+      -o jsonpath='{.data.kubeconfig}' | base64 -d | \
+      sed 's|:8443/|:31000/|g' > "$FIXED_KC"
+    kubectl --kubeconfig "$BACKING_KC" create secret generic kcp-kubeconfig \
+      --namespace kcp-system --from-file "kubeconfig=$FIXED_KC" \
+      --dry-run=client -o yaml | kubectl --kubeconfig "$BACKING_KC" apply -f -
+    rm -f "$FIXED_KC"
+
+    # Add hostAliases so the syncagent pod resolves both kcp hostnames to the PM kind node, and
+    # redirect port 8443→31000 on the msp-cert-manager node so cross-cluster virtual workspace
+    # URLs (triton.kcp.localhost:8443) reach the NodePort that is actually accessible in the
+    # Docker kind network (port 31000 on the PM kind node, not the host-only 8443 mapping).
+    PM_NODE_IP="$(docker inspect platform-mesh-control-plane --format '{{.NetworkSettings.Networks.kind.IPAddress}}')"
+    docker exec msp-cert-manager-control-plane iptables -t nat -I PREROUTING \
+      -p tcp -d "$PM_NODE_IP" --dport 8443 -j DNAT --to-destination "${PM_NODE_IP}:31000"
+    cat > "$CONTRIB_DIR/msp-cert-manager/config/syncagent/values-override.yaml" <<VALEOF
+apiExportEndpointSliceName: certmanager.ca
+
+hostAliases:
+  enabled: true
+  values:
+    - ip: "${PM_NODE_IP}"
+      hostnames:
+        - kcp.api.portal.localhost
+        - triton.kcp.localhost
+VALEOF
+
+    helm repo add kcp https://kcp-dev.github.io/helm-charts --force-update >/dev/null
+    helm repo update >/dev/null
+    helm upgrade --install kcp-api-syncagent kcp/api-syncagent \
+      --version 0.6.0 \
+      --kubeconfig "$BACKING_KC" \
+      --namespace kcp-system --create-namespace \
+      --values "$CONTRIB_DIR/msp-cert-manager/config/syncagent/values.yaml" \
+      --values "$CONTRIB_DIR/msp-cert-manager/config/syncagent/values-override.yaml" \
+      --wait --timeout 180s
+
+    task --dir "$CONTRIB_DIR/msp-cert-manager" \
+      PROVIDER_WS=root:providers:cert-manager-provider \
+      syncagent:publish
+  fi
+
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="${KCP_URL}/clusters/root:orgs"
 
   if [ "$REMOTE" = true ]; then
@@ -756,6 +825,11 @@ if [ "$EXAMPLE_DATA" = true ]; then
     kubectl wait --namespace platform-mesh-system \
       --for=condition=Ready helmreleases \
       --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for cert-manager syncagent ${COL_RES}"
+    BACKING_KC="$(pwd)/.secret/contrib-examples/msp-cert-manager/.kube/kind.kubeconfig"
+    kubectl --kubeconfig "$BACKING_KC" rollout status \
+      deploy/kcp-api-syncagent -n kcp-system --timeout=$KUBECTL_WAIT_TIMEOUT
   fi
 fi
 
