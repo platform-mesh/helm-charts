@@ -237,6 +237,11 @@ data:
           values:
             cnpg:
               enabled: true
+              roles:
+                keycloak:
+                  password: keycloak-password
+                openfga:
+                  password: openfga-password
             cors:
               enabled: true
             gatewayApi:
@@ -282,6 +287,11 @@ data:
                 hostname: https://portal.localhost:8443/keycloak/
                 enabled: true
                 caSecret: domain-certificate-ca
+                db:
+                  password: keycloak-password
+                admin:
+                  password: admin
+                  secret: admin
                 health:
                   port: 9000
                   periodSeconds: 10
@@ -544,7 +554,7 @@ data:
               maxOpenConns: 30
               migrationType: initContainer
               username: postgres
-              password: openfga
+              password: openfga-password
               uri: postgres://openfga-postgres:5432/postgres?sslmode=disable
               migrations:
                 image:
