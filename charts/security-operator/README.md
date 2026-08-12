@@ -6,7 +6,7 @@ A Helm chart for security-operator
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| baseDomain | string | `"portal.localhost:8443"` |  |
+| baseDomain | string | `""` |  |
 | caSecret | string | `""` |  |
 | coreModule | string | `"\nmodule core\n\ntype user\n\ntype role\n  relations\n    define assignee: [user,user:*]\n\ntype core_platform-mesh_io_account\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define owner: [role#assignee] or owner from parent\n    define member: [role#assignee] or owner\n\n    define get: member\n    define update: member\n    define patch: member\n    define delete: owner\n\n    define create_core_platform-mesh_io_accounts: member\n    define list_core_platform-mesh_io_accounts: member\n    define watch_core_platform-mesh_io_accounts: member\n\n    # org and account specific\n    define watch: member\n\n    define create_core_platform-mesh_io_accountinfos: member\n    define list_core_platform-mesh_io_accountinfos: member\n    define watch_core_platform-mesh_io_accountinfos: member\n\n    define list_core_kcp_io_logicalclusters: member\n    define watch_core_kcp_io_logicalclusters: member\n\n    # IAM specific\n    define manage_iam_roles: owner\n    define get_iam_roles: member\n    define get_iam_users: member\n\n    # APIExport binding control\n    define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent\n    define bind: [apis_kcp_io_apiexport] or bind_inherited\n\ntype core_platform-mesh_io_accountinfo\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define member: member from parent\n    define owner: owner from parent\n\n    define get: member\n    define watch: member\n\n    # IAM specific\n    define manage_iam_roles: owner\n    define get_iam_roles: member\n    define get_iam_users: member\n\ntype core_kcp_io_logicalcluster\n  relations\n    define parent: [core_platform-mesh_io_account]\n\n    define member: member from parent\n\n    define get: member\n    define watch: member"` |  |
 | crds.enabled | bool | `false` |  |
@@ -15,7 +15,7 @@ A Helm chart for security-operator
 | deployment.resources.requests.cpu | string | `"150m"` |  |
 | deployment.resources.requests.memory | string | `"128Mi"` |  |
 | deployment.revisionHistoryLimit | int | `3` |  |
-| environment | string | `"local"` | environment indicator, used for logging and observability |
+| environment | string | `""` | environment indicator, used for logging and observability |
 | fga.extraArgs | list | `[]` |  |
 | fga.inviteKeycloakBaseUrl | string | `""` |  |
 | fga.storeIDCacheTTL | string | `""` | TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m). |
@@ -42,7 +42,7 @@ A Helm chart for security-operator
 | keycloakSecret | string | `"keycloak-admin"` |  |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` |  |
-| region | string | `"local"` | region indicator, used for logging and observability |
+| region | string | `""` | region indicator, used for logging and observability |
 | system.extraArgs | list | `[]` |  |
 | system.kubeconfigSecret | string | `""` |  |
 | terminator.extraArgs | list | `[]` |  |
