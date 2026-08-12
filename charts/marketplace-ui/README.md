@@ -5,8 +5,8 @@ Helm Chart for the marketplace-ui
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| contentConfig.baseDomain | string | `"localhost:8000/ui/marketplace"` |  |
-| contentConfig.protocol | string | `"http"` |  |
+| contentConfig.baseDomain | string | `""` | base domain for the marketplace content API (e.g. example.com). Required. |
+| contentConfig.protocol | string | `""` | protocol for the marketplace content API. Permissible values: http, https |
 | cors.enabled | bool | `false` | toggle to enable CORS support |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |

@@ -13,9 +13,9 @@ Helm Chart for the Platform Mesh Portal
 | auth.default.baseDomain | string | `""` | baseDomain used by the portal |
 | auth.default.clientId | string | `""` | client id |
 | auth.default.discoveryUrl | string | `""` | discovery url used for the idp |
-| cookieDomain | string | `"localhost"` | cookie domain |
-| developmentLandcsape | string | `"true"` | development landscape toggle |
-| environment | string | `"local"` | environment |
+| cookieDomain | string | `""` | cookie domain for auth session cookies. Must match the base domain of the portal deployment (e.g. example.com). Required. |
+| developmentLandcsape | string | `"false"` | development landscape toggle. Set to "true" only in local/dev environments to enable dev-only UI features. Permissible values: "true", "false" |
+| environment | string | `""` | environment label propagated to observability (e.g. logs, traces). Permissible values: any string (e.g. production, staging, development) |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `true` | toggle to enable the Gateway API |
@@ -28,7 +28,7 @@ Helm Chart for the Platform Mesh Portal
 | hostAliases | object | `{"enabled":false,"entries":[]}` | hostAliases configuration |
 | hostAliases.enabled | bool | `false` | enable hostAliases |
 | hostAliases.entries | list | `[]` | hostAliases entries |
-| http.protocol | string | `"http"` | protocol |
+| http.protocol | string | `""` | protocol used by the portal backend. Must be set. Permissible values: http, https |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | image.registry | string | `"ghcr.io"` | The image registry |
