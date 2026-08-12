@@ -77,6 +77,9 @@ data:
               artifact: image
               for: marketplace-ui
           values:
+            contentConfig:
+              baseDomain: '{{ .baseDomain }}'
+              protocol: https
             gatewayApi:
               enabled: true
             istio:

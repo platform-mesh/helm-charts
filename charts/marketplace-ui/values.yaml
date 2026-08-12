@@ -22,8 +22,10 @@ health:
 
 
 contentConfig:
-  baseDomain: localhost:8000/ui/marketplace
-  protocol: http
+  # -- base domain for the marketplace content API (e.g. example.com). Required.
+  baseDomain: ""
+  # -- protocol for the marketplace content API. Permissible values: http, https
+  protocol: ""
 
 http:
   protocol: https
