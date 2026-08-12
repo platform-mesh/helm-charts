@@ -392,10 +392,12 @@ cnpg:
       sharedBuffers: "128MB"
   roles:
     keycloak:
+      # -- PostgreSQL username for Keycloak. Written to the cnpg-keycloak-user secret.
       username: keycloak
       # -- REQUIRED: set to a strong random value.
       password: ""
     openfga:
+      # -- PostgreSQL username for OpenFGA. Written to the cnpg-openfga-user secret.
       username: openfga
       # -- REQUIRED: set to a strong random value.
       password: ""
