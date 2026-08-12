@@ -70,7 +70,8 @@ jobs:
       - name: Setup OCM CLI
         run: |
           REPO="open-component-model/open-component-model"
-          version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
+          # renovate: datasource=github-releases depName=open-component-model/open-component-model
+          version="v0.13.0"
           echo "Installing OCM CLI version: $version"
           curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
           chmod a+x ocm

@@ -10,7 +10,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Configuration
-OCM_VERSION="${OCM_VERSION:-0.12.0}"
+# renovate: datasource=github-releases depName=open-component-model/open-component-model
+OCM_VERSION="${OCM_VERSION:-0.13.0}"
 LOCAL_BIN="${LOCAL_BIN:-$PROJECT_ROOT/bin}"
 
 # Color output (respect NO_COLOR env var)
