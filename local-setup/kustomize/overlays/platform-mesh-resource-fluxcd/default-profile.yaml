@@ -658,11 +658,15 @@ data:
       gatewayApi:
         syncOptions:
         - ServerSideApply=true
+        - SkipCRDs=false
         enabled: true
-        interval: 1m
+        kustomization:
+          install:
+            crds: Skip
+          interval: 1m
+          path: ./config/crd/experimental
         name: gateway-api
         ocmResourceName: crds
-        targetNamespace: default
       traefik:
         skipCrds: true
         syncOptions:
