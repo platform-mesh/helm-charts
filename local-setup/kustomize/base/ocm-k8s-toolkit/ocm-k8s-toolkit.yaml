@@ -7,7 +7,8 @@ spec:
   interval: 5m
   url: oci://ghcr.io/open-component-model/kubernetes/controller/chart
   ref:
-    tag: "0.3.0"
+    tag: "0.13.0"
+    digest: sha256:e109bc641a6188aabe136c741e1a59b2a661b2a01ab255a60f3f5a171e8b6f71
 ---
 
 apiVersion: helm.toolkit.fluxcd.io/v2
