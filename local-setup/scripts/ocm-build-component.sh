@@ -219,11 +219,11 @@ resolve_component_versions() {
     export OTEL_TARGET_ALLOCATOR_VERSION=$(yq -r '.jobs.ocm.env.OTEL_TARGET_ALLOCATOR_VERSION' "$agg")
     export KEYCLOAK_VERSION=$(yq -r '.jobs.ocm.env.PM_KEYCLOAK_VERSION' "$agg")
     export GARDENER_ETCD_DRUID_VERSION=$(yq -r '.jobs.ocm.env.GARDENER_ETCD_DRUID_VERSION' "$agg")
+    export PM_GATEWAY_API_VERSION=$(yq -r '.jobs.ocm.env.PM_GATEWAY_API_VERSION' "$agg")
 
     # PM-stamped component descriptor versions for third-party components.
     # Bump the suffix here to publish a new descriptor without touching resource versions.
     # Must match the values in .github/workflows/ocm-aggregator.yaml.
-    export PM_GATEWAY_API_VERSION="0.0.1"
     export PM_TRAEFIK_VERSION="0.0.1"
     export PM_CERT_MANAGER_VERSION="0.0.1"
     export PM_KCP_OPERATOR_VERSION="0.0.1"
@@ -248,16 +248,6 @@ resolve_component_versions() {
 # pointing at a missing component causes an immediate failure.
 prefill_ctf() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Pre-filling CTF with external components...${COL_RES}"
-
-    # ingress-nginx: referenced by the component-specific constructor for example-httpbin-operator,
-    # which is used during build_local_charts Phase 2 — must be in CTF before that phase runs.
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
-        "ghcr.io/platform-mesh//github.com/kubernetes/ingress-nginx:${INGRESS_NGINX_VERSION}" \
-        "ctf::.ocm/transport.ctf"
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version \
-        "ghcr.io/platform-mesh//github.com/kubernetes/ingress-nginx:${INGRESS_NGINX_VERSION}" \
-        "$LOCAL_REGISTRY/platform-mesh"
-    echo -e "${COL}[$(date '+%H:%M:%S')] ingress-nginx pre-filled${COL_RES}"
 
     # api-syncagent: referenced by the component-specific constructor for example-httpbin-operator
     # (used in build_local_charts Phase 2) but only built inline during build_final_component().
@@ -427,8 +417,6 @@ build_component() {
     # Export version pins needed by prefill_ctf before build_local_charts runs.
     # The full set is exported later in resolve_component_versions; these are
     # needed early because prefill_ctf must run before Phase 2 of build_local_charts.
-    export PM_GATEWAY_API_VERSION="0.0.1"
-    export INGRESS_NGINX_VERSION="4.11.3"
     local agg="$PROJECT_ROOT/.github/workflows/ocm-aggregator.yaml"
     export GATEWAY_API_CHART_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_CHART_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")

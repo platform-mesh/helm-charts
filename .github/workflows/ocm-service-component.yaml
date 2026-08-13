@@ -108,16 +108,12 @@ jobs:
       - name: Create OCM ComponentArchive
         run: |
           ocm_ctf=ctf::transport.ctf
-          constructor_file=${{ inputs.componentConstructorFile }}
-          resolved_constructor=$(mktemp)
-          # Strip the image componentReference block for chart-only components (APP_VERSION=0.0.0)
           if [ "${{ inputs.appVersion }}" = "0.0.0" ]; then
-            sed '/^# BEGIN_IMAGE_REF$/,/^# END_IMAGE_REF$/d' "$constructor_file" > "$resolved_constructor"
+            constructor_file=".ocm/component-constructor-service-component-chart-only.yaml"
           else
-            cp "$constructor_file" "$resolved_constructor"
+            constructor_file="${{ inputs.componentConstructorFile }}"
           fi
-          ./ocm add component-versions --repository "$ocm_ctf" --constructor "$resolved_constructor"
-          rm -f "$resolved_constructor"
+          ./ocm add component-versions --repository "$ocm_ctf" --constructor "$constructor_file"
         env:
           COMPONENT_NAME: ${{ inputs.componentName }}
           VERSION: ${{ inputs.chartVersion }}
