@@ -10,7 +10,7 @@ Helm Chart for the marketplace-ui
 | cors.enabled | bool | `false` | toggle to enable CORS support |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
-| exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
+| exposure.hostnames | list | `[]` | hostnames to be used for exposure |
 | gatewayApi.enabled | bool | `false` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
 | gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
@@ -21,7 +21,7 @@ Helm Chart for the marketplace-ui
 | health.port | int | `8080` |  |
 | health.readiness.path | string | `"/healthz"` |  |
 | health.startup.path | string | `"/healthz"` |  |
-| http.protocol | string | `"https"` |  |
+| http.protocol | string | `""` | protocol used by the frontend. Must be set. Permissible values: http, https |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.registry | string | `"ghcr.io"` | The image registry |

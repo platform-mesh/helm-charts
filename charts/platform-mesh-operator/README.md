@@ -14,7 +14,7 @@ A Helm chart to automate bootstrapping of new environment
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh-operator"` | The image repository path (without registry) |
 | istio.enabled | bool | `false` |  |
-| log.level | string | `"debug"` |  |
+| log.level | string | `"info"` | log level. Permissible values: debug, info, warn, error |
 | operator.leaderElect | bool | `true` |  |
 | remoteInfra.enabled | bool | `false` | Enables reconciliation of PlatformMesh resources on remote clusters |
 | remoteInfra.secretKey | string | `"kubeconfig"` |  |

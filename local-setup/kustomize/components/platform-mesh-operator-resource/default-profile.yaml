@@ -327,6 +327,11 @@ data:
               repo: oci
               artifact: image
               for: iam-ui
+          values:
+            exposure:
+              hostnames:
+              - "portal.localhost"
+              - "*.portal.localhost"
         iam-service:
           imageResources:
           - annotations:
@@ -342,8 +347,14 @@ data:
             - --use-provider-permissions-retriever
             cors:
               enabled: true
+            exposure:
+              hostnames:
+              - "portal.localhost"
+              - "*.portal.localhost"
             hostAliases:
               enabled: true
+            keycloak:
+              baseUrl: https://portal.localhost:8443/keycloak
         init-agent:
           absoluteReferencePath:
           - name: init-agent
@@ -437,8 +448,15 @@ data:
           syncWave: 4
           enabled: true
           values:
+            gateway:
+              playground: true
+              logLevel: trace
             gatewayApi:
               enabled: true
+              httpRoute:
+                hostnames:
+                - "portal.localhost"
+                - "*.portal.localhost"
             hostAliases:
               enabled: true
             istio:
@@ -457,6 +475,8 @@ data:
                     name: marketplace
                     url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/marketplace
                 enabled: true
+            sentry:
+              environment: dev
             tracing:
               enabled: false
             trust:
@@ -598,6 +618,9 @@ data:
             gatewayApi:
               enabled: true
               httpRoute:
+                hostnames:
+                - "portal.localhost"
+                - "*.portal.localhost"
                 parentRefs:
                 - name: k8sapi-gateway
                   kind: Gateway
@@ -722,8 +745,14 @@ data:
             contentConfig:
               baseDomain: '{{ .baseDomain }}'
               protocol: https
+            exposure:
+              hostnames:
+              - "portal.localhost"
+              - "*.portal.localhost"
             gatewayApi:
               enabled: true
+            http:
+              protocol: https
             istio:
               enabled: false
         terminal-controller-manager:

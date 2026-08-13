@@ -1,7 +1,10 @@
 type: application
 apiVersion: v2
 name: infra
-description: A Helm chart for Kubernetes
+description: >-
+  Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Traefik, cert-manager, etc.).
+  This chart is not intended to be installed directly — it is always managed by the platform-mesh-operator
+  via its profile system, which supplies all required values overrides.
 version: 0.37.0
 appVersion: "0.0.0"
 

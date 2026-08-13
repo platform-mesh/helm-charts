@@ -1,6 +1,6 @@
 # infra
 
-A Helm chart for Kubernetes
+Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Traefik, cert-manager, etc.). This chart is not intended to be installed directly — it is always managed by the platform-mesh-operator via its profile system, which supplies all required values overrides.
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 ## Values

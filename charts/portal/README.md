@@ -20,8 +20,7 @@ Helm Chart for the Platform Mesh Portal
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `true` | toggle to enable the Gateway API |
 | gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
-| gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
-| gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |
+| gatewayApi.httpRoute.hostnames | list | `[]` | hostnames for the HTTPRoute. When empty, the route matches all hostnames. |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/"` |  |
 | health.port | int | `8080` | health port to be used by probes |
