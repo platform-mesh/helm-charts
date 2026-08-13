@@ -16,9 +16,7 @@ traefik:
 
 exposure:
   # -- hostnames to be used for exposure
-  hostnames:
-    - "portal.localhost"
-    - "*.portal.localhost"
+  hostnames: []
 
 gatewayApi:
   httpRoute:
@@ -52,7 +50,8 @@ hostAliases:
   enabled: false
 
 keycloak:
-  baseUrl: https://portal.localhost:8443/keycloak
+  # -- base URL of the Keycloak instance (e.g. https://example.com/keycloak). Required.
+  baseUrl: ""
   client:
     id: iam-service
     secret:

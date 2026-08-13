@@ -75,9 +75,8 @@ gatewayApi:
   enabled: true
   httpRoute:
     pathPrefix: /
-    hostnames:
-    - "portal.localhost"
-    - "*.portal.localhost"
+    # -- hostnames for the HTTPRoute. When empty, the route matches all hostnames.
+    hostnames: []
     parentRefs:
     - name: k8sapi-gateway
     # -- list of HTTPRoute filters (default: none)

@@ -31,6 +31,4 @@ gatewayApi:
     - name: k8sapi-gateway
 exposure:
   # -- hostnames to be used for exposure
-  hostnames:
-    - "portal.localhost"
-    - "*.portal.localhost"
+  hostnames: []
