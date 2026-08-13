@@ -4,14 +4,14 @@ This document describes the versioning behavior of the Platform Mesh OCM compone
 
 ## Overview
 
-The OCM workflow (`ocm.yaml`) builds and publishes the Platform Mesh OCM component. It supports automatic versioning based on dependency changes, as well as manual version control through workflow dispatch inputs.
+The OCM workflow (`ocm-aggregator.yaml`) builds and publishes the Platform Mesh OCM component. It supports automatic versioning based on dependency changes, as well as manual version control through workflow dispatch inputs.
 
 ## Workflow Triggers
 
 The workflow runs on:
 
-- **Schedule**: Hourly (`0 * * * *`)
-- **Push**: When changes are made to `ocm.yaml` or `component-constructor.yaml` on the `main` branch
+- **Push**: When changes are made to `ocm-aggregator.yaml` or `component-constructor-aggregate.yaml` on the `main` branch
+- **Called by chart workflows**: Each per-chart workflow calls `ocm-aggregator.yaml` via `workflow_call` after publishing a chart component
 - **Manual dispatch**: Via GitHub Actions UI with configurable inputs
 
 ## Workflow Inputs
