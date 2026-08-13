@@ -124,13 +124,4 @@ defaults:
     # -- toggle to enable/disable hostAliases configuration
     enabled: false
     # -- host aliases
-    entries:
-      - ip: "10.96.188.4"
-        hostnames:
-          - "localhost"
-          - "portal.localhost"
-          - "kcp.localhost"
-          - "root.kcp.localhost"
-          - "kcp.api.portal.localhost"
-          - "nereus.kcp.localhost"
-          - "triton.kcp.localhost"
+    entries: []

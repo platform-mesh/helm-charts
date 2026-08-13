@@ -7,7 +7,7 @@ Helm Chart for the iam-ui
 |-----|------|---------|-------------|
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
-| exposure.hostnames | list | `["portal.localhost","*.portal.localhost"]` | hostnames to be used for exposure |
+| exposure.hostnames | list | `[]` | hostnames to be used for exposure |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/ui/iam"` |  |
 | health.port | int | `8080` |  |

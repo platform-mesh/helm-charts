@@ -5,9 +5,6 @@ match the Snapshot:
     metadata:
       name: platform-mesh-portal
     spec:
-      hostnames:
-        - portal.localhost
-        - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
       rules:

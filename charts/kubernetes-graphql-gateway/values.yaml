@@ -34,8 +34,10 @@ gateway:
     enabled: true
     port: 8080
   metricsPort: 8081
-  playground: true
-  logLevel: trace
+  # -- enable GraphQL playground UI (dev-only; exposes introspection)
+  playground: false
+  # -- log level for the gateway. Permissible values: trace, debug, info, warn, error
+  logLevel: info
   shouldImpersonate: false
   introspectionAuthentication: true
   usernameClaim: email
@@ -127,7 +129,8 @@ deployment:
   replicas: 1
 
 sentry:
-  environment: dev
+  # -- environment label reported to Sentry (e.g. production, staging, development)
+  environment: production
 
 kubeConfig:
   createSecret: false
@@ -177,9 +180,8 @@ gatewayApi:
   httpRoute:
     enabled: true
     pathPrefix: /gateway/api/clusters/
-    hostnames:
-    - "portal.localhost"
-    - "*.portal.localhost"
+    # -- hostnames for the HTTPRoute. When empty, the route matches all hostnames.
+    hostnames: []
     parentRefs:
     - name: k8sapi-gateway
     # -- list of HTTPRoute filters (default: URLRewrite only, no CORS)

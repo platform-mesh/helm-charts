@@ -6,9 +6,6 @@ HTTPRoute with traefik enabled - match the Snapshot:
       name: kubernetes-graphql-gateway
       namespace: platform-mesh-system
     spec:
-      hostnames:
-        - portal.localhost
-        - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
       rules:
@@ -39,9 +36,6 @@ HTTPRoute without traefik - match the Snapshot:
       name: kubernetes-graphql-gateway
       namespace: platform-mesh-system
     spec:
-      hostnames:
-        - portal.localhost
-        - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
       rules:
