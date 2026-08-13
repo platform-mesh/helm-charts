@@ -49,7 +49,7 @@ deploy_transfer_pod() {
   setup_ocm_cli
 
   kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
-  kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-ed2cf7f -- sleep infinity
+  kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-4a328ed -- sleep infinity
   kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- mkdir -p .ocm
 

@@ -163,7 +163,7 @@ tasks:
         set -e
         echo "Transferring OCM transport archive to local registry from a pod..."
         kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
-        kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-ed2cf7f -- sleep infinity || true
+        kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-4a328ed -- sleep infinity || true
         kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
         kubectl exec -i ocm-transfer-pod -- mkdir -p .ocm
 
