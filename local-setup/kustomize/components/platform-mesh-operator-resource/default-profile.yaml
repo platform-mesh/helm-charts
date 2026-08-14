@@ -549,8 +549,8 @@ data:
               value: https://${org-subdomain}portal.localhost:8443/gateway/api/clusters/root:orgs:${org-name}/graphql
             - name: NODE_EXTRA_CA_CERTS
               value: /etc/ssl/certs/ca-bundle.crt
-            - name: REBAC_AUTHZ_BATCH_URL
-              value: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443/batch-authz
+            - name: OPENMFP_PORTAL_CONTEXT_AUTHZ_WEBHOOK_URL
+              value: https://rebac-authz-webhook.platform-mesh-system.svc.cluster.local:9443
             initContainers:
             - name: combine-ca
               image: busybox:1.36
