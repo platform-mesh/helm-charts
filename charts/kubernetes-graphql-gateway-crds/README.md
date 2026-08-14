@@ -6,6 +6,7 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| conversion.strategy | string | `""` |  |
 
 ## Overriding Values
 
