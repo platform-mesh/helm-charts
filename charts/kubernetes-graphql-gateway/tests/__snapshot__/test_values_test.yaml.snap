@@ -319,7 +319,6 @@ match the Snapshot:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
-                - --enable-playground
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
@@ -483,9 +482,6 @@ match the Snapshot:
       name: platform-mesh-kubernetes-graphql-gateway
       namespace: platform-mesh-system
     spec:
-      hostnames:
-        - portal.localhost
-        - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
       rules:
@@ -907,7 +903,6 @@ match the Snapshot with crds:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
-                - --enable-playground
               env:
                 - name: KUBECONFIG
                   value: /app/kubeconfig/kubeconfig
@@ -1071,9 +1066,6 @@ match the Snapshot with crds:
       name: platform-mesh-kubernetes-graphql-gateway
       namespace: platform-mesh-system
     spec:
-      hostnames:
-        - portal.localhost
-        - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
       rules:

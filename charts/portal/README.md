@@ -13,22 +13,21 @@ Helm Chart for the Platform Mesh Portal
 | auth.default.baseDomain | string | `""` | baseDomain used by the portal |
 | auth.default.clientId | string | `""` | client id |
 | auth.default.discoveryUrl | string | `""` | discovery url used for the idp |
-| cookieDomain | string | `"localhost"` | cookie domain |
-| developmentLandcsape | string | `"true"` | development landscape toggle |
-| environment | string | `"local"` | environment |
+| cookieDomain | string | `""` | cookie domain for auth session cookies. Must match the base domain of the portal deployment (e.g. example.com). Required. |
+| developmentLandcsape | string | `"false"` | development landscape toggle. Set to "true" only in local/dev environments to enable dev-only UI features. Permissible values: "true", "false" |
+| environment | string | `""` | environment label propagated to observability (e.g. logs, traces). Permissible values: any string (e.g. production, staging, development) |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `true` | toggle to enable the Gateway API |
 | gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
-| gatewayApi.httpRoute.hostnames[0] | string | `"portal.localhost"` |  |
-| gatewayApi.httpRoute.hostnames[1] | string | `"*.portal.localhost"` |  |
+| gatewayApi.httpRoute.hostnames | list | `[]` | hostnames for the HTTPRoute. When empty, the route matches all hostnames. |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/"` |  |
 | health.port | int | `8080` | health port to be used by probes |
 | hostAliases | object | `{"enabled":false,"entries":[]}` | hostAliases configuration |
 | hostAliases.enabled | bool | `false` | enable hostAliases |
 | hostAliases.entries | list | `[]` | hostAliases entries |
-| http.protocol | string | `"http"` | protocol |
+| http.protocol | string | `""` | protocol used by the portal backend. Must be set. Permissible values: http, https |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.pullPolicyOverride | string | `"IfNotPresent"` |  |
 | image.registry | string | `"ghcr.io"` | The image registry |
@@ -40,10 +39,10 @@ Helm Chart for the Platform Mesh Portal
 | traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 | uiOptions | string | `"enableFeatureToggleSetting"` |  |
 | validWebcomponentUrls | string | `".?"` |  |
-| validation.path | string | `"/validate"` |  |
-| validation.port | int | `8088` |  |
-| validation.protocol | string | `"http"` |  |
-| validation.service | string | `"extension-manager-operator-server"` |  |
+| validation.path | string | `"/validate"` | Path of the extension-manager validation webhook |
+| validation.port | int | `8088` | Port of the extension-manager validation webhook |
+| validation.protocol | string | `"http"` | Protocol used to reach the extension-manager validation webhook. Permissible values: http, https |
+| validation.service | string | `"extension-manager-operator-server"` | Service name of the extension-manager validation webhook |
 
 ## Overriding Values
 

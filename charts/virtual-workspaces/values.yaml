@@ -46,7 +46,7 @@ cert:
   # -- Extra DNS names for the certificate
   extraDnsNames: [localhost]
   # -- Certificate duration
-  duration: 8760h0m0s
+  duration: 2160h0m0s
   # -- Certificate renew before
   renewBefore: 168h0m0s
   issuer:

@@ -6,9 +6,6 @@ matches the snapshot:
       name: RELEASE-NAME-marketplace-ui
       namespace: NAMESPACE
     spec:
-      hostnames:
-        - portal.localhost
-        - '*.portal.localhost'
       parentRefs:
         - name: k8sapi-gateway
       rules:

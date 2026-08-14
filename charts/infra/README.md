@@ -1,6 +1,6 @@
 # infra
 
-A Helm chart for Kubernetes
+Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Traefik, cert-manager, etc.). This chart is not intended to be installed directly — it is always managed by the platform-mesh-operator via its profile system, which supplies all required values overrides.
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 ## Values
@@ -20,10 +20,10 @@ A Helm chart for Kubernetes
 | cnpg.databases[1].name | string | `"openfga"` |  |
 | cnpg.databases[1].owner | string | `"openfga"` |  |
 | cnpg.enabled | bool | `false` |  |
-| cnpg.roles.keycloak.password | string | `"keycloak-password"` |  |
-| cnpg.roles.keycloak.username | string | `"keycloak"` |  |
-| cnpg.roles.openfga.password | string | `"openfga-password"` |  |
-| cnpg.roles.openfga.username | string | `"openfga"` |  |
+| cnpg.roles.keycloak.password | string | `""` | REQUIRED: set to a strong random value. |
+| cnpg.roles.keycloak.username | string | `"keycloak"` | PostgreSQL username for Keycloak. Written to the cnpg-keycloak-user secret. |
+| cnpg.roles.openfga.password | string | `""` | REQUIRED: set to a strong random value. |
+| cnpg.roles.openfga.username | string | `"openfga"` | PostgreSQL username for OpenFGA. Written to the cnpg-openfga-user secret. |
 | dex.enabled | bool | `false` | Enable Dex as a local upstream OIDC identity provider |
 | dex.gatewayApi.corsFilters | list | `[]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | dex.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
@@ -187,13 +187,13 @@ A Helm chart for Kubernetes
 | keycloak.keycloakConfig.redirectUrls | list | `["http://localhost:8000/callback*"]` | redirect urls |
 | keycloak.keycloakConfig.url | string | `"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak"` | url of the keycloak server |
 | keycloak.keycloakConfig.userRegistration.enabled | bool | `true` | toggle to enable/disable user registration |
-| keycloak.operator.admin.password | string | `"admin"` | Bootstrap admin password (written to keycloak-admin secret) |
-| keycloak.operator.admin.secret | string | `"admin"` | Bootstrap admin client secret (written to keycloak-admin secret) |
+| keycloak.operator.admin.password | string | `""` | Bootstrap admin password (written to keycloak-admin secret). REQUIRED: set to a strong random value. |
+| keycloak.operator.admin.secret | string | `""` | Bootstrap admin client secret (written to keycloak-admin secret). REQUIRED: set to a strong random value. |
 | keycloak.operator.admin.username | string | `"keycloak-admin"` | Bootstrap admin username (written to keycloak-admin secret) |
 | keycloak.operator.caSecret | string | `""` | Secret with PEM CA for outbound HTTPS trust (e.g. local mkcert CA) |
 | keycloak.operator.db.database | string | `"keycloak"` | Database name |
 | keycloak.operator.db.host | string | `"platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local"` | PostgreSQL host |
-| keycloak.operator.db.password | string | `"keycloak-password"` | Database password (written to keycloak-db-credentials secret) |
+| keycloak.operator.db.password | string | `""` | Database password (written to keycloak-db-credentials secret). REQUIRED: set to a strong random value. |
 | keycloak.operator.db.port | int | `5432` | PostgreSQL port |
 | keycloak.operator.db.username | string | `"keycloak"` | Database username (written to keycloak-db-credentials secret) |
 | keycloak.operator.enabled | bool | `false` | Enable Keycloak CR and supporting secrets managed by Keycloak Operator |
@@ -207,6 +207,7 @@ A Helm chart for Kubernetes
 | keycloak.operator.health.startup.failureThreshold | int | `600` |  |
 | keycloak.operator.health.startup.path | string | `"/keycloak/health"` |  |
 | keycloak.operator.hostname | string | `"https://portal.localhost:8443"` | Keycloak hostname (used in the Keycloak CR hostname.hostname field). Must not include a path — the operator auto-derives http-relative-path from any path component, which conflicts with the value baked into the image. |
+| keycloak.operator.httpEnabled | bool | `true` | Enable plain HTTP on the Keycloak pod. Set to false in production (TLS must be configured instead). |
 | keycloak.operator.image.digest | string | `"sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"` | Keycloak image digest (when set, overrides tag: registry/repository@digest) |
 | keycloak.operator.image.registry | string | `"ghcr.io"` | Keycloak image registry |
 | keycloak.operator.image.repository | string | `"platform-mesh/custom-images/keycloak"` | Keycloak image repository (without registry) |
