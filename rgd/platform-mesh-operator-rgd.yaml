@@ -58,9 +58,9 @@ spec:
           layerSelector:
             mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
             operation: copy
-          url: oci://${resourceChart.status.?additional.?registry}/${resourceChart.status.?additional.?repository}
+          url: oci://${resourceChart.status.?additional.?registry.orValue('')}/${resourceChart.status.?additional.?repository.orValue('')}
           ref:
-            tag: ${resourceChart.status.?additional.?version}
+            tag: ${resourceChart.status.?additional.?version.orValue('')}
     - id: helmrelease
       readyWhen:
         - ${helmrelease.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
