@@ -88,9 +88,9 @@ spec:
         layerSelector:
           mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
           operation: copy
-        url: oci://${resourceChart.status.additional.?registry}/${resourceChart.status.additional.?repository}
+        url: oci://${resourceChart.status.additional.?registry.orValue('')}/${resourceChart.status.additional.?repository.orValue('')}
         ref:
-          tag: ${resourceChart.status.additional.?version}
+          tag: ${resourceChart.status.additional.?version.orValue('')}
   - id: helmrelease
     readyWhen:
     - ${helmrelease.status.conditions.exists(x, x.type == 'Ready' && x.status == "True")}
@@ -114,9 +114,9 @@ spec:
           image:
             # The operator cannot localize its own image — kro interpolates the
             # coordinates the OCM controller resolved into status.additional.
-            registry: ${resourceImage.status.additional.?registry}
-            repository: ${resourceImage.status.additional.?repository}
-            tag: ${resourceImage.status.?resource.?version}
+            registry: ${resourceImage.status.additional.?registry.orValue('')}
+            repository: ${resourceImage.status.additional.?repository.orValue('')}
+            tag: ${resourceImage.status.?resource.?version.orValue('')}
           idp:
             registrationAllowed: true
             values:
