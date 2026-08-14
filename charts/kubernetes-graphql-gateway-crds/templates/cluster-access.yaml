@@ -6,6 +6,10 @@ metadata:
     controller-gen.kubebuilder.io/version: v0.20.0
   name: clusteraccesses.gateway.platform-mesh.io
 spec:
+  {{- if .Values.conversion.strategy }}
+  conversion:
+    strategy: {{ .Values.conversion.strategy }}
+  {{- end }}
   group: gateway.platform-mesh.io
   names:
     kind: ClusterAccess
