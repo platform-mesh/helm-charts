@@ -64,7 +64,6 @@ spec:
                                                   }
                                               },
                                               {
-                                                  "property": "metadata.name",
                                                   "uiSettings": {
                                                       "align": "end",
                                                       "displayAs": "button",
@@ -72,7 +71,7 @@ spec:
                                                       "buttonSettings": {
                                                           "icon": "decline",
                                                           "design": "Transparent",
-                                                          "action": "delete-resource",
+                                                          "action": "delete",
                                                           "tooltip": "Delete"
                                                       }
                                                   },
