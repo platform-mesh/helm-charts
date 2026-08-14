@@ -499,7 +499,7 @@ data:
             postgresql:
               enabled: true
               auth:
-                postgresPassword: openfga
+                postgresPassword: openfga-password
               image:
                 registry: ghcr.io/platform-mesh
                 repository: upstream-images/postgresql
