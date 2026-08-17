@@ -291,7 +291,9 @@ jobs:
           set -e
 
           # Get the latest platform-mesh component descriptor to compare dependencies
-          ./ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o yaml > current_pm_component.yaml || echo "No existing platform-mesh component found"
+          ./ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o yaml \
+            | yq eval '.[0]' - > current_pm_component.yaml \
+            || echo "No existing platform-mesh component found"
 
           # Extract current dependency versions from the existing component (if it exists)
           if [ -f current_pm_component.yaml ] && [ -s current_pm_component.yaml ]; then
