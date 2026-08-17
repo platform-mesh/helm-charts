@@ -22,6 +22,7 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "account-operator:charts/account-operator"
     "example-httpbin-operator:charts/example-httpbin-operator"
     "extension-manager-operator:charts/extension-manager-operator"
+    "gateway-api-crds:charts/gateway-api-crds"
     "iam-service:charts/iam-service"
     "iam-ui:charts/iam-ui"
     "infra:charts/infra"
@@ -211,7 +212,7 @@ add_chart_to_ctf() {
     #    exist in CI/CD (e.g. component-constructor-platform-mesh-operator.yaml embeds a local rgd blob).
     #    Also skip component-specific constructors that reference external components not pre-populated
     #    in the local CTF: v2 resolves componentReferences during graph discovery and fails if they're absent.
-    #    Known pre-populated externals (gateway-api, ingress-nginx, kcp-div/*) are allowed through.
+    #    Known pre-populated externals (ingress-nginx, kcp-div/*) are allowed through.
     # 2. Chart-only constructor for components without an image
     # 3. Generic constructor as fallback
     local constructor

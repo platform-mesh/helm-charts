@@ -1,0 +1,28 @@
+name: Build gateway-api-crds Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/gateway-api-crds/**'
+      - '.github/workflows/gateway-api-crds.yaml'
+      - '.ocm/component-constructor-gateway-api-crds.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    concurrency:
+      group: gateway-api-crds-${{ github.ref }}
+      cancel-in-progress: true
+    uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
+    with:
+      chartFolder: charts
+      chartName: gateway-api-crds
+      componentConstructorFile: .ocm/component-constructor-gateway-api-crds.yaml
+      chartOnly: false
+    secrets: inherit

@@ -28,10 +28,10 @@ data:
         - ServerSideApply=true
         enabled: true
         interval: 1m
-        name: gateway-api
+        name: gateway-api-crds
         chart:
           name: gateway-api-crds
-        ocmResourceName: crds
+        ocmResourceName: chart
         targetNamespace: default
       traefik:
         skipCrds: true

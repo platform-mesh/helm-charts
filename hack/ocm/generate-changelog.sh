@@ -322,7 +322,6 @@ is_major_version_bump() {
 
 # Third-party components (should be skipped in changelog generation)
 declare -A THIRD_PARTY_COMPONENTS=(
-  ["gateway-api"]=1
   ["traefik"]=1
   ["cert-manager"]=1
   ["openfga"]=1

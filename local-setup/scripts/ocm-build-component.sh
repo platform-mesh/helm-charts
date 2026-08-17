@@ -28,7 +28,7 @@ REMOTE_REGISTRY="${REMOTE_REGISTRY:-ghcr.io/platform-mesh}"
 LOCAL_REGISTRY="${LOCAL_REGISTRY:-oci-registry-docker-registry.registry.svc.cluster.local}"
 
 # List of local component names (for version resolution)
-CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,iam-service,iam-ui,infra,keycloak-operator,kro-composition-operator,kubernetes-graphql-gateway,marketplace-ui,observability,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
+CUSTOM_LOCAL_COMPONENTS="account-operator,example-httpbin-operator,extension-manager-operator,gateway-api-crds,iam-service,iam-ui,infra,keycloak-operator,kro-composition-operator,kubernetes-graphql-gateway,marketplace-ui,observability,platform-mesh-operator,platform-mesh-operator-components,platform-mesh-operator-infra-components,portal,rebac-authz-webhook,security-operator,terminal-controller-manager,virtual-workspaces"
 
 # Fixed version overrides (empty by default)
 FIXED_VERSION_PAIRS=""
@@ -171,6 +171,7 @@ resolve_component_versions() {
 
     # Local/remote component versions
     get_component_version account-operator github.com/platform-mesh/account-operator charts/account-operator ACCOUNT_OPERATOR_VERSION
+    get_component_version gateway-api-crds github.com/platform-mesh/gateway-api-crds charts/gateway-api-crds GATEWAY_API_CHART_VERSION
     get_component_version security-operator github.com/platform-mesh/security-operator charts/security-operator SECURITY_OPERATOR_VERSION
     get_component_version extension-manager-operator github.com/platform-mesh/extension-manager-operator charts/extension-manager-operator EXTENSION_MANAGER_OPERATOR_VERSION
     get_component_version infra github.com/platform-mesh/infra charts/infra INFRA_VERSION
@@ -203,7 +204,6 @@ resolve_component_versions() {
     export OPENFGA_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_VERSION' "$agg")
     export OPENFGA_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_IMAGE_VERSION' "$agg")
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_POSTGRESQL_IMAGE_VERSION' "$agg")
-    export GATEWAY_API_CHART_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_CHART_VERSION' "$agg")
     export TRAEFIK_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_VERSION' "$agg")
     export TRAEFIK_CHART_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_CHART_VERSION' "$agg")
     export TRAEFIK_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.TRAEFIK_IMAGE_VERSION' "$agg")
@@ -219,11 +219,6 @@ resolve_component_versions() {
     export OTEL_TARGET_ALLOCATOR_VERSION=$(yq -r '.jobs.ocm.env.OTEL_TARGET_ALLOCATOR_VERSION' "$agg")
     export KEYCLOAK_VERSION=$(yq -r '.jobs.ocm.env.PM_KEYCLOAK_VERSION' "$agg")
     export GARDENER_ETCD_DRUID_VERSION=$(yq -r '.jobs.ocm.env.GARDENER_ETCD_DRUID_VERSION' "$agg")
-    export PM_GATEWAY_API_VERSION=$(yq -r '.jobs.ocm.env.PM_GATEWAY_API_VERSION' "$agg")
-
-    # PM-stamped component descriptor versions for third-party components.
-    # Bump the suffix here to publish a new descriptor without touching resource versions.
-    # Must match the values in .github/workflows/ocm-aggregator.yaml.
     export PM_TRAEFIK_VERSION="0.0.1"
     export PM_CERT_MANAGER_VERSION="0.0.1"
     export PM_KCP_OPERATOR_VERSION="0.0.1"
@@ -348,7 +343,6 @@ build_final_component() {
         OTEL_OPERATOR_IMAGE_VERSION="$OTEL_OPERATOR_IMAGE_VERSION" \
         OTEL_COLLECTOR_IMAGE_VERSION="$OTEL_COLLECTOR_IMAGE_VERSION" \
         OTEL_TARGET_ALLOCATOR_VERSION="$OTEL_TARGET_ALLOCATOR_VERSION" \
-        PM_GATEWAY_API_VERSION="$PM_GATEWAY_API_VERSION" \
         PM_TRAEFIK_VERSION="$PM_TRAEFIK_VERSION" \
         PM_CERT_MANAGER_VERSION="$PM_CERT_MANAGER_VERSION" \
         PM_KCP_OPERATOR_VERSION="$PM_KCP_OPERATOR_VERSION" \
@@ -385,7 +379,6 @@ build_final_component() {
             ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$LOCAL_REGISTRY/platform-mesh" \
             || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
     }
-    _transfer_third_party "github.com/kubernetes-sigs/gateway-api:${PM_GATEWAY_API_VERSION}"
     _transfer_third_party "github.com/traefik/traefik:${PM_TRAEFIK_VERSION}"
     _transfer_third_party "github.com/cert-manager/cert-manager:${PM_CERT_MANAGER_VERSION}"
     _transfer_third_party "github.com/openfga/openfga:${PM_OPENFGA_VERSION}"
@@ -418,13 +411,12 @@ build_component() {
     # The full set is exported later in resolve_component_versions; these are
     # needed early because prefill_ctf must run before Phase 2 of build_local_charts.
     local agg="$PROJECT_ROOT/.github/workflows/ocm-aggregator.yaml"
-    export GATEWAY_API_CHART_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_CHART_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
     export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
     export API_SYNCAGENT_COMPONENT_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_COMPONENT_VERSION' "$agg")
 
     # Pre-populate CTF with externals that component-specific constructors reference
-    # (gateway-api, ingress-nginx). Must happen before build_local_charts Phase 2.
+    # (ingress-nginx). Must happen before build_local_charts Phase 2.
     prefill_ctf
 
     # Build local charts (this also sets up the transport archive)
