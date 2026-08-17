@@ -33,3 +33,4 @@ docs/migration-0.3/kcp-exports
 local-setup/backup
 tmp/
 /runtime-artifacts
+.gitconfig

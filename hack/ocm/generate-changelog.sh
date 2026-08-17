@@ -269,8 +269,8 @@ fetch_ocm_component_details() {
   fi
 
   local result
-  result=$(ocm get component "github.com/platform-mesh/${component}:${version}" \
-    --repo ghcr.io/platform-mesh -o yaml 2>/dev/null)
+  result=$(ocm get component-version "ghcr.io/platform-mesh//github.com/platform-mesh/${component}:${version}" \
+    -o yaml 2>/dev/null)
 
   if [[ -z "$result" ]] || [[ "$result" == *"Error"* ]]; then
     echo "{}"
@@ -322,7 +322,6 @@ is_major_version_bump() {
 
 # Third-party components (should be skipped in changelog generation)
 declare -A THIRD_PARTY_COMPONENTS=(
-  ["gateway-api"]=1
   ["traefik"]=1
   ["cert-manager"]=1
   ["openfga"]=1

@@ -70,17 +70,11 @@ jobs:
 
       - name: Setup OCM CLI
         run: |
-          REPO=${repo:=open-component-model/ocm}
-          if [ -z "$version" -o "$version" == latest ]; then
-            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
-            echo "Selecting latest version: $version"
-          fi
-          VERSION=${version#v}
-          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
-          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          REPO="open-component-model/open-component-model"
+          # renovate: datasource=github-releases depName=open-component-model/open-component-model
+          version="v0.13.0"
           echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm-cli.tgz "$URL"
-          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
           chmod a+x ocm
 
       - name: Write OCM credentials file
@@ -113,22 +107,28 @@ jobs:
 
       - name: Create OCM ComponentArchive
         run: |
-          ocm_ctf=transport.ctf
-          ./ocm add components -c --templater=go --file "$ocm_ctf" ${{ inputs.componentConstructorFile }} -- \
-            COMPONENT_NAME=${{ inputs.componentName }} \
-            VERSION=${{ inputs.chartVersion }} \
-            CHART_NAME=${{ inputs.chartName }} \
-            IMAGE_COMPONENT_NAME=${{ env.IMAGE_COMPONENT_NAME }} \
-            APP_VERSION=${{ inputs.appVersion }}
+          ocm_ctf=ctf::transport.ctf
+          if [ "${{ inputs.appVersion }}" = "0.0.0" ]; then
+            constructor_file=".ocm/component-constructor-service-component-chart-only.yaml"
+          else
+            constructor_file="${{ inputs.componentConstructorFile }}"
+          fi
+          ./ocm add component-versions --repository "$ocm_ctf" --constructor "$constructor_file"
+        env:
+          COMPONENT_NAME: ${{ inputs.componentName }}
+          VERSION: ${{ inputs.chartVersion }}
+          CHART_NAME: ${{ inputs.chartName }}
+          IMAGE_COMPONENT_NAME: ${{ env.IMAGE_COMPONENT_NAME }}
+          APP_VERSION: ${{ inputs.appVersion }}
 
       - name: Transfer to OCM registry
-        run: ./ocm transfer ctf transport.ctf "ghcr.io/platform-mesh"
+        run: ./ocm transfer component-version "ctf::transport.ctf" "ghcr.io/platform-mesh"
 
       - name: Sign OCM Component
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
-          ./ocm sign componentversion --signature helm-charts.platform-mesh --private-key /tmp/ocm-signing.priv \
+          ./ocm sign component-version --signature helm-charts.platform-mesh --private-key /tmp/ocm-signing.priv \
           --public-key /tmp/ocm-signing.cert \
           --ca-cert .ocm/signature/ca.cert \
             "oci://ghcr.io/platform-mesh//${{ inputs.componentName }}:${{ inputs.chartVersion }}"

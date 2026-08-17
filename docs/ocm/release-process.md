@@ -28,7 +28,7 @@ The release process automates:
 ### Optional Tools
 
 - **OCM CLI**: For fetching component versions from OCM registry
-  - Install: https://github.com/open-component-model/ocm/releases
+  - Install: https://github.com/open-component-model/open-component-model/releases
   - If not installed, the tool will warn but continue with limited functionality
 
 ### Authentication
@@ -46,7 +46,7 @@ By default, the script runs in dry-run mode to preview what would be created wit
 
 **Using the script directly:**
 ```bash
-./hack/draft-release.sh 0.1.0 $(ocm get cv --repo ghcr.io/platform-mesh github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.items.[0].component.version')
+./hack/draft-release.sh 0.1.0 $(ocm get cv ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh --latest -ojson | jq -r '.[0].component.version')
 ```
 
 **Using Claude Code slash command:**
@@ -152,7 +152,7 @@ Similar format, but comparing against the previous stable release instead of agg
 ### "OCM CLI not found"
 
 This is just a warning. The tool will still work but won't be able to fetch component versions from the OCM registry. You can:
-1. Install OCM CLI: https://github.com/open-component-model/ocm/releases
+1. Install OCM CLI: https://github.com/open-component-model/open-component-model/releases
 2. Continue without it (limited functionality)
 
 ### "Error: Not authenticated with GitHub CLI"

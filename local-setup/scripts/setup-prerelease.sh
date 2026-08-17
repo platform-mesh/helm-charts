@@ -43,8 +43,13 @@ deploy_oci_registry() {
 # Deploy transfer pod for OCM operations
 deploy_transfer_pod() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Deploying OCM transfer pod ${COL_RES}"
+
+  # Ensure the OCM CLI binary is present on the host before copying it into the pod
+  source "$SCRIPT_DIR/ocm-setup.sh"
+  setup_ocm_cli
+
   kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
-  kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/images/ocmbuilder:pr-4 -- sleep infinity
+  kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-4a328ed -- sleep infinity
   kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- mkdir -p .ocm
 

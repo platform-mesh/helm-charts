@@ -22,6 +22,7 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
     "account-operator:charts/account-operator"
     "example-httpbin-operator:charts/example-httpbin-operator"
     "extension-manager-operator:charts/extension-manager-operator"
+    "gateway-api-crds:charts/gateway-api-crds"
     "iam-service:charts/iam-service"
     "iam-ui:charts/iam-ui"
     "infra:charts/infra"
@@ -209,11 +210,26 @@ add_chart_to_ctf() {
     # 1. Component-specific constructor (e.g. component-constructor-example-httpbin-operator.yaml) takes priority,
     #    but only if it has no 'input:' blocks — constructors with input blocks reference local files that only
     #    exist in CI/CD (e.g. component-constructor-platform-mesh-operator.yaml embeds a local rgd blob).
+    #    Also skip component-specific constructors that reference external components not pre-populated
+    #    in the local CTF: v2 resolves componentReferences during graph discovery and fails if they're absent.
+    #    Known pre-populated externals (ingress-nginx, kcp-div/*) are allowed through.
     # 2. Chart-only constructor for components without an image
     # 3. Generic constructor as fallback
     local constructor
     local specific="$OCM_DIR/component-constructor-${comp}.yaml"
-    if [ -f "$specific" ] && ! grep -q '^\s*input:' "$specific"; then
+    local has_external_refs=false
+    if [ -f "$specific" ]; then
+        # External = non-platform-mesh AND not one of the known pre-populated third-party components
+        if grep -v \
+            -e 'componentName:.*github\.com/platform-mesh/' \
+            -e 'componentName:.*github\.com/kcp-dev/' \
+            -e 'componentName:.*github\.com/kubernetes-sigs/' \
+            -e 'componentName:.*github\.com/kubernetes/' \
+            "$specific" | grep -q 'componentName:'; then
+            has_external_refs=true
+        fi
+    fi
+    if [ -f "$specific" ] && ! grep -q '^\s*input:' "$specific" && [ "$has_external_refs" = "false" ]; then
         constructor=".ocm/component-constructor-${comp}.yaml"
         echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Using component-specific constructor for $comp${COL_RES}"
     elif [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
@@ -223,7 +239,8 @@ add_chart_to_ctf() {
     fi
 
     # Add component to OCM transport archive
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm add components -c --templater=go --file ".ocm/transport.ctf" "$constructor" -- \
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        env \
         VERSION="$VERSION" \
         APP_VERSION="$APP_VERSION" \
         IMAGE_NAME="$IMAGE_NAME" \
@@ -234,7 +251,8 @@ add_chart_to_ctf() {
         COMPONENT_NAME="$COMPONENT_NAME" \
         COMPONENT_SHORT_NAME="$comp" \
         CHART_OCI_PATH="$CHART_OCI_PATH" \
-        LOCAL_CHART_PATH="$LOCAL_CHART_PATH"
+        LOCAL_CHART_PATH="$LOCAL_CHART_PATH" \
+        ocm add component-versions --component-version-conflict-policy replace --repository "ctf::.ocm/transport.ctf" --constructor "$constructor"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Done: $COMPONENT_NAME${COL_RES}"
 }
@@ -242,7 +260,34 @@ add_chart_to_ctf() {
 # Transfer OCM transport archive to local OCI registry
 transfer_to_local_oci() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry...${COL_RES}"
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer ctf --overwrite .ocm/transport.ctf oci://oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh || true
+    local target="oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh"
+
+    _transfer_if_present() {
+        local ref="$1"
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+            ocm get component-version "ctf::.ocm/transport.ctf//$ref" >/dev/null 2>&1 || return 0
+        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+            ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$target" \
+            || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
+    }
+
+    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+        local comp="${pair%%:*}"
+        local meta_file="$PRERELEASE_DIR/$comp.meta"
+        [ -f "$meta_file" ] || continue
+        source "$meta_file"
+        [ "$SKIP" = "true" ] && continue
+
+        # Transfer the service component, helm-charts sub-component, and images sub-component.
+        # Images sub-components may be versioned with APP_VERSION (container semver) or VERSION
+        # (chart semver, e.g. infra uses chart version for images). Always try both.
+        _transfer_if_present "$COMPONENT_NAME:$VERSION"
+        _transfer_if_present "github.com/platform-mesh/helm-charts/$comp:$VERSION"
+        _transfer_if_present "github.com/platform-mesh/images/$comp:$VERSION"
+        if [ -n "$APP_VERSION" ] && [ "$APP_VERSION" != "0.0.0" ] && [ "$APP_VERSION" != "$VERSION" ]; then
+            _transfer_if_present "github.com/platform-mesh/images/$comp:$APP_VERSION"
+        fi
+    done
 }
 
 # Build all local charts using two-phase parallel approach

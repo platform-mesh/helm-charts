@@ -63,17 +63,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: setup OCM CLI
         run: |
-          REPO=${repo:=open-component-model/ocm}
-          if [ -z "$version" -o "$version" == latest ]; then
-            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
-            echo "Selecting latest version: $version"
-          fi
-          VERSION=${version#v}
-          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
-          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          REPO="open-component-model/open-component-model"
+          # renovate: datasource=github-releases depName=open-component-model/open-component-model
+          version="v0.13.0"
           echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm-cli.tgz "$URL"
-          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
           chmod a+x ocm
       - name: Prepare Template Variables
         id: vars
@@ -131,50 +125,39 @@ jobs:
           EOF
       - name: create OCM ComponentArchive
         run: |
-          ocm_ctf=.ocm/transport.ctf
+          ocm_ctf=ctf::.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
-          if [ "${{ inputs.chartOnly }}" == "true" ]; then
-            ./ocm add components -c --templater=go --file "$ocm_ctf" ${{ inputs.componentConstructorFile }} -- \
-              VERSION=${{ env.VERSION }} \
-              APP_VERSION=${{ env.APP_VERSION }} \
-              COMMIT=${{ github.sha }} \
-              CHART_REPO=${{ env.CHART_REPO }} \
-              COMPONENT_NAME=${{ inputs.componentName }} \
-              CHART_NAME=${{ env.CHART_NAME }} \
-              CHART_OCI_PATH=${{ env.CHART_OCI_PATH }} \
-              LOCAL_CHART_PATH=${{ inputs.chartPath }}
-          else
-            ./ocm add components -c --templater=go --file "$ocm_ctf" ${{ inputs.componentConstructorFile }} -- \
-              VERSION=${{ env.VERSION }} \
-              APP_VERSION=${{ env.APP_VERSION }} \
-              IMAGE_NAME=${{ env.IMAGE_NAME }} \
-              COMMIT=${{ github.sha }} \
-              IMAGE_REPO=${{ env.IMAGE_REPO }} \
-              IMAGE_REPO_SHA=${{ env.IMAGE_REPO_SHA }} \
-              CHART_REPO=${{ env.CHART_REPO }} \
-              COMPONENT_NAME=${{ inputs.componentName }} \
-              CHART_NAME=${{ env.CHART_NAME }} \
-              CHART_OCI_PATH=${{ env.CHART_OCI_PATH }} \
-              LOCAL_CHART_PATH=${{ inputs.chartPath }}
-          fi
+          ./ocm add component-versions --repository "$ocm_ctf" --constructor ${{ inputs.componentConstructorFile }}
+        env:
+          VERSION: ${{ env.VERSION }}
+          APP_VERSION: ${{ env.APP_VERSION }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          COMMIT: ${{ github.sha }}
+          IMAGE_REPO: ${{ env.IMAGE_REPO }}
+          IMAGE_REPO_SHA: ${{ env.IMAGE_REPO_SHA }}
+          CHART_REPO: ${{ env.CHART_REPO }}
+          COMPONENT_NAME: ${{ inputs.componentName }}
+          CHART_NAME: ${{ env.CHART_NAME }}
+          CHART_OCI_PATH: ${{ env.CHART_OCI_PATH }}
+          LOCAL_CHART_PATH: ${{ inputs.chartPath }}
 
       - name: Sign OCM component
         run: |
           printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
           printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
-          ./ocm sign componentversion \
+          ./ocm sign component-version \
             --signature "helm-charts.platform-mesh" \
             --private-key /tmp/ocm-signing.priv \
             --public-key /tmp/ocm-signing.cert \
             --ca-cert .ocm/signature/ca.cert \
-            .ocm/transport.ctf
+            "ctf::.ocm/transport.ctf"
           rm -f /tmp/ocm-signing.priv /tmp/ocm-signing.cert .ocm/signature/ca.cert
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
 
       - name: Transfer to OCM REPO
-        run: ./ocm transfer ctf .ocm/transport.ctf "${{ inputs.ocmRegistryUrl }}"
+        run: ./ocm transfer component-version "ctf::.ocm/transport.ctf" "${{ inputs.ocmRegistryUrl }}"
 
       - name: Cut helm-charts/ from componentName
         id: componentName

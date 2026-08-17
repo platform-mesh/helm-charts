@@ -60,8 +60,8 @@ jobs:
           setup_ocm_cli >/dev/null
           export_ocm_path
           VERSION=$(bin/ocm --config .ocm/config get componentversions --latest \
-            github.com/platform-mesh/platform-mesh --repo ghcr.io/platform-mesh -o json \
-            | jq -r '.items[0].component.version')
+            ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o json \
+            | jq -r '.[0].component.version')
           if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
             echo "Failed to resolve platform-mesh version" >&2
             exit 1
