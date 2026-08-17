@@ -56,10 +56,15 @@ setup_ocm_cli() {
     # Create bin directory if needed
     mkdir -p "$LOCAL_BIN"
 
-    # Check if OCM is already installed
+    # Check if OCM is already installed at the correct version
     if [ -s "$LOCAL_BIN/ocm" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] OCM CLI already installed at $LOCAL_BIN/ocm${COL_RES}"
-        return 0
+        local installed_version
+        installed_version=$("$LOCAL_BIN/ocm" version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "unknown")
+        if [ "$installed_version" = "$OCM_VERSION" ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] OCM CLI v${OCM_VERSION} already installed at $LOCAL_BIN/ocm${COL_RES}"
+            return 0
+        fi
+        echo -e "${COL}[$(date '+%H:%M:%S')] OCM CLI version mismatch (have ${installed_version}, want ${OCM_VERSION}), re-downloading...${COL_RES}"
     fi
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Downloading OCM CLI v${OCM_VERSION} for ${platform}...${COL_RES}"
