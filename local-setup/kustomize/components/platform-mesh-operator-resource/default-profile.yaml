@@ -29,6 +29,8 @@ data:
         enabled: true
         interval: 1m
         name: gateway-api
+        chart:
+          name: gateway-api-crds
         ocmResourceName: crds
         targetNamespace: default
       traefik:

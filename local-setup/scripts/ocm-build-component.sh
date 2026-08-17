@@ -87,7 +87,7 @@ get_component_version() {
         if [ "$short" = "$name" ] && [ -n "$ver" ] && [ "$ver" != "$name" ]; then
             echo "Using FIXED override version for $short -> $ver"
             export "$env_var"="$ver"
-            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version --recursive --copy-resources "ghcr.io/platform-mesh//$component:$ver" "https://$LOCAL_REGISTRY/platform-mesh"
+            kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- ocm transfer component-version --recursive --copy-resources --upload-as ociArtifact "ghcr.io/platform-mesh//$component:$ver" "https://$LOCAL_REGISTRY/platform-mesh"
             return 0
         fi
     done
@@ -199,7 +199,7 @@ resolve_component_versions() {
     export INIT_AGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_IMAGE_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
     export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
-    export API_SYNCAGENT_COMPONENT_VERSION="1.0.0"
+    export API_SYNCAGENT_COMPONENT_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_COMPONENT_VERSION' "$agg")
     export OPENFGA_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_VERSION' "$agg")
     export OPENFGA_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_IMAGE_VERSION' "$agg")
     export OPENFGA_POSTGRESQL_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.OPENFGA_POSTGRESQL_IMAGE_VERSION' "$agg")
@@ -421,7 +421,7 @@ build_component() {
     export GATEWAY_API_CHART_VERSION=$(yq -r '.jobs.ocm.env.GATEWAY_API_CHART_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
     export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
-    export API_SYNCAGENT_COMPONENT_VERSION="1.0.0"
+    export API_SYNCAGENT_COMPONENT_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_COMPONENT_VERSION' "$agg")
 
     # Pre-populate CTF with externals that component-specific constructors reference
     # (gateway-api, ingress-nginx). Must happen before build_local_charts Phase 2.
