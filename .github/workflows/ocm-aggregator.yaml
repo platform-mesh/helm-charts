@@ -515,9 +515,34 @@ jobs:
         run: |
           ocm_ctf=ctf::.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
-          ./ocm transfer component-version --copy-resources --recursive \
+          # etcd-druid v0.36.4 contains SPDX resources backed by a multi-manifest OCI index that
+          # OCM v2 cannot re-pack (no top-level parent manifest). Generate a transfer spec, strip
+          # the invalid nodes, and replay — the SPDX resources are omitted from the CTF copy.
+          ./ocm transfer component-version --copy-resources --recursive --dry-run -o yaml \
             "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
-            "$ocm_ctf"
+            "$ocm_ctf" > /tmp/etcd-druid-transfer-spec.yaml
+          python3 - << 'PYEOF'
+          import yaml, sys
+          with open('/tmp/etcd-druid-transfer-spec.yaml') as f:
+              spec = yaml.safe_load(f)
+          nodes = spec['transformations']
+          spdx_ids = {n['id'] for n in nodes if 'Spdx' in n['id']}
+          def strip_spdx(obj):
+              if isinstance(obj, list):
+                  return [strip_spdx(i) for i in obj if not (isinstance(i, str) and any(s in i for s in spdx_ids))]
+              elif isinstance(obj, dict):
+                  return {k: strip_spdx(v) for k, v in obj.items()}
+              return obj
+          filtered = [strip_spdx(n) for n in nodes if n['id'] not in spdx_ids]
+          for n in filtered:
+              if 'dependsOn' in n:
+                  n['dependsOn'] = [d for d in n['dependsOn'] if d not in spdx_ids]
+          spec['transformations'] = filtered
+          with open('/tmp/etcd-druid-transfer-spec-nospdx.yaml', 'w') as f:
+              yaml.dump(spec, f, default_flow_style=False)
+          print(f"Stripped {len(spdx_ids)} SPDX nodes, {len(filtered)} nodes remaining", file=sys.stderr)
+          PYEOF
+          ./ocm transfer component-version --transfer-spec /tmp/etcd-druid-transfer-spec-nospdx.yaml
 
       - name: create OCM ComponentArchive
         if: steps.version_check.outputs.needs_update == 'true'
@@ -533,14 +558,23 @@ jobs:
       - name: Sign OCM Component
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
-          printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
-          ./ocm sign component-version --signature helm-charts.platform-mesh --private-key /tmp/ocm-signing.priv \
-          --public-key /tmp/ocm-signing.cert \
-          --ca-cert .ocm/signature/ca.cert \
+          cat >> $HOME/.ocmconfig << EOF
+            - type: credentials.config.ocm.software
+              consumers:
+              - identity:
+                  type: RSA/v1alpha1
+                  algorithm: RSASSA-PSS
+                  signature: helm-charts.platform-mesh
+                credentials:
+                - type: Credentials/v1
+                  properties:
+                    private_key_pem: |
+          $(printf '%s' "$OCM_SIGNING_PRIVATE_KEY" | sed 's/^/            /')
+                    public_key_pem: |
+          $(printf '%s' "$OCM_SIGNING_CERT" | sed 's/^/            /')
+          EOF
+          ./ocm sign component-version --signature helm-charts.platform-mesh \
             "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
-          rm -f /tmp/ocm-signing.priv
-          rm -f /tmp/ocm-signing.cert
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
