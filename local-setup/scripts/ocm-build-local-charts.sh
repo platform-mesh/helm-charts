@@ -258,25 +258,26 @@ add_chart_to_ctf() {
 }
 
 # Transfer OCM transport archive to local OCI registry
+# All per-component transfers write to independent OCI paths, so they run in parallel.
 transfer_to_local_oci() {
-    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry...${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry (parallel)...${COL_RES}"
     local target="oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh"
 
     _transfer_if_present() {
         local ref="$1"
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        kubectl exec -i ocm-transfer-pod -- \
             ocm get component-version "ctf::.ocm/transport.ctf//$ref" >/dev/null 2>&1 || return 0
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        kubectl exec -i ocm-transfer-pod -- \
             ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$target" \
             || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
     }
 
-    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
-        local comp="${pair%%:*}"
+    _transfer_component() {
+        local comp="$1"
         local meta_file="$PRERELEASE_DIR/$comp.meta"
-        [ -f "$meta_file" ] || continue
+        [ -f "$meta_file" ] || return 0
         source "$meta_file"
-        [ "$SKIP" = "true" ] && continue
+        [ "$SKIP" = "true" ] && return 0
 
         # Transfer the service component, helm-charts sub-component, and images sub-component.
         # Images sub-components may be versioned with APP_VERSION (container semver) or VERSION
@@ -287,7 +288,24 @@ transfer_to_local_oci() {
         if [ -n "$APP_VERSION" ] && [ "$APP_VERSION" != "0.0.0" ] && [ "$APP_VERSION" != "$VERSION" ]; then
             _transfer_if_present "github.com/platform-mesh/images/$comp:$APP_VERSION"
         fi
+    }
+
+    local _oci_pids=()
+    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+        local comp="${pair%%:*}"
+        _transfer_component "$comp" &
+        _oci_pids+=($!)
     done
+
+    local _oci_failed=0
+    for _pid in "${_oci_pids[@]}"; do
+        wait "$_pid" || _oci_failed=$((_oci_failed + 1))
+    done
+    if ((_oci_failed > 0)); then
+        echo -e "${RED}[$(date '+%H:%M:%S')] $_oci_failed component transfer(s) to local OCI failed${COL_RES}" >&2
+        return 1
+    fi
+    echo -e "${COL}[$(date '+%H:%M:%S')] All components transferred to local OCI registry${COL_RES}"
 }
 
 # Build all local charts using two-phase parallel approach
