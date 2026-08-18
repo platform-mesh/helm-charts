@@ -160,7 +160,7 @@ jobs:
           EOF
           ./ocm sign component-version \
             --signature "helm-charts.platform-mesh" \
-            "ctf::.ocm/transport.ctf"
+            "ctf::.ocm/transport.ctf//${{ inputs.componentName }}:${{ env.VERSION }}"
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
