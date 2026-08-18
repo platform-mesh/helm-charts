@@ -515,7 +515,7 @@ jobs:
             # etcd-druid v0.36.4 contains SPDX resources backed by a multi-manifest OCI index that
             # OCM v2 cannot re-pack (no top-level parent manifest). Generate a transfer spec, strip
             # the invalid nodes, and replay — the SPDX resources are omitted from the copy.
-            ./ocm transfer component-version --copy-resources --recursive --dry-run -o yaml \
+            ./ocm transfer component-version --copy-resources --recursive --upload-as ociArtifact --dry-run -o yaml \
               "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
               "$ocm_target" > /tmp/etcd-druid-transfer-spec.yaml
             python3 - << 'PYEOF'
