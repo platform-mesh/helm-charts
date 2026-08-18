@@ -143,15 +143,24 @@ jobs:
 
       - name: Sign OCM component
         run: |
-          printf '%s' "$OCM_SIGNING_PRIVATE_KEY" > /tmp/ocm-signing.priv
-          printf '%s' "$OCM_SIGNING_CERT" > /tmp/ocm-signing.cert
+          cat >> $HOME/.ocmconfig << EOF
+            - type: credentials.config.ocm.software
+              consumers:
+              - identity:
+                  type: RSA/v1alpha1
+                  algorithm: RSASSA-PSS
+                  signature: helm-charts.platform-mesh
+                credentials:
+                - type: Credentials/v1
+                  properties:
+                    private_key_pem: |
+          $(printf '%s' "$OCM_SIGNING_PRIVATE_KEY" | sed 's/^/            /')
+                    public_key_pem: |
+          $(printf '%s' "$OCM_SIGNING_CERT" | sed 's/^/            /')
+          EOF
           ./ocm sign component-version \
             --signature "helm-charts.platform-mesh" \
-            --private-key /tmp/ocm-signing.priv \
-            --public-key /tmp/ocm-signing.cert \
-            --ca-cert .ocm/signature/ca.cert \
             "ctf::.ocm/transport.ctf"
-          rm -f /tmp/ocm-signing.priv /tmp/ocm-signing.cert .ocm/signature/ca.cert
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
