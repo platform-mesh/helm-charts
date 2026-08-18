@@ -503,17 +503,16 @@ jobs:
             echo "needs_update=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Copy external component references to local CTF
+      - name: Copy external component references to ghcr.io
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ocm_ctf=ctf::.ocm/transport.ctf
-          mkdir -p "$(dirname "$ocm_ctf")"
+          ocm_target=ghcr.io/platform-mesh
           # etcd-druid v0.36.4 contains SPDX resources backed by a multi-manifest OCI index that
           # OCM v2 cannot re-pack (no top-level parent manifest). Generate a transfer spec, strip
-          # the invalid nodes, and replay — the SPDX resources are omitted from the CTF copy.
+          # the invalid nodes, and replay — the SPDX resources are omitted from the copy.
           ./ocm transfer component-version --copy-resources --recursive --dry-run -o yaml \
             "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
-            "$ocm_ctf" > /tmp/etcd-druid-transfer-spec.yaml
+            "$ocm_target" > /tmp/etcd-druid-transfer-spec.yaml
           python3 - << 'PYEOF'
           import yaml, sys
           with open('/tmp/etcd-druid-transfer-spec.yaml') as f:
@@ -540,13 +539,7 @@ jobs:
       - name: create OCM ComponentArchive
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ocm_ctf=ctf::.ocm/transport.ctf
-          ./ocm add component-versions --repository "$ocm_ctf" --constructor .ocm/component-constructor-aggregate.yaml
-
-      - name: Transfer to OCM REPO
-        if: steps.version_check.outputs.needs_update == 'true'
-        run: |
-          ./ocm transfer component-version "ctf::.ocm/transport.ctf" "ghcr.io/platform-mesh"
+          ./ocm add component-versions --repository "ghcr.io/platform-mesh" --constructor .ocm/component-constructor-aggregate.yaml
 
       - name: Sign OCM Component
         if: steps.version_check.outputs.needs_update == 'true'
