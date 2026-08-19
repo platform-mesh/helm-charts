@@ -139,7 +139,7 @@ jobs:
                     type: OCIRegistry
                     scheme: https
                     hostname: ghcr.io
-                    pathprefix: platform-mesh
+                    path: platform-mesh
                   credentials:
                     - type: Credentials
                       properties:
