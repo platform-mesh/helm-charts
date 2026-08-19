@@ -484,6 +484,13 @@ tasks:
       - task: local-setup
         vars: {FLAGS: "--concurrent --example-data"}
 
+  local-setup:concurrent:example-data:no-cert-manager:
+    cmds:
+      - task: local-setup
+        vars: {FLAGS: "--concurrent --example-data"}
+    env:
+      SKIP_CERT_MANAGER: "true"
+
   local-setup:concurrent:example-data:iterate:
     cmds:
       - task: local-setup:iterate

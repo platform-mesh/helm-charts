@@ -731,7 +731,7 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace kro-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/kro-provider --server="${KCP_URL}/clusters/root:providers:kro-provider"
 
-  if [ "$REMOTE" = false ]; then
+  if [ "$REMOTE" = false ] && [ "${SKIP_CERT_MANAGER:-false}" != "true" ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Setting up cert-manager provider workspace ${COL_RES}"
     KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace cert-manager-provider \
       --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
