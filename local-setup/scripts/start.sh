@@ -731,13 +731,16 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace kro-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/kro-provider --server="${KCP_URL}/clusters/root:providers:kro-provider"
 
-  if [ "$REMOTE" = false ]; then
+  if [ "$REMOTE" = false ] && [ "${SKIP_CERT_MANAGER:-false}" != "true" ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Setting up cert-manager provider workspace ${COL_RES}"
     KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace cert-manager-provider \
       --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
     KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply \
       -k $SCRIPT_DIR/../example-data/root/providers/cert-manager-provider \
       --server="${KCP_URL}/clusters/root:providers:cert-manager-provider"
+
+    kubectl patch platformmesh platform-mesh -n platform-mesh-system --type=json -p \
+      '[{"op":"add","path":"/spec/kcp/extraDefaultAPIBindings/-","value":{"workspaceTypePath":"root:account","export":"certmanager.ca","path":"root:providers:cert-manager-provider"}}]'
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Cloning contrib-examples (fresh) ${COL_RES}"
     CONTRIB_DIR="$(pwd)/.secret/contrib-examples"
@@ -826,10 +829,12 @@ VALEOF
       --for=condition=Ready helmreleases \
       --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
 
-    echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for cert-manager syncagent ${COL_RES}"
-    BACKING_KC="$(pwd)/.secret/contrib-examples/msp-cert-manager/.kube/kind.kubeconfig"
-    kubectl --kubeconfig "$BACKING_KC" rollout status \
-      deploy/kcp-api-syncagent -n kcp-system --timeout=$KUBECTL_WAIT_TIMEOUT
+    if [ "${SKIP_CERT_MANAGER:-false}" != "true" ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for cert-manager syncagent ${COL_RES}"
+      BACKING_KC="$(pwd)/.secret/contrib-examples/msp-cert-manager/.kube/kind.kubeconfig"
+      kubectl --kubeconfig "$BACKING_KC" rollout status \
+        deploy/kcp-api-syncagent -n kcp-system --timeout=$KUBECTL_WAIT_TIMEOUT
+    fi
   fi
 fi
 
