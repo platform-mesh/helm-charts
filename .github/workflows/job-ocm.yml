@@ -103,6 +103,8 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Write Credentials file
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           OCM_REGISTRY_URL="${{ inputs.ocmRegistryUrl }}"
           OCM_HOSTNAME="${OCM_REGISTRY_URL%%/*}"
@@ -121,7 +123,7 @@ jobs:
                     - type: Credentials
                       properties:
                         username: github
-                        password: ${{ secrets.GITHUB_TOKEN }}
+                        password: ${APP_TOKEN}
           EOF
       - name: create OCM ComponentArchive
         run: |
