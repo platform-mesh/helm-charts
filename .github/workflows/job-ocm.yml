@@ -116,7 +116,7 @@ jobs:
                     type: OCIRegistry
                     scheme: https
                     hostname: ${OCM_HOSTNAME}
-                    pathprefix: ${OCM_PATHPREFIX}
+                    path: ${OCM_PATHPREFIX}
                   credentials:
                     - type: Credentials
                       properties:
