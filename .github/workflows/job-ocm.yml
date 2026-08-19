@@ -166,7 +166,7 @@ jobs:
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
 
       - name: Transfer to OCM REPO
-        run: ./ocm transfer component-version "ctf::.ocm/transport.ctf" "${{ inputs.ocmRegistryUrl }}"
+        run: ./ocm transfer component-version "ctf::.ocm/transport.ctf//${{ inputs.componentName }}:${{ env.VERSION }}" "${{ inputs.ocmRegistryUrl }}"
 
       - name: Cut helm-charts/ from componentName
         id: componentName
