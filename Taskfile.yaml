@@ -426,6 +426,7 @@ tasks:
     vars:
       SHARDED: '{{.SHARDED}}'
       FLAGS: '{{.FLAGS}}'
+      SKIP_CERT_MANAGER: '{{.SKIP_CERT_MANAGER | default "false"}}'
     cmds:
       - |
         if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
@@ -436,7 +437,7 @@ tasks:
           read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
           kind delete cluster --name platform-mesh-infra
         fi
-        ./local-setup/scripts/start.sh {{.SHARDED}} {{.FLAGS}}
+        SKIP_CERT_MANAGER={{.SKIP_CERT_MANAGER}} ./local-setup/scripts/start.sh {{.SHARDED}} {{.FLAGS}}
 
   local-setup:base:iterate:
     internal: true
@@ -451,7 +452,7 @@ tasks:
   local-setup:
     cmds:
       - task: local-setup:base
-        vars: { SHARDED: "--sharded", FLAGS: "{{.FLAGS}}" }
+        vars: { SHARDED: "--sharded", FLAGS: "{{.FLAGS}}", SKIP_CERT_MANAGER: "{{.SKIP_CERT_MANAGER}}" }
 
   local-setup:iterate:
     cmds:
@@ -487,9 +488,7 @@ tasks:
   local-setup:concurrent:example-data:no-cert-manager:
     cmds:
       - task: local-setup
-        vars: {FLAGS: "--concurrent --example-data"}
-    env:
-      SKIP_CERT_MANAGER: "true"
+        vars: {FLAGS: "--concurrent --example-data", SKIP_CERT_MANAGER: "true"}
 
   local-setup:concurrent:example-data:iterate:
     cmds:

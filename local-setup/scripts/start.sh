@@ -739,6 +739,9 @@ if [ "$EXAMPLE_DATA" = true ]; then
       -k $SCRIPT_DIR/../example-data/root/providers/cert-manager-provider \
       --server="${KCP_URL}/clusters/root:providers:cert-manager-provider"
 
+    kubectl patch platformmesh platform-mesh -n platform-mesh-system --type=json -p \
+      '[{"op":"add","path":"/spec/kcp/extraDefaultAPIBindings/-","value":{"workspaceTypePath":"root:account","export":"certmanager.ca","path":"root:providers:cert-manager-provider"}}]'
+
     echo -e "${COL}[$(date '+%H:%M:%S')] Cloning contrib-examples (fresh) ${COL_RES}"
     CONTRIB_DIR="$(pwd)/.secret/contrib-examples"
     rm -rf "$CONTRIB_DIR"
