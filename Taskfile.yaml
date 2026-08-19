@@ -446,8 +446,9 @@ tasks:
     vars:
       SHARDED: '{{.SHARDED}}'
       FLAGS: '{{.FLAGS}}'
+      SKIP_CERT_MANAGER: '{{.SKIP_CERT_MANAGER | default "false"}}'
     cmds:
-      - ./local-setup/scripts/start.sh --iterate {{.SHARDED}} {{.FLAGS}}
+      - SKIP_CERT_MANAGER={{.SKIP_CERT_MANAGER}} ./local-setup/scripts/start.sh --iterate {{.SHARDED}} {{.FLAGS}}
 
   local-setup:
     cmds:
@@ -457,7 +458,7 @@ tasks:
   local-setup:iterate:
     cmds:
       - task: local-setup:base:iterate
-        vars: { SHARDED: "--sharded", FLAGS: "{{.FLAGS}}" }
+        vars: { SHARDED: "--sharded", FLAGS: "{{.FLAGS}}", SKIP_CERT_MANAGER: "{{.SKIP_CERT_MANAGER}}" }
   # Convenience aliases with common flag combinations
 
   local-setup:example-data:
@@ -485,15 +486,20 @@ tasks:
       - task: local-setup
         vars: {FLAGS: "--concurrent --example-data"}
 
+  local-setup:concurrent:example-data:iterate:
+    cmds:
+      - task: local-setup:iterate
+        vars: {FLAGS: "--concurrent --example-data"}
+
   local-setup:concurrent:example-data:no-cert-manager:
     cmds:
       - task: local-setup
         vars: {FLAGS: "--concurrent --example-data", SKIP_CERT_MANAGER: "true"}
 
-  local-setup:concurrent:example-data:iterate:
+  local-setup:concurrent:example-data:no-cert-manager:iterate:
     cmds:
       - task: local-setup:iterate
-        vars: {FLAGS: "--concurrent --example-data"}
+        vars: {FLAGS: "--concurrent --example-data", SKIP_CERT_MANAGER: "true"}
 
   local-setup:remote:fluxcd:
     cmds:
