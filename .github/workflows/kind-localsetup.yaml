@@ -40,7 +40,6 @@ jobs:
               hack/ocm \
               .github/workflows/kind-localsetup.yaml \
               .github/workflows/nightly-local-setup.yaml \
-              .github/workflows/ocm-aggregator.yaml \
               ':(exclude)**/*.md' \
               ':(exclude)**/README.md.gotmpl'
           then
