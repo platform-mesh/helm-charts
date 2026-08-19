@@ -829,10 +829,12 @@ VALEOF
       --for=condition=Ready helmreleases \
       --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
 
-    echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for cert-manager syncagent ${COL_RES}"
-    BACKING_KC="$(pwd)/.secret/contrib-examples/msp-cert-manager/.kube/kind.kubeconfig"
-    kubectl --kubeconfig "$BACKING_KC" rollout status \
-      deploy/kcp-api-syncagent -n kcp-system --timeout=$KUBECTL_WAIT_TIMEOUT
+    if [ "${SKIP_CERT_MANAGER:-false}" != "true" ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for cert-manager syncagent ${COL_RES}"
+      BACKING_KC="$(pwd)/.secret/contrib-examples/msp-cert-manager/.kube/kind.kubeconfig"
+      kubectl --kubeconfig "$BACKING_KC" rollout status \
+        deploy/kcp-api-syncagent -n kcp-system --timeout=$KUBECTL_WAIT_TIMEOUT
+    fi
   fi
 fi
 
