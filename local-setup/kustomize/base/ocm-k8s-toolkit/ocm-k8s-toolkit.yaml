@@ -20,6 +20,12 @@ spec:
   interval: 5m
   timeout: 15m
   targetNamespace: ocm-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: 3
   chartRef:
     kind: OCIRepository
     name: ocm-k8s-toolkit

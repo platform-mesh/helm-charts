@@ -8,6 +8,12 @@ spec:
   targetNamespace: platform-mesh-system
   interval: 1m
   timeout: 5m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: 3
   chartRef:
     kind: OCIRepository
     name: platform-mesh-operator

@@ -28,6 +28,12 @@ spec:
   releaseName: kro
   interval: 1m
   timeout: 15m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: 3
   targetNamespace: kro-system
   chartRef:
     kind: OCIRepository

@@ -19,6 +19,12 @@ spec:
   releaseName: example-httpbin-provider
   targetNamespace: example-httpbin-provider
   timeout: 15m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: 3
   values:
     operator:
       args:
@@ -50,6 +56,12 @@ spec:
   releaseName: api-syncagent
   targetNamespace: example-httpbin-provider
   timeout: 15m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: 3
   values:
     apiExportEndpointSliceName: orchestrate.platform-mesh.io
     agentName: kcp-api-syncagent
