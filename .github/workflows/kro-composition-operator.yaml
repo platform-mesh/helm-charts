@@ -1,4 +1,5 @@
 name: Build kro-composition-operator Workflow
+# Trigger: initial OCM component publish for kro-composition-operator 
 on:
   push:
     branches:

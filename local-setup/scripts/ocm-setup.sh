@@ -10,7 +10,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Configuration
-OCM_VERSION="${OCM_VERSION:-0.33.0}"
+# renovate: datasource=github-releases depName=open-component-model/open-component-model
+OCM_VERSION="${OCM_VERSION:-0.13.0}"
 LOCAL_BIN="${LOCAL_BIN:-$PROJECT_ROOT/bin}"
 
 # Color output (respect NO_COLOR env var)
@@ -55,26 +56,27 @@ setup_ocm_cli() {
     # Create bin directory if needed
     mkdir -p "$LOCAL_BIN"
 
-    # Check if OCM is already installed
+    # Check if OCM is already installed at the correct version
     if [ -s "$LOCAL_BIN/ocm" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] OCM CLI already installed at $LOCAL_BIN/ocm${COL_RES}"
-        return 0
+        local installed_version
+        installed_version=$("$LOCAL_BIN/ocm" version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo "unknown")
+        if [ "$installed_version" = "$OCM_VERSION" ]; then
+            echo -e "${COL}[$(date '+%H:%M:%S')] OCM CLI v${OCM_VERSION} already installed at $LOCAL_BIN/ocm${COL_RES}"
+            return 0
+        fi
+        echo -e "${COL}[$(date '+%H:%M:%S')] OCM CLI version mismatch (have ${installed_version}, want ${OCM_VERSION}), re-downloading...${COL_RES}"
     fi
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Downloading OCM CLI v${OCM_VERSION} for ${platform}...${COL_RES}"
 
-    local download_url="https://github.com/open-component-model/ocm/releases/download/v${OCM_VERSION}/ocm-${OCM_VERSION}-${platform}.tar.gz"
-    local tmp_file="$LOCAL_BIN/ocm.tar.gz"
+    local download_url="https://github.com/open-component-model/open-component-model/releases/download/v${OCM_VERSION}/ocm-${platform}"
 
-    # Download OCM
-    if ! curl -o "$tmp_file" -sSL "$download_url"; then
+    # Download OCM binary directly (v2 ships raw binaries, not tarballs)
+    if ! curl -o "$LOCAL_BIN/ocm" -sSL "$download_url"; then
         echo -e "${RED}Failed to download OCM CLI from $download_url${COL_RES}" >&2
         exit 1
     fi
 
-    # Extract and cleanup
-    tar -xzf "$tmp_file" -C "$LOCAL_BIN"
-    rm -f "$tmp_file"
     chmod +x "$LOCAL_BIN/ocm"
     chmod 755 "$LOCAL_BIN/ocm"
 

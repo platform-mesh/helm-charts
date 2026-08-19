@@ -28,6 +28,23 @@
         "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(?:\\s+versioning=(?<versioning>\\S+))?\\s*\\n\\s*\\S+:\\s*\"?(?<currentValue>[^\"\\s]+)\"?"
       ],
       "versioningTemplate": "{{#if versioning}}{{versioning}}{{else}}semver{{/if}}"
+    },
+    {
+      "customType": "regex",
+      "description": "OCM CLI version in CI workflows and local-setup script",
+      "managerFilePatterns": [
+        "/(^|/)\\.github/workflows/job-ocm\\.yml$/",
+        "/(^|/)\\.github/workflows/pipeline-chart\\.yml$/",
+        "/(^|/)\\.github/workflows/ocm-service-component\\.yaml$/",
+        "/(^|/)\\.github/workflows/ocm-create-patch\\.yaml$/",
+        "/(^|/)\\.github/workflows/ocm-create-draft-release\\.yaml$/",
+        "/(^|/)local-setup/scripts/ocm-setup\\.sh$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*version=\"v?(?<currentValue>[^\"]+)\"",
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*OCM_VERSION=\"\\$\\{OCM_VERSION:-(?<currentValue>[^}]+)\\}\""
+      ],
+      "versioningTemplate": "semver"
     }
   ],
   "packageRules": [

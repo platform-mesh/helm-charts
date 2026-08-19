@@ -78,17 +78,11 @@ jobs:
           echo "Chart version: $VERSION"
       - name: setup OCM CLI
         run: |
-          REPO=${repo:=open-component-model/ocm}
-          if [ -z "$version" -o "$version" == latest ]; then
-            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
-            echo "Selecting latest version: $version"
-          fi
-          VERSION=${version#v}
-          ARCHIVE_FILE="ocm-${VERSION}-linux-amd64.tar.gz"
-          URL="https://github.com/$REPO/releases/download/v${VERSION}/$ARCHIVE_FILE"
+          REPO="open-component-model/open-component-model"
+          # renovate: datasource=github-releases depName=open-component-model/open-component-model
+          version="v0.13.0"
           echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm-cli.tgz "$URL"
-          tar --overwrite -xvzf ocm-cli.tgz >/dev/null
+          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
           chmod a+x ocm
       - name: Write OCM credentials
         # Authenticate the lookup so ghcr.io returns a clean "not found" for a
@@ -137,10 +131,12 @@ jobs:
           # and we must not overwrite it. Any other error (auth, network,
           # registry) must abort the pipeline rather than fall through to
           # release; only a definitive "not found" is a pass.
+          # Note: ghcr.io returns "403 denied: requested access" (not 404) for
+          # packages that have never been published, even with a valid token.
+          # A 401 would indicate a broken token; 403 means the package is new.
           set +e
           out=$(./ocm get cv \
-            "${COMPONENT_NAME}:${VERSION}" \
-            --repo ghcr.io/platform-mesh 2>&1)
+            "ghcr.io/platform-mesh//${COMPONENT_NAME}:${VERSION}" 2>&1)
           rc=$?
           set -e
 
@@ -150,7 +146,7 @@ jobs:
             exit 1
           fi
 
-          if ! grep -qiE 'not found|does not exist|no such|component version .* not found' <<<"$out"; then
+          if ! grep -qiE 'not found|does not exist|no such|component version .* not found|denied: requested access' <<<"$out"; then
             echo "$out"
             echo "::error::OCM lookup for ${COMPONENT_NAME}:${VERSION} failed (rc=${rc}). Refusing to proceed without a definitive answer; see output above."
             exit 1
