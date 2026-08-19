@@ -19,6 +19,12 @@ spec:
   releaseName: kro-composition-operator
   targetNamespace: kro-composition-operator
   timeout: 15m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: 3
   values:
     # The kro.run provider connection (adminAuth) writes this kubeconfig secret.
     kubeconfigSecret: kro-provider-kubeconfig
