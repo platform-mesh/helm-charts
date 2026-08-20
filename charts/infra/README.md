@@ -6,10 +6,10 @@ A Helm chart for Kubernetes
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| cnpg.cluster.image.digest | string | `""` | PostgreSQL image digest (when set, overrides tag) |
+| cnpg.cluster.image.digest | string | `""` | PostgreSQL image digest (required at deploy time; set by OCM image resolver) |
 | cnpg.cluster.image.registry | string | `"ghcr.io"` | PostgreSQL image registry |
 | cnpg.cluster.image.repository | string | `"cloudnative-pg/postgresql"` | PostgreSQL image repository (without registry) |
-| cnpg.cluster.image.tag | string | `"17.5"` | PostgreSQL image tag |
+| cnpg.cluster.image.tag | string | `"18.3"` | PostgreSQL image tag (informational only; actual image is pinned via digest set by OCM) |
 | cnpg.cluster.instances | int | `2` |  |
 | cnpg.cluster.name | string | `"platform-mesh-pg"` |  |
 | cnpg.cluster.postgresql.maxConnections | string | `"200"` |  |

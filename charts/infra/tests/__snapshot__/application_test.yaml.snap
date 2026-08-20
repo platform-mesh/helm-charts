@@ -94,6 +94,7 @@ Gateway API enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-cache
       namespace: platform-mesh-system
@@ -138,6 +139,7 @@ Gateway API enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -210,6 +212,7 @@ Gateway API enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -254,6 +257,7 @@ Gateway API enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -339,6 +343,7 @@ Gateway API enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-nereus
       namespace: platform-mesh-system
@@ -383,6 +388,7 @@ Gateway API enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -466,6 +472,7 @@ Gateway API enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-triton
       namespace: platform-mesh-system
@@ -510,6 +517,7 @@ Gateway API enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -749,6 +757,7 @@ Istio disabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-cache
       namespace: platform-mesh-system
@@ -793,6 +802,7 @@ Istio disabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -865,6 +875,7 @@ Istio disabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -909,6 +920,7 @@ Istio disabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -994,6 +1006,7 @@ Istio disabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-nereus
       namespace: platform-mesh-system
@@ -1038,6 +1051,7 @@ Istio disabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -1121,6 +1135,7 @@ Istio disabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-triton
       namespace: platform-mesh-system
@@ -1165,6 +1180,7 @@ Istio disabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -1404,6 +1420,7 @@ Istio enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-cache
       namespace: platform-mesh-system
@@ -1448,6 +1465,7 @@ Istio enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -1520,6 +1538,7 @@ Istio enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -1564,6 +1583,7 @@ Istio enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -1649,6 +1669,7 @@ Istio enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-nereus
       namespace: platform-mesh-system
@@ -1693,6 +1714,7 @@ Istio enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -1776,6 +1798,7 @@ Istio enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-triton
       namespace: platform-mesh-system
@@ -1820,6 +1843,7 @@ Istio enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -1971,6 +1995,7 @@ configure etcd backup store:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -2022,6 +2047,7 @@ configure etcd backup store:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -2153,6 +2179,7 @@ configure rootshard resources:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -2197,6 +2224,7 @@ configure rootshard resources:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -2378,6 +2406,7 @@ match snapshots:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-cache
       namespace: platform-mesh-system
@@ -2422,6 +2451,7 @@ match snapshots:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -2498,6 +2528,7 @@ match snapshots:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -2542,6 +2573,7 @@ match snapshots:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -2631,6 +2663,7 @@ match snapshots:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-nereus
       namespace: platform-mesh-system
@@ -2675,6 +2708,7 @@ match snapshots:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -2762,6 +2796,7 @@ match snapshots:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-triton
       namespace: platform-mesh-system
@@ -2806,6 +2841,7 @@ match snapshots:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -3049,6 +3085,7 @@ match snapshots w. hostAliases enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-cache
       namespace: platform-mesh-system
@@ -3093,6 +3130,7 @@ match snapshots w. hostAliases enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -3176,6 +3214,7 @@ match snapshots w. hostAliases enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -3220,6 +3259,7 @@ match snapshots w. hostAliases enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -3325,6 +3365,7 @@ match snapshots w. hostAliases enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-nereus
       namespace: platform-mesh-system
@@ -3369,6 +3410,7 @@ match snapshots w. hostAliases enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -3472,6 +3514,7 @@ match snapshots w. hostAliases enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-triton
       namespace: platform-mesh-system
@@ -3516,6 +3559,7 @@ match snapshots w. hostAliases enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -3775,6 +3819,7 @@ match snapshots w. kcp version:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-cache
       namespace: platform-mesh-system
@@ -3819,6 +3864,7 @@ match snapshots w. kcp version:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -3895,6 +3941,7 @@ match snapshots w. kcp version:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -3939,6 +3986,7 @@ match snapshots w. kcp version:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -4028,6 +4076,7 @@ match snapshots w. kcp version:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-nereus
       namespace: platform-mesh-system
@@ -4072,6 +4121,7 @@ match snapshots w. kcp version:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -4159,6 +4209,7 @@ match snapshots w. kcp version:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-triton
       namespace: platform-mesh-system
@@ -4203,6 +4254,7 @@ match snapshots w. kcp version:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -4446,6 +4498,7 @@ match snapshots with mailpit enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-cache
       namespace: platform-mesh-system
@@ -4490,6 +4543,7 @@ match snapshots with mailpit enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -4562,6 +4616,7 @@ match snapshots with mailpit enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp
       namespace: platform-mesh-system
@@ -4606,6 +4661,7 @@ match snapshots with mailpit enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -4691,6 +4747,7 @@ match snapshots with mailpit enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-nereus
       namespace: platform-mesh-system
@@ -4735,6 +4792,7 @@ match snapshots with mailpit enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -4818,6 +4876,7 @@ match snapshots with mailpit enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-triton
       namespace: platform-mesh-system
@@ -4862,6 +4921,7 @@ match snapshots with mailpit enabled:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:
@@ -5013,6 +5073,7 @@ render additional shard with explicit hostname:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       name: etcd-kcp-shard-1
       namespace: platform-mesh-system
@@ -5057,6 +5118,7 @@ render additional shard with explicit hostname:
       labels:
         app: etcd-statefulset
         gardener.cloud/role: controlplane
+        platform-mesh.io/kcp-shard: "true"
         role: kcp
       replicas: 1
       sharedConfig:

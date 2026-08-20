@@ -501,18 +501,30 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--concurrent --example-data", SKIP_CERT_MANAGER: "true"}
 
-  # POC tasks: sharded setup with PG 18.3 overlay for CNPG digest-pinning testing
-  local-setup:poc:
-    desc: Run sharded local setup with PG 18.3 POC overlay
+  # backup-restore POC tasks: sharded + PG 18.3 overlay variants of common setups
+  local-setup:concurrent:backup_restore_poc:
+    desc: Run concurrent sharded local setup with backup/restore POC overlay (no example data)
     cmds:
       - task: local-setup:base
-        vars: { SHARDED: "--sharded", FLAGS: "--poc" }
+        vars: { SHARDED: "--sharded", FLAGS: "--concurrent --poc" }
 
-  local-setup:poc:iterate:
-    desc: Iterate sharded local setup with PG 18.3 POC overlay (skip infra)
+  local-setup:concurrent:backup_restore_poc:iterate:
+    desc: Iterate concurrent sharded local setup with backup/restore POC overlay (no example data, skip infra)
     cmds:
       - task: local-setup:base:iterate
-        vars: { SHARDED: "--sharded", FLAGS: "--poc" }
+        vars: { SHARDED: "--sharded", FLAGS: "--concurrent --poc" }
+
+  local-setup:concurrent:example-data:no-cert-manager:backup_restore_poc:
+    desc: Run concurrent sharded local setup with backup/restore POC overlay, example data, no cert-manager
+    cmds:
+      - task: local-setup:base
+        vars: { SHARDED: "--sharded", FLAGS: "--concurrent --example-data --poc", SKIP_CERT_MANAGER: "true" }
+
+  local-setup:concurrent:example-data:no-cert-manager:backup_restore_poc:iterate:
+    desc: Iterate concurrent sharded local setup with backup/restore POC overlay, example data, no cert-manager (skip infra)
+    cmds:
+      - task: local-setup:base:iterate
+        vars: { SHARDED: "--sharded", FLAGS: "--concurrent --example-data --poc", SKIP_CERT_MANAGER: "true" }
 
   local-setup:remote:fluxcd:
     cmds:

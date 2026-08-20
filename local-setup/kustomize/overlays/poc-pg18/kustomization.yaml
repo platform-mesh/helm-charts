@@ -2,6 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 # POC overlay: sharded setup for CNPG operator v1.29.0 digest-pinning testing.
-# Applied on top of the standard sharded setup via: task local-setup:poc
+# Use via:
+#   task local-setup:concurrent:backup_restore_poc
+#   task local-setup:concurrent:example-data:no-cert-manager:backup_restore_poc
 resources:
   - ../platform-mesh-resource-sharded
