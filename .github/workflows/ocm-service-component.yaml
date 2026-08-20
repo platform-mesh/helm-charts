@@ -107,7 +107,11 @@ jobs:
 
       - name: Create OCM ComponentArchive
         run: |
-          if [ "${{ inputs.appVersion }}" = "0.0.0" ]; then
+          # Only fall back to the chart-only constructor when the default
+          # constructor is in use and the component has no app image
+          # (APP_VERSION=0.0.0). A custom constructor (e.g. infra) carries its
+          # own image resources and must be used as-is even with appVersion 0.0.0.
+          if [ "${{ inputs.componentConstructorFile }}" = ".ocm/component-constructor-service-component.yaml" ] && [ "${{ inputs.appVersion }}" = "0.0.0" ]; then
             constructor_file=".ocm/component-constructor-service-component-chart-only.yaml"
           else
             constructor_file="${{ inputs.componentConstructorFile }}"
