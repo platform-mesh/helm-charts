@@ -94,16 +94,6 @@ jobs:
                       properties:
                         username: github
                         password: ${{ secrets.GITHUB_TOKEN }}
-                - identity:
-                    type: OCIRegistry
-                    scheme: https
-                    hostname: ghcr.io
-                    path: platform-mesh/platform-mesh
-                  credentials:
-                    - type: Credentials
-                      properties:
-                        username: github
-                        password: ${{ secrets.GITHUB_TOKEN }}
           EOF
 
       - name: Determine image component name
