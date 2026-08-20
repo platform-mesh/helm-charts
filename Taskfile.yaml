@@ -501,6 +501,19 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--concurrent --example-data", SKIP_CERT_MANAGER: "true"}
 
+  # POC tasks: sharded setup with PG 18.3 overlay for CNPG digest-pinning testing
+  local-setup:poc:
+    desc: Run sharded local setup with PG 18.3 POC overlay
+    cmds:
+      - task: local-setup:base
+        vars: { SHARDED: "--sharded", FLAGS: "--poc" }
+
+  local-setup:poc:iterate:
+    desc: Iterate sharded local setup with PG 18.3 POC overlay (skip infra)
+    cmds:
+      - task: local-setup:base:iterate
+        vars: { SHARDED: "--sharded", FLAGS: "--poc" }
+
   local-setup:remote:fluxcd:
     cmds:
       - task: local-setup

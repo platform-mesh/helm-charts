@@ -31,6 +31,7 @@ SHARDED=false
 REMOTE=false
 DEPLOYMENT_TECH="fluxcd"
 ITERATE=false
+POC=false
 
 # PLATFORM_MESH_VERSION selects the OCM aggregate to deploy.
 #   unset      builds the aggregate from the working tree
@@ -41,7 +42,7 @@ if [ -z "$PLATFORM_MESH_VERSION" ]; then
 fi
 
 usage() {
-  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--help]"
+  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--poc] [--help]"
 
   echo ""
   echo "Options:"
@@ -52,6 +53,7 @@ usage() {
   echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
   echo "  --deployment-tech  Choose deployment technology: fluxcd or argocd (only with --remote). Default: fluxcd"
   echo "  --iterate          Skip infrastructure setup; rebuild and reapply the OCM component only (requires PLATFORM_MESH_VERSION unset)"
+  echo "  --poc              Apply POC overlay (PG 18.3 + sharded) for CNPG digest-pinning testing"
   echo "  --help             Show this help message"
   echo ""
   echo "Environment variables:"
@@ -66,6 +68,7 @@ while [ $# -gt 0 ]; do
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
     --remote) REMOTE=true ;;
+    --poc) POC=true ;;
     --deployment-tech=*)
       DEPLOYMENT_TECH="${1#*=}"
       if [ "$DEPLOYMENT_TECH" != "fluxcd" ] && [ "$DEPLOYMENT_TECH" != "argocd" ]; then
@@ -598,6 +601,9 @@ else
   if [ -f "$SCRIPT_DIR/platform-mesh-resource-hook.sh" ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Running platform-mesh-resource hook ${COL_RES}"
     source "$SCRIPT_DIR/platform-mesh-resource-hook.sh"
+  elif [ "$POC" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (POC: sharded + PG 18.3) ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/poc-pg18
   elif [ "$PRERELEASE" = true ]; then
     if [ "$SHARDED" = true ]; then
       echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
