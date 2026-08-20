@@ -179,7 +179,7 @@ install_fluxcd() {
 
   echo -e "${COL}[$(date '+%H:%M:%S')] Installing FluxCD ${COL_RES}"
   HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig "$kubeconfig" -i -n "$namespace" --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
-    --version 2.17.2 \
+    --version 2.19.0 \
     --set imageAutomationController.create=false \
     --set imageReflectionController.create=false \
     --set notificationController.create=false \
