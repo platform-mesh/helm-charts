@@ -545,7 +545,7 @@ jobs:
       - name: create OCM ComponentArchive
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ./ocm add component-versions --repository "ghcr.io/platform-mesh" --constructor .ocm/component-constructor-aggregate.yaml
+          ./ocm add component-versions --component-version-conflict-policy skip --repository "ghcr.io/platform-mesh" --constructor .ocm/component-constructor-aggregate.yaml
 
       - name: Sign OCM Component
         if: steps.version_check.outputs.needs_update == 'true'
