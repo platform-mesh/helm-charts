@@ -107,22 +107,18 @@ jobs:
 
       - name: Create OCM ComponentArchive
         run: |
-          ocm_ctf=ctf::transport.ctf
           if [ "${{ inputs.appVersion }}" = "0.0.0" ]; then
             constructor_file=".ocm/component-constructor-service-component-chart-only.yaml"
           else
             constructor_file="${{ inputs.componentConstructorFile }}"
           fi
-          ./ocm add component-versions --repository "$ocm_ctf" --constructor "$constructor_file"
+          ./ocm add component-versions --repository "ghcr.io/platform-mesh" --constructor "$constructor_file"
         env:
           COMPONENT_NAME: ${{ inputs.componentName }}
           VERSION: ${{ inputs.chartVersion }}
           CHART_NAME: ${{ inputs.chartName }}
           IMAGE_COMPONENT_NAME: ${{ env.IMAGE_COMPONENT_NAME }}
           APP_VERSION: ${{ inputs.appVersion }}
-
-      - name: Transfer to OCM registry
-        run: ./ocm transfer component-version "ctf::transport.ctf" "ghcr.io/platform-mesh"
 
       - name: Sign OCM Component
         run: |
