@@ -269,6 +269,31 @@ jobs:
 
           echo "================================"
 
+      - name: Verify target version does not exist
+        if: inputs.dry_run == false
+        run: |
+          TARGET_VERSION="${{ inputs.target_version }}"
+
+          set +e
+          out=$(ocm get component-version \
+            "ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${TARGET_VERSION}" 2>&1)
+          rc=$?
+          set -e
+
+          if [ "$rc" -eq 0 ]; then
+            echo "$out"
+            echo "::error::OCM component github.com/platform-mesh/platform-mesh:${TARGET_VERSION} already exists at ghcr.io/platform-mesh. Refusing to overwrite."
+            exit 1
+          fi
+
+          if ! grep -qiE 'not found|does not exist|no such|component version .* not found|denied: requested access' <<<"$out"; then
+            echo "$out"
+            echo "::error::OCM lookup for github.com/platform-mesh/platform-mesh:${TARGET_VERSION} failed (rc=${rc}). Refusing to proceed without a definitive answer; see output above."
+            exit 1
+          fi
+
+          echo "OK: github.com/platform-mesh/platform-mesh:${TARGET_VERSION} is new, proceeding with transfer."
+
       - name: Transfer to OCM repository
         if: inputs.dry_run == false
         run: |
@@ -279,7 +304,7 @@ jobs:
           echo "Version: $TARGET_VERSION"
           echo ""
 
-          ocm transfer component-version "ctf::.ocm/transport.ctf" "ghcr.io/platform-mesh"
+          ocm transfer component-version "ctf::.ocm/transport.ctf//github.com/platform-mesh/platform-mesh:$TARGET_VERSION" "ghcr.io/platform-mesh"
 
           echo ""
           echo "✓ Successfully published OCM component"
