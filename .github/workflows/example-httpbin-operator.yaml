@@ -9,12 +9,70 @@ on:
       - '.ocm/component-constructor-chart-only.yaml'
       - '.ocm/component-constructor-example-httpbin-operator.yaml'
       - '.ocm/component-constructor-service-example-httpbin-operator.yaml'
+      - '.ocm/component-constructor-api-syncagent.yaml'
 
 permissions:
   contents: read
 
 jobs:
+  publish-api-syncagent:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      API_SYNCAGENT_COMPONENT_VERSION: "1.0.0"
+      API_SYNCAGENT_CHART_VERSION: "0.6.1"
+      API_SYNCAGENT_IMAGE_VERSION: "v0.7.0"
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup OCM CLI
+        run: |
+          REPO="open-component-model/open-component-model"
+          # renovate: datasource=github-releases depName=open-component-model/open-component-model
+          version="v0.13.0"
+          echo "Installing ocm-cli version $version from $REPO"
+          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
+          chmod a+x ocm
+
+      - name: Write OCM credentials
+        run: |
+          cat <<EOF > $HOME/.ocmconfig
+          type: generic.config.ocm.software/v1
+          configurations:
+            - type: credentials.config.ocm.software
+              consumers:
+                - identity:
+                    type: OCIRegistry
+                    scheme: https
+                    hostname: ghcr.io
+                    path: platform-mesh
+                  credentials:
+                    - type: Credentials
+                      properties:
+                        username: github
+                        password: ${{ secrets.GITHUB_TOKEN }}
+          EOF
+
+      - name: Publish api-syncagent component
+        run: |
+          set +e
+          ./ocm get cv "ghcr.io/platform-mesh//github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}" > /dev/null 2>&1
+          rc=$?
+          set -e
+          if [ "$rc" -eq 0 ]; then
+            echo "api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION} already present at ghcr.io/platform-mesh, skipping."
+          else
+            echo "Publishing github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}"
+            ./ocm add component-versions \
+              --repository "ghcr.io/platform-mesh" \
+              --constructor .ocm/component-constructor-api-syncagent.yaml
+          fi
+
   pipeline:
+    needs: [publish-api-syncagent]
     concurrency:
       group: example-httpbin-operator-${{ github.ref }}
       cancel-in-progress: true
