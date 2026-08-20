@@ -369,27 +369,44 @@ build_final_component() {
 
     # Transfer all inline third-party components (traefik, cert-manager, kcp, etc.) to the local OCI registry.
     # These are built as part of the prerelease constructor and must be resolvable by the OCM toolkit.
-    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring inline third-party components to local OCI registry...${COL_RES}"
+    # Transfers are independent paths in the OCI registry, so run them in parallel.
+    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring inline third-party components to local OCI registry (parallel)...${COL_RES}"
     local _transfer_third_party
     _transfer_third_party() {
         local ref="$1"
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        kubectl exec -i ocm-transfer-pod -- \
             ocm get component-version "ctf::.ocm/transport.ctf//$ref" >/dev/null 2>&1 || return 0
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        kubectl exec -i ocm-transfer-pod -- \
             ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$LOCAL_REGISTRY/platform-mesh" \
             || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
     }
-    _transfer_third_party "github.com/traefik/traefik:${PM_TRAEFIK_VERSION}"
-    _transfer_third_party "github.com/cert-manager/cert-manager:${PM_CERT_MANAGER_VERSION}"
-    _transfer_third_party "github.com/openfga/openfga:${PM_OPENFGA_VERSION}"
-    _transfer_third_party "github.com/kcp-dev/kcp-operator:${PM_KCP_OPERATOR_VERSION}"
-    _transfer_third_party "github.com/kcp-dev/kcp:${PM_KCP_VERSION}"
-    _transfer_third_party "github.com/kcp-dev/init-agent:${PM_INIT_AGENT_VERSION}"
-    _transfer_third_party "github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}"
-    _transfer_third_party "github.com/cloudnative-pg/cloudnative-pg:${PM_CNPG_OPERATOR_VERSION}"
-    _transfer_third_party "github.com/prometheus-community/prometheus-operator-crds:${PM_PROMETHEUS_OPERATOR_CRDS_VERSION}"
-    _transfer_third_party "github.com/prometheus-community/kube-prometheus-stack:${PM_KUBE_PROMETHEUS_STACK_VERSION}"
-    _transfer_third_party "github.com/open-telemetry/opentelemetry-operator:${PM_OPENTELEMETRY_OPERATOR_VERSION}"
+    local _tp_pids=()
+    local _tp_refs=()
+    _tp_refs=(
+        "github.com/traefik/traefik:${PM_TRAEFIK_VERSION}"
+        "github.com/cert-manager/cert-manager:${PM_CERT_MANAGER_VERSION}"
+        "github.com/openfga/openfga:${PM_OPENFGA_VERSION}"
+        "github.com/kcp-dev/kcp-operator:${PM_KCP_OPERATOR_VERSION}"
+        "github.com/kcp-dev/kcp:${PM_KCP_VERSION}"
+        "github.com/kcp-dev/init-agent:${PM_INIT_AGENT_VERSION}"
+        "github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}"
+        "github.com/cloudnative-pg/cloudnative-pg:${PM_CNPG_OPERATOR_VERSION}"
+        "github.com/prometheus-community/prometheus-operator-crds:${PM_PROMETHEUS_OPERATOR_CRDS_VERSION}"
+        "github.com/prometheus-community/kube-prometheus-stack:${PM_KUBE_PROMETHEUS_STACK_VERSION}"
+        "github.com/open-telemetry/opentelemetry-operator:${PM_OPENTELEMETRY_OPERATOR_VERSION}"
+    )
+    for _ref in "${_tp_refs[@]}"; do
+        _transfer_third_party "$_ref" &
+        _tp_pids+=($!)
+    done
+    local _tp_failed=0
+    for _pid in "${_tp_pids[@]}"; do
+        wait "$_pid" || _tp_failed=$((_tp_failed + 1))
+    done
+    if ((_tp_failed > 0)); then
+        echo -e "${RED}[$(date '+%H:%M:%S')] $_tp_failed third-party transfer(s) failed${COL_RES}" >&2
+        return 1
+    fi
     echo -e "${COL}[$(date '+%H:%M:%S')] Prerelease component transferred successfully${COL_RES}"
 }
 
