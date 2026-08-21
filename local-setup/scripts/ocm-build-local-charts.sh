@@ -50,15 +50,12 @@ else
     COL_RES=''
 fi
 
-# Get kubectl exec flags based on current TTY availability
+# Get kubectl exec flags; should not provide -t because users might have wrapper
+# scripts for managed kubectl's or am trying to redirect the output of this script
+# to a file.
 # Must be called at point of use, not script init, because background jobs lose TTY
-# -t allocates a pseudo-TTY, -i keeps stdin open
 get_kubectl_exec_flags() {
-    if [ -t 0 ]; then
-        echo "-ti"
-    else
-        echo "-i"
-    fi
+    echo "-i"
 }
 
 # Swap OCI common chart reference to local file reference (only for 'common' dependency)
