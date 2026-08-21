@@ -3,14 +3,12 @@
 # Prerelease setup functions for local development with locally built OCM components
 # This script is sourced by start.sh when using the --prerelease flag
 
-# Get kubectl exec flags based on current TTY availability
-# -t allocates a pseudo-TTY, -i keeps stdin open
+# Get kubectl exec flags; should not provide -t because users might have wrapper
+# scripts for managed kubectl's or am trying to redirect the output of this script
+# to a file.
+# Must be called at point of use, not script init, because background jobs lose TTY
 get_kubectl_exec_flags() {
-  if [ -t 0 ]; then
-    echo "-ti"
-  else
     echo "-i"
-  fi
 }
 
 # Deploy OCI registry for prerelease workflow
