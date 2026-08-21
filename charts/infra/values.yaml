@@ -378,9 +378,9 @@ cnpg:
       registry: ghcr.io
       # -- PostgreSQL image repository (without registry)
       repository: cloudnative-pg/postgresql
-      # -- PostgreSQL image tag
-      tag: "17.5"
-      # -- PostgreSQL image digest (when set, overrides tag)
+      # -- PostgreSQL image tag (informational only; actual image is pinned via digest set by OCM)
+      tag: "18.3"
+      # -- PostgreSQL image digest (required at deploy time; set by OCM image resolver)
       digest: ""
     instances: 2
     storage:

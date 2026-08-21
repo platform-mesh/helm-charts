@@ -33,6 +33,7 @@ metadata:
     app: etcd-statefulset
     gardener.cloud/role: controlplane
     role: kcp
+    platform-mesh.io/kcp-shard: "true"
 spec:
   annotations:
     app: etcd-statefulset
@@ -42,6 +43,7 @@ spec:
     app: etcd-statefulset
     gardener.cloud/role: controlplane
     role: kcp
+    platform-mesh.io/kcp-shard: "true"
   etcd:
     metrics: basic
     {{- if .etcd.image.repository }}

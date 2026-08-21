@@ -54,10 +54,10 @@ components:
       - name: postgres-image
         type: ociImage
         relation: external
-        version: "17.5"
+        version: "18.3"
         access:
           type: ociArtifact
-          imageReference: "ghcr.io/cloudnative-pg/postgresql:17.5"
+          imageReference: "ghcr.io/cloudnative-pg/postgresql:18.3"
       - name: dex-image
         type: ociImage
         relation: external
