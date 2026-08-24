@@ -37,6 +37,9 @@ spec:
             {{- if .Values.leaderElect }}
             - --leader-elect
             {{- end }}
+            {{- with .Values.featureGates }}
+            - --feature-gates={{ . }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /healthz

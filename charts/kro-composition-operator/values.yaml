@@ -24,9 +24,10 @@ kcp:
   apiExportEndpointSlice: "kro.run"
 
 # -- Enable leader election
-# Leader election targets the kcp provider workspace (the manager's config) for its
-# lease; left off for single-replica local runs. Revisit for multi-replica HA.
-leaderElect: false
+leaderElect: true
+
+# -- kro feature gates, as a comma-separated key=value list. All default to off.
+featureGates: ""
 
 # hostAliases maps the kcp shard hostnames (from the APIExport VW URLs) to the
 # in-cluster gateway IP so the operator can reach the virtual workspaces. Required

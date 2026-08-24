@@ -7,6 +7,7 @@ A Helm chart to deploy the platform-mesh kro composition operator (KROaaS)
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| featureGates | string | `""` | kro feature gates, as a comma-separated key=value list. All default to off. |
 | hostAliases.enabled | bool | `false` |  |
 | hostAliases.values | list | `[]` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
@@ -17,7 +18,7 @@ A Helm chart to deploy the platform-mesh kro composition operator (KROaaS)
 | kcp.apiExportEndpointSlice | string | `"kro.run"` | APIExportEndpointSlice serving the kro.run RGD API |
 | kcp.providerWorkspace | string | `"root:providers:kro-provider"` | Workspace path holding the kro.run APIExport + endpointslice |
 | kubeconfigSecret | string | `"kcp-kubeconfig"` | Name of the Secret holding the operator's kcp kubeconfig (from the provider    connection). Mounted at /kubeconfig/kubeconfig and passed via --kubeconfig. |
-| leaderElect | bool | `false` | Enable leader election Leader election targets the kcp provider workspace (the manager's config) for its lease; left off for single-replica local runs. Revisit for multi-replica HA. |
+| leaderElect | bool | `true` | Enable leader election |
 | replicas | int | `1` | Number of operator replicas |
 | resources.limits.memory | string | `"256Mi"` |  |
 | resources.requests.cpu | string | `"50m"` |  |
