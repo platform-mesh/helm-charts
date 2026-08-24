@@ -24,6 +24,7 @@ match snapshot:
                 - --provider-workspace=root:providers:kro-provider
                 - --apiexport-endpointslice=kro.run
                 - --health-probe-bind-address=:8081
+                - --leader-elect
               image: ghcr.io/platform-mesh/platform-mesh/kro-composition-operator:1.0.0
               imagePullPolicy: IfNotPresent
               livenessProbe:
