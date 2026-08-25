@@ -31,6 +31,7 @@ SHARDED=false
 REMOTE=false
 DEPLOYMENT_TECH="fluxcd"
 ITERATE=false
+CERT_MANAGER_MSP=false
 
 # PLATFORM_MESH_VERSION selects the OCM aggregate to deploy.
 #   unset      builds the aggregate from the working tree
@@ -41,7 +42,7 @@ if [ -z "$PLATFORM_MESH_VERSION" ]; then
 fi
 
 usage() {
-  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--help]"
+  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--cert-manager-msp] [--help]"
 
   echo ""
   echo "Options:"
@@ -52,6 +53,7 @@ usage() {
   echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
   echo "  --deployment-tech  Choose deployment technology: fluxcd or argocd (only with --remote). Default: fluxcd"
   echo "  --iterate          Skip infrastructure setup; rebuild and reapply the OCM component only (requires PLATFORM_MESH_VERSION unset)"
+  echo "  --cert-manager-msp Set up the cert-manager MSP provider and backing cluster (only with --example-data, non-remote). Slow; off by default"
   echo "  --help             Show this help message"
   echo ""
   echo "Environment variables:"
@@ -74,6 +76,7 @@ while [ $# -gt 0 ]; do
       fi
       ;;
     --iterate) ITERATE=true ;;
+    --cert-manager-msp) CERT_MANAGER_MSP=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -731,7 +734,7 @@ if [ "$EXAMPLE_DATA" = true ]; then
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace kro-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
   KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/kro-provider --server="${KCP_URL}/clusters/root:providers:kro-provider"
 
-  if [ "$REMOTE" = false ] && [ "${SKIP_CERT_MANAGER:-false}" != "true" ]; then
+  if [ "$REMOTE" = false ] && [ "$CERT_MANAGER_MSP" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Setting up cert-manager provider workspace ${COL_RES}"
     KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace cert-manager-provider \
       --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
@@ -829,7 +832,7 @@ VALEOF
       --for=condition=Ready helmreleases \
       --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
 
-    if [ "${SKIP_CERT_MANAGER:-false}" != "true" ]; then
+    if [ "$CERT_MANAGER_MSP" = true ]; then
       echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for cert-manager syncagent ${COL_RES}"
       BACKING_KC="$(pwd)/.secret/contrib-examples/msp-cert-manager/.kube/kind.kubeconfig"
       kubectl --kubeconfig "$BACKING_KC" rollout status \
