@@ -117,50 +117,72 @@ get_external_component_version() {
     "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get component-version --latest "$repo//$component" -o json | jq -r '.[0].component.version'
 }
 
-# poor mans persistence for heavy deps.
-# Built for CI speedup, adjusted for our own good.
-transfer_from_cache() {
-    # etcd-druid
+transfer_etcd_druid() {
     local name="$1"
-    # europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid
     local ref="$2"
-    # vA.B.C
     local ver="$3"
 
-    local cache_dir="$OCM_DIR/cache/$name"
     local cluster_oci="$LOCAL_REGISTRY/platform-mesh"
 
-    local cached_tag=""
-    if [ -f "$cache_dir/artifact-index.json" ]; then
-        cached_tag=$(jq -r '.artifacts[0].tag // ""' "$cache_dir/artifact-index.json" 2>/dev/null || echo "")
+    # OCM v2 bug: when a component has multiple resources with the same name+version but different
+    # extraIdentity (e.g. etcd-druid has helmChart, helmchart-imagemap, and OCI image), the generated
+    # transfer spec's GetLocalResource node for the OCI image omits extraIdentity in its query and
+    # matches all 3 — causing "found N candidates" regardless of source type.
+    # Workaround: generate a dry-run transfer spec locally (where upstream is reachable), strip the
+    # helmChart, helmchart-imagemap, and SPDX nodes, copy to pod, and replay the filtered spec.
+    # The pod fetches resources directly from upstream (europe-docker.pkg.dev) via GetOCIArtifact nodes.
+    # We do NOT pre-transfer from the local CTF cache to OCI first — that would cause OCM to emit
+    # CTFGetLocalResource nodes (which carry the same bug) instead of GetOCIArtifact nodes.
+    echo -e "${COL}[$(date '+%H:%M:%S')] $name: building filtered transfer spec...${COL_RES}"
+    local spec_raw="/tmp/ocm-transfer-spec-${name}-raw.yaml"
+    local spec_filtered="/tmp/ocm-transfer-spec-${name}-filtered.yaml"
+    # Use a placeholder target for spec generation to avoid network calls to the cluster OCI
+    # registry (not reachable locally). The actual target baseUrl is replaced after filtering.
+    local spec_target_placeholder="spec-placeholder.local/platform-mesh"
+    local cluster_oci_host="${cluster_oci%%/*}"
+
+    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer component-version \
+        --recursive --copy-resources --upload-as ociArtifact --dry-run -o yaml \
+        "$ref:$ver" "$spec_target_placeholder" > "$spec_raw" 2>/tmp/ocm-dryrun-${name}.log || true
+
+    if [ -s "$spec_raw" ] && grep -q "transformations:" "$spec_raw"; then
+        python3 - "$spec_raw" "$spec_filtered" "spec-placeholder.local" "$cluster_oci_host" << 'PYEOF'
+import yaml, sys
+with open(sys.argv[1]) as f:
+    content = f.read()
+# Replace placeholder hostname with actual cluster OCI registry hostname
+content = content.replace(sys.argv[3], sys.argv[4])
+spec = yaml.safe_load(content)
+nodes = spec.get('transformations', [])
+# Strip helmchart-imagemap nodes: they use the buggy GetLocalResource path with no extraIdentity.
+# Also strip SPDX nodes: they back a multi-manifest OCI index that OCM v2 cannot re-pack.
+# HelmChart nodes are kept — with --upload-as ociArtifact they become TransferOCIArtifact
+# (direct OCI-to-OCI copy from europe-docker.pkg.dev/charts/...) and don't hit the bug.
+strip_ids = {n['id'] for n in nodes if
+    'HelmchartImagemap' in n['id'] or 'Spdx' in n['id']}
+def strip_refs(obj):
+    if isinstance(obj, list):
+        return [strip_refs(i) for i in obj if not (isinstance(i, str) and any(s in i for s in strip_ids))]
+    elif isinstance(obj, dict):
+        return {k: strip_refs(v) for k, v in obj.items()}
+    return obj
+filtered = [strip_refs(n) for n in nodes if n['id'] not in strip_ids]
+for n in filtered:
+    if 'dependsOn' in n:
+        n['dependsOn'] = [d for d in n['dependsOn'] if d not in strip_ids]
+spec['transformations'] = filtered
+with open(sys.argv[2], 'w') as f:
+    yaml.dump(spec, f, default_flow_style=False)
+print(f"Stripped {len(strip_ids)} nodes, {len(filtered)} remaining", file=sys.stderr)
+PYEOF
+        kubectl cp "$spec_filtered" -n default "ocm-transfer-pod:.ocm/transfer-spec-${name}.yaml"
+        kubectl exec -i ocm-transfer-pod -- \
+            ocm transfer component-version --transfer-spec ".ocm/transfer-spec-${name}.yaml"
+    else
+        echo -e "${RED}[$(date '+%H:%M:%S')] $name: dry-run spec generation failed (see /tmp/ocm-dryrun-${name}.log), attempting direct transfer${COL_RES}"
+        kubectl exec -i ocm-transfer-pod -- ocm transfer component-version --recursive \
+            "$ref:$ver" "$cluster_oci"
     fi
-
-    if [ "$cached_tag" != "$ver" ]; then
-        echo -e "${COL}[$(date '+%H:%M:%S')] $name: cache miss (have '${cached_tag:-none}', want $ver), transferring${COL_RES}"
-        rm -rf "$cache_dir"
-        mkdir -p "$(dirname "$cache_dir")"
-        "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer component-version \
-            "$ref:$ver" "$cache_dir"
-    fi
-
-    local pod_path=".ocm/cache-$name"
-    kubectl exec -i ocm-transfer-pod -- rm -rf "$pod_path"
-    kubectl exec -i ocm-transfer-pod -- mkdir -p "$pod_path"
-    kubectl cp "$cache_dir" -n default "ocm-transfer-pod:$pod_path/"
-    local component_name
-    component_name=$(jq -r '.artifacts[0].repository // ""' "$cache_dir/artifact-index.json" 2>/dev/null | sed 's|^component-descriptors/||')
-    kubectl exec -i ocm-transfer-pod -- ocm transfer component-version \
-        "ctf::$pod_path/$(basename "$cache_dir")//$component_name:$ver" "$cluster_oci"
-
-    # OCM v2 graph discovery requires all componentReferences and their transitive deps to be
-    # present in the target CTF before 'add component-versions' runs. Transfer the full tree
-    # (--recursive) from upstream into both the CTF (for discovery) and the local OCI registry
-    # (for the OCM toolkit to follow componentReference chains at runtime).
-    echo -e "${COL}[$(date '+%H:%M:%S')] $name: pre-populating CTF and local OCI with recursive transfer...${COL_RES}"
-    kubectl exec -i ocm-transfer-pod -- ocm transfer component-version --recursive \
-        "$ref:$ver" "ctf::.ocm/transport.ctf"
-    kubectl exec -i ocm-transfer-pod -- ocm transfer component-version --recursive \
-        "$ref:$ver" "$cluster_oci"
 }
 
 # Resolve all component versions
@@ -228,23 +250,23 @@ resolve_component_versions() {
     export PM_KUBE_PROMETHEUS_STACK_VERSION="0.0.1"
     export PM_OPENTELEMETRY_OPERATOR_VERSION="0.0.2"
 
-    transfer_from_cache etcd-druid \
+    transfer_etcd_druid etcd-druid \
         europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid \
         "$GARDENER_ETCD_DRUID_VERSION"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Finished resolving component versions${COL_RES}"
 }
 
-# Pre-populate the CTF with external components that must be present before any
+# Pre-populate the local OCI registry with external components that must be present before any
 # 'ocm add component-versions' runs (both build_local_charts Phase 2 and build_final_component).
-# OCM v2 performs graph discovery against the CTF before constructing — any componentReference
-# pointing at a missing component causes an immediate failure.
+# OCM v2 performs graph discovery against the target repository before constructing — any
+# componentReference pointing at a missing component causes an immediate failure.
 prefill_ctf() {
-    echo -e "${COL}[$(date '+%H:%M:%S')] Pre-filling CTF with external components...${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Pre-filling local OCI registry with external components...${COL_RES}"
 
     # api-syncagent: referenced by the component-specific constructor for example-httpbin-operator
     # (used in build_local_charts Phase 2) but only built inline during build_final_component().
-    # Build it standalone into the CTF here so Phase 2 can resolve it.
+    # Build it standalone into the OCI registry here so Phase 2 can resolve it.
     kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- bash -c "cat > .ocm/component-constructor-api-syncagent.yaml << 'EOCTOR'
 components:
   - name: github.com/platform-mesh/api-syncagent
@@ -274,11 +296,11 @@ EOCTOR"
         API_SYNCAGENT_IMAGE_VERSION="$API_SYNCAGENT_IMAGE_VERSION" \
         ocm add component-versions \
         --component-version-conflict-policy replace \
-        --repository "ctf::.ocm/transport.ctf" \
+        --repository "oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh" \
         --constructor .ocm/component-constructor-api-syncagent.yaml
-    echo -e "${COL}[$(date '+%H:%M:%S')] api-syncagent pre-built into CTF${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] api-syncagent pre-built into local OCI registry${COL_RES}"
 
-    echo -e "${COL}[$(date '+%H:%M:%S')] CTF pre-fill complete${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Local OCI registry pre-fill complete${COL_RES}"
 }
 
 # Build the final prerelease component
@@ -352,43 +374,11 @@ build_final_component() {
         PM_OPENTELEMETRY_OPERATOR_VERSION="$PM_OPENTELEMETRY_OPERATOR_VERSION" \
         ocm add component-versions \
         --component-version-conflict-policy replace \
-        --repository "ctf::.ocm/transport.ctf" \
+        --repository "oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh" \
         --constructor .ocm/component-constructor-prerelease.yaml
 
     echo ""
     echo -e "${COL}[$(date '+%H:%M:%S')] Built prerelease component version $COMPONENT_PRERELEASE_VERSION (local overrides: $CUSTOM_LOCAL_COMPONENTS)${COL_RES}"
-
-    # Transfer the prerelease component to the local OCI registry
-    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring prerelease component to local OCI registry...${COL_RES}"
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
-        ocm transfer component-version \
-        "ctf::.ocm/transport.ctf//github.com/platform-mesh/prerelease:$COMPONENT_PRERELEASE_VERSION" \
-        "$LOCAL_REGISTRY/platform-mesh"
-
-    # Transfer all inline third-party components (traefik, cert-manager, kcp, etc.) to the local OCI registry.
-    # These are built as part of the prerelease constructor and must be resolvable by the OCM toolkit.
-    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring inline third-party components to local OCI registry...${COL_RES}"
-    local _transfer_third_party
-    _transfer_third_party() {
-        local ref="$1"
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
-            ocm get component-version "ctf::.ocm/transport.ctf//$ref" >/dev/null 2>&1 || return 0
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
-            ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$LOCAL_REGISTRY/platform-mesh" \
-            || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
-    }
-    _transfer_third_party "github.com/traefik/traefik:${PM_TRAEFIK_VERSION}"
-    _transfer_third_party "github.com/cert-manager/cert-manager:${PM_CERT_MANAGER_VERSION}"
-    _transfer_third_party "github.com/openfga/openfga:${PM_OPENFGA_VERSION}"
-    _transfer_third_party "github.com/kcp-dev/kcp-operator:${PM_KCP_OPERATOR_VERSION}"
-    _transfer_third_party "github.com/kcp-dev/kcp:${PM_KCP_VERSION}"
-    _transfer_third_party "github.com/kcp-dev/init-agent:${PM_INIT_AGENT_VERSION}"
-    _transfer_third_party "github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}"
-    _transfer_third_party "github.com/cloudnative-pg/cloudnative-pg:${PM_CNPG_OPERATOR_VERSION}"
-    _transfer_third_party "github.com/prometheus-community/prometheus-operator-crds:${PM_PROMETHEUS_OPERATOR_CRDS_VERSION}"
-    _transfer_third_party "github.com/prometheus-community/kube-prometheus-stack:${PM_KUBE_PROMETHEUS_STACK_VERSION}"
-    _transfer_third_party "github.com/open-telemetry/opentelemetry-operator:${PM_OPENTELEMETRY_OPERATOR_VERSION}"
-    echo -e "${COL}[$(date '+%H:%M:%S')] Prerelease component transferred successfully${COL_RES}"
 }
 
 # Main build function
@@ -413,11 +403,11 @@ build_component() {
     export API_SYNCAGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_IMAGE_VERSION' "$agg")
     export API_SYNCAGENT_COMPONENT_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_COMPONENT_VERSION' "$agg")
 
-    # Pre-populate CTF with externals that component-specific constructors reference
-    # (ingress-nginx). Must happen before build_local_charts Phase 2.
+    # Pre-populate local OCI registry with externals that component-specific constructors reference.
+    # Must happen before build_local_charts Phase 2.
     prefill_ctf
 
-    # Build local charts (this also sets up the transport archive)
+    # Build local charts (writes directly to local OCI registry)
     build_local_charts
 
     # Resolve component versions
@@ -425,9 +415,6 @@ build_component() {
 
     # Build final component
     build_final_component
-
-    # Transfer to local OCI registry
-    transfer_to_local_oci
 
     echo -e "${COL}[$(date '+%H:%M:%S')] OCM component build completed successfully${COL_RES}"
 }

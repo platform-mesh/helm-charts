@@ -180,7 +180,7 @@ EOF
     echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 1] Done preparing: $comp${COL_RES}"
 }
 
-# Phase 2: Add chart to OCM CTF (must run sequentially)
+# Phase 2: Add chart directly to local OCI registry (must run sequentially)
 # Reads metadata from temp file written by phase 1
 add_chart_to_ctf() {
     local comp="$1"
@@ -208,7 +208,7 @@ add_chart_to_ctf() {
     #    but only if it has no 'input:' blocks — constructors with input blocks reference local files that only
     #    exist in CI/CD (e.g. component-constructor-platform-mesh-operator.yaml embeds a local rgd blob).
     #    Also skip component-specific constructors that reference external components not pre-populated
-    #    in the local CTF: v2 resolves componentReferences during graph discovery and fails if they're absent.
+    #    in the local OCI registry: v2 resolves componentReferences during graph discovery and fails if they're absent.
     #    Known pre-populated externals (ingress-nginx, kcp-div/*) are allowed through.
     # 2. Chart-only constructor for components without an image
     # 3. Generic constructor as fallback
@@ -249,42 +249,9 @@ add_chart_to_ctf() {
         COMPONENT_SHORT_NAME="$comp" \
         CHART_OCI_PATH="$CHART_OCI_PATH" \
         LOCAL_CHART_PATH="$LOCAL_CHART_PATH" \
-        ocm add component-versions --component-version-conflict-policy replace --repository "ctf::.ocm/transport.ctf" --constructor "$constructor"
+        ocm add component-versions --component-version-conflict-policy replace --repository "oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh" --constructor "$constructor"
 
     echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Done: $COMPONENT_NAME${COL_RES}"
-}
-
-# Transfer OCM transport archive to local OCI registry
-transfer_to_local_oci() {
-    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry...${COL_RES}"
-    local target="oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh"
-
-    _transfer_if_present() {
-        local ref="$1"
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
-            ocm get component-version "ctf::.ocm/transport.ctf//$ref" >/dev/null 2>&1 || return 0
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
-            ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$target" \
-            || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
-    }
-
-    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
-        local comp="${pair%%:*}"
-        local meta_file="$PRERELEASE_DIR/$comp.meta"
-        [ -f "$meta_file" ] || continue
-        source "$meta_file"
-        [ "$SKIP" = "true" ] && continue
-
-        # Transfer the service component, helm-charts sub-component, and images sub-component.
-        # Images sub-components may be versioned with APP_VERSION (container semver) or VERSION
-        # (chart semver, e.g. infra uses chart version for images). Always try both.
-        _transfer_if_present "$COMPONENT_NAME:$VERSION"
-        _transfer_if_present "github.com/platform-mesh/helm-charts/$comp:$VERSION"
-        _transfer_if_present "github.com/platform-mesh/images/$comp:$VERSION"
-        if [ -n "$APP_VERSION" ] && [ "$APP_VERSION" != "0.0.0" ] && [ "$APP_VERSION" != "$VERSION" ]; then
-            _transfer_if_present "github.com/platform-mesh/images/$comp:$APP_VERSION"
-        fi
-    done
 }
 
 # Build all local charts using two-phase parallel approach
@@ -359,16 +326,13 @@ build_local_charts() {
     fi
     echo -e "${COL}[$(date '+%H:%M:%S')] Phase 1 completed successfully${COL_RES}"
 
-    # Phase 2: Add all components to OCM CTF sequentially
-    echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 2: Adding components to OCM CTF (sequential) ===${COL_RES}"
+    # Phase 2: Add all components to local OCI registry sequentially
+    echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 2: Adding components to local OCI registry (sequential) ===${COL_RES}"
     for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
         local comp="${pair%%:*}"
         add_chart_to_ctf "$comp"
     done
     echo -e "${COL}[$(date '+%H:%M:%S')] Phase 2 completed successfully${COL_RES}"
-
-    # Transfer to local OCI registry
-    transfer_to_local_oci
 
     echo -e "${COL}[$(date '+%H:%M:%S')] Completed building custom local charts${COL_RES}"
 }
