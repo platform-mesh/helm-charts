@@ -32,6 +32,7 @@ REMOTE=false
 DEPLOYMENT_TECH="fluxcd"
 ITERATE=false
 CERT_MANAGER_MSP=false
+BACKUP_RESTORE_POC=false
 
 # PLATFORM_MESH_VERSION selects the OCM aggregate to deploy.
 #   unset      builds the aggregate from the working tree
@@ -42,7 +43,7 @@ if [ -z "$PLATFORM_MESH_VERSION" ]; then
 fi
 
 usage() {
-  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--cert-manager-msp] [--help]"
+  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--cert-manager-msp] [--backup-restore-poc] [--help]"
 
   echo ""
   echo "Options:"
@@ -54,6 +55,7 @@ usage() {
   echo "  --deployment-tech  Choose deployment technology: fluxcd or argocd (only with --remote). Default: fluxcd"
   echo "  --iterate          Skip infrastructure setup; rebuild and reapply the OCM component only (requires PLATFORM_MESH_VERSION unset)"
   echo "  --cert-manager-msp Set up the cert-manager MSP provider and backing cluster (only with --example-data, non-remote). Slow; off by default"
+  echo "  --backup-restore-poc Apply backup/restore PoC overlay (sharded + nereus shard) for backup/restore testing"
   echo "  --help             Show this help message"
   echo ""
   echo "Environment variables:"
@@ -77,6 +79,7 @@ while [ $# -gt 0 ]; do
       ;;
     --iterate) ITERATE=true ;;
     --cert-manager-msp) CERT_MANAGER_MSP=true ;;
+    --backup-restore-poc) BACKUP_RESTORE_POC=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
     *) echo "Ignoring positional arg: $1" ;;
@@ -601,6 +604,9 @@ else
   if [ -f "$SCRIPT_DIR/platform-mesh-resource-hook.sh" ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Running platform-mesh-resource hook ${COL_RES}"
     source "$SCRIPT_DIR/platform-mesh-resource-hook.sh"
+  elif [ "$BACKUP_RESTORE_POC" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (backup/restore PoC) ${COL_RES}"
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-backup-restore-poc
   elif [ "$PRERELEASE" = true ]; then
     if [ "$SHARDED" = true ]; then
       echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
@@ -721,7 +727,9 @@ if [ "$EXAMPLE_DATA" = true ]; then
     echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data resources. ${COL_RES}"
   else    # Apply example-data overlay now that PlatformMesh is ready (non-remote only)
     echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data overlay ${COL_RES}"
-    if [ "$SHARDED" = true ]; then
+    if [ "$BACKUP_RESTORE_POC" = true ]; then
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-backup-restore-poc
+    elif [ "$SHARDED" = true ]; then
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
     else
       kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
