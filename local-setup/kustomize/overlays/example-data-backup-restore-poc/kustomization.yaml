@@ -2,7 +2,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - ../example-data-sharded
+  - ../platform-mesh-resource-backup-restore-poc
+  - ../../components/example-httpbin-provider
+  - ../../components/example-kro-provider
 
 patches:
   - target:
@@ -10,10 +12,28 @@ patches:
       name: platform-mesh
       namespace: platform-mesh-system
     patch: |-
-      - op: replace
-        path: /spec/values/services/infra/values/kcp/shards
-        value:
-          - name: triton
-            hostname: triton.kcp.localhost
-          - name: nereus
-            hostname: nereus.kcp.localhost
+      apiVersion: your.api.version
+      kind: PlatformMesh
+      metadata:
+        name: platform-mesh
+        namespace: platform-mesh-system
+      spec:
+        kcp:
+          extraProviderConnections:
+            - path: root:providers:httpbin-provider
+              secret: httpbin-kubeconfig
+              namespace: example-httpbin-provider
+              external: false
+              adminAuth: true
+            - path: root:providers:kro-provider
+              secret: kro-provider-kubeconfig
+              namespace: kro-composition-operator
+              external: false
+              adminAuth: true
+          extraDefaultAPIBindings:
+            - workspaceTypePath: root:account
+              export: orchestrate.platform-mesh.io
+              path: root:providers:httpbin-provider
+            - workspaceTypePath: root:account
+              export: kro.run
+              path: root:providers:kro-provider
