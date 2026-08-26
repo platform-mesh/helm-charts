@@ -28,6 +28,7 @@ has all hostAliases configured:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
+                - --grpc-max-recv-msg-size=4194304
                 - --enable-playground
               env:
                 - name: KUBECONFIG
@@ -116,6 +117,7 @@ has all hostAliases configured:
                 - listener
                 - --schema-handler=grpc
                 - --grpc-listen-addr=:50051
+                - --grpc-max-send-msg-size=4194304
                 - --multicluster-runtime-provider=multi
                 - --kubeconfig=/app/kubeconfig/kubeconfig
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
@@ -225,6 +227,7 @@ matches the Snapshot:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
+                - --grpc-max-recv-msg-size=4194304
                 - --enable-playground
               env:
                 - name: KUBECONFIG
@@ -308,6 +311,7 @@ matches the Snapshot:
                 - listener
                 - --schema-handler=grpc
                 - --grpc-listen-addr=:50051
+                - --grpc-max-send-msg-size=4194304
                 - --multicluster-runtime-provider=multi
                 - --kubeconfig=/app/kubeconfig/kubeconfig
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
@@ -412,6 +416,7 @@ renders default multi-mode with all features enabled:
                 - listener
                 - --schema-handler=grpc
                 - --grpc-listen-addr=:50051
+                - --grpc-max-send-msg-size=4194304
                 - --multicluster-runtime-provider=multi
                 - --kubeconfig=/app/kubeconfig/kubeconfig
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
@@ -512,6 +517,7 @@ renders listener with kcp provider mode:
                 - listener
                 - --schema-handler=grpc
                 - --grpc-listen-addr=:50051
+                - --grpc-max-send-msg-size=4194304
                 - --multicluster-runtime-provider=kcp
                 - --kubeconfig=/app/kubeconfig/kubeconfig
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
@@ -613,6 +619,7 @@ renders listener with multi provider mode and all flags:
                 - listener
                 - --schema-handler=grpc
                 - --grpc-listen-addr=:50051
+                - --grpc-max-send-msg-size=4194304
                 - --multicluster-runtime-provider=multi
                 - --kubeconfig=/app/kubeconfig/kubeconfig
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
@@ -717,6 +724,7 @@ renders listener with single provider mode:
                 - listener
                 - --schema-handler=grpc
                 - --grpc-listen-addr=:50051
+                - --grpc-max-send-msg-size=4194304
                 - --multicluster-runtime-provider=single
                 - --metrics-bind-address=:8091
                 - --enable-resource-controller=true

@@ -96,6 +96,7 @@ spec:
         - --schema-handler={{ .Values.schemaHandler.type }}
         {{- if eq .Values.schemaHandler.type "grpc" }}
         - --grpc-listen-addr=:{{ .Values.listener.grpcPort }}
+        - --grpc-max-send-msg-size={{ int .Values.listener.grpcMaxSendMsgSize }}
         {{- else if eq .Values.schemaHandler.type "file" }}
         - --schemas-dir={{ .Values.schemaHandler.schemasDir }}
         {{- end }}

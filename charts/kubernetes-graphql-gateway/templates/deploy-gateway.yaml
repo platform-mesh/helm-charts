@@ -71,6 +71,7 @@ spec:
         - --schema-handler={{ .Values.schemaHandler.type }}
         {{- if eq .Values.schemaHandler.type "grpc" }}
         - --grpc-listener-address={{ include "common.entity.name" . }}-listener.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.listener.grpcPort }}
+        - --grpc-max-recv-msg-size={{ int .Values.gateway.grpcMaxRecvMsgSize }}
         {{- else if eq .Values.schemaHandler.type "file" }}
         - --schemas-dir={{ .Values.schemaHandler.schemasDir }}
         {{- end }}

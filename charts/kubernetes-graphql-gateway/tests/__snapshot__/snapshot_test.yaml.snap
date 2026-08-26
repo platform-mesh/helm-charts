@@ -28,6 +28,7 @@ match the Snapshot:
                 - gateway
                 - --schema-handler=grpc
                 - --grpc-listener-address=platform-mesh-kubernetes-graphql-gateway-listener.platform-mesh-system.svc.cluster.local:50051
+                - --grpc-max-recv-msg-size=4194304
                 - --enable-playground
               env:
                 - name: KUBECONFIG
@@ -108,6 +109,7 @@ match the Snapshot:
                 - listener
                 - --schema-handler=grpc
                 - --grpc-listen-addr=:50051
+                - --grpc-max-send-msg-size=4194304
                 - --multicluster-runtime-provider=multi
                 - --kubeconfig=/app/kubeconfig/kubeconfig
                 - --apiexport-endpoint-slice-name=core.platform-mesh.io
