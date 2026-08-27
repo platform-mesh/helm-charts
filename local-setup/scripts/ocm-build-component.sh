@@ -124,65 +124,13 @@ transfer_etcd_druid() {
 
     local cluster_oci="$LOCAL_REGISTRY/platform-mesh"
 
-    # OCM v2 bug: when a component has multiple resources with the same name+version but different
-    # extraIdentity (e.g. etcd-druid has helmChart, helmchart-imagemap, and OCI image), the generated
-    # transfer spec's GetLocalResource node for the OCI image omits extraIdentity in its query and
-    # matches all 3 — causing "found N candidates" regardless of source type.
-    # Workaround: generate a dry-run transfer spec locally (where upstream is reachable), strip the
-    # helmChart, helmchart-imagemap, and SPDX nodes, copy to pod, and replay the filtered spec.
-    # The pod fetches resources directly from upstream (europe-docker.pkg.dev) via GetOCIArtifact nodes.
-    # We do NOT pre-transfer from the local CTF cache to OCI first — that would cause OCM to emit
-    # CTFGetLocalResource nodes (which carry the same bug) instead of GetOCIArtifact nodes.
-    echo -e "${COL}[$(date '+%H:%M:%S')] $name: building filtered transfer spec...${COL_RES}"
-    local spec_raw="/tmp/ocm-transfer-spec-${name}-raw.yaml"
-    local spec_filtered="/tmp/ocm-transfer-spec-${name}-filtered.yaml"
-    # Use a placeholder target for spec generation to avoid network calls to the cluster OCI
-    # registry (not reachable locally). The actual target baseUrl is replaced after filtering.
-    local spec_target_placeholder="spec-placeholder.local/platform-mesh"
-    local cluster_oci_host="${cluster_oci%%/*}"
-
-    "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" transfer component-version \
-        --recursive --copy-resources --upload-as ociArtifact --dry-run -o yaml \
-        "$ref:$ver" "$spec_target_placeholder" > "$spec_raw" 2>/tmp/ocm-dryrun-${name}.log || true
-
-    if [ -s "$spec_raw" ] && grep -q "transformations:" "$spec_raw"; then
-        python3 - "$spec_raw" "$spec_filtered" "spec-placeholder.local" "$cluster_oci_host" << 'PYEOF'
-import yaml, sys
-with open(sys.argv[1]) as f:
-    content = f.read()
-# Replace placeholder hostname with actual cluster OCI registry hostname
-content = content.replace(sys.argv[3], sys.argv[4])
-spec = yaml.safe_load(content)
-nodes = spec.get('transformations', [])
-# Strip helmchart-imagemap nodes: they use the buggy GetLocalResource path with no extraIdentity.
-# Also strip SPDX nodes: they back a multi-manifest OCI index that OCM v2 cannot re-pack.
-# HelmChart nodes are kept — with --upload-as ociArtifact they become TransferOCIArtifact
-# (direct OCI-to-OCI copy from europe-docker.pkg.dev/charts/...) and don't hit the bug.
-strip_ids = {n['id'] for n in nodes if
-    'HelmchartImagemap' in n['id'] or 'Spdx' in n['id']}
-def strip_refs(obj):
-    if isinstance(obj, list):
-        return [strip_refs(i) for i in obj if not (isinstance(i, str) and any(s in i for s in strip_ids))]
-    elif isinstance(obj, dict):
-        return {k: strip_refs(v) for k, v in obj.items()}
-    return obj
-filtered = [strip_refs(n) for n in nodes if n['id'] not in strip_ids]
-for n in filtered:
-    if 'dependsOn' in n:
-        n['dependsOn'] = [d for d in n['dependsOn'] if d not in strip_ids]
-spec['transformations'] = filtered
-with open(sys.argv[2], 'w') as f:
-    yaml.dump(spec, f, default_flow_style=False)
-print(f"Stripped {len(strip_ids)} nodes, {len(filtered)} remaining", file=sys.stderr)
-PYEOF
-        kubectl cp "$spec_filtered" -n default "ocm-transfer-pod:.ocm/transfer-spec-${name}.yaml"
-        kubectl exec -i ocm-transfer-pod -- \
-            ocm transfer component-version --transfer-spec ".ocm/transfer-spec-${name}.yaml"
-    else
-        echo -e "${RED}[$(date '+%H:%M:%S')] $name: dry-run spec generation failed (see /tmp/ocm-dryrun-${name}.log), attempting direct transfer${COL_RES}"
-        kubectl exec -i ocm-transfer-pod -- ocm transfer component-version --recursive \
-            "$ref:$ver" "$cluster_oci"
-    fi
+    # Direct OCI-to-OCI transfer. The CTFGetLocalResource bug (identity subset match) only fires
+    # when reading resources from a CTF with local blobs; transferring from upstream OCI never
+    # materialises local blobs and is safe on all OCM versions.
+    # See https://github.com/open-component-model/open-component-model/pull/3480
+    echo -e "${COL}[$(date '+%H:%M:%S')] $name: transferring from upstream OCI...${COL_RES}"
+    kubectl exec -i ocm-transfer-pod -- ocm transfer component-version --recursive \
+        "$ref:$ver" "$cluster_oci"
 }
 
 # Resolve all component versions
