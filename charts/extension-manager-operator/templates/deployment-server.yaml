@@ -51,6 +51,9 @@ spec:
           timeoutSeconds: 1
         args:
           - server
+          {{- if .Values.entityTypeValidation.enabled }}
+          - --entity-type-validation-enabled
+          {{- end }}
         {{- include "common.leaderElectArg" . | indent 10 }}
         {{- include "common.observabilityArgs" . | nindent 10 }}
         {{- include "common.extraArgs" . | nindent 10 }}
@@ -62,7 +65,27 @@ spec:
         {{- end }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
+        {{- if .Values.entityTypeValidation.enabled }}
+        {{- with .Values.kcp.kubeconfig.secret }}
+          - name: KUBECONFIG
+            value: /api-kubeconfig/kubeconfig
+        {{- end }}
+        {{- end }}
       volumeMounts:
         {{- include "common.extraVolumeMounts" . | nindent 8 }}
+        {{- if .Values.entityTypeValidation.enabled }}
+        {{- with .Values.kcp.kubeconfig.secret }}
+          - name: kcp-api-server
+            mountPath: /api-kubeconfig
+            readOnly: true
+        {{- end }}
+        {{- end }}
     volumes:
       {{- include "common.extraVolumes" . | nindent 8 }}
+      {{- if .Values.entityTypeValidation.enabled }}
+      {{- with .Values.kcp.kubeconfig.secret }}
+        - name: kcp-api-server
+          secret:
+            secretName: {{ . }}
+      {{- end }}
+      {{- end }}

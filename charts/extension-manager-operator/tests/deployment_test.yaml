@@ -85,6 +85,19 @@ tests:
       pathPrefix: /custom-validate
     asserts:
       - matchSnapshot: {}
+  - it: entity type validation enabled
+    templates:
+      - deployment.yaml
+      - deployment-server.yaml
+    set:
+      entityTypeValidation:
+        enabled: true
+      kcp:
+        enabled: true
+        kubeconfig:
+          secret: "test-kubeconfig"
+    asserts:
+      - matchSnapshot: {}
   - it: custom certs
     set:
       crds:
