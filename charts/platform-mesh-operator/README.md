@@ -12,7 +12,7 @@ A Helm chart to automate bootstrapping of new environment
 | idp.registrationAllowed | bool | `false` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
-| image.repository | string | `"platform-mesh/platform-mesh-operator"` | The image repository path (without registry) |
+| image.repository | string | `"platform-mesh/platform-mesh/platform-mesh-operator"` | The image repository path (without registry) |
 | istio.enabled | bool | `false` |  |
 | log.level | string | `"debug"` |  |
 | operator.leaderElect | bool | `true` |  |
