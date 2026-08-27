@@ -21,6 +21,7 @@ kubeConfig:
 | extraVolumes | list | `[]` |  |
 | gateway.deployment | object | `{}` | Per-deployment overrides for the gateway Deployment. Any field set here takes precedence over the matching field in the top-level `deployment` block. Unset fields fall back to the top-level defaults. Example:   gateway:     deployment:       replicas: 3 |
 | gateway.extraArgs | list | `[]` |  |
+| gateway.grpcMaxRecvMsgSize | int | `4194304` |  |
 | gateway.healthCheck.enabled | bool | `true` |  |
 | gateway.healthCheck.port | int | `8080` |  |
 | gateway.introspectionAuthentication | bool | `true` |  |
@@ -65,6 +66,7 @@ kubeConfig:
 | listener.enableClusterAccessController | bool | `true` | Enable the ClusterAccess controller. |
 | listener.enableResourceController | bool | `true` | Enable the resource controller for watching the configured anchor resource and generating schemas. |
 | listener.extraArgs | list | `[]` |  |
+| listener.grpcMaxSendMsgSize | int | `4194304` |  |
 | listener.grpcPort | int | `50051` |  |
 | listener.healthCheck.enabled | bool | `false` |  |
 | listener.healthCheck.port | int | `3390` |  |

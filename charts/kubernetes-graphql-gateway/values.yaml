@@ -41,6 +41,10 @@ gateway:
   usernameClaim: email
   extraArgs: []
 
+  # -- Maximum gRPC receive message size in bytes (used with --schema-handler=grpc).
+  # Increase if the gateway logs ResourceExhausted errors receiving schema updates.
+  grpcMaxRecvMsgSize: 4194304  # 4MB default, matches Go default
+
   resources:
     limits:
       memory: 1200Mi
@@ -88,6 +92,9 @@ listener:
   enableClusterAccessController: true
 
   extraArgs: []
+  # -- Maximum gRPC send message size in bytes (used with --schema-handler=grpc).
+  # Must be >= gateway.grpcMaxRecvMsgSize.
+  grpcMaxSendMsgSize: 4194304  # 4MB default, matches Go default
   healthCheck:
     enabled: false
     port: 3390
