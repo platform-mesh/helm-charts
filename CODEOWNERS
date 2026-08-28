@@ -1,6 +1,8 @@
-* @platform-mesh/tsc @platform-mesh/kube @platform-mesh/go-approvers @platform-mesh/frame
-package.json
-package-lock.json
+* @platform-mesh/go-maintainers @platform-mesh/node-maintainers
+
+# ownerless so renovate can auto-merge updates
 charts/**/Chart.yaml
-local-setup/kustomize/components/ocm/component.yaml
 local-setup/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit.yaml
+local-setup/kustomize/components/ocm/component.yaml
+package-lock.json
+package.json
