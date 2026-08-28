@@ -180,8 +180,10 @@ EOF
     echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 1] Done preparing: $comp${COL_RES}"
 }
 
-# Phase 2: Add chart to OCM CTF (must run sequentially)
-# Reads metadata from temp file written by phase 1
+# Phase 2a: Render a component's constructor fragment on the host (no kubectl needed).
+# Reads metadata written by phase 1, runs envsubst on the chosen template, and writes
+# the substituted components: entries (without the top-level key) to a .fragment.yaml
+# file.  All fragments are batched into one ocm call by add_all_charts_to_ctf.
 add_chart_to_ctf() {
     local comp="$1"
     local meta_file="$PRERELEASE_DIR/$comp.meta"
@@ -201,7 +203,7 @@ add_chart_to_ctf() {
         return 0
     fi
 
-    echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Adding component: $COMPONENT_NAME version $VERSION${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Rendering constructor for: $COMPONENT_NAME version $VERSION${COL_RES}"
 
     # Determine which constructor template to use:
     # 1. Component-specific constructor (e.g. component-constructor-example-httpbin-operator.yaml) takes priority,
@@ -212,7 +214,7 @@ add_chart_to_ctf() {
     #    Known pre-populated externals (ingress-nginx, kcp-div/*) are allowed through.
     # 2. Chart-only constructor for components without an image
     # 3. Generic constructor as fallback
-    local constructor
+    local template
     local specific="$OCM_DIR/component-constructor-${comp}.yaml"
     local has_external_refs=false
     if [ -f "$specific" ]; then
@@ -227,53 +229,77 @@ add_chart_to_ctf() {
         fi
     fi
     if [ -f "$specific" ] && ! grep -q '^\s*input:' "$specific" && [ "$has_external_refs" = "false" ]; then
-        constructor=".ocm/component-constructor-${comp}.yaml"
+        template="$specific"
         echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Using component-specific constructor for $comp${COL_RES}"
     elif [ "$APP_VERSION" == "0.0.0" ] || [ -z "$IMAGE_NAME" ]; then
-        constructor=".ocm/component-constructor-chart-only-prerelease.yaml"
+        template="$OCM_DIR/component-constructor-chart-only-prerelease.yaml"
     else
-        constructor=".ocm/component-constructor-local-prerelease.yaml"
+        template="$OCM_DIR/component-constructor-local-prerelease.yaml"
     fi
 
-    # Add component to OCM transport archive
-    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
-        env \
-        VERSION="$VERSION" \
-        APP_VERSION="$APP_VERSION" \
-        IMAGE_NAME="$IMAGE_NAME" \
-        IMAGE_REPO="$COMPONENT_NAME" \
-        COMMIT="$COMMIT" \
-        IMAGE_REPO_SHA="$COMMIT" \
-        CHART_REPO="$COMPONENT_NAME" \
-        COMPONENT_NAME="$COMPONENT_NAME" \
-        COMPONENT_SHORT_NAME="$comp" \
-        CHART_OCI_PATH="$CHART_OCI_PATH" \
-        LOCAL_CHART_PATH="$LOCAL_CHART_PATH" \
-        ocm add component-versions --component-version-conflict-policy replace --repository "ctf::.ocm/transport.ctf" --constructor "$constructor"
+    # Substitute env vars and strip the top-level "components:" key — add_all_charts_to_ctf adds one wrapper.
+    local fragment="$PRERELEASE_DIR/$comp.fragment.yaml"
+    VERSION="$VERSION" \
+    APP_VERSION="$APP_VERSION" \
+    IMAGE_NAME="$IMAGE_NAME" \
+    IMAGE_REPO="$COMPONENT_NAME" \
+    COMMIT="$COMMIT" \
+    IMAGE_REPO_SHA="$COMMIT" \
+    CHART_REPO="$COMPONENT_NAME" \
+    COMPONENT_NAME="$COMPONENT_NAME" \
+    COMPONENT_SHORT_NAME="$comp" \
+    CHART_OCI_PATH="$CHART_OCI_PATH" \
+    LOCAL_CHART_PATH="$LOCAL_CHART_PATH" \
+    envsubst < "$template" | grep -v '^components:$' > "$fragment"
 
-    echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Done: $COMPONENT_NAME${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Fragment written: $comp${COL_RES}"
+}
+
+# Phase 2b: Concatenate all rendered fragments into one constructor file and run a single
+# 'ocm add component-versions' call on the pod instead of one call per component.
+add_all_charts_to_ctf() {
+    local batch_file="$PRERELEASE_DIR/component-constructor-batch.yaml"
+    echo "components:" > "$batch_file"
+    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+        local comp="${pair%%:*}"
+        local fragment="$PRERELEASE_DIR/$comp.fragment.yaml"
+        [ -f "$fragment" ] && cat "$fragment" >> "$batch_file"
+    done
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Copying batched constructor to pod...${COL_RES}"
+    kubectl cp "$batch_file" -n default "ocm-transfer-pod:.ocm/component-constructor-batch.yaml"
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] Adding all components to OCM CTF (single call)...${COL_RES}"
+    kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        ocm add component-versions \
+        --component-version-conflict-policy replace \
+        --repository "ctf::.ocm/transport.ctf" \
+        --constructor ".ocm/component-constructor-batch.yaml"
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] [Phase 2] All components added to CTF${COL_RES}"
 }
 
 # Transfer OCM transport archive to local OCI registry
+# All per-component transfers write to independent OCI paths, so they run in parallel.
 transfer_to_local_oci() {
-    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry...${COL_RES}"
+    echo -e "${COL}[$(date '+%H:%M:%S')] Transferring OCM transport archive to local OCI registry (parallel)...${COL_RES}"
     local target="oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh"
 
     _transfer_if_present() {
         local ref="$1"
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        kubectl exec -i ocm-transfer-pod -- \
             ocm get component-version "ctf::.ocm/transport.ctf//$ref" >/dev/null 2>&1 || return 0
-        kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- \
+        kubectl exec -i ocm-transfer-pod -- \
             ocm transfer component-version "ctf::.ocm/transport.ctf//$ref" "$target" \
             || echo -e "${RED}Warning: failed to transfer $ref${COL_RES}"
     }
 
-    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
-        local comp="${pair%%:*}"
+    _transfer_component() {
+        local comp="$1"
         local meta_file="$PRERELEASE_DIR/$comp.meta"
-        [ -f "$meta_file" ] || continue
+        [ -f "$meta_file" ] || return 0
         source "$meta_file"
-        [ "$SKIP" = "true" ] && continue
+        [ "$SKIP" = "true" ] && return 0
 
         # Transfer the service component, helm-charts sub-component, and images sub-component.
         # Images sub-components may be versioned with APP_VERSION (container semver) or VERSION
@@ -284,10 +310,27 @@ transfer_to_local_oci() {
         if [ -n "$APP_VERSION" ] && [ "$APP_VERSION" != "0.0.0" ] && [ "$APP_VERSION" != "$VERSION" ]; then
             _transfer_if_present "github.com/platform-mesh/images/$comp:$APP_VERSION"
         fi
+    }
+
+    local _oci_pids=()
+    for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
+        local comp="${pair%%:*}"
+        _transfer_component "$comp" &
+        _oci_pids+=($!)
     done
+
+    local _oci_failed=0
+    for _pid in "${_oci_pids[@]}"; do
+        wait "$_pid" || _oci_failed=$((_oci_failed + 1))
+    done
+    if ((_oci_failed > 0)); then
+        echo -e "${RED}[$(date '+%H:%M:%S')] $_oci_failed component transfer(s) to local OCI failed${COL_RES}" >&2
+        return 1
+    fi
+    echo -e "${COL}[$(date '+%H:%M:%S')] All components transferred to local OCI registry${COL_RES}"
 }
 
-# Build all local charts using two-phase parallel approach
+# Build all local charts using two-phase approach
 build_local_charts() {
     echo -e "${COL}[$(date '+%H:%M:%S')] Building custom local charts...${COL_RES}"
 
@@ -298,6 +341,7 @@ build_local_charts() {
     mkdir -p "$PRERELEASE_DIR"
     rm -f "$PRERELEASE_DIR"/*.tgz
     rm -f "$PRERELEASE_DIR"/*.meta
+    rm -f "$PRERELEASE_DIR"/*.fragment.yaml
 
     # Copy common chart to prerelease directory (used as dependency by other charts)
     rm -rf "$PRERELEASE_DIR/common"
@@ -359,12 +403,14 @@ build_local_charts() {
     fi
     echo -e "${COL}[$(date '+%H:%M:%S')] Phase 1 completed successfully${COL_RES}"
 
-    # Phase 2: Add all components to OCM CTF sequentially
-    echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 2: Adding components to OCM CTF (sequential) ===${COL_RES}"
+    # Phase 2: Render constructor fragments for all components, then add them all in one OCM call.
+    echo -e "${COL}[$(date '+%H:%M:%S')] === Phase 2: Rendering constructor fragments ===${COL_RES}"
     for pair in "${CUSTOM_LOCAL_COMPONENTS_CHART_PATHS[@]}"; do
         local comp="${pair%%:*}"
         add_chart_to_ctf "$comp"
     done
+
+    add_all_charts_to_ctf
     echo -e "${COL}[$(date '+%H:%M:%S')] Phase 2 completed successfully${COL_RES}"
 
     # Transfer to local OCI registry
