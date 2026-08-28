@@ -117,7 +117,7 @@ get_external_component_version() {
     "$LOCAL_BIN/ocm" --config "$OCM_DIR/config" get component-version --latest "$repo//$component" -o json | jq -r '.[0].component.version'
 }
 
-transfer_etcd_druid() {
+transfer_to_oci() {
     local name="$1"
     local ref="$2"
     local ver="$3"
@@ -198,7 +198,7 @@ resolve_component_versions() {
     export PM_KUBE_PROMETHEUS_STACK_VERSION="0.0.1"
     export PM_OPENTELEMETRY_OPERATOR_VERSION="0.0.2"
 
-    transfer_etcd_druid etcd-druid \
+    transfer_to_oci etcd-druid \
         europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid \
         "$GARDENER_ETCD_DRUID_VERSION"
 
