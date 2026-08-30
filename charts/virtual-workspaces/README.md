@@ -32,7 +32,7 @@ A Helm chart to deploy platform-mesh virtual-workspaces
 | deployment.resourceSchemaExportName | string | `"core.platform-mesh.io"` |  |
 | deployment.resourceSchemaName | string | `"v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"` |  |
 | deployment.resourceSchemaWorkspace | string | `"root:platform-mesh-system"` |  |
-| deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443"` | URL of the kcp front-proxy service. The port must match kcp.external.port from the infra chart. |
+| deployment.serverUrl | string | `"https://frontproxy-front-proxy.platform-mesh-system:8443"` | URL of the kcp front-proxy service. The port must match front-proxy service port. |
 | hostAliases.enabled | bool | `false` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
