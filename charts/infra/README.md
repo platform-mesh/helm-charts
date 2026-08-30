@@ -155,7 +155,6 @@ A Helm chart for Kubernetes
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.rootShard.resources | object | `{}` | Optional resource requests and limits for the root shard |
 | kcp.rootShard.shardBaseURL | string | `"https://root.kcp.localhost:8443/"` | Base URL the root shard advertises. Defaults to "https://<rootShard.hostname>:<kcp.external.port>/" when unset. |
-| kcp.shardServerPort | int | `6443` | Port that kcp-server (shards) expose. Used in TLSRoutes for direct shard access. |
 | kcp.shards[0].name | string | `"nereus"` |  |
 | kcp.shards[1].name | string | `"triton"` |  |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
