@@ -63,8 +63,8 @@ data:
               experimentalChannel: true
           service:
             spec:
+              type: NodePort
               clusterIP: 10.96.188.4
-            type: NodePort
       etcdDruid:
         enabled: true
         interval: 1m
