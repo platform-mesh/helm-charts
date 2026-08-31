@@ -1,7 +1,7 @@
 name: Mirror Helm Chart to OCI
 
 # Pulls a chart from a public Helm HTTP repository and pushes it as an OCI
-# artifact under ghcr.io/platform-mesh/ocm/charts. Idempotent: re-pushing the
+# artifact under ghcr.io/platform-mesh/charts. Idempotent: re-pushing the
 # same chart+version is a no-op on the registry side.
 #
 # Used to mirror external charts referenced by the OCM constructor so that
@@ -25,7 +25,7 @@ on:
       destination_namespace:
         description: "OCI destination namespace"
         required: false
-        default: "ghcr.io/platform-mesh/ocm/charts"
+        default: "ghcr.io/platform-mesh/charts"
         type: string
   workflow_call:
     inputs:
@@ -40,10 +40,12 @@ on:
         type: string
       destination_namespace:
         required: false
-        default: "ghcr.io/platform-mesh/ocm/charts"
+        default: "ghcr.io/platform-mesh/charts"
         type: string
 
-permissions: {}
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   mirror:
