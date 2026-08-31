@@ -613,7 +613,8 @@ npx playwright test test-register-and-navigate.test.ts
    - Try deleting existing cluster: `kind delete cluster --name platform-mesh`
 
 6. **Component timeout issues**
-   - Increase timeout values if you have a slower system
+   - Increase `KUBECTL_WAIT_TIMEOUT` if you have a slower system (the default is `1200s`)
+   - Transfer-pod timeouts print pod details and Kubernetes events to help diagnose slow or failed image pulls
    - Trigger a new run using the `:iterate` tasks
    - Check component logs: `kubectl logs -n <namespace> <pod-name>`
    - Verify all required images can be pulled

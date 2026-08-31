@@ -11,6 +11,23 @@ get_kubectl_exec_flags() {
     echo "-i"
 }
 
+wait_for_transfer_pod() {
+  local timeout="${KUBECTL_WAIT_TIMEOUT:-1200s}"
+
+  if kubectl wait --namespace default --for=condition=Ready pod \
+    --timeout="$timeout" ocm-transfer-pod; then
+    return 0
+  fi
+
+  echo -e "${RED}❌ Timed out after ${timeout} waiting for the OCM transfer pod. Pod and image-pull diagnostics:${COL_RES}" >&2
+  kubectl get pod --namespace default ocm-transfer-pod -o wide >&2 || true
+  kubectl describe pod --namespace default ocm-transfer-pod >&2 || true
+  kubectl get events --namespace default \
+    --field-selector involvedObject.kind=Pod,involvedObject.name=ocm-transfer-pod \
+    --sort-by=.metadata.creationTimestamp >&2 || true
+  return 1
+}
+
 # Deploy OCI registry for prerelease workflow
 deploy_oci_registry() {
   echo -e "${COL}[$(date '+%H:%M:%S')] Deploying local OCI registry ${COL_RES}"
@@ -36,6 +53,11 @@ deploy_oci_registry() {
   kubectl wait --namespace registry \
     --for=condition=available deployment \
     --timeout=$KUBECTL_WAIT_TIMEOUT oci-registry-docker-registry
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Local OCI registry is ready with TLS enabled.${COL_RES}"
+  echo "To access it from the host:"
+  echo "  kubectl --namespace registry port-forward service/oci-registry-docker-registry 8080:443"
+  echo "  curl --insecure https://127.0.0.1:8080/v2/"
 }
 
 # Deploy transfer pod for OCM operations
@@ -48,7 +70,7 @@ deploy_transfer_pod() {
 
   kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
   kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-4a328ed -- sleep infinity
-  kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
+  wait_for_transfer_pod
   kubectl exec $(get_kubectl_exec_flags) ocm-transfer-pod -- mkdir -p .ocm
 
   # Configure CA on the pod
