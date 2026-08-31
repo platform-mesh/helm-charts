@@ -139,6 +139,11 @@ tasks:
           --for=condition=available deployment \
           --timeout=120s oci-registry-docker-registry
 
+        echo "Local OCI registry is ready with TLS enabled."
+        echo "To access it from the host:"
+        echo "  kubectl --namespace registry port-forward service/oci-registry-docker-registry 8080:443"
+        echo "  curl --insecure https://127.0.0.1:8080/v2/"
+
   ocm:build:custom-local-charts:
     deps:
       - task: setup:ocm
@@ -165,7 +170,16 @@ tasks:
         echo "Transferring OCM transport archive to local registry from a pod..."
         kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
         kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-4a328ed -- sleep infinity || true
-        kubectl wait --namespace default --for=condition=Ready pod --timeout=480s ocm-transfer-pod
+        transfer_pod_timeout="${KUBECTL_WAIT_TIMEOUT:-1200s}"
+        if ! kubectl wait --namespace default --for=condition=Ready pod --timeout="$transfer_pod_timeout" ocm-transfer-pod; then
+          echo "Timed out after $transfer_pod_timeout waiting for the OCM transfer pod. Pod and image-pull diagnostics:" >&2
+          kubectl get pod --namespace default ocm-transfer-pod -o wide >&2 || true
+          kubectl describe pod --namespace default ocm-transfer-pod >&2 || true
+          kubectl get events --namespace default \
+            --field-selector involvedObject.kind=Pod,involvedObject.name=ocm-transfer-pod \
+            --sort-by=.metadata.creationTimestamp >&2 || true
+          exit 1
+        fi
         kubectl exec -i ocm-transfer-pod -- mkdir -p .ocm
 
         # configure RootCA truststore on the pod
