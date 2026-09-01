@@ -11,7 +11,7 @@ By default, `task local-setup` builds the OCM aggregate locally from the working
 task local-setup
 
 # With concurrent chart builds (faster on multi-core systems)
-task local-setup:concurrent
+task local-setup -- --concurrent
 ```
 
 This automatically:
@@ -35,7 +35,7 @@ If you already have a running cluster and want to test changes without recreatin
 task local-setup:iterate
 
 # With concurrent chart builds
-task local-setup:concurrent:iterate
+task local-setup:iterate -- --concurrent
 ```
 
 This is the recommended approach for iterative development as it:
