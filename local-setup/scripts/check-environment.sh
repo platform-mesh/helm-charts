@@ -18,8 +18,9 @@ detect_container_runtime() {
 }
 
 check_kind_cluster() {
-    # Check if kind cluster is registered
-    if [ $(kind get clusters 2>/dev/null | grep -c platform-mesh) -gt 0 ]; then
+    # Query the named cluster directly. Podman 6 renders .Labels as a string,
+    # which is incompatible with the template used by `kind get clusters`.
+    if kind get nodes --name platform-mesh &>/dev/null; then
         local runtime
         runtime=$(detect_container_runtime)
 
@@ -48,8 +49,8 @@ check_kind_cluster() {
 }
 
 check_kind_infra_cluster() {
-    # Check if kind cluster is already running
-    if kind get clusters 2>/dev/null | grep -qx 'platform-mesh-infra'; then
+    # Check if the named kind cluster is already registered.
+    if kind get nodes --name platform-mesh-infra &>/dev/null; then
         echo -e "${COL}[$(date '+%H:%M:%S')] Kind infra cluster already running, using existing ${COL_RES}"
         kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
         return 0  # Return 0 to indicate cluster exists
