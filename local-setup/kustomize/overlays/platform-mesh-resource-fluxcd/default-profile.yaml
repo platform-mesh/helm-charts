@@ -225,7 +225,7 @@ data:
                 enabled: true
             keycloak:
               operator:
-                hostname: https://portal.localhost:8443/keycloak/
+                hostname: https://{{ .baseDomainPort }}/keycloak/
                 enabled: true
                 caSecret: domain-certificate-ca
                 health:
@@ -248,10 +248,10 @@ data:
                 url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
             dex:
               enabled: true
-              issuer: https://portal.localhost:8443/dex
+              issuer: https://{{ .baseDomainPort }}/dex
               staticClient:
                 redirectURIs:
-                - https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint
+                - https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint
             traefik:
               accessControlAllowOriginList:
               - http://localhost:4200
@@ -259,7 +259,7 @@ data:
               - http://*.localhost:4200
               - http://*.localhost:4300
               - http://sub.localhost:4300
-              - https://portal.localhost:8443
+              - https://{{ .baseDomainPort }}
               - https://*.portal.localhost:8443
         kcp-operator:
           syncWave: 1

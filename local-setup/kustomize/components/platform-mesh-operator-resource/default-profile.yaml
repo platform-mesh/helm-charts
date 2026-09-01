@@ -254,7 +254,7 @@ data:
                 - "triton.kcp.localhost"
             keycloak:
               operator:
-                hostname: https://portal.localhost:8443/keycloak/
+                hostname: https://{{ .baseDomainPort }}/keycloak/
                 enabled: true
                 caSecret: domain-certificate-ca
                 health:
@@ -277,10 +277,10 @@ data:
                 url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
             dex:
               enabled: true
-              issuer: https://portal.localhost:8443/dex
+              issuer: https://{{ .baseDomainPort }}/dex
               staticClient:
                 redirectURIs:
-                - https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint
+                - https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint
             kcp:
               external:
                 hostname: kcp.api.{{ .baseDomain }}
@@ -305,7 +305,7 @@ data:
               - http://*.localhost:4200
               - http://*.localhost:4300
               - http://sub.localhost:4300
-              - https://portal.localhost:8443
+              - https://{{ .baseDomainPort }}
               - https://*.portal.localhost:8443
         iam-ui:
           enabled: true
@@ -541,9 +541,9 @@ data:
             environment: kind
             extraEnvVars:
             - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-              value: https://${org-subdomain}portal.localhost:8443/iam/graphql
+              value: https://${org-subdomain}{{ .baseDomainPort }}/iam/graphql
             - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-              value: https://${org-subdomain}portal.localhost:8443/gateway/api/clusters/root:orgs:${org-name}/graphql
+              value: https://${org-subdomain}{{ .baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql
             - name: NODE_EXTRA_CA_CERTS
               value: /etc/ssl/certs/ca-bundle.crt
             - name: OPENMFP_PORTAL_CONTEXT_AUTHZ_WEBHOOK_URL
