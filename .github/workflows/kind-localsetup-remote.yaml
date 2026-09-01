@@ -86,7 +86,7 @@ jobs:
           PLATFORM_MESH_VERSION: ${{ steps.pm-version.outputs.version }}
           DEBUG: true
         run: |
-          task local-setup:remote:argocd:example-data
+          task local-setup -- --remote --deployment-tech=argocd --example-data
 
       - name: Setup Node.js 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
