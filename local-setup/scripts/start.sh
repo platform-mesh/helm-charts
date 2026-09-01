@@ -6,7 +6,7 @@ if [ "${DEBUG}" = "true" ]; then
   set -x
 fi
 
-set -e
+set -eE
 
 COL='\033[92m'
 RED='\033[91m'
@@ -23,6 +23,22 @@ echo '{"auths":{}}' > /tmp/helm-no-auth.json
  KINDEST_VERSION="kindest/node:v1.35.1"
 
 SCRIPT_DIR=$(dirname "$0")
+
+# Printed whenever setup fails, to point users at help resources.
+show_help_pointer() {
+  echo "" >&2
+  echo -e "${YELLOW}❓ Local setup ran into a problem. If you're stuck, these resources can help:${COL_RES}" >&2
+  echo -e "${YELLOW}   📖 Guide:  https://platform-mesh.io/main/how-to-guides/set-up-platform-mesh-locally.html${COL_RES}" >&2
+  echo -e "${YELLOW}   📄 README: https://github.com/platform-mesh/helm-charts/blob/main/local-setup/README.md${COL_RES}" >&2
+  echo -e "${YELLOW}   💬 Zulip:  https://linuxfoundation.zulipchat.com/#narrow/channel/532985-neonephos-platform-mesh-discussion/topic/Platform.20Mesh.20-.20Bug.20Tracker/with/619587865${COL_RES}" >&2
+  echo "" >&2
+}
+export -f show_help_pointer
+
+# Show the help pointer on any command failure under 'set -e'. Explicit 'exit'
+# calls (e.g. --help) do not trigger ERR, so usage output stays clean; failure
+# sites that exit deliberately call show_help_pointer themselves.
+trap 'show_help_pointer' ERR
 
 PRERELEASE=false
 EXAMPLE_DATA=false
@@ -296,6 +312,7 @@ wait_for_deployment_resource() {
       elapsed=$((elapsed + 2))
     done
     echo -e "${RED}[$(date '+%H:%M:%S')] Timed out waiting for ArgoCD Application ${namespace}/${resource_name} to become Healthy and Synced${COL_RES}" >&2
+    show_help_pointer
     exit 1
   fi
 }
@@ -310,6 +327,7 @@ if [ "$REMOTE" = true ]; then
   # check that PLATFORM_MESH_VERSION env var is set for remote mode, since we don't support building from source in that case
   if [ -z "$PLATFORM_MESH_VERSION" ]; then
     echo -e "${RED}PLATFORM_MESH_VERSION must be set for remote mode${COL_RES}" >&2
+    show_help_pointer
     exit 1
   fi
 fi
@@ -680,6 +698,7 @@ wait_for_pm() {
 # If the wait hits timeout dump information for later analysis to see what blocked
 if ! wait_for_pm; then
     RUNTIME_KUBECONFIG="${RUNTIME_KC[1]:-}" "$SCRIPT_DIR/dump-diagnostics.sh"
+    show_help_pointer
     exit 1
 fi
 
