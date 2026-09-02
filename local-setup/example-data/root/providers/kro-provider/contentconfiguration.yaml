@@ -28,7 +28,7 @@ spec:
                 "entityType": "main.core_platform-mesh_io_account",
                 "keepSelectedForChildren": true,
                 "url": "/assets/platform-mesh-portal-ui-wc.js#generic-list-view",
-                "webcomponent": { "selfRegistered": true },
+                "webcomponent": { "selfRegistered": true, "type": "module" },
                 "context": {
                   "resourceDefinition": {
                     "apiGroup": "kro_run",
@@ -73,7 +73,7 @@ spec:
                 "pathSegment": "dashboard",
                 "label": "Dashboard",
                 "url": "/assets/platform-mesh-portal-ui-wc.js#generic-detail-view",
-                "webcomponent": { "selfRegistered": true },
+                "webcomponent": { "selfRegistered": true, "type": "module" },
                 "defineEntity": { "id": "dashboard" },
                 "compound": { "children": [] }
               }
