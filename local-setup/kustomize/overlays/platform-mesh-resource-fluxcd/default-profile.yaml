@@ -190,7 +190,7 @@ data:
             hostAliases:
               enabled: true
               entries:
-              - ip: "10.96.188.4"
+              - ip: "{{ .traefikClusterIP }}"
                 hostnames:
                 - "localhost"
                 - "portal.localhost"
@@ -213,7 +213,7 @@ data:
                 serviceAccount:
                   enabled: true
               frontProxy:
-                clusterIP: 10.96.0.100
+                clusterIP: "{{ .kcpFrontProxyClusterIP }}"
                 port: 8443
               image:
                 tag: v0.32.2
@@ -297,7 +297,7 @@ data:
             hostAliases:
               enabled: true
               values:
-                - ip: "10.96.188.4"
+                - ip: "{{ .traefikClusterIP }}"
                   hostnames:
                     - "localhost"
                     - "kcp.api.{{ .baseDomain }}"
@@ -370,10 +370,10 @@ data:
                   virtualWorkspaces:
                   - kubeconfig: /app/kubeconfig/kubeconfig
                     name: contentconfigurations
-                    url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/contentconfigurations
+                    url: "{{ .internalFrontProxyUrl }}/services/contentconfigurations"
                   - kubeconfig: /app/kubeconfig/kubeconfig
                     name: marketplace
-                    url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/marketplace
+                    url: "{{ .internalFrontProxyUrl }}/services/marketplace"
                 enabled: true
             tracing:
               enabled: false
@@ -633,7 +633,7 @@ data:
             hostAliases:
               enabled: true
             deployment:
-              serverUrl: "https://frontproxy-front-proxy.platform-mesh-system:8443"
+              serverUrl: "{{ .internalFrontProxyUrl }}"
               resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
               resourceSchemaWorkspace: "root:platform-mesh-system"
     infra:
@@ -697,7 +697,7 @@ data:
               experimentalChannel: true
           service:
             spec:
-              clusterIP: 10.96.188.4
+              clusterIP: "{{ .traefikClusterIP }}"
             type: NodePort
       traefikCRDs:
         chart:
