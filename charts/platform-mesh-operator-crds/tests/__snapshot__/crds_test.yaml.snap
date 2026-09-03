@@ -85,9 +85,13 @@ operator match the snapshot:
                       properties:
                         baseDomain:
                           type: string
+                        kcpFrontProxyClusterIP:
+                          type: string
                         port:
                           type: integer
                         protocol:
+                          type: string
+                        traefikClusterIP:
                           type: string
                       type: object
                     featureToggles:
