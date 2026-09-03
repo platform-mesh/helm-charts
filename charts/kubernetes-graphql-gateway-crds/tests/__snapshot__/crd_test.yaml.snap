@@ -4,7 +4,7 @@ crds match the snapshot:
     kind: CustomResourceDefinition
     metadata:
       annotations:
-        controller-gen.kubebuilder.io/version: v0.20.0
+        controller-gen.kubebuilder.io/version: v0.21.0
       name: clusteraccesses.gateway.platform-mesh.io
     spec:
       group: gateway.platform-mesh.io
@@ -136,6 +136,16 @@ crds match the snapshot:
                     path:
                       description: Path is an optional field. If not set, the name of the resource is used
                       type: string
+                    requestIdentityMode:
+                      description: |-
+                        RequestIdentityMode controls which identity the gateway uses for
+                        Kubernetes requests. When omitted or set to userToken, the gateway requires,
+                        validates, and forwards the caller's bearer token. serviceAccount accepts
+                        tokenless requests and always uses auth.serviceAccountRef instead.
+                      enum:
+                        - userToken
+                        - serviceAccount
+                      type: string
                     requestPathTemplate:
                       description: |-
                         RequestPathTemplate defines a URL path template prepended to upstream API requests
@@ -146,6 +156,8 @@ crds match the snapshot:
                   x-kubernetes-validations:
                     - message: host is required unless kubeconfigSecretRef auth is used
                       rule: has(self.host) || (has(self.auth) && has(self.auth.kubeconfigSecretRef))
+                    - message: requestIdentityMode serviceAccount requires auth.serviceAccountRef
+                      rule: '!has(self.requestIdentityMode) || self.requestIdentityMode != ''serviceAccount'' || (has(self.auth) && has(self.auth.serviceAccountRef))'
                 status:
                   description: ClusterAccessStatus defines the observed state of ClusterAccess.
                   properties:
