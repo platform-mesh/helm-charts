@@ -513,6 +513,18 @@ tasks:
       - task: local-setup:iterate
         vars: {FLAGS: "--concurrent --example-data --cert-manager-msp"}
 
+  local-setup:concurrent:backup-restore-poc:
+    desc: Run concurrent sharded local setup with backup/restore PoC overlay (triton + nereus shards)
+    cmds:
+      - task: local-setup:base
+        vars: { FLAGS: "--concurrent --backup-restore-poc" }
+
+  local-setup:concurrent:example-data:backup-restore-poc:
+    desc: Run concurrent sharded local setup with backup/restore PoC overlay and example data (triton + nereus shards)
+    cmds:
+      - task: local-setup:base
+        vars: { FLAGS: "--concurrent --backup-restore-poc --example-data" }
+
   local-setup:remote:fluxcd:
     cmds:
       - task: local-setup
