@@ -1,0 +1,11 @@
+{{- if .Values.initializer.idpSeed.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.entity.name" . }}-idp-seed-config
+  namespace: {{ .Release.Namespace }}
+data:
+  idp-seed.yaml: |
+    seedUpstreamIdentityProviders:
+{{ toYaml .Values.initializer.idpSeed.seedUpstreamIdentityProviders | indent 6 }}
+{{- end }}
