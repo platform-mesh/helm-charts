@@ -21,7 +21,7 @@ A Helm chart for Kubernetes
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh/rebac-authz-webhook"` | The image repository path (without registry) |
-| image.tag | string | `""` |  |
+| image.tag | string | `"@sha256:7362e0fa2ae7b0f9da0f6e7b6f4ace5c94e0fc9cdea26c3937d63149a1969df9"` |  |
 | istio.dnsNames | list | `[]` |  |
 | istio.enabled | bool | `false` |  |
 | kcp.apiExportEndpointSliceName | string | `""` | kcp APIExportEndpointSliceName to watch. Empty string means auto-discover all slices |
