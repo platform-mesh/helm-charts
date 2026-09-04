@@ -386,8 +386,8 @@ if [ "$REMOTE" = true ]; then
   RUNTIME_KC=(--kubeconfig .secret/platform-mesh.kubeconfig)
 fi
 
-# Local: load custom images if hook script exists
-if [ "$REMOTE" != true ] && [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
+# Load custom images if hook script exists
+if [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Loading custom images ${COL_RES}"
   source "$SCRIPT_DIR/load-custom-images.sh"
 fi
@@ -532,6 +532,9 @@ fi
 echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 
 if [ "$REMOTE" = true ]; then
+  if [ ! -f "$SCRIPT_DIR/../webhook-config/ca.crt" ]; then
+    (cd "$SCRIPT_DIR/../.." && ./local-setup/scripts/gen-certs.sh)
+  fi
   kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
 fi
 kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
@@ -680,17 +683,17 @@ fi
 wait_for_pm() {
     kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
       --for=condition=Ready platformmesh \
-      --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh
+      --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh || return 1
 
     if [[ -n "$CI" ]]; then
         sleep 10
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" component --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" resource --all -A
-        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" hr --all -A
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" component --all -A || return 1
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" resource --all -A || return 1
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" hr --all -A || return 1
         # Remote: ArgoCD deploys to the runtime cluster asynchronously; targeted waits
         # happen in the post-install section below.
         if [[ "$REMOTE" != true ]]; then
-            kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout="$KUBECTL_WAIT_TIMEOUT" deployment --all -A
+            kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout="$KUBECTL_WAIT_TIMEOUT" deployment --all -A || return 1
         fi
     fi
 }
