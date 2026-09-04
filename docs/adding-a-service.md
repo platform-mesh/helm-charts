@@ -321,6 +321,55 @@ my-service:
   # ...
 ```
 
+### Templating & Value Substitution
+
+The profile is the single place where values are pushed down into each child chart. Understanding
+where each value comes from — and *when* it is substituted — avoids duplicating configuration.
+
+#### Per-service `values:` are merged into the child chart
+
+Everything under a service's `values:` block is deep-merged into that service's Helm chart values by
+the platform-mesh-operator. To override a child chart value, set it here rather than editing the
+chart — for example, to change the portal's cookie domain you set `portal.values.cookieDomain`, not
+a chart default.
+
+#### `{{ .baseDomain }}` / `{{ .baseDomainPort }}` — rendered by the operator
+
+These are Go-template placeholders rendered by the platform-mesh-operator **at reconcile time**, from
+`spec.exposure` on the PlatformMesh CR
+(`local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml`):
+
+```yaml
+spec:
+  exposure:
+    baseDomain: "portal.localhost"
+    port: 8443
+    protocol: "https"
+```
+
+| Placeholder | Renders to | Derived from |
+| ----------- | ---------- | ------------ |
+| `{{ .baseDomain }}` | `portal.localhost` | `spec.exposure.baseDomain` |
+| `{{ .baseDomainPort }}` | `portal.localhost:8443` | `baseDomain` + `:` + `port` |
+
+These are the **only two** template variables the operator exposes. Prefer them over hardcoding the
+domain so the base domain is configured once in `spec.exposure` and flows to every service. Values
+that are not just the base domain — the `hostAliases` IP (`10.96.188.4`), dev-server ports such as
+`localhost:4200`, wildcard hosts (`*.portal.localhost`), and SMTP addresses — have no template
+variable and must stay concrete.
+
+#### `${org-name}` / `${org-subdomain}` — resolved by the portal at runtime
+
+These are **not** substituted at build time. `start.sh` runs `envsubst` with an explicit allow-list
+of `$RUNTIME_CLUSTER_IP` only, so `${org-name}` / `${org-subdomain}` pass through kustomize, the
+operator's render, and Helm untouched, and are resolved by the portal per organization at request
+time. Leave them as literal `${...}` in the profile.
+
+#### `${RUNTIME_CLUSTER_IP}` — substituted at apply time (remote mode)
+
+This one *is* filled in during `start.sh` by `envsubst '$RUNTIME_CLUSTER_IP'` before the profile is
+applied, using the runtime cluster's IP. It is only relevant to remote (two-cluster) setups.
+
 ## Step 6: Local Build Registration
 
 To test your service locally with `task local-setup`, register it in the build scripts.
