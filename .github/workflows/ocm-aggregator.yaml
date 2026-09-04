@@ -71,7 +71,6 @@ jobs:
       OPENFGA_VERSION: "0.2.62"
       OPENFGA_IMAGE_VERSION: "v1.14.0"
       OPENFGA_POSTGRESQL_IMAGE_VERSION: "17.9.0-debian-12-r3"
-      GATEWAY_API_CHART_VERSION: "1.4.2"
       TRAEFIK_VERSION: "39.0.8"
       TRAEFIK_CHART_VERSION: "41.4.0"
       TRAEFIK_IMAGE_VERSION: "v3.7.12"
@@ -176,6 +175,7 @@ jobs:
           echo TERMINAL_CONTROLLER_MANAGER_VERSION=$(yq '.version' charts/terminal-controller-manager/Chart.yaml) >> $GITHUB_ENV
           echo KEYCLOAK_OPERATOR_VERSION=$(yq '.version' charts/keycloak-operator/Chart.yaml) >> $GITHUB_ENV
           echo OBSERVABILITY_VERSION=$(yq '.version' charts/observability/Chart.yaml) >> $GITHUB_ENV
+          echo GATEWAY_API_CHART_VERSION=$(yq '.version' charts/gateway-api-crds/Chart.yaml) >> $GITHUB_ENV
 
           # KEYCLOAK_VERSION (the platform-mesh keycloak component descriptor) tracks PM_KEYCLOAK_VERSION above.
           echo KEYCLOAK_VERSION=${PM_KEYCLOAK_VERSION} >> $GITHUB_ENV
@@ -307,6 +307,7 @@ jobs:
             CURRENT_TERMINAL_CONTROLLER_MANAGER=$(yq eval '.component.componentReferences[] | select(.name == "terminal-controller-manager") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_KEYCLOAK_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "keycloak-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_OBSERVABILITY=$(yq eval '.component.componentReferences[] | select(.name == "observability") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            GATEWAY_API_CHART_VERSION=$(yq eval '.component.componentReferences[] | select(.name == "gateway-api-crds") | .version' current_pm_component.yaml 2>/dev/null || echo "")
 
             # Extract third-party dependency versions
             CURRENT_ISTIO=$(yq eval '.component.componentReferences[] | select(.name == "istio-base") | .version' current_pm_component.yaml 2>/dev/null || echo "")
