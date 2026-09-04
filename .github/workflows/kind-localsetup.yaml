@@ -98,7 +98,7 @@ jobs:
 
       - name: Run local-setup with sharded example data
         run: |
-          task local-setup:concurrent:example-data
+          task local-setup -- --concurrent --example-data
 
       - name: Setup Node.js 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7

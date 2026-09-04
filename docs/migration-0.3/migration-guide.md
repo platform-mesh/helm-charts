@@ -81,7 +81,7 @@ kubectl delete persistentvolumeclaims etcd-kcp-etcd-kcp-0 -n platform-mesh-syste
 
 ```shell
 git checkout feat/migration-0.3
-task local-setup:example-data:iterate
+task local-setup:iterate -- --example-data
 ```
 
 Wait for readiness:
