@@ -1,7 +1,7 @@
 type: application
 apiVersion: v2
 name: infra
-version: 0.40.0
+version: 0.41.0
 description: >-
   Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Traefik, cert-manager, etc.).
   This chart is not intended to be installed directly — it is always managed by the platform-mesh-operator

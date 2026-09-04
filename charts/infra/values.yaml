@@ -130,7 +130,6 @@ kcp:
     replicas: 1
     name: frontproxy
     clusterIP: ""
-    port: 8443
     # -- Optional resource requests and limits for the front proxy
     resources: {}
     # resources:

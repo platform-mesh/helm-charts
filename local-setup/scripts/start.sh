@@ -59,6 +59,7 @@ usage() {
   echo "Environment variables:"
   echo "  PLATFORM_MESH_VERSION   OCM aggregate version to deploy. Unset builds from the working tree"
   echo "                          Set to e.g. 0.4.0-build.510 pulls that version from the registry"
+  echo "  KUBECTL_WAIT_TIMEOUT    Timeout for Kubernetes readiness checks. Default: 1200s"
   exit 1
 }
 

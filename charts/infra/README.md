@@ -145,7 +145,6 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | kcp.frontProxy.clusterIP | string | `""` |  |
 | kcp.frontProxy.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true"` |  |
 | kcp.frontProxy.name | string | `"frontproxy"` |  |
-| kcp.frontProxy.port | int | `8443` |  |
 | kcp.frontProxy.replicas | int | `1` |  |
 | kcp.frontProxy.resources | object | `{}` | Optional resource requests and limits for the front proxy |
 | kcp.image.repository | string | `""` |  |
