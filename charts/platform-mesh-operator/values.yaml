@@ -5,7 +5,8 @@ deployment:
   replicas: 1
 
 log:
-  level: debug
+  # -- log level. Permissible values: debug, info, warn, error
+  level: info
 
 operator:
   leaderElect: true

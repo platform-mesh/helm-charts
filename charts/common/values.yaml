@@ -69,10 +69,10 @@ defaults:
       path: "/readyz"
       failureThreshold: 30
 
-  # -- default region, this value is primarily used for observability, e.g. logs
-  region: local
-  # -- default environment, this value is primarily used for observability, e.g. logs
-  environment: local
+  # -- default region, this value is primarily used for observability, e.g. logs. Permissible values: any string (e.g. us-east-1, eu-west-1)
+  region: ""
+  # -- default environment, this value is primarily used for observability, e.g. logs. Permissible values: any string (e.g. production, staging, development)
+  environment: ""
 
   metrics:
     # -- metrics port
@@ -124,13 +124,4 @@ defaults:
     # -- toggle to enable/disable hostAliases configuration
     enabled: false
     # -- host aliases
-    entries:
-      - ip: "10.96.188.4"
-        hostnames:
-          - "localhost"
-          - "portal.localhost"
-          - "kcp.localhost"
-          - "root.kcp.localhost"
-          - "kcp.api.portal.localhost"
-          - "nereus.kcp.localhost"
-          - "triton.kcp.localhost"
+    entries: []

@@ -19,7 +19,7 @@ match the snapshots:
           containers:
             - args:
                 - serve
-                - --keycloak-base-url=https://portal.localhost:8443/keycloak
+                - --keycloak-base-url=
                 - --keycloak-client-id=iam-service
                 - --roles-file-path=/roles/roles.yaml
                 - --jwt-user-id-claim=email
@@ -86,9 +86,7 @@ match the snapshots:
     metadata:
       name: iam-service
     spec:
-      hostnames:
-        - portal.localhost
-        - '*.portal.localhost'
+      hostnames: null
       parentRefs:
         - name: k8sapi-gateway
       rules:
