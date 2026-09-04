@@ -307,7 +307,7 @@ jobs:
             CURRENT_TERMINAL_CONTROLLER_MANAGER=$(yq eval '.component.componentReferences[] | select(.name == "terminal-controller-manager") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_KEYCLOAK_OPERATOR=$(yq eval '.component.componentReferences[] | select(.name == "keycloak-operator") | .version' current_pm_component.yaml 2>/dev/null || echo "")
             CURRENT_OBSERVABILITY=$(yq eval '.component.componentReferences[] | select(.name == "observability") | .version' current_pm_component.yaml 2>/dev/null || echo "")
-            GATEWAY_API_CHART_VERSION=$(yq eval '.component.componentReferences[] | select(.name == "gateway-api-crds") | .version' current_pm_component.yaml 2>/dev/null || echo "")
+            CURRENT_GATEWAY_API_CHART_VERSION=$(yq eval '.component.componentReferences[] | select(.name == "gateway-api-crds") | .version' current_pm_component.yaml 2>/dev/null || echo "")
 
             # Extract third-party dependency versions
             CURRENT_ISTIO=$(yq eval '.component.componentReferences[] | select(.name == "istio-base") | .version' current_pm_component.yaml 2>/dev/null || echo "")
@@ -343,6 +343,11 @@ jobs:
 
           # Compare versions to detect changes
           NEEDS_UPDATE=false
+
+          if [ "$CURRENT_GATEWAY_API_CHART_VERSION" != "${{ env.GATEWAY_API_CHART_VERSION }}" ]; then
+            echo "Gateway API chart: $CURRENT_GATEWAY_API_CHART_VERSION -> ${{ env.GATEWAY_API_CHART_VERSION }}"
+            NEEDS_UPDATE=true
+          fi
 
           if [ "$CURRENT_ACCOUNT_OPERATOR" != "${{ env.ACCOUNT_OPERATOR_VERSION }}" ]; then
             echo "Account operator: $CURRENT_ACCOUNT_OPERATOR -> ${{ env.ACCOUNT_OPERATOR_VERSION }}"
