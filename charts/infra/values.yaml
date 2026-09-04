@@ -178,7 +178,7 @@ keycloak:
       # -- Keycloak image repository (without registry)
       repository: platform-mesh/custom-images/keycloak
       # -- Keycloak image tag (defaults to appVersion)
-      tag: "v26.6.0"
+      tag: "v26.6.0@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
       # -- Keycloak image digest (when set, overrides tag: registry/repository@digest)
       digest: "sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
     waitForDb:
@@ -188,7 +188,7 @@ keycloak:
         # -- wait-for-db init container image repository (without registry)
         repository: library/busybox
         # -- wait-for-db init container image tag
-        tag: "1.37"
+        tag: "1.37@sha256:9db7b59979c38555a39def84a31fb98b5296952f9e3afd4f6f11f05b07adfab0"
         # -- wait-for-db init container image digest (when set, overrides tag)
         digest: ""
     # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).

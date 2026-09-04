@@ -23,7 +23,7 @@ image:
   # -- The image digest (when set, overrides tag: registry/repository@digest)
   digest: ""
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "@sha256:7362e0fa2ae7b0f9da0f6e7b6f4ace5c94e0fc9cdea26c3937d63149a1969df9"
 
 # Set the openfga service URL and store name
 # openfga:

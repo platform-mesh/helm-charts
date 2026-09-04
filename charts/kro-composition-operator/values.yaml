@@ -6,7 +6,7 @@ image:
   # -- The image digest (when set, overrides tag: registry/repository@digest)
   digest: ""
   # -- Image tag; defaults to the chart appVersion when empty
-  tag: ""
+  tag: "@sha256:01542c4a22d6c797c6786b505a1c37fc1f42337ce1cf031080c5de1c094ee41e"
   # -- Image pull policy
   pullPolicy: IfNotPresent
 

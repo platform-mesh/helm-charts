@@ -15,7 +15,7 @@ terminal:
     # -- The terminal pod image repository path (without registry)
     repository: platform-mesh/platform-mesh/terminal
     # -- Override terminal image tag (defaults to appVersion)
-    tag: ""
+    tag: "@sha256:3afd5265670d6a673b5dc1747f0038a7ffdceb9c8eaa3a0b8f501b4baa0fd254"
   # -- The namespace where terminal pods are created
   namespace: terminal-sessions
   # -- The terminal session lifetime (Go duration format)
