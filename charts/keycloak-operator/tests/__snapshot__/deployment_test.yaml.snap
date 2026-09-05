@@ -5,7 +5,6 @@ deployment matches snapshot (defaults):
     metadata:
       name: keycloak-operator
     spec:
-      image: quay.io/keycloak/keycloak-operator:26.6.0
       replicas: 1
       revisionHistoryLimit: 3
       selector:
@@ -412,7 +411,6 @@ deployment matches snapshot with custom resources:
     metadata:
       name: keycloak-operator
     spec:
-      image: quay.io/keycloak/keycloak-operator:26.6.0
       replicas: 1
       revisionHistoryLimit: 3
       selector:
