@@ -28,12 +28,12 @@ deployment matches snapshot (defaults):
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: RELATED_IMAGE_KEYCLOAK
-                  value: ghcr.io/platform-mesh/custom-images/keycloak@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800
+                  value: ghcr.io/platform-mesh/custom-images/keycloak@sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKREALMIMPORTCONTROLLER_NAMESPACES
                   value: JOSDK_WATCH_CURRENT
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKCONTROLLER_NAMESPACES
                   value: JOSDK_WATCH_CURRENT
-              image: quay.io/keycloak/keycloak-operator:26.6.0
+              image: quay.io/keycloak/keycloak-operator:26.7.2
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
@@ -434,12 +434,12 @@ deployment matches snapshot with custom resources:
                     fieldRef:
                       fieldPath: metadata.namespace
                 - name: RELATED_IMAGE_KEYCLOAK
-                  value: ghcr.io/platform-mesh/custom-images/keycloak@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800
+                  value: ghcr.io/platform-mesh/custom-images/keycloak@sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKREALMIMPORTCONTROLLER_NAMESPACES
                   value: JOSDK_WATCH_CURRENT
                 - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKCONTROLLER_NAMESPACES
                   value: JOSDK_WATCH_CURRENT
-              image: quay.io/keycloak/keycloak-operator:26.6.0
+              image: quay.io/keycloak/keycloak-operator:26.7.2
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:

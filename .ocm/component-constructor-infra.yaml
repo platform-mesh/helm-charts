@@ -40,10 +40,10 @@ components:
       - name: keycloak-image
         type: ociImage
         relation: external
-        version: "v26.6.0"
+        version: "v26.7.2"
         access:
           type: ociArtifact
-          imageReference: "ghcr.io/platform-mesh/custom-images/keycloak:v26.6.0@sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
+          imageReference: "ghcr.io/platform-mesh/custom-images/keycloak:v26.7.2@sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"
       - name: busybox-image
         type: ociImage
         relation: external

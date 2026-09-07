@@ -50,7 +50,7 @@ keycloak operator enabled renders all resources:
         strict: false
       http:
         httpEnabled: true
-      image: ghcr.io/platform-mesh/custom-images/keycloak:v26.6.0
+      image: ghcr.io/platform-mesh/custom-images/keycloak:v26.7.2
       ingress:
         enabled: false
       instances: 1

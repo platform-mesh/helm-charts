@@ -178,9 +178,9 @@ keycloak:
       # -- Keycloak image repository (without registry)
       repository: platform-mesh/custom-images/keycloak
       # -- Keycloak image tag (defaults to appVersion)
-      tag: "v26.6.0"
+      tag: "v26.7.2"
       # -- Keycloak image digest (when set, overrides tag: registry/repository@digest)
-      digest: "sha256:207cdc27e513bc7a6a6d2e429e1a9346dd62654c92573866c4a091b844f7b800"
+      digest: "sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"
     waitForDb:
       image:
         # -- wait-for-db init container image registry
