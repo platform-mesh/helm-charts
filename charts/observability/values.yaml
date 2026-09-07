@@ -127,7 +127,7 @@ serviceMonitors:
         # -- cert-extractor job image repository (without registry)
         repository: bitnami/kubectl
         # -- cert-extractor job image tag (cosmetic; digest pins the image)
-        tag: "latest"
+        tag: "latest@sha256:b29d8c1665b70817259ceecaea16ab27aab6368b48daf485d19436c809067492"
         # -- cert-extractor job image digest (pins the mutable :latest tag)
         digest: "sha256:a67b11e95e953f550f020a41970185ccc5f83d78b86b8c575d02c904aa0f9cd7"
     # -- Kubeconfig configuration for kcp authentication
