@@ -2,8 +2,8 @@ apiVersion: v2
 name: terminal-controller-manager
 description: A Helm chart to deploy platform-mesh Terminal Controller Manager
 type: application
-version: 0.7.0
-appVersion: "v0.6.3"
+version: 0.8.0
+appVersion: "v0.7.0"
 dependencies:
   - name: common
     version: 0.13.0
