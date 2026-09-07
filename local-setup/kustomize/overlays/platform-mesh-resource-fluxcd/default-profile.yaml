@@ -70,6 +70,7 @@ data:
               enabled: true
             kcp:
               enabled: true
+              apiExportEndpointSliceName: ""
               kubeconfigSecret: extension-manager-operator-kubeconfig
             tracing:
               collector:

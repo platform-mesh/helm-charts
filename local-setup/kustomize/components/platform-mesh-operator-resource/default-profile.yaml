@@ -163,6 +163,10 @@ data:
               enabled: true
             kcp:
               enabled: true
+              # ContentConfigurations live in root:platform-mesh-system only; the
+              # APIExport multicluster watcher fails to map ui.platform-mesh.io types
+              # on org workspace export endpoints ("no matches for kind ContentConfiguration").
+              apiExportEndpointSliceName: ""
               kubeconfigSecret: extension-manager-operator-kubeconfig
             tracing:
               collector:

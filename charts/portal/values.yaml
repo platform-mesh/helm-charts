@@ -12,7 +12,7 @@ http:
   protocol: http
 
 validWebcomponentUrls: ".?"
-featureToggles: "enableSessionAutoRefresh=true"
+featureToggles: "enableSessionAutoRefresh=true,upstreamIdp=true"
 uiOptions: "enableFeatureToggleSetting"
 
 # -- environment

@@ -1,0 +1,42 @@
+# Example: register local Dex as upstream OIDC IdP for org "kaufmann".
+# Apply to the org workspace (root:orgs:kaufmann), not the host cluster.
+#
+# Prerequisites:
+# - security-operator-system with IdPRegistration controller deployed
+# - idpregistrations on core.platform-mesh.io APIExport + org APIBinding
+# - Dex redirect URI for this realm in infra dex ConfigMap:
+#   https://portal.localhost:8443/keycloak/realms/kaufmann/broker/dex/endpoint
+# The mutating admission webhook stores oidc.clientSecret in a Secret in the
+# org workspace default namespace (idpregistration-<name>-client-secret).
+#
+# Keycloak Organizations (required by emailDomainRouting) is enabled on the org
+# realm by the IdPRegistration reconcile itself — no manual realm toggle needed.
+#
+# See: local-setup/docs/upstream-identity-provider-dex.md
+# Identity-first login (Keycloak Organizations): email step, then password or
+# upstream redirect — see upstream-identity-provider-identity-first-login.md.
+# For dex@portal.localhost with password on Keycloak (not Dex redirect), the user
+# needs a local Keycloak password; federated-only users are auto-redirected to Dex.
+---
+apiVersion: core.platform-mesh.io/v1alpha1
+kind: IdPRegistration
+metadata:
+  name: dex
+spec:
+  alias: dex
+  displayName: Dex (local upstream)
+  enabled: true
+  hideOnLoginPage: true
+  # Route users with matching email domain to Dex (e.g. dex@portal.localhost).
+  # hideOnLoginPage alone only hides the broker button; domains are required
+  # for Keycloak Organizations email-based routing.
+  emailDomainRouting:
+    domains:
+      - portal.localhost
+    autoRedirect: true
+    hideUntilDomainMatch: true
+  type: oidc
+  oidc:
+    clientId: keycloak-broker
+    clientSecret: local-dev-broker-secret
+    discoveryUrl: https://portal.localhost:8443/dex/.well-known/openid-configuration

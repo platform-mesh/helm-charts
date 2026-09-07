@@ -116,3 +116,6 @@ empty, the initializer does **not** seed any org. List org names explicitly to
 enable seeding (for example `realms: [default]` for the default org only).
 
 You should now be able to log into the org with the test user mentioned above.
+
+For **identity-first login** (email on Keycloak, then password or Dex redirect),
+see [upstream-identity-provider-identity-first-login.md](./upstream-identity-provider-identity-first-login.md).
