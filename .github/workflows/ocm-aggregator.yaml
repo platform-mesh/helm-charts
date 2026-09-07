@@ -83,7 +83,7 @@ jobs:
       # renovate: datasource=docker depName=europe-docker.pkg.dev/gardener-project/releases/component-descriptors/github.com/gardener/etcd-druid
       GARDENER_ETCD_DRUID_VERSION: "v0.36.4"
       # renovate: datasource=docker depName=ghcr.io/platform-mesh/component-descriptors/github.com/platform-mesh/keycloak
-      PM_KEYCLOAK_VERSION: "26.6.0"
+      PM_KEYCLOAK_VERSION: "26.7.2"
       # PM-stamped component descriptor versions for third-party components.
       # Bump these to publish a new descriptor without touching resource versions. If resource
       # versions change, make sure to bump those as well.

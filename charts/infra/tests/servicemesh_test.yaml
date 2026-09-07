@@ -53,7 +53,7 @@ tests:
         image:
           registry: ghcr.io
           repository: platform-mesh/custom-images/keycloak
-          tag: "v26.6.0"
+          tag: "v26.7.2"
           digest: ""
   asserts:
   - matchSnapshot: {}

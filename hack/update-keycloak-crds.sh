@@ -7,3 +7,5 @@ BASE_URL="https://raw.githubusercontent.com/k8s-operatorhub/community-operators/
 
 curl -sLf "${BASE_URL}/keycloaks.k8s.keycloak.org-v1.crd.yml" -o "${OUT_DIR}/keycloaks.k8s.keycloak.org-v1.yml"
 curl -sLf "${BASE_URL}/keycloakrealmimports.k8s.keycloak.org-v1.crd.yml" -o "${OUT_DIR}/keycloakrealmimports.k8s.keycloak.org-v1.yml"
+curl -sLf "${BASE_URL}/keycloakoidcclients.k8s.keycloak.org-v1.crd.yml" -o "${OUT_DIR}/keycloakoidcclients.k8s.keycloak.org-v1.yml"
+curl -sLf "${BASE_URL}/keycloaksamlclients.k8s.keycloak.org-v1.crd.yml" -o "${OUT_DIR}/keycloaksamlclients.k8s.keycloak.org-v1.yml"
