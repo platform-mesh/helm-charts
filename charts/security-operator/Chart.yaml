@@ -6,7 +6,7 @@ version: 0.35.1
 appVersion: "v0.36.0"
 dependencies:
   - name: security-operator-crds
-    version: 0.6.1
+    version: 0.6.0
     condition: crds.enabled
     repository: oci://ghcr.io/platform-mesh/helm-charts
   - name: common

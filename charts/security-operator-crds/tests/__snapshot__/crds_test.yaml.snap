@@ -9,7 +9,7 @@ operator match the snapshot:
       latestResourceSchemas:
         - v250718-a64f278.authorizationmodels.core.platform-mesh.io
         - v260720-b1d6fa37.identityproviderconfigurations.core.platform-mesh.io
-        - v260821-dac476ab.idpregistrations.core.platform-mesh.io
+        - v260907-08269bea.idpregistrations.core.platform-mesh.io
         - v250718-a64f278.stores.core.platform-mesh.io
     status: {}
   2: |
@@ -515,8 +515,7 @@ operator match the snapshot:
     apiVersion: apis.kcp.io/v1alpha1
     kind: APIResourceSchema
     metadata:
-      creationTimestamp: null
-      name: v260821-dac476ab.idpregistrations.core.platform-mesh.io
+      name: v260907-08269bea.idpregistrations.core.platform-mesh.io
     spec:
       group: core.platform-mesh.io
       names:
@@ -557,11 +556,8 @@ operator match the snapshot:
                     type: string
                   emailDomainRouting:
                     description: |-
-                      EmailDomainRouting configures email-domain based identity-first login for an
-                      upstream identity provider: users are routed to the provider based on their
-                      email domain. It is intentionally provider-agnostic — the security-operator
-                      maps it onto the concrete backend (for Keycloak: Organizations and the
-                      kc.org.* broker settings).
+                      EmailDomainRouting enables identity-first login by email domain. See
+                      EmailDomainRouting for destructive update behavior and domain ownership notes.
                     properties:
                       autoRedirect:
                         description: |-
@@ -569,7 +565,10 @@ operator match the snapshot:
                           this upstream IdP instead of showing the provider-selection screen.
                         type: boolean
                       domains:
-                        description: Domains lists the email domains routed to this upstream IdP.
+                        description: |-
+                          Domains lists the email domains routed to this upstream IdP. Each entry is
+                          normalized to lowercase. Org owners should only add domains their organization
+                          controls; verification is not enforced yet.
                         items:
                           type: string
                         minItems: 1
@@ -594,7 +593,10 @@ operator match the snapshot:
                       clientId:
                         type: string
                       clientSecret:
-                        description: Write-only client secret. Admission stores it in a Secret and sets clientSecretRef.name; it is not persisted on the CR.
+                        description: |-
+                          ClientSecret is a write-only convenience field accepted on create/update.
+                          Admission stores the value in a Secret and sets clientSecretRef.name; it is
+                          not persisted on the IdPRegistration.
                         type: string
                       clientSecretRef:
                         description: |-
@@ -620,6 +622,7 @@ operator match the snapshot:
                         type: string
                     required:
                       - clientId
+                      - clientSecretRef
                     type: object
                   type:
                     default: oidc
@@ -690,15 +693,16 @@ operator match the snapshot:
                       type: object
                     type: array
                   linkedEmailDomains:
+                    description: LinkedEmailDomains lists normalized domains currently linked to the broker organization.
                     items:
                       type: string
                     type: array
-                  message:
-                    type: string
                   organizationId:
+                    description: OrganizationID is the linked Keycloak organization when email domain routing is configured.
                     type: string
-                  ready:
-                    type: boolean
+                  redirectUri:
+                    description: RedirectURI is the OAuth redirect URI tenants must allow at the upstream IdP.
+                    type: string
                 type: object
             required:
               - spec

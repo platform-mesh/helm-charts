@@ -35,7 +35,7 @@ matches the snapshot:
                 - name: DEVELOPMENT_INSTANCE
                   value: "true"
                 - name: FEATURE_TOGGLES
-                  value: enableSessionAutoRefresh=true
+                  value: enableSessionAutoRefresh=true,upstreamIdp=true
                 - name: UI_OPTIONS
                   value: enableFeatureToggleSetting
                 - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
@@ -144,7 +144,7 @@ test hosAliases:
                 - name: DEVELOPMENT_INSTANCE
                   value: "true"
                 - name: FEATURE_TOGGLES
-                  value: enableSessionAutoRefresh=true
+                  value: enableSessionAutoRefresh=true,upstreamIdp=true
                 - name: UI_OPTIONS
                   value: enableFeatureToggleSetting
                 - name: CONTENT_CONFIGURATION_VALIDATOR_API_URL
