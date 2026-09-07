@@ -231,6 +231,46 @@ deployment matches snapshot (defaults):
           - watch
   5: |
     apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: keycloaksamlclientcontroller-cluster-role
+    rules:
+      - apiGroups:
+          - k8s.keycloak.org
+        resources:
+          - keycloaksamlclients
+          - keycloaksamlclients/status
+          - keycloaksamlclients/finalizers
+        verbs:
+          - get
+          - list
+          - watch
+          - patch
+          - update
+          - create
+          - delete
+  6: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: keycloakoidcclientcontroller-cluster-role
+    rules:
+      - apiGroups:
+          - k8s.keycloak.org
+        resources:
+          - keycloakoidcclients
+          - keycloakoidcclients/status
+          - keycloakoidcclients/finalizers
+        verbs:
+          - get
+          - list
+          - watch
+          - patch
+          - update
+          - create
+          - delete
+  7: |
+    apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
       name: keycloak-operator-clusterrole-binding
@@ -242,7 +282,7 @@ deployment matches snapshot (defaults):
       - kind: ServiceAccount
         name: keycloak-operator
         namespace: NAMESPACE
-  6: |
+  8: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: Role
     metadata:
@@ -330,7 +370,7 @@ deployment matches snapshot (defaults):
           - update
           - watch
           - patch
-  7: |
+  9: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding
     metadata:
@@ -344,7 +384,7 @@ deployment matches snapshot (defaults):
       - kind: ServiceAccount
         name: keycloak-operator
         namespace: NAMESPACE
-  8: |
+  10: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding
     metadata:
@@ -358,7 +398,7 @@ deployment matches snapshot (defaults):
       - kind: ServiceAccount
         name: keycloak-operator
         namespace: NAMESPACE
-  9: |
+  11: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding
     metadata:
@@ -372,7 +412,35 @@ deployment matches snapshot (defaults):
       - kind: ServiceAccount
         name: keycloak-operator
         namespace: NAMESPACE
-  10: |
+  12: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloaksamlclientcontroller-role-binding
+      namespace: NAMESPACE
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: keycloaksamlclientcontroller-cluster-role
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-operator
+        namespace: NAMESPACE
+  13: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: keycloakoidcclientcontroller-role-binding
+      namespace: NAMESPACE
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: keycloakoidcclientcontroller-cluster-role
+    subjects:
+      - kind: ServiceAccount
+        name: keycloak-operator
+        namespace: NAMESPACE
+  14: |
     apiVersion: rbac.authorization.k8s.io/v1
     kind: RoleBinding
     metadata:
@@ -386,7 +454,7 @@ deployment matches snapshot (defaults):
       - kind: ServiceAccount
         name: keycloak-operator
         namespace: NAMESPACE
-  11: |
+  15: |
     apiVersion: v1
     kind: Service
     metadata:
@@ -399,7 +467,7 @@ deployment matches snapshot (defaults):
       selector:
         app: keycloak-operator
       type: ClusterIP
-  12: |
+  16: |
     apiVersion: v1
     kind: ServiceAccount
     metadata:
