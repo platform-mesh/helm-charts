@@ -64,7 +64,8 @@ data:
           service:
             spec:
               type: NodePort
-              clusterIP: 10.96.188.4
+              clusterIP: "{{ .traefikClusterIP }}"
+            type: NodePort
       etcdDruid:
         enabled: true
         interval: 1m
@@ -243,7 +244,7 @@ data:
             hostAliases:
               enabled: true
               entries:
-              - ip: "10.96.188.4"
+              - ip: "{{ .traefikClusterIP }}"
                 hostnames:
                 - "localhost"
                 - "portal.localhost"
@@ -254,7 +255,7 @@ data:
                 - "triton.kcp.localhost"
             keycloak:
               operator:
-                hostname: https://portal.localhost:8443/keycloak/
+                hostname: https://{{ .baseDomainPort }}/keycloak/
                 enabled: true
                 caSecret: domain-certificate-ca
                 health:
@@ -277,10 +278,10 @@ data:
                 url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
             dex:
               enabled: true
-              issuer: https://portal.localhost:8443/dex
+              issuer: https://{{ .baseDomainPort }}/dex
               staticClient:
                 redirectURIs:
-                - https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint
+                - https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint
             kcp:
               external:
                 hostname: kcp.api.{{ .baseDomain }}
@@ -288,7 +289,7 @@ data:
                 serviceAccount:
                   enabled: true
               frontProxy:
-                clusterIP: 10.96.0.100
+                clusterIP: "{{ .kcpFrontProxyClusterIP }}"
                 port: 8443
               image:
                 tag: v0.32.2
@@ -305,7 +306,7 @@ data:
               - http://*.localhost:4200
               - http://*.localhost:4300
               - http://sub.localhost:4300
-              - https://portal.localhost:8443
+              - https://{{ .baseDomainPort }}
               - https://*.portal.localhost:8443
         iam-ui:
           enabled: true
@@ -353,7 +354,7 @@ data:
             hostAliases:
               enabled: true
               values:
-                - ip: "10.96.188.4"
+                - ip: "{{ .traefikClusterIP }}"
                   hostnames:
                     - "localhost"
                     - "kcp.api.{{ .baseDomain }}"
@@ -439,10 +440,10 @@ data:
                   virtualWorkspaces:
                   - kubeconfig: /app/kubeconfig/kubeconfig
                     name: contentconfigurations
-                    url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/contentconfigurations
+                    url: "{{ .internalFrontProxyUrl }}/services/contentconfigurations"
                   - kubeconfig: /app/kubeconfig/kubeconfig
                     name: marketplace
-                    url: https://frontproxy-front-proxy.platform-mesh-system:8443/services/marketplace
+                    url: "{{ .internalFrontProxyUrl }}/services/marketplace"
                 enabled: true
             tracing:
               enabled: false
@@ -541,9 +542,9 @@ data:
             environment: kind
             extraEnvVars:
             - name: OPENMFP_PORTAL_CONTEXT_IAM_SERVICE_API_URL
-              value: https://${org-subdomain}portal.localhost:8443/iam/graphql
+              value: https://${org-subdomain}{{ .baseDomainPort }}/iam/graphql
             - name: OPENMFP_PORTAL_CONTEXT_CRD_GATEWAY_API_URL
-              value: https://${org-subdomain}portal.localhost:8443/gateway/api/clusters/root:orgs:${org-name}/graphql
+              value: https://${org-subdomain}{{ .baseDomainPort }}/gateway/api/clusters/root:orgs:${org-name}/graphql
             - name: NODE_EXTRA_CA_CERTS
               value: /etc/ssl/certs/ca-bundle.crt
             - name: OPENMFP_PORTAL_CONTEXT_AUTHZ_WEBHOOK_URL
@@ -591,7 +592,7 @@ data:
             hostAliases:
               enabled: true
               entries:
-              - ip: "10.96.188.4"
+              - ip: "{{ .traefikClusterIP }}"
                 hostnames:
                 - "localhost"
                 - "portal.localhost"
@@ -695,7 +696,7 @@ data:
             hostAliases:
               enabled: true
             deployment:
-              serverUrl: https://frontproxy-front-proxy.platform-mesh-system:8443
+              serverUrl: "{{ .internalFrontProxyUrl }}"
               resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
               resourceSchemaWorkspace: "root:platform-mesh-system"
         marketplace-ui:

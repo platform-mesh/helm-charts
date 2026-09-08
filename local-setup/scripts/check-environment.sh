@@ -185,6 +185,62 @@ check_docker_dependency() {
     check_container_runtime_dependency
 }
 
+check_container_resources() {
+    # Minimum resources the container runtime must have allocated.
+    # On Docker Desktop / Podman machine / WSL these are the VM's limits, not
+    # the host's, which is exactly what the prerequisites refer to.
+    # Single source of truth for the minimums; change these two values only.
+    local min_cpus=6
+    local min_mem_gb=8
+    # Require ~90% of the nominal GiB so runtimes that report slightly under a
+    # round value (VM overhead) are not rejected.
+    local min_mem_bytes=$((min_mem_gb * 1024 * 1024 * 1024 * 9 / 10))
+
+    local runtime
+    runtime=$(detect_container_runtime)
+    if [ -z "$runtime" ]; then
+        # Runtime not detected/running; the runtime dependency check already
+        # reports this, so skip resource checking rather than double-erroring.
+        return 0
+    fi
+
+    local cpus mem_bytes
+    cpus=$($runtime info --format '{{.NCPU}}' 2>/dev/null)
+    mem_bytes=$($runtime info --format '{{.MemTotal}}' 2>/dev/null)
+
+    # If the runtime does not expose these fields, don't block installation.
+    if ! [[ "$cpus" =~ ^[0-9]+$ ]] || ! [[ "$mem_bytes" =~ ^[0-9]+$ ]]; then
+        echo -e "${COL}[$(date '+%H:%M:%S')] ⚠️  Could not determine container runtime resources; skipping resource check${COL_RES}"
+        return 0
+    fi
+
+    local insufficient=false
+    if [ "$cpus" -lt "$min_cpus" ]; then
+        echo -e "${RED}❌ Error: Container runtime has $cpus CPU(s); at least $min_cpus are required${COL_RES}"
+        insufficient=true
+    fi
+    if [ "$mem_bytes" -lt "$min_mem_bytes" ]; then
+        local mem_gb=$((mem_bytes / 1024 / 1024 / 1024))
+        echo -e "${RED}❌ Error: Container runtime has ${mem_gb} GB RAM; at least ${min_mem_gb} GB are required${COL_RES}"
+        insufficient=true
+    fi
+
+    if [ "$insufficient" = true ]; then
+        echo -e "${COL}📦 Allocate at least ${min_mem_gb} GB RAM and ${min_cpus} CPUs to your container runtime and try again.${COL_RES}"
+        if grep -qi microsoft /proc/version 2>/dev/null; then
+            echo -e "${COL}💡 For WSL: configure limits in your %UserProfile%\\.wslconfig (memory=, processors=) and run 'wsl --shutdown'${COL_RES}"
+        else
+            echo -e "${COL}💡 For Docker Desktop: Settings → Resources. For Podman: recreate the machine with '--cpus' and '--memory'.${COL_RES}"
+        fi
+        echo ""
+        return 1
+    fi
+
+    local mem_gb=$((mem_bytes / 1024 / 1024 / 1024))
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ Container runtime resources: ${cpus} CPUs, ${mem_gb} GB RAM${COL_RES}"
+    return 0
+}
+
 setup_mkcert_command() {
     # Check for mkcert binary - prefer system PATH (e.g., Chocolatey install) over bundled version
     if command -v mkcert &> /dev/null; then
@@ -228,6 +284,58 @@ check_architecture() {
             return 1
             ;;
     esac
+}
+
+check_envsubst_dependency() {
+    if ! command -v envsubst &> /dev/null; then
+        echo -e "${RED}❌ Error: 'envsubst' is not installed${COL_RES}"
+        echo -e "${COL}📦 envsubst is required to substitute variables into kustomize/manifest output before applying.${COL_RES}"
+        echo -e "${COL}📚 It ships with GNU gettext: 'brew install gettext' (macOS) or 'apt-get install gettext-base' (Debian/Ubuntu).${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ envsubst is available${COL_RES}"
+    return 0
+}
+
+check_git_dependency() {
+    if ! command -v git &> /dev/null; then
+        echo -e "${RED}❌ Error: 'git' is not installed${COL_RES}"
+        echo -e "${COL}📦 git is required to build local chart versions and detect repository drift after setup.${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://git-scm.com/downloads${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ git is available${COL_RES}"
+    return 0
+}
+
+check_argocd_dependency() {
+    if ! command -v argocd &> /dev/null; then
+        echo -e "${RED}❌ Error: 'argocd' CLI is not installed${COL_RES}"
+        echo -e "${COL}🐙 The Argo CD CLI is required when using --deployment-tech=argocd.${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://argo-cd.readthedocs.io/en/stable/cli_installation/${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ argocd CLI is available${COL_RES}"
+    return 0
+}
+
+check_task_dependency() {
+    if ! command -v task &> /dev/null; then
+        echo -e "${RED}❌ Error: 'task' (go-task) is not installed${COL_RES}"
+        echo -e "${COL}📦 The Task runner is required for the cert-manager MSP setup (--cert-manager-msp).${COL_RES}"
+        echo -e "${COL}📚 Installation guide: https://taskfile.dev/installation/${COL_RES}"
+        echo ""
+        return 1
+    fi
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] ✅ task (go-task) is available${COL_RES}"
+    return 0
 }
 
 check_kcp_plugin() {
@@ -297,6 +405,11 @@ run_environment_checks() {
         checks_failed=$((checks_failed + 1))
     fi
 
+    # Check container runtime has enough RAM/CPUs allocated
+    if ! check_container_resources; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
     # Check kind dependency
     if ! check_kind_dependency; then
         checks_failed=$((checks_failed + 1))
@@ -319,6 +432,16 @@ run_environment_checks() {
 
     # Check yq dependency (YAML parsing/editing)
     if ! check_yq_dependency; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
+    # Check envsubst dependency (variable substitution into manifests)
+    if ! check_envsubst_dependency; then
+        checks_failed=$((checks_failed + 1))
+    fi
+
+    # Check git dependency (local chart builds and post-setup drift check)
+    if ! check_git_dependency; then
         checks_failed=$((checks_failed + 1))
     fi
 
@@ -347,9 +470,27 @@ run_environment_checks() {
         fi
     fi
 
+    # Check Argo CD CLI when using the argocd deployment technology
+    if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+        if ! check_argocd_dependency; then
+            checks_failed=$((checks_failed + 1))
+        fi
+    fi
+
+    # Check task (go-task) when setting up the cert-manager MSP provider
+    if [ "$CERT_MANAGER_MSP" = true ]; then
+        if ! check_task_dependency; then
+            checks_failed=$((checks_failed + 1))
+        fi
+    fi
+
     if [ $checks_failed -gt 0 ]; then
         echo -e "${RED}❌ $checks_failed dependency check(s) failed. Please install the missing dependencies and try again.${COL_RES}"
         echo ""
+        # Point the user at help resources if the caller provided the helper.
+        if command -v show_help_pointer &> /dev/null; then
+            show_help_pointer
+        fi
         exit 1
     fi
 
@@ -366,8 +507,13 @@ export -f check_kubectl_dependency
 export -f check_jq_dependency
 export -f check_helm_dependency
 export -f check_yq_dependency
+export -f check_envsubst_dependency
+export -f check_git_dependency
+export -f check_argocd_dependency
+export -f check_task_dependency
 export -f check_docker_dependency
 export -f check_container_runtime_dependency
+export -f check_container_resources
 export -f setup_mkcert_command
 export -f check_architecture
 export -f check_kcp_plugin
