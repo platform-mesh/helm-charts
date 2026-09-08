@@ -276,6 +276,9 @@ The `scripts/start.sh` script performs the following operations:
    - Keycloak Operator deploys a Keycloak instance via Custom Resource
    - Deploys Dex as a local upstream OIDC identity provider (see
      [upstream-identity-provider-dex.md](docs/upstream-identity-provider-dex.md))
+   - Seeds identity-first login for org realms via Dex upstream
+     (`emailDomainRouting`; reconciled by security-operator — see
+     [upstream-identity-provider-identity-first-login.md](docs/upstream-identity-provider-identity-first-login.md))
    - Installs supporting services (RBAC webhook, observability, etc.)
 
 6. **Post-Installation Setup**

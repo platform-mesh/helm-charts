@@ -109,6 +109,20 @@ operator match the snapshot:
             define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent
             define bind: [apis_kcp_io_apiexport] or bind_inherited
 
+            define create_core_platform-mesh_io_idpregistrations: owner
+            define list_core_platform-mesh_io_idpregistrations: owner
+            define watch_core_platform-mesh_io_idpregistrations: owner
+
+        type core_platform-mesh_io_idpregistration
+          relations
+            define parent: [core_platform-mesh_io_account]
+            define owner: owner from parent
+
+            define get: owner
+            define update: owner
+            define patch: owner
+            define delete: owner
+
         type core_platform-mesh_io_accountinfo
           relations
             define parent: [core_platform-mesh_io_account]
@@ -853,6 +867,20 @@ operator match the snapshot w. sentry:
             # APIExport binding control
             define bind_inherited: [apis_kcp_io_apiexport] or bind_inherited from parent
             define bind: [apis_kcp_io_apiexport] or bind_inherited
+
+            define create_core_platform-mesh_io_idpregistrations: owner
+            define list_core_platform-mesh_io_idpregistrations: owner
+            define watch_core_platform-mesh_io_idpregistrations: owner
+
+        type core_platform-mesh_io_idpregistration
+          relations
+            define parent: [core_platform-mesh_io_account]
+            define owner: owner from parent
+
+            define get: owner
+            define update: owner
+            define patch: owner
+            define delete: owner
 
         type core_platform-mesh_io_accountinfo
           relations

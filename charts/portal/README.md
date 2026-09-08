@@ -16,7 +16,7 @@ Helm Chart for the Platform Mesh Portal
 | cookieDomain | string | `"localhost"` | cookie domain |
 | developmentLandcsape | string | `"true"` | development landscape toggle |
 | environment | string | `"local"` | environment |
-| featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
+| featureToggles | string | `"enableSessionAutoRefresh=true,upstreamIdp=true"` |  |
 | frontendPort | int | `8000` | frontend port |
 | gatewayApi.enabled | bool | `true` | toggle to enable the Gateway API |
 | gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |

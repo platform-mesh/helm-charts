@@ -64,6 +64,7 @@ data:
               enabled: true
             kcp:
               enabled: true
+              apiExportEndpointSliceName: ""
               kubeconfigSecret: extension-manager-operator-kubeconfig
             tracing:
               collector:
@@ -675,6 +676,25 @@ data:
               enabled: true
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
+              idpSeed:
+                enabled: true
+                seedUpstreamIdentityProviders:
+                  realms:
+                    - default
+                  providers:
+                    - alias: dex
+                      displayName: Dex
+                      type: oidc
+                      hideOnLoginPage: true
+                      emailDomainRouting:
+                        domains:
+                          - portal.localhost
+                        autoRedirect: true
+                        hideUntilDomainMatch: true
+                      clientSecret: local-dev-broker-secret
+                      oidc:
+                        discoveryUrl: https://portal.localhost:8443/dex/.well-known/openid-configuration
+                        clientId: keycloak-broker
               extraArgs:
                 - --domain-ca-lookup
                 - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
