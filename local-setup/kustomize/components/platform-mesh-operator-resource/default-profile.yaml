@@ -679,7 +679,6 @@ data:
                       oidc:
                         discoveryUrl: https://portal.localhost:8443/dex/.well-known/openid-configuration
                         clientId: keycloak-broker
-                        clientAuthentication: client_secret_post
               extraArgs:
                 - --domain-ca-lookup
                 - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
