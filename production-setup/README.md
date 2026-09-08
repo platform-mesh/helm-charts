@@ -42,6 +42,8 @@ export OPENSEARCH_PASSWORD=<password>
 bash production-setup/scripts/bootstrap.sh
 ```
 
+The script creates a `search-operator-opensearch` secret from these values. The search-operator reads connection settings via CLI args (`--opensearch-url`, `--opensearch-username`, `--opensearch-password`, `--opensearch-insecure`) — wire those args from the secret in your deployment or Helm values.
+
 ### 2. Set your base domain
 
 Edit `production-setup/kustomize/overlays/platform-mesh-resource/platform-mesh.yaml`:
@@ -139,7 +141,7 @@ kubectl create secret generic domain-certificate-ca \
 | `keycloak-db-credentials` | `platform-mesh-system` | `username`, `password` |
 | `cnpg-openfga-user` | `platform-mesh-system` | `username`, `password` |
 | `openfga-postgres-credentials` | `platform-mesh-system` | `password`, `postgres-password` |
-| `search-operator-opensearch` | `platform-mesh-system` | `url`, `username`, `password` (only if env vars are set) |
+| `search-operator-opensearch` | `platform-mesh-system` | `url`, `username`, `password` (only if env vars are set) — values should be passed as CLI args to the search-operator deployment |
 
 ---
 
