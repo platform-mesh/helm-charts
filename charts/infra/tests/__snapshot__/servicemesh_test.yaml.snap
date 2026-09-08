@@ -1,26 +1,5 @@
 keycloak operator enabled renders all resources:
   1: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-admin
-      namespace: platform-mesh-system
-    stringData:
-      password: admin
-      secret: admin
-      username: keycloak-admin
-    type: Opaque
-  2: |
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: keycloak-db-credentials
-      namespace: platform-mesh-system
-    stringData:
-      password: keycloak-password
-      username: keycloak
-    type: Opaque
-  3: |
     apiVersion: k8s.keycloak.org/v2beta1
     kind: Keycloak
     metadata:

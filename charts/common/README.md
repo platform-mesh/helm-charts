@@ -14,7 +14,7 @@ A Helm chart containing reuse templates
 | defaults.deployment.revisionHistoryLimit | int | `3` | deployment revision history limit |
 | defaults.deployment.strategy | string | `"RollingUpdate"` | deployment strategy |
 | defaults.enableHttp2 | bool | `true` | enable HTTP/2 for metrics and webhook servers |
-| defaults.environment | string | `"local"` | default environment, this value is primarily used for observability, e.g. logs |
+| defaults.environment | string | `""` | default environment, this value is primarily used for observability, e.g. logs. Permissible values: any string (e.g. production, staging, development) |
 | defaults.externalSecrets.enabled | bool | `false` | toggle to enable/disable external-secrets |
 | defaults.externalSecrets.secretStore.kind | string | `"SecretStore"` | the default kind to be used in external secrets |
 | defaults.externalSecrets.secretStore.name | string | `"environment-store"` | the default store name to be used in external secrets |
@@ -25,7 +25,7 @@ A Helm chart containing reuse templates
 | defaults.health.readiness | object | `{"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10}` | readiness probe parameters |
 | defaults.health.startup | object | `{"failureThreshold":30,"path":"/readyz"}` | startup probe parameters |
 | defaults.hostAliases.enabled | bool | `false` | toggle to enable/disable hostAliases configuration |
-| defaults.hostAliases.entries | list | `[{"hostnames":["localhost","portal.localhost","kcp.localhost","root.kcp.localhost","kcp.api.portal.localhost","nereus.kcp.localhost","triton.kcp.localhost"],"ip":"10.96.188.4"}]` | host aliases |
+| defaults.hostAliases.entries | list | `[]` | host aliases |
 | defaults.imagePullPolicy | string | `"IfNotPresent"` | imagePullPolicy is the policy to use when pulling images for all charts |
 | defaults.istio.enabled | bool | `false` | toggle to enable/disable istio |
 | defaults.istio.gateway.name | string | `"gateway"` | name of the gateway |
@@ -35,7 +35,7 @@ A Helm chart containing reuse templates
 | defaults.operator.maxConcurrentReconciles | int | `10` | number of concurrent reconciles per controller |
 | defaults.operator.shutdownTimeout | string | `"1m"` | duration on how long the operator waits before shutting down |
 | defaults.port | int | `8080` | service port |
-| defaults.region | string | `"local"` | default region, this value is primarily used for observability, e.g. logs |
+| defaults.region | string | `""` | default region, this value is primarily used for observability, e.g. logs. Permissible values: any string (e.g. us-east-1, eu-west-1) |
 | defaults.securityContext.fsGroup | int | `2000` | fsGroup id to run the container |
 | defaults.securityContext.runAsGroup | int | `3000` | group id to run the container |
 | defaults.securityContext.runAsUser | int | `1000` | user id to run the container |

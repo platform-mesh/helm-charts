@@ -24,8 +24,8 @@ webhooks:
   denyList: ["admin", "root", "system", "www"]
   additionalAccountTypes: ["account"]
 
-  # -- CA certificate duration (default: 1 year)
-  caDuration: 8760h
+  # -- CA certificate duration (default: 3 months)
+  caDuration: 2160h
   # -- CA certificate renewal time before expiration (default: 30 days)
   caRenewBefore: 720h
   # -- Serving certificate duration (default: 3 months)

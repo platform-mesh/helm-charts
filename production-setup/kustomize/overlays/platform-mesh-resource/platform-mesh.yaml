@@ -1,0 +1,20 @@
+apiVersion: core.platform-mesh.io/v1alpha1
+kind: PlatformMesh
+metadata:
+  name: platform-mesh
+  namespace: platform-mesh-system
+spec:
+  exposure:
+    port: 443
+    # REQUIRED: set to your production domain (e.g. platform.example.com)
+    baseDomain: "REPLACE_ME"
+    protocol: "https"
+  ocm:
+    repo:
+      name: platform-mesh
+    component:
+      name: platform-mesh
+    referencePath: []
+  featureToggles:
+  - name: feature-accounts-in-accounts
+  kcp: {}

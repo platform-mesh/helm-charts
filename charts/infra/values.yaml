@@ -204,17 +204,19 @@ keycloak:
       database: keycloak
       # -- Database username (written to keycloak-db-credentials secret)
       username: keycloak
-      # -- Database password (written to keycloak-db-credentials secret)
-      password: keycloak-password
+      # -- Database password (written to keycloak-db-credentials secret). REQUIRED: set to a strong random value.
+      password: ""
     admin:
       # -- Bootstrap admin username (written to keycloak-admin secret)
       username: keycloak-admin
-      # -- Bootstrap admin password (written to keycloak-admin secret)
-      password: admin
-      # -- Bootstrap admin client secret (written to keycloak-admin secret)
-      secret: admin
+      # -- Bootstrap admin password (written to keycloak-admin secret). REQUIRED: set to a strong random value.
+      password: ""
+      # -- Bootstrap admin client secret (written to keycloak-admin secret). REQUIRED: set to a strong random value.
+      secret: ""
     # -- Secret with PEM CA for outbound HTTPS trust (e.g. local mkcert CA)
     caSecret: ""
+    # -- Enable plain HTTP on the Keycloak pod. Set to false in production (TLS must be configured instead).
+    httpEnabled: true
     resources:
       limits:
         cpu: "2"
@@ -389,11 +391,15 @@ cnpg:
       sharedBuffers: "128MB"
   roles:
     keycloak:
+      # -- PostgreSQL username for Keycloak. Written to the cnpg-keycloak-user secret.
       username: keycloak
-      password: keycloak-password
+      # -- REQUIRED: set to a strong random value.
+      password: ""
     openfga:
+      # -- PostgreSQL username for OpenFGA. Written to the cnpg-openfga-user secret.
       username: openfga
-      password: openfga-password
+      # -- REQUIRED: set to a strong random value.
+      password: ""
   databases:
     - name: keycloak
       owner: keycloak

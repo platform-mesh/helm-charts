@@ -14,7 +14,7 @@ virtual-workspaces match the snapshot:
         - virtual-workspaces.NAMESPACE.svc.cluster.local
         - my.example.com
         - my.example2.com
-      duration: 8760h0m0s
+      duration: 2160h0m0s
       issuerRef:
         group: cert-manager.io
         kind: Issuer

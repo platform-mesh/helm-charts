@@ -7,11 +7,12 @@ image:
   digest: ""
 
 # -- environment indicator, used for logging and observability
-environment: local
+environment: ""
 # -- region indicator, used for logging and observability
-region: local
+region: ""
 
 deployment:
+  # -- Number of old ReplicaSets to retain for rollback
   revisionHistoryLimit: 3
   resources:
     limits:
@@ -22,8 +23,10 @@ deployment:
       memory: 128Mi
 
 crds:
+  # -- Install bundled CRDs. Set to false when CRDs are managed separately (e.g. via security-operator-crds chart)
   enabled: false
 
+# -- Log level for all operator components. Permissible values: debug, info, warn, error
 logLevel: info
 
 webhooks:
@@ -39,8 +42,8 @@ webhooks:
   # -- The directory for webhook certificates (mounted from the serving cert secret)
   certDir: /certs
 
-  # -- CA certificate duration (default: 1 year)
-  caDuration: 8760h
+  # -- CA certificate duration (default: 3 months)
+  caDuration: 2160h
   # -- CA certificate renewal time before expiration (default: 30 days)
   caRenewBefore: 720h
   # -- Serving certificate duration (default: 3 months)
@@ -51,10 +54,13 @@ webhooks:
 # -- The kubeconfig secret for operator and generator
 kubeconfigSecret: ""
 
+# -- Name of the secret containing Keycloak admin credentials (keys: username, password, secret)
 keycloakSecret: "keycloak-admin"
+# -- Name of the secret containing the CA certificate for outbound TLS trust (key: tls.crt or ca.crt)
 caSecret: ""
 
-baseDomain: "portal.localhost:8443"
+# -- Base domain of the platform deployment (e.g. platform.example.com). Used to derive internal service URLs when explicit URLs are not set. Required.
+baseDomain: ""
 
 keycloak:
   client:
@@ -103,15 +109,21 @@ initContainer:
       namespace: platform-mesh-system
 
 generator:
+  # -- Extra arguments passed to the generator binary
   extraArgs: []
 system:
+  # -- The kubeconfig secret for the system component
   kubeconfigSecret: ""
+  # -- Extra arguments passed to the system binary
   extraArgs: []
 fga:
+  # -- OpenFGA gRPC endpoint (host:port)
   target: openfga.platform-mesh-system.svc.cluster.local:8081
   # -- TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m).
   storeIDCacheTTL: ""
+  # -- Keycloak base URL used for invite email links (e.g. https://platform.example.com). Defaults to baseDomain-derived URL when empty.
   inviteKeycloakBaseUrl: ""
+  # -- Extra arguments passed to the fga binary
   extraArgs: []
 
 hostAliases:

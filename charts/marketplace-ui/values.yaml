@@ -22,11 +22,14 @@ health:
 
 
 contentConfig:
-  baseDomain: localhost:8000/ui/marketplace
-  protocol: http
+  # -- base domain for the marketplace content API (e.g. example.com). Required.
+  baseDomain: ""
+  # -- protocol for the marketplace content API. Permissible values: http, https
+  protocol: ""
 
 http:
-  protocol: https
+  # -- protocol used by the frontend. Must be set. Permissible values: http, https
+  protocol: ""
 
 cors:
   # -- toggle to enable CORS support
@@ -47,6 +50,4 @@ gatewayApi:
 
 exposure:
   # -- hostnames to be used for exposure
-  hostnames:
-    - "portal.localhost"
-    - "*.portal.localhost"
+  hostnames: []
