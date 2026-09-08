@@ -378,7 +378,7 @@ cnpg:
       # -- PostgreSQL image repository (without registry)
       repository: cloudnative-pg/postgresql
       # -- PostgreSQL image tag
-      tag: "17.5"
+      tag: "18.3"
       # -- PostgreSQL image digest (when set, overrides tag)
       digest: ""
     instances: 2
