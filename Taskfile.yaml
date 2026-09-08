@@ -433,53 +433,9 @@ tasks:
       - task: test:backend-resources
       - task: test:portal-e2e
 
-  local-setup:base:
-    internal: true
-    deps:
-      - task: setup:mkcert
-    vars:
-      SHARDED: '{{.SHARDED}}'
-    cmds:
-      - |
-        if kind get clusters 2>/dev/null | grep -q "^platform-mesh$"; then
-          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
-          kind delete cluster --name platform-mesh
-        fi
-        if kind get clusters 2>/dev/null | grep -q "^platform-mesh-infra$"; then
-          read -r -p "Are you sure you want to delete the cluster? [y/N] " response && if [ "$response" != "y" ]; then echo "Aborted."; exit 1; fi
-          kind delete cluster --name platform-mesh-infra
-        fi
-        ./local-setup/scripts/start.sh {{.SHARDED}} {{.CLI_ARGS}}
-
-  local-setup:base:iterate:
-    internal: true
-    deps:
-      - task: setup:mkcert
-    vars:
-      SHARDED: '{{.SHARDED}}'
-    cmds:
-      - ./local-setup/scripts/start.sh --iterate {{.SHARDED}} {{.CLI_ARGS}}
-
   local-setup:
-    desc: "Full local setup, sharded by default. Pass start.sh flags after --, e.g. task local-setup -- --example-data --concurrent"
+    desc: "Local setup. Sharded and reuse-existing-cluster (--iterate) are on by default; pass start.sh flags after --, e.g. task local-setup -- --iterate=false --sharded=false"
+    deps:
+      - task: setup:mkcert
     cmds:
-      - task: local-setup:base
-        vars: { SHARDED: "--sharded" }
-
-  local-setup:iterate:
-    desc: "Iterate on an existing cluster. Pass start.sh flags after --, e.g. task local-setup:iterate -- --concurrent"
-    cmds:
-      - task: local-setup:base:iterate
-        vars: { SHARDED: "--sharded" }
-
-  local-setup:single-shard:
-    desc: "Full local setup without additional kcp shards. Pass start.sh flags after --"
-    cmds:
-      - task: local-setup:base
-        vars: { SHARDED: "" }
-
-  local-setup:single-shard:iterate:
-    desc: "Iterate on an existing single-shard cluster. Pass start.sh flags after --"
-    cmds:
-      - task: local-setup:base:iterate
-        vars: { SHARDED: "" }
+      - ./local-setup/scripts/start.sh {{.CLI_ARGS}}

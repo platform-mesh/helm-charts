@@ -7,45 +7,41 @@ This section is for chart developers who want to test changes locally without go
 By default, `task local-setup` builds the OCM aggregate locally from the working tree.
 
 ```sh
-# Full setup with locally built components (deletes existing cluster)
 task local-setup
 
 # With concurrent chart builds (faster on multi-core systems)
 task local-setup -- --concurrent
 ```
 
-This automatically:
+`--iterate=true` is the default. If a `platform-mesh` kind cluster already exists, it's reused and only the OCM component is rebuilt/reapplied — no cluster deletion or recreation. If no cluster exists yet, this falls through to a full setup automatically:
 1. Creates a fresh kind cluster
 2. Deploys OCM infrastructure (OCI registry, transfer pod)
 3. Builds your local chart changes into a OCM component
 4. Deploys platform mesh using the component
 
-To deploy a *published* aggregate from `ghcr.io/platform-mesh` instead, set `PLATFORM_MESH_VERSION`:
+To force a full setup even when a cluster already exists, delete it first and pass `--iterate=false`:
+
+```sh
+kind delete cluster --name platform-mesh
+task local-setup -- --iterate=false
+```
+
+To deploy a *published* aggregate from `ghcr.io/platform-mesh` instead, set `PLATFORM_MESH_VERSION` (requires `--iterate=false` if a cluster already exists, since iterate mode only rebuilds from the working tree):
 
 ```sh
 PLATFORM_MESH_VERSION=0.4.0-build.510 task local-setup
 ```
 
-## Testing with an Existing Cluster
+## Iterating on an Existing Cluster
 
-If you already have a running cluster and want to test changes without recreating it, use the `:iterate` variant:
-
-```sh
-# Reuse existing cluster (faster, no cluster recreation)
-task local-setup:iterate
-
-# With concurrent chart builds
-task local-setup:iterate -- --concurrent
-```
-
-This is the recommended approach for iterative development as it:
+With `--iterate=true` (the default), reusing an existing cluster:
 - Skips cluster deletion and recreation
 - Skips environment checks, certificate generation, and Flux installation
 - Skips all OCM infrastructure setup (OCI registry, transfer pod)
 - Only rebuilds the OCM component from local charts and reapplies it
 - Reconfigures the transfer pod CA trust if certificates changed
 
-The `--iterate` flag requires `PLATFORM_MESH_VERSION` to be unset (build-locally path) — it has no effect on published-version setups since there is nothing to rebuild.
+This is the recommended approach for iterative development.
 
 ## Iterating on Chart Changes
 
