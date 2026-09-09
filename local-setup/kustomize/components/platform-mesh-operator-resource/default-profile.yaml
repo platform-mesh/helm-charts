@@ -683,7 +683,7 @@ data:
                 - --domain-ca-lookup
                 - --development-allow-unverified-emails
                 - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
-              inviteKeycloakBaseUrl: 'https://{{ .baseDomainPort }}/keycloak'
+              baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
               target: openfga.platform-mesh-system.svc.cluster.local:8081
             hostAliases:
               enabled: true

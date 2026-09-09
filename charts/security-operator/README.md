@@ -17,7 +17,6 @@ A Helm chart for security-operator
 | deployment.revisionHistoryLimit | int | `3` | Number of old ReplicaSets to retain for rollback |
 | environment | string | `""` | environment indicator, used for logging and observability |
 | fga.extraArgs | list | `[]` | Extra arguments passed to the fga binary |
-| fga.inviteKeycloakBaseUrl | string | `""` | Keycloak base URL used for invite email links (e.g. https://platform.example.com). Defaults to baseDomain-derived URL when empty. |
 | fga.storeIDCacheTTL | string | `""` | TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m). |
 | fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` | OpenFGA gRPC endpoint (host:port) |
 | generator.extraArgs | list | `[]` | Extra arguments passed to the generator binary |
@@ -37,6 +36,8 @@ A Helm chart for security-operator
 | initializer.subroutines.inviteEnabled | bool | `true` | Enable InviteSubroutine (creates Invite resources for org creator) |
 | initializer.subroutines.workspaceAuthEnabled | bool | `true` | Enable WorkspaceAuthConfigurationSubroutine (JWT authentication setup) |
 | initializer.subroutines.workspaceEnabled | bool | `true` | Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup) |
+| jwt.userIdClaim | string | `"email"` |  |
+| keycloak.baseUrl | string | `""` | base URL of the Keycloak instance (e.g. https://example.com/keycloak). Required. |
 | keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"security-operator-client-secret"` |  |
 | keycloakSecret | string | `"keycloak-admin"` | Name of the secret containing Keycloak admin credentials (keys: username, password, secret) |

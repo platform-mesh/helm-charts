@@ -56,7 +56,10 @@ spec:
         args:
           - fga
           - --core-module-path=/data/coreModule.fga
-          {{- with .Values.fga.inviteKeycloakBaseUrl }}
+          {{- with .Values.jwt.userIdClaim }}
+          - --user-claim={{ . }}
+          {{- end }}
+          {{- with .Values.keycloak.baseUrl }}
           - --keycloak-base-url={{ . }}
           {{- end }}
           {{- with .Values.baseDomain }}
