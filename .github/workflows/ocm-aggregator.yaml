@@ -509,6 +509,19 @@ jobs:
             echo "needs_update=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Seed etcd-druid to ghcr.io/platform-mesh
+        if: steps.version_check.outputs.needs_update == 'true'
+        run: |
+          etcd_ref="github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}"
+          if ./ocm get componentversion "ghcr.io/platform-mesh//${etcd_ref}" >/dev/null 2>&1; then
+            echo "etcd-druid ${{ env.GARDENER_ETCD_DRUID_VERSION }} already present in ghcr.io/platform-mesh, skipping"
+          else
+            echo "Seeding etcd-druid ${{ env.GARDENER_ETCD_DRUID_VERSION }} from europe-docker.pkg.dev/gardener-project ..."
+            ./ocm transfer component-version --recursive \
+              "europe-docker.pkg.dev/gardener-project/releases//${etcd_ref}" \
+              "ghcr.io/platform-mesh"
+          fi
+
       - name: create OCM ComponentArchive
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
