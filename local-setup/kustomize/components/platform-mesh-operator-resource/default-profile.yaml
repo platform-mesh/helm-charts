@@ -675,9 +675,6 @@ data:
               enabled: false
             fga:
               extraArgs:
-                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-                - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
                 - --set-default-password
                 - --idp-registration-allowed
                 - --domain-ca-lookup
@@ -691,9 +688,6 @@ data:
               kubeconfigSecret: security-initializer-kubeconfig
               extraArgs:
                 - --domain-ca-lookup
-                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-                - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
                 - --development-allow-unverified-emails
                 - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
                 - --idp-registration-allowed

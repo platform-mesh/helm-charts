@@ -36,6 +36,15 @@ spec:
           {{- if $systemKubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}
+          {{- with .Values.idp.smtp.server }}
+          - --idp-smtp-server={{ . }}
+          {{- end }}
+          {{- with .Values.idp.smtp.port }}
+          - --idp-smtp-port={{ . }}
+          {{- end }}
+          {{- with .Values.idp.smtp.fromAddress }}
+          - --idp-from-address={{ . }}
+          {{- end }}
           {{- with .Values.system.extraArgs }}
           {{- toYaml . | nindent 10 }}
           {{- end }}

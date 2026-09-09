@@ -66,6 +66,16 @@ baseDomain: ""
 jwt:
   userIdClaim: "email"
 
+# Identity provider configuration. This is MUST be set for email verification to work
+idp:
+  smtp:
+    # -- SMTP server hostname
+    server: ""
+    # -- SMTP server port
+    port: ""
+    # -- Email address used as the sender for IDP notifications
+    fromAddress: ""
+
 keycloak:
   # -- base URL of the Keycloak instance (e.g. https://example.com/keycloak). Required.
   baseUrl: ""
