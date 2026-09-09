@@ -43,10 +43,10 @@ trap 'show_help_pointer' ERR
 PRERELEASE=false
 EXAMPLE_DATA=false
 CONCURRENT=false
-SHARDED=false
+SHARDED=true
 REMOTE=false
 DEPLOYMENT_TECH="fluxcd"
-ITERATE=false
+ITERATE=true
 CERT_MANAGER_MSP=false
 
 # PLATFORM_MESH_VERSION selects the OCM aggregate to deploy.
@@ -58,17 +58,18 @@ if [ -z "$PLATFORM_MESH_VERSION" ]; then
 fi
 
 usage() {
-  echo "Usage: $0 [--example-data] [--concurrent] [--sharded] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate] [--cert-manager-msp] [--help]"
+  echo "Usage: $0 [--example-data] [--concurrent] [--sharded=true|false] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate=true|false] [--cert-manager-msp] [--help]"
 
   echo ""
   echo "Options:"
   echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
 
   echo "  --concurrent       Run chart builds in parallel instead of sequentially"
-  echo "  --sharded          Deploy additional kcp shards"
+  echo "  --sharded=BOOL     Deploy additional kcp shards. Default: true"
   echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
   echo "  --deployment-tech  Choose deployment technology: fluxcd or argocd (only with --remote). Default: fluxcd"
-  echo "  --iterate          Skip infrastructure setup; rebuild and reapply the OCM component only (requires PLATFORM_MESH_VERSION unset)"
+  echo "  --iterate=BOOL     Reuse an existing cluster and only rebuild/reapply the OCM component (requires PLATFORM_MESH_VERSION unset)."
+  echo "                     Default: true. With --iterate=false, fails if the cluster already exists instead of touching it"
   echo "  --cert-manager-msp Set up the cert-manager MSP provider and backing cluster (only with --example-data, non-remote). Slow; off by default"
   echo "  --help             Show this help message"
   echo ""
@@ -84,6 +85,13 @@ while [ $# -gt 0 ]; do
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
+    --sharded=*)
+      SHARDED="${1#*=}"
+      if [ "$SHARDED" != "true" ] && [ "$SHARDED" != "false" ]; then
+        echo "Error: --sharded must be 'true' or 'false'" >&2
+        usage
+      fi
+      ;;
     --remote) REMOTE=true ;;
     --deployment-tech=*)
       DEPLOYMENT_TECH="${1#*=}"
@@ -93,6 +101,13 @@ while [ $# -gt 0 ]; do
       fi
       ;;
     --iterate) ITERATE=true ;;
+    --iterate=*)
+      ITERATE="${1#*=}"
+      if [ "$ITERATE" != "true" ] && [ "$ITERATE" != "false" ]; then
+        echo "Error: --iterate must be 'true' or 'false'" >&2
+        usage
+      fi
+      ;;
     --cert-manager-msp) CERT_MANAGER_MSP=true ;;
     --help|-h) usage ;;
     --*) echo "Unknown option: $1" >&2; usage ;;
@@ -109,11 +124,6 @@ export ITERATE
 # would misdirect every kubectl/helm call in this script. kind merges cluster
 # credentials into ~/.kube/config, so the default kubeconfig is always correct here.
 unset KUBECONFIG
-
-if [ "$ITERATE" = true ] && [ "$PRERELEASE" = false ]; then
-  echo -e "${RED}--iterate requires PLATFORM_MESH_VERSION to be unset${COL_RES}" >&2
-  exit 1
-fi
 
 # Source compatibility and environment checks
 source "$SCRIPT_DIR/check-wsl-compatibility.sh"
@@ -332,7 +342,27 @@ if [ "$REMOTE" = true ]; then
   fi
 fi
 
+# --iterate=true (the default) reuses an existing cluster. If there isn't one
+# yet, there's nothing to iterate on, so fall through to a full setup instead.
+cluster_exists_for_iterate() {
+  check_kind_cluster || return 1
+  if [ "$REMOTE" = true ]; then
+    check_kind_infra_cluster || return 1
+  fi
+  return 0
+}
+
+if [ "$ITERATE" = true ] && ! cluster_exists_for_iterate; then
+  ITERATE=false
+  export ITERATE
+fi
+
 if [ "$ITERATE" = true ]; then
+  if [ "$PRERELEASE" = false ]; then
+    echo -e "${RED}--iterate requires PLATFORM_MESH_VERSION to be unset${COL_RES}" >&2
+    exit 1
+  fi
+
   kind export kubeconfig --name platform-mesh
   if [ "$REMOTE" = true ]; then
     kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
@@ -343,6 +373,16 @@ if [ "$ITERATE" = true ]; then
     rm -f .secret/platform-mesh.kubeconfig .secret/platform-mesh-infra.kubeconfig
   fi
 else
+  # --iterate=false was requested explicitly: refuse to touch a cluster that's
+  # already there rather than guessing whether to reuse or replace it.
+  if check_kind_cluster; then
+    echo -e "${RED}Cluster 'platform-mesh' already exists. Delete it first (kind delete cluster --name platform-mesh) or omit --iterate=false to reuse it.${COL_RES}" >&2
+    exit 1
+  fi
+  if [ "$REMOTE" = true ] && check_kind_infra_cluster; then
+    echo -e "${RED}Cluster 'platform-mesh-infra' already exists. Delete it first (kind delete cluster --name platform-mesh-infra) or omit --iterate=false to reuse it.${COL_RES}" >&2
+    exit 1
+  fi
 
   check_wsl_compatibility
   run_environment_checks
@@ -361,17 +401,12 @@ else
   # Create kind cluster(s)
   ###############################################################################
 
-  if ! check_kind_cluster; then
-    create_kind_cluster platform-mesh kind-config.yaml true
-  fi
+  create_kind_cluster platform-mesh kind-config.yaml true
 
   if [ "$REMOTE" = true ]; then
     kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
-
-    if ! check_kind_infra_cluster; then
-      create_kind_cluster platform-mesh-infra kind-config-infra.yaml false
-      kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
-    fi
+    create_kind_cluster platform-mesh-infra kind-config-infra.yaml false
+    kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
   else
     # Drop stale remote-mode artefacts so downstream tooling (e.g. the e2e
     # helpers) doesn't misdetect this as a remote run.
@@ -886,7 +921,7 @@ echo -e "${COL}You can access the onboarding portal at: https://portal.localhost
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"
-  echo -e "${COL}[$(date '+%H:%M:%S')] You may need to run task local-setup:iterate to apply them.${COL_RES}"
+  echo -e "${COL}[$(date '+%H:%M:%S')] You may need to run task local-setup to apply them.${COL_RES}"
 fi
 
 exit 0

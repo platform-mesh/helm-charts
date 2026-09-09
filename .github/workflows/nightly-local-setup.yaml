@@ -54,7 +54,7 @@ jobs:
           key: ocm-thirdparty-etcd-druid-${{ steps.ocm-versions.outputs.etcd_druid }}
       - name: Run local-setup with sharded example data
         run: |
-          task local-setup:concurrent:example-data:cert-manager-msp
+          task local-setup -- --concurrent --example-data --cert-manager-msp
       - name: Check/wait for all components to be ready
         run: |
           sleep 10
