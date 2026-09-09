@@ -65,7 +65,7 @@ spec:
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
-          - --fga-target={{ .Values.fga.target }}
+          - --fga-target={{ .Values.openfga.endpoint }}
           {{- if .Values.kubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}

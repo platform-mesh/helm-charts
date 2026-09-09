@@ -60,7 +60,7 @@ service:
   annotations: {}
 
 openfga:
-  url: openfga:8081
+  endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
 
 webhook:
   cacheMissMaxRetries: 1

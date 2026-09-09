@@ -16,9 +16,6 @@ A Helm chart for security-operator
 | deployment.resources.requests.memory | string | `"128Mi"` |  |
 | deployment.revisionHistoryLimit | int | `3` | Number of old ReplicaSets to retain for rollback |
 | environment | string | `""` | environment indicator, used for logging and observability |
-| fga.extraArgs | list | `[]` | Extra arguments passed to the fga binary |
-| fga.storeIDCacheTTL | string | `""` | TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m). |
-| fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` | OpenFGA gRPC endpoint (host:port) |
 | generator.extraArgs | list | `[]` | Extra arguments passed to the generator binary |
 | hostAliases.enabled | bool | `false` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
@@ -43,6 +40,9 @@ A Helm chart for security-operator
 | keycloakSecret | string | `"keycloak-admin"` | Name of the secret containing Keycloak admin credentials (keys: username, password, secret) |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` | Log level for all operator components. Permissible values: debug, info, warn, error |
+| openfga.endpoint | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` | OpenFGA gRPC endpoint (host:port) |
+| openfga.extraArgs | list | `[]` | Extra arguments passed to the fga binary |
+| openfga.storeIDCacheTTL | string | `""` | TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m). |
 | region | string | `""` | region indicator, used for logging and observability |
 | system.extraArgs | list | `[]` | Extra arguments passed to the system binary |
 | system.kubeconfigSecret | string | `""` | The kubeconfig secret for the system component |

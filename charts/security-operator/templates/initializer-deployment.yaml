@@ -29,7 +29,7 @@ spec:
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
-          - --fga-target={{ .Values.fga.target }}
+          - --fga-target={{ .Values.openfga.endpoint }}
           {{- if .Values.initializer.kubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}

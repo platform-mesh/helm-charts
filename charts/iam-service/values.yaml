@@ -49,6 +49,9 @@ caSecret: ""
 hostAliases:
   enabled: false
 
+openfga:
+  endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
+
 keycloak:
   # -- base URL of the Keycloak instance (e.g. https://example.com/keycloak). Required.
   baseUrl: ""

@@ -43,7 +43,7 @@ spec:
           {{- end }}
         args:
           - "serve"
-          - "--openfga-addr={{ .Values.openfga.url }}"
+          - "--openfga-addr={{ .Values.openfga.endpoint }}"
           {{- if .Values.kcp.apiExportEndpointSliceName }}
           - "--kcp-api-export-endpoint-slice-name={{ .Values.kcp.apiExportEndpointSliceName }}"
           {{- end }}
