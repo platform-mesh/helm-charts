@@ -108,21 +108,19 @@ The setup script automates the entire bootstrap process. By default, it uses the
 **Using Task (recommended):**
 
 ```sh
-# Full setup (deletes existing cluster and creates new one)
 task local-setup
+```
 
-# Iterate on existing cluster (faster, preserves cluster state)
-task local-setup:iterate
+The first run creates a fresh cluster. Subsequent runs reuse it and only rebuild/reapply the OCM component (`--iterate=true` is the default, so this is fast). To force a truly fresh cluster, delete the existing one first and pass `--iterate=false`:
+
+```sh
+kind delete cluster --name platform-mesh
+task local-setup -- --iterate=false
 ```
 
 **Without Task (direct script execution):**
 
 ```sh
-# Full setup (deletes existing cluster and creates new one)
-kind delete cluster --name platform-mesh
-./local-setup/scripts/start.sh
-
-# Iterate on existing cluster (faster, preserves cluster state)
 ./local-setup/scripts/start.sh
 ```
 
@@ -135,21 +133,12 @@ This setup includes an example provider ("httpbin") to showcase how provider int
 **Using Task:**
 
 ```sh
-# Full setup with example data
-task local-setup:example-data
-
-# Iterate on existing cluster
-task local-setup:example-data:iterate
+task local-setup -- --example-data
 ```
 
 **Without Task:**
 
 ```sh
-# Full setup with example data
-kind delete cluster --name platform-mesh
-./local-setup/scripts/start.sh --example-data
-
-# Iterate on existing cluster
 ./local-setup/scripts/start.sh --example-data
 ```
 
@@ -188,9 +177,15 @@ The build-locally path is useful for:
 - Chart development and iteration workflows
 - Note: Requires the `task` CLI to be installed
 
+**Note:** iterate mode doesn't support `PLATFORM_MESH_VERSION` (it only rebuilds from the working tree). This is transparent on a first run — there's no cluster yet, so it falls through to a full setup automatically. If a cluster already exists, though, pass `--iterate=false` explicitly:
+
+```sh
+PLATFORM_MESH_VERSION=0.4.0-build.510 task local-setup -- --iterate=false
+```
+
 **Concurrent builds (--concurrent flag):** When using the `--concurrent` flag, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
 
-**Sharded kcp (default behavior):** By default, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally. All `local-setup` tasks now run with the `--sharded` flag by default. To explicitly run a single-shard setup without additional shards, use the `:single-shard` task variants (e.g., `task local-setup:single-shard`).
+**Sharded kcp (default behavior):** By default, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally. Pass `--sharded=false` to run a single-shard setup instead (e.g., `task local-setup -- --sharded=false`).
 
 **Remote mode (--remote and --deployment-tech flags):** When using `--remote`, the setup creates two kind clusters instead of one: `platform-mesh-infra` (where Flux/ArgoCD and the platform-mesh-operator run) and `platform-mesh` (the runtime cluster where workloads, kcp and OCM resources land). The platform-mesh-operator routes HelmReleases/Applications to the infra cluster and OCM Resources to the runtime cluster, so this is a faithful local replica of a production split-cluster topology.
 
@@ -198,30 +193,22 @@ The build-locally path is useful for:
 
 ```sh
 # FluxCD on a two-cluster topology
-task local-setup:remote:fluxcd
-task local-setup:remote:fluxcd:iterate
+task local-setup -- --remote --deployment-tech=fluxcd
 
 # ArgoCD on a two-cluster topology
-task local-setup:remote:argocd
-task local-setup:remote:argocd:iterate
+task local-setup -- --remote --deployment-tech=argocd
 
 # With example provider data (httpbin); requires the kubectl-kcp plugin
-task local-setup:remote:fluxcd:example-data
-task local-setup:remote:fluxcd:example-data:iterate
-task local-setup:remote:argocd:example-data
-task local-setup:remote:argocd:example-data:iterate
+task local-setup -- --remote --deployment-tech=fluxcd --example-data
+task local-setup -- --remote --deployment-tech=argocd --example-data
 ```
 
-**Iterate mode (--iterate flag):** When using `--iterate`, the setup skips cluster creation and infrastructure deployment entirely. It only rebuilds the OCM component from local charts and reapplies it to the existing cluster. This provides the fastest feedback loop during chart development.
+**Iterate mode (--iterate=BOOL flag, default true):** With `--iterate=true` (the default), the setup reuses an existing cluster and only rebuilds the OCM component from local charts and reapplies it — the fastest feedback loop during chart development. If no cluster exists yet, it falls through to a full setup automatically. Pass `--iterate=false` to require a full setup; if a cluster already exists at that point, `start.sh` fails and asks you to delete it first (`kind delete cluster --name platform-mesh`) rather than guessing whether to reuse or replace it.
 
 **Task Naming Convention:**
 
-- Base tasks: `task local-setup`, `task local-setup:iterate` (now run with `--sharded` by default)
-- Single-shard variants: `task local-setup:single-shard`, `task local-setup:single-shard:iterate` (run without `--sharded` flag)
-- With flags: `task local-setup:<flag1>:<flag2>:...`
-- Available flags: `example-data`, `concurrent`, `remote`
-- Single-shard with flags: `task local-setup:single-shard:<flag1>:<flag2>:...`
-- All tasks support both full setup and `:iterate` variants
+- There is a single `local-setup` task; all behavior is controlled by flags passed through to `start.sh` after `--`, e.g. `task local-setup -- --example-data --concurrent --sharded=false`
+- Available flags: see `./local-setup/scripts/start.sh --help`
 
 #### Developer information
 
@@ -311,7 +298,7 @@ Organization subdomains like `<organization-name>.portal.localhost` are automati
 
 ```sh
 # With Task
-DEBUG=true task local-setup:iterate
+DEBUG=true task local-setup
 
 # Without Task
 DEBUG=true ./local-setup/scripts/start.sh
@@ -407,7 +394,7 @@ cp local-setup/scripts/post-flux-hook.sh.example local-setup/scripts/post-flux-h
 
 1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
 2. Add the load command to `post-flux-hook.sh`
-3. Run `task local-setup:iterate` to reload the cluster with your custom images
+3. Run `task local-setup` to reload the cluster with your custom images
 
 ##### Platform-Mesh Resource Hook
 
@@ -629,7 +616,7 @@ npx playwright test test-register-and-navigate.test.ts
 If you encounter issues:
 
 1. Check the script output for specific error messages
-2. Enable debug mode: `DEBUG=true task local-setup:iterate`
+2. Enable debug mode: `DEBUG=true task local-setup`
 3. Verify all prerequisites are properly installed
 4. Check cluster and component status using kubectl commands
 5. Review logs of failing components

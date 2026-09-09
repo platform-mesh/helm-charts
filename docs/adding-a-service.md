@@ -410,11 +410,8 @@ componentReferences:
 After completing all the above steps:
 
 ```sh
-# Full setup from scratch with local charts
+# Reuses an existing cluster if there is one, otherwise sets one up from scratch
 task local-setup
-
-# Iterate on an existing cluster (faster)
-task local-setup:iterate
 
 # Just rebuild and redeploy OCM component
 task ocm:build ocm:apply
