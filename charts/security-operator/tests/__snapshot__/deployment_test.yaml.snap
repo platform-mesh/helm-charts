@@ -157,8 +157,10 @@ operator match the snapshot:
             - args:
                 - fga
                 - --core-module-path=/data/coreModule.fga
+                - --user-claim=email
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+                - --domain-ca-lookup
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
                 - --webhooks-cert-dir=/certs
@@ -398,6 +400,7 @@ operator match the snapshot:
                 - --core-module-path=/data/coreModule.fga
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+                - --domain-ca-lookup
                 - --test=myval
                 - --test2=myval
                 - --leader-elect
@@ -898,7 +901,9 @@ operator match the snapshot w. sentry:
             - args:
                 - fga
                 - --core-module-path=/data/coreModule.fga
+                - --user-claim=email
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --domain-ca-lookup
                 - --webhooks-enabled=true
                 - --webhooks-port=9443
                 - --webhooks-cert-dir=/certs
@@ -1152,6 +1157,7 @@ operator match the snapshot w. sentry:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --domain-ca-lookup
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090

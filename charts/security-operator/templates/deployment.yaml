@@ -69,7 +69,10 @@ spec:
           {{- if .Values.kubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}
-          {{- with .Values.fga.extraArgs }}
+          {{- if and .Values.domainCALookup }}
+          - --domain-ca-lookup
+          {{- end }}
+          {{- with .Values.operator.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}
           {{- if .Values.webhooks.enabled }}

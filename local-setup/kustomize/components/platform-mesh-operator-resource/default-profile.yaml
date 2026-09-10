@@ -673,21 +673,20 @@ data:
             caSecret: domain-certificate-ca
             crds:
               enabled: false
+            openfga:
+              endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
             fga:
               extraArgs:
                 - --set-default-password
                 - --idp-registration-allowed
-                - --domain-ca-lookup
                 - --development-allow-unverified-emails
                 - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
               baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
-              target: openfga.platform-mesh-system.svc.cluster.local:8081
             hostAliases:
               enabled: true
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
               extraArgs:
-                - --domain-ca-lookup
                 - --development-allow-unverified-emails
                 - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
                 - --idp-registration-allowed

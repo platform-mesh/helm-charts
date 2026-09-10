@@ -368,24 +368,19 @@ data:
           values:
             baseDomain: '{{ .baseDomainPort }}'
             caSecret: domain-certificate-ca
+            kubeconfigSecret: security-operator-kubeconfig
             crds:
               enabled: false
             fga:
-              extraArgs:
-                - --domain-ca-lookup
               baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
               target: openfga.platform-mesh-system.svc.cluster.local:8081
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
-              extraArgs:
-                - --domain-ca-lookup
-            kubeconfigSecret: security-operator-kubeconfig
             operator:
               maxConcurrentReconciles: 5
               shutdownTimeout: 5m
             system:
               extraArgs:
-              - --domain-ca-lookup
               # REQUIRED: configure a production SMTP server
               # - --idp-smtp-server=smtp.example.com
               # - --idp-smtp-port=587

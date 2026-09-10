@@ -59,6 +59,9 @@ keycloakSecret: "keycloak-admin"
 # -- Name of the secret containing the CA certificate for outbound TLS trust (key: tls.crt or ca.crt)
 caSecret: ""
 
+# -- Enable domain CA lookup for TLS verification on kcp side
+domainCALookup: true
+
 # -- Base domain of the platform deployment (e.g. platform.example.com). Used to derive internal service URLs when explicit URLs are not set. Required.
 baseDomain: ""
 
@@ -139,6 +142,8 @@ openfga:
   # -- TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m).
   storeIDCacheTTL: ""
   # -- Extra arguments passed to the fga binary
+
+operator:
   extraArgs: []
 
 hostAliases:
