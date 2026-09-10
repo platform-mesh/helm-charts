@@ -372,8 +372,9 @@ data:
             crds:
               enabled: false
             fga:
-              baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
               target: openfga.platform-mesh-system.svc.cluster.local:8081
+            keycloak:
+              baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
             operator:

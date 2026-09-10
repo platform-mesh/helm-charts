@@ -675,13 +675,14 @@ data:
               enabled: false
             openfga:
               endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
+            keycloak:
+              baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
             fga:
               extraArgs:
                 - --set-default-password
                 - --idp-registration-allowed
                 - --development-allow-unverified-emails
                 - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
-              baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
             hostAliases:
               enabled: true
             initializer:
