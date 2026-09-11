@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BACKUP_DIR="${BACKUP_DIR:-local-setup/backup/keycloak/postgres}"
+BACKUP_DIR="${1:-${BACKUP_DIR:-local-setup/backup/keycloak/postgres}}"
 TIMESTAMP=$(date +%Y-%m-%d-%H:%M:%S)
 
 mkdir -p "$BACKUP_DIR"

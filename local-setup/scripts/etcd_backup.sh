@@ -5,7 +5,7 @@ NAMESPACE="platform-mesh-system"
 POD="etcd-kcp-0"
 PVC_CLAIM="etcd-kcp-etcd-kcp-0"
 COPY_POD="etcd-backup-copy"
-LOCAL_BACKUP_DIR="./local-setup/backup/etcd"
+LOCAL_BACKUP_DIR="${1:-./local-setup/backup/etcd}"
 
 echo "--- Setting up local backup directory: $LOCAL_BACKUP_DIR ---"
 mkdir -p "$LOCAL_BACKUP_DIR"

@@ -3,8 +3,10 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKUP_DIR="$SCRIPT_DIR/../backup/openfga"
+BACKUP_DIR="${1:-$SCRIPT_DIR/../backup/openfga}"
+export BACKUP_DIR
 POSTGRES_BACKUP_DIR="$BACKUP_DIR/postgres"
+FGA_PORT=18300
 
 echo "=== OpenFGA Backup Script ==="
 
@@ -22,13 +24,22 @@ kubectl -n platform-mesh-system exec pod/openfga-postgres-0 -- \
 
 echo "PostgreSQL backup saved to: $BACKUP_FILE"
 
-# Step 2: Export FGA stores using CLI
-echo "Step 2: Exporting FGA stores..."
-fga store list > "$BACKUP_DIR/store-list.json"
+# Step 2: Port-forward OpenFGA so the fga CLI can reach it
+echo "Step 2: Starting port-forward to OpenFGA on localhost:${FGA_PORT}..."
+kubectl port-forward svc/openfga -n platform-mesh-system "${FGA_PORT}:8080" >/dev/null 2>&1 &
+PF_PID=$!
+trap 'kill "$PF_PID" 2>/dev/null; wait "$PF_PID" 2>/dev/null' EXIT
+sleep 2
+
+export FGA_SERVER_URL="http://localhost:${FGA_PORT}"
+
+# Step 3: Export FGA stores using CLI
+echo "Step 3: Exporting FGA stores..."
+fga store list --server-url "$FGA_SERVER_URL" > "$BACKUP_DIR/store-list.json"
 echo "Store list saved to: $BACKUP_DIR/store-list.json"
 
-# Step 3: Export each store
-echo "Step 3: Exporting individual stores..."
+# Step 4: Export each store
+echo "Step 4: Exporting individual stores..."
 "$SCRIPT_DIR/export-stores.sh"
 
 echo "=== OpenFGA Backup Complete ==="
