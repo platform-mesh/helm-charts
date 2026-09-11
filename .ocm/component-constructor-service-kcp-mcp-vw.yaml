@@ -1,0 +1,27 @@
+components:
+  - name: "${COMPONENT_NAME}"
+    version: "${VERSION}"
+    provider:
+      name: The Platform Mesh Team
+    componentReferences:
+      - name: chart
+        componentName: "github.com/platform-mesh/helm-charts/${CHART_NAME}"
+        version: "${VERSION}"
+      - name: image
+        componentName: "github.com/platform-mesh/images/${IMAGE_COMPONENT_NAME}"
+        version: "${VERSION}"
+
+  # The image is built and released by kcp-dev/contrib-virtual-workspaces;
+  # this component only references it.
+  - name: "github.com/platform-mesh/images/${IMAGE_COMPONENT_NAME}"
+    version: "${VERSION}"
+    provider:
+      name: The Platform Mesh Team
+    resources:
+      - name: mcp-vw-image
+        type: ociImage
+        relation: external
+        version: "0.1.1"
+        access:
+          type: ociArtifact
+          imageReference: "ghcr.io/kcp-dev/contrib-virtual-workspaces/mcp-vw:0.1.1@sha256:0d937ac6644a26a215b59f5dc5352ccb0ec9a6522bb9cc79695bba3fb1b1fda5"
