@@ -677,7 +677,9 @@ data:
               endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
             keycloak:
               baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
-            fga:
+            operator:
+              maxConcurrentReconciles: 1
+              shutdownTimeout: 1m
               extraArgs:
                 - --set-default-password
                 - --idp-registration-allowed
@@ -695,9 +697,6 @@ data:
             log:
               level: debug
               noJson: true
-            operator:
-              maxConcurrentReconciles: 1
-              shutdownTimeout: 1m
             system:
               extraArgs:
               - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
