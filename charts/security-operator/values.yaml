@@ -59,10 +59,29 @@ keycloakSecret: "keycloak-admin"
 # -- Name of the secret containing the CA certificate for outbound TLS trust (key: tls.crt or ca.crt)
 caSecret: ""
 
+# -- Enable domain CA lookup for TLS verification on kcp side
+domainCALookup: true
+
 # -- Base domain of the platform deployment (e.g. platform.example.com). Used to derive internal service URLs when explicit URLs are not set. Required.
 baseDomain: ""
 
+# JWT configuration
+jwt:
+  userIdClaim: "email"
+
+# Identity provider configuration. This is MUST be set for email verification to work
+idp:
+  smtp:
+    # -- SMTP server hostname
+    server: ""
+    # -- SMTP server port
+    port: ""
+    # -- Email address used as the sender for IDP notifications
+    fromAddress: ""
+
 keycloak:
+  # -- base URL of the Keycloak instance (e.g. https://example.com/keycloak). Required.
+  baseUrl: ""
   client:
     secret:
       name: security-operator-client-secret
@@ -116,14 +135,15 @@ system:
   kubeconfigSecret: ""
   # -- Extra arguments passed to the system binary
   extraArgs: []
-fga:
+
+openfga:
   # -- OpenFGA gRPC endpoint (host:port)
-  target: openfga.platform-mesh-system.svc.cluster.local:8081
+  endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
   # -- TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m).
   storeIDCacheTTL: ""
-  # -- Keycloak base URL used for invite email links (e.g. https://platform.example.com). Defaults to baseDomain-derived URL when empty.
-  inviteKeycloakBaseUrl: ""
   # -- Extra arguments passed to the fga binary
+
+operator:
   extraArgs: []
 
 hostAliases:

@@ -25,10 +25,10 @@ keycloak operator enabled renders all resources:
         vendor: postgres
       hostname:
         backchannelDynamic: true
-        hostname: https://portal.localhost:8443
+        hostname: null
         strict: false
       http:
-        httpEnabled: true
+        httpEnabled: false
       image: ghcr.io/platform-mesh/custom-images/keycloak:v26.7.2
       ingress:
         enabled: false
@@ -80,8 +80,6 @@ test HTTPRoutes:
     metadata:
       name: keycloak
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway

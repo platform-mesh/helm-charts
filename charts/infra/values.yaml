@@ -15,7 +15,8 @@ kcp:
     # -- Existing CA to sign from directly. Secret must be of type kubernetes.io/tls and contain the CA certificate and its private key. Mutually exclusive with issuerRef.
     caSecretRef: {}
   external:
-    hostname: localhost
+    # -- External hostname for kcp. Required — must be set via profile map or PlatformMesh resource (e.g. kcp.api.example.com).
+    hostname: ""
     port: 8443
   auth:
     adminCert:
@@ -109,9 +110,9 @@ kcp:
   rootShard:
     replicas: 1
     # -- Hostname for the root shard. Defaults to "root.kcp.<kcp.external.hostname>" when unset.
-    hostname: root.kcp.localhost
+    hostname: ""
     # -- Base URL the root shard advertises. Defaults to "https://<rootShard.hostname>:<kcp.external.port>/" when unset.
-    shardBaseURL: https://root.kcp.localhost:8443/
+    shardBaseURL: ""
     # -- Optional resource requests and limits for the root shard
     resources: {}
     # resources:
@@ -194,7 +195,7 @@ keycloak:
     # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).
     # Must not include a path — the operator auto-derives http-relative-path from
     # any path component, which conflicts with the value baked into the image.
-    hostname: "https://portal.localhost:8443"
+    hostname: ""
     db:
       # -- PostgreSQL host
       host: platform-mesh-pg-rw.platform-mesh-system.svc.cluster.local
@@ -215,8 +216,8 @@ keycloak:
       secret: ""
     # -- Secret with PEM CA for outbound HTTPS trust (e.g. local mkcert CA)
     caSecret: ""
-    # -- Enable plain HTTP on the Keycloak pod. Set to false in production (TLS must be configured instead).
-    httpEnabled: true
+    # -- Enable plain HTTP on the Keycloak pod. Set to true only for local development without TLS.
+    httpEnabled: false
     resources:
       limits:
         cpu: "2"
@@ -239,8 +240,7 @@ keycloak:
         failureThreshold: 600
   gatewayApi:
     # -- hostnames for the Keycloak HTTPRoute
-    hostnames:
-      - portal.localhost
+    hostnames: []
     # -- path prefix for the Keycloak HTTPRoute
     pathPrefix: /keycloak
     # -- list of HTTPRoute filters (default: none)
@@ -274,7 +274,7 @@ keycloak:
       # -- toggle to enable/disable user registration
       enabled: true
     # -- redirect urls
-    redirectUrls: ["http://localhost:8000/callback*"]
+    redirectUrls: []
     # -- realm configuration
     realm:
       # -- realm name
@@ -309,7 +309,7 @@ dex:
   # -- Enable Dex as a local upstream OIDC identity provider
   enabled: false
   # -- Dex issuer URL (must match external browser-reachable URL)
-  issuer: https://portal.localhost:8443/dex
+  issuer: ""
   image:
     # -- Dex image registry
     registry: ghcr.io
@@ -344,8 +344,7 @@ dex:
       memory: 64Mi
   gatewayApi:
     # -- hostnames for the Dex HTTPRoute
-    hostnames:
-      - portal.localhost
+    hostnames: []
     # -- path prefix for the Dex HTTPRoute
     pathPrefix: /dex
     # -- list of HTTPRoute filters (default: none)
@@ -360,8 +359,7 @@ dex:
     # -- Display name for the static OIDC client
     name: Keycloak Broker
     # -- Allowed redirect URIs (Keycloak broker callback URLs)
-    redirectURIs:
-      - https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint
+    redirectURIs: []
   staticPasswords:
     # -- Local test user for Dex password connector (dex@portal.localhost/dex/dex)
     - email: dex@portal.localhost
@@ -417,7 +415,7 @@ gatewayApi:
   infrastructure: {}
   listeners:
     - name: terminate
-      hostname: portal.localhost
+      hostname: ""
       port: 8443
       protocol: HTTPS
       tls:
@@ -428,7 +426,7 @@ gatewayApi:
             name: domain-certificate
             namespace: platform-mesh-system
     - name: terminate-wildstar
-      hostname: '*.portal.localhost'
+      hostname: ""
       port: 8443
       protocol: HTTPS
       tls:
@@ -449,7 +447,7 @@ gatewayApi:
   # -- Additional listeners to be added to the Gateway resource (e.g. for HTTPBin)
   listenersExtra:
     - name: terminate-services
-      hostname: '*.services.portal.localhost'
+      hostname: ""
       port: 8443
       protocol: HTTPS
       tls:

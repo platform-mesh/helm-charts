@@ -7,6 +7,8 @@ tests:
 - it: match snapshots
   set:
     kcp:
+      external:
+        hostname: localhost
       image:
         tag: 0.0.0
   asserts:
@@ -14,6 +16,8 @@ tests:
 - it: match snapshots w. hostAliases enabled
   set:
     kcp:
+      external:
+        hostname: localhost
       frontProxy:
         clusterIP: "10.0.0.1"
     hostAliases:
@@ -23,18 +27,26 @@ tests:
 - it: match snapshots w. kcp version
   set:
     kcp:
+      external:
+        hostname: localhost
       image:
         tag: "v0.1.0"
   asserts:
     - matchSnapshot: {}
 - it: match snapshots with mailpit enabled
   set:
+    kcp:
+      external:
+        hostname: localhost
     mailpit:
       enabled: true
   asserts:
   - matchSnapshot: {}
 - it: Gateway API enabled
   set:
+    kcp:
+      external:
+        hostname: localhost
     gatewayApi:
       enabled: true
     cors:
@@ -43,12 +55,18 @@ tests:
     - matchSnapshot: {}
 - it: Istio disabled
   set:
+    kcp:
+      external:
+        hostname: localhost
     istio:
       enabled: false
   asserts:
     - matchSnapshot: {}
 - it: Istio enabled
   set:
+    kcp:
+      external:
+        hostname: localhost
     istio:
       enabled: true
   asserts:
@@ -80,6 +98,8 @@ tests:
     - kcp/front-proxy.yaml
   set:
     kcp:
+      external:
+        hostname: localhost
       frontProxy:
         resources:
           limits:
@@ -112,6 +132,8 @@ tests:
     - kcp/root-shard.yaml
   set:
     kcp:
+      external:
+        hostname: localhost
       rootShard:
         resources:
           limits:
@@ -154,9 +176,13 @@ tests:
     equal:
       path: spec.shardBaseURL
       value: https://root.kcp.example.com:8443/
-- it: root-shard defaults to root.kcp.localhost
+- it: root-shard defaults to root.kcp.<external.hostname>
   templates:
     - kcp/root-shard.yaml
+  set:
+    kcp:
+      external:
+        hostname: localhost
   asserts:
   - documentIndex: 1
     equal:
@@ -211,6 +237,8 @@ tests:
     - kcp/root-shard.yaml
   set:
     kcp:
+      external:
+        hostname: localhost
       etcd:
         backup:
           store:
@@ -237,6 +265,8 @@ tests:
     - kcp/shards.yaml
   set:
     kcp:
+      external:
+        hostname: localhost
       shards:
         - name: shard-1
           hostname: shard-1.kcp.localhost
@@ -249,6 +279,8 @@ tests:
     - kcp/shards.yaml
   set:
     kcp:
+      external:
+        hostname: localhost
       shards:
         - name: shard-2
   asserts:

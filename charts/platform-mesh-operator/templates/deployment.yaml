@@ -31,6 +31,9 @@ spec:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
+          {{- with .Values.jwt.userIdClaim }}
+          - --user-claim={{ . }}
+          {{- end }}
           {{- if .Values.remoteRuntime.enabled }}
           - --remote-runtime-kubeconfig=/etc/platformmesh/kubeconfig
           - --remote-runtime-infra-secret-name={{ .Values.remoteRuntime.infra.secretName }}

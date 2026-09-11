@@ -673,27 +673,23 @@ data:
             caSecret: domain-certificate-ca
             crds:
               enabled: false
-            fga:
+            openfga:
+              endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
+            keycloak:
+              baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
+            operator:
+              maxConcurrentReconciles: 1
+              shutdownTimeout: 1m
               extraArgs:
-                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-                - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
                 - --set-default-password
                 - --idp-registration-allowed
-                - --domain-ca-lookup
                 - --development-allow-unverified-emails
                 - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
-              inviteKeycloakBaseUrl: 'https://{{ .baseDomainPort }}/keycloak'
-              target: openfga.platform-mesh-system.svc.cluster.local:8081
             hostAliases:
               enabled: true
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
               extraArgs:
-                - --domain-ca-lookup
-                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-                - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
                 - --development-allow-unverified-emails
                 - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
                 - --idp-registration-allowed
@@ -701,9 +697,6 @@ data:
             log:
               level: debug
               noJson: true
-            operator:
-              maxConcurrentReconciles: 1
-              shutdownTimeout: 1m
             system:
               extraArgs:
               - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local

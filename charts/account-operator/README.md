@@ -23,10 +23,8 @@ A Helm chart to deploy platform-mesh Account-Operator
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh/account-operator"` | The image repository path (without registry) |
 | istio.enabled | bool | `false` |  |
-| kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io","enabled":false,"virtualWorkspaceUrl":""}` | The kcp configuration |
-| kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | kcp APIExportEndpointSliceName |
-| kcp.enabled | bool | `false` | Enable kcp |
-| kcp.virtualWorkspaceUrl | string | `""` | The URL for the virtual workspace |
+| kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io"}` | The kcp configuration |
+| kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | kcp APIExportEndpointSliceName which is used for reconciliation |
 | kubeconfigSecret | string | `""` | The secret for kubeconfig |
 | operator.leaderElect | bool | `true` |  |
 | security.mountServiceAccountToken | bool | `true` | Mount the service account token |

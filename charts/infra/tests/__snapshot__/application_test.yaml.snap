@@ -8,7 +8,7 @@ Gateway API enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
+        - hostname: ""
           name: terminate
           port: 8443
           protocol: HTTPS
@@ -19,7 +19,7 @@ Gateway API enabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - hostname: ""
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -41,7 +41,7 @@ Gateway API enabled:
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: '*.services.portal.localhost'
+          hostname: ""
           name: terminate-services
           port: 8443
           protocol: HTTPS
@@ -613,8 +613,6 @@ Gateway API enabled:
     metadata:
       name: keycloak
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -663,7 +661,7 @@ Istio disabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
+        - hostname: ""
           name: terminate
           port: 8443
           protocol: HTTPS
@@ -674,7 +672,7 @@ Istio disabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - hostname: ""
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -696,7 +694,7 @@ Istio disabled:
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: '*.services.portal.localhost'
+          hostname: ""
           name: terminate-services
           port: 8443
           protocol: HTTPS
@@ -1268,8 +1266,6 @@ Istio disabled:
     metadata:
       name: keycloak
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -1318,7 +1314,7 @@ Istio enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
+        - hostname: ""
           name: terminate
           port: 8443
           protocol: HTTPS
@@ -1329,7 +1325,7 @@ Istio enabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - hostname: ""
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -1351,7 +1347,7 @@ Istio enabled:
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: '*.services.portal.localhost'
+          hostname: ""
           name: terminate-services
           port: 8443
           protocol: HTTPS
@@ -1923,8 +1919,6 @@ Istio enabled:
     metadata:
       name: keycloak
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2292,7 +2286,7 @@ match snapshots:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
+        - hostname: ""
           name: terminate
           port: 8443
           protocol: HTTPS
@@ -2303,7 +2297,7 @@ match snapshots:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - hostname: ""
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -2325,7 +2319,7 @@ match snapshots:
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: '*.services.portal.localhost'
+          hostname: ""
           name: terminate-services
           port: 8443
           protocol: HTTPS
@@ -2913,8 +2907,6 @@ match snapshots:
     metadata:
       name: keycloak
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -2963,7 +2955,7 @@ match snapshots w. hostAliases enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
+        - hostname: ""
           name: terminate
           port: 8443
           protocol: HTTPS
@@ -2974,7 +2966,7 @@ match snapshots w. hostAliases enabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - hostname: ""
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -2996,7 +2988,7 @@ match snapshots w. hostAliases enabled:
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: '*.services.portal.localhost'
+          hostname: ""
           name: terminate-services
           port: 8443
           protocol: HTTPS
@@ -3639,8 +3631,6 @@ match snapshots w. hostAliases enabled:
     metadata:
       name: keycloak
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -3689,7 +3679,7 @@ match snapshots w. kcp version:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
+        - hostname: ""
           name: terminate
           port: 8443
           protocol: HTTPS
@@ -3700,7 +3690,7 @@ match snapshots w. kcp version:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - hostname: ""
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -3722,7 +3712,7 @@ match snapshots w. kcp version:
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: '*.services.portal.localhost'
+          hostname: ""
           name: terminate-services
           port: 8443
           protocol: HTTPS
@@ -4310,8 +4300,6 @@ match snapshots w. kcp version:
     metadata:
       name: keycloak
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
@@ -4360,7 +4348,7 @@ match snapshots with mailpit enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
+        - hostname: ""
           name: terminate
           port: 8443
           protocol: HTTPS
@@ -4371,7 +4359,7 @@ match snapshots with mailpit enabled:
                 name: domain-certificate
                 namespace: platform-mesh-system
             mode: Terminate
-        - hostname: '*.portal.localhost'
+        - hostname: ""
           name: terminate-wildstar
           port: 8443
           protocol: HTTPS
@@ -4393,7 +4381,7 @@ match snapshots with mailpit enabled:
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: '*.services.portal.localhost'
+          hostname: ""
           name: terminate-services
           port: 8443
           protocol: HTTPS
@@ -4965,8 +4953,6 @@ match snapshots with mailpit enabled:
     metadata:
       name: keycloak
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway

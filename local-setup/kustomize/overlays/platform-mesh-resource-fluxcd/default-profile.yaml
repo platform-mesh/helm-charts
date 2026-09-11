@@ -589,7 +589,7 @@ data:
             crds:
               enabled: false
             fga:
-              inviteKeycloakBaseUrl: "https://{{ .baseDomainPort }}/keycloak"
+              baseUrl: "https://{{ .baseDomainPort }}/keycloak"
               target: openfga.platform-mesh-system.svc.cluster.local:8081
               extraArgs:
                 - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
