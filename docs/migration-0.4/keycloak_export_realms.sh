@@ -7,13 +7,14 @@ DEST="$EXPORT_DIR/$TIMESTAMP"
 
 mkdir -p "$DEST"
 
-# ADMIN_PASSWORD=$(kubectl get secret keycloak-admin \
-#   -n platform-mesh-system \
-#   -o jsonpath='{.data.admin-password}' | base64 -d)
-# echo "Admin password: $ADMIN_PASSWORD"
-ADMIN_PASSWORD=admin
+ADMIN_USER=$(kubectl get secret keycloak-admin \
+  -n platform-mesh-system \
+  -o jsonpath='{.data.username}' | base64 -d)
+ADMIN_PASSWORD=$(kubectl get secret keycloak-admin \
+  -n platform-mesh-system \
+  -o jsonpath='{.data.password}' | base64 -d)
 
-KCADM_BIN=/opt/bitnami/keycloak/bin/kcadm.sh
+KCADM_BIN=/opt/keycloak/bin/kcadm.sh
 KC_EXEC="kubectl exec -n platform-mesh-system keycloak-0 --"
 KC_CONFIG=/tmp/kcadm.config
 
@@ -21,7 +22,7 @@ $KC_EXEC $KCADM_BIN config credentials \
   --config $KC_CONFIG \
   --server http://localhost:8080/keycloak \
   --realm master \
-  --user keycloak-admin \
+  --user "$ADMIN_USER" \
   --password "$ADMIN_PASSWORD"
 
 REALMS=$($KC_EXEC $KCADM_BIN get realms \
