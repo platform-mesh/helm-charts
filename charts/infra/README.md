@@ -27,7 +27,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | dex.enabled | bool | `false` | Enable Dex as a local upstream OIDC identity provider |
 | dex.gatewayApi.corsFilters | list | `[]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | dex.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
-| dex.gatewayApi.hostnames | list | `["portal.localhost"]` | hostnames for the Dex HTTPRoute |
+| dex.gatewayApi.hostnames | list | `[]` | hostnames for the Dex HTTPRoute |
 | dex.gatewayApi.pathPrefix | string | `"/dex"` | path prefix for the Dex HTTPRoute |
 | dex.health.liveness.failureThreshold | int | `3` |  |
 | dex.health.liveness.path | string | `"/dex/healthz"` |  |
@@ -39,7 +39,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | dex.image.registry | string | `"ghcr.io"` | Dex image registry |
 | dex.image.repository | string | `"dexidp/dex"` | Dex image repository (without registry) |
 | dex.image.tag | string | `"v2.42.0"` | Dex image tag |
-| dex.issuer | string | `"https://portal.localhost:8443/dex"` | Dex issuer URL (must match external browser-reachable URL) |
+| dex.issuer | string | `""` | Dex issuer URL (must match external browser-reachable URL) |
 | dex.resources.limits.cpu | string | `"200m"` |  |
 | dex.resources.limits.memory | string | `"256Mi"` |  |
 | dex.resources.requests.cpu | string | `"50m"` |  |
@@ -48,37 +48,15 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | dex.service.port | int | `5556` | Dex service port |
 | dex.staticClient.id | string | `"keycloak-broker"` | OIDC client ID for Keycloak identity broker |
 | dex.staticClient.name | string | `"Keycloak Broker"` | Display name for the static OIDC client |
-| dex.staticClient.redirectURIs | list | `["https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint"]` | Allowed redirect URIs (Keycloak broker callback URLs) |
+| dex.staticClient.redirectURIs | list | `[]` | Allowed redirect URIs (Keycloak broker callback URLs) |
 | dex.staticClient.secret | string | `"local-dev-broker-secret"` | OIDC client secret for Keycloak identity broker (local dev only) |
 | dex.staticPasswords[0] | object | `{"email":"dex@portal.localhost","hash":"$2a$10$mhivFdR/0pGuCR85LuEerOcYhCuiU294J3dHbtSU3UKDHLNQ6gNHm","userID":"08a868f8-4b4b-42f3-9d23-5f46eda2c3a0","username":"dex"}` | Local test user for Dex password connector (dex@portal.localhost/dex/dex) |
 | externalSecrets.enabled | bool | `false` |  |
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
 | gatewayApi.infrastructure | object | `{}` | HTTPS Terminate configuration |
-| gatewayApi.listenersExtra | list | `[{"allowedRoutes":{"namespaces":{"from":"All"}},"hostname":"*.services.portal.localhost","name":"terminate-services","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}}]` | Additional listeners to be added to the Gateway resource (e.g. for HTTPBin) |
-| gatewayApi.listeners[0].hostname | string | `"portal.localhost"` |  |
-| gatewayApi.listeners[0].name | string | `"terminate"` |  |
-| gatewayApi.listeners[0].port | int | `8443` |  |
-| gatewayApi.listeners[0].protocol | string | `"HTTPS"` |  |
-| gatewayApi.listeners[0].tls.certificateRefs[0].group | string | `""` |  |
-| gatewayApi.listeners[0].tls.certificateRefs[0].kind | string | `"Secret"` |  |
-| gatewayApi.listeners[0].tls.certificateRefs[0].name | string | `"domain-certificate"` |  |
-| gatewayApi.listeners[0].tls.certificateRefs[0].namespace | string | `"platform-mesh-system"` |  |
-| gatewayApi.listeners[0].tls.mode | string | `"Terminate"` |  |
-| gatewayApi.listeners[1].hostname | string | `"*.portal.localhost"` |  |
-| gatewayApi.listeners[1].name | string | `"terminate-wildstar"` |  |
-| gatewayApi.listeners[1].port | int | `8443` |  |
-| gatewayApi.listeners[1].protocol | string | `"HTTPS"` |  |
-| gatewayApi.listeners[1].tls.certificateRefs[0].group | string | `""` |  |
-| gatewayApi.listeners[1].tls.certificateRefs[0].kind | string | `"Secret"` |  |
-| gatewayApi.listeners[1].tls.certificateRefs[0].name | string | `"domain-certificate"` |  |
-| gatewayApi.listeners[1].tls.certificateRefs[0].namespace | string | `"platform-mesh-system"` |  |
-| gatewayApi.listeners[1].tls.mode | string | `"Terminate"` |  |
-| gatewayApi.listeners[2].allowedRoutes.namespaces.from | string | `"All"` |  |
-| gatewayApi.listeners[2].name | string | `"passthrough"` |  |
-| gatewayApi.listeners[2].port | int | `8443` |  |
-| gatewayApi.listeners[2].protocol | string | `"TLS"` |  |
-| gatewayApi.listeners[2].tls.mode | string | `"Passthrough"` |  |
+| gatewayApi.listeners | list | `[{"name":"terminate","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}},{"name":"terminate-wildstar","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"All"}},"name":"passthrough","port":8443,"protocol":"TLS","tls":{"mode":"Passthrough"}}]` | Gateway listeners. Hostnames should be set via profile map for each environment. Omitting hostname means the listener matches all hostnames (wildcard). |
+| gatewayApi.listenersExtra | list | `[{"allowedRoutes":{"namespaces":{"from":"All"}},"name":"terminate-services","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}}]` | Additional listeners to be added to the Gateway resource (e.g. for HTTPBin) |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | hostAliases.enabled | bool | `false` |  |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
@@ -130,7 +108,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | kcp.etcd.service.port | int | `2379` |  |
 | kcp.etcd.sharedConfig.autoCompactionMode | string | `"periodic"` |  |
 | kcp.etcd.sharedConfig.autoCompactionRetention | string | `"30m"` |  |
-| kcp.external.hostname | string | `"localhost"` |  |
+| kcp.external.hostname | string | `""` | External hostname for kcp. Required — must be set via profile map or PlatformMesh resource (e.g. kcp.api.example.com). |
 | kcp.external.port | int | `8443` |  |
 | kcp.frontProxy.additionalPathMappings[0].backend | string | `"https://virtual-workspaces.platform-mesh-system:8443"` |  |
 | kcp.frontProxy.additionalPathMappings[0].backend_server_ca | string | `"/etc/kcp/tls/ca/tls.crt"` |  |
@@ -151,10 +129,10 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | kcp.image.tag | string | `""` |  |
 | kcp.namespace | string | `"platform-mesh-system"` |  |
 | kcp.rootShard.extraArgs[0] | string | `"--feature-gates=WorkspaceAuthentication=true,CacheAPIs=true"` |  |
-| kcp.rootShard.hostname | string | `"root.kcp.localhost"` | Hostname for the root shard. Defaults to "root.kcp.<kcp.external.hostname>" when unset. |
+| kcp.rootShard.hostname | string | `""` | Hostname for the root shard. Defaults to "root.kcp.<kcp.external.hostname>" when unset. |
 | kcp.rootShard.replicas | int | `1` |  |
 | kcp.rootShard.resources | object | `{}` | Optional resource requests and limits for the root shard |
-| kcp.rootShard.shardBaseURL | string | `"https://root.kcp.localhost:8443/"` | Base URL the root shard advertises. Defaults to "https://<rootShard.hostname>:<kcp.external.port>/" when unset. |
+| kcp.rootShard.shardBaseURL | string | `""` | Base URL the root shard advertises. Defaults to "https://<rootShard.hostname>:<kcp.external.port>/" when unset. |
 | kcp.shards[0].name | string | `"nereus"` |  |
 | kcp.shards[1].name | string | `"triton"` |  |
 | kcp.webhook.authorizationWebhookSecretName | string | `"kcp-webhook-secret"` |  |
@@ -168,7 +146,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
 | keycloak.gatewayApi.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | keycloak.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
-| keycloak.gatewayApi.hostnames | list | `["portal.localhost"]` | hostnames for the Keycloak HTTPRoute |
+| keycloak.gatewayApi.hostnames | string | `nil` | hostnames for the Keycloak HTTPRoute |
 | keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
 | keycloak.keycloakConfig.admin | object | `{"password":{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},"username":{"value":"keycloak-admin"}}` | admin user configuration |
 | keycloak.keycloakConfig.admin.password | object | `{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}}` | admin password |
@@ -183,7 +161,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | keycloak.keycloakConfig.client.tokenLifespan | int | `3600` | token lifespan |
 | keycloak.keycloakConfig.realm | object | `{"name":"master"}` | realm configuration |
 | keycloak.keycloakConfig.realm.name | string | `"master"` | realm name |
-| keycloak.keycloakConfig.redirectUrls | list | `["http://localhost:8000/callback*"]` | redirect urls |
+| keycloak.keycloakConfig.redirectUrls | list | `[]` | redirect urls |
 | keycloak.keycloakConfig.url | string | `"http://keycloak.platform-mesh-system.svc.cluster.local/keycloak"` | url of the keycloak server |
 | keycloak.keycloakConfig.userRegistration.enabled | bool | `true` | toggle to enable/disable user registration |
 | keycloak.operator.admin.password | string | `""` | Bootstrap admin password (written to keycloak-admin secret). REQUIRED: set to a strong random value. |
@@ -205,8 +183,8 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | keycloak.operator.health.readiness.periodSeconds | int | `10` |  |
 | keycloak.operator.health.startup.failureThreshold | int | `600` |  |
 | keycloak.operator.health.startup.path | string | `"/keycloak/health"` |  |
-| keycloak.operator.hostname | string | `"https://portal.localhost:8443"` | Keycloak hostname (used in the Keycloak CR hostname.hostname field). Must not include a path — the operator auto-derives http-relative-path from any path component, which conflicts with the value baked into the image. |
-| keycloak.operator.httpEnabled | bool | `true` | Enable plain HTTP on the Keycloak pod. Set to false in production (TLS must be configured instead). |
+| keycloak.operator.hostname | string | `""` | Keycloak hostname (used in the Keycloak CR hostname.hostname field). Must not include a path — the operator auto-derives http-relative-path from any path component, which conflicts with the value baked into the image. |
+| keycloak.operator.httpEnabled | bool | `false` | Enable plain HTTP on the Keycloak pod. Set to true only for local development without TLS. |
 | keycloak.operator.image.digest | string | `"sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"` | Keycloak image digest (when set, overrides tag: registry/repository@digest) |
 | keycloak.operator.image.registry | string | `"ghcr.io"` | Keycloak image registry |
 | keycloak.operator.image.repository | string | `"platform-mesh/custom-images/keycloak"` | Keycloak image repository (without registry) |

@@ -3,7 +3,7 @@ match snapshots with dex enabled:
     apiVersion: v1
     data:
       config.yaml: |
-        issuer: "https://portal.localhost:8443/dex"
+        issuer: ""
         storage:
           type: memory
         web:
@@ -21,7 +21,6 @@ match snapshots with dex enabled:
           secret: "local-dev-broker-secret"
           name: "Keycloak Broker"
           redirectURIs:
-          - "https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint"
     kind: ConfigMap
     metadata:
       name: dex
@@ -93,8 +92,6 @@ match snapshots with dex enabled:
     metadata:
       name: dex
     spec:
-      hostnames:
-        - portal.localhost
       parentRefs:
         - group: gateway.networking.k8s.io
           kind: Gateway
