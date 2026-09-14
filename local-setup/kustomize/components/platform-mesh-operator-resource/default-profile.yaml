@@ -303,6 +303,9 @@ data:
                       - kind: Secret
                         name: domain-certificate
                         namespace: platform-mesh-system
+                  allowedRoutes:
+                    namespaces:
+                      from: All
             hostAliases:
               enabled: true
               entries:
