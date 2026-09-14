@@ -235,6 +235,23 @@ data:
           - name: cnpg-operator
             namespace: platform-mesh-system
           values:
+            keycloak:
+              operator:
+                hostname: "https://{{ .baseDomainPort }}"
+                httpEnabled: true
+              gatewayApi:
+                hostnames:
+                  - "{{ .baseDomain }}"
+              keycloakConfig:
+                redirectUrls: ["http://localhost:8000/callback*"]
+            dex:
+              issuer: "https://{{ .baseDomainPort }}/dex"
+              gatewayApi:
+                hostnames:
+                  - "{{ .baseDomain }}"
+              staticClient:
+                redirectURIs:
+                  - "https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint"
             cnpg:
               enabled: true
               roles:
@@ -246,13 +263,53 @@ data:
               enabled: true
             gatewayApi:
               enabled: true
+              listeners:
+                - name: terminate
+                  hostname: "{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
+                - name: terminate-wildstar
+                  hostname: "*.{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
+                - name: passthrough
+                  port: 8443
+                  protocol: TLS
+                  tls:
+                    mode: Passthrough
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+              listenersExtra:
+                - name: terminate-services
+                  hostname: "*.services.{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
             hostAliases:
               enabled: true
               entries:
               - ip: "{{ .traefikClusterIP }}"
                 hostnames:
                 - "localhost"
-                - "portal.localhost"
+                - "{{ .baseDomain }}"
                 - "kcp.localhost"
                 - "root.kcp.localhost"
                 - "kcp.api.{{ .baseDomain }}"
@@ -263,6 +320,7 @@ data:
                 hostname: https://{{ .baseDomainPort }}/keycloak/
                 enabled: true
                 caSecret: domain-certificate-ca
+                httpEnabled: true
                 db:
                   password: keycloak-password
                 admin:
@@ -304,9 +362,15 @@ data:
               image:
                 tag: v0.32.2
               rootShard:
+                hostname: root.kcp.localhost
+                shardBaseURL: https://root.kcp.localhost:8443/
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
-              shards: []
+              shards:
+                - name: nereus
+                  hostname: nereus.kcp.localhost
+                - name: triton
+                  hostname: triton.kcp.localhost
               webhook:
                 enabled: true
             traefik:
@@ -317,7 +381,7 @@ data:
               - http://*.localhost:4300
               - http://sub.localhost:4300
               - https://{{ .baseDomainPort }}
-              - https://*.portal.localhost:8443
+              - https://*.{{ .baseDomain }}:8443
         iam-ui:
           enabled: true
           syncWave: 4
@@ -329,8 +393,8 @@ data:
           values:
             exposure:
               hostnames:
-              - "portal.localhost"
-              - "*.portal.localhost"
+              - "{{ .baseDomain }}"
+              - "*.{{ .baseDomain }}"
         iam-service:
           imageResources:
           - annotations:
@@ -347,12 +411,12 @@ data:
               enabled: true
             exposure:
               hostnames:
-              - "portal.localhost"
-              - "*.portal.localhost"
+              - "{{ .baseDomain }}"
+              - "*.{{ .baseDomain }}"
             hostAliases:
               enabled: true
             keycloak:
-              baseUrl: https://portal.localhost:8443/keycloak
+              baseUrl: "https://{{ .baseDomainPort }}/keycloak"
         init-agent:
           absoluteReferencePath:
           - name: init-agent
@@ -453,8 +517,8 @@ data:
               enabled: true
               httpRoute:
                 hostnames:
-                - "portal.localhost"
-                - "*.portal.localhost"
+                - "{{ .baseDomain }}"
+                - "*.{{ .baseDomain }}"
             hostAliases:
               enabled: true
             istio:
@@ -617,8 +681,8 @@ data:
               enabled: true
               httpRoute:
                 hostnames:
-                - "portal.localhost"
-                - "*.portal.localhost"
+                - "{{ .baseDomain }}"
+                - "*.{{ .baseDomain }}"
                 parentRefs:
                 - name: k8sapi-gateway
                   kind: Gateway
@@ -628,7 +692,7 @@ data:
               - ip: "{{ .traefikClusterIP }}"
                 hostnames:
                 - "localhost"
-                - "portal.localhost"
+                - "{{ .baseDomain }}"
                 - "kcp.localhost"
                 - "root.kcp.localhost"
                 - "kcp.api.{{ .baseDomain }}"
@@ -701,7 +765,7 @@ data:
               extraArgs:
               - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
               - --idp-smtp-port=1025
-              - --idp-from-address=keycloak@portal.localhost
+              - --idp-from-address=keycloak@{{ .baseDomain }}
               - --set-default-password
               - --idp-registration-allowed
             terminator:
@@ -738,8 +802,8 @@ data:
               protocol: https
             exposure:
               hostnames:
-              - "portal.localhost"
-              - "*.portal.localhost"
+              - "{{ .baseDomain }}"
+              - "*.{{ .baseDomain }}"
             gatewayApi:
               enabled: true
             http:
