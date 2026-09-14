@@ -195,13 +195,53 @@ data:
               enabled: true
             gatewayApi:
               enabled: true
+              listeners:
+                - name: terminate
+                  hostname: "{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
+                - name: terminate-wildstar
+                  hostname: "*.{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
+                - name: passthrough
+                  port: 8443
+                  protocol: TLS
+                  tls:
+                    mode: Passthrough
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+              listenersExtra:
+                - name: terminate-services
+                  hostname: "*.services.{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
             hostAliases:
               enabled: true
               entries:
               - ip: "{{ .traefikClusterIP }}"
                 hostnames:
                 - "localhost"
-                - "portal.localhost"
+                - "{{ .baseDomain }}"
                 - "kcp.localhost"
                 - "root.kcp.localhost"
                 - "kcp.api.{{ .baseDomain }}"
@@ -226,9 +266,13 @@ data:
               image:
                 tag: v0.32.2
               rootShard:
+                hostname: root.kcp.localhost
+                shardBaseURL: https://root.kcp.localhost:8443/
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
-              shards: []
+              shards:
+                - name: triton
+                  hostname: triton.kcp.localhost
               webhook:
                 enabled: true
             keycloak:
@@ -273,7 +317,7 @@ data:
               - http://*.localhost:4300
               - http://sub.localhost:4300
               - https://{{ .baseDomainPort }}
-              - https://*.portal.localhost:8443
+              - https://*.{{ .baseDomain }}:8443
         kcp-operator:
           syncWave: 1
           enabled: true
@@ -594,7 +638,7 @@ data:
               extraArgs:
                 - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
                 - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
+                - --idp-from-address=keycloak@{{ .baseDomain }}
                 - --idp-registration-allowed
                 - --set-default-password
                 - --domain-ca-lookup
@@ -609,7 +653,7 @@ data:
                 # remove arguments below when the operator and the portal are ready
                 - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
                 - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
+                - --idp-from-address=keycloak@{{ .baseDomain }}
                 - --development-allow-unverified-emails
                 - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
                 - --idp-registration-allowed
@@ -625,7 +669,7 @@ data:
                 - --domain-ca-lookup
                 - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
                 - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
+                - --idp-from-address=keycloak@{{ .baseDomain }}
                 - --set-default-password
                 - --idp-registration-allowed
                 - --development-allow-unverified-emails
