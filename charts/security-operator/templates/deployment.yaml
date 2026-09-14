@@ -72,6 +72,18 @@ spec:
           {{- if and .Values.domainCALookup }}
           - --domain-ca-lookup
           {{- end }}
+          {{- with .Values.idp.additionalRedirectUrls }}
+          - --idp-additional-redirect-urls={{ join "," . }}
+          {{- end }}
+          {{- with .Values.idp.smtp.server }}
+          - --idp-smtp-server={{ . }}
+          {{- end }}
+          {{- with .Values.idp.smtp.port }}
+          - --idp-smtp-port={{ . }}
+          {{- end }}
+          {{- with .Values.idp.smtp.fromAddress }}
+          - --idp-from-address={{ . }}
+          {{- end }}
           {{- with .Values.operator.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}

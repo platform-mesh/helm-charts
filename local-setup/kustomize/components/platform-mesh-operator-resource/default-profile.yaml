@@ -744,6 +744,15 @@ data:
               endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
             keycloak:
               baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
+            idp:
+              smtp:
+                server: mailpit.platform-mesh-system.svc.cluster.local
+                port: "1025"
+                fromAddress: keycloak@{{ .baseDomain }}
+              additionalRedirectUrls:
+                - http://localhost:8000/callback*
+                - http://localhost:4300/callback*
+                - http://sub.localhost:4300/callback*
             operator:
               maxConcurrentReconciles: 1
               shutdownTimeout: 1m
@@ -751,14 +760,12 @@ data:
                 - --set-default-password
                 - --idp-registration-allowed
                 - --development-allow-unverified-emails
-                - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
             hostAliases:
               enabled: true
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
               extraArgs:
                 - --development-allow-unverified-emails
-                - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
                 - --idp-registration-allowed
             kubeconfigSecret: security-operator-kubeconfig
             log:
@@ -766,9 +773,6 @@ data:
               noJson: true
             system:
               extraArgs:
-              - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-              - --idp-smtp-port=1025
-              - --idp-from-address=keycloak@{{ .baseDomain }}
               - --set-default-password
               - --idp-registration-allowed
             terminator:

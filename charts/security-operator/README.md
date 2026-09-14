@@ -19,6 +19,7 @@ A Helm chart for security-operator
 | environment | string | `""` | environment indicator, used for logging and observability |
 | generator.extraArgs | list | `[]` | Extra arguments passed to the generator binary |
 | hostAliases.enabled | bool | `false` |  |
+| idp.additionalRedirectUrls | list | `[]` | Additional redirect URLs to allow for OAuth clients (e.g. for local development callbacks) |
 | idp.smtp.fromAddress | string | `""` | Email address used as the sender for IDP notifications |
 | idp.smtp.port | string | `""` | SMTP server port |
 | idp.smtp.server | string | `""` | SMTP server hostname |

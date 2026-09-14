@@ -51,6 +51,9 @@ spec:
           {{- if and .Values.domainCALookup }}
           - --domain-ca-lookup
           {{- end }}
+          {{- with .Values.idp.additionalRedirectUrls }}
+          - --idp-additional-redirect-urls={{ join "," . }}
+          {{- end }}
           {{- with .Values.initializer.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}

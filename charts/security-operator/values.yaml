@@ -78,6 +78,9 @@ idp:
     port: ""
     # -- Email address used as the sender for IDP notifications
     fromAddress: ""
+  # -- Additional redirect URLs to allow for OAuth clients (e.g. for local development callbacks)
+  additionalRedirectUrls: []
+
 
 keycloak:
   # -- base URL of the Keycloak instance (e.g. https://example.com/keycloak). Required.

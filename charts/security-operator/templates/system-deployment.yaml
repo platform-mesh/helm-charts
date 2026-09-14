@@ -45,6 +45,9 @@ spec:
           {{- with .Values.idp.smtp.fromAddress }}
           - --idp-from-address={{ . }}
           {{- end }}
+          {{- with .Values.idp.additionalRedirectUrls }}
+          - --idp-additional-redirect-urls={{ join "," . }}
+          {{- end }}
           {{- with .Values.system.extraArgs }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
