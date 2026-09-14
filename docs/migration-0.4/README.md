@@ -2,6 +2,8 @@
 
 ## Investigation notes
 
+> These notes use local-setup tooling and are intended for testing the migration on a local environment.
+
 ### Generate test data
 
 Run before migration to create durable pre-migration resources (org accounts, sub-accounts, HTTPBins)
@@ -55,20 +57,19 @@ KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources
 
 ### 1. Install 0.3 and verify
 
-```shell
-# install 0.3, generate test data, verify portal is functional
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/create-test-data.sh
-```
+Install 0.3 and verify the portal is functional.
 
 ### 2. Back up 0.3
 
+The backup scripts are in `scripts/` of this repo. Run them against the target cluster:
+
 ```shell
 BACKUPDIR=backup/0.3
-local-setup/scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
-local-setup/scripts/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
-local-setup/scripts/fga_backup.sh $BACKUPDIR/openfga
-local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
+scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
+scripts/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
+scripts/fga_backup.sh $BACKUPDIR/openfga
+scripts/etcd_backup.sh $BACKUPDIR/etcd
+KUBECONFIG_KCP=<path-to-kcp-kubeconfig> scripts/export-resources.sh $BACKUPDIR
 ```
 
 ### 3. Remove 0.3-only resources
@@ -89,22 +90,19 @@ kubectl delete ocirepositories --all -n default
 
 ### 4. Install 0.4
 
-```shell
-git checkout 0.4.0
+Install 0.4 following the standard install procedure for your environment.
 
-# OCM component (new namespace)
-kubectl apply -k local-setup/kustomize/base/ocm-k8s-toolkit
-kubectl apply -k local-setup/kustomize/base/kro
-kubectl apply -k local-setup/kustomize/components/ocm   # set SEMVER to 0.4.0 manually
-
-# platform-mesh-operator
-kubectl apply -k local-setup/kustomize/base/rgd
-kubectl apply -k local-setup/kustomize/components/platform-mesh-operator
-kubectl apply -k local-setup/kustomize/overlays/platform-mesh-resource
-
-# wait for PlatformMesh to become Ready
-kubectl get platformmesh -A -w
-```
+> For local development environments using the kustomize-based local-setup:
+> ```shell
+> git checkout 0.4.0
+> kubectl apply -k local-setup/kustomize/base/ocm-k8s-toolkit
+> kubectl apply -k local-setup/kustomize/base/kro
+> kubectl apply -k local-setup/kustomize/components/ocm   # set SEMVER to 0.4.0 manually
+> kubectl apply -k local-setup/kustomize/base/rgd
+> kubectl apply -k local-setup/kustomize/components/platform-mesh-operator
+> kubectl apply -k local-setup/kustomize/overlays/platform-mesh-resource
+> kubectl get platformmesh -A -w
+> ```
 
 ### 5. Restore stateful data
 
@@ -128,7 +126,7 @@ so the operator re-reads the latest model from the restored DB on next reconcile
 
 ```shell
 # Run for each org Store CR (replace with actual org names)
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig kubectl patch stores.core.platform-mesh.io <org-name> \
+KUBECONFIG_KCP=<path-to-kcp-kubeconfig> kubectl patch stores.core.platform-mesh.io <org-name> \
   --subresource=status --type=merge \
   -p '{"status":{"authorizationModelId":""}}'
 ```
@@ -147,9 +145,9 @@ Check that the portal is functional and the test data created in step 1 is intac
 
 ```shell
 BACKUPDIR=backup/0.4
-local-setup/scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
-docs/migration-0.4/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
-local-setup/scripts/fga_backup.sh $BACKUPDIR/openfga
-local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
+scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
+scripts/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
+scripts/fga_backup.sh $BACKUPDIR/openfga
+scripts/etcd_backup.sh $BACKUPDIR/etcd
+KUBECONFIG_KCP=<path-to-kcp-kubeconfig> scripts/export-resources.sh $BACKUPDIR
 ```

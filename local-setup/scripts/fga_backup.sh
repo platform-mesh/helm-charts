@@ -19,8 +19,28 @@ echo "Step 1: Creating PostgreSQL dump..."
 TIMESTAMP=$(date +%F-%T)
 BACKUP_FILE="$POSTGRES_BACKUP_DIR/backup-$TIMESTAMP.sql"
 
+PGPASSWORD=$(kubectl get secret openfga-postgres \
+  -n platform-mesh-system \
+  -o jsonpath='{.data.postgres-password}' | base64 -d)
+
+# The postgres role password may differ from the current secret if a previous pg_dumpall
+# restore ran. Normalise it first by trying known passwords.
+for try_pass in "$PGPASSWORD" "password" "openfga-password"; do
+  if kubectl exec -n platform-mesh-system openfga-postgres-0 -- \
+      bash -c "PGPASSWORD='${try_pass}' psql -U postgres -d postgres -c 'SELECT 1'" \
+      >/dev/null 2>&1; then
+    if [[ "$try_pass" != "$PGPASSWORD" ]]; then
+      echo "Step 1b: Resetting postgres password to match current secret..."
+      kubectl exec -n platform-mesh-system openfga-postgres-0 -- \
+        bash -c "PGPASSWORD='${try_pass}' psql -U postgres -d postgres -c \
+          \"ALTER ROLE postgres WITH PASSWORD '$PGPASSWORD';\""
+    fi
+    break
+  fi
+done
+
 kubectl -n platform-mesh-system exec pod/openfga-postgres-0 -- \
-    env PGPASSWORD='password' pg_dumpall -U postgres > "$BACKUP_FILE"
+    bash -c "PGPASSWORD='$PGPASSWORD' pg_dumpall -U postgres" > "$BACKUP_FILE"
 
 echo "PostgreSQL backup saved to: $BACKUP_FILE"
 

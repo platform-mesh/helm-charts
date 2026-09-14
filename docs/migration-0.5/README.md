@@ -1,25 +1,30 @@
 # Migration guide 0.4 → 0.5
 
-## braking changes in 0.5
+## Breaking changes in 0.5
 
+No structural breaking changes: Helm release names, KCP workspace layout, resource types, Keycloak realm/client configuration, and OpenFGA authorization model schema are identical between 0.4 and 0.5.
 
+The following behavioral changes require attention during migration:
+
+- **Stale authorization model IDs** — the security-operator creates new model versions on upgrade. After a DB restore from a 0.4 backup, the IDs written into `Store` CR status will not exist in the restored DB. See step 5a.
+- **IDP client IDs** — `kubectl` and `{orgname}` client UUIDs in `AccountInfo` and `IdentityProviderConfiguration` resources are fresh after each install and will not match values from the prior install. See step 5.1.
+
+## Investigation notes
+
+> These notes use local-setup tooling and are intended for testing the migration on a local environment.
 
 ### Generate test data
 
-Run before migration to create durable pre-migration resources (org accounts, sub-accounts, HTTPBins)
-that can be verified before and after.
-
 ```shell
 kind export kubeconfig --name platform-mesh
-KUBECONFIG_KCP=/home/akafazov/src/github.com/platform-mesh/helm-charts/.secret/kcp/admin.kubeconfig \
-  docs/migration-0.4/create-test-data.sh
+KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/create-test-data.sh
 ```
 
 
 ### Backup (for comparison)
 
 ```shell
-# 0.3 backup
+# 0.4 backup
 BACKUPDIR=backup/0.4
 local-setup/scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
 local-setup/scripts/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
@@ -27,7 +32,6 @@ local-setup/scripts/fga_backup.sh $BACKUPDIR/openfga
 local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
 KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
 ```
-KUBECONFIG_KCP=/home/akafazov/src/github.com/platform-mesh/helm-charts/.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
 
 ### 3. Remove 0.4-only resources
 
@@ -45,22 +49,19 @@ kubectl delete helmreleases --all -n platform-mesh-system
 
 ### 4. Install 0.5
 
-```shell
-git checkout 0.5.0
+Install 0.5 following the standard install procedure for your environment.
 
-# OCM component (new namespace)
-kubectl apply -k local-setup/kustomize/base/ocm-k8s-toolkit
-kubectl apply -k local-setup/kustomize/base/kro
-kubectl apply -k local-setup/kustomize/components/ocm   # set SEMVER to 0.5.0 manually
-
-# platform-mesh-operator
-kubectl apply -k local-setup/kustomize/base/rgd
-kubectl apply -k local-setup/kustomize/components/platform-mesh-operator
-kubectl apply -k local-setup/kustomize/overlays/platform-mesh-resource
-
-# wait for PlatformMesh to become Ready
-kubectl get platformmesh -A -w
-```
+> For local development environments using the kustomize-based local-setup:
+> ```shell
+> git checkout 0.5.0
+> kubectl apply -k local-setup/kustomize/base/ocm-k8s-toolkit
+> kubectl apply -k local-setup/kustomize/base/kro
+> kubectl apply -k local-setup/kustomize/components/ocm   # set SEMVER to 0.5.0 manually
+> kubectl apply -k local-setup/kustomize/base/rgd
+> kubectl apply -k local-setup/kustomize/components/platform-mesh-operator
+> kubectl apply -k local-setup/kustomize/overlays/platform-mesh-resource
+> kubectl get platformmesh -A -w
+> ```
 
 ### 5. Restore stateful data
 
@@ -101,9 +102,9 @@ Check that the portal is functional and the test data created in step 1 is intac
 
 ```shell
 BACKUPDIR=backup/0.5
-local-setup/scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
-docs/migration-0.4/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
-local-setup/scripts/fga_backup.sh $BACKUPDIR/openfga
-local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
+scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
+scripts/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
+scripts/fga_backup.sh $BACKUPDIR/openfga
+scripts/etcd_backup.sh $BACKUPDIR/etcd
+KUBECONFIG_KCP=<path-to-kcp-kubeconfig> scripts/export-resources.sh $BACKUPDIR
 ```
