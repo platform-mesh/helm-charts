@@ -23,17 +23,19 @@ PGPASSWORD=$(kubectl get secret openfga-postgres \
   -n platform-mesh-system \
   -o jsonpath='{.data.postgres-password}' | base64 -d)
 
+psql_exec() {
+  local pass="$1"; shift
+  kubectl exec -n platform-mesh-system openfga-postgres-0 -- \
+    bash -c "PGPASSWORD='${pass}' psql -U postgres $*"
+}
+
 # The postgres role password may differ from the current secret if a previous pg_dumpall
 # restore ran. Normalise it first by trying known passwords.
 for try_pass in "$PGPASSWORD" "password" "openfga-password"; do
-  if kubectl exec -n platform-mesh-system openfga-postgres-0 -- \
-      bash -c "PGPASSWORD='${try_pass}' psql -U postgres -d postgres -c 'SELECT 1'" \
-      >/dev/null 2>&1; then
+  if psql_exec "$try_pass" "-d postgres -c 'SELECT 1'" >/dev/null 2>&1; then
     if [[ "$try_pass" != "$PGPASSWORD" ]]; then
       echo "Step 1b: Resetting postgres password to match current secret..."
-      kubectl exec -n platform-mesh-system openfga-postgres-0 -- \
-        bash -c "PGPASSWORD='${try_pass}' psql -U postgres -d postgres -c \
-          \"ALTER ROLE postgres WITH PASSWORD '$PGPASSWORD';\""
+      psql_exec "$try_pass" "-d postgres -c \"ALTER ROLE postgres WITH PASSWORD '$PGPASSWORD';\""
     fi
     break
   fi

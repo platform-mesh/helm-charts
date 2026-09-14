@@ -14,7 +14,7 @@ KUBECONFIG_KCP="${KUBECONFIG_KCP:-.secret/kcp/admin.kubeconfig}"
 
 if [[ ! -f "$KUBECONFIG_KCP" ]]; then
   echo "Error: KCP admin kubeconfig not found at $KUBECONFIG_KCP" >&2
-  echo "Run 'local-setup/scripts/createKcpAdminKubeconfig.sh' first." >&2
+  echo "Set KUBECONFIG_KCP=<path-to-kcp-admin-kubeconfig> and re-run." >&2
   exit 1
 fi
 

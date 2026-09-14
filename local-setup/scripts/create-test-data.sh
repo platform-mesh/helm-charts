@@ -39,6 +39,7 @@ cd "$REPO_ROOT"
 KUBECONFIG_KCP="${KUBECONFIG_KCP:-.secret/kcp/admin.kubeconfig}"
 if [[ ! -f "$KUBECONFIG_KCP" ]]; then
   echo "Error: KCP admin kubeconfig not found at $KUBECONFIG_KCP" >&2
+  echo "Set KUBECONFIG_KCP=<path-to-kcp-admin-kubeconfig> and re-run." >&2
   exit 1
 fi
 
@@ -88,6 +89,17 @@ keycloak_admin_token() {
     "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" | jq -r '.access_token'
 }
 
+kc_api() {
+  local method="$1"
+  local path="$2"
+  local token="${3:-$(keycloak_admin_token)}"
+  curl -sk -X "$method" \
+    -H "Authorization: Bearer $token" \
+    -H "Content-Type: application/json" \
+    -d @- \
+    "${KEYCLOAK_URL}${path}"
+}
+
 keycloak_upsert_user() {
   local realm="$1"
   local token; token=$(keycloak_admin_token)
@@ -95,25 +107,18 @@ keycloak_upsert_user() {
     "${KEYCLOAK_URL}/admin/realms/${realm}/users?username=${CREATOR_USER//@/%40}" | \
     jq -r '.[0].id // empty')
   if [[ -z "$user_id" ]]; then
-    curl -sk -X POST \
-      -H "Authorization: Bearer $token" \
-      -H "Content-Type: application/json" \
-      -d "{\"username\":\"${CREATOR_USER}\",\"email\":\"${CREATOR_USER}\",\"firstName\":\"Test\",\"lastName\":\"User\",\"enabled\":true,\"emailVerified\":true,\"requiredActions\":[]}" \
-      "${KEYCLOAK_URL}/admin/realms/${realm}/users"
+    jq -cn \
+      --arg u "$CREATOR_USER" \
+      '{username:$u,email:$u,firstName:"Test",lastName:"User",enabled:true,emailVerified:true,requiredActions:[]}' \
+    | kc_api POST "/admin/realms/${realm}/users" "$token"
     user_id=$(curl -sk -H "Authorization: Bearer $token" \
       "${KEYCLOAK_URL}/admin/realms/${realm}/users?username=${CREATOR_USER//@/%40}" | \
       jq -r '.[0].id // empty')
   fi
-  curl -sk -X PUT \
-    -H "Authorization: Bearer $token" \
-    -H "Content-Type: application/json" \
-    -d "{\"type\":\"password\",\"value\":\"${CREATOR_PASSWORD}\",\"temporary\":false}" \
-    "${KEYCLOAK_URL}/admin/realms/${realm}/users/${user_id}/reset-password"
-  curl -sk -X PUT \
-    -H "Authorization: Bearer $token" \
-    -H "Content-Type: application/json" \
-    -d '{"firstName":"Test","lastName":"User","emailVerified":true,"requiredActions":[]}' \
-    "${KEYCLOAK_URL}/admin/realms/${realm}/users/${user_id}"
+  jq -cn --arg p "$CREATOR_PASSWORD" '{type:"password",value:$p,temporary:false}' \
+    | kc_api PUT "/admin/realms/${realm}/users/${user_id}/reset-password" "$token"
+  echo '{"firstName":"Test","lastName":"User","emailVerified":true,"requiredActions":[]}' \
+    | kc_api PUT "/admin/realms/${realm}/users/${user_id}" "$token"
 }
 
 set_creator_password_in_org_realm() {
@@ -134,22 +139,21 @@ invite_user_as_member() {
   local account_path="${3:-root:orgs:${org_name}}"
   echo "  inviting ${INVITE_USER} as member of ${account_name} in org ${org_name}"
 
-  local admin_token; admin_token=$(curl -sk \
-    -d "client_id=admin-cli" \
-    -d "username=${KEYCLOAK_ADMIN_USER}" \
-    -d "password=${KEYCLOAK_ADMIN_PASSWORD}" \
-    -d "grant_type=password" \
-    "${KEYCLOAK_URL}/realms/master/protocol/openid-connect/token" | jq -r '.access_token')
+  local admin_token; admin_token=$(keycloak_admin_token)
 
   # The portal client in the org realm is a confidential client whose clientId is a UUID,
   # created by the security-operator at org init time.
-  local portal_client_id; portal_client_id=$(curl -sk \
+  # portal_client_id = internal Keycloak UUID (used for admin API calls)
+  # portal_client_name = the clientId value (used for token requests)
+  local portal_client; portal_client=$(curl -sk \
     -H "Authorization: Bearer ${admin_token}" \
     "${KEYCLOAK_URL}/admin/realms/${org_name}/clients" | \
-    jq -r '[.[] | select(
+    jq '[.[] | select(
       (.clientId | test("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")) and
       (.publicClient == false)
-    )] | .[0].id')
+    )] | .[0]')
+  local portal_client_id; portal_client_id=$(echo "$portal_client" | jq -r '.id // empty')
+  local portal_client_name; portal_client_name=$(echo "$portal_client" | jq -r '.clientId // empty')
   if [[ -z "$portal_client_id" || "$portal_client_id" == "null" ]]; then
     echo "  WARNING: portal client not found in realm ${org_name}" >&2
     return
@@ -159,11 +163,9 @@ invite_user_as_member() {
   local client_data; client_data=$(curl -sk \
     -H "Authorization: Bearer ${admin_token}" \
     "${KEYCLOAK_URL}/admin/realms/${org_name}/clients/${portal_client_id}")
-  curl -sk -o /dev/null -X PUT \
-    -H "Authorization: Bearer ${admin_token}" \
-    -H "Content-Type: application/json" \
-    -d "$(echo "$client_data" | jq '.directAccessGrantsEnabled = true')" \
-    "${KEYCLOAK_URL}/admin/realms/${org_name}/clients/${portal_client_id}"
+  echo "$client_data" | jq '.directAccessGrantsEnabled = true' \
+    | kc_api PUT "/admin/realms/${org_name}/clients/${portal_client_id}" "$admin_token" \
+    > /dev/null
 
   local client_secret; client_secret=$(curl -sk \
     -H "Authorization: Bearer ${admin_token}" \
@@ -172,7 +174,7 @@ invite_user_as_member() {
 
   # Authenticate as CREATOR_USER (org owner) — azp=<portal-UUID> is what KCP trusts
   local id_token; id_token=$(curl -sk \
-    -u "${portal_client_id}:${client_secret}" \
+    -u "${portal_client_name}:${client_secret}" \
     -d "username=${CREATOR_USER}" \
     -d "password=${CREATOR_PASSWORD}" \
     -d "grant_type=password" \
@@ -287,10 +289,34 @@ EOF
 
 ensure_provider_enabled() {
   local workspace="$1"
-  echo "  waiting for ABC MSP Provider (orchestrate.platform-mesh.io) in ${workspace}"
-  # The platform-mesh operator auto-creates this APIBinding via extraDefaultAPIBindings.
-  # Wait for it to become Ready before creating resources that depend on it.
-  local deadline=$(( $(date +%s) + 60 ))
+  echo "  ensuring ABC MSP Provider (orchestrate.platform-mesh.io) in ${workspace}"
+
+  # Create the APIBinding if it doesn't exist yet
+  if ! kcp "$workspace" get apibindings \
+      -o jsonpath='{.items[?(@.spec.reference.export.name=="orchestrate.platform-mesh.io")].metadata.name}' \
+      2>/dev/null | grep -q .; then
+    kcp "$workspace" apply -f - <<EOF
+apiVersion: apis.kcp.io/v1alpha2
+kind: APIBinding
+metadata:
+  name: orchestrate.platform-mesh.io
+spec:
+  permissionClaims:
+  - group: ""
+    resource: events
+    selector:
+      matchAll: true
+    state: Accepted
+    verbs: ["*"]
+  reference:
+    export:
+      name: orchestrate.platform-mesh.io
+      path: root:providers:httpbin-provider
+EOF
+  fi
+
+  # Wait for it to become Ready
+  local deadline=$(( $(date +%s) + ACCOUNT_READY_TIMEOUT ))
   while true; do
     local ready
     ready=$(kcp "$workspace" get apibindings \
@@ -300,8 +326,8 @@ ensure_provider_enabled() {
       return
     fi
     if (( $(date +%s) >= deadline )); then
-      echo "  WARNING: ABC MSP Provider not ready in ${workspace} after 60s" >&2
-      return
+      echo "  ERROR: ABC MSP Provider not ready in ${workspace} after ${ACCOUNT_READY_TIMEOUT}s" >&2
+      exit 1
     fi
     sleep 3
   done

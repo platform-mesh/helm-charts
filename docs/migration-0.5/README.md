@@ -2,7 +2,7 @@
 
 ## Breaking changes in 0.5
 
-No structural breaking changes: Helm release names, KCP workspace layout, resource types, Keycloak realm/client configuration, and OpenFGA authorization model schema are identical between 0.4 and 0.5.
+No structural breaking changes: Helm release names, kcp workspace layout, resource types, Keycloak realm/client configuration, and OpenFGA authorization model schema are identical between 0.4 and 0.5.
 
 The following behavioral changes require attention during migration:
 
@@ -13,15 +13,9 @@ The following behavioral changes require attention during migration:
 
 > These notes use local-setup tooling and are intended for testing the migration on a local environment.
 
-### Generate test data
+## Migration procedure
 
-```shell
-kind export kubeconfig --name platform-mesh
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/create-test-data.sh
-```
-
-
-### Backup (for comparison)
+### 1. Backup (for comparison)
 
 ```shell
 # 0.4 backup
@@ -33,7 +27,7 @@ local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
 KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
 ```
 
-### 3. Remove 0.4-only resources
+### 2. Remove 0.4-only resources
 
 ```shell
 kubectl delete platformmeshes platform-mesh -n platform-mesh-system
@@ -47,7 +41,7 @@ kubectl delete repositories platform-mesh -n platform-mesh-system
 kubectl delete helmreleases --all -n platform-mesh-system
 ```
 
-### 4. Install 0.5
+### 3. Install 0.5
 
 Install 0.5 following the standard install procedure for your environment.
 
@@ -63,7 +57,7 @@ Install 0.5 following the standard install procedure for your environment.
 > kubectl get platformmesh -A -w
 > ```
 
-### 5. Restore stateful data
+### 4. Restore stateful data
 
 ```shell
 # Keycloak — restores into cnpg cluster (platform-mesh-pg-1)
@@ -73,7 +67,7 @@ BACKUP_DIR=backup/0.4/keycloak/postgres docs/migration-0.4/keycloak_restore.sh
 BACKUP_DIR=backup/0.4/openfga/postgres docs/migration-0.4/openfga_restore.sh
 ```
 
-#### 5.1 fix client secret for IdP resources in kcp
+#### 4.1 fix client secret for IdP resources in kcp
 
 Some `IdentityProviderConfiguration` resources in kcp's `:root:orgs` workspace might have an invalid state:
 
@@ -92,13 +86,13 @@ Some `IdentityProviderConfiguration` resources in kcp's `:root:orgs` workspace m
   type: Ready
 ```
 
-Is is due to the client secrets having different values than the one's in keycloak. To fix this, update the secret in kcp named `portal-client-secret-test-${orgname}-${orgname}` to contain the same secret as the corresponding keycloak application in the appropriate realm.
+Is is due to the client secrets having different values than the ones in keycloak. To fix this, update the secret in kcp named `portal-client-secret-test-${orgname}-${orgname}` to contain the same secret as the corresponding keycloak application in the appropriate realm.
 
-### 6. Verify
+### 5. Verify
 
 Check that the portal is functional and the test data created in step 1 is intact.
 
-### 7. Back up 0.5
+### 6. Back up 0.5
 
 ```shell
 BACKUPDIR=backup/0.5

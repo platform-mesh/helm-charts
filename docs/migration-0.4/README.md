@@ -4,18 +4,6 @@
 
 > These notes use local-setup tooling and are intended for testing the migration on a local environment.
 
-### Generate test data
-
-Run before migration to create durable pre-migration resources (org accounts, sub-accounts, HTTPBins)
-that can be verified before and after.
-
-```shell
-kind export kubeconfig --name platform-mesh
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/create-test-data.sh
-```
-
-Known issue: 2 HTTPBins in first-level accounts are not accessible in 0.3.
-
 ### Backup (for comparison)
 
 ```shell
@@ -30,12 +18,12 @@ KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources
 
 ### Key differences in 0.4
 
-**KCP**
-- KCP sharding enabled
+**kcp**
+- kcp sharding enabled
 - New APIExport `providers.platform-mesh.io` with two new resource types:
   - `providers.providers.platform-mesh.io`
   - `providerpermissions.providers.platform-mesh.io`
-- New KCP workspace: `root:providers:system`
+- New kcp workspace: `root:providers:system`
 
 **Infrastructure**
 - Databases provisioned via cnpg operator (not embedded charts)
@@ -49,7 +37,7 @@ KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources
 
 **What does NOT change**
 - Keycloak realm and client configuration is identical between 0.3 and 0.4 (only instance UUIDs differ)
-- OpenFGA authorization models and tuple structure are identical; only KCP shard UIDs embedded in object IDs differ (instance-specific, not portable across installs)
+- OpenFGA authorization models and tuple structure are identical; only kcp shard UIDs embedded in object IDs differ (instance-specific, not portable across installs)
 
 ---
 

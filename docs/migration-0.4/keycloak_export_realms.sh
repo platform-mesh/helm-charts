@@ -14,25 +14,28 @@ ADMIN_PASSWORD=$(kubectl get secret keycloak-admin \
   -n platform-mesh-system \
   -o jsonpath='{.data.password}' | base64 -d)
 
-KCADM_BIN=/opt/keycloak/bin/kcadm.sh
-KC_EXEC="kubectl exec -n platform-mesh-system keycloak-0 --"
 KC_CONFIG=/tmp/kcadm.config
 
-$KC_EXEC $KCADM_BIN config credentials \
+kcadm() {
+  kubectl exec -n platform-mesh-system keycloak-0 -- \
+    /opt/keycloak/bin/kcadm.sh "$@"
+}
+
+kcadm config credentials \
   --config $KC_CONFIG \
   --server http://localhost:8080/keycloak \
   --realm master \
   --user "$ADMIN_USER" \
   --password "$ADMIN_PASSWORD"
 
-REALMS=$($KC_EXEC $KCADM_BIN get realms \
+REALMS=$(kcadm get realms \
   --config $KC_CONFIG \
   --fields realm --format csv --noquotes | tail -n +1)
 
 for REALM in $REALMS; do
   echo "Exporting realm: $REALM"
-  $KC_EXEC $KCADM_BIN get realms/"$REALM" --config $KC_CONFIG > "$DEST/${REALM}.json"
-  $KC_EXEC $KCADM_BIN get clients -r "$REALM" --config $KC_CONFIG > "$DEST/${REALM}-clients.json"
+  kcadm get realms/"$REALM" --config $KC_CONFIG > "$DEST/${REALM}.json"
+  kcadm get clients -r "$REALM" --config $KC_CONFIG > "$DEST/${REALM}-clients.json"
 done
 
 echo "Realm exports saved to $DEST"
