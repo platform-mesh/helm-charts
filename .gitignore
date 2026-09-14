@@ -34,3 +34,4 @@ local-setup/backup
 tmp/
 /runtime-artifacts
 .gitconfig
+backup/
