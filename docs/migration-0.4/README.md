@@ -9,8 +9,7 @@ that can be verified before and after.
 
 ```shell
 kind export kubeconfig --name platform-mesh
-KUBECONFIG_KCP=/home/akafazov/src/github.com/platform-mesh/helm-charts/.secret/kcp/admin.kubeconfig \
-  docs/migration-0.4/create-test-data.sh
+KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/create-test-data.sh
 ```
 
 Known issue: 2 HTTPBins in first-level accounts are not accessible in 0.3.
@@ -24,15 +23,7 @@ local-setup/scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
 local-setup/scripts/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
 local-setup/scripts/fga_backup.sh $BACKUPDIR/openfga
 local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig docs/migration-0.4/export-resources.sh $BACKUPDIR
-
-# 0.4 backup (after fresh install)
-BACKUPDIR=backup/0.4
-local-setup/scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
-docs/migration-0.4/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
-local-setup/scripts/fga_backup.sh $BACKUPDIR/openfga
-local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig docs/migration-0.4/export-resources.sh $BACKUPDIR
+KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
 ```
 
 ### Key differences in 0.4
@@ -66,7 +57,7 @@ KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig docs/migration-0.4/export-resources.
 
 ```shell
 # install 0.3, generate test data, verify portal is functional
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig docs/migration-0.4/create-test-data.sh
+KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/create-test-data.sh
 ```
 
 ### 2. Back up 0.3
@@ -77,7 +68,7 @@ local-setup/scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
 local-setup/scripts/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
 local-setup/scripts/fga_backup.sh $BACKUPDIR/openfga
 local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig docs/migration-0.4/export-resources.sh $BACKUPDIR
+KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
 ```
 
 ### 3. Remove 0.3-only resources
@@ -90,9 +81,10 @@ kubectl delete crd platformmeshoperators.kro.run
 
 kubectl delete resource --all
 kubectl delete component platform-mesh
-kubectl delete repositories platform-mesh   # leave: kro, ocm-k8s-toolkit, example-httpbin-provider
+kubectl delete repositories platform-mesh
 kubectl delete helmreleases platform-mesh-operator-components
-kubectl delete helmreleases platform-mesh-operator-infra-components
+kubectl delete helmreleases platform-mesh-operator-infra-components # force-delete "traefik"
+kubectl delete ocirepositories --all -n default
 ```
 
 ### 4. Install 0.4
@@ -124,6 +116,29 @@ BACKUP_DIR=backup/0.3/keycloak/postgres docs/migration-0.4/keycloak_restore.sh
 BACKUP_DIR=backup/0.3/openfga/postgres docs/migration-0.4/openfga_restore.sh
 ```
 
+### 5a. Fix stale authorization model IDs (if needed)
+
+If the security-operator logs show errors like:
+```
+unable to read authorization model error="Authorization Model '<id>' not found"
+```
+this means the security-operator reconciled the `Store` CRs before the OpenFGA restore ran and wrote
+fresh model IDs into the status that no longer exist in the restored DB. Fix by clearing the stale IDs
+so the operator re-reads the latest model from the restored DB on next reconcile:
+
+```shell
+# Run for each org Store CR (replace with actual org names)
+KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig kubectl patch stores.core.platform-mesh.io <org-name> \
+  --subresource=status --type=merge \
+  -p '{"status":{"authorizationModelId":""}}'
+```
+
+Then restart the account-operator to bring Account resources back to Ready:
+
+```shell
+kubectl rollout restart deployment/account-operator -n platform-mesh-system
+```
+
 ### 6. Verify
 
 Check that the portal is functional and the test data created in step 1 is intact.
@@ -136,5 +151,5 @@ local-setup/scripts/keycloak_backup.sh $BACKUPDIR/keycloak/postgres
 docs/migration-0.4/keycloak_export_realms.sh $BACKUPDIR/keycloak/realms
 local-setup/scripts/fga_backup.sh $BACKUPDIR/openfga
 local-setup/scripts/etcd_backup.sh $BACKUPDIR/etcd
-KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig docs/migration-0.4/export-resources.sh $BACKUPDIR
+KUBECONFIG_KCP=.secret/kcp/admin.kubeconfig local-setup/scripts/export-resources.sh $BACKUPDIR
 ```

@@ -25,15 +25,34 @@ PGPASSWORD=$(kubectl get secret openfga-postgres \
   -n platform-mesh-system \
   -o jsonpath='{.data.postgres-password}' | base64 -d)
 
+# The pg_dumpall backup restores the postgres role password from the source install.
+# If a previous restore already ran, the DB password may differ from the current secret.
+# Normalise it first: try the current password, then fall back to known previous values.
+echo "Step 1b: Ensuring postgres password matches current secret..."
+for try_pass in "$PGPASSWORD" "password" "openfga-password"; do
+  if kubectl exec -n platform-mesh-system openfga-postgres-0 -- \
+      bash -c "PGPASSWORD='${try_pass}' psql -U postgres -d postgres -c 'SELECT 1'" \
+      >/dev/null 2>&1; then
+    if [[ "$try_pass" != "$PGPASSWORD" ]]; then
+      kubectl exec -n platform-mesh-system openfga-postgres-0 -- \
+        bash -c "PGPASSWORD='${try_pass}' psql -U postgres -d postgres -c \
+          \"ALTER ROLE postgres WITH PASSWORD '$PGPASSWORD';\""
+    fi
+    break
+  fi
+done
+
 echo "Step 2: Dropping all openfga tables..."
 kubectl exec -n platform-mesh-system openfga-postgres-0 -- \
   bash -c "PGPASSWORD='$PGPASSWORD' psql -U postgres -d postgres -c \
     'DROP SCHEMA public CASCADE; CREATE SCHEMA public;'"
 
 echo "Step 3: Restoring from backup (pg_dumpall)..."
-kubectl exec -i -n platform-mesh-system openfga-postgres-0 -- \
-  bash -c "PGPASSWORD='$PGPASSWORD' psql -U postgres postgres" \
-  < "$BACKUP_FILE"
+# Strip the ALTER ROLE postgres PASSWORD line — it would reset the postgres password to the
+# backup's hash, breaking the subsequent \connect in the same dump.
+grep -v "^ALTER ROLE postgres WITH.*PASSWORD" "$BACKUP_FILE" | \
+  kubectl exec -i -n platform-mesh-system openfga-postgres-0 -- \
+    bash -c "PGPASSWORD='$PGPASSWORD' psql -U postgres postgres"
 
 echo "Step 4: Restarting OpenFGA..."
 kubectl rollout restart deployment/openfga -n platform-mesh-system

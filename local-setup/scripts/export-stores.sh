@@ -26,6 +26,17 @@ while IFS=' ' read -r store_id store_name; do
     fga model get --store-id "$store_id" --server-url "$FGA_SERVER_URL" \
         > "$STORE_DIR/authorization-model.json"
 
+    # Export all historical authorization model versions
+    MODELS_DIR="$STORE_DIR/authorization-models"
+    mkdir -p "$MODELS_DIR"
+    model_ids=$(fga model list --store-id "$store_id" --server-url "$FGA_SERVER_URL" \
+        | jq -r '.authorization_models[].id')
+    for model_id in $model_ids; do
+        fga model get --store-id "$store_id" --model-id "$model_id" \
+            --server-url "$FGA_SERVER_URL" \
+            > "$MODELS_DIR/${model_id}.json"
+    done
+
     fga tuple read --store-id "$store_id" --server-url "$FGA_SERVER_URL" \
         > "$STORE_DIR/tuples.json"
 
