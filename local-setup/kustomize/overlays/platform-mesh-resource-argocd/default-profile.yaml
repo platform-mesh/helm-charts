@@ -249,53 +249,13 @@ data:
               enabled: true
             gatewayApi:
               enabled: true
-              listeners:
-                - name: terminate
-                  hostname: "{{ .baseDomain }}"
-                  port: 8443
-                  protocol: HTTPS
-                  tls:
-                    mode: Terminate
-                    certificateRefs:
-                      - kind: Secret
-                        name: domain-certificate
-                        namespace: platform-mesh-system
-                - name: terminate-wildstar
-                  hostname: "*.{{ .baseDomain }}"
-                  port: 8443
-                  protocol: HTTPS
-                  tls:
-                    mode: Terminate
-                    certificateRefs:
-                      - kind: Secret
-                        name: domain-certificate
-                        namespace: platform-mesh-system
-                - name: passthrough
-                  port: 8443
-                  protocol: TLS
-                  tls:
-                    mode: Passthrough
-                  allowedRoutes:
-                    namespaces:
-                      from: All
-              listenersExtra:
-                - name: terminate-services
-                  hostname: "*.services.{{ .baseDomain }}"
-                  port: 8443
-                  protocol: HTTPS
-                  tls:
-                    mode: Terminate
-                    certificateRefs:
-                      - kind: Secret
-                        name: domain-certificate
-                        namespace: platform-mesh-system
             hostAliases:
               enabled: true
               entries:
               - ip: "{{ .traefikClusterIP }}"
                 hostnames:
                 - "localhost"
-                - "{{ .baseDomain }}"
+                - "portal.localhost"
                 - "kcp.localhost"
                 - "root.kcp.localhost"
                 - "kcp.api.{{ .baseDomain }}"
@@ -320,13 +280,9 @@ data:
               image:
                 tag: v0.32.2
               rootShard:
-                hostname: root.kcp.localhost
-                shardBaseURL: https://root.kcp.localhost:8443/
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
-              shards:
-                - name: triton
-                  hostname: triton.kcp.localhost
+              shards: []
               webhook:
                 enabled: true
             keycloak:
@@ -371,7 +327,7 @@ data:
               - http://*.localhost:4300
               - http://sub.localhost:4300
               - https://{{ .baseDomainPort }}
-              - https://*.{{ .baseDomain }}:8443
+              - https://*.portal.localhost:8443
         kcp-operator:
           syncWave: 1
           enabled: true
@@ -724,7 +680,7 @@ data:
               smtp:
                 server: mailpit.platform-mesh-system.svc.cluster.local
                 port: "1025"
-                fromAddress: keycloak@{{ .baseDomain }}
+                fromAddress: keycloak@portal.localhost
               additionalRedirectUrls:
                 - http://localhost:8000/callback*
                 - http://localhost:4300/callback*
