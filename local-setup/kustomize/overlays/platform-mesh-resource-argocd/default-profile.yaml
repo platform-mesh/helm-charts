@@ -672,41 +672,46 @@ data:
             caSecret: domain-certificate-ca
             crds:
               enabled: false
-            openfga:
-              endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
-            keycloak:
-              baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
-            idp:
-              smtp:
-                server: mailpit.platform-mesh-system.svc.cluster.local
-                port: "1025"
-                fromAddress: keycloak@portal.localhost
-              additionalRedirectUrls:
-                - http://localhost:8000/callback*
-                - http://localhost:4300/callback*
-                - http://sub.localhost:4300/callback*
-            operator:
-              maxConcurrentReconciles: 1
-              shutdownTimeout: 1m
+            fga:
+              inviteKeycloakBaseUrl: "https://{{ .baseDomainPort }}/keycloak"
+              target: openfga.platform-mesh-system.svc.cluster.local:8081
               extraArgs:
-                - --set-default-password
+                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+                - --idp-smtp-port=1025
+                - --idp-from-address=keycloak@portal.localhost
                 - --idp-registration-allowed
+                - --set-default-password
+                - --domain-ca-lookup
                 - --development-allow-unverified-emails
+                - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
             hostAliases:
               enabled: true
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
               extraArgs:
+                - --domain-ca-lookup
+                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+                - --idp-smtp-port=1025
+                - --idp-from-address=keycloak@portal.localhost
                 - --development-allow-unverified-emails
+                - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
                 - --idp-registration-allowed
             kubeconfigSecret: security-operator-kubeconfig
             log:
               level: debug
-              noJson: true
+            operator:
+              maxConcurrentReconciles: 1
+              shutdownTimeout: 1m
             system:
+              kubeconfigSecret: security-operator-kubeconfig
               extraArgs:
+                - --domain-ca-lookup
+                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
+                - --idp-smtp-port=1025
+                - --idp-from-address=keycloak@portal.localhost
                 - --set-default-password
                 - --idp-registration-allowed
+                - --development-allow-unverified-emails
             terminator:
               kubeconfigSecret: security-terminator-kubeconfig
         virtual-workspaces:
