@@ -194,6 +194,10 @@ coreModule: |-
       define list_core_kcp_io_logicalclusters: member
       define watch_core_kcp_io_logicalclusters: member
 
+      define create_core_platform-mesh_io_idpregistrations: owner
+      define list_core_platform-mesh_io_idpregistrations: owner
+      define watch_core_platform-mesh_io_idpregistrations: owner
+
       # IAM specific
       define manage_iam_roles: owner
       define get_iam_roles: member
@@ -217,6 +221,17 @@ coreModule: |-
       define manage_iam_roles: owner
       define get_iam_roles: member
       define get_iam_users: member
+
+  type core_platform-mesh_io_idpregistration
+    relations
+      define parent: [core_platform-mesh_io_account]
+
+      define owner: owner from parent
+
+      define get: owner
+      define update: owner
+      define patch: owner
+      define delete: owner
 
   type core_kcp_io_logicalcluster
     relations
