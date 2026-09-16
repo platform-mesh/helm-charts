@@ -56,7 +56,8 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
 | gatewayApi.infrastructure | object | `{}` | HTTPS Terminate configuration |
 | gatewayApi.listenersExtra | list | `[{"allowedRoutes":{"namespaces":{"from":"All"}},"hostname":"","name":"terminate-services","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}}]` | Additional listeners to be added to the Gateway resource (e.g. for HTTPBin) |
-| gatewayApi.listeners[0].hostname | string | `""` |  |
+| gatewayApi.listenersExtra[0].hostname | string | `""` | hostname should match the pattern "*.services.{{ .baseDomain }}" |
+| gatewayApi.listeners[0].hostname | string | `""` | the hostname should be the base domain. Platform-mesh operator will substitute the correct value |
 | gatewayApi.listeners[0].name | string | `"terminate"` |  |
 | gatewayApi.listeners[0].port | int | `8443` |  |
 | gatewayApi.listeners[0].protocol | string | `"HTTPS"` |  |
@@ -65,7 +66,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | gatewayApi.listeners[0].tls.certificateRefs[0].name | string | `"domain-certificate"` |  |
 | gatewayApi.listeners[0].tls.certificateRefs[0].namespace | string | `"platform-mesh-system"` |  |
 | gatewayApi.listeners[0].tls.mode | string | `"Terminate"` |  |
-| gatewayApi.listeners[1].hostname | string | `""` |  |
+| gatewayApi.listeners[1].hostname | string | `""` | the hostname should match the pattern "*.{{ .baseDomain }}" |
 | gatewayApi.listeners[1].name | string | `"terminate-wildstar"` |  |
 | gatewayApi.listeners[1].port | int | `8443` |  |
 | gatewayApi.listeners[1].protocol | string | `"HTTPS"` |  |
