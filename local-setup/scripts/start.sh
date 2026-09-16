@@ -68,8 +68,9 @@ usage() {
   echo "  --sharded=BOOL     Deploy additional kcp shards. Default: true"
   echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
   echo "  --deployment-tech  Choose deployment technology: fluxcd or argocd (only with --remote). Default: fluxcd"
-  echo "  --iterate=BOOL     Reuse an existing cluster and only rebuild/reapply the OCM component (requires PLATFORM_MESH_VERSION unset)."
-  echo "                     Default: true. With --iterate=false, fails if the cluster already exists instead of touching it"
+  echo "  --iterate=BOOL     Reuse an existing cluster and only rebuild/reapply the OCM component."
+  echo "                     Default: true (reuses cluster if one exists, falls through to full setup otherwise)."
+  echo "                     With --iterate=false, fails if the cluster already exists instead of touching it"
   echo "  --cert-manager-msp Set up the cert-manager MSP provider and backing cluster (only with --example-data, non-remote). Slow; off by default"
   echo "  --help             Show this help message"
   echo ""
@@ -342,8 +343,8 @@ if [ "$REMOTE" = true ]; then
   fi
 fi
 
-# --iterate=true (the default) reuses an existing cluster. If there isn't one
-# yet, there's nothing to iterate on, so fall through to a full setup instead.
+# cluster_exists_for_iterate checks that the required kind cluster(s) are present
+# before allowing --iterate to proceed.
 cluster_exists_for_iterate() {
   check_kind_cluster || return 1
   if [ "$REMOTE" = true ]; then
@@ -358,11 +359,6 @@ if [ "$ITERATE" = true ] && ! cluster_exists_for_iterate; then
 fi
 
 if [ "$ITERATE" = true ]; then
-  if [ "$PRERELEASE" = false ]; then
-    echo -e "${RED}--iterate requires PLATFORM_MESH_VERSION to be unset${COL_RES}" >&2
-    exit 1
-  fi
-
   kind export kubeconfig --name platform-mesh
   if [ "$REMOTE" = true ]; then
     kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
@@ -373,15 +369,25 @@ if [ "$ITERATE" = true ]; then
     rm -f .secret/platform-mesh.kubeconfig .secret/platform-mesh-infra.kubeconfig
   fi
 else
-  # --iterate=false was requested explicitly: refuse to touch a cluster that's
-  # already there rather than guessing whether to reuse or replace it.
+  # No cluster to iterate on (or --iterate=false was explicit): delete any
+  # existing cluster after user confirmation, then proceed with a full setup.
   if check_kind_cluster; then
-    echo -e "${RED}Cluster 'platform-mesh' already exists. Delete it first (kind delete cluster --name platform-mesh) or omit --iterate=false to reuse it.${COL_RES}" >&2
-    exit 1
+    read -r -p "Cluster 'platform-mesh' already exists. Delete it and start fresh? [y/N] " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+      kind delete cluster --name platform-mesh
+    else
+      echo "Aborting. Pass --iterate to reuse the existing cluster." >&2
+      exit 1
+    fi
   fi
   if [ "$REMOTE" = true ] && check_kind_infra_cluster; then
-    echo -e "${RED}Cluster 'platform-mesh-infra' already exists. Delete it first (kind delete cluster --name platform-mesh-infra) or omit --iterate=false to reuse it.${COL_RES}" >&2
-    exit 1
+    read -r -p "Cluster 'platform-mesh-infra' already exists. Delete it and start fresh? [y/N] " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+      kind delete cluster --name platform-mesh-infra
+    else
+      echo "Aborting. Pass --iterate to reuse the existing cluster." >&2
+      exit 1
+    fi
   fi
 
   check_wsl_compatibility

@@ -7,34 +7,25 @@ DEST="$EXPORT_DIR/$TIMESTAMP"
 
 mkdir -p "$DEST"
 
-KC_CONFIG=/tmp/kcadm.config
-
-ADMIN_PASSWORD=$(kubectl get secret keycloak-admin \
+ADMIN_USER=$(kubectl get secret keycloak-admin \
   -n platform-mesh-system \
-  -o jsonpath='{.data.secret}' | base64 -d 2>/dev/null || \
-  kubectl get secret keycloak-admin \
+  -o jsonpath='{.data.username}' | base64 -d)
+ADMIN_PASSWORD=$(kubectl get secret keycloak-admin \
   -n platform-mesh-system \
   -o jsonpath='{.data.password}' | base64 -d)
 
-# Auto-detect 0.3 (bitnami, /keycloak/ path) vs 0.4+ (keycloak-operator, /keycloak path)
-if kubectl exec -n platform-mesh-system keycloak-0 -- \
-    test -f /opt/bitnami/keycloak/bin/kcadm.sh 2>/dev/null; then
-  KCADM_PATH=/opt/bitnami/keycloak/bin/kcadm.sh
-  KC_SERVER=http://localhost:8080/keycloak/
-else
-  KCADM_PATH=/opt/keycloak/bin/kcadm.sh
-  KC_SERVER=http://localhost:8080/keycloak
-fi
+KC_CONFIG=/tmp/kcadm.config
 
 kcadm() {
-  kubectl exec -n platform-mesh-system keycloak-0 -- "$KCADM_PATH" "$@"
+  kubectl exec -n platform-mesh-system keycloak-0 -- \
+    /opt/keycloak/bin/kcadm.sh "$@"
 }
 
 kcadm config credentials \
   --config $KC_CONFIG \
-  --server "$KC_SERVER" \
+  --server http://localhost:8080/keycloak \
   --realm master \
-  --user keycloak-admin \
+  --user "$ADMIN_USER" \
   --password "$ADMIN_PASSWORD"
 
 REALMS=$(kcadm get realms \
