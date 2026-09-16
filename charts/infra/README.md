@@ -55,30 +55,8 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
 | gatewayApi.infrastructure | object | `{}` | HTTPS Terminate configuration |
+| gatewayApi.listeners | list | `[{"name":"terminate","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"All"}},"name":"passthrough","port":8443,"protocol":"TLS","tls":{"mode":"Passthrough"}}]` | Gateway listeners. The HTTPS listener is hostname-less so all route hostnames share one listener (needed for HTTP/2 connection reuse on Istio). |
 | gatewayApi.listenersExtra | list | `[{"allowedRoutes":{"namespaces":{"from":"All"}},"hostname":"*.services.portal.localhost","name":"terminate-services","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}}]` | Additional listeners to be added to the Gateway resource (e.g. for HTTPBin) |
-| gatewayApi.listeners[0].hostname | string | `"portal.localhost"` |  |
-| gatewayApi.listeners[0].name | string | `"terminate"` |  |
-| gatewayApi.listeners[0].port | int | `8443` |  |
-| gatewayApi.listeners[0].protocol | string | `"HTTPS"` |  |
-| gatewayApi.listeners[0].tls.certificateRefs[0].group | string | `""` |  |
-| gatewayApi.listeners[0].tls.certificateRefs[0].kind | string | `"Secret"` |  |
-| gatewayApi.listeners[0].tls.certificateRefs[0].name | string | `"domain-certificate"` |  |
-| gatewayApi.listeners[0].tls.certificateRefs[0].namespace | string | `"platform-mesh-system"` |  |
-| gatewayApi.listeners[0].tls.mode | string | `"Terminate"` |  |
-| gatewayApi.listeners[1].hostname | string | `"*.portal.localhost"` |  |
-| gatewayApi.listeners[1].name | string | `"terminate-wildstar"` |  |
-| gatewayApi.listeners[1].port | int | `8443` |  |
-| gatewayApi.listeners[1].protocol | string | `"HTTPS"` |  |
-| gatewayApi.listeners[1].tls.certificateRefs[0].group | string | `""` |  |
-| gatewayApi.listeners[1].tls.certificateRefs[0].kind | string | `"Secret"` |  |
-| gatewayApi.listeners[1].tls.certificateRefs[0].name | string | `"domain-certificate"` |  |
-| gatewayApi.listeners[1].tls.certificateRefs[0].namespace | string | `"platform-mesh-system"` |  |
-| gatewayApi.listeners[1].tls.mode | string | `"Terminate"` |  |
-| gatewayApi.listeners[2].allowedRoutes.namespaces.from | string | `"All"` |  |
-| gatewayApi.listeners[2].name | string | `"passthrough"` |  |
-| gatewayApi.listeners[2].port | int | `8443` |  |
-| gatewayApi.listeners[2].protocol | string | `"TLS"` |  |
-| gatewayApi.listeners[2].tls.mode | string | `"Passthrough"` |  |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
 | hostAliases.enabled | bool | `false` |  |
 | kcp.auth.adminCert.enabled | bool | `true` |  |

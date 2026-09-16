@@ -415,20 +415,9 @@ gatewayApi:
   gatewayClassName: traefik
   # -- HTTPS Terminate configuration
   infrastructure: {}
+  # -- Gateway listeners. The HTTPS listener is hostname-less so all route hostnames share one listener (needed for HTTP/2 connection reuse on Istio).
   listeners:
     - name: terminate
-      hostname: portal.localhost
-      port: 8443
-      protocol: HTTPS
-      tls:
-        mode: Terminate
-        certificateRefs:
-          - group: ""
-            kind: Secret
-            name: domain-certificate
-            namespace: platform-mesh-system
-    - name: terminate-wildstar
-      hostname: '*.portal.localhost'
       port: 8443
       protocol: HTTPS
       tls:

@@ -33,6 +33,23 @@ tests:
       path: spec.infrastructure.annotations
       value:
         dns.gardener.cloud/class: garden
+- it: terminates HTTPS on a single hostname-less listener by default
+  templates:
+  - gatewayapi/gateway.yaml
+  set:
+    gatewayApi:
+      enabled: true
+  asserts:
+  - equal:
+      path: spec.listeners[0].name
+      value: terminate
+  - notExists:
+      path: spec.listeners[0].hostname
+  - notContains:
+      path: spec.listeners
+      content:
+        name: terminate-wildstar
+      any: true
 - it: keycloak operator disabled by default
   templates:
   - keycloak/db-secret.yaml

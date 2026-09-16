@@ -8,19 +8,7 @@ Gateway API enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: '*.portal.localhost'
-          name: terminate-wildstar
+        - name: terminate
           port: 8443
           protocol: HTTPS
           tls:
@@ -663,19 +651,7 @@ Istio disabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: '*.portal.localhost'
-          name: terminate-wildstar
+        - name: terminate
           port: 8443
           protocol: HTTPS
           tls:
@@ -1318,19 +1294,7 @@ Istio enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: '*.portal.localhost'
-          name: terminate-wildstar
+        - name: terminate
           port: 8443
           protocol: HTTPS
           tls:
@@ -2292,19 +2256,7 @@ match snapshots:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: '*.portal.localhost'
-          name: terminate-wildstar
+        - name: terminate
           port: 8443
           protocol: HTTPS
           tls:
@@ -2963,19 +2915,7 @@ match snapshots w. hostAliases enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: '*.portal.localhost'
-          name: terminate-wildstar
+        - name: terminate
           port: 8443
           protocol: HTTPS
           tls:
@@ -3689,19 +3629,7 @@ match snapshots w. kcp version:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: '*.portal.localhost'
-          name: terminate-wildstar
+        - name: terminate
           port: 8443
           protocol: HTTPS
           tls:
@@ -4360,19 +4288,7 @@ match snapshots with mailpit enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: portal.localhost
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: '*.portal.localhost'
-          name: terminate-wildstar
+        - name: terminate
           port: 8443
           protocol: HTTPS
           tls:
