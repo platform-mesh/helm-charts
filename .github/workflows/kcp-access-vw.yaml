@@ -1,0 +1,30 @@
+name: Build kcp-access-vw Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/kcp-access-vw/**'
+      - '.github/workflows/kcp-access-vw.yaml'
+      - '.ocm/component-constructor-chart-only.yaml'
+      - '.ocm/component-constructor-service-kcp-access-vw.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    concurrency:
+      group: kcp-access-vw-${{ github.ref }}
+      cancel-in-progress: true
+    uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
+    with:
+      chartFolder: charts
+      chartName: kcp-access-vw
+      componentConstructorFile: .ocm/component-constructor-chart-only.yaml
+      chartOnly: true
+      serviceComponentConstructorFile: .ocm/component-constructor-service-kcp-access-vw.yaml
+    secrets: inherit
