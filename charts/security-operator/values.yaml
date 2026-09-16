@@ -80,6 +80,12 @@ idp:
     fromAddress: ""
   # -- Additional redirect URLs to allow for OAuth clients (e.g. for local development callbacks)
   additionalRedirectUrls: []
+  # -- (Development only) Allow self-registration of new users via IDP. Must be false in production.
+  registrationAllowed: false
+  # -- (Development only) Allow login without email verification. Must be false in production.
+  allowUnverifiedEmails: false
+  # -- (Development only) Set a default password for new users. Must be false in production.
+  setDefaultPassword: false
 
 
 keycloak:

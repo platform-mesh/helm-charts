@@ -21,7 +21,7 @@ A Helm chart for security-operator
 | hostAliases.enabled | bool | `false` |  |
 | idp.additionalRedirectUrls | list | `[]` | Additional redirect URLs to allow for OAuth clients (e.g. for local development callbacks) |
 | idp.allowUnverifiedEmails | Development only | `false` | Allow login without email verification. Must be false in production. |
-| idp.registrationAllowed | bool | `false` | Allow self-registration of new users via IDP. Production default is false (invite-only). |
+| idp.registrationAllowed | Development only | `false` | Allow self-registration of new users via IDP. Must be false in production. |
 | idp.setDefaultPassword | Development only | `false` | Set a default password for new users. Must be false in production. |
 | idp.smtp.fromAddress | string | `""` | Email address used as the sender for IDP notifications |
 | idp.smtp.port | string | `""` | SMTP server port |
@@ -36,7 +36,7 @@ A Helm chart for security-operator
 | initContainer.keycloakClientId | string | `"admin-cli"` | Keycloak client ID for admin authentication |
 | initContainer.keycloakUser | string | `"keycloak-admin"` | Keycloak username for admin authentication |
 | initializer.extraArgs | list | `[]` |  |
-| initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
+| initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` | The kubeconfig secret for the initializer |
 | initializer.subroutines.idpEnabled | bool | `true` | Enable IDPSubroutine (Keycloak identity provider configuration) |
 | initializer.subroutines.inviteEnabled | bool | `true` | Enable InviteSubroutine (creates Invite resources for org creator) |
 | initializer.subroutines.workspaceAuthEnabled | bool | `true` | Enable WorkspaceAuthConfigurationSubroutine (JWT authentication setup) |
@@ -55,7 +55,7 @@ A Helm chart for security-operator
 | system.extraArgs | list | `[]` | Extra arguments passed to the system binary |
 | system.kubeconfigSecret | string | `""` | The kubeconfig secret for the system component |
 | terminator.extraArgs | list | `[]` |  |
-| terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
+| terminator.kubeconfigSecret | string | `"security-terminator-kubeconfig"` | The kubeconfig secret for the terminator |
 | webhooks.caDuration | string | `"2160h"` | CA certificate duration (default: 3 months) |
 | webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
 | webhooks.certDir | string | `"/certs"` | The directory for webhook certificates (mounted from the serving cert secret) |
