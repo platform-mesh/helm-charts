@@ -54,6 +54,12 @@ spec:
           {{- with .Values.idp.additionalRedirectUrls }}
           - --idp-additional-redirect-urls={{ join "," . }}
           {{- end }}
+          {{- if .Values.idp.registrationAllowed }}
+          - --idp-registration-allowed
+          {{- end }}
+          {{- if .Values.idp.allowUnverifiedEmails }}
+          - --development-allow-unverified-emails
+          {{- end }}
           {{- with .Values.initializer.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}

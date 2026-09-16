@@ -84,6 +84,15 @@ spec:
           {{- with .Values.idp.smtp.fromAddress }}
           - --idp-from-address={{ . }}
           {{- end }}
+          {{- if .Values.idp.registrationAllowed }}
+          - --idp-registration-allowed
+          {{- end }}
+          {{- if .Values.idp.allowUnverifiedEmails }}
+          - --development-allow-unverified-emails
+          {{- end }}
+          {{- if .Values.idp.setDefaultPassword }}
+          - --set-default-password
+          {{- end }}
           {{- with .Values.operator.extraArgs }}
           {{ toYaml . | nindent 10}}
           {{- end }}

@@ -20,6 +20,9 @@ A Helm chart for security-operator
 | generator.extraArgs | list | `[]` | Extra arguments passed to the generator binary |
 | hostAliases.enabled | bool | `false` |  |
 | idp.additionalRedirectUrls | list | `[]` | Additional redirect URLs to allow for OAuth clients (e.g. for local development callbacks) |
+| idp.allowUnverifiedEmails | Development only | `false` | Allow login without email verification. Must be false in production. |
+| idp.registrationAllowed | bool | `false` | Allow self-registration of new users via IDP. Production default is false (invite-only). |
+| idp.setDefaultPassword | Development only | `false` | Set a default password for new users. Must be false in production. |
 | idp.smtp.fromAddress | string | `""` | Email address used as the sender for IDP notifications |
 | idp.smtp.port | string | `""` | SMTP server port |
 | idp.smtp.server | string | `""` | SMTP server hostname |

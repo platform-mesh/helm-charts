@@ -92,7 +92,7 @@ keycloak:
 
 initializer:
   # -- The kubeconfig secret for the initializer
-  kubeconfigSecret: ""
+  kubeconfigSecret: "security-initializer-kubeconfig"
   extraArgs: []
   subroutines:
     # -- Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup)
@@ -106,7 +106,7 @@ initializer:
 
 terminator:
   # -- The kubeconfig secret for the terminator
-  kubeconfigSecret: ""
+  kubeconfigSecret: "security-terminator-kubeconfig"
   extraArgs: []
 
 # -- Init container configuration for bootstrapping Keycloak service account clients

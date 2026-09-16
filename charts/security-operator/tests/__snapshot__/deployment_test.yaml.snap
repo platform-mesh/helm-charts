@@ -1157,6 +1157,7 @@ operator match the snapshot w. sentry:
                 - initializer
                 - --core-module-path=/data/coreModule.fga
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --domain-ca-lookup
                 - --leader-elect
                 - --metrics-bind-address=:9090
@@ -1220,6 +1221,8 @@ operator match the snapshot w. sentry:
                 - mountPath: /etc/kcp-kubeconfig
                   name: kcp-kubeconfig
                   readOnly: true
+                - mountPath: /api-kubeconfig
+                  name: external-api-server
                 - mountPath: /data
                   name: core-module
           securityContext:
@@ -1232,6 +1235,9 @@ operator match the snapshot w. sentry:
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig
+            - name: external-api-server
+              secret:
+                secretName: security-initializer-kubeconfig
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module
@@ -1406,6 +1412,7 @@ operator match the snapshot w. sentry:
                 - terminator
                 - --core-module-path=/data/coreModule.fga
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -1468,6 +1475,8 @@ operator match the snapshot w. sentry:
                 - mountPath: /etc/kcp-kubeconfig
                   name: kcp-kubeconfig
                   readOnly: true
+                - mountPath: /api-kubeconfig
+                  name: external-api-server
                 - mountPath: /data
                   name: core-module
           securityContext:
@@ -1480,6 +1489,9 @@ operator match the snapshot w. sentry:
             - name: kcp-kubeconfig
               secret:
                 secretName: kcp-kubeconfig
+            - name: external-api-server
+              secret:
+                secretName: security-terminator-kubeconfig
             - configMap:
                 name: RELEASE-NAME-security-operator-core-module
               name: core-module

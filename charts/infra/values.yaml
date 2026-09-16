@@ -415,6 +415,7 @@ gatewayApi:
   infrastructure: {}
   listeners:
     - name: terminate
+    # -- the hostname should be the base domain. Platform-mesh operator will substitute the correct value
       hostname: ""
       port: 8443
       protocol: HTTPS
@@ -426,6 +427,7 @@ gatewayApi:
             name: domain-certificate
             namespace: platform-mesh-system
     - name: terminate-wildstar
+    # -- the hostname should match the pattern "*.{{ .baseDomain }}"
       hostname: ""
       port: 8443
       protocol: HTTPS
@@ -447,6 +449,7 @@ gatewayApi:
   # -- Additional listeners to be added to the Gateway resource (e.g. for HTTPBin)
   listenersExtra:
     - name: terminate-services
+    # -- hostname should match the pattern "*.services.{{ .baseDomain }}"
       hostname: ""
       port: 8443
       protocol: HTTPS

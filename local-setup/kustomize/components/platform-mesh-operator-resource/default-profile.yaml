@@ -733,28 +733,20 @@ data:
                 - http://localhost:8000/callback*
                 - http://localhost:4300/callback*
                 - http://sub.localhost:4300/callback*
+              registrationAllowed: true
+              allowUnverifiedEmails: true
+              setDefaultPassword: true
             operator:
               maxConcurrentReconciles: 1
               shutdownTimeout: 1m
-              extraArgs:
-                - --set-default-password
-                - --idp-registration-allowed
-                - --development-allow-unverified-emails
             hostAliases:
               enabled: true
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
-              extraArgs:
-                - --development-allow-unverified-emails
-                - --idp-registration-allowed
             kubeconfigSecret: security-operator-kubeconfig
             log:
               level: debug
               noJson: true
-            system:
-              extraArgs:
-              - --set-default-password
-              - --idp-registration-allowed
             terminator:
               kubeconfigSecret: security-terminator-kubeconfig
         terminal-controller-manager:
