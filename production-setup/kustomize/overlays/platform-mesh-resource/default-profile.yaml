@@ -111,6 +111,49 @@ data:
               enabled: true
             gatewayApi:
               enabled: true
+              listeners:
+                - name: terminate
+                  hostname: "{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
+                - name: terminate-wildstar
+                  hostname: "*.{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
+                - name: passthrough
+                  port: 8443
+                  protocol: TLS
+                  tls:
+                    mode: Passthrough
+                  allowedRoutes:
+                    namespaces:
+                      from: All
+              listenersExtra:
+                - name: terminate-services
+                  hostname: "*.services.{{ .baseDomain }}"
+                  port: 8443
+                  protocol: HTTPS
+                  tls:
+                    mode: Terminate
+                    certificateRefs:
+                      - kind: Secret
+                        name: domain-certificate
+                        namespace: platform-mesh-system
+                  allowedRoutes:
+                    namespaces:
+                      from: All
             keycloak:
               operator:
                 # REQUIRED: set to your production Keycloak URL
@@ -118,6 +161,13 @@ data:
                 enabled: true
                 caSecret: domain-certificate-ca
                 httpEnabled: false
+              gatewayApi:
+                hostnames:
+                  - "{{ .baseDomain }}"
+              keycloakConfig:
+                redirectUrls:
+                  # REQUIRED: set to your production portal callback URL(s)
+                  - "https://{{ .baseDomain }}/callback*"
             kcp:
               external:
                 hostname: kcp.api.{{ .baseDomain }}
@@ -127,6 +177,9 @@ data:
               frontProxy:
                 port: 443
               rootShard:
+                # REQUIRED: set to your production root shard hostname and base URL
+                # hostname: root.kcp.REPLACE_ME
+                # shardBaseURL: https://root.kcp.REPLACE_ME:443/
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
               shards: []
@@ -372,20 +425,24 @@ data:
             crds:
               enabled: false
             openfga:
-              target: openfga.platform-mesh-system.svc.cluster.local:8081
+              endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
             keycloak:
               baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
+            idp:
+              smtp:
+                # REQUIRED: configure a production SMTP server
+                server: ""
+                port: ""
+                fromAddress: ""
+              # Production defaults: invite-only, require email verification
+              registrationAllowed: false
+              allowUnverifiedEmails: false
+              setDefaultPassword: false
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
             operator:
               maxConcurrentReconciles: 5
               shutdownTimeout: 5m
-            system:
-              extraArgs:
-              # REQUIRED: configure a production SMTP server
-              # - --idp-smtp-server=smtp.example.com
-              # - --idp-smtp-port=587
-              # - --idp-from-address=noreply@example.com
             terminator:
               kubeconfigSecret: security-terminator-kubeconfig
         virtual-workspaces:
