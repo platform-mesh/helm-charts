@@ -11,7 +11,7 @@ spec:
   - group: gateway.networking.k8s.io
     kind: Gateway
     name: {{ .Values.gatewayApi.name }}
-    sectionName: passthrough
+    sectionName: {{ include "kcp.passthroughSectionName" (dict "root" $ "suffix" "") }}
   rules:
   - backendRefs:
     - group: ""

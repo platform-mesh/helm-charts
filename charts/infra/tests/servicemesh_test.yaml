@@ -50,6 +50,65 @@ tests:
       content:
         name: terminate-wildstar
       any: true
+- it: generates one passthrough listener per kcp hostname
+  templates:
+  - gatewayapi/gateway.yaml
+  set:
+    gatewayApi:
+      enabled: true
+    kcp:
+      external:
+        hostname: kcp.api.example.com
+      rootShard:
+        hostname: root.kcp.example.com
+      shards:
+      - name: nereus
+  asserts:
+  - contains:
+      path: spec.listeners
+      content:
+        name: passthrough
+        hostname: kcp.api.example.com
+      any: true
+  - contains:
+      path: spec.listeners
+      content:
+        name: passthrough-root
+        hostname: root.kcp.example.com
+      any: true
+  - contains:
+      path: spec.listeners
+      content:
+        name: passthrough-nereus
+        hostname: nereus.kcp.kcp.api.example.com
+      any: true
+- it: leaves passthrough listeners to the user when generation is disabled
+  templates:
+  - gatewayapi/gateway.yaml
+  set:
+    gatewayApi:
+      enabled: true
+      passthrough:
+        enabled: false
+  asserts:
+  - notContains:
+      path: spec.listeners
+      content:
+        protocol: TLS
+      any: true
+- it: fails when a user listener collides with a generated passthrough listener
+  templates:
+  - gatewayapi/gateway.yaml
+  set:
+    gatewayApi:
+      enabled: true
+      listenersExtra:
+      - name: passthrough
+        port: 8443
+        protocol: TLS
+  asserts:
+  - failedTemplate:
+      errorPattern: generated from the kcp hostnames
 - it: keycloak operator disabled by default
   templates:
   - keycloak/db-secret.yaml

@@ -293,14 +293,8 @@ data:
                       - kind: Secret
                         name: domain-certificate
                         namespace: platform-mesh-system
-                - name: passthrough
-                  port: 443
-                  protocol: TLS
-                  tls:
-                    mode: Passthrough
-                  allowedRoutes:
-                    namespaces:
-                      from: All
+              passthrough:
+                port: 443
               listenersExtra:
                 - name: terminate-services
                   hostname: "*.services.{{ .baseDomain }}"
