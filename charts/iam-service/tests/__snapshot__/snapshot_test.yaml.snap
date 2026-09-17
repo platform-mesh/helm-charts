@@ -23,6 +23,7 @@ match the snapshots:
                 - --keycloak-client-id=iam-service
                 - --roles-file-path=/roles/roles.yaml
                 - --jwt-user-id-claim=email
+                - --openfga-grpc-addr=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --test=abc
               env:
                 - name: KUBECONFIG

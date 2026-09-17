@@ -11,6 +11,10 @@ log:
 operator:
   leaderElect: true
 
+# JWT configuration
+jwt:
+  userIdClaim: "email"
+
 image:
   # -- The image registry
   registry: ghcr.io

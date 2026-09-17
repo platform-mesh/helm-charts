@@ -15,13 +15,17 @@ A Helm chart for security-operator
 | deployment.resources.requests.cpu | string | `"150m"` |  |
 | deployment.resources.requests.memory | string | `"128Mi"` |  |
 | deployment.revisionHistoryLimit | int | `3` | Number of old ReplicaSets to retain for rollback |
+| domainCALookup | bool | `true` | Enable domain CA lookup for TLS verification on kcp side |
 | environment | string | `""` | environment indicator, used for logging and observability |
-| fga.extraArgs | list | `[]` | Extra arguments passed to the fga binary |
-| fga.inviteKeycloakBaseUrl | string | `""` | Keycloak base URL used for invite email links (e.g. https://platform.example.com). Defaults to baseDomain-derived URL when empty. |
-| fga.storeIDCacheTTL | string | `""` | TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m). |
-| fga.target | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` | OpenFGA gRPC endpoint (host:port) |
 | generator.extraArgs | list | `[]` | Extra arguments passed to the generator binary |
 | hostAliases.enabled | bool | `false` |  |
+| idp.additionalRedirectUrls | list | `[]` | Additional redirect URLs to allow for OAuth clients (e.g. for local development callbacks) |
+| idp.allowUnverifiedEmails | Development only | `false` | Allow login without email verification. Must be false in production. |
+| idp.registrationAllowed | Development only | `false` | Allow self-registration of new users via IDP. Must be false in production. |
+| idp.setDefaultPassword | Development only | `false` | Set a default password for new users. Must be false in production. |
+| idp.smtp.fromAddress | string | `""` | Email address used as the sender for IDP notifications |
+| idp.smtp.port | string | `""` | SMTP server port |
+| idp.smtp.server | string | `""` | SMTP server hostname |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh/security-operator"` | The image repository path (without registry) |
@@ -32,21 +36,26 @@ A Helm chart for security-operator
 | initContainer.keycloakClientId | string | `"admin-cli"` | Keycloak client ID for admin authentication |
 | initContainer.keycloakUser | string | `"keycloak-admin"` | Keycloak username for admin authentication |
 | initializer.extraArgs | list | `[]` |  |
-| initializer.kubeconfigSecret | string | `""` | The kubeconfig secret for the initializer |
+| initializer.kubeconfigSecret | string | `"security-initializer-kubeconfig"` | The kubeconfig secret for the initializer |
 | initializer.subroutines.idpEnabled | bool | `true` | Enable IDPSubroutine (Keycloak identity provider configuration) |
 | initializer.subroutines.inviteEnabled | bool | `true` | Enable InviteSubroutine (creates Invite resources for org creator) |
 | initializer.subroutines.workspaceAuthEnabled | bool | `true` | Enable WorkspaceAuthConfigurationSubroutine (JWT authentication setup) |
 | initializer.subroutines.workspaceEnabled | bool | `true` | Enable WorkspaceInitializer subroutine (FGA Store + AccountInfo setup) |
+| jwt.userIdClaim | string | `"email"` |  |
+| keycloak.baseUrl | string | `""` | base URL of the Keycloak instance (e.g. https://example.com/keycloak). Required. |
 | keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"security-operator-client-secret"` |  |
 | keycloakSecret | string | `"keycloak-admin"` | Name of the secret containing Keycloak admin credentials (keys: username, password, secret) |
 | kubeconfigSecret | string | `""` | The kubeconfig secret for operator and generator |
 | logLevel | string | `"info"` | Log level for all operator components. Permissible values: debug, info, warn, error |
+| openfga.endpoint | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` | OpenFGA gRPC endpoint (host:port) |
+| openfga.storeIDCacheTTL | string | `""` | TTL for the OpenFGA store ID cache (e.g. 5m, 1h). Empty uses app default (5m). |
+| operator.extraArgs | list | `[]` |  |
 | region | string | `""` | region indicator, used for logging and observability |
 | system.extraArgs | list | `[]` | Extra arguments passed to the system binary |
 | system.kubeconfigSecret | string | `""` | The kubeconfig secret for the system component |
 | terminator.extraArgs | list | `[]` |  |
-| terminator.kubeconfigSecret | string | `""` | The kubeconfig secret for the terminator |
+| terminator.kubeconfigSecret | string | `"security-terminator-kubeconfig"` | The kubeconfig secret for the terminator |
 | webhooks.caDuration | string | `"2160h"` | CA certificate duration (default: 3 months) |
 | webhooks.caRenewBefore | string | `"720h"` | CA certificate renewal time before expiration (default: 30 days) |
 | webhooks.certDir | string | `"/certs"` | The directory for webhook certificates (mounted from the serving cert secret) |

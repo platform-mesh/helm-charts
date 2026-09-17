@@ -25,7 +25,7 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - model-generator
-          - --fga-target={{ .Values.fga.target }}
+          - --fga-target={{ .Values.openfga.endpoint }}
           {{- if .Values.kubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}

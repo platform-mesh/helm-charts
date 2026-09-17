@@ -23,6 +23,7 @@ A Helm chart for Kubernetes
 | keycloak.client.id | string | `"iam-service"` |  |
 | keycloak.client.secret.key | string | `"client_secret"` |  |
 | keycloak.client.secret.name | string | `"iam-client-secret"` |  |
+| openfga.endpoint | string | `"openfga.platform-mesh-system.svc.cluster.local:8081"` |  |
 | port | int | `8080` |  |
 | roles.raw.roles[0].groupResource | string | `"core.platform-mesh.io/Account"` |  |
 | roles.raw.roles[0].roles[0].description | string | `"Full access to all resources within the account."` |  |

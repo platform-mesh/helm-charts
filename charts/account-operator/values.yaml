@@ -35,11 +35,7 @@ webhooks:
 
 # -- The kcp configuration
 kcp:
-  # -- Enable kcp
-  enabled: false
-  # -- The URL for the virtual workspace
-  virtualWorkspaceUrl: ""
-  # -- kcp APIExportEndpointSliceName
+  # -- kcp APIExportEndpointSliceName which is used for reconciliation
   apiExportEndpointSliceName: "core.platform-mesh.io"
 
 subroutines:

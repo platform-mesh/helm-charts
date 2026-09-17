@@ -29,10 +29,10 @@ spec:
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
-          {{- with .Values.fga.storeIDCacheTTL }}
+          {{- with .Values.openfga.storeIDCacheTTL }}
           - --fga-store-id-cache-ttl={{ . }}
           {{- end }}
-          - --fga-target={{ .Values.fga.target }}
+          - --fga-target={{ .Values.openfga.endpoint }}
           {{- if .Values.terminator.kubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}

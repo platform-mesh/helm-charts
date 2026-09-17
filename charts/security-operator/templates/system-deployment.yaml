@@ -26,15 +26,33 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         args:
           - system
-          {{- with .Values.fga.inviteKeycloakBaseUrl }}
+          {{- with .Values.keycloak.baseUrl }}
           - --keycloak-base-url={{ . }}
           {{- end }}
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
-          - --fga-target={{ .Values.fga.target }}
+          - --fga-target={{ .Values.openfga.endpoint }}
           {{- if $systemKubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+          {{- end }}
+          {{- with .Values.idp.smtp.server }}
+          - --idp-smtp-server={{ . }}
+          {{- end }}
+          {{- with .Values.idp.smtp.port }}
+          - --idp-smtp-port={{ . }}
+          {{- end }}
+          {{- with .Values.idp.smtp.fromAddress }}
+          - --idp-from-address={{ . }}
+          {{- end }}
+          {{- with .Values.idp.additionalRedirectUrls }}
+          - --idp-additional-redirect-urls={{ join "," . }}
+          {{- end }}
+          {{- if .Values.idp.registrationAllowed }}
+          - --idp-registration-allowed
+          {{- end }}
+          {{- if .Values.idp.setDefaultPassword }}
+          - --set-default-password
           {{- end }}
           {{- with .Values.system.extraArgs }}
           {{- toYaml . | nindent 10 }}
