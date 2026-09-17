@@ -55,9 +55,12 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | gatewayApi.enabled | bool | `true` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.gatewayClassName | string | `"traefik"` | GatewayClass name |
 | gatewayApi.infrastructure | object | `{}` | HTTPS Terminate configuration |
-| gatewayApi.listeners | list | `[{"name":"terminate","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}},{"allowedRoutes":{"namespaces":{"from":"All"}},"name":"passthrough","port":8443,"protocol":"TLS","tls":{"mode":"Passthrough"}}]` | Gateway listeners. The HTTPS listener is hostname-less so all route hostnames share one listener (needed for HTTP/2 connection reuse on Istio). |
+| gatewayApi.listeners | list | `[{"name":"terminate","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}}]` | Gateway listeners. The HTTPS listener is hostname-less so all route hostnames share one listener (needed for HTTP/2 connection reuse on Istio). |
 | gatewayApi.listenersExtra | list | `[{"allowedRoutes":{"namespaces":{"from":"All"}},"hostname":"*.services.portal.localhost","name":"terminate-services","port":8443,"protocol":"HTTPS","tls":{"certificateRefs":[{"group":"","kind":"Secret","name":"domain-certificate","namespace":"platform-mesh-system"}],"mode":"Terminate"}}]` | Additional listeners to be added to the Gateway resource (e.g. for HTTPBin) |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
+| gatewayApi.passthrough.allowedRoutes | object | `{"namespaces":{"from":"All"}}` | allowedRoutes of the generated passthrough listeners |
+| gatewayApi.passthrough.enabled | bool | `true` | Generate one TLS passthrough listener per kcp hostname (front proxy, root shard, shards). Disable to manage passthrough listeners yourself; kcp TLSRoutes then attach to a listener named "passthrough". |
+| gatewayApi.passthrough.port | int | `8443` | Port of the generated passthrough listeners |
 | hostAliases.enabled | bool | `false` |  |
 | kcp.auth.adminCert.enabled | bool | `true` |  |
 | kcp.auth.adminCert.privateKey.algorithm | string | `"RSA"` |  |

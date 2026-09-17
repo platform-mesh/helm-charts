@@ -427,14 +427,15 @@ gatewayApi:
             kind: Secret
             name: domain-certificate
             namespace: platform-mesh-system
-    - name: passthrough
-      port: 8443
-      protocol: TLS
-      tls:
-        mode: Passthrough
-      allowedRoutes:
-        namespaces:
-          from: All
+  passthrough:
+    # -- Generate one TLS passthrough listener per kcp hostname (front proxy, root shard, shards). Disable to manage passthrough listeners yourself; kcp TLSRoutes then attach to a listener named "passthrough".
+    enabled: true
+    # -- Port of the generated passthrough listeners
+    port: 8443
+    # -- allowedRoutes of the generated passthrough listeners
+    allowedRoutes:
+      namespaces:
+        from: All
   # -- Additional listeners to be added to the Gateway resource (e.g. for HTTPBin)
   listenersExtra:
     - name: terminate-services

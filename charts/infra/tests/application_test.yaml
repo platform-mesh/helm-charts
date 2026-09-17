@@ -305,3 +305,23 @@ tests:
   asserts:
   - notExists:
       path: spec.rules[0].filters
+- it: attaches the root shard TLSRoute to its own passthrough listener
+  templates:
+    - kcp/root-shard.yaml
+  asserts:
+  - documentIndex: 2
+    equal:
+      path: spec.parentRefs[0].sectionName
+      value: passthrough-root
+- it: attaches kcp TLSRoutes to a user-managed passthrough listener when generation is disabled
+  templates:
+    - kcp/root-shard.yaml
+  set:
+    gatewayApi:
+      passthrough:
+        enabled: false
+  asserts:
+  - documentIndex: 2
+    equal:
+      path: spec.parentRefs[0].sectionName
+      value: passthrough
