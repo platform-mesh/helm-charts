@@ -29,4 +29,4 @@ spec:
     hostname: {{ .Values.kcp.external.hostname }}
     port: {{ .Values.kcp.external.port }}
 ---
-{{ include "kcp.tlsroute" (dict "name" "kcp-root-shard-tlsroute" "hostname" $rootShardHostname "serviceName" "root-kcp" "namespace" (.Values.kcp.namespace | default "kcp-system") "gatewayName" .Values.gatewayApi.name) }}
+{{ include "kcp.tlsroute" (dict "name" "kcp-root-shard-tlsroute" "hostname" $rootShardHostname "serviceName" "root-kcp" "namespace" (.Values.kcp.namespace | default "kcp-system") "gatewayName" .Values.gatewayApi.name "sectionName" (include "kcp.passthroughSectionName" (dict "root" $ "suffix" "root"))) }}

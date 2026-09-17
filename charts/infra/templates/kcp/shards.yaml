@@ -35,5 +35,5 @@ spec:
           - {{ $shardName }}-shard-kcp.{{ $.Values.kcp.namespace | default "kcp-system" }}.svc.cluster.local
           - {{ $hostname }}
 ---
-{{ include "kcp.tlsroute" (dict "name" (printf "kcp-%s-tlsroute" $shardName) "hostname" $hostname "serviceName" (printf "%s-shard-kcp" $shardName) "namespace" ($.Values.kcp.namespace | default "kcp-system") "gatewayName" $.Values.gatewayApi.name) }}
+{{ include "kcp.tlsroute" (dict "name" (printf "kcp-%s-tlsroute" $shardName) "hostname" $hostname "serviceName" (printf "%s-shard-kcp" $shardName) "namespace" ($.Values.kcp.namespace | default "kcp-system") "gatewayName" $.Values.gatewayApi.name "sectionName" (include "kcp.passthroughSectionName" (dict "root" $ "suffix" $shardName))) }}
 {{- end }}
