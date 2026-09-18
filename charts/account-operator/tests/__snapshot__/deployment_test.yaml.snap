@@ -27,8 +27,8 @@ deployment with tracing:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
@@ -575,8 +575,8 @@ disable istio:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
@@ -1196,8 +1196,8 @@ operator match the snapshot:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
@@ -1818,8 +1818,8 @@ operator match the snapshot (with kubeconfigSecret):
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
@@ -2446,8 +2446,8 @@ operator match the snapshot with webhook enabled:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/account-operator"
                 - --shutdown-timeout=1m
