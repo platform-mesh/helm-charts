@@ -107,7 +107,7 @@ OpenTelemetry-based observability stack for platform-mesh
 | Repository | Name | Version |
 |------------|------|---------|
 | https://prometheus-community.github.io/helm-charts | prometheus | 29.19.0 |
-| oci://ghcr.io/platform-mesh/helm-charts | common | 0.13.0 |
+| oci://ghcr.io/platform-mesh/helm-charts | common | 0.15.0 |
 
 ## Values
 

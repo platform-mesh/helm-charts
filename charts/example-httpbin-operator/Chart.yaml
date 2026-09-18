@@ -6,7 +6,7 @@ version: 0.9.1
 appVersion: "v0.6.2"
 dependencies:
   - name: common
-    version: 0.13.0
+    version: 0.15.0
     repository: oci://ghcr.io/platform-mesh/helm-charts
 annotations:
   # Automatically install and upgrade CRDs

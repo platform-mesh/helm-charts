@@ -6,4 +6,4 @@ appVersion: "v0.26.12"
 dependencies:
   - name: common
     repository: oci://ghcr.io/platform-mesh/helm-charts
-    version: 0.13.0
+    version: 0.15.0
