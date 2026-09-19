@@ -118,13 +118,6 @@ spec:
 {{- define "kcp.shard.spec" -}}
 replicas: {{ .replicas }}
 shardBaseURL: {{ .shardBaseURL }}
-proxy:
-  deploymentTemplate:
-    spec:
-      template:
-        spec:
-          {{- include "common.hostAliases" .root | nindent 10 }}
-  {{- with (include "kcp.image.block" .root.Values.kcp.image) }}{{ . | nindent 2 }}{{- end }}
 {{- if or .root.Values.kcp.auth.serviceAccount.enabled .root.Values.kcp.auth.oidc.enabled }}
 auth:
   {{- if .root.Values.kcp.auth.serviceAccount.enabled }}
@@ -145,9 +138,6 @@ auth:
   {{- end }}
   {{- end }}
 {{- end }}
-external:
-  hostname: {{ .hostname }}
-  port: {{ .port }}
 {{- if (.root.Values.kcp.webhook).enabled }}
 authorization:
   webhook:
