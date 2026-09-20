@@ -11,7 +11,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # Configuration
 # renovate: datasource=github-releases depName=open-component-model/open-component-model
-OCM_VERSION="${OCM_VERSION:-0.13.0}"
+OCM_VERSION="${OCM_VERSION:-0.15.0}"
 LOCAL_BIN="${LOCAL_BIN:-$PROJECT_ROOT/bin}"
 
 # Color output (respect NO_COLOR env var)

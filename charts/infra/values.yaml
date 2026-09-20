@@ -189,7 +189,7 @@ keycloak:
         # -- wait-for-db init container image repository (without registry)
         repository: library/busybox
         # -- wait-for-db init container image tag
-        tag: "1.37"
+        tag: "1.38@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616"
         # -- wait-for-db init container image digest (when set, overrides tag)
         digest: ""
     # -- Keycloak hostname (used in the Keycloak CR hostname.hostname field).

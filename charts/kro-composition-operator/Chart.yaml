@@ -2,9 +2,9 @@ apiVersion: v2
 name: kro-composition-operator
 description: A Helm chart to deploy the platform-mesh kro composition operator (KROaaS)
 type: application
-version: 0.5.0
+version: 0.5.1
 appVersion: "v0.3.0"
 dependencies:
   - name: common
-    version: 0.13.0
+    version: 0.15.0
     repository: oci://ghcr.io/platform-mesh/helm-charts
