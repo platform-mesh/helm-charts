@@ -110,6 +110,17 @@ data:
             autoGenerateCert:
               enabled: true
     components:
+      # -- Change hostaliases here and all involved components will get the same hostaliases
+      hostAliasesEntries: &hostAliasesEntries
+        - ip: "{{ .traefikClusterIP }}"
+          hostnames:
+            - "localhost"
+            - "{{ .baseDomain }}"
+            - "kcp.localhost"
+            - "root.kcp.localhost"
+            - "kcp.api.{{ .baseDomain }}"
+            - "nereus.kcp.localhost"
+            - "triton.kcp.localhost"
       deploymentTechnology: fluxcd
       ocm:
         component:
@@ -133,6 +144,7 @@ data:
           values:
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             crds:
               enabled: false
             kcp:
@@ -161,6 +173,7 @@ data:
               enabled: false
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             kcp:
               enabled: true
               kubeconfigSecret: extension-manager-operator-kubeconfig
@@ -308,6 +321,7 @@ data:
                       from: All
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             keycloak:
               operator:
                 hostname: https://{{ .baseDomainPort }}/keycloak/
@@ -408,6 +422,7 @@ data:
               - "*.{{ .baseDomain }}"
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             keycloak:
               baseUrl: "https://{{ .baseDomainPort }}/keycloak"
         init-agent:
@@ -514,6 +529,7 @@ data:
                 - "*.{{ .baseDomain }}"
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             istio:
               enabled: false
             kubeConfig:
@@ -681,6 +697,7 @@ data:
                   kind: Gateway
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             http:
               protocol: https
             kcp:
@@ -696,6 +713,7 @@ data:
           values:
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             certManager:
               createCA: true
               enabled: true
@@ -741,6 +759,7 @@ data:
               shutdownTimeout: 1m
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
             kubeconfigSecret: security-operator-kubeconfig
@@ -764,6 +783,7 @@ data:
             virtualWorkspaceSecretName: virtual-workspaces-cert
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             deployment:
               serverUrl: "{{ .internalFrontProxyUrl }}"
               resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
