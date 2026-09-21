@@ -3106,16 +3106,7 @@ match snapshots w. hostAliases enabled:
         spec:
           template:
             spec:
-              hostAliases:
-                - hostnames:
-                    - localhost
-                    - portal.localhost
-                    - kcp.localhost
-                    - root.kcp.localhost
-                    - kcp.api.portal.localhost
-                    - nereus.kcp.localhost
-                    - triton.kcp.localhost
-                  ip: 10.96.188.4
+              hostAliases: []
       external:
         hostname: localhost
         port: 8443
@@ -3230,16 +3221,7 @@ match snapshots w. hostAliases enabled:
               annotations:
                 traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
             spec:
-              hostAliases:
-                - hostnames:
-                    - localhost
-                    - portal.localhost
-                    - kcp.localhost
-                    - root.kcp.localhost
-                    - kcp.api.portal.localhost
-                    - nereus.kcp.localhost
-                    - triton.kcp.localhost
-                  ip: 10.96.188.4
+              hostAliases: []
       etcd:
         endpoints:
           - http://etcd-kcp-client.platform-mesh-system.svc.cluster.local:2379
@@ -3253,16 +3235,7 @@ match snapshots w. hostAliases enabled:
           spec:
             template:
               spec:
-                hostAliases:
-                  - hostnames:
-                      - localhost
-                      - portal.localhost
-                      - kcp.localhost
-                      - root.kcp.localhost
-                      - kcp.api.portal.localhost
-                      - nereus.kcp.localhost
-                      - triton.kcp.localhost
-                    ip: 10.96.188.4
+                hostAliases: []
       replicas: 1
       shardBaseURL: https://root.kcp.localhost:8443/
   10: |
@@ -3374,16 +3347,7 @@ match snapshots w. hostAliases enabled:
               annotations:
                 traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
             spec:
-              hostAliases:
-                - hostnames:
-                    - localhost
-                    - portal.localhost
-                    - kcp.localhost
-                    - root.kcp.localhost
-                    - kcp.api.portal.localhost
-                    - nereus.kcp.localhost
-                    - triton.kcp.localhost
-                  ip: 10.96.188.4
+              hostAliases: []
       etcd:
         endpoints:
           - http://etcd-kcp-nereus-client.platform-mesh-system.svc.cluster.local:2379
@@ -3394,16 +3358,7 @@ match snapshots w. hostAliases enabled:
           spec:
             template:
               spec:
-                hostAliases:
-                  - hostnames:
-                      - localhost
-                      - portal.localhost
-                      - kcp.localhost
-                      - root.kcp.localhost
-                      - kcp.api.portal.localhost
-                      - nereus.kcp.localhost
-                      - triton.kcp.localhost
-                    ip: 10.96.188.4
+                hostAliases: []
       replicas: 1
       rootShard:
         ref:
@@ -3518,16 +3473,7 @@ match snapshots w. hostAliases enabled:
               annotations:
                 traffic.sidecar.istio.io/excludeOutboundPorts: "9443"
             spec:
-              hostAliases:
-                - hostnames:
-                    - localhost
-                    - portal.localhost
-                    - kcp.localhost
-                    - root.kcp.localhost
-                    - kcp.api.portal.localhost
-                    - nereus.kcp.localhost
-                    - triton.kcp.localhost
-                  ip: 10.96.188.4
+              hostAliases: []
       etcd:
         endpoints:
           - http://etcd-kcp-triton-client.platform-mesh-system.svc.cluster.local:2379
@@ -3538,16 +3484,7 @@ match snapshots w. hostAliases enabled:
           spec:
             template:
               spec:
-                hostAliases:
-                  - hostnames:
-                      - localhost
-                      - portal.localhost
-                      - kcp.localhost
-                      - root.kcp.localhost
-                      - kcp.api.portal.localhost
-                      - nereus.kcp.localhost
-                      - triton.kcp.localhost
-                    ip: 10.96.188.4
+                hostAliases: []
       replicas: 1
       rootShard:
         ref:

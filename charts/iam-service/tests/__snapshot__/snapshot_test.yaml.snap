@@ -63,16 +63,7 @@ match the snapshots:
                   name: external-api-server
                 - mountPath: /roles
                   name: roles
-          hostAliases:
-            - hostnames:
-                - localhost
-                - portal.localhost
-                - kcp.localhost
-                - root.kcp.localhost
-                - kcp.api.portal.localhost
-                - nereus.kcp.localhost
-                - triton.kcp.localhost
-              ip: 10.96.188.4
+          hostAliases: []
           serviceAccountName: iam-service
           volumes:
             - name: external-api-server
