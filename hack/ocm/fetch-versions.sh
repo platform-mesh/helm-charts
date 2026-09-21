@@ -155,7 +155,7 @@ find_rc_versions() {
   # Query OCM for all versions matching the RC pattern
   ocm get component-version ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh \
     -o json 2>/dev/null | \
-    jq -r ".items[] | select(.component.version | startswith(\"${target}-rc\")) | .component.version" | \
+    jq -r ".items[] | select(.[0].component.version | startswith(\"${target}-rc\")) | .component.version" | \
     sort -V || echo ""
 }
 
@@ -176,7 +176,7 @@ fetch_component_refs() {
     return
   fi
 
-  echo "$result" | yq eval '.component.componentReferences[] | {(.name): .version}' -o=json 2>/dev/null | \
+  echo "$result" | yq eval '.[0].component.componentReferences[] | {(.name): .version}' -o=json 2>/dev/null | \
     jq -s 'add // {}' 2>/dev/null || echo "{}"
 }
 
