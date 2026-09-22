@@ -164,6 +164,7 @@ resolve_component_versions() {
     export KCP_OPERATOR_CHART_VERSION=$(yq -r '.jobs.ocm.env.KCP_OPERATOR_CHART_VERSION' "$agg")
     export KCP_OPERATOR_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.KCP_OPERATOR_IMAGE_VERSION' "$agg")
     export KCP_VERSION=$(yq -r '.jobs.ocm.env.KCP_VERSION' "$agg")
+    export KCP_IMAGE_TAG=$(yq -r '.jobs.ocm.env.KCP_IMAGE_TAG' "$agg")
     export INIT_AGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_CHART_VERSION' "$agg")
     export INIT_AGENT_IMAGE_VERSION=$(yq -r '.jobs.ocm.env.INIT_AGENT_IMAGE_VERSION' "$agg")
     export API_SYNCAGENT_CHART_VERSION=$(yq -r '.jobs.ocm.env.API_SYNCAGENT_CHART_VERSION' "$agg")
@@ -292,6 +293,7 @@ build_final_component() {
         KCP_OPERATOR_CHART_VERSION="$KCP_OPERATOR_CHART_VERSION" \
         KCP_OPERATOR_IMAGE_VERSION="$KCP_OPERATOR_IMAGE_VERSION" \
         KCP_VERSION="$KCP_VERSION" \
+        KCP_IMAGE_TAG="$KCP_IMAGE_TAG" \
         INIT_AGENT_CHART_VERSION="$INIT_AGENT_CHART_VERSION" \
         INIT_AGENT_IMAGE_VERSION="$INIT_AGENT_IMAGE_VERSION" \
         API_SYNCAGENT_CHART_VERSION="$API_SYNCAGENT_CHART_VERSION" \

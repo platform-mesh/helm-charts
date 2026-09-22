@@ -114,7 +114,7 @@ components:
         version: ${KCP_VERSION}
         access:
           type: ociArtifact
-          imageReference: "ghcr.io/kcp-dev/kcp:${KCP_VERSION}"
+          imageReference: "ghcr.io/kcp-dev/kcp:${KCP_IMAGE_TAG}"
   - name: github.com/kcp-dev/init-agent
     version: ${PM_INIT_AGENT_VERSION}
     provider:

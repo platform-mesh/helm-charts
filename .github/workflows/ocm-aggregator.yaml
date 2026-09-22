@@ -64,8 +64,12 @@ jobs:
       KCP_OPERATOR_IMAGE_VERSION: "v0.8.0"
       # TEMPORARY: pinned to a kcp-dev/kcp main commit instead of a release tag, it has the
       # #4380 admin-workspace authorizer fix which no kcp release includes yet. Switch back
-      # to a real "vX.Y.Z" release tag once one exists that contains this fix.
-      KCP_VERSION: "d0ecac6bb"
+      # to a real "vX.Y.Z" release tag (and drop KCP_IMAGE_TAG below) once one exists that
+      # contains this fix. KCP_VERSION must stay semver-shaped, the OCM component constructor
+      # rejects a bare commit hash here, so the actual commit is carried as a prerelease
+      # label instead, and KCP_IMAGE_TAG below carries the real image tag to pull.
+      KCP_VERSION: "v0.33.0-d0ecac6bb"
+      KCP_IMAGE_TAG: "d0ecac6bb"
       INIT_AGENT_CHART_VERSION: "0.2.0"
       INIT_AGENT_IMAGE_VERSION: "v0.2.0"
       API_SYNCAGENT_CHART_VERSION: "0.6.1"
