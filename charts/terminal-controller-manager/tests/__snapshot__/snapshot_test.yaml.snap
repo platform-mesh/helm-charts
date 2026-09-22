@@ -25,8 +25,8 @@ match the default snapshot:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/terminal-controller-manager"
                 - --shutdown-timeout=1m

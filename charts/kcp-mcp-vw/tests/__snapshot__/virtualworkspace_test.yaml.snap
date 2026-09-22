@@ -8,7 +8,7 @@ matches snapshot (defaults):
         app.kubernetes.io/instance: kcp-mcp-vw
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: kcp-mcp-vw
-        helm.sh/chart: kcp-mcp-vw-0.1.0
+        helm.sh/chart: kcp-mcp-vw-0.1.1
       name: mcp-vw-server
       namespace: platform-mesh-system
     spec:
@@ -32,7 +32,7 @@ matches snapshot (defaults):
         app.kubernetes.io/instance: kcp-mcp-vw
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: kcp-mcp-vw
-        helm.sh/chart: kcp-mcp-vw-0.1.0
+        helm.sh/chart: kcp-mcp-vw-0.1.1
       name: mcp-vw
       namespace: platform-mesh-system
     spec:

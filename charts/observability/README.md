@@ -98,7 +98,7 @@ Example
 ```
 # observability
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.0](https://img.shields.io/badge/AppVersion-0.0.0-informational?style=flat-square)
 
 OpenTelemetry-based observability stack for platform-mesh
 
@@ -107,7 +107,7 @@ OpenTelemetry-based observability stack for platform-mesh
 | Repository | Name | Version |
 |------------|------|---------|
 | https://prometheus-community.github.io/helm-charts | prometheus | 29.19.0 |
-| oci://ghcr.io/platform-mesh/helm-charts | common | 0.13.0 |
+| oci://ghcr.io/platform-mesh/helm-charts | common | 0.15.0 |
 
 ## Values
 

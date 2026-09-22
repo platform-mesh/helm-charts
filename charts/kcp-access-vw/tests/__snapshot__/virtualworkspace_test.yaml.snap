@@ -8,7 +8,7 @@ matches snapshot (defaults):
         app.kubernetes.io/instance: kcp-access-vw
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: kcp-access-vw
-        helm.sh/chart: kcp-access-vw-0.1.0
+        helm.sh/chart: kcp-access-vw-0.1.1
       name: access-vw-bootstrap
       namespace: platform-mesh-system
     spec:
@@ -30,7 +30,7 @@ matches snapshot (defaults):
         app.kubernetes.io/instance: kcp-access-vw
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: kcp-access-vw
-        helm.sh/chart: kcp-access-vw-0.1.0
+        helm.sh/chart: kcp-access-vw-0.1.1
       name: access-vw-server
       namespace: platform-mesh-system
     spec:
@@ -51,7 +51,7 @@ matches snapshot (defaults):
         app.kubernetes.io/instance: kcp-access-vw
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: kcp-access-vw
-        helm.sh/chart: kcp-access-vw-0.1.0
+        helm.sh/chart: kcp-access-vw-0.1.1
       name: access-vw
       namespace: platform-mesh-system
     spec:

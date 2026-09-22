@@ -31,8 +31,8 @@ configure extraVolumes and extraVolumeMounts:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=info
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/platform-mesh-operator"
                 - --shutdown-timeout=1m
@@ -125,8 +125,8 @@ configure hosAliases:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=info
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/platform-mesh-operator"
                 - --shutdown-timeout=1m
@@ -219,8 +219,8 @@ deployment with tracing:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=info
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/platform-mesh-operator"
                 - --shutdown-timeout=1m
@@ -312,8 +312,8 @@ disables istio sidecar injection:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=info
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/platform-mesh-operator"
                 - --shutdown-timeout=1m
@@ -401,8 +401,8 @@ enable remote PlatformMesh and Infra:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=info
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/platform-mesh-operator"
                 - --shutdown-timeout=1m
@@ -516,8 +516,8 @@ enables istio sidecar injection:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=info
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/platform-mesh-operator"
                 - --shutdown-timeout=1m
@@ -783,8 +783,8 @@ operator match the snapshot:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=info
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=0.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/platform-mesh-operator"
                 - --shutdown-timeout=1m

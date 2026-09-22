@@ -90,8 +90,8 @@ custom certs:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -181,8 +181,8 @@ custom certs:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -237,16 +237,7 @@ custom certs:
                 - mountPath: /api-kubeconfig
                   name: kcp-api-server
                   readOnly: true
-          hostAliases:
-            - hostnames:
-                - localhost
-                - portal.localhost
-                - kcp.localhost
-                - root.kcp.localhost
-                - kcp.api.portal.localhost
-                - nereus.kcp.localhost
-                - triton.kcp.localhost
-              ip: 10.96.188.4
+          hostAliases: []
           securityContext:
             runAsNonRoot: true
             seccompProfile:
@@ -295,8 +286,8 @@ deployment with external kubeconfig:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -454,8 +445,8 @@ enable Gateway API:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -538,8 +529,8 @@ enable Gateway API:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -661,8 +652,8 @@ entity type validation enabled:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -754,8 +745,8 @@ entity type validation enabled:
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -908,8 +899,8 @@ operator match the snapshot:
                 - --metrics-bind-address=:8080
                 - --health-probe-bind-address=:8081
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -990,8 +981,8 @@ operator match the snapshot:
                 - --metrics-bind-address=:8080
                 - --health-probe-bind-address=:8081
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -1104,8 +1095,8 @@ operator match the snapshot with tracing:
                 - --metrics-bind-address=:8080
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
@@ -1189,8 +1180,8 @@ operator match the snapshot with tracing:
                 - --metrics-bind-address=:8080
                 - --health-probe-bind-address=:8090
                 - --log-level=warn
-                - --region=local
-                - --environment=local
+                - --region=
+                - --environment=
                 - --image-tag=1.0.0
                 - --image-name="ghcr.io/platform-mesh/platform-mesh/extension-manager-operator"
                 - --shutdown-timeout=1m
