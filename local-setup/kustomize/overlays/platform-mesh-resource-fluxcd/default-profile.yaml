@@ -224,7 +224,9 @@ data:
                 clusterIP: "{{ .kcpFrontProxyClusterIP }}"
                 port: 8443
               image:
-                tag: v0.33.0
+                # TEMPORARY: pinned to a kcp-dev/kcp main commit (has the #4380 fix, no
+                # release includes it yet), switch back to a release tag once one does.
+                tag: d0ecac6bb
               rootShard:
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
