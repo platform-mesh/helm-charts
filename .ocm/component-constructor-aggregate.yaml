@@ -6,21 +6,21 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${TRAEFIK_CHART_VERSION}
         access:
           type: ociArtifact
           imageReference: ghcr.io/platform-mesh/charts/traefik:${TRAEFIK_CHART_VERSION}
       - name: crds
         type: helmChart
-        relation: local
+        relation: external
         version: ${TRAEFIK_CRD_VERSION}
         access:
           type: ociArtifact
           imageReference: ghcr.io/platform-mesh/ocm/charts/traefik-crds:${TRAEFIK_CRD_VERSION}
       - name: image
         type: ociImage
-        relation: local
+        relation: external
         version: ${TRAEFIK_IMAGE_VERSION}
         access:
           type: ociArtifact
@@ -32,28 +32,28 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${CERT_MANAGER_VERSION}
         access:
           type: ociArtifact
           imageReference: quay.io/jetstack/charts/cert-manager:${CERT_MANAGER_VERSION}
       - name: webhook-image
         type: ociImage
-        relation: local
+        relation: external
         version: ${CERT_MANAGER_VERSION}
         access:
           type: ociArtifact
           imageReference: "quay.io/jetstack/cert-manager-webhook:${CERT_MANAGER_VERSION}"
       - name: controller-image
         type: ociImage
-        relation: local
+        relation: external
         version: ${CERT_MANAGER_VERSION}
         access:
           type: ociArtifact
           imageReference: "quay.io/jetstack/cert-manager-controller:${CERT_MANAGER_VERSION}"
       - name: cainjector-image
         type: ociImage
-        relation: local
+        relation: external
         version: ${CERT_MANAGER_VERSION}
         access:
           type: ociArtifact
@@ -65,21 +65,21 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${OPENFGA_VERSION}
         access:
           type: ociArtifact
           imageReference: ghcr.io/platform-mesh/ocm/charts/openfga:${OPENFGA_VERSION}
       - name: image
         type: ociImage
-        relation: local
+        relation: external
         version: ${OPENFGA_IMAGE_VERSION}
         access:
           type: ociArtifact
           imageReference: "docker.io/openfga/openfga:${OPENFGA_IMAGE_VERSION}"
       - name: postgresql-image
         type: ociImage
-        relation: local
+        relation: external
         version: ${OPENFGA_POSTGRESQL_IMAGE_VERSION}
         access:
           type: ociArtifact
@@ -91,14 +91,14 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${KCP_OPERATOR_CHART_VERSION}
         access:
           type: ociArtifact
           imageReference: ghcr.io/platform-mesh/helm-charts/charts/mirrored/kcp-operator:${KCP_OPERATOR_CHART_VERSION}
       - name: image
         type: ociImage
-        relation: local
+        relation: external
         version: ${KCP_OPERATOR_IMAGE_VERSION}
         access:
           type: ociArtifact
@@ -110,7 +110,7 @@ components:
     resources:
       - name: image
         type: ociImage
-        relation: local
+        relation: external
         version: ${KCP_VERSION}
         access:
           type: ociArtifact
@@ -122,14 +122,14 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${INIT_AGENT_CHART_VERSION}
         access:
           type: ociArtifact
           imageReference: ghcr.io/platform-mesh/ocm/charts/init-agent:${INIT_AGENT_CHART_VERSION}
       - name: image
         type: ociImage
-        relation: local
+        relation: external
         version: ${INIT_AGENT_IMAGE_VERSION}
         access:
           type: ociArtifact
@@ -141,14 +141,14 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${API_SYNCAGENT_CHART_VERSION}
         access:
           type: ociArtifact
           imageReference: ghcr.io/platform-mesh/ocm/charts/api-syncagent:${API_SYNCAGENT_CHART_VERSION}
       - name: image
         type: ociImage
-        relation: local
+        relation: external
         version: ${API_SYNCAGENT_IMAGE_VERSION}
         access:
           type: ociArtifact
@@ -160,14 +160,14 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${CNPG_OPERATOR_CHART_VERSION}
         access:
           type: ociArtifact
           imageReference: ghcr.io/cloudnative-pg/charts/cloudnative-pg:${CNPG_OPERATOR_CHART_VERSION}
       - name: image
         type: ociImage
-        relation: local
+        relation: external
         version: ${CNPG_OPERATOR_IMAGE_VERSION}
         access:
           type: ociArtifact
@@ -179,7 +179,7 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${PROMETHEUS_OPERATOR_CRDS_VERSION}
         access:
           type: ociArtifact
@@ -191,7 +191,7 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${KUBE_PROMETHEUS_STACK_VERSION}
         access:
           type: ociArtifact
@@ -203,28 +203,28 @@ components:
     resources:
       - name: chart
         type: helmChart
-        relation: local
+        relation: external
         version: ${OPENTELEMETRY_OPERATOR_VERSION}
         access:
           type: ociArtifact
           imageReference: ghcr.io/open-telemetry/opentelemetry-helm-charts/opentelemetry-operator:${OPENTELEMETRY_OPERATOR_VERSION}
       - name: manager-image
         type: ociImage
-        relation: local
+        relation: external
         version: ${OTEL_OPERATOR_IMAGE_VERSION}
         access:
           type: ociArtifact
           imageReference: "ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator:${OTEL_OPERATOR_IMAGE_VERSION}"
       - name: collector-image
         type: ociImage
-        relation: local
+        relation: external
         version: ${OTEL_COLLECTOR_IMAGE_VERSION}
         access:
           type: ociArtifact
           imageReference: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s:${OTEL_COLLECTOR_IMAGE_VERSION}"
       - name: target-allocator-image
         type: ociImage
-        relation: local
+        relation: external
         version: ${OTEL_TARGET_ALLOCATOR_VERSION}
         access:
           type: ociArtifact
