@@ -6,6 +6,17 @@ metadata:
 data:
   profile.yaml: |
     components:
+      # -- Change hostaliases here and all involved components will get the same hostaliases
+      hostAliasesEntries: &hostAliasesEntries
+        # REQUIRED: set the host aliases for kcp shards
+        - ip: "{{ .traefikClusterIP }}"
+          hostnames:
+            - "{{ .baseDomain }}"
+            - "kcp.api.{{ .baseDomain }}"
+            # - kcp.root.localhost
+            # - kcp.triton.localhost
+            # - kcp.nereus.localhost
+            # - localhost
       deploymentTechnology: fluxcd
       ocm:
         component:
@@ -27,6 +38,9 @@ data:
           syncWave: 4
           enabled: true
           values:
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
             crds:
               enabled: false
             kcp:
@@ -43,6 +57,9 @@ data:
           values:
             crds:
               enabled: false
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
             kcp:
               enabled: true
               kubeconfigSecret: extension-manager-operator-kubeconfig
@@ -154,6 +171,9 @@ data:
                   allowedRoutes:
                     namespaces:
                       from: All
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
             keycloak:
               operator:
                 # REQUIRED: set to your production Keycloak URL
@@ -205,6 +225,9 @@ data:
             caSecret: domain-certificate-ca
             cors:
               enabled: true
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
         init-agent:
           absoluteReferencePath:
           - name: init-agent
@@ -224,6 +247,12 @@ data:
             replicas: 1
             leaderElection:
               enabled: true
+            hostAliases:
+              enabled: true
+              values:
+                - ip: "{{ .traefikClusterIP }}"
+                  hostnames:
+                    - "kcp.api.{{ .baseDomain }}"
         kcp:
           external: true
         kcp-operator:
@@ -293,6 +322,9 @@ data:
           values:
             gatewayApi:
               enabled: true
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
             kubeConfig:
               enabled: true
               secretName: kubernetes-graphql-gateway-kubeconfig
@@ -392,6 +424,9 @@ data:
                 parentRefs:
                 - name: k8sapi-gateway
                   kind: Gateway
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
             http:
               protocol: https
             kcp:
@@ -405,6 +440,9 @@ data:
           syncWave: 4
           enabled: true
           values:
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
             certManager:
               createCA: true
               enabled: true
@@ -438,6 +476,9 @@ data:
               registrationAllowed: false
               allowUnverifiedEmails: false
               setDefaultPassword: false
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
             operator:
@@ -456,6 +497,9 @@ data:
           targetNamespace: platform-mesh-system
           values:
             virtualWorkspaceSecretName: virtual-workspaces-cert
+            hostAliases:
+              enabled: true
+              entries: *hostAliasesEntries
             deployment:
               serverUrl: https://frontproxy-front-proxy.platform-mesh-system:443
               resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"
