@@ -278,9 +278,9 @@ fetch_ocm_component_details() {
   fi
 
   # Extract resources, sources, and componentReferences using yq
-  local resources=$(echo "$result" | yq eval '.component.resources // []' -o=json 2>/dev/null || echo "[]")
-  local sources=$(echo "$result" | yq eval '.component.sources // []' -o=json 2>/dev/null || echo "[]")
-  local comp_refs=$(echo "$result" | yq eval '.component.componentReferences // []' -o=json 2>/dev/null || echo "[]")
+  local resources=$(echo "$result" | yq eval '.[0].component.resources // []' -o=json 2>/dev/null || echo "[]")
+  local sources=$(echo "$result" | yq eval '.[0].component.sources // []' -o=json 2>/dev/null || echo "[]")
+  local comp_refs=$(echo "$result" | yq eval '.[0].component.componentReferences // []' -o=json 2>/dev/null || echo "[]")
 
   # Combine into single JSON object
   jq -n \
