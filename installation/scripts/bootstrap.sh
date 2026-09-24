@@ -91,4 +91,4 @@ info "  2. Configured SMTP server args in default-profile.yaml (search for REQUI
 info "  3. Set the Keycloak hostname in default-profile.yaml (search for REQUIRED: Keycloak URL)"
 info "  4. Created the search-operator-opensearch secret (see above)"
 info ""
-info "Apply with: kubectl kustomize production-setup/kustomize/overlays/platform-mesh-resource | kubectl apply -f -"
+info "Apply with: kubectl kustomize installation/kustomize/overlays/platform-mesh-resource | kubectl apply -f -"

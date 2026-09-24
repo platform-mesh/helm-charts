@@ -1,6 +1,6 @@
-# Dex upstream identity provider (local-setup)
+# Dex upstream identity provider (Developer setup)
 
-Local-setup deploys [Dex](https://dexidp.io/) as a second OIDC issuer alongside
+The Developer setup deploys [Dex](https://dexidp.io/) as a second OIDC issuer alongside
 Keycloak. Use it to develop and test upstream identity provider federation in
 the portal and security-operator.
 
@@ -44,8 +44,8 @@ Keycloak organization realm manually via UI:
    `https://portal.localhost:8443/keycloak/realms/default/broker/dex/endpoint`.
    This URI must be listed in Dex `staticClients.redirectURIs`.
 
-The default local-setup profile pre-configures the redirect URI for the
+The default Developer setup profile pre-configures the redirect URI for the
 `default` org realm. For other org realms, add the broker redirect URI to the
-`dex.staticClient.redirectURIs` list in the local-setup profile.
+`dex.staticClient.redirectURIs` list in the Developer setup profile.
 
 You should now be able to log into the `default` org with the test user mentioned above.
