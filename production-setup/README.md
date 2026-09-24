@@ -108,7 +108,6 @@ kubectl apply -k production-setup/kustomize/namespaces
 kubectl apply -k production-setup/kustomize/kro
 kubectl apply -k production-setup/kustomize/ocm-k8s-toolkit
 
-# OCM component descriptor - TODO: set `semver:` in @production-setup/kustomize/ocm/component.yaml to reflect the chosen PlatformMesh version to install
 kubectl apply -k production-setup/kustomize/ocm
 
 # PlatformMesh operator CRDs and operator itself
@@ -132,9 +131,6 @@ Once Traefik's LoadBalancer Service is assigned an external IP, create these DNS
 ```
 <base-domain>.          A  300  <LoadBalancer-IP>
 *.<base-domain>.        A  300  <LoadBalancer-IP>
-kcp.api.<base-domain>.  A  300  <LoadBalancer-IP>
-*.kcp.<base-domain>.    A  300  <LoadBalancer-IP>
-*.services.<base-domain>A  300  <LoadBalancer-IP>
 ```
 
 Get the IP:
@@ -172,9 +168,6 @@ The certificate must cover:
 ```
 <base-domain>
 *.<base-domain>
-*.services.<base-domain>
-kcp.api.<base-domain>
-*.<shard-name>.kcp.<base-domain>   # one wildcard per shard
 ```
 
 ### Secret: `domain-certificate`
