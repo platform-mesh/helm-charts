@@ -30,6 +30,10 @@ spec:
         args:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
+          {{- if .Values.ocm.enabled }}
+          - --kcp-front-proxy-port={{ .Values.kcp.frontProxyPort }}
+          - --kcp-url=https://frontproxy-front-proxy.{{ .Release.Namespace }}:{{ .Values.kcp.frontProxyPort }}
+          {{- end }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
           {{- with .Values.jwt.userIdClaim }}
           - --user-claim={{ . }}
@@ -49,8 +53,17 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
+        {{- if .Values.ocm.enabled }}
+        - name: SSL_CERT_FILE
+          value: /etc/platform-mesh-ca/ca.crt
+        {{- end }}
         volumeMounts:
         {{- include "common.extraVolumeMounts" . | nindent 8 }}
+        {{- if .Values.ocm.enabled }}
+        - name: platform-mesh-ca
+          mountPath: /etc/platform-mesh-ca
+          readOnly: true
+        {{- end }}
         {{- if .Values.remoteInfra.enabled }}
         - name: external-infra-deployment
           mountPath: /etc/infra
@@ -63,9 +76,18 @@ spec:
         {{- end }}
       {{ include "common.hostAliases" $ | nindent 6 }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
-      {{- if or .Values.extraVolumes .Values.remoteRuntime.enabled .Values.remoteInfra.enabled }}
+      {{- if or .Values.extraVolumes .Values.remoteRuntime.enabled .Values.remoteInfra.enabled .Values.ocm.enabled }}
       volumes:
       {{- include "common.extraVolumes" . | nindent 6 }}
+      {{- if .Values.ocm.enabled }}
+      - name: platform-mesh-ca
+        secret:
+          secretName: {{ .Values.certificateSecretName }}
+          optional: true
+          items:
+          - key: ca.crt
+            path: ca.crt
+      {{- end }}
       {{- if .Values.remoteInfra.enabled }}
       - name: external-infra-deployment
         secret:
