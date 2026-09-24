@@ -1,0 +1,44 @@
+#!/bin/bash
+SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
+PLATFORM_MESH_DIR="/home/akafazov/src/akafazov/platform-mesh"
+OPERATOR_DOCKERFILE="$PLATFORM_MESH_DIR/operators/platform-mesh-operator/Dockerfile"
+LOCAL_IMAGE_TAG="local-dev"
+
+# Apply the appropriate PlatformMesh resource overlay (mirrors the default logic in start.sh)
+if [ "$PRERELEASE" = true ]; then
+  if [ "$SHARDED" = true ]; then
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
+  else
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+  fi
+else
+  if [ "$SHARDED" = true ]; then
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-sharded
+  else
+    kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+  fi
+fi
+
+IMAGE_REGISTRY=$(kubectl get helmrelease platform-mesh-operator -n platform-mesh-system \
+  -o jsonpath='{.spec.values.image.registry}')
+IMAGE_REPO=$(kubectl get helmrelease platform-mesh-operator -n platform-mesh-system \
+  -o jsonpath='{.spec.values.image.repository}')
+IMAGE_NAME="${IMAGE_REGISTRY}/${IMAGE_REPO}:${LOCAL_IMAGE_TAG}"
+
+echo "Building platform-mesh-operator image ${IMAGE_NAME}..."
+docker build -t "$IMAGE_NAME" -f "$OPERATOR_DOCKERFILE" "$PLATFORM_MESH_DIR"
+
+echo "Loading ${IMAGE_NAME} into Kind cluster..."
+kind load docker-image "$IMAGE_NAME" -n platform-mesh
+
+# Suspend the HelmRelease and patch the image tag so Flux doesn't revert it
+echo "Suspending platform-mesh-operator HelmRelease and setting image tag..."
+kubectl patch helmrelease platform-mesh-operator -n platform-mesh-system \
+  --type=merge -p "{\"spec\":{\"suspend\":true,\"values\":{\"image\":{\"tag\":\"${LOCAL_IMAGE_TAG}\"}}}}"
+
+echo "Patching deployment to use image ${IMAGE_NAME}..."
+kubectl set image deployment/platform-mesh-operator \
+  platform-mesh-operator="${IMAGE_NAME}" \
+  -n platform-mesh-system
+
+kubectl rollout status deployment/platform-mesh-operator -n platform-mesh-system --timeout=120s

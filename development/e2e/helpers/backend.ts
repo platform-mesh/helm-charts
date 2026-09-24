@@ -106,7 +106,7 @@ function ensureInvitedUserExists(user: TestUser, orgName?: string): void {
 
 function readPemFile(filePath: string): string {
   if (!existsSync(filePath)) {
-    throw new Error(`CA file not found at ${filePath}. Run local-setup before the kubeconfig e2e tests.`);
+    throw new Error(`CA file not found at ${filePath}. Run task dev-setup before the kubeconfig e2e tests.`);
   }
 
   return readFileSync(filePath, 'utf8').trim();

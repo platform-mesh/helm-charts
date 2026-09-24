@@ -15,7 +15,7 @@ import {
 
 // ORG_SHARD controls which shard to create the org on.
 // SHARDING_ACCOUNT_SHARDS is a comma-separated list of shards for accounts (default: triton,root).
-// Set SHARDING_ACCOUNT_SHARDS=root for single-shard setups (e.g. remote local-setup).
+// Set SHARDING_ACCOUNT_SHARDS=root for single-shard setups (e.g. remote development setup).
 // SKIP_INVITE=true skips the inviteUserToOrg step (required for setups without example-data/mailpit).
 const ORG_SHARD: ShardName = (process.env.SHARDING_ORG_SHARD as ShardName) || 'triton';
 const ACCOUNT_SHARDS: ShardName[] = process.env.SHARDING_ACCOUNT_SHARDS
