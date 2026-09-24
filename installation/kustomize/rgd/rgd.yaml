@@ -118,7 +118,7 @@ spec:
             repository: ${resourceImage.status.additional.?repository.orValue('')}
             tag: ${resourceImage.status.?resource.?version.orValue('')}
           idp:
-            registrationAllowed: true
+            registrationAllowed: false
             values:
           extraArgs:
           - --domain-certificate-ca-secret-name=domain-certificate-ca

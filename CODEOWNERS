@@ -2,7 +2,7 @@
 
 # ownerless so renovate can auto-merge updates
 charts/**/Chart.yaml
-local-setup/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit.yaml
-local-setup/kustomize/components/ocm/component.yaml
+development/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit.yaml
+development/kustomize/components/ocm/component.yaml
 package-lock.json
 package.json

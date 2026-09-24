@@ -261,13 +261,33 @@ data:
             keycloak:
               operator:
                 hostname: "https://{{ .baseDomainPort }}"
+                enabled: true
+                caSecret: domain-certificate-ca
                 httpEnabled: true
+                health:
+                  port: 9000
+                  periodSeconds: 10
+                  liveness:
+                    path: /keycloak/health/live
+                    failureThreshold: 3
+                  readiness:
+                    path: /keycloak/health/ready
+                    initialDelaySeconds: 0
+                    periodSeconds: 10
+                  startup:
+                    path: /keycloak/health
+                    failureThreshold: 600
               gatewayApi:
                 hostnames:
                   - "{{ .baseDomain }}"
+              service:
+                name: keycloak-service
+                port: 8080
               keycloakConfig:
+                url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
                 redirectUrls: ["http://localhost:8000/callback*"]
             dex:
+              enabled: true
               issuer: "https://{{ .baseDomainPort }}/dex"
               gatewayApi:
                 hostnames:
@@ -277,11 +297,6 @@ data:
                   - "https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint"
             cnpg:
               enabled: true
-              roles:
-                keycloak:
-                  password: keycloak-password
-                openfga:
-                  password: openfga-password
             cors:
               enabled: true
             gatewayApi:
@@ -332,41 +347,6 @@ data:
             hostAliases:
               enabled: true
               entries: *hostAliasesEntries
-            keycloak:
-              operator:
-                hostname: https://{{ .baseDomainPort }}/keycloak/
-                enabled: true
-                caSecret: domain-certificate-ca
-                httpEnabled: true
-                db:
-                  password: keycloak-password
-                admin:
-                  password: admin
-                  secret: admin
-                health:
-                  port: 9000
-                  periodSeconds: 10
-                  liveness:
-                    path: /keycloak/health/live
-                    failureThreshold: 3
-                  readiness:
-                    path: /keycloak/health/ready
-                    initialDelaySeconds: 0
-                    periodSeconds: 10
-                  startup:
-                    path: /keycloak/health
-                    failureThreshold: 600
-              service:
-                name: keycloak-service
-                port: 8080
-              keycloakConfig:
-                url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
-            dex:
-              enabled: true
-              issuer: https://{{ .baseDomainPort }}/dex
-              staticClient:
-                redirectURIs:
-                - https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint
             kcp:
               external:
                 hostname: kcp.api.{{ .baseDomain }}
@@ -755,8 +735,6 @@ data:
               noJson: true
             terminator:
               kubeconfigSecret: security-terminator-kubeconfig
-        terminal-controller-manager:
-          enabled: false
         virtual-workspaces:
           imageResources:
           - annotations:
