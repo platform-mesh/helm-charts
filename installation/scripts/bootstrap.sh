@@ -50,7 +50,7 @@ else
 fi
 
 # OpenFGA DB credentials (cnpg-openfga-user + openfga-postgres-credentials)
-# The infra chart only renders cnpg-openfga-user when cnpg.roles.keycloak.password is set.
+# The infra chart renders both cnpg-*-user secrets together, gated on cnpg.enabled and cnpg.roles.keycloak.password.
 if kubectl get secret cnpg-openfga-user -n "${NAMESPACE}" >/dev/null 2>&1; then
   info "Secret cnpg-openfga-user already exists, skipping"
 else
@@ -91,4 +91,8 @@ info "  2. Configured SMTP server args in default-profile.yaml (search for REQUI
 info "  3. Set the Keycloak hostname in default-profile.yaml (search for REQUIRED: Keycloak URL)"
 info "  4. Created the search-operator-opensearch secret (see above)"
 info ""
-info "Apply with: kubectl kustomize installation/kustomize/overlays/platform-mesh-resource | kubectl apply -f -"
+info "Next, install the cluster dependencies (namespaces, KRO, OCM, PlatformMesh CRDs and operator),"
+info "then apply the overlay. The PlatformMesh CRD does not exist on a fresh cluster, so applying the"
+info "overlay before the operator is installed will fail. See installation/README.md steps 5-6 for the"
+info "full sequence, ending with:"
+info "  kubectl apply -k installation/kustomize/overlays/platform-mesh-resource"
