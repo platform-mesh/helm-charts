@@ -8,24 +8,46 @@ For local development, use [`local-setup/`](../local-setup/README.md) instead.
 
 ## Prerequisites
 
-The following must be installed and running in your cluster before applying this overlay:
+The following must be installed and running before applying this overlay:
 
 | Requirement | Notes |
 |-------------|-------|
 | Kubernetes 1.28+ | Any CNCF-conformant distribution |
-| [cert-manager](https://cert-manager.io) | For certificate issuance |
-| [CNPG operator](https://cloudnative-pg.io) | CloudNative PostgreSQL — manages the shared Postgres cluster |
-| [Keycloak operator](https://www.keycloak.org/operator/installation) | Manages the Keycloak instance |
-| [FluxCD](https://fluxcd.io) or [ArgoCD](https://argo-cd.readthedocs.io) | GitOps controller for deploying components via OCM |
-| [Gateway API CRDs](https://gateway-api.sigs.k8s.io/guides/) | `gateway.networking.k8s.io` v1 or later |
+| [FluxCD](https://fluxcd.io) 2.17.0 | See install command below |
 | External domain + wildcard TLS certificate | e.g. `*.example.com` — TLS is terminated at the ingress/gateway layer |
-| SMTP server | Required for email invitations sent by the security-operator |
+| [kubectl oidc-login](https://github.com/int128/kubelogin) | Required on client machines for user OIDC auth (`kubectl krew install oidc-login`) |
+| [kubectl kcp](https://github.com/kcp-dev/kcp/tree/main/cli/cmd/kubectl-kcp) | kcp workspace management plugin (`kubectl krew install kcp`) |
+| [KRO](https://kro.run/) | Kube Resource Orchestrator |
 
 ---
 
 ## Deployment Steps
 
-### 1. Run bootstrap.sh
+### 0. Decide which version to install
+
+Users have 2 options - an official release, e.g. `0.5` or developer builds labelled like `0.5.1-build.94`. Those are delivered as OCM components on the `github.com/platform-mesh/helm-charts`. For example to list the latest available build:
+```shell
+$ ocm get cv "ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh" -o tree --latest
+ NESTING  COMPONENT                               VERSION         PROVIDER                IDENTITY                                                           
+ └─       github.com/platform-mesh/platform-mesh  0.5.1-build.94  The Platform Mesh Team  name=github.com/platform-mesh/platform-mesh,version=0.5.1-build.94 
+```
+
+### 1. Install FluxCD
+
+```bash
+KUBECONFIG=<path-to-kubeconfig> helm upgrade -i -n flux-system --create-namespace flux \
+  oci://ghcr.io/fluxcd-community/charts/flux2 \
+  --version 2.17.0 \
+  --set imageAutomationController.create=false \
+  --set imageReflectionController.create=false \
+  --set notificationController.create=false \
+  --set helmController.container.additionalArgs[0]="--concurrent=10" \
+  --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s"
+```
+
+> **Version note:** Use 2.17.0. Newer versions enable server-side apply with `fieldValidation=Strict`, which rejects resources from the `infra` chart that contain fields not declared in the kcp-operator CRD schema. See https://github.com/platform-mesh/helm-charts/pull/2509.
+
+### 2. Run bootstrap.sh
 
 Generates all required secrets with random values. Safe to run multiple times (idempotent).
 
@@ -39,12 +61,10 @@ If you have an OpenSearch instance for the search-operator, set these before run
 export OPENSEARCH_URL=https://opensearch.example.com:9200
 export OPENSEARCH_USERNAME=admin
 export OPENSEARCH_PASSWORD=<password>
-bash production-setup/scripts/bootstrap.sh
+KUBECONFIG=target.kubeconfig production-setup/scripts/bootstrap.sh
 ```
 
-The script creates a `search-operator-opensearch` secret from these values. The search-operator reads connection settings via CLI args (`--opensearch-url`, `--opensearch-username`, `--opensearch-password`, `--opensearch-insecure`) — wire those args from the secret in your deployment or Helm values.
-
-### 2. Set your base domain
+### 3. Set your base domain
 
 Edit `production-setup/kustomize/overlays/platform-mesh-resource/platform-mesh.yaml`:
 
@@ -54,7 +74,7 @@ spec:
     baseDomain: "platform.example.com"   # replace REPLACE_ME
 ```
 
-### 3. Set required values in the profile
+### 4. Set required values in the profile
 
 Edit `production-setup/kustomize/overlays/platform-mesh-resource/default-profile.yaml` and search for `REQUIRED`:
 
@@ -76,13 +96,54 @@ security-operator:
         - --idp-from-address=noreply@example.com
 ```
 
-### 4. Apply the overlay
+> **Initial install without SMTP:** For a first install or testing, you can skip SMTP by setting `smtp.server: ""` and enabling `allowUnverifiedEmails: true` under the `security-operator` `idp:` block. This lets users log in without email verification. Change these values before going to production.
+
+### 5. Bootstrap cluster dependencies
+
+The PlatformMesh CRD does not exist on a fresh cluster, so applying the overlay directly fails. Install the required controllers first:
 
 ```bash
-kubectl kustomize production-setup/kustomize/overlays/platform-mesh-resource | kubectl apply -f -
+# Namespaces, KRO, OCM controller
+kubectl apply -k production-setup/kustomize/namespaces
+kubectl apply -k production-setup/kustomize/kro
+kubectl apply -k production-setup/kustomize/ocm-k8s-toolkit
+
+# OCM component descriptor - TODO: set `semver:` in @production-setup/kustomize/ocm/component.yaml to reflect the chosen PlatformMesh version to install
+kubectl apply -k production-setup/kustomize/ocm
+
+# PlatformMesh operator CRDs and operator itself
+kubectl apply -k production-setup/kustomize/platform-mesh-operator-crds
+kubectl apply -k production-setup/kustomize/rgd
+kubectl apply -k production-setup/kustomize/platform-mesh-operator
 ```
 
-### 5. Verify
+Wait for the platform-mesh-operator to become ready before proceeding.
+
+### 6. Apply the overlay
+
+```bash
+kubectl apply -k production-setup/kustomize/overlays/platform-mesh-resource
+```
+
+## 7. DNS Records
+
+Once Traefik's LoadBalancer Service is assigned an external IP, create these DNS A records:
+
+```
+<base-domain>.          A  300  <LoadBalancer-IP>
+*.<base-domain>.        A  300  <LoadBalancer-IP>
+kcp.api.<base-domain>.  A  300  <LoadBalancer-IP>
+*.kcp.<base-domain>.    A  300  <LoadBalancer-IP>
+*.services.<base-domain>A  300  <LoadBalancer-IP>
+```
+
+Get the IP:
+
+```bash
+kubectl get svc traefik -n default -ojsonpath='{.status.loadBalancer.ingress[0].ip}'
+```
+
+### 8. Verify
 
 ```bash
 # Check the PlatformMesh CR reconciles successfully
@@ -97,38 +158,53 @@ kubectl get keycloak -n platform-mesh-system
 
 ---
 
-## TLS Secrets (must be created manually before applying)
 
-Two TLS secrets must exist in `platform-mesh-system` before the overlay is applied. They are **not** created by `bootstrap.sh` — they depend on your external certificate authority.
+---
 
-### `domain-certificate`
+## TLS Secrets
 
-Holds the wildcard TLS certificate for your base domain. Referenced by the Gateway API listeners for HTTPS termination.
+Two TLS secrets must exist in `platform-mesh-system` before the overlay is applied. They are **not** created by `bootstrap.sh`. Obtain a certificate for the required hostnames using any CA or tooling of your choice (cert-manager, manual issuance, corporate PKI, etc.).
+
+### Required hostnames
+
+The certificate must cover:
+
+```
+<base-domain>
+*.<base-domain>
+*.services.<base-domain>
+kcp.api.<base-domain>
+*.<shard-name>.kcp.<base-domain>   # one wildcard per shard
+```
+
+### Secret: `domain-certificate`
+
+Holds the TLS certificate and private key:
 
 ```bash
 kubectl create secret generic domain-certificate \
   -n platform-mesh-system \
-  --from-file=tls.crt=/path/to/wildcard.crt \
-  --from-file=tls.key=/path/to/wildcard.key \
-  --from-file=ca.crt=/path/to/ca.crt \
+  --from-file=tls.crt=/path/to/tls.crt \
+  --from-file=tls.key=/path/to/tls.key \
   --type=kubernetes.io/tls \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-The certificate must cover at minimum `*.platform.example.com` (substitute your actual base domain).
+`tls.crt` should be the full chain (leaf + intermediates). The private key must match the leaf certificate.
 
-### `domain-certificate-ca`
+### Secret: `domain-certificate-ca`
 
-Holds only the CA certificate. Used by operators (`security-operator`, `iam-service`, `search-operator`) to trust outbound HTTPS connections to services signed by your CA (e.g. Keycloak, KCP front-proxy).
+Holds the root CA certificate. Operators use this to trust outbound TLS connections:
 
 ```bash
 kubectl create secret generic domain-certificate-ca \
   -n platform-mesh-system \
   --from-file=tls.crt=/path/to/ca.crt \
+  --from-file=ca.crt=/path/to/ca.crt \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
-> **Note:** These secrets are not automatically rotated. If you use cert-manager, you can manage them as `Certificate` resources pointing at your cluster issuer. If you manage certificates externally (e.g. Let's Encrypt via DNS-01), set up a rotation mechanism (e.g. `external-secrets`, a renewal cron job) to keep these secrets current.
+Use the root CA — not an intermediate — so the trust chain is complete.
 
 ---
 
@@ -141,7 +217,7 @@ kubectl create secret generic domain-certificate-ca \
 | `keycloak-db-credentials` | `platform-mesh-system` | `username`, `password` |
 | `cnpg-openfga-user` | `platform-mesh-system` | `username`, `password` |
 | `openfga-postgres-credentials` | `platform-mesh-system` | `password`, `postgres-password` |
-| `search-operator-opensearch` | `platform-mesh-system` | `url`, `username`, `password` (only if env vars are set) — values should be passed as CLI args to the search-operator deployment |
+| `search-operator-opensearch` | `platform-mesh-system` | `url`, `username`, `password` (only if env vars are set) |
 
 ---
 
@@ -151,11 +227,7 @@ kubectl create secret generic domain-certificate-ca \
 |--------|-------------|------------------|
 | TLS | Terminated at Kind node via mkcert | Terminated externally at your ingress/gateway |
 | PostgreSQL | CNPG cluster managed by the infra chart | Same — CNPG cluster, secrets pre-created by bootstrap.sh |
-| Identity provider | Dex (bundled, local-only) | External IdP required (configure via Keycloak broker) |
-| SMTP | Mailpit (local mail catcher) | Real SMTP server required |
 | Credentials | Hardcoded dev values in profiles | Random secrets generated by bootstrap.sh |
-| Email verification | Disabled (feature toggle) | Enabled (default, no toggle set) |
-| KCP port | 8443 | 443 |
 
 ---
 
@@ -167,6 +239,8 @@ Follow these steps to onboard a new organization after the platform is running.
 
 Create a new user in the Keycloak `welcome` realm for the organization's initial admin. This can be done via the Keycloak admin console or the admin API.
 
+> **Important:** Mark the user's email as **verified** in Keycloak before they attempt to log in. kcp's OIDC authenticator validates the `email_verified` claim and rejects unverified tokens with `oidc: email not verified`.
+
 ### 2. Craft a kubeconfig with OIDC login
 
 The user needs a kubeconfig that authenticates via OIDC using the `kubectl oidc-login` plugin. Replace `<kcp-server>`, `<keycloak-base-url>`, and `<oidc-client-id>` with values from your deployment:
@@ -177,13 +251,37 @@ clusters:
 - cluster:
     certificate-authority-data: <base64-encoded-ca>
     server: https://<kcp-server>:443/clusters/root:orgs
+  name: base
+- cluster:
+    certificate-authority-data: <base64-encoded-ca>
+    server: https://<kcp-server>:443/clusters/root:orgs
+  name: default
+- cluster:
+    certificate-authority-data: <base64-encoded-ca>
+    server: https://<kcp-server>:443/clusters/root:orgs
   name: workspace.kcp.io/current
+- cluster:
+    certificate-authority-data: <base64-encoded-ca>
+    server: https://<kcp-server>:443/clusters/root:orgs
+  name: workspace.kcp.io/previous
 contexts:
+- context:
+    cluster: base
+    user: platform-user
+  name: base
+- context:
+    cluster: default
+    user: platform-user
+  name: default
 - context:
     cluster: workspace.kcp.io/current
     user: platform-user
-  name: default
-current-context: default
+  name: workspace.kcp.io/current
+- context:
+    cluster: workspace.kcp.io/previous
+    user: platform-user
+  name: workspace.kcp.io/previous
+current-context: workspace.kcp.io/current
 kind: Config
 preferences: {}
 users:
@@ -206,6 +304,8 @@ users:
       interactiveMode: IfAvailable
       provideClusterInfo: false
 ```
+
+The `<base64-encoded-ca>` value is the kcp front-proxy CA, retrievable from the `domain-certificate-ca` secret in `platform-mesh-system`.
 
 > The `kubectl oidc-login` plugin is provided by [kubelogin](https://github.com/int128/kubelogin). Install it with `kubectl krew install oidc-login`.
 
