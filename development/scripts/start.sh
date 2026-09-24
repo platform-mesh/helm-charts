@@ -8,6 +8,16 @@ fi
 
 set -eE
 
+printf '\033[1;31m%s\n' \
+  '================================================================================' \
+  'WARNING: LOCAL DEVELOPMENT AND TESTING ONLY' \
+  '' \
+  'This setup is intended only for local testing and development.' \
+  'Do NOT use it for production, publicly accessible or other live environments,' \
+  'or air-gapped deployments.' \
+  '================================================================================'
+printf '\033[0m\n'
+
 COL='\033[92m'
 RED='\033[91m'
 YELLOW='\033[93m'
@@ -50,23 +60,23 @@ ITERATE=true
 CERT_MANAGER_MSP=false
 BUILD_LOCAL=false
 
-# Default published OCM aggregate used by the PINNED developer setup when no
+# Default published OCM aggregate used by pinned mode when no
 # PLATFORM_MESH_VERSION is given. Bumped by release automation; grep
 # DEFAULT_PLATFORM_MESH_VERSION.
 DEFAULT_PLATFORM_MESH_VERSION="0.5.2"
 
-# PLATFORM_MESH_VERSION selects the OCM aggregate to deploy. The mode (PINNED vs
-# local build) is derived after flag parsing, once --build-local is known.
+# PLATFORM_MESH_VERSION selects the OCM aggregate to deploy. The mode (pinned vs
+# local-build) is derived after flag parsing, once --local-build is known.
 PLATFORM_MESH_VERSION="${PLATFORM_MESH_VERSION:-}"
 
 usage() {
-  echo "Usage: $0 [--build-local] [--example-data] [--concurrent] [--sharded=true|false] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate=true|false] [--cert-manager-msp] [--help]"
+  echo "Usage: $0 [--local-build] [--example-data] [--concurrent] [--sharded=true|false] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate=true|false] [--cert-manager-msp] [--help]"
 
   echo ""
   echo "Modes:"
-  echo "  Default (PINNED)   Pull the published OCM aggregate ${DEFAULT_PLATFORM_MESH_VERSION} from ghcr.io/platform-mesh."
-  echo "                     Fast, no local builds. Override the version with PLATFORM_MESH_VERSION."
-  echo "  --build-local      Developer (DEV) mode: build the OCM aggregate locally from the working"
+  echo "  Pinned mode       Pull the published OCM aggregate ${DEFAULT_PLATFORM_MESH_VERSION} from ghcr.io/platform-mesh."
+  echo "  (default)          Fast, no local builds. Override the version with PLATFORM_MESH_VERSION."
+  echo "  --local-build      Local-build mode: build the OCM aggregate from the working"
   echo "                     tree via an in-cluster registry. Resource-heavy; for contributors."
   echo "                     Mutually exclusive with PLATFORM_MESH_VERSION and with --remote."
   echo ""
@@ -84,15 +94,15 @@ usage() {
   echo "  --help             Show this help message"
   echo ""
   echo "Environment variables:"
-  echo "  PLATFORM_MESH_VERSION   Published OCM aggregate version to pull (PINNED mode)."
-  echo "                          Unset defaults to ${DEFAULT_PLATFORM_MESH_VERSION}. Ignored with --build-local."
+  echo "  PLATFORM_MESH_VERSION   Published OCM aggregate version to pull (pinned mode)."
+  echo "                          Unset defaults to ${DEFAULT_PLATFORM_MESH_VERSION}. Ignored with --local-build."
   echo "  KUBECTL_WAIT_TIMEOUT    Timeout for Kubernetes readiness checks. Default: 1200s"
   exit 1
 }
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --build-local) BUILD_LOCAL=true ;;
+    --local-build) BUILD_LOCAL=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
@@ -128,15 +138,15 @@ while [ $# -gt 0 ]; do
 done
 
 # Derive the deployment mode now that all flags are parsed.
-#   --build-local            build the OCM aggregate from the working tree (DEV)
-#   otherwise (default)      PINNED: pull a published aggregate. Uses
+#   --local-build            local-build mode: build the OCM aggregate from the working tree
+#   otherwise (default)      pinned mode: pull a published aggregate. Uses
 #                            PLATFORM_MESH_VERSION if set, else DEFAULT_PLATFORM_MESH_VERSION.
 # Record whether the user set an explicit version (before we apply the default),
 # so remote mode can require an explicit choice rather than the default.
 PLATFORM_MESH_VERSION_EXPLICIT="$PLATFORM_MESH_VERSION"
 if [ "$BUILD_LOCAL" = true ]; then
   if [ -n "$PLATFORM_MESH_VERSION" ]; then
-    echo -e "${RED}--build-local and PLATFORM_MESH_VERSION are mutually exclusive: --build-local builds from the working tree, PLATFORM_MESH_VERSION pulls a published version${COL_RES}" >&2
+    echo -e "${RED}--local-build and PLATFORM_MESH_VERSION are mutually exclusive: --local-build builds from the working tree, PLATFORM_MESH_VERSION pulls a published version${COL_RES}" >&2
     show_help_pointer
     exit 1
   fi
@@ -369,7 +379,7 @@ if [ "$REMOTE" = true ]; then
   # Remote mode pulls published components across clusters; local building is
   # not supported and the version must be chosen explicitly (not the default).
   if [ "$BUILD_LOCAL" = true ]; then
-    echo -e "${RED}--build-local is not supported with --remote: remote mode deploys published components only${COL_RES}" >&2
+    echo -e "${RED}--local-build is not supported with --remote: remote mode deploys published components only${COL_RES}" >&2
     show_help_pointer
     exit 1
   fi
@@ -956,8 +966,15 @@ kubectl "${RUNTIME_KC[@]}" -n platform-mesh-system get secret root-ca -oyaml | y
 echo -e "${YELLOW}⚠️  Add the following entry to /etc/hosts if not already present:${COL_RES}"
 echo 'echo "127.0.0.1 kcp.root.localhost" | sudo tee -a /etc/hosts'
 
+if [ "$BUILD_LOCAL" = true ]; then
+  INSTALLED_PLATFORM_MESH_VERSION="locally built"
+else
+  INSTALLED_PLATFORM_MESH_VERSION="${PLATFORM_MESH_VERSION} (pinned)"
+fi
+
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
+echo -e "${COL}Platform Mesh version: ${INSTALLED_PLATFORM_MESH_VERSION}${COL_RES}"
 echo -e "${COL}-------------------------------------${COL_RES}"
 echo -e "${COL}You can access the onboarding portal at: https://portal.localhost:8443 ${COL_RES}"
 

@@ -14,7 +14,7 @@
 - `docs-templates/`: templates used by `helm-docs` to generate chart documentation.
 - `.ocm/`: OCM constructor descriptors, including the aggregator (`component-constructor-aggregate.yaml`) and service-component (`component-constructor-service-component.yaml`) consumed by `ocm-aggregator.yaml` / `ocm-service-component.yaml`, plus signing material under `.ocm/signature/`.
 - `installation/`: Installation — the production deployment path. Pure Helm/Kustomize overlay plus a `bootstrap.sh` for secret generation; no ongoing shell dependencies. The default way to install Platform Mesh onto a cluster.
-- `development/`: Developer setup — scripts, manifests, kustomize overlays, and e2e assets for running Platform Mesh locally on kind. Two modes: PINNED (default, pulls published OCM components) and DEV (`--build-local`, builds components locally). For local evaluation and contributors only; not a production path.
+- `development/`: Developer setup — scripts, manifests, kustomize overlays, and e2e assets for running Platform Mesh locally on kind. Two modes: pinned mode (default, pulls published OCM components) and local-build mode (`--local-build`, builds components locally). For local evaluation and contributors only; not a production path.
 - `.github/workflows/`: chart validation, publishing, developer setup, and component workflows.
 - `Taskfile.yaml`: primary local automation entrypoint.
 
@@ -28,7 +28,7 @@ This is a deployment and packaging repo, not a service runtime.
 
 ### Installation, Developer setup, and OCM model
 - `installation/` is the default Installation path for deploying Platform Mesh to a real Kubernetes cluster (Helm/Kustomize, no shell dependencies).
-- `development/` is the supported path for bootstrapping and testing a local Platform Mesh instance. Its default (PINNED) mode pulls published OCM components; `--build-local` (DEV mode) builds them locally.
+- `development/` is the supported path for bootstrapping and testing a local Platform Mesh instance. Pinned mode is the default and pulls published OCM components; local-build mode (`--local-build`) builds them locally.
 - `.ocm/` and related `task ocm:*` targets build and transfer OCM component artifacts for local and release workflows.
 - The aggregator workflow (`ocm-aggregator.yaml`) builds and signs the top-level `github.com/platform-mesh/platform-mesh` component from `.ocm/component-constructor-aggregate.yaml`; per-chart workflows fan out to `ocm-service-component.yaml` via `platform-mesh/.github`'s `job-ocm.yml`.
 - Workflow changes can affect chart publishing and full platform bootstrap behavior.

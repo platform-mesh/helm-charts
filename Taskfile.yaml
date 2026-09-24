@@ -436,7 +436,7 @@ tasks:
 
   dev-setup:
     aliases: [local-setup]
-    desc: "Developer setup on a local kind cluster. Default (PINNED) pulls the published OCM aggregate; pass -- --build-local to build it locally (DEV). Sharded and reuse-existing-cluster (--iterate) are on by default; pass start.sh flags after --, e.g. task dev-setup -- --build-local --sharded=false"
+    desc: "Developer setup on a local kind cluster. Pinned mode (default) pulls the published OCM aggregate; pass -- --local-build to use local-build mode. Sharded and reuse-existing-cluster (--iterate) are on by default; pass start.sh flags after --, e.g. task dev-setup -- --local-build --sharded=false"
     deps:
       - task: setup:mkcert
     cmds:
