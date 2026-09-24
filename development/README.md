@@ -14,15 +14,15 @@ Platform Mesh onto a real Kubernetes cluster, use the production
 The Developer setup runs in one of two modes, selected by whether you build the OCM
 aggregate locally:
 
-| | **PINNED** (default) | **DEV** (`--build-local`) |
+| | **Pinned mode** (default) | **Local-build mode** (`--local-build`) |
 |---|---|---|
 | What it deploys | A **pre-built, published** OCM aggregate from `ghcr.io/platform-mesh` | An aggregate **built from your working tree** |
 | Local component build | No | Yes (via an in-cluster OCI registry) |
 | Speed / resources | Fast, light — "works out of the box" | Slower, resource-heavy |
 | Who it's for | Evaluating Platform Mesh locally | Contributors testing local chart changes |
-| Command | `task dev-setup` | `task dev-setup -- --build-local` |
+| Command | `task dev-setup` | `task dev-setup -- --local-build` |
 
-If you are not sure, use **PINNED** — it is the default and requires no extra flags.
+If you are not sure, use **pinned mode** — it is the default and requires no extra flags.
 
 ## System Requirements
 
@@ -33,7 +33,7 @@ If you are not sure, use **PINNED** — it is the default and requires no extra 
 - **Resources**: at least **12 GB of RAM** and ~10 GB free disk available to your
   container runtime. On Docker Desktop / Podman machine, raise the VM memory limit if
   needed — a machine capped below 12 GB is the most common cause of pods getting
-  OOM-killed mid-setup. DEV mode (`--build-local`) needs noticeably more.
+  OOM-killed mid-setup. Local-build mode (`--local-build`) needs noticeably more.
 - **Kind**: [Kubernetes in Docker](https://kind.sigs.k8s.io/) for local clusters. [Install](https://kind.sigs.k8s.io/docs/user/quick-start/)
 - **Helm**: for bootstrapping Flux and managing releases. [Install](https://helm.sh/docs/intro/install/)
 - **kubectl**: Kubernetes CLI (usually installed with Docker Desktop or Kind)
@@ -59,7 +59,7 @@ If you are not sure, use **PINNED** — it is the default and requires no extra 
 ## Quick Start
 
 The setup script automates the entire bootstrap. By default it pulls a pre-built,
-published OCM component from `ghcr.io/platform-mesh` (PINNED mode) — no local build required.
+published OCM component from `ghcr.io/platform-mesh` (pinned mode) — no local build required.
 
 **Using Task (recommended):**
 
@@ -117,13 +117,13 @@ export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
 ## Commands and Options
 
 All behavior is controlled by flags passed to `start.sh` after `--`, e.g.
-`task dev-setup -- --build-local --example-data --concurrent --sharded=false`.
+`task dev-setup -- --local-build --example-data --concurrent --sharded=false`.
 The task is `dev-setup` (the old name `local-setup` still works as an alias). For the
 full flag list, run `./development/scripts/start.sh --help`.
 
-### Version selection (PINNED vs DEV)
+### Version selection (pinned vs local-build)
 
-**PINNED (default) — published components.** `task dev-setup` pulls a pre-built,
+**Pinned mode (default) — published components.** `task dev-setup` pulls a pre-built,
 published OCM aggregate and deploys it. No local build, no in-cluster registry.
 
 ```sh
@@ -138,15 +138,15 @@ The default version is a hardcoded constant (`DEFAULT_PLATFORM_MESH_VERSION`) in
 `development/scripts/start.sh`; override it with the `PLATFORM_MESH_VERSION`
 environment variable to pin a different published version.
 
-**DEV — local build (`--build-local`).** Builds the OCM aggregate from your working
+**Local-build mode (`--local-build`).** Builds the OCM aggregate from your working
 tree and deploys it via an in-cluster OCI registry. This is **resource-heavy** and
 slower, intended for contributors testing local chart changes — not for evaluation.
 
 ```sh
-task dev-setup -- --build-local
+task dev-setup -- --local-build
 ```
 
-`--build-local` is mutually exclusive with `PLATFORM_MESH_VERSION` (one builds from
+`--local-build` is mutually exclusive with `PLATFORM_MESH_VERSION` (one builds from
 source, the other pulls a published version) and is not supported with `--remote`.
 
 ### Common flags
@@ -154,7 +154,7 @@ source, the other pulls a published version) and is not supported with `--remote
 - **`--iterate=BOOL`** (default `true`): reuse an existing cluster and only rebuild/reapply
   the OCM component — the fastest feedback loop. If no cluster exists yet, it falls
   through to a full setup automatically. Iterate only rebuilds from the working tree, so
-  it is meaningful for DEV (`--build-local`). Pass `--iterate=false` to require a full
+  it is meaningful in local-build mode (`--local-build`). Pass `--iterate=false` to require a full
   setup; if a cluster already exists, `start.sh` fails and asks you to delete it first
   rather than guessing whether to reuse or replace it.
 - **`--concurrent`**: build charts in parallel instead of sequentially (faster on multi-core systems).
@@ -209,21 +209,22 @@ The `scripts/start.sh` script performs the following:
 7. **Example data** (with `--example-data`) — creates the `root:providers` and
    `root:providers:httpbin-provider` workspaces and deploys the HTTPBin provider config.
 
-## Contributor Workflow (DEV mode)
+## Contributor Workflow (local-build mode)
 
 This section is for chart developers who want to test changes locally without going
-through the official release process. It builds on the [DEV mode](#version-selection-pinned-vs-dev)
+through the official release process. It builds on the
+[local-build mode](#version-selection-pinned-vs-local-build)
 described above.
 
 ### Fresh setup with local charts
 
-`--build-local` builds the OCM aggregate locally from the working tree:
+`--local-build` builds the OCM aggregate locally from the working tree:
 
 ```sh
-task dev-setup -- --build-local
+task dev-setup -- --local-build
 
 # With concurrent chart builds (faster on multi-core systems)
-task dev-setup -- --build-local --concurrent
+task dev-setup -- --local-build --concurrent
 ```
 
 `--iterate=true` (the default) reuses an existing `platform-mesh` cluster and only
@@ -240,7 +241,7 @@ To force a full setup even when a cluster already exists, delete it first and pa
 
 ```sh
 kind delete cluster --name platform-mesh
-task dev-setup -- --build-local --iterate=false
+task dev-setup -- --local-build --iterate=false
 ```
 
 ### Iterating on an existing cluster
@@ -265,9 +266,9 @@ task ocm:build ocm:apply
 
 This builds a new OCM component with your changes and applies it to the cluster.
 
-### Starting from an existing published (PINNED) setup
+### Starting from an existing pinned-mode setup
 
-If you have a running PINNED setup and want to switch to a locally built component:
+If you have a setup running in pinned mode and want to switch to a locally built component:
 
 ```sh
 task ocm:deploy           # Deploy OCM infrastructure (once)

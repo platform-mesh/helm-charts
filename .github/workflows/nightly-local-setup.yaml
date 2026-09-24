@@ -52,9 +52,9 @@ jobs:
         with:
           path: .ocm/cache/etcd-druid
           key: ocm-thirdparty-etcd-druid-${{ steps.ocm-versions.outputs.etcd_druid }}
-      - name: Run dev-setup (build-local) with sharded example data
+      - name: Run dev-setup (local-build mode) with sharded example data
         run: |
-          task dev-setup -- --build-local --concurrent --example-data --cert-manager-msp
+          task dev-setup -- --local-build --concurrent --example-data --cert-manager-msp
       - name: Check/wait for all components to be ready
         run: |
           sleep 10
