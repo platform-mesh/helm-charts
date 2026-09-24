@@ -142,6 +142,8 @@ generator:
 system:
   # -- The kubeconfig secret for the system component
   kubeconfigSecret: ""
+  # -- APIExportEndpointSlice name for org-scoped IdPRegistration resources
+  orgIdpApiExportEndpointSliceName: org-idp.platform-mesh.io
   # -- Extra arguments passed to the system binary
   extraArgs: []
 

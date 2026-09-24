@@ -532,6 +532,7 @@ operator match the snapshot:
                 - system
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+                - --org-idp-api-export-endpoint-slice-name=org-idp.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -1336,6 +1337,7 @@ operator match the snapshot w. sentry:
             - args:
                 - system
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --org-idp-api-export-endpoint-slice-name=org-idp.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
