@@ -1,121 +1,70 @@
-# Platform Mesh - Local Development Setup
+# Platform Mesh - Developer Setup
 
-For this setup we create a functional local platform-mesh environment using Kind (Kubernetes in Docker).
-It leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh components.
+This directory bootstraps a full, self-contained Platform Mesh environment on your
+local machine using [Kind](https://kind.sigs.k8s.io/) (Kubernetes in Docker). It
+leverages Flux/ArgoCD and Kustomize to manage the cluster and deploy Platform Mesh
+components — everything runs on your laptop, no external cluster required.
 
-## Prerequisites
+It is meant for **local evaluation and contributor development**. For deploying
+Platform Mesh onto a real Kubernetes cluster, use the production
+[Installation guide](../installation/README.md) instead.
 
-### Required Dependencies
+## Two modes
 
-- **Container Runtime**: Either [Docker](https://www.docker.com) or [Podman](https://podman.io)
-  - Docker Desktop is recommended for WSL2 users
-  - Ensure the container daemon is running before starting setup
-- **Kind**: [Kubernetes in Docker](https://kind.sigs.k8s.io/) for local Kubernetes clusters. [Installation](https://kind.sigs.k8s.io/docs/user/quick-start/)
-- **Helm**: Required for bootstrapping Flux and managing Helm releases. [Installation](https://helm.sh/docs/intro/install/)
-- **kubectl**: Kubernetes command-line tool (usually installed with Docker Desktop or Kind)
-- **kubectl-kcp plugin** (required only for `--example-data` setup): kcp kubectl plugin for workspace management. [Installation](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/)
-- **openssl**: Required for SSL certificate generation (typically pre-installed on Linux/macOS)
-- **base64**: Required for encoding/decoding operations (standard Unix utility, typically pre-installed)
-- **mkcert**: For generating local SSL certificates. [Installation](https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation)
-- **jq**: For parsing JSON output from OCM CLI commands during component builds. [Installation](https://jqlang.org/download/)
-- **yq**: For processing YAML files. [Installation](https://github.com/mikefarah/yq#install)
+The Developer setup runs in one of two modes, selected by whether you build the OCM
+aggregate locally:
 
-### Optional Tools
+| | **PINNED** (default) | **DEV** (`--build-local`) |
+|---|---|---|
+| What it deploys | A **pre-built, published** OCM aggregate from `ghcr.io/platform-mesh` | An aggregate **built from your working tree** |
+| Local component build | No | Yes (via an in-cluster OCI registry) |
+| Speed / resources | Fast, light — "works out of the box" | Slower, resource-heavy |
+| Who it's for | Evaluating Platform Mesh locally | Contributors testing local chart changes |
+| Command | `task dev-setup` | `task dev-setup -- --build-local` |
 
-- **Task**: Task runner for executing project tasks. [Installation](https://taskfile.dev/installation/)
-  - Provides convenient command aliases (e.g., `task dev-setup`)
-  - Not required - you can run scripts directly (see examples below)
+If you are not sure, use **PINNED** — it is the default and requires no extra flags.
 
-### WSL2 + Windows mkcert Setup Guide
+## System Requirements
 
-**Important for WSL2 users**: You need to set up mkcert to work across both WSL2 and Windows for proper certificate trust.
+### Required
 
-1. **Install mkcert in WSL2** (follow Linux instructions above)
-2. **Install mkcert on Windows** using Chocolatey or download from releases
-3. **Share CA between WSL2 and Windows**:
+- **Container Runtime**: [Docker](https://www.docker.com) or [Podman](https://podman.io).
+  Ensure the daemon is running before you start. (Docker Desktop is recommended for WSL2 users.)
+- **Resources**: at least **12 GB of RAM** and ~10 GB free disk available to your
+  container runtime. On Docker Desktop / Podman machine, raise the VM memory limit if
+  needed — a machine capped below 12 GB is the most common cause of pods getting
+  OOM-killed mid-setup. DEV mode (`--build-local`) needs noticeably more.
+- **Kind**: [Kubernetes in Docker](https://kind.sigs.k8s.io/) for local clusters. [Install](https://kind.sigs.k8s.io/docs/user/quick-start/)
+- **Helm**: for bootstrapping Flux and managing releases. [Install](https://helm.sh/docs/intro/install/)
+- **kubectl**: Kubernetes CLI (usually installed with Docker Desktop or Kind)
+- **openssl**: for SSL certificate generation (typically pre-installed on Linux/macOS)
+- **base64**: standard Unix utility, typically pre-installed
+- **mkcert**: for local SSL certificates. [Install](https://github.com/FiloSottile/mkcert?tab=readme-ov-file#installation)
+- **jq**: for parsing JSON from OCM CLI commands. [Install](https://jqlang.org/download/)
+- **yq**: for processing YAML files. [Install](https://github.com/mikefarah/yq#install)
 
-   ```sh
-   # In WSL2, after installing mkcert:
-   mkcert -install
+### Situational
 
-   # Copy the CA to Windows (adjust path as needed):
-   cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
-   ```
+- **kubectl-kcp plugin**: required only for the `--example-data` setup (kcp workspace management). [Install](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/)
+- **Node.js and npm**: required only to run the [E2E tests](#running-e2e-tests).
 
-4. **Install CA in Windows**:
+### Optional
 
-   ```powershell
-   # In PowerShell as Administrator:
-   Import-Certificate -FilePath "C:\Users\$env:USERNAME\mkcert-rootCA.pem" -CertStoreLocation Cert:\LocalMachine\Root
-   ```
+- **Task**: task runner providing convenient aliases (e.g. `task dev-setup`). [Install](https://taskfile.dev/installation/)
+  Not required — you can run the scripts directly (see examples below).
 
-### WSL2 Specific Requirements
-
-If you're using Windows Subsystem for Linux (WSL2):
-
-- WSL version 2.1.5 or higher is required
-- Docker Desktop with WSL2 integration enabled
-- Update WSL if needed: `wsl --update`
-
-If Kubernetes is crashing because of a conflict between Cgroup v1 and v2 (a "hybrid" state),
-you can force WSL2 to use **Cgroup v2 exclusively** (Unified Mode).
-This is the modern standard starting from **Kubernetes v1.25**, where Cgroup v2 graduated to General Availability (GA).
-
-- Open PowerShell on Windows.
-- Edit your `.wslconfig` file: `notepad $env:USERPROFILE\.wslconfig`
-- Add these lines:
-
-```text
-[wsl2]
-# Disable Cgroup V1 to force the kernel into "unified" (v2 only) mode
-kernelCommandLine = cgroup_no_v1=all
-```
-
-### Podman Specific Requirements for MacOS
-
-If you're using Podman on MacOS make sure to set the following env:
-
-```sh
-KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
-```
-
-### MacOS Virtualization Framework (Recommended)
-
-**macOS users**: For optimal performance and stability, we recommend using Apple's Virtualization Framework (VZ) with your container runtime:
-
-**Docker Desktop:**
-
-1. Open Docker Desktop
-2. Go to Settings → General
-3. Enable "Use Virtualization framework" or "VirtioFS"
-4. Restart Docker Desktop
-
-**Podman:**
-
-1. Stop the current machine: `podman machine stop`
-2. Remove the current machine: `podman machine rm`
-3. Create new machine with VZ: `podman machine init --vm-type=applehv`
-4. Start the machine: `podman machine start`
-
-While Platform-mesh can work with other virtualization frameworks like QEMU, it has been primarily tested with Apple's Virtualization Framework on macOS.
+> Running on WSL2, native Windows, or macOS with Podman? See
+> [Platform-specific setup](#platform-specific-setup) at the end of this document.
 
 ## Quick Start
 
-### 1. Bootstrap Local Environment
-
-The setup script automates the entire bootstrap process. By default, it pulls a pre-built, published OCM component from `ghcr.io/platform-mesh` (PINNED mode) — no local build required. Contributors who want to build from the working tree can pass `--build-local` (see [Understanding Version Options](#understanding-version-options)).
+The setup script automates the entire bootstrap. By default it pulls a pre-built,
+published OCM component from `ghcr.io/platform-mesh` (PINNED mode) — no local build required.
 
 **Using Task (recommended):**
 
 ```sh
 task dev-setup
-```
-
-The first run creates a fresh cluster. Subsequent runs reuse it and only rebuild/reapply the OCM component (`--iterate=true` is the default, so this is fast). To force a truly fresh cluster, delete the existing one first and pass `--iterate=false`:
-
-```sh
-kind delete cluster --name platform-mesh
-task dev-setup -- --iterate=false
 ```
 
 **Without Task (direct script execution):**
@@ -124,35 +73,58 @@ task dev-setup -- --iterate=false
 ./development/scripts/start.sh
 ```
 
-### 2. Bootstrap with Example Data (Demo Setup)
+The first run creates a fresh cluster. Subsequent runs reuse it (`--iterate=true` is
+the default, so this is fast). To force a truly fresh cluster, delete the existing one
+first and pass `--iterate=false`:
 
-This setup includes an example provider ("httpbin") to showcase how provider integrations work in Platform Mesh. Perfect for demonstrations and learning.
+```sh
+kind delete cluster --name platform-mesh
+task dev-setup -- --iterate=false
+```
 
-**Note**: The `--example-data` setup requires the [kcp kubectl plugin](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/) to be installed for workspace creation commands.
+### With Example Data (demo setup)
 
-**Using Task:**
+Includes an example provider ("httpbin") to showcase how provider integrations work —
+useful for demonstrations and learning. Requires the
+[kcp kubectl plugin](https://docs.kcp.io/kcp/main/setup/kubectl-plugin/).
 
 ```sh
 task dev-setup -- --example-data
+# or: ./development/scripts/start.sh --example-data
 ```
 
-**Without Task:**
+This creates a standard installation plus a `root:providers:httpbin-provider`
+workspace with an HTTPBin provider configuration.
+
+### Access the Platform
+
+Once setup completes:
+
+- **Onboarding Portal**: <https://portal.localhost:8443>
+- **kcp API**: <https://localhost:8443>
+
+Modern browsers automatically resolve `*.localhost` (including org subdomains like
+`myorg.portal.localhost`) to `127.0.0.1`, so no `/etc/hosts` configuration is needed
+for browser access.
+
+If you installed with example data, explore the HTTPBin provider with the kcp admin
+kubeconfig:
 
 ```sh
-./development/scripts/start.sh --example-data
+export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
 ```
 
-**What gets created:**
+## Commands and Options
 
-- Standard Platform Mesh installation
-- Example provider workspace: `root:providers:httpbin-provider`
-- HTTPBin provider configuration demonstrating provider integration patterns
+All behavior is controlled by flags passed to `start.sh` after `--`, e.g.
+`task dev-setup -- --build-local --example-data --concurrent --sharded=false`.
+The task is `dev-setup` (the old name `local-setup` still works as an alias). For the
+full flag list, run `./development/scripts/start.sh --help`.
 
-### Understanding Version Options
+### Version selection (PINNED vs DEV)
 
-The Developer setup has two modes, selected by whether you build the OCM aggregate locally.
-
-**Default — PINNED (published components):** By default, `task dev-setup` pulls a **pre-built, published** OCM aggregate from `ghcr.io/platform-mesh` and deploys it. No local component build, no in-cluster registry — fast and "works out of the box". This is the recommended path for evaluating Platform Mesh locally.
+**PINNED (default) — published components.** `task dev-setup` pulls a pre-built,
+published OCM aggregate and deploys it. No local build, no in-cluster registry.
 
 ```sh
 # Pull the default pinned version (recommended)
@@ -162,35 +134,46 @@ task dev-setup
 PLATFORM_MESH_VERSION=0.4.0-build.510 task dev-setup
 ```
 
-The default version is a hardcoded constant (`DEFAULT_PLATFORM_MESH_VERSION`) in `development/scripts/start.sh`; override it with the `PLATFORM_MESH_VERSION` environment variable to pin a different published version.
+The default version is a hardcoded constant (`DEFAULT_PLATFORM_MESH_VERSION`) in
+`development/scripts/start.sh`; override it with the `PLATFORM_MESH_VERSION`
+environment variable to pin a different published version.
 
-**DEV — local build (`--build-local`):** For contributors who want to test local chart changes, `--build-local` builds the OCM aggregate from the working tree and deploys it via an in-cluster OCI registry. This is **resource-heavy** and slower, and is intended for advanced users tinkering with Platform Mesh internals — not for evaluation.
+**DEV — local build (`--build-local`).** Builds the OCM aggregate from your working
+tree and deploys it via an in-cluster OCI registry. This is **resource-heavy** and
+slower, intended for contributors testing local chart changes — not for evaluation.
 
 ```sh
-# Build the aggregate locally from the working tree (contributors)
 task dev-setup -- --build-local
 ```
 
-`--build-local` is mutually exclusive with `PLATFORM_MESH_VERSION` (one builds from source, the other pulls a published version) and is not supported with `--remote`.
+`--build-local` is mutually exclusive with `PLATFORM_MESH_VERSION` (one builds from
+source, the other pulls a published version) and is not supported with `--remote`.
 
-The build-locally path is useful for:
+### Common flags
 
-- Testing local chart changes without going through the official release process
-- Chart development and iteration workflows
+- **`--iterate=BOOL`** (default `true`): reuse an existing cluster and only rebuild/reapply
+  the OCM component — the fastest feedback loop. If no cluster exists yet, it falls
+  through to a full setup automatically. Iterate only rebuilds from the working tree, so
+  it is meaningful for DEV (`--build-local`). Pass `--iterate=false` to require a full
+  setup; if a cluster already exists, `start.sh` fails and asks you to delete it first
+  rather than guessing whether to reuse or replace it.
+- **`--concurrent`**: build charts in parallel instead of sequentially (faster on multi-core systems).
+- **`--sharded=BOOL`** (default `true`): deploy additional kcp shards alongside the root shard
+  to test multi-shard topologies. Pass `--sharded=false` for a single-shard setup.
+- **`--example-data`**: also deploy the HTTPBin example provider (requires the kubectl-kcp plugin).
 
-**Note:** iterate mode only rebuilds from the working tree, so it applies to `--build-local`. This is transparent on a first run — there's no cluster yet, so it falls through to a full setup automatically. If a cluster already exists, pass `--iterate=false` explicitly:
+### Remote (two-cluster) mode
 
-```sh
-task dev-setup -- --build-local --iterate=false
-```
+With `--remote`, the setup creates two kind clusters instead of one:
+`platform-mesh-infra` (where Flux/ArgoCD and the platform-mesh-operator run) and
+`platform-mesh` (the runtime cluster where workloads, kcp and OCM resources land). The
+operator routes HelmReleases/Applications to the infra cluster and OCM Resources to the
+runtime cluster — a faithful local replica of a production split-cluster topology.
 
-**Concurrent builds (--concurrent flag):** When using the `--concurrent` flag, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
-
-**Sharded kcp (default behavior):** By default, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally. Pass `--sharded=false` to run a single-shard setup instead (e.g., `task dev-setup -- --sharded=false`).
-
-**Remote mode (--remote and --deployment-tech flags):** When using `--remote`, the setup creates two kind clusters instead of one: `platform-mesh-infra` (where Flux/ArgoCD and the platform-mesh-operator run) and `platform-mesh` (the runtime cluster where workloads, kcp and OCM resources land). The platform-mesh-operator routes HelmReleases/Applications to the infra cluster and OCM Resources to the runtime cluster, so this is a faithful local replica of a production split-cluster topology.
-
-`--deployment-tech=fluxcd|argocd` (default `fluxcd`) selects the deployment technology used to roll out the platform components. With `argocd`, ArgoCD is installed on the infra cluster, the runtime cluster is registered as a managed cluster, and each platform service becomes a separate ArgoCD `Application` ordered through `argocd.argoproj.io/sync-wave`.
+`--deployment-tech=fluxcd|argocd` (default `fluxcd`) selects the deployment technology.
+With `argocd`, ArgoCD is installed on the infra cluster, the runtime cluster is
+registered as a managed cluster, and each platform service becomes a separate ArgoCD
+`Application` ordered through `argocd.argoproj.io/sync-wave`.
 
 ```sh
 # FluxCD on a two-cluster topology
@@ -201,143 +184,160 @@ task dev-setup -- --remote --deployment-tech=argocd
 
 # With example provider data (httpbin); requires the kubectl-kcp plugin
 task dev-setup -- --remote --deployment-tech=fluxcd --example-data
-task dev-setup -- --remote --deployment-tech=argocd --example-data
 ```
-
-**Iterate mode (--iterate=BOOL flag, default true):** With `--iterate=true` (the default), the setup reuses an existing cluster and only rebuilds the OCM component from local charts and reapplies it — the fastest feedback loop during chart development. If no cluster exists yet, it falls through to a full setup automatically. Pass `--iterate=false` to require a full setup; if a cluster already exists at that point, `start.sh` fails and asks you to delete it first (`kind delete cluster --name platform-mesh`) rather than guessing whether to reuse or replace it.
-
-**Task Naming Convention:**
-
-- The setup task is `dev-setup` (the old name `local-setup` still works as an alias); all behavior is controlled by flags passed through to `start.sh` after `--`, e.g. `task dev-setup -- --build-local --example-data --concurrent --sharded=false`
-- Available flags: see `./development/scripts/start.sh --help`
-
-#### Developer information
-
-See [DEVELOPERS](./DEVELOPERS.md) for more detailed information related to chart developers.
-
-### 4. Access the Platform
-
-Once the setup completes successfully, you can access:
-
-- **Onboarding Portal**: <https://portal.localhost:8443>
-- **kcp API**: <https://localhost:8443>
-
-**Note**: Modern browsers automatically resolve `*.localhost` domains to `127.0.0.1`, so no `/etc/hosts` configuration is required for browser access. Organization subdomains like `myorg.portal.localhost` will also work automatically in browsers.
-
-**If you installed with example data:**
-
-- The HTTPBin provider is available in the `root:providers:httpbin-provider` workspace
-- Use the kcp admin kubeconfig to explore: `export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig`
 
 ## What the Setup Script Does
 
-The `scripts/start.sh` script performs the following operations:
+The `scripts/start.sh` script performs the following:
 
-1. **Environment Validation**
-   - Checks for required dependencies (Docker/Podman, Kind, kubectl, etc.)
-   - Validates WSL2 compatibility if applicable
-   - Verifies system architecture support
-   - For Podman on macos: Verify that the KIND_EXPERIMENTAL_PROVIDER envs is set to `podman`
+1. **Environment validation** — checks required dependencies (Docker/Podman, Kind,
+   kubectl, etc.), validates WSL2 compatibility, verifies architecture. For Podman on
+   macOS, verifies `KIND_EXPERIMENTAL_PROVIDER=podman`.
+2. **Cluster management** — creates the Kind cluster `platform-mesh` (if not present)
+   on Kubernetes v1.35.1 (`kindest/node:v1.35.1`) with custom local-dev networking.
+3. **Certificate generation** — generates local SSL certificates with mkcert, CA certs
+   for webhook configs, and domain certs for `localhost`, `*.localhost`, `*.portal.localhost`.
+4. **Core infrastructure** — installs Flux, Cert-Manager, the OCM controller,
+   CloudNativePG (CNPG), and the Keycloak Operator.
+5. **Platform Mesh deployment** — applies base Kustomize configs, creates secrets,
+   deploys the operator and components, provisions the shared PostgreSQL cluster,
+   deploys Keycloak (via CR) and Dex (local upstream OIDC — see
+   [upstream-identity-provider-dex.md](docs/upstream-identity-provider-dex.md)), and
+   installs supporting services (RBAC webhook, observability, etc.).
+6. **Post-installation** — creates the kcp admin kubeconfig, waits for readiness, and
+   prints access instructions.
+7. **Example data** (with `--example-data`) — creates the `root:providers` and
+   `root:providers:httpbin-provider` workspaces and deploys the HTTPBin provider config.
 
-2. **Cluster Management**
-   - Creates Kind cluster named `platform-mesh` (if not exists)
-   - Uses Kubernetes v1.35.1 (`kindest/node:v1.35.1`)
-   - Configures cluster with custom networking for local development
+## Contributor Workflow (DEV mode)
 
-3. **Certificate Generation**
-   - Generates local SSL certificates using mkcert
-   - Creates CA certificates for webhook configurations
-   - Sets up domain certificates for `localhost`, `*.localhost`, and `*.portal.localhost`
+This section is for chart developers who want to test changes locally without going
+through the official release process. It builds on the [DEV mode](#version-selection-pinned-vs-dev)
+described above.
 
-4. **Core Infrastructure Installation**
-   - Installs Flux for GitOps workflow management
-   - Deploys Cert-Manager for SSL certificate management
-   - Sets up OCM (Open Component Model) controller
-   - Deploys CloudNativePG (CNPG) operator for managed PostgreSQL
-   - Deploys Keycloak Operator for identity management
+### Fresh setup with local charts
 
-5. **Platform Mesh Deployment**
-   - Applies base Kustomize configurations
-   - Creates necessary secrets (certificates, Grafana, etc.)
-   - Deploys Platform Mesh operator and components
-   - CNPG provisions a shared PostgreSQL cluster for Keycloak and OpenFGA
-   - Keycloak Operator deploys a Keycloak instance via Custom Resource
-   - Deploys Dex as a local upstream OIDC identity provider (see
-     [upstream-identity-provider-dex.md](docs/upstream-identity-provider-dex.md))
-   - Installs supporting services (RBAC webhook, observability, etc.)
+`--build-local` builds the OCM aggregate locally from the working tree:
 
-6. **Post-Installation Setup**
-   - Creates kcp admin kubeconfig for workspace access
-   - Waits for all components to become ready
-   - Provides access instructions and next steps
+```sh
+task dev-setup -- --build-local
 
-7. **Example Data Setup** (when using `--example-data` flag)
-   - Creates kcp provider workspaces structure
-   - Creates `root:providers` workspace for hosting provider integrations
-   - Creates `root:providers:httpbin-provider` workspace
-   - Deploys HTTPBin provider configuration to demonstrate provider integration patterns
+# With concurrent chart builds (faster on multi-core systems)
+task dev-setup -- --build-local --concurrent
+```
+
+`--iterate=true` (the default) reuses an existing `platform-mesh` cluster and only
+rebuilds/reapplies the OCM component — no cluster deletion or recreation. If no cluster
+exists yet, this falls through to a full setup automatically:
+
+1. Creates a fresh kind cluster
+2. Deploys OCM infrastructure (OCI registry, transfer pod)
+3. Builds your local chart changes into an OCM component
+4. Deploys Platform Mesh using that component
+
+To force a full setup even when a cluster already exists, delete it first and pass
+`--iterate=false`:
+
+```sh
+kind delete cluster --name platform-mesh
+task dev-setup -- --build-local --iterate=false
+```
+
+### Iterating on an existing cluster
+
+With `--iterate=true` (the default), reusing an existing cluster:
+
+- Skips cluster deletion and recreation
+- Skips environment checks, certificate generation, and Flux installation
+- Skips all OCM infrastructure setup (OCI registry, transfer pod)
+- Only rebuilds the OCM component from local charts and reapplies it
+- Reconfigures the transfer pod CA trust if certificates changed
+
+This is the recommended approach for iterative development.
+
+### Iterating on chart changes
+
+After making chart changes on an already-running setup, rebuild and redeploy:
+
+```sh
+task ocm:build ocm:apply
+```
+
+This builds a new OCM component with your changes and applies it to the cluster.
+
+### Starting from an existing published (PINNED) setup
+
+If you have a running PINNED setup and want to switch to a locally built component:
+
+```sh
+task ocm:deploy           # Deploy OCM infrastructure (once)
+task ocm:build ocm:apply  # Build and deploy component
+```
+
+### Configuration (optional)
+
+Edit `Taskfile.yaml` to configure:
+
+- `COMPONENT_PRERELEASE_VERSION`: version for the component
+- `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS`: maps component names to local chart paths
+- `COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS`: override specific dependency versions
+
+### Cleanup
+
+```sh
+task ocm:cleanup       # Remove transfer pod and temp files
+```
+
+### Infrastructure architecture
+
+The setup deploys the following key infrastructure components:
+
+- **CloudNativePG (CNPG)**: manages a shared PostgreSQL cluster used by both Keycloak
+  and OpenFGA. Replaces individual embedded PostgreSQL instances with a single
+  operator-managed cluster that handles backups, failover, and database provisioning.
+- **Keycloak Operator**: deploys Keycloak as a Custom Resource instead of a traditional
+  Helm release. The operator manages the Keycloak lifecycle including upgrades and
+  configuration reconciliation.
+- **Observability stack**: OpenTelemetry collector for traces and metrics aggregation.
+
+These components are declared as external components in the Platform Mesh profile
+(`default-profile.yaml`) and are resolved during OCM component builds.
 
 ## Advanced Usage
 
-### Working with kcp Workspaces
+### Working with kcp workspaces
 
-After successful setup, export the kcp kubeconfig to interact with workspaces:
+After setup, export the kcp kubeconfig to interact with workspaces:
 
 ```sh
 export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
 ```
 
-This gives you access to the root workspace and organization management.
+This gives you access to the root workspace and organization management. Organization
+subdomains like `<organization-name>.portal.localhost` are automatically resolved by
+modern browsers — no `/etc/hosts` entries needed for browser access.
 
-### Adding New Organizations
-
-Organization subdomains like `<organization-name>.portal.localhost` are automatically resolved by modern browsers. No `/etc/hosts` entries are needed for browser access.
-
-### Debugging and Troubleshooting
-
-#### Enable Debug Mode
+### Debugging
 
 ```sh
-# With Task
+# Enable debug mode
 DEBUG=true task dev-setup
+# or: DEBUG=true ./development/scripts/start.sh
 
-# Without Task
-DEBUG=true ./development/scripts/start.sh
-```
-
-#### Check Component Status
-
-```sh
-# Check all Helm releases
+# Check component status
 kubectl get helmreleases -A
-
-# Check Platform Mesh resource
 kubectl get platformmesh -n platform-mesh-system
-
-# Check pod status
 kubectl get pods -A
 ```
 
-#### Clean Start
+### Image registries
 
-Recreate the kind cluster from scratch:
+The kind cluster mounts `development/kind/containerd-certs.d/` into every node at
+`/etc/containerd/certs.d` (see `kind-config.yaml`), so any registry configuration
+placed there is automatically picked up by the cluster's containerd.
 
-```sh
-# With Task
-task dev-setup
-
-# Without Task
-kind delete cluster --name platform-mesh
-./development/scripts/start.sh
-```
-
-### Development Workflow
-
-#### Image Registries
-
-The kind cluster mounts `development/kind/containerd-certs.d/` into every node at `/etc/containerd/certs.d` (see `kind-config.yaml`), so any registry configuration placed there is automatically picked up by the cluster's containerd.
-
-Three pull-through caches are configured and started automatically by `setup-registry-proxies.sh`:
+Three pull-through caches are configured and started automatically by
+`setup-registry-proxies.sh`:
 
 | Registry | Backed by |
 |---|---|
@@ -345,15 +345,21 @@ Three pull-through caches are configured and started automatically by `setup-reg
 | `quay.io` | `proxy-quay` container |
 | `registry.k8s.io` | `proxy-k8s-io` container |
 
-**Custom local registries:** To make a local registry accessible to the cluster, add a `hosts.toml` entry under `containerd-certs.d/<registry-host>/`. See the [kind local registry documentation](https://kind.sigs.k8s.io/docs/user/local-registry/) for the recommended setup pattern.
+**Custom local registries:** to make a local registry accessible to the cluster, add a
+`hosts.toml` entry under `containerd-certs.d/<registry-host>/`. See the
+[kind local registry documentation](https://kind.sigs.k8s.io/docs/user/local-registry/)
+for the recommended setup pattern.
 
-#### Hook Scripts
+### Hook scripts
 
-The local setup provides four extension points (hook scripts) that run at different stages. All are gitignored, so your local customizations won't be committed.
+The setup provides four extension points (hook scripts) that run at different stages.
+All are gitignored, so your local customizations won't be committed.
 
-##### Load Custom Images Hook
+#### Load Custom Images hook
 
-Runs after the Kind cluster is created, before Flux or any platform components are installed. Use this to pre-load locally built images into the cluster's containerd image store.
+Runs after the Kind cluster is created, before Flux or any platform components are
+installed. Use this to pre-load locally built images into the cluster's containerd
+image store.
 
 Create `development/scripts/load-custom-images.sh` — it is already gitignored:
 
@@ -377,10 +383,10 @@ $CONTAINER_RUNTIME rmi "${OPERATOR_IMAGE}"  # remove the temporary re-tag from t
 **Notes:**
 
 - `$CONTAINER_RUNTIME` is set by `start.sh` (`docker` or `podman`); use it instead of hardcoding either.
-- `kind load image-archive /dev/stdin` works for both Docker and Podman (unlike `kind load docker-image` which is Docker-only).
-- Because the operator chart uses `imagePullPolicy: IfNotPresent`, containerd will use the pre-loaded image and skip the ghcr.io pull — provided the tag matches exactly what the OCM component references. The dynamic `appVersion` read above ensures this.
+- `kind load image-archive /dev/stdin` works for both Docker and Podman (unlike `kind load docker-image`, which is Docker-only).
+- Because the operator chart uses `imagePullPolicy: IfNotPresent`, containerd uses the pre-loaded image and skips the ghcr.io pull — provided the tag matches exactly what the OCM component references. The dynamic `appVersion` read above ensures this.
 
-##### Post-Flux Hook
+#### Post-Flux hook
 
 Runs after Flux is installed and ready. Use this to load custom Docker images or deploy Flux resources.
 
@@ -397,45 +403,55 @@ cp development/scripts/post-flux-hook.sh.example development/scripts/post-flux-h
 2. Add the load command to `post-flux-hook.sh`
 3. Run `task dev-setup` to reload the cluster with your custom images
 
-##### Platform-Mesh Resource Hook
+#### Platform-Mesh Resource hook
 
-Runs after the Platform-Mesh Operator is ready and the PlatformMesh CRD is established. When this hook exists, it **replaces** the default PlatformMesh resource overlay logic. The hook is responsible for applying the PlatformMesh resource to the cluster.
+Runs after the Platform-Mesh Operator is ready and the PlatformMesh CRD is established.
+When this hook exists, it **replaces** the default PlatformMesh resource overlay logic —
+the hook is responsible for applying the PlatformMesh resource to the cluster.
 
 ```sh
 cp development/scripts/platform-mesh-resource-hook.sh.example development/scripts/platform-mesh-resource-hook.sh
 # Edit the script with your customizations
 ```
 
-**Available at this point:** Everything from the post-flux hook, plus KRO, OCM, Platform-Mesh Operator (ready), PlatformMesh CRD (established). Variables `$PRERELEASE` and `$EXAMPLE_DATA` reflect the flags passed to start.sh.
-
-**Example:**
+**Available at this point:** everything from the post-flux hook, plus KRO, OCM,
+Platform-Mesh Operator (ready), PlatformMesh CRD (established). Variables `$PRERELEASE`
+and `$EXAMPLE_DATA` reflect the flags passed to start.sh.
 
 ```sh
 # Apply a custom kustomize overlay for your PlatformMesh configuration
 kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/my-custom-overlay
 ```
 
-##### Post-Platform-Mesh Hook
+#### Post-Platform-Mesh hook
 
-Runs after the PlatformMesh resource is ready and kcp is accessible. Use this to create kcp workspaces or deploy resources into the platform.
+Runs after the PlatformMesh resource is ready and kcp is accessible. Use this to create
+kcp workspaces or deploy resources into the platform.
 
 ```sh
 cp development/scripts/post-platform-mesh-hook.sh.example development/scripts/post-platform-mesh-hook.sh
 # Edit the script with your customizations
 ```
 
-**Available at this point:** Everything from the post-flux hook, plus KRO, OCM, Platform-Mesh Operator, PlatformMesh resource, and kcp admin kubeconfig (via `$KCP_KUBECONFIG`).
-
-**Example:**
+**Available at this point:** everything from the post-flux hook, plus KRO, OCM,
+Platform-Mesh Operator, PlatformMesh resource, and kcp admin kubeconfig (via `$KCP_KUBECONFIG`).
 
 ```sh
 # Create a workspace in kcp
 KUBECONFIG="$KCP_KUBECONFIG" kubectl create-workspace my-ws --type=root:providers --ignore-existing --server="https://localhost:8443/clusters/root"
 ```
 
-### Running E2E Tests
+## Running E2E Tests
 
-After the local setup is running, you can run end-to-end tests to verify the portal functionality:
+After the setup is running, you can run end-to-end tests to verify portal functionality.
+
+**Prerequisites:**
+
+- Node.js and npm installed
+- The setup cluster running (via `task dev-setup` or similar)
+- `kubectl` available; `kubectl oidc-login` installed for the downloaded-kubeconfig smoke test
+- `portal.localhost` must resolve locally for CLI tools (e.g. via `/etc/hosts`)
+- Playwright browsers install automatically on first run
 
 **Using Task:**
 
@@ -491,15 +507,6 @@ npx playwright install
 npx playwright test test-register-and-navigate.test.ts
 ```
 
-**Prerequisites:**
-
-- Node.js and npm must be installed
-- The local setup cluster must be running (via `task dev-setup` or similar)
-- Playwright browsers will be installed automatically on first run
-- `kubectl` must be available for both the browser flow and the backend readiness checks
-- `kubectl oidc-login` must be installed for the downloaded kubeconfig smoke test
-- `portal.localhost` must resolve locally for CLI tools, for example via `/etc/hosts`
-
 **What the tests cover:**
 
 - Portal onboarding and organization switching
@@ -512,32 +519,32 @@ npx playwright test test-register-and-navigate.test.ts
 
 ## Files and Scripts
 
-### Main Scripts
+### Main scripts
 
-- `scripts/start.sh`: Main bootstrap script
-- `scripts/check-environment.sh`: Dependency validation
+- `scripts/start.sh`: main bootstrap script
+- `scripts/check-environment.sh`: dependency validation
 - `scripts/check-wsl-compatibility.sh`: WSL2 compatibility checks
 - `scripts/gen-certs.sh`: SSL certificate generation
 - `scripts/createKcpAdminKubeconfig.sh`: kcp workspace access setup
-- `scripts/setup-prerelease.sh`: Prerelease OCM component build and deployment
+- `scripts/setup-prerelease.sh`: prerelease OCM component build and deployment
 - `scripts/setup-registry-proxies.sh`: Docker registry mirror configuration
 - `scripts/ocm-build-component.sh`: OCM component descriptor assembly
-- `scripts/ocm-build-local-charts.sh`: Local chart packaging for prerelease builds
-- `scripts/check-backend-resources.sh`: Post-setup resource readiness checks
+- `scripts/ocm-build-local-charts.sh`: local chart packaging for prerelease builds
+- `scripts/check-backend-resources.sh`: post-setup resource readiness checks
 
 ### Configuration
 
 - `kind/kind-config.yaml`: Kind cluster configuration
 - `kustomize/`: Kubernetes manifests and overlays
-- `webhook-config/`: Authorization webhook certificates and configuration
+- `webhook-config/`: authorization webhook certificates and configuration
 
 ## Troubleshooting
 
-### Common Issues
+### Common issues
 
 1. **Docker/Podman not running**
    - Ensure Docker Desktop or Podman is started
-   - For WSL2: Verify Docker Desktop WSL integration is enabled
+   - For WSL2: verify Docker Desktop WSL integration is enabled
 
 2. **Port conflicts**
    - Ensure ports 8443, 80, and 443 are not in use by other applications
@@ -546,23 +553,9 @@ npx playwright test test-register-and-navigate.test.ts
 3. **Certificate issues**
    - Run `mkcert -install` to install the local CA
    - Check that mkcert is properly installed and accessible
-   - **WSL2 users**: Certificate trust issues require setup in both WSL2 and Windows:
-
-     ```sh
-     # In WSL2: Install CA in Linux certificate store
-     mkcert -install
-
-     # Copy CA to Windows and install there too
-     cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
-     ```
-
-     Then in Windows PowerShell as Administrator:
-
-     ```powershell
-     Import-Certificate -FilePath "C:\Users\$env:USERNAME\mkcert-rootCA.pem" -CertStoreLocation Cert:\LocalMachine\Root
-     ```
-
-   - **Native Windows users**: If mkcert doesn't work properly, manually trust the CA:
+   - **WSL2 users**: certificate trust requires setup in both WSL2 and Windows — see
+     [Platform-specific setup](#platform-specific-setup)
+   - **Native Windows users**: if mkcert doesn't work properly, manually trust the CA:
      1. The CA certificate is generated at `development/scripts/certs/ca.crt`
      2. Double-click the `ca.crt` file to open it
      3. Click "Install Certificate..."
@@ -576,7 +569,7 @@ npx playwright test test-register-and-navigate.test.ts
         Import-Certificate -FilePath "development\scripts\certs\ca.crt" -CertStoreLocation Cert:\LocalMachine\Root
         ```
 
-   - **Linux users**: After installing mkcert, ensure CA is trusted:
+   - **Linux users**: after installing mkcert, ensure the CA is trusted:
 
      ```sh
      # Install the local CA in the system trust store
@@ -591,30 +584,30 @@ npx playwright test test-register-and-navigate.test.ts
 
 4. **DNS resolution problems**
    - Verify `/etc/hosts` entries are correct
-   - For WSL2: Also check Windows hosts file
+   - For WSL2: also check the Windows hosts file
    - Clear DNS cache if needed
 
 5. **Cluster creation failures**
-   - Check available disk space (need ~10GB)
-   - Verify container runtime has sufficient resources
-   - Try deleting other clusters that may be running and consuming resources
-   - Try deleting existing cluster: `kind delete cluster --name platform-mesh`
+   - Check available disk space (need ~10 GB)
+   - Verify the container runtime has **at least 12 GB of RAM** available (raise the
+     Docker Desktop / Podman machine memory limit if needed) — an under-provisioned VM
+     is the most common cause of failed or OOM-killed setups
+   - Try deleting other running clusters consuming resources
+   - Try deleting the existing cluster: `kind delete cluster --name platform-mesh`
 
 6. **Component timeout issues**
-   - Increase `KUBECTL_WAIT_TIMEOUT` if you have a slower system (the default is `1200s`)
+   - Increase `KUBECTL_WAIT_TIMEOUT` if you have a slower system (default `1200s`)
    - Transfer-pod timeouts print pod details and Kubernetes events to help diagnose slow or failed image pulls
-   - Trigger a new run using the `:iterate` tasks
+   - Trigger a new run with `task dev-setup` (iterate mode, the default)
    - Check component logs: `kubectl logs -n <namespace> <pod-name>`
    - Verify all required images can be pulled
 
 7. **Helm credentials issues**
-   - make sure Helm config file doesn't create authentication for `ghcr.io`
-   - do `helm registry logout ghcr.io`
-   - do `docker logout ghcr.io`
+   - Make sure the Helm config file doesn't create authentication for `ghcr.io`
+   - `helm registry logout ghcr.io`
+   - `docker logout ghcr.io`
 
-### Getting Help
-
-If you encounter issues:
+### Getting help
 
 1. Check the script output for specific error messages
 2. Enable debug mode: `DEBUG=true task dev-setup`
@@ -626,8 +619,90 @@ If you encounter issues:
 
 After successful setup:
 
-1. **Explore the Portal**: Visit <https://portal.localhost:8443>
-2. **Set up Organizations**: Create and configure organizations for your use case
-3. **Development**: Start building on top of the Platform Mesh framework
+1. **Explore the Portal**: visit <https://portal.localhost:8443>
+2. **Set up organizations**: create and configure organizations for your use case
+3. **Development**: start building on top of the Platform Mesh framework
 
-For more detailed information about Platform Mesh concepts and usage, refer to the main project documentation.
+For more detailed information about Platform Mesh concepts and usage, refer to the main
+project documentation.
+
+## Platform-specific setup
+
+These notes are only relevant if you run on WSL2, native Windows, or macOS with Podman.
+Most Linux and macOS/Docker users can ignore this section.
+
+### WSL2 + Windows mkcert setup
+
+**Important for WSL2 users:** you need mkcert to work across both WSL2 and Windows for
+proper certificate trust.
+
+1. **Install mkcert in WSL2** (follow the Linux instructions above)
+2. **Install mkcert on Windows** using Chocolatey or download from releases
+3. **Share the CA between WSL2 and Windows**:
+
+   ```sh
+   # In WSL2, after installing mkcert:
+   mkcert -install
+
+   # Copy the CA to Windows (adjust path as needed):
+   cp "$(mkcert -CAROOT)/rootCA.pem" /mnt/c/Users/$USER/mkcert-rootCA.pem
+   ```
+
+4. **Install the CA in Windows**:
+
+   ```powershell
+   # In PowerShell as Administrator:
+   Import-Certificate -FilePath "C:\Users\$env:USERNAME\mkcert-rootCA.pem" -CertStoreLocation Cert:\LocalMachine\Root
+   ```
+
+### WSL2 specific requirements
+
+If you're using Windows Subsystem for Linux (WSL2):
+
+- WSL version 2.1.5 or higher is required
+- Docker Desktop with WSL2 integration enabled
+- Update WSL if needed: `wsl --update`
+
+If Kubernetes is crashing because of a conflict between Cgroup v1 and v2 (a "hybrid"
+state), you can force WSL2 to use **Cgroup v2 exclusively** (Unified Mode). This is the
+modern standard starting from **Kubernetes v1.25**, where Cgroup v2 graduated to GA.
+
+- Open PowerShell on Windows.
+- Edit your `.wslconfig` file: `notepad $env:USERPROFILE\.wslconfig`
+- Add these lines:
+
+```text
+[wsl2]
+# Disable Cgroup V1 to force the kernel into "unified" (v2 only) mode
+kernelCommandLine = cgroup_no_v1=all
+```
+
+### Podman on macOS
+
+If you're using Podman on macOS, make sure to set the following env:
+
+```sh
+KIND_EXPERIMENTAL_PROVIDER=podman <your-setup-command>
+```
+
+### macOS Virtualization Framework (recommended)
+
+For optimal performance and stability, we recommend Apple's Virtualization Framework
+(VZ) with your container runtime:
+
+**Docker Desktop:**
+
+1. Open Docker Desktop
+2. Go to Settings → General
+3. Enable "Use Virtualization framework" or "VirtioFS"
+4. Restart Docker Desktop
+
+**Podman:**
+
+1. Stop the current machine: `podman machine stop`
+2. Remove the current machine: `podman machine rm`
+3. Create a new machine with VZ: `podman machine init --vm-type=applehv`
+4. Start the machine: `podman machine start`
+
+While Platform Mesh can work with other virtualization frameworks like QEMU, it has been
+primarily tested with Apple's Virtualization Framework on macOS.

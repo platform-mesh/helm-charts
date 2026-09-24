@@ -43,7 +43,7 @@ The following is required to work with the helm charts in this repository:
 
 Please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file in this repository for instructions on how to contribute to platform-mesh.
 
-For detailed instructions regarding local development see the Developer setup [README.md](development/README.md) and [DEVELOPERS.md](development/DEVELOPERS.md)
+For detailed instructions regarding local development see the Developer setup [README.md](development/README.md).
 
 ## Code of Conduct
 
