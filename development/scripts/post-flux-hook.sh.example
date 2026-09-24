@@ -16,7 +16,7 @@ SCRIPT_DIR=$(dirname "$0")
 # Usage:
 #   cp post-flux-hook.sh.example post-flux-hook.sh
 #   # Edit post-flux-hook.sh with your customizations
-#   task local-setup:iterate
+#   task dev-setup -- --iterate
 
 chart_app_version() {
     local chart="$1"

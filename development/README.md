@@ -23,7 +23,7 @@ It leverages Flux and Kustomize to manage the cluster and deploy Platform Mesh c
 ### Optional Tools
 
 - **Task**: Task runner for executing project tasks. [Installation](https://taskfile.dev/installation/)
-  - Provides convenient command aliases (e.g., `task local-setup`)
+  - Provides convenient command aliases (e.g., `task dev-setup`)
   - Not required - you can run scripts directly (see examples below)
 
 ### WSL2 + Windows mkcert Setup Guide
@@ -103,25 +103,25 @@ While Platform-mesh can work with other virtualization frameworks like QEMU, it 
 
 ### 1. Bootstrap Local Environment
 
-The setup script automates the entire bootstrap process. By default, it uses the current tested OCM component version pinned in the repository.
+The setup script automates the entire bootstrap process. By default, it pulls a pre-built, published OCM component from `ghcr.io/platform-mesh` (PINNED mode) — no local build required. Contributors who want to build from the working tree can pass `--build-local` (see [Understanding Version Options](#understanding-version-options)).
 
 **Using Task (recommended):**
 
 ```sh
-task local-setup
+task dev-setup
 ```
 
 The first run creates a fresh cluster. Subsequent runs reuse it and only rebuild/reapply the OCM component (`--iterate=true` is the default, so this is fast). To force a truly fresh cluster, delete the existing one first and pass `--iterate=false`:
 
 ```sh
 kind delete cluster --name platform-mesh
-task local-setup -- --iterate=false
+task dev-setup -- --iterate=false
 ```
 
 **Without Task (direct script execution):**
 
 ```sh
-./local-setup/scripts/start.sh
+./development/scripts/start.sh
 ```
 
 ### 2. Bootstrap with Example Data (Demo Setup)
@@ -133,13 +133,13 @@ This setup includes an example provider ("httpbin") to showcase how provider int
 **Using Task:**
 
 ```sh
-task local-setup -- --example-data
+task dev-setup -- --example-data
 ```
 
 **Without Task:**
 
 ```sh
-./local-setup/scripts/start.sh --example-data
+./development/scripts/start.sh --example-data
 ```
 
 **What gets created:**
@@ -150,42 +150,43 @@ task local-setup -- --example-data
 
 ### Understanding Version Options
 
-**Default:** By default, the setup uses the current tested OCM component version from the OCM registry. This reflects the version pinned in the repository configuration and is ideal for:
+The Developer setup has two modes, selected by whether you build the OCM aggregate locally.
 
-- Local development and testing with the current development version
-
-**Released version:** For a stable environment based on an officially released version, checkout the appropriate git tag before running setup:
+**Default — PINNED (published components):** By default, `task dev-setup` pulls a **pre-built, published** OCM aggregate from `ghcr.io/platform-mesh` and deploys it. No local component build, no in-cluster registry — fast and "works out of the box". This is the recommended path for evaluating Platform Mesh locally.
 
 ```sh
-git checkout 0.2.0  # or any released tag like 0.1.1, 0.2, etc.
-task local-setup
+# Pull the default pinned version (recommended)
+task dev-setup
+
+# Pull a specific published version instead
+PLATFORM_MESH_VERSION=0.4.0-build.510 task dev-setup
 ```
 
-**OCM aggregate version (`PLATFORM_MESH_VERSION` env var):** By default, `task local-setup` builds the OCM aggregate locally from the working tree and deploys it via an in-cluster OCI registry. To deploy a published aggregate from `ghcr.io/platform-mesh` instead, set `PLATFORM_MESH_VERSION` to the version you want:
+The default version is a hardcoded constant (`DEFAULT_PLATFORM_MESH_VERSION`) in `development/scripts/start.sh`; override it with the `PLATFORM_MESH_VERSION` environment variable to pin a different published version.
+
+**DEV — local build (`--build-local`):** For contributors who want to test local chart changes, `--build-local` builds the OCM aggregate from the working tree and deploys it via an in-cluster OCI registry. This is **resource-heavy** and slower, and is intended for advanced users tinkering with Platform Mesh internals — not for evaluation.
 
 ```sh
-# Build locally from the working tree (default)
-task local-setup
-
-# Pull a specific published version from ghcr.io/platform-mesh
-PLATFORM_MESH_VERSION=0.4.0-build.510 task local-setup
+# Build the aggregate locally from the working tree (contributors)
+task dev-setup -- --build-local
 ```
+
+`--build-local` is mutually exclusive with `PLATFORM_MESH_VERSION` (one builds from source, the other pulls a published version) and is not supported with `--remote`.
 
 The build-locally path is useful for:
 
 - Testing local chart changes without going through the official release process
 - Chart development and iteration workflows
-- Note: Requires the `task` CLI to be installed
 
-**Note:** iterate mode doesn't support `PLATFORM_MESH_VERSION` (it only rebuilds from the working tree). This is transparent on a first run — there's no cluster yet, so it falls through to a full setup automatically. If a cluster already exists, though, pass `--iterate=false` explicitly:
+**Note:** iterate mode only rebuilds from the working tree, so it applies to `--build-local`. This is transparent on a first run — there's no cluster yet, so it falls through to a full setup automatically. If a cluster already exists, pass `--iterate=false` explicitly:
 
 ```sh
-PLATFORM_MESH_VERSION=0.4.0-build.510 task local-setup -- --iterate=false
+task dev-setup -- --build-local --iterate=false
 ```
 
 **Concurrent builds (--concurrent flag):** When using the `--concurrent` flag, chart builds run in parallel instead of sequentially. This speeds up the build process on multi-core systems.
 
-**Sharded kcp (default behavior):** By default, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally. Pass `--sharded=false` to run a single-shard setup instead (e.g., `task local-setup -- --sharded=false`).
+**Sharded kcp (default behavior):** By default, the setup deploys additional kcp shards alongside the root shard. This is useful for testing multi-shard topologies locally. Pass `--sharded=false` to run a single-shard setup instead (e.g., `task dev-setup -- --sharded=false`).
 
 **Remote mode (--remote and --deployment-tech flags):** When using `--remote`, the setup creates two kind clusters instead of one: `platform-mesh-infra` (where Flux/ArgoCD and the platform-mesh-operator run) and `platform-mesh` (the runtime cluster where workloads, kcp and OCM resources land). The platform-mesh-operator routes HelmReleases/Applications to the infra cluster and OCM Resources to the runtime cluster, so this is a faithful local replica of a production split-cluster topology.
 
@@ -193,22 +194,22 @@ PLATFORM_MESH_VERSION=0.4.0-build.510 task local-setup -- --iterate=false
 
 ```sh
 # FluxCD on a two-cluster topology
-task local-setup -- --remote --deployment-tech=fluxcd
+task dev-setup -- --remote --deployment-tech=fluxcd
 
 # ArgoCD on a two-cluster topology
-task local-setup -- --remote --deployment-tech=argocd
+task dev-setup -- --remote --deployment-tech=argocd
 
 # With example provider data (httpbin); requires the kubectl-kcp plugin
-task local-setup -- --remote --deployment-tech=fluxcd --example-data
-task local-setup -- --remote --deployment-tech=argocd --example-data
+task dev-setup -- --remote --deployment-tech=fluxcd --example-data
+task dev-setup -- --remote --deployment-tech=argocd --example-data
 ```
 
 **Iterate mode (--iterate=BOOL flag, default true):** With `--iterate=true` (the default), the setup reuses an existing cluster and only rebuilds the OCM component from local charts and reapplies it — the fastest feedback loop during chart development. If no cluster exists yet, it falls through to a full setup automatically. Pass `--iterate=false` to require a full setup; if a cluster already exists at that point, `start.sh` fails and asks you to delete it first (`kind delete cluster --name platform-mesh`) rather than guessing whether to reuse or replace it.
 
 **Task Naming Convention:**
 
-- There is a single `local-setup` task; all behavior is controlled by flags passed through to `start.sh` after `--`, e.g. `task local-setup -- --example-data --concurrent --sharded=false`
-- Available flags: see `./local-setup/scripts/start.sh --help`
+- The setup task is `dev-setup` (the old name `local-setup` still works as an alias); all behavior is controlled by flags passed through to `start.sh` after `--`, e.g. `task dev-setup -- --build-local --example-data --concurrent --sharded=false`
+- Available flags: see `./development/scripts/start.sh --help`
 
 #### Developer information
 
@@ -298,10 +299,10 @@ Organization subdomains like `<organization-name>.portal.localhost` are automati
 
 ```sh
 # With Task
-DEBUG=true task local-setup
+DEBUG=true task dev-setup
 
 # Without Task
-DEBUG=true ./local-setup/scripts/start.sh
+DEBUG=true ./development/scripts/start.sh
 ```
 
 #### Check Component Status
@@ -323,18 +324,18 @@ Recreate the kind cluster from scratch:
 
 ```sh
 # With Task
-task local-setup
+task dev-setup
 
 # Without Task
 kind delete cluster --name platform-mesh
-./local-setup/scripts/start.sh
+./development/scripts/start.sh
 ```
 
 ### Development Workflow
 
 #### Image Registries
 
-The kind cluster mounts `local-setup/kind/containerd-certs.d/` into every node at `/etc/containerd/certs.d` (see `kind-config.yaml`), so any registry configuration placed there is automatically picked up by the cluster's containerd.
+The kind cluster mounts `development/kind/containerd-certs.d/` into every node at `/etc/containerd/certs.d` (see `kind-config.yaml`), so any registry configuration placed there is automatically picked up by the cluster's containerd.
 
 Three pull-through caches are configured and started automatically by `setup-registry-proxies.sh`:
 
@@ -354,7 +355,7 @@ The local setup provides four extension points (hook scripts) that run at differ
 
 Runs after the Kind cluster is created, before Flux or any platform components are installed. Use this to pre-load locally built images into the cluster's containerd image store.
 
-Create `local-setup/scripts/load-custom-images.sh` — it is already gitignored:
+Create `development/scripts/load-custom-images.sh` — it is already gitignored:
 
 ```sh
 #!/bin/bash
@@ -384,7 +385,7 @@ $CONTAINER_RUNTIME rmi "${OPERATOR_IMAGE}"  # remove the temporary re-tag from t
 Runs after Flux is installed and ready. Use this to load custom Docker images or deploy Flux resources.
 
 ```sh
-cp local-setup/scripts/post-flux-hook.sh.example local-setup/scripts/post-flux-hook.sh
+cp development/scripts/post-flux-hook.sh.example development/scripts/post-flux-hook.sh
 # Edit the script with your customizations
 ```
 
@@ -394,14 +395,14 @@ cp local-setup/scripts/post-flux-hook.sh.example local-setup/scripts/post-flux-h
 
 1. Build your local image: `docker build -t ghcr.io/platform-mesh/my-component:dev .`
 2. Add the load command to `post-flux-hook.sh`
-3. Run `task local-setup` to reload the cluster with your custom images
+3. Run `task dev-setup` to reload the cluster with your custom images
 
 ##### Platform-Mesh Resource Hook
 
 Runs after the Platform-Mesh Operator is ready and the PlatformMesh CRD is established. When this hook exists, it **replaces** the default PlatformMesh resource overlay logic. The hook is responsible for applying the PlatformMesh resource to the cluster.
 
 ```sh
-cp local-setup/scripts/platform-mesh-resource-hook.sh.example local-setup/scripts/platform-mesh-resource-hook.sh
+cp development/scripts/platform-mesh-resource-hook.sh.example development/scripts/platform-mesh-resource-hook.sh
 # Edit the script with your customizations
 ```
 
@@ -419,7 +420,7 @@ kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/my-custom-overlay
 Runs after the PlatformMesh resource is ready and kcp is accessible. Use this to create kcp workspaces or deploy resources into the platform.
 
 ```sh
-cp local-setup/scripts/post-platform-mesh-hook.sh.example local-setup/scripts/post-platform-mesh-hook.sh
+cp development/scripts/post-platform-mesh-hook.sh.example development/scripts/post-platform-mesh-hook.sh
 # Edit the script with your customizations
 ```
 
@@ -439,8 +440,8 @@ After the local setup is running, you can run end-to-end tests to verify the por
 **Using Task:**
 
 ```sh
-# Run the full local-setup integration suite
-task test:local-setup
+# Run the full developer-setup integration suite
+task test:dev-setup
 
 # Run CLI checks for backend resource readiness
 task test:backend-resources
@@ -469,7 +470,7 @@ task test:portal-e2e:headed
 # Run tests more slowly to watch each browser action
 SLOW_MO=500 task test:portal-e2e:headed
 
-# Run tests with video recording (saved to local-setup/e2e/test-results/)
+# Run tests with video recording (saved to development/e2e/test-results/)
 task test:portal-e2e:video
 
 # Specify organization name (default: "default")
@@ -480,10 +481,10 @@ ORG_NAME=myorg task test:portal-e2e
 
 ```sh
 # Backend readiness checks
-./local-setup/scripts/check-backend-resources.sh
+./development/scripts/check-backend-resources.sh
 
 # Browser-driven portal checks
-cd local-setup/e2e
+cd development/e2e
 npm install
 npm ci
 npx playwright install
@@ -493,7 +494,7 @@ npx playwright test test-register-and-navigate.test.ts
 **Prerequisites:**
 
 - Node.js and npm must be installed
-- The local setup cluster must be running (via `task local-setup` or similar)
+- The local setup cluster must be running (via `task dev-setup` or similar)
 - Playwright browsers will be installed automatically on first run
 - `kubectl` must be available for both the browser flow and the backend readiness checks
 - `kubectl oidc-login` must be installed for the downloaded kubeconfig smoke test
@@ -562,7 +563,7 @@ npx playwright test test-register-and-navigate.test.ts
      ```
 
    - **Native Windows users**: If mkcert doesn't work properly, manually trust the CA:
-     1. The CA certificate is generated at `local-setup/scripts/certs/ca.crt`
+     1. The CA certificate is generated at `development/scripts/certs/ca.crt`
      2. Double-click the `ca.crt` file to open it
      3. Click "Install Certificate..."
      4. Select "Local Machine" and click "Next"
@@ -572,7 +573,7 @@ npx playwright test test-register-and-navigate.test.ts
      8. Alternatively, use PowerShell as Administrator:
 
         ```powershell
-        Import-Certificate -FilePath "local-setup\scripts\certs\ca.crt" -CertStoreLocation Cert:\LocalMachine\Root
+        Import-Certificate -FilePath "development\scripts\certs\ca.crt" -CertStoreLocation Cert:\LocalMachine\Root
         ```
 
    - **Linux users**: After installing mkcert, ensure CA is trusted:
@@ -616,7 +617,7 @@ npx playwright test test-register-and-navigate.test.ts
 If you encounter issues:
 
 1. Check the script output for specific error messages
-2. Enable debug mode: `DEBUG=true task local-setup`
+2. Enable debug mode: `DEBUG=true task dev-setup`
 3. Verify all prerequisites are properly installed
 4. Check cluster and component status using kubectl commands
 5. Review logs of failing components

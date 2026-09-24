@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-EXPORT_DIR="${1:-${EXPORT_DIR:-local-setup/backup/keycloak/realms}}"
+EXPORT_DIR="${1:-${EXPORT_DIR:-development/backup/keycloak/realms}}"
 TIMESTAMP=$(date +%Y-%m-%d-%H:%M:%S)
 DEST="$EXPORT_DIR/$TIMESTAMP"
 

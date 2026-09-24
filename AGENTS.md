@@ -1,6 +1,6 @@
 ## Repository Description
 - `helm-charts` contains Helm charts used to deploy Platform Mesh and supporting components.
-- The main moving parts are charts under `charts/`, generated chart documentation, OCM constructor descriptors under `.ocm/`, local developer setup under `local-setup/`, and GitHub Actions workflows under `.github/workflows/`.
+- The main moving parts are charts under `charts/`, generated chart documentation, OCM constructor descriptors under `.ocm/`, the production Installation manifests under `installation/`, the local Developer setup under `development/`, and GitHub Actions workflows under `.github/workflows/`.
 - Read the org-wide [AGENTS.md](https://github.com/platform-mesh/.github/blob/main/AGENTS.md) for general conventions.
 
 ## Core Principles
@@ -13,8 +13,9 @@
 - `charts/`: Helm charts, values, templates, tests, chart locks, and chart READMEs.
 - `docs-templates/`: templates used by `helm-docs` to generate chart documentation.
 - `.ocm/`: OCM constructor descriptors, including the aggregator (`component-constructor-aggregate.yaml`) and service-component (`component-constructor-service-component.yaml`) consumed by `ocm-aggregator.yaml` / `ocm-service-component.yaml`, plus signing material under `.ocm/signature/`.
-- `local-setup/`: scripts, manifests, kustomize overlays, and e2e assets for local Platform Mesh development.
-- `.github/workflows/`: chart validation, publishing, local setup, and component workflows.
+- `installation/`: Installation — the production deployment path. Pure Helm/Kustomize overlay plus a `bootstrap.sh` for secret generation; no ongoing shell dependencies. The default way to install Platform Mesh onto a cluster.
+- `development/`: Developer setup — scripts, manifests, kustomize overlays, and e2e assets for running Platform Mesh locally on kind. Two modes: PINNED (default, pulls published OCM components) and DEV (`--build-local`, builds components locally). For local evaluation and contributors only; not a production path.
+- `.github/workflows/`: chart validation, publishing, developer setup, and component workflows.
 - `Taskfile.yaml`: primary local automation entrypoint.
 
 ## Architecture
@@ -25,8 +26,9 @@ This is a deployment and packaging repo, not a service runtime.
 - Several charts depend on other charts in this repository; chart version bumps and dependency updates need to stay aligned.
 - `helm-docs` generates chart README content from chart metadata, values, and templates.
 
-### Local setup and OCM model
-- `local-setup/` is the supported path for bootstrapping and testing a local Platform Mesh instance.
+### Installation, Developer setup, and OCM model
+- `installation/` is the default Installation path for deploying Platform Mesh to a real Kubernetes cluster (Helm/Kustomize, no shell dependencies).
+- `development/` is the supported path for bootstrapping and testing a local Platform Mesh instance. Its default (PINNED) mode pulls published OCM components; `--build-local` (DEV mode) builds them locally.
 - `.ocm/` and related `task ocm:*` targets build and transfer OCM component artifacts for local and release workflows.
 - The aggregator workflow (`ocm-aggregator.yaml`) builds and signs the top-level `github.com/platform-mesh/platform-mesh` component from `.ocm/component-constructor-aggregate.yaml`; per-chart workflows fan out to `ocm-service-component.yaml` via `platform-mesh/.github`'s `job-ocm.yml`.
 - Workflow changes can affect chart publishing and full platform bootstrap behavior.
@@ -67,7 +69,7 @@ This is a deployment and packaging repo, not a service runtime.
 
 ## Hard Boundaries
 - Ask before changing chart publishing, OCM packaging, or local setup bootstrap semantics.
-- Be especially careful with changes under `.github/workflows/`, `.ocm/` (in particular `.ocm/signature/` and the aggregate/service-component descriptors), and `local-setup/`.
+- Be especially careful with changes under `.github/workflows/`, `.ocm/` (in particular `.ocm/signature/` and the aggregate/service-component descriptors), `installation/`, and `development/`.
 
 ## Human-Facing Guidance
 - Use `README.md` for local certificate setup, startup arguments, and service context.

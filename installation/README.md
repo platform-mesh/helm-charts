@@ -1,8 +1,8 @@
-# Platform Mesh — Production Setup
+# Platform Mesh — Installation
 
-This directory contains the Kustomize overlay and bootstrap scripts for deploying Platform Mesh to a production Kubernetes cluster.
+This is the **default path for installing Platform Mesh** onto a Kubernetes cluster. It uses a Kustomize overlay plus an idempotent `bootstrap.sh` for one-time secret generation — pure Helm/Kustomize/YAML with no ongoing shell-script dependencies.
 
-For local development, use [`local-setup/`](../local-setup/README.md) instead.
+For local evaluation or development, use the [Developer setup](../development/README.md) instead — it runs Platform Mesh on a local kind cluster and is **not** intended for production or internet-facing environments.
 
 ---
 
@@ -30,7 +30,7 @@ The following must be installed and running in your cluster before applying this
 Generates all required secrets with random values. Safe to run multiple times (idempotent).
 
 ```bash
-NAMESPACE=platform-mesh-system bash production-setup/scripts/bootstrap.sh
+NAMESPACE=platform-mesh-system bash installation/scripts/bootstrap.sh
 ```
 
 If you have an OpenSearch instance for the search-operator, set these before running:
@@ -39,14 +39,14 @@ If you have an OpenSearch instance for the search-operator, set these before run
 export OPENSEARCH_URL=https://opensearch.example.com:9200
 export OPENSEARCH_USERNAME=admin
 export OPENSEARCH_PASSWORD=<password>
-bash production-setup/scripts/bootstrap.sh
+bash installation/scripts/bootstrap.sh
 ```
 
 The script creates a `search-operator-opensearch` secret from these values. The search-operator reads connection settings via CLI args (`--opensearch-url`, `--opensearch-username`, `--opensearch-password`, `--opensearch-insecure`) — wire those args from the secret in your deployment or Helm values.
 
 ### 2. Set your base domain
 
-Edit `production-setup/kustomize/overlays/platform-mesh-resource/platform-mesh.yaml`:
+Edit `installation/kustomize/overlays/platform-mesh-resource/platform-mesh.yaml`:
 
 ```yaml
 spec:
@@ -56,7 +56,7 @@ spec:
 
 ### 3. Set required values in the profile
 
-Edit `production-setup/kustomize/overlays/platform-mesh-resource/default-profile.yaml` and search for `REQUIRED`:
+Edit `installation/kustomize/overlays/platform-mesh-resource/default-profile.yaml` and search for `REQUIRED`:
 
 **Keycloak hostname** (search `REPLACE_ME`):
 ```yaml
@@ -79,7 +79,7 @@ security-operator:
 ### 4. Apply the overlay
 
 ```bash
-kubectl kustomize production-setup/kustomize/overlays/platform-mesh-resource | kubectl apply -f -
+kubectl kustomize installation/kustomize/overlays/platform-mesh-resource | kubectl apply -f -
 ```
 
 ### 5. Verify
@@ -145,10 +145,10 @@ kubectl create secret generic domain-certificate-ca \
 
 ---
 
-## Key Differences from local-setup
+## Key Differences from the Developer setup
 
-| Aspect | local-setup | production-setup |
-|--------|-------------|------------------|
+| Aspect | Developer setup | Installation |
+|--------|-----------------|--------------|
 | TLS | Terminated at Kind node via mkcert | Terminated externally at your ingress/gateway |
 | PostgreSQL | CNPG cluster managed by the infra chart | Same — CNPG cluster, secrets pre-created by bootstrap.sh |
 | Identity provider | Dex (bundled, local-only) | External IdP required (configure via Keycloak broker) |

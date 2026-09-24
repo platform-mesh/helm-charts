@@ -37,7 +37,7 @@ A common workflow for a contributor after cloning the repository would be:
 - Run `task docs` to update the documentation based on the changes you made to the charts
 - Bump the chart version of any chart you modified
 - Run `task update-changed` to update the dependencies of other charts in this repository
-- Test your changes with the [local-setup](local-setup/README.md)
+- Test your changes with the [Developer setup](development/README.md)
 
 > **NOTE:** You should always add if you are adding code repository.
 

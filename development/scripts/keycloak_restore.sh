@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BACKUP_DIR="${BACKUP_DIR:-local-setup/backup/keycloak/postgres}"
+BACKUP_DIR="${BACKUP_DIR:-development/backup/keycloak/postgres}"
 
 # Use the most recent backup unless BACKUP_FILE is set explicitly
 BACKUP_FILE="${BACKUP_FILE:-$(ls -t "$BACKUP_DIR"/backup-*.sql | head -1)}"
