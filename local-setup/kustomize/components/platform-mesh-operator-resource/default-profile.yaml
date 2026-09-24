@@ -116,11 +116,10 @@ data:
           hostnames:
             - "localhost"
             - "{{ .baseDomain }}"
-            - "kcp.localhost"
-            - "root.kcp.localhost"
+            - "root.kcp.{{ .baseDomain }}"
             - "kcp.api.{{ .baseDomain }}"
-            - "nereus.kcp.localhost"
-            - "triton.kcp.localhost"
+            - "nereus.kcp.{{ .baseDomain }}"
+            - "triton.kcp.{{ .baseDomain }}"
       deploymentTechnology: fluxcd
       ocm:
         component:
@@ -369,15 +368,15 @@ data:
               image:
                 tag: v0.33.0
               rootShard:
-                hostname: root.kcp.localhost
-                shardBaseURL: https://root.kcp.localhost:8443/
+                hostname: root.kcp.{{ .baseDomain }}
+                shardBaseURL: https://root.kcp.{{ .baseDomain }}:8443/
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
               shards:
                 - name: nereus
-                  hostname: nereus.kcp.localhost
+                  hostname: nereus.kcp.{{ .baseDomain }}
                 - name: triton
-                  hostname: triton.kcp.localhost
+                  hostname: triton.kcp.{{ .baseDomain }}
               webhook:
                 enabled: true
             traefik:
