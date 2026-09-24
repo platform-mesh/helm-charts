@@ -22,7 +22,7 @@ SCRIPT_DIR=$(dirname "$0")
 # Usage:
 #   cp platform-mesh-resource-hook.sh.example platform-mesh-resource-hook.sh
 #   # Edit platform-mesh-resource-hook.sh with your customizations
-#   task local-setup:iterate
+#   task dev-setup -- --iterate
 
 # Example: Apply a custom kustomize overlay
 # kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/my-custom-overlay

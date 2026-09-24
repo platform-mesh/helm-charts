@@ -29,7 +29,7 @@ show_help_pointer() {
   echo "" >&2
   echo -e "${YELLOW}❓ Local setup ran into a problem. If you're stuck, these resources can help:${COL_RES}" >&2
   echo -e "${YELLOW}   📖 Guide:  https://platform-mesh.io/main/how-to-guides/set-up-platform-mesh-locally.html${COL_RES}" >&2
-  echo -e "${YELLOW}   📄 README: https://github.com/platform-mesh/helm-charts/blob/main/local-setup/README.md${COL_RES}" >&2
+  echo -e "${YELLOW}   📄 README: https://github.com/platform-mesh/helm-charts/blob/main/development/README.md${COL_RES}" >&2
   echo -e "${YELLOW}   💬 Zulip:  https://linuxfoundation.zulipchat.com/#narrow/channel/532985-neonephos-platform-mesh-discussion/topic/Platform.20Mesh.20-.20Bug.20Tracker/with/619587865${COL_RES}" >&2
   echo "" >&2
 }
@@ -48,18 +48,27 @@ REMOTE=false
 DEPLOYMENT_TECH="fluxcd"
 ITERATE=true
 CERT_MANAGER_MSP=false
+BUILD_LOCAL=false
 
-# PLATFORM_MESH_VERSION selects the OCM aggregate to deploy.
-#   unset      builds the aggregate from the working tree
-#   <version>  pulls github.com/platform-mesh/platform-mesh:<version>
+# Default published OCM aggregate used by the PINNED developer setup when no
+# PLATFORM_MESH_VERSION is given. Bumped by release automation; grep
+# DEFAULT_PLATFORM_MESH_VERSION.
+DEFAULT_PLATFORM_MESH_VERSION="0.5.2"
+
+# PLATFORM_MESH_VERSION selects the OCM aggregate to deploy. The mode (PINNED vs
+# local build) is derived after flag parsing, once --build-local is known.
 PLATFORM_MESH_VERSION="${PLATFORM_MESH_VERSION:-}"
-if [ -z "$PLATFORM_MESH_VERSION" ]; then
-  PRERELEASE=true
-fi
 
 usage() {
-  echo "Usage: $0 [--example-data] [--concurrent] [--sharded=true|false] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate=true|false] [--cert-manager-msp] [--help]"
+  echo "Usage: $0 [--build-local] [--example-data] [--concurrent] [--sharded=true|false] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate=true|false] [--cert-manager-msp] [--help]"
 
+  echo ""
+  echo "Modes:"
+  echo "  Default (PINNED)   Pull the published OCM aggregate ${DEFAULT_PLATFORM_MESH_VERSION} from ghcr.io/platform-mesh."
+  echo "                     Fast, no local builds. Override the version with PLATFORM_MESH_VERSION."
+  echo "  --build-local      Developer (DEV) mode: build the OCM aggregate locally from the working"
+  echo "                     tree via an in-cluster registry. Resource-heavy; for contributors."
+  echo "                     Mutually exclusive with PLATFORM_MESH_VERSION and with --remote."
   echo ""
   echo "Options:"
   echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
@@ -75,14 +84,15 @@ usage() {
   echo "  --help             Show this help message"
   echo ""
   echo "Environment variables:"
-  echo "  PLATFORM_MESH_VERSION   OCM aggregate version to deploy. Unset builds from the working tree"
-  echo "                          Set to e.g. 0.4.0-build.510 pulls that version from the registry"
+  echo "  PLATFORM_MESH_VERSION   Published OCM aggregate version to pull (PINNED mode)."
+  echo "                          Unset defaults to ${DEFAULT_PLATFORM_MESH_VERSION}. Ignored with --build-local."
   echo "  KUBECTL_WAIT_TIMEOUT    Timeout for Kubernetes readiness checks. Default: 1200s"
   exit 1
 }
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --build-local) BUILD_LOCAL=true ;;
     --example-data) EXAMPLE_DATA=true ;;
     --concurrent) CONCURRENT=true ;;
     --sharded) SHARDED=true ;;
@@ -116,6 +126,27 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+# Derive the deployment mode now that all flags are parsed.
+#   --build-local            build the OCM aggregate from the working tree (DEV)
+#   otherwise (default)      PINNED: pull a published aggregate. Uses
+#                            PLATFORM_MESH_VERSION if set, else DEFAULT_PLATFORM_MESH_VERSION.
+# Record whether the user set an explicit version (before we apply the default),
+# so remote mode can require an explicit choice rather than the default.
+PLATFORM_MESH_VERSION_EXPLICIT="$PLATFORM_MESH_VERSION"
+if [ "$BUILD_LOCAL" = true ]; then
+  if [ -n "$PLATFORM_MESH_VERSION" ]; then
+    echo -e "${RED}--build-local and PLATFORM_MESH_VERSION are mutually exclusive: --build-local builds from the working tree, PLATFORM_MESH_VERSION pulls a published version${COL_RES}" >&2
+    show_help_pointer
+    exit 1
+  fi
+  PRERELEASE=true
+else
+  PRERELEASE=false
+  if [ -z "$PLATFORM_MESH_VERSION" ]; then
+    PLATFORM_MESH_VERSION="$DEFAULT_PLATFORM_MESH_VERSION"
+  fi
+fi
 
 # Export CONCURRENT and ITERATE for build scripts
 export CONCURRENT
@@ -281,7 +312,7 @@ setup_argocd() {
 EOF
 )"
   CLUSTER_SECRET_FILE=".secret/platform-mesh-cluster-secret.yml"
-  cp local-setup/kustomize/base/argocd-cluster-secret/platform-mesh-cluster-secret.yml "$CLUSTER_SECRET_FILE"
+  cp development/kustomize/base/argocd-cluster-secret/platform-mesh-cluster-secret.yml "$CLUSTER_SECRET_FILE"
   yq -i '
     .stringData.config = (strenv(CERTCONFIG) + "\n")
     | .stringData.config style="literal"
@@ -335,9 +366,15 @@ wait_for_deployment_resource() {
 if [ "$REMOTE" = true ]; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Using deployment technology: ${DEPLOYMENT_TECH} ${COL_RES}"
 
-  # check that PLATFORM_MESH_VERSION env var is set for remote mode, since we don't support building from source in that case
-  if [ -z "$PLATFORM_MESH_VERSION" ]; then
-    echo -e "${RED}PLATFORM_MESH_VERSION must be set for remote mode${COL_RES}" >&2
+  # Remote mode pulls published components across clusters; local building is
+  # not supported and the version must be chosen explicitly (not the default).
+  if [ "$BUILD_LOCAL" = true ]; then
+    echo -e "${RED}--build-local is not supported with --remote: remote mode deploys published components only${COL_RES}" >&2
+    show_help_pointer
+    exit 1
+  fi
+  if [ -z "${PLATFORM_MESH_VERSION_EXPLICIT:-}" ]; then
+    echo -e "${RED}PLATFORM_MESH_VERSION must be set explicitly for remote mode${COL_RES}" >&2
     show_help_pointer
     exit 1
   fi
@@ -574,7 +611,7 @@ echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
 
 if [ "$REMOTE" = true ]; then
   if [ ! -f "$SCRIPT_DIR/../webhook-config/ca.crt" ]; then
-    (cd "$SCRIPT_DIR/../.." && ./local-setup/scripts/gen-certs.sh)
+    (cd "$SCRIPT_DIR/../.." && ./development/scripts/gen-certs.sh)
   fi
   kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
 fi
@@ -927,7 +964,7 @@ echo -e "${COL}You can access the onboarding portal at: https://portal.localhost
 
 if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
   echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"
-  echo -e "${COL}[$(date '+%H:%M:%S')] You may need to run task local-setup to apply them.${COL_RES}"
+  echo -e "${COL}[$(date '+%H:%M:%S')] You may need to run task dev-setup to apply them.${COL_RES}"
 fi
 
 exit 0

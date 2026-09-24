@@ -2,15 +2,17 @@
 
 This section is for chart developers who want to test changes locally without going through the official release process.
 
+> For the full set of setup modes, flags, and prerequisites, see the [Developer setup README](README.md). This guide covers only the contributor workflow of building components locally. The default `task dev-setup` runs in PINNED mode (published components); building from your working tree is opt-in via `--build-local`.
+
 ## Quick Start: Fresh Setup with Local Charts
 
-By default, `task local-setup` builds the OCM aggregate locally from the working tree.
+`--build-local` builds the OCM aggregate locally from the working tree.
 
 ```sh
-task local-setup
+task dev-setup -- --build-local
 
 # With concurrent chart builds (faster on multi-core systems)
-task local-setup -- --concurrent
+task dev-setup -- --build-local --concurrent
 ```
 
 `--iterate=true` is the default. If a `platform-mesh` kind cluster already exists, it's reused and only the OCM component is rebuilt/reapplied — no cluster deletion or recreation. If no cluster exists yet, this falls through to a full setup automatically:
@@ -23,14 +25,10 @@ To force a full setup even when a cluster already exists, delete it first and pa
 
 ```sh
 kind delete cluster --name platform-mesh
-task local-setup -- --iterate=false
+task dev-setup -- --build-local --iterate=false
 ```
 
-To deploy a *published* aggregate from `ghcr.io/platform-mesh` instead, set `PLATFORM_MESH_VERSION` (requires `--iterate=false` if a cluster already exists, since iterate mode only rebuilds from the working tree):
-
-```sh
-PLATFORM_MESH_VERSION=0.4.0-build.510 task local-setup
-```
+To deploy a *published* aggregate from `ghcr.io/platform-mesh` instead of building locally, omit `--build-local` (PINNED mode is the default). See the [README version options](README.md#understanding-version-options).
 
 ## Iterating on an Existing Cluster
 
@@ -62,7 +60,7 @@ Edit `Taskfile.yaml` to configure:
 
 ## Advanced: Starting from Existing Published Setup
 
-If you have a running local-setup with published components (`PLATFORM_MESH_VERSION=...`) and want to switch to a locally built component:
+If you have a running Developer setup with published components (PINNED mode) and want to switch to a locally built component:
 
 ```sh
 task ocm:deploy           # Deploy OCM infrastructure (once)

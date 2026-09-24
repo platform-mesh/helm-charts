@@ -4,10 +4,10 @@ set -euo pipefail
 # Export all KCP and Kubernetes resources as YAML.
 #
 # Usage:
-#   local-setup/scripts/export-resources.sh <output-dir>
+#   development/scripts/export-resources.sh <output-dir>
 #
 # Example:
-#   local-setup/scripts/export-resources.sh backup/0.5
+#   development/scripts/export-resources.sh backup/0.5
 
 OUTDIR="${1:?Usage: $0 <output-dir>}"
 KUBECONFIG_KCP="${KUBECONFIG_KCP:-.secret/kcp/admin.kubeconfig}"
