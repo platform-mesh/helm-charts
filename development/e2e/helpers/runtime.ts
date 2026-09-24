@@ -23,7 +23,7 @@ function runAdminKubectl(args: string[], input?: string): string {
 
 // In remote mode, pin to the runtime kubeconfig explicitly so we don't depend
 // on the developer's ambient KUBECONFIG pointing at the right cluster.  In
-// single-cluster mode, prefer the local-setup runtime kubeconfig when present,
+// single-cluster mode, prefer the development runtime kubeconfig when present,
 // otherwise fall back to the kind-platform-mesh context.
 function runRuntimeKubectl(args: string[], input?: string): string {
   if (remoteMode || existsSync(runtimeKubeconfigPath)) {
