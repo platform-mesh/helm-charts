@@ -57,8 +57,11 @@ controllers:
     # -- Enable AccountInfo controller
     enabled: true
 
-# -- The secret for kubeconfig
-kubeconfigSecret: ""
+# -- Name of the Secret holding the kubeconfig used to reach the API server.
+# This Secret is not created by this Helm chart and is not meant to be created by the
+# user: in a regular Platform Mesh installation it is created and managed by the PM
+# Operator, which provisions a `<component>-kubeconfig` Secret for each PM component.
+kubeconfigSecret: "account-operator-kubeconfig"
 
 security:
   # -- Mount the service account token

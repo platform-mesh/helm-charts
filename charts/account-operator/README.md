@@ -25,7 +25,7 @@ A Helm chart to deploy platform-mesh Account-Operator
 | istio.enabled | bool | `false` |  |
 | kcp | object | `{"apiExportEndpointSliceName":"core.platform-mesh.io"}` | The kcp configuration |
 | kcp.apiExportEndpointSliceName | string | `"core.platform-mesh.io"` | kcp APIExportEndpointSliceName which is used for reconciliation |
-| kubeconfigSecret | string | `""` | The secret for kubeconfig |
+| kubeconfigSecret | string | `"account-operator-kubeconfig"` | Name of the Secret holding the kubeconfig used to reach the API server. This Secret is not created by this Helm chart and is not meant to be created by the user: in a regular Platform Mesh installation it is created and managed by the PM Operator, which provisions a `<component>-kubeconfig` Secret for each PM component. |
 | operator.leaderElect | bool | `true` |  |
 | security.mountServiceAccountToken | bool | `true` | Mount the service account token |
 | subroutines.accountInfo.enabled | bool | `true` | Enable AccountInfo subroutine |
