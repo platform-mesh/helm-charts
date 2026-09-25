@@ -16,9 +16,9 @@ patches:
               values:
                 kcp:
                   external:
-                    hostname: kcp.api.portal.localhost
+                    hostname: kcp.api.{{ .baseDomain }}
                   shards:
                     - name: triton
-                      hostname: triton.kcp.localhost
+                      hostname: triton.kcp.{{ .baseDomain }}
 #                   - name: nereus
-#                     hostname: nereus.kcp.localhost
+#                     hostname: nereus.kcp.{{ .baseDomain }}

@@ -125,10 +125,11 @@ data:
           hostnames:
             - "{{ .baseDomain }}"
             - "kcp.api.{{ .baseDomain }}"
-            # - kcp.root.localhost
-            # - kcp.triton.localhost
-            # - kcp.nereus.localhost
-            # - localhost
+            - "kcp.root.{{ .baseDomain }}"
+
+            # REQUIRED: enable the kcp hostaliases if shards are used
+            # - "kcp.triton.{{ .baseDomain }}"
+            # - "kcp.nereus.{{ .baseDomain }}"
       deploymentTechnology: fluxcd
       ocm:
         component:
