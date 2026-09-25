@@ -4,7 +4,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "common.entity.name" . }}
+  name: {{ include "common.clusterScoped.name" . }}
   namespace: {{ .Release.Namespace }}
 rules:
   # gateway
