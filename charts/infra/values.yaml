@@ -216,8 +216,9 @@ keycloak:
       secret: ""
     # -- Secret with PEM CA for outbound HTTPS trust (e.g. local mkcert CA)
     caSecret: ""
-    # -- Enable plain HTTP on the Keycloak pod. Set to true only for local development without TLS.
-    httpEnabled: false
+    # -- Enable plain HTTP on the Keycloak pod. Keycloak sits behind Traefik, which
+    # handles terminates TLS.
+    httpEnabled: true
     resources:
       limits:
         cpu: "2"

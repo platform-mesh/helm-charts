@@ -180,7 +180,7 @@ data:
                 hostname: https://REPLACE_ME/keycloak/
                 enabled: true
                 caSecret: domain-certificate-ca
-                httpEnabled: false
+                httpEnabled: true
               gatewayApi:
                 hostnames:
                   - "{{ .baseDomain }}"
