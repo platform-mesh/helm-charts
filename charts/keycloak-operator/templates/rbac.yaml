@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "common.entity.name" . }}-clusterrole
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" (printf "%s-clusterrole" (include "common.entity.name" .))) }}
 rules:
   - apiGroups:
       - config.openshift.io
@@ -14,7 +14,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: keycloakrealmimportcontroller-cluster-role
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakrealmimportcontroller-cluster-role") }}
 rules:
   - apiGroups:
       - k8s.keycloak.org
@@ -57,7 +57,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: keycloakcontroller-cluster-role
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakcontroller-cluster-role") }}
 rules:
   - apiGroups:
       - k8s.keycloak.org
@@ -147,7 +147,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: keycloaksamlclientcontroller-cluster-role
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloaksamlclientcontroller-cluster-role") }}
 rules:
   - apiGroups:
       - k8s.keycloak.org
@@ -167,7 +167,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: keycloakoidcclientcontroller-cluster-role
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakoidcclientcontroller-cluster-role") }}
 rules:
   - apiGroups:
       - k8s.keycloak.org
@@ -187,11 +187,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ include "common.entity.name" . }}-clusterrole-binding
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" (printf "%s-clusterrole-binding" (include "common.entity.name" .))) }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
-  name: {{ include "common.entity.name" . }}-clusterrole
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" (printf "%s-clusterrole" (include "common.entity.name" .))) }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "common.entity.name" . }}
@@ -302,12 +302,12 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: keycloakrealmimportcontroller-role-binding
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakrealmimportcontroller-role-binding") }}
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
-  name: keycloakrealmimportcontroller-cluster-role
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakrealmimportcontroller-cluster-role") }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "common.entity.name" . }}
@@ -316,12 +316,12 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: keycloakcontroller-role-binding
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakcontroller-role-binding") }}
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
-  name: keycloakcontroller-cluster-role
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakcontroller-cluster-role") }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "common.entity.name" . }}
@@ -330,12 +330,12 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: keycloaksamlclientcontroller-role-binding
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloaksamlclientcontroller-role-binding") }}
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
-  name: keycloaksamlclientcontroller-cluster-role
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloaksamlclientcontroller-cluster-role") }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "common.entity.name" . }}
@@ -344,12 +344,12 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: keycloakoidcclientcontroller-role-binding
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakoidcclientcontroller-role-binding") }}
   namespace: {{ include "keycloak-operator.watchNamespace" . }}
 roleRef:
   kind: ClusterRole
   apiGroup: rbac.authorization.k8s.io
-  name: keycloakoidcclientcontroller-cluster-role
+  name: {{ include "common.clusterScoped.affix" (dict "context" . "name" "keycloakoidcclientcontroller-cluster-role") }}
 subjects:
   - kind: ServiceAccount
     name: {{ include "common.entity.name" . }}

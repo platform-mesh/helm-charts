@@ -13,6 +13,8 @@ A Helm chart to deploy platform-mesh Account-Operator
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
+| clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | controllers.accountInfo.enabled | bool | `true` | Enable AccountInfo controller |
 | crds.enabled | bool | `true` | Enable CRDs |
 | deployment.replicas | int | `1` |  |
