@@ -40,7 +40,7 @@ spec:
           hostnames:
             - localhost
             - portal.localhost
-            - kcp.localhost
-            - root.kcp.localhost
-            - triton.kcp.localhost
-            - nereus.kcp.localhost
+            - kcp.portal.localhost
+            - root.kcp.portal.localhost
+            - triton.kcp.portal.localhost
+            - nereus.kcp.portal.localhost

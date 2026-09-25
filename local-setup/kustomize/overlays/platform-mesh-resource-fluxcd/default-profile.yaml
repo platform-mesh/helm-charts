@@ -201,12 +201,11 @@ data:
               - ip: "{{ .traefikClusterIP }}"
                 hostnames:
                 - "localhost"
-                - "portal.localhost"
-                - "kcp.localhost"
-                - "root.kcp.localhost"
+                - "{{ .baseDomain }}"
+                - "root.kcp.{{ .baseDomain }}"
                 - "kcp.api.{{ .baseDomain }}"
-                - "nereus.kcp.localhost"
-                - "triton.kcp.localhost"
+                - "nereus.kcp.{{ .baseDomain }}"
+                - "triton.kcp.{{ .baseDomain }}"
             istio:
               enabled: false
             kcp:
