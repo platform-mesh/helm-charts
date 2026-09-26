@@ -4,6 +4,38 @@ This is the **default path for installing Platform Mesh** onto a Kubernetes clus
 
 For local evaluation or development, use the [Developer setup](../development/README.md) instead — it runs Platform Mesh on a local kind cluster and is **not** intended for production or internet-facing environments.
 
+## Operator-managed installation
+
+The `platform-mesh-operator` manages the complete Platform Mesh installation.
+Users are responsible for deploying the operator and providing the appropriate
+configuration. The operator may be deployed through KRO, as described in this
+guide, or directly with its Helm chart. Once it is running and configured, it
+installs and configures the remaining services. This process normally completes
+within a few minutes.
+
+Configuration has two sources:
+
+- The profile ConfigMap contains the complete service landscape configuration.
+  The supplied profile is a starting point that advanced users can customize or
+  replace with a profile built from scratch.
+- The `PlatformMesh` custom resource contains installation-specific settings and
+  is where most user changes should be made.
+
+The operator combines these sources and applies the resulting configuration
+across all services. Do not edit generated HelmReleases, Argo CD Applications,
+or individual service values directly; make those changes in the profile or the
+`PlatformMesh` resource instead.
+
+Monitor installation progress through the status conditions of the
+`PlatformMesh` resource. Errors reported during startup are often transient
+because services depend on one another and become ready at different times. In
+most environments, the resource should report `Ready=True` within ten minutes.
+When it does, Platform Mesh has been installed successfully. Persistent errors
+after that period should be investigated using the condition messages.
+
+For details about the operator's behavior and managed resources, see the
+[platform-mesh-operator documentation](https://github.com/platform-mesh/platform-mesh/tree/main/operators/platform-mesh-operator).
+
 ---
 
 ## Prerequisites
@@ -17,7 +49,7 @@ The following must be installed and running before applying this overlay:
 | External domain + wildcard TLS certificate | e.g. `*.example.com` — TLS is terminated at the ingress/gateway layer |
 | [kubectl oidc-login](https://github.com/int128/kubelogin) | Required on client machines for user OIDC auth (`kubectl krew install oidc-login`) |
 | [kubectl kcp](https://github.com/kcp-dev/kcp/tree/main/cli/cmd/kubectl-kcp) | kcp workspace management plugin (`kubectl krew install kcp`) |
-| [KRO](https://kro.run/) | Kube Resource Orchestrator |
+| [KRO](https://kro.run/) | Required for the KRO-based deployment described below; optional when deploying the operator directly with Helm |
 
 ---
 
