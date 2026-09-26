@@ -46,15 +46,15 @@ jobs:
           kubectl krew install oidc-login
       - name: Resolve third-party OCM versions
         id: ocm-versions
-        run: local-setup/scripts/ocm-resolve-thirdparty-versions.sh
+        run: development/scripts/ocm-resolve-thirdparty-versions.sh
       - name: Cache OCM etcd-druid
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .ocm/cache/etcd-druid
           key: ocm-thirdparty-etcd-druid-${{ steps.ocm-versions.outputs.etcd_druid }}
-      - name: Run local-setup with sharded example data
+      - name: Run dev-setup (local-build mode) with sharded example data
         run: |
-          task local-setup -- --concurrent --example-data --cert-manager-msp
+          task dev-setup -- --local-build --concurrent --example-data --cert-manager-msp
       - name: Check/wait for all components to be ready
         run: |
           sleep 10
@@ -68,13 +68,13 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
-          cache-dependency-path: 'local-setup/e2e'
+          cache-dependency-path: 'development/e2e'
 
       - name: Cache Playwright browsers
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('local-setup/e2e/package-lock.json') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('development/e2e/package-lock.json') }}
 
       - name: Run e2e tests with video recording
         env:
@@ -84,7 +84,7 @@ jobs:
 
       - name: Dump cluster diagnostics
         if: failure()
-        run: local-setup/scripts/dump-diagnostics.sh
+        run: development/scripts/dump-diagnostics.sh
 
       - name: Upload runtime artifacts
         if: failure()
@@ -101,6 +101,6 @@ jobs:
         with:
           name: playwright-artifacts
           path: |
-            local-setup/e2e/test-results/
-            local-setup/e2e/*.png
+            development/e2e/test-results/
+            development/e2e/*.png
           retention-days: 5

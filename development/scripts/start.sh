@@ -1,0 +1,987 @@
+#!/bin/bash
+
+DEBUG=${DEBUG:-false}
+
+if [ "${DEBUG}" = "true" ]; then
+  set -x
+fi
+
+set -eE
+
+printf '\033[1;31m%s\n' \
+  '================================================================================' \
+  'WARNING: LOCAL DEVELOPMENT AND TESTING ONLY' \
+  '' \
+  'This setup is intended only for local testing and development.' \
+  'Do NOT use it for production, publicly accessible or other live environments,' \
+  'or air-gapped deployments.' \
+  '================================================================================'
+printf '\033[0m\n'
+
+COL='\033[92m'
+RED='\033[91m'
+YELLOW='\033[93m'
+COL_RES='\033[0m'
+
+KUBECTL_WAIT_TIMEOUT="${KUBECTL_WAIT_TIMEOUT:-1200s}"
+CONTAINER_RUNTIME="${CONTAINER_RUNTIME:-docker}"
+BASE_DOMAIN="${BASE_DOMAIN:-portal.localhost}"
+export KCP_URL="${KCP_URL:-https://kcp.api.${BASE_DOMAIN}:8443}"
+
+# Helm requires an auth config file for OCI registries; create an empty one if absent.
+echo '{"auths":{}}' > /tmp/helm-no-auth.json
+ KINDEST_VERSION="kindest/node:v1.35.1"
+
+SCRIPT_DIR=$(dirname "$0")
+
+# Printed whenever setup fails, to point users at help resources.
+show_help_pointer() {
+  echo "" >&2
+  echo -e "${YELLOW}❓ Local setup ran into a problem. If you're stuck, these resources can help:${COL_RES}" >&2
+  echo -e "${YELLOW}   📖 Guide:  https://platform-mesh.io/main/how-to-guides/set-up-platform-mesh-locally.html${COL_RES}" >&2
+  echo -e "${YELLOW}   📄 README: https://github.com/platform-mesh/helm-charts/blob/main/development/README.md${COL_RES}" >&2
+  echo -e "${YELLOW}   💬 Zulip:  https://linuxfoundation.zulipchat.com/#narrow/channel/532985-neonephos-platform-mesh-discussion/topic/Platform.20Mesh.20-.20Bug.20Tracker/with/619587865${COL_RES}" >&2
+  echo "" >&2
+}
+export -f show_help_pointer
+
+# Show the help pointer on any command failure under 'set -e'. Explicit 'exit'
+# calls (e.g. --help) do not trigger ERR, so usage output stays clean; failure
+# sites that exit deliberately call show_help_pointer themselves.
+trap 'show_help_pointer' ERR
+
+PRERELEASE=false
+EXAMPLE_DATA=false
+CONCURRENT=false
+SHARDED=true
+REMOTE=false
+DEPLOYMENT_TECH="fluxcd"
+ITERATE=true
+CERT_MANAGER_MSP=false
+BUILD_LOCAL=false
+
+# Default published OCM aggregate used by pinned mode when no
+# PLATFORM_MESH_VERSION is given. Bumped by release automation; grep
+# DEFAULT_PLATFORM_MESH_VERSION.
+DEFAULT_PLATFORM_MESH_VERSION="0.5.2"
+
+# PLATFORM_MESH_VERSION selects the OCM aggregate to deploy. The mode (pinned vs
+# local-build) is derived after flag parsing, once --local-build is known.
+PLATFORM_MESH_VERSION="${PLATFORM_MESH_VERSION:-}"
+
+usage() {
+  echo "Usage: $0 [--local-build] [--example-data] [--concurrent] [--sharded=true|false] [--remote] [--deployment-tech=fluxcd|argocd] [--iterate=true|false] [--cert-manager-msp] [--help]"
+
+  echo ""
+  echo "Modes:"
+  echo "  Pinned mode       Pull the published OCM aggregate ${DEFAULT_PLATFORM_MESH_VERSION} from ghcr.io/platform-mesh."
+  echo "  (default)          Fast, no local builds. Override the version with PLATFORM_MESH_VERSION."
+  echo "  --local-build      Local-build mode: build the OCM aggregate from the working"
+  echo "                     tree via an in-cluster registry. Resource-heavy; for contributors."
+  echo "                     Mutually exclusive with PLATFORM_MESH_VERSION and with --remote."
+  echo ""
+  echo "Options:"
+  echo "  --example-data     Install with example provider data (requires kubectl-kcp plugin)"
+
+  echo "  --concurrent       Run chart builds in parallel instead of sequentially"
+  echo "  --sharded=BOOL     Deploy additional kcp shards. Default: true"
+  echo "  --remote           Use remote deployment mode with 2 kind clusters (infra + runtime)"
+  echo "  --deployment-tech  Choose deployment technology: fluxcd or argocd (only with --remote). Default: fluxcd"
+  echo "  --iterate=BOOL     Reuse an existing cluster and only rebuild/reapply the OCM component."
+  echo "                     Default: true (reuses cluster if one exists, falls through to full setup otherwise)."
+  echo "                     With --iterate=false, fails if the cluster already exists instead of touching it"
+  echo "  --cert-manager-msp Set up the cert-manager MSP provider and backing cluster (only with --example-data, non-remote). Slow; off by default"
+  echo "  --help             Show this help message"
+  echo ""
+  echo "Environment variables:"
+  echo "  PLATFORM_MESH_VERSION   Published OCM aggregate version to pull (pinned mode)."
+  echo "                          Unset defaults to ${DEFAULT_PLATFORM_MESH_VERSION}. Ignored with --local-build."
+  echo "  KUBECTL_WAIT_TIMEOUT    Timeout for Kubernetes readiness checks. Default: 1200s"
+  exit 1
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --local-build) BUILD_LOCAL=true ;;
+    --example-data) EXAMPLE_DATA=true ;;
+    --concurrent) CONCURRENT=true ;;
+    --sharded) SHARDED=true ;;
+    --sharded=*)
+      SHARDED="${1#*=}"
+      if [ "$SHARDED" != "true" ] && [ "$SHARDED" != "false" ]; then
+        echo "Error: --sharded must be 'true' or 'false'" >&2
+        usage
+      fi
+      ;;
+    --remote) REMOTE=true ;;
+    --deployment-tech=*)
+      DEPLOYMENT_TECH="${1#*=}"
+      if [ "$DEPLOYMENT_TECH" != "fluxcd" ] && [ "$DEPLOYMENT_TECH" != "argocd" ]; then
+        echo "Error: --deployment-tech must be either 'fluxcd' or 'argocd'" >&2
+        usage
+      fi
+      ;;
+    --iterate) ITERATE=true ;;
+    --iterate=*)
+      ITERATE="${1#*=}"
+      if [ "$ITERATE" != "true" ] && [ "$ITERATE" != "false" ]; then
+        echo "Error: --iterate must be 'true' or 'false'" >&2
+        usage
+      fi
+      ;;
+    --cert-manager-msp) CERT_MANAGER_MSP=true ;;
+    --help|-h) usage ;;
+    --*) echo "Unknown option: $1" >&2; usage ;;
+    *) echo "Ignoring positional arg: $1" ;;
+  esac
+  shift
+done
+
+# Derive the deployment mode now that all flags are parsed.
+#   --local-build            local-build mode: build the OCM aggregate from the working tree
+#   otherwise (default)      pinned mode: pull a published aggregate. Uses
+#                            PLATFORM_MESH_VERSION if set, else DEFAULT_PLATFORM_MESH_VERSION.
+# Record whether the user set an explicit version (before we apply the default),
+# so remote mode can require an explicit choice rather than the default.
+PLATFORM_MESH_VERSION_EXPLICIT="$PLATFORM_MESH_VERSION"
+if [ "$BUILD_LOCAL" = true ]; then
+  if [ -n "$PLATFORM_MESH_VERSION" ]; then
+    echo -e "${RED}--local-build and PLATFORM_MESH_VERSION are mutually exclusive: --local-build builds from the working tree, PLATFORM_MESH_VERSION pulls a published version${COL_RES}" >&2
+    show_help_pointer
+    exit 1
+  fi
+  PRERELEASE=true
+else
+  PRERELEASE=false
+  if [ -z "$PLATFORM_MESH_VERSION" ]; then
+    PLATFORM_MESH_VERSION="$DEFAULT_PLATFORM_MESH_VERSION"
+  fi
+fi
+
+# Export CONCURRENT and ITERATE for build scripts
+export CONCURRENT
+export ITERATE
+
+# A stale KUBECONFIG from a previous run (e.g. pointing at .secret/kcp/admin.kubeconfig)
+# would misdirect every kubectl/helm call in this script. kind merges cluster
+# credentials into ~/.kube/config, so the default kubeconfig is always correct here.
+unset KUBECONFIG
+
+# Source compatibility and environment checks
+source "$SCRIPT_DIR/check-wsl-compatibility.sh"
+source "$SCRIPT_DIR/check-environment.sh"
+source "$SCRIPT_DIR/setup-registry-proxies.sh"
+source "$SCRIPT_DIR/setup-prerelease.sh"
+
+###############################################################################
+# Helper functions
+###############################################################################
+
+create_kind_cluster() {
+  local cluster_name=$1
+  local config_file=$2
+  local use_quiet=${3:-true}
+
+  local quiet_flag=""
+  if [ "$use_quiet" = true ]; then
+    quiet_flag="--quiet"
+    if [ "$DEBUG" = "true" ]; then
+      quiet_flag=""
+    fi
+  fi
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Creating kind cluster ${cluster_name} ${COL_RES}"
+  local temp_config=$(mktemp)
+  local certs_dir=$(cd "$SCRIPT_DIR/../kind/containerd-certs.d" && pwd)
+  sed "s|./containerd-certs.d|${certs_dir}|" "$SCRIPT_DIR/../kind/${config_file}" > "$temp_config"
+  kind create cluster --config "$temp_config" --name "$cluster_name" --image=$KINDEST_VERSION $quiet_flag
+  rm -f "$temp_config"
+}
+
+create_domain_secrets() {
+  local kc=("$@")
+
+  kubectl create secret generic domain-certificate -n default \
+    --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
+    --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
+    --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
+    --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl "${kc[@]}" apply -f -
+
+  kubectl create secret generic domain-certificate -n platform-mesh-system \
+    --from-file=tls.crt=$SCRIPT_DIR/certs/cert.crt \
+    --from-file=tls.key=$SCRIPT_DIR/certs/cert.key \
+    --from-file=ca.crt=$SCRIPT_DIR/certs/ca.crt \
+    --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl "${kc[@]}" apply -f -
+
+  kubectl create secret generic domain-certificate-ca -n platform-mesh-system \
+    --from-file=tls.crt=$SCRIPT_DIR/certs/ca.crt --dry-run=client -oyaml | kubectl "${kc[@]}" apply -f -
+}
+
+# Helper to apply kustomize with envsubst for RUNTIME_CLUSTER_IP substitution
+kustomize_apply() {
+  local kubeconfig_args=("$@")
+  local kustomize_path="${kubeconfig_args[${#kubeconfig_args[@]}-1]}"
+  unset 'kubeconfig_args[${#kubeconfig_args[@]}-1]'
+
+  if [ -n "$PLATFORM_MESH_VERSION" ]; then
+    kubectl kustomize "$kustomize_path" \
+      | yq '(select(.kind == "Component" and .metadata.name == "platform-mesh") | .spec.semver) = strenv(PLATFORM_MESH_VERSION)' \
+      | envsubst '$RUNTIME_CLUSTER_IP' \
+      | kubectl "${kubeconfig_args[@]}" apply -f -
+  else
+  kubectl kustomize "$kustomize_path" | envsubst '$RUNTIME_CLUSTER_IP' | kubectl "${kubeconfig_args[@]}" apply -f -
+  fi
+}
+
+# Helper to apply a file with envsubst for RUNTIME_CLUSTER_IP substitution
+envsubst_apply() {
+  local kubeconfig_args=("$@")
+  local file_path="${kubeconfig_args[${#kubeconfig_args[@]}-1]}"
+  unset 'kubeconfig_args[${#kubeconfig_args[@]}-1]'
+
+  envsubst '$RUNTIME_CLUSTER_IP' < "$file_path" | kubectl "${kubeconfig_args[@]}" apply -f -
+}
+
+# Remote-only helper functions
+
+install_fluxcd() {
+  local kubeconfig=$1
+  local concurrent=$2
+  local namespace="flux-system"
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Installing FluxCD ${COL_RES}"
+  HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig "$kubeconfig" -i -n "$namespace" --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+    --version 2.19.0 \
+    --set imageAutomationController.create=false \
+    --set imageReflectionController.create=false \
+    --set notificationController.create=false \
+    --set helmController.container.additionalArgs[0]="--concurrent=$concurrent" \
+    --set sourceController.container.additionalArgs[1]="--requeue-dependency=5s" > /dev/null 2>&1
+
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
+}
+
+install_argocd() {
+  local kubeconfig=$1
+  local namespace="argocd"
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Installing ArgoCD ${COL_RES}"
+  HELM_REGISTRY_CONFIG=/tmp/helm-no-auth.json helm upgrade --kubeconfig "$kubeconfig" -i -n "$namespace" --create-namespace argo-cd oci://ghcr.io/argoproj/argo-helm/argo-cd \
+    --version 9.2.4 \
+    --set controller.replicas=1 \
+    --set server.replicas=1 \
+    --set repoServer.replicas=1 \
+    --set applicationSet.replicas=1 \
+    --set notifications.enabled=false \
+    --set dex.enabled=false \
+    --set configs.params."server\.insecure"=true > /dev/null 2>&1
+
+  echo "Waiting for ArgoCD server to be ready"
+
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-applicationset-controller > /dev/null 2>&1
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-repo-server > /dev/null 2>&1
+  kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-server > /dev/null 2>&1
+}
+
+setup_argocd() {
+  echo -e "${COL}[$(date '+%H:%M:%S')] Setting up ArgoCD clusters ${COL_RES}"
+  KUBECONFIG=.secret/platform-mesh-infra.kubeconfig argocd login --core --kube-context kind-platform-mesh-infra
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig \
+    config set-context kind-platform-mesh-infra --namespace=argocd
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig patch configmap argocd-cmd-params-cm -n argocd \
+  --type merge \
+  -p '{"data": {"application.namespaces": "argocd,platform-mesh-system"}}'
+
+  CA_DATA=$(yq '.clusters[0].cluster["certificate-authority-data"]' .secret/platform-mesh.kubeconfig.tmp)
+  CERT_DATA=$(yq '.users[0].user["client-certificate-data"]' .secret/platform-mesh.kubeconfig.tmp)
+  CERT_KEY=$(yq '.users[0].user["client-key-data"]' .secret/platform-mesh.kubeconfig.tmp)
+
+  export CERTCONFIG="$(cat <<EOF
+{
+  "tlsClientConfig": {
+    "insecure": false,
+    "caData": "$CA_DATA",
+    "certData": "$CERT_DATA",
+    "keyData": "$CERT_KEY"
+  }
+}
+EOF
+)"
+  CLUSTER_SECRET_FILE=".secret/platform-mesh-cluster-secret.yml"
+  cp development/kustomize/base/argocd-cluster-secret/platform-mesh-cluster-secret.yml "$CLUSTER_SECRET_FILE"
+  yq -i '
+    .stringData.config = (strenv(CERTCONFIG) + "\n")
+    | .stringData.config style="literal"
+  ' "$CLUSTER_SECRET_FILE"
+  envsubst_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig "$CLUSTER_SECRET_FILE"
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig delete pod -n argocd -l app.kubernetes.io/instance=argo-cd
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for ArgoCD to restart after configuration update ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace argocd \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-repo-server > /dev/null 2>&1
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace argocd \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-server > /dev/null 2>&1
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace argocd \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT argo-cd-argocd-applicationset-controller > /dev/null 2>&1
+}
+
+wait_for_deployment_resource() {
+  local kubeconfig=$1
+  local namespace=$2
+  local resource_name=$3
+
+  if [ "$DEPLOYMENT_TECH" = "fluxcd" ]; then
+    kubectl --kubeconfig "$kubeconfig" wait --namespace "$namespace" \
+      --for=condition=Ready helmreleases \
+      --timeout=$KUBECTL_WAIT_TIMEOUT "$resource_name"
+  elif [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+    local elapsed=0
+    local timeout_seconds=$(echo "$KUBECTL_WAIT_TIMEOUT" | sed 's/s$//')
+    while [ $elapsed -lt $timeout_seconds ]; do
+      local health=$(kubectl --kubeconfig "$kubeconfig" get application "$resource_name" -n "$namespace" -o jsonpath='{.status.health.status}' 2>/dev/null || echo "")
+      local sync=$(kubectl --kubeconfig "$kubeconfig" get application "$resource_name" -n "$namespace" -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "")
+      if [ "$health" = "Healthy" ] && [ "$sync" = "Synced" ]; then
+        return 0
+      fi
+      sleep 2
+      elapsed=$((elapsed + 2))
+    done
+    echo -e "${RED}[$(date '+%H:%M:%S')] Timed out waiting for ArgoCD Application ${namespace}/${resource_name} to become Healthy and Synced${COL_RES}" >&2
+    show_help_pointer
+    exit 1
+  fi
+}
+
+###############################################################################
+# Common initialization
+###############################################################################
+
+if [ "$REMOTE" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using deployment technology: ${DEPLOYMENT_TECH} ${COL_RES}"
+
+  # Remote mode pulls published components across clusters; local building is
+  # not supported and the version must be chosen explicitly (not the default).
+  if [ "$BUILD_LOCAL" = true ]; then
+    echo -e "${RED}--local-build is not supported with --remote: remote mode deploys published components only${COL_RES}" >&2
+    show_help_pointer
+    exit 1
+  fi
+  if [ -z "${PLATFORM_MESH_VERSION_EXPLICIT:-}" ]; then
+    echo -e "${RED}PLATFORM_MESH_VERSION must be set explicitly for remote mode${COL_RES}" >&2
+    show_help_pointer
+    exit 1
+  fi
+fi
+
+# cluster_exists_for_iterate checks that the required kind cluster(s) are present
+# before allowing --iterate to proceed.
+cluster_exists_for_iterate() {
+  check_kind_cluster || return 1
+  if [ "$REMOTE" = true ]; then
+    check_kind_infra_cluster || return 1
+  fi
+  return 0
+}
+
+if [ "$ITERATE" = true ] && ! cluster_exists_for_iterate; then
+  ITERATE=false
+  export ITERATE
+fi
+
+if [ "$ITERATE" = true ]; then
+  kind export kubeconfig --name platform-mesh
+  if [ "$REMOTE" = true ]; then
+    kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
+    kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
+  else
+    # Drop stale remote-mode artefacts so downstream tooling (e.g. the e2e
+    # helpers) doesn't misdetect this as a remote run.
+    rm -f .secret/platform-mesh.kubeconfig .secret/platform-mesh-infra.kubeconfig
+  fi
+else
+  # No cluster to iterate on (or --iterate=false was explicit): delete any
+  # existing cluster after user confirmation, then proceed with a full setup.
+  if check_kind_cluster; then
+    read -r -p "Cluster 'platform-mesh' already exists. Delete it and start fresh? [y/N] " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+      kind delete cluster --name platform-mesh
+    else
+      echo "Aborting. Pass --iterate to reuse the existing cluster." >&2
+      exit 1
+    fi
+  fi
+  if [ "$REMOTE" = true ] && check_kind_infra_cluster; then
+    read -r -p "Cluster 'platform-mesh-infra' already exists. Delete it and start fresh? [y/N] " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+      kind delete cluster --name platform-mesh-infra
+    else
+      echo "Aborting. Pass --iterate to reuse the existing cluster." >&2
+      exit 1
+    fi
+  fi
+
+  check_wsl_compatibility
+  run_environment_checks
+
+  setup_registry_proxies
+
+  ###############################################################################
+  # Generate certificates
+  ###############################################################################
+
+  mkdir -p $SCRIPT_DIR/certs
+  $MKCERT_CMD -cert-file=$SCRIPT_DIR/certs/cert.crt -key-file=$SCRIPT_DIR/certs/cert.key "localhost" "*.localhost" "portal.localhost" "*.portal.localhost" "*.services.portal.localhost" "oci-registry-docker-registry.registry.svc.cluster.local" 2>/dev/null
+  cat "$($MKCERT_CMD -CAROOT)/rootCA.pem" > $SCRIPT_DIR/certs/ca.crt
+
+  ###############################################################################
+  # Create kind cluster(s)
+  ###############################################################################
+
+  create_kind_cluster platform-mesh kind-config.yaml true
+
+  if [ "$REMOTE" = true ]; then
+    kind export kubeconfig --name platform-mesh --kubeconfig=.secret/platform-mesh.kubeconfig
+    create_kind_cluster platform-mesh-infra kind-config-infra.yaml false
+    kind export kubeconfig --name platform-mesh-infra --kubeconfig=.secret/platform-mesh-infra.kubeconfig
+  else
+    # Drop stale remote-mode artefacts so downstream tooling (e.g. the e2e
+    # helpers) doesn't misdetect this as a remote run.
+    rm -f .secret/platform-mesh.kubeconfig .secret/platform-mesh-infra.kubeconfig
+  fi
+
+fi # end of infrastructure setup (skipped when --iterate)
+
+# Kubeconfig args for kubectl targeting the runtime cluster (empty for local)
+RUNTIME_KC=()
+if [ "$REMOTE" = true ]; then
+  RUNTIME_KC=(--kubeconfig .secret/platform-mesh.kubeconfig)
+fi
+
+# Load custom images if hook script exists
+if [ -f "$SCRIPT_DIR/load-custom-images.sh" ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Loading custom images ${COL_RES}"
+  source "$SCRIPT_DIR/load-custom-images.sh"
+fi
+
+###############################################################################
+# Install deployment tooling (Flux / ArgoCD)
+###############################################################################
+
+if [ "$REMOTE" = true ]; then
+  install_fluxcd .secret/platform-mesh-infra.kubeconfig 50
+  install_fluxcd .secret/platform-mesh.kubeconfig 10
+
+  if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+    install_argocd .secret/platform-mesh-infra.kubeconfig
+  fi
+else
+  echo -e "${COL}[$(date '+%H:%M:%S')] Installing flux ${COL_RES}"
+  helm upgrade -i -n flux-system --create-namespace flux oci://ghcr.io/fluxcd-community/charts/flux2 \
+    --version 2.17.2 \
+    --set imageAutomationController.create=false \
+    --set imageReflectionController.create=false \
+    --set notificationController.create=false \
+    --set-json 'helmController.container.additionalArgs=["--concurrent=50"]' \
+    --set-json 'sourceController.container.additionalArgs=["--requeue-dependency=5s"]' > /dev/null 2>&1
+
+  kubectl wait --namespace flux-system \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT helm-controller > /dev/null 2>&1
+  kubectl wait --namespace flux-system \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT source-controller > /dev/null 2>&1
+  kubectl wait --namespace flux-system \
+    --for=condition=available deployment \
+    --timeout=$KUBECTL_WAIT_TIMEOUT kustomize-controller > /dev/null 2>&1
+
+  # Run post-flux hook if it exists (Flux is ready at this point)
+  if [ -f "$SCRIPT_DIR/post-flux-hook.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running post-flux hook ${COL_RES}"
+    source "$SCRIPT_DIR/post-flux-hook.sh"
+  fi
+fi
+
+###############################################################################
+# Install KRO / OCM
+###############################################################################
+
+if [ "$REMOTE" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install OCM, namespaces and KRO on infra cluster ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/kro
+
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT kro
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install OCM and namespaces on runtime cluster ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/ocm-k8s-toolkit
+
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
+else
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install KRO and OCM ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/base
+
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT kro
+
+  kubectl wait --namespace default \
+    --for=condition=Ready helmreleases \
+    --timeout=$KUBECTL_WAIT_TIMEOUT ocm-k8s-toolkit
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
+  create_domain_secrets
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
+  kubectl apply -k $SCRIPT_DIR/../kustomize/base/rgd
+  kubectl wait --namespace default \
+    --for=condition=Ready resourcegraphdefinition \
+    --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+fi
+
+###############################################################################
+# Prerelease / OCM version setup
+###############################################################################
+
+if [ "$PRERELEASE" = true ]; then
+  if [ "$REMOTE" = true ]; then
+    export KUBECONFIG=.secret/platform-mesh.kubeconfig
+  fi
+  run_prerelease_setup
+  if [ "$REMOTE" = true ]; then
+    unset KUBECONFIG
+  fi
+else
+  echo -e "${COL}[$(date '+%H:%M:%S')] Using OCM Component version: ${PLATFORM_MESH_VERSION} ${COL_RES}"
+  if [ "$REMOTE" != true ]; then
+    export PLATFORM_MESH_VERSION
+    kubectl kustomize "$SCRIPT_DIR/../kustomize/overlays/default" \
+      | yq '(select(.kind == "Component" and .metadata.name == "platform-mesh") | .spec.semver) = strenv(PLATFORM_MESH_VERSION)' \
+      | kubectl apply -f -
+  fi
+fi
+
+# For non-remote: wait for PlatformMeshOperator
+if [ "$REMOTE" != true ]; then
+  kubectl wait --namespace platform-mesh-system \
+    --for=condition=Ready PlatformMeshOperator \
+    --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+  kubectl wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
+fi
+
+###############################################################################
+# Remote: namespace + kubeconfig sharing between clusters
+###############################################################################
+
+if [ "$REMOTE" = true ]; then
+  export RUNTIME_CLUSTER_IP=$(${CONTAINER_RUNTIME} inspect platform-mesh-control-plane | jq '.[0].NetworkSettings.Networks.kind.IPAddress' -r)
+  echo -e "${COL}[$(date '+%H:%M:%S')] Runtime cluster IP: ${RUNTIME_CLUSTER_IP} ${COL_RES}"
+  # Create a tmp kubeconfig with the runtime node IP for consumers that need port 6443.
+  cp .secret/platform-mesh.kubeconfig .secret/platform-mesh.kubeconfig.tmp
+  kubectl config set-cluster kind-platform-mesh \
+    --server=https://$RUNTIME_CLUSTER_IP:6443 \
+    --kubeconfig=.secret/platform-mesh.kubeconfig.tmp
+  # Create early so the operator's volume mount succeeds on first start.
+  kubectl create secret generic platform-mesh-kubeconfig -n platform-mesh-system \
+    --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
+  kubectl create secret generic platform-mesh-kubeconfig -n default \
+    --from-file=kubeconfig=.secret/platform-mesh.kubeconfig.tmp --dry-run=client -o yaml | kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -f -
+fi
+
+###############################################################################
+# Create secrets
+###############################################################################
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Creating necessary secrets ${COL_RES}"
+
+if [ "$REMOTE" = true ]; then
+  if [ ! -f "$SCRIPT_DIR/../webhook-config/ca.crt" ]; then
+    (cd "$SCRIPT_DIR/../.." && ./development/scripts/gen-certs.sh)
+  fi
+  kubectl create secret tls iam-authorization-webhook-webhook-ca -n platform-mesh-system --key $SCRIPT_DIR/../webhook-config/ca.key --cert $SCRIPT_DIR/../webhook-config/ca.crt --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
+fi
+kubectl create secret generic keycloak-admin -n platform-mesh-system --from-literal=secret=admin --dry-run=client -o yaml | kubectl "${RUNTIME_KC[@]}" apply -f -
+
+create_domain_secrets "${RUNTIME_KC[@]}"
+
+###############################################################################
+# Remote: CRDs, port-fixer, RGD setup
+###############################################################################
+
+if [ "$REMOTE" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh CRDs ${COL_RES}"
+  # The CRD kustomization references files outside its directory (../../../../charts/...)
+  # so the resulting list of files must be rendered with the relaxed load restriction.
+  kubectl kustomize --load-restrictor=LoadRestrictionsNone $SCRIPT_DIR/../kustomize/base/platform-mesh-operator-crds \
+    | kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -f -
+  sleep 5
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=120s
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install port-fixer on platform-mesh cluster ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/port-fixer
+
+  kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/namespaces
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator RGD on infra cluster ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig apply -k $SCRIPT_DIR/../kustomize/base/rgd
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --namespace default \
+    --for=condition=Ready resourcegraphdefinition \
+    --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+fi
+
+###############################################################################
+# Install Platform-Mesh resource overlays
+###############################################################################
+
+if [ "$REMOTE" = true ]; then
+  if [ "$PRERELEASE" = true ]; then
+    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+  elif [ "$EXAMPLE_DATA" = true ]; then
+    # Apply default profile to runtime cluster
+    envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
+    kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-runtime
+    kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-${DEPLOYMENT_TECH}
+  else
+    kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
+  fi
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Operator ${COL_RES}"
+
+  if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+    setup_argocd
+    # Reset namespace context back to default after ArgoCD setup (which sets it to argocd)
+    kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig \
+      config set-context kind-platform-mesh-infra --namespace=default
+  fi
+
+  kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/overlays/infra
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for Platform-Mesh Operator ${COL_RES}"
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait \
+    --namespace platform-mesh-system \
+    --for=condition=Ready PlatformMeshOperator \
+    --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh-operator
+  kubectl --kubeconfig .secret/platform-mesh-infra.kubeconfig wait --for=condition=Established crd/platformmeshes.core.platform-mesh.io --timeout=$KUBECTL_WAIT_TIMEOUT
+
+  kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/runtime
+
+  # Re-apply Platform-Mesh resource after operator setup
+  echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh Runtime resource ${COL_RES}"
+  if [ "$PRERELEASE" = true ]; then
+    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+  elif [ "$EXAMPLE_DATA" = true ]; then
+    # Apply profile without example-data patch; the overlay is applied later once
+    # the KCP workspace exists to avoid a reconciliation failure on the operator.
+    envsubst_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}/default-profile.yaml
+    kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-runtime
+    # Apply infra-side example-data resources (HelmReleases for fluxcd, ArgoCD
+    # Applications for argocd) to INFRA cluster.
+    kustomize_apply --kubeconfig .secret/platform-mesh-infra.kubeconfig $SCRIPT_DIR/../kustomize/components/example-httpbin-provider-${DEPLOYMENT_TECH}
+  else
+    kustomize_apply --kubeconfig .secret/platform-mesh.kubeconfig $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-${DEPLOYMENT_TECH}
+  fi
+
+else
+  # Apply PlatformMesh resource: use hook if available, otherwise use default overlay logic
+  if [ -f "$SCRIPT_DIR/platform-mesh-resource-hook.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running platform-mesh-resource hook ${COL_RES}"
+    source "$SCRIPT_DIR/platform-mesh-resource-hook.sh"
+  elif [ "$PRERELEASE" = true ]; then
+    if [ "$SHARDED" = true ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease sharded) ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease-sharded
+    else
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (prerelease) ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-prerelease
+    fi
+  else
+    if [ "$SHARDED" = true ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh (sharded) ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource-sharded
+    else
+      echo -e "${COL}[$(date '+%H:%M:%S')] Install Platform-Mesh ${COL_RES}"
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/platform-mesh-resource
+    fi
+  fi
+fi
+
+###############################################################################
+# Wait for PlatformMesh resource to become ready
+###############################################################################
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for kind: PlatformMesh resource to become ready ${COL_RES}"
+if [[ -n "$CI" ]]; then
+    # Dedupe consecutive watch lines per object.
+    # kubectl emits a row on every resourceVersion bump, we only want rows where status columns changed.
+    # TIME is stripped from the comparison so a refreshed transition time without a status change doesn't reprint.
+    # Key is $2 $3 (NS+NAME for HR, NAME+READY for PM).
+    dedupe_by_object() {
+        awk '{ rest=$0; sub(/^[^ ]+ +/, "", rest); key=$2 FS $3; if (rest != last[key]) { print; last[key]=rest } fflush() }'
+    }
+
+    # Background watcher: log HelmRelease ready-state transitions while we wait,
+    # so the slow chart is visible in CI logs.
+    HR_READY_CONDITION='.status.conditions[?(@.type=="Ready")]'
+    HR_COLUMNS="TIME:${HR_READY_CONDITION}.lastTransitionTime"
+    HR_COLUMNS+=",NS:.metadata.namespace"
+    HR_COLUMNS+=",NAME:.metadata.name"
+    HR_COLUMNS+=",READY:${HR_READY_CONDITION}.status"
+    HR_COLUMNS+=",REASON:${HR_READY_CONDITION}.reason"
+    kubectl "${RUNTIME_KC[@]}" get hr -A -w -o "custom-columns=$HR_COLUMNS" | dedupe_by_object &
+    HR_WATCHER_PID=$!
+
+    # Background watcher: log PlatformMesh ready-state transitions alongside.
+    PM_READY_CONDITION='.status.conditions[?(@.type=="Ready")]'
+    PM_COLUMNS="TIME:${PM_READY_CONDITION}.lastTransitionTime"
+    PM_COLUMNS+=",NAME:.metadata.name"
+    PM_COLUMNS+=",READY:${PM_READY_CONDITION}.status"
+    PM_COLUMNS+=",REASON:${PM_READY_CONDITION}.reason"
+    PM_COLUMNS+=",MESSAGE:${PM_READY_CONDITION}.message"
+    kubectl "${RUNTIME_KC[@]}" get platformmesh -n platform-mesh-system -w -o "custom-columns=$PM_COLUMNS" | dedupe_by_object &
+    PM_WATCHER_PID=$!
+
+    trap "kill $HR_WATCHER_PID $PM_WATCHER_PID 2>/dev/null || true" EXIT
+fi
+
+wait_for_pm() {
+    kubectl "${RUNTIME_KC[@]}" wait --namespace platform-mesh-system \
+      --for=condition=Ready platformmesh \
+      --timeout=$KUBECTL_WAIT_TIMEOUT platform-mesh || return 1
+
+    if [[ -n "$CI" ]]; then
+        sleep 10
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" component --all -A || return 1
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" resource --all -A || return 1
+        kubectl "${RUNTIME_KC[@]}" wait --for=condition=ready --timeout="$KUBECTL_WAIT_TIMEOUT" hr --all -A || return 1
+        # Remote: ArgoCD deploys to the runtime cluster asynchronously; targeted waits
+        # happen in the post-install section below.
+        if [[ "$REMOTE" != true ]]; then
+            kubectl "${RUNTIME_KC[@]}" wait --for=condition=Available --timeout="$KUBECTL_WAIT_TIMEOUT" deployment --all -A || return 1
+        fi
+    fi
+}
+
+# If the wait hits timeout dump information for later analysis to see what blocked
+if ! wait_for_pm; then
+    RUNTIME_KUBECONFIG="${RUNTIME_KC[1]:-}" "$SCRIPT_DIR/dump-diagnostics.sh"
+    show_help_pointer
+    exit 1
+fi
+
+if [[ -n "$HR_WATCHER_PID" ]]; then
+    kill $HR_WATCHER_PID $PM_WATCHER_PID 2>/dev/null || true
+    trap - EXIT
+fi
+
+###############################################################################
+# Remote: post-install waits
+###############################################################################
+
+if [ "$REMOTE" = true ]; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for ${DEPLOYMENT_TECH} resources ${COL_RES}"
+  wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system rebac-authz-webhook
+  wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system account-operator
+  wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system portal
+  wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system security-operator
+fi
+
+###############################################################################
+# KCP admin kubeconfig
+###############################################################################
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Preparing KCP Secrets for admin access ${COL_RES}"
+$SCRIPT_DIR/createKcpAdminKubeconfig.sh
+
+# Run post-platform-mesh hook if it exists (PlatformMesh is ready, kcp is accessible)
+if [ -f "$SCRIPT_DIR/post-platform-mesh-hook.sh" ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Running post-platform-mesh hook ${COL_RES}"
+    KCP_KUBECONFIG="$(pwd)/.secret/kcp/admin.kubeconfig" source "$SCRIPT_DIR/post-platform-mesh-hook.sh"
+fi
+
+###############################################################################
+# Example data
+###############################################################################
+
+if [ "$EXAMPLE_DATA" = true ]; then
+  if [ "$REMOTE" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data resources. ${COL_RES}"
+  else    # Apply example-data overlay now that PlatformMesh is ready (non-remote only)
+    echo -e "${COL}[$(date '+%H:%M:%S')] Applying example-data overlay ${COL_RES}"
+    if [ "$SHARDED" = true ]; then
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-sharded
+    else
+      kubectl apply -k $SCRIPT_DIR/../kustomize/overlays/example-data
+    fi
+  fi
+
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace providers --type=root:providers --ignore-existing --server="${KCP_URL}/clusters/root"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace httpbin-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/httpbin-provider --server="${KCP_URL}/clusters/root:providers:httpbin-provider"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace kro-provider --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/providers/kro-provider --server="${KCP_URL}/clusters/root:providers:kro-provider"
+
+  if [ "$REMOTE" = false ] && [ "$CERT_MANAGER_MSP" = true ]; then
+    echo -e "${COL}[$(date '+%H:%M:%S')] Setting up cert-manager provider workspace ${COL_RES}"
+    KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl create-workspace cert-manager-provider \
+      --type=root:provider --ignore-existing --server="${KCP_URL}/clusters/root:providers"
+    KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply \
+      -k $SCRIPT_DIR/../example-data/root/providers/cert-manager-provider \
+      --server="${KCP_URL}/clusters/root:providers:cert-manager-provider"
+
+    kubectl patch platformmesh platform-mesh -n platform-mesh-system --type=json -p \
+      '[{"op":"add","path":"/spec/kcp/extraDefaultAPIBindings/-","value":{"workspaceTypePath":"root:account","export":"certmanager.ca","path":"root:providers:cert-manager-provider"}}]'
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] Cloning contrib-examples (fresh) ${COL_RES}"
+    CONTRIB_DIR="$(pwd)/.secret/contrib-examples"
+    rm -rf "$CONTRIB_DIR"
+    git clone --depth=1 https://github.com/platform-mesh/contrib-examples "$CONTRIB_DIR"
+
+    echo -e "${COL}[$(date '+%H:%M:%S')] Starting cert-manager MSP backing cluster ${COL_RES}"
+    BACKING_KC="$CONTRIB_DIR/msp-cert-manager/.kube/kind.kubeconfig"
+    mkdir -p "$CONTRIB_DIR/msp-cert-manager/.kcp"
+    ln -sf "$(pwd)/.secret/kcp/admin.kubeconfig" "$CONTRIB_DIR/msp-cert-manager/.kcp/admin.kubeconfig"
+
+    task --dir "$CONTRIB_DIR/msp-cert-manager" \
+      PROVIDER_WS=root:providers:cert-manager-provider \
+      KCP_EXTERNAL_HOST=kcp.api.portal.localhost \
+      kind:up kro:install certmanager:install syncagent:kubeconfig
+
+    # Fix kubeconfig port: syncagent runs in msp-cert-manager cluster and must reach PM kcp
+    # via Docker kind network (NodePort 31000), not the host port mapping (8443).
+    FIXED_KC="$(mktemp)"
+    kubectl --kubeconfig "$BACKING_KC" get secret kcp-kubeconfig -n kcp-system \
+      -o jsonpath='{.data.kubeconfig}' | base64 -d | \
+      sed 's|:8443/|:31000/|g' > "$FIXED_KC"
+    kubectl --kubeconfig "$BACKING_KC" create secret generic kcp-kubeconfig \
+      --namespace kcp-system --from-file "kubeconfig=$FIXED_KC" \
+      --dry-run=client -o yaml | kubectl --kubeconfig "$BACKING_KC" apply -f -
+    rm -f "$FIXED_KC"
+
+    # Add hostAliases so the syncagent pod resolves both kcp hostnames to the PM kind node, and
+    # redirect port 8443→31000 on the msp-cert-manager node so cross-cluster virtual workspace
+    # URLs (triton.kcp.localhost:8443) reach the NodePort that is actually accessible in the
+    # Docker kind network (port 31000 on the PM kind node, not the host-only 8443 mapping).
+    PM_NODE_IP="$(docker inspect platform-mesh-control-plane --format '{{.NetworkSettings.Networks.kind.IPAddress}}')"
+    docker exec msp-cert-manager-control-plane iptables -t nat -I PREROUTING \
+      -p tcp -d "$PM_NODE_IP" --dport 8443 -j DNAT --to-destination "${PM_NODE_IP}:31000"
+    cat > "$CONTRIB_DIR/msp-cert-manager/config/syncagent/values-override.yaml" <<VALEOF
+apiExportEndpointSliceName: certmanager.ca
+
+hostAliases:
+  enabled: true
+  values:
+    - ip: "${PM_NODE_IP}"
+      hostnames:
+        - kcp.api.portal.localhost
+        - triton.kcp.localhost
+VALEOF
+
+    helm repo add kcp https://kcp-dev.github.io/helm-charts --force-update >/dev/null
+    helm repo update >/dev/null
+    helm upgrade --install kcp-api-syncagent kcp/api-syncagent \
+      --version 0.6.0 \
+      --kubeconfig "$BACKING_KC" \
+      --namespace kcp-system --create-namespace \
+      --values "$CONTRIB_DIR/msp-cert-manager/config/syncagent/values.yaml" \
+      --values "$CONTRIB_DIR/msp-cert-manager/config/syncagent/values-override.yaml" \
+      --wait --timeout 180s
+
+    task --dir "$CONTRIB_DIR/msp-cert-manager" \
+      PROVIDER_WS=root:providers:cert-manager-provider \
+      syncagent:publish
+  fi
+
+  KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig kubectl apply -k $SCRIPT_DIR/../example-data/root/orgs --server="${KCP_URL}/clusters/root:orgs"
+
+  if [ "$REMOTE" = true ]; then
+    # Apply after the KCP workspace exists so extraDefaultAPIBindings resolves.
+    kubectl --kubeconfig .secret/platform-mesh.kubeconfig apply -k $SCRIPT_DIR/../kustomize/overlays/example-data-remote
+  fi
+
+  echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for example provider ${COL_RES}"
+
+  if [ "$REMOTE" = true ]; then
+    # Resources are on infra cluster, targeting runtime cluster
+    if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd api-syncagent
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd example-httpbin-provider
+    else
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system api-syncagent
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system example-httpbin-provider
+    fi
+  else
+    kubectl wait --namespace platform-mesh-system \
+      --for=condition=Ready helmreleases \
+      --timeout=$KUBECTL_WAIT_TIMEOUT api-syncagent
+
+    kubectl wait --namespace platform-mesh-system \
+      --for=condition=Ready helmreleases \
+      --timeout=$KUBECTL_WAIT_TIMEOUT example-httpbin-provider
+
+    if [ "$CERT_MANAGER_MSP" = true ]; then
+      echo -e "${COL}[$(date '+%H:%M:%S')] Waiting for cert-manager syncagent ${COL_RES}"
+      BACKING_KC="$(pwd)/.secret/contrib-examples/msp-cert-manager/.kube/kind.kubeconfig"
+      kubectl --kubeconfig "$BACKING_KC" rollout status \
+        deploy/kcp-api-syncagent -n kcp-system --timeout=$KUBECTL_WAIT_TIMEOUT
+    fi
+  fi
+fi
+
+echo -e "${COL}[$(date '+%H:%M:%S')] Verifying backend resources ${COL_RES}"
+WAIT_TIMEOUT=120s "$SCRIPT_DIR/check-backend-resources.sh"
+
+echo -e "${YELLOW}⚠️  NOTE: Organization subdomains like <organization-name>.portal.localhost are resolved automatically by modern browsers.${COL_RES}"
+echo -e "${YELLOW}   No /etc/hosts entries are needed for browser access.${COL_RES}"
+show_wsl_hosts_guidance
+
+echo -e "${COL}Once kcp is up and running, run '\033[0;32mexport KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig\033[0m' to gain access to the root workspace.${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Saving kcp root CA certificate ${COL_RES}"
+kubectl "${RUNTIME_KC[@]}" -n platform-mesh-system get secret root-ca -oyaml | yq '.data["ca.crt"]' | base64 -d > $SCRIPT_DIR/certs/root-ca.crt
+
+echo -e "${YELLOW}⚠️  Add the following entry to /etc/hosts if not already present:${COL_RES}"
+echo 'echo "127.0.0.1 kcp.root.localhost" | sudo tee -a /etc/hosts'
+
+if [ "$BUILD_LOCAL" = true ]; then
+  INSTALLED_PLATFORM_MESH_VERSION="locally built"
+else
+  INSTALLED_PLATFORM_MESH_VERSION="${PLATFORM_MESH_VERSION} (pinned)"
+fi
+
+echo -e "${COL}-------------------------------------${COL_RES}"
+echo -e "${COL}[$(date '+%H:%M:%S')] Installation Complete ${RED}♥${COL} !${COL_RES}"
+echo -e "${COL}Platform Mesh version: ${INSTALLED_PLATFORM_MESH_VERSION}${COL_RES}"
+echo -e "${COL}-------------------------------------${COL_RES}"
+echo -e "${COL}You can access the onboarding portal at: https://portal.localhost:8443 ${COL_RES}"
+
+
+if ! git diff --quiet $SCRIPT_DIR/../kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml; then
+  echo -e "${COL}[$(date '+%H:%M:%S')] Detected changes in platform-mesh-operator-resource/platform-mesh.yaml${COL_RES}"
+  echo -e "${COL}[$(date '+%H:%M:%S')] You may need to run task dev-setup to apply them.${COL_RES}"
+fi
+
+exit 0

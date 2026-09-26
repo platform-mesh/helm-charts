@@ -260,7 +260,7 @@ PR checks run automatically via `.github/workflows/pr-checks.yml` when chart fil
 ## Step 5: Profile / PlatformMesh Resource Configuration
 
 Add your service to the default profile ConfigMap at:
-`local-setup/kustomize/components/platform-mesh-operator-resource/default-profile.yaml`
+`development/kustomize/components/platform-mesh-operator-resource/default-profile.yaml`
 
 ### Service Declaration
 
@@ -337,7 +337,7 @@ a chart default.
 
 These are Go-template placeholders rendered by the platform-mesh-operator **at reconcile time**, from
 `spec.exposure` on the PlatformMesh CR
-(`local-setup/kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml`):
+(`development/kustomize/components/platform-mesh-operator-resource/platform-mesh.yaml`):
 
 ```yaml
 spec:
@@ -372,11 +372,11 @@ applied, using the runtime cluster's IP. It is only relevant to remote (two-clus
 
 ## Step 6: Local Build Registration
 
-To test your service locally with `task local-setup`, register it in the build scripts.
+To test your service locally with `task dev-setup`, register it in the build scripts.
 
 ### Add to Local Charts List
 
-In `local-setup/scripts/ocm-build-local-charts.sh`, add your chart to `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS`:
+In `development/scripts/ocm-build-local-charts.sh`, add your chart to `CUSTOM_LOCAL_COMPONENTS_CHART_PATHS`:
 
 ```bash
 CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
@@ -387,7 +387,7 @@ CUSTOM_LOCAL_COMPONENTS_CHART_PATHS=(
 
 ### Add Version Resolution
 
-In `local-setup/scripts/ocm-build-component.sh`, add a version resolution call in the `resolve_component_versions()` function:
+In `development/scripts/ocm-build-component.sh`, add a version resolution call in the `resolve_component_versions()` function:
 
 ```bash
 get_component_version my-service github.com/platform-mesh/my-service charts/my-service MY_SERVICE_VERSION
@@ -411,7 +411,7 @@ After completing all the above steps:
 
 ```sh
 # Reuses an existing cluster if there is one, otherwise sets one up from scratch
-task local-setup
+task dev-setup
 
 # Just rebuild and redeploy OCM component
 task ocm:build ocm:apply
@@ -439,4 +439,4 @@ Use this checklist when adding a new service:
 - [ ] **Image pipeline** — image repo publishes to `ghcr.io/platform-mesh/my-service`
 - [ ] **Version update automation** — Renovate or workflow dispatch configured for appVersion bumps
 - [ ] **Chart version bumped** — run `task update-changed` if other charts depend on yours
-- [ ] **Local test passed** — verified with `task local-setup`
+- [ ] **Local test passed** — verified with `task dev-setup`

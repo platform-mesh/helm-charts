@@ -13,7 +13,7 @@ vars:
   GOARCH:
     sh: go env GOARCH
   OCM_VERSION:
-    sh: sed -nE 's/.*OCM_VERSION:-([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' local-setup/scripts/ocm-setup.sh
+    sh: sed -nE 's/.*OCM_VERSION:-([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' development/scripts/ocm-setup.sh
   COMPONENT_PRERELEASE_VERSION: "1.0.0"
   CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
     - account-operator: charts/account-operator
@@ -64,7 +64,7 @@ tasks:
   setup:ocm:
     internal: true
     cmds:
-      - ./local-setup/scripts/ocm-setup.sh
+      - ./development/scripts/ocm-setup.sh
   setup:mkbin:
     internal: true
     cmds:
@@ -130,9 +130,9 @@ tasks:
         helm upgrade --install oci-registry twuni/docker-registry -n registry --set service.port=443 --set tlsSecretName=domain-certificate --set image.repository=ghcr.io/distribution/distribution --set image.tag=3.0.0 --set ingress.enabled=false
 
         kubectl create secret generic domain-certificate -n registry \
-          --from-file=tls.crt=./local-setup/scripts/certs/cert.crt \
-          --from-file=tls.key=./local-setup/scripts/certs/cert.key \
-          --from-file=ca.crt=./local-setup/scripts/certs/ca.crt \
+          --from-file=tls.crt=./development/scripts/certs/cert.crt \
+          --from-file=tls.key=./development/scripts/certs/cert.key \
+          --from-file=ca.crt=./development/scripts/certs/ca.crt \
           --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
 
         kubectl wait --namespace registry \
@@ -148,19 +148,19 @@ tasks:
     deps:
       - task: setup:ocm
     cmds:
-      - ./local-setup/scripts/ocm-build-local-charts.sh
+      - ./development/scripts/ocm-build-local-charts.sh
 
   ocm:configure:tls:
     internal: true
     desc: Apply ocm-k8s-toolkit patch to support oci registry with self-signed certs
     cmds:
-      - local-setup/scripts/configureOcmTls.sh
+      - development/scripts/configureOcmTls.sh
 
   ocm:build:component:
     aliases:
       - ocm:build
     cmds:
-      - ./local-setup/scripts/ocm-build-component.sh
+      - ./development/scripts/ocm-build-component.sh
 
   ocm:deploy:transfer-pod:
     internal: true
@@ -206,10 +206,10 @@ tasks:
       - kind export kubeconfig -n platform-mesh
       - |
         echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
-        yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
+        yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' development/kustomize/overlays/ocm-prerelease/prerelease-component.yml
 
       - |
-        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
+        kubectl apply -k development/kustomize/overlays/ocm-prerelease
         echo "Applied kustomize overlay"
       - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
@@ -223,7 +223,7 @@ tasks:
   ocm:check-images:
     desc: Check which images are OCM-managed vs unmanaged on the cluster
     cmds:
-      - ./local-setup/scripts/check-ocm-images.sh
+      - ./development/scripts/check-ocm-images.sh
 
   ocm:build-apply:iterate:
     cmds:
@@ -258,7 +258,7 @@ tasks:
   test:portal-e2e:setup:
     run: once
     internal: true
-    dir: local-setup/e2e
+    dir: development/e2e
     cmds:
       - npm ci
       - npx playwright install chromium ffmpeg
@@ -269,7 +269,7 @@ tasks:
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: development/e2e
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
 
@@ -288,7 +288,7 @@ tasks:
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: development/e2e
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-marketplace-ui.test.ts {{if .HEADED}}--headed{{end}}
 
@@ -298,7 +298,7 @@ tasks:
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: development/e2e
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
 
@@ -308,7 +308,7 @@ tasks:
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: development/e2e
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
 
@@ -326,7 +326,7 @@ tasks:
     vars:
       TEST_RUN_ID: '{{.TEST_RUN_ID | default (now | unixEpoch | printf "%.8s")}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: development/e2e
     cmds:
       - VIDEO=true SKIP_INVITE=true TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD=root npx playwright test test-register-and-navigate.test.ts
       - VIDEO=true SKIP_INVITE=true TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD=triton npx playwright test test-register-and-navigate.test.ts
@@ -339,7 +339,7 @@ tasks:
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: development/e2e
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
 
@@ -419,23 +419,25 @@ tasks:
       SKIP_INVITE: '{{.SKIP_INVITE | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: development/e2e
     cmds:
       - TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD={{.SHARDING_ORG_SHARD}} {{if .SHARDING_ACCOUNT_SHARDS}}SHARDING_ACCOUNT_SHARDS={{.SHARDING_ACCOUNT_SHARDS}} {{end}}{{if .SKIP_INVITE}}SKIP_INVITE={{.SKIP_INVITE}} {{end}}npx playwright test test-register-and-navigate.test.ts {{if .HEADED}}--headed{{end}}
 
   test:backend-resources:
     cmds:
-      - ./local-setup/scripts/check-backend-resources.sh
+      - ./development/scripts/check-backend-resources.sh
 
-  test:local-setup:
+  test:dev-setup:
+    aliases: [test:local-setup]
     desc: Run backend resource checks and portal e2e tests
     cmds:
       - task: test:backend-resources
       - task: test:portal-e2e
 
-  local-setup:
-    desc: "Local setup. Sharded and reuse-existing-cluster (--iterate) are on by default; pass start.sh flags after --, e.g. task local-setup -- --iterate=false --sharded=false"
+  dev-setup:
+    aliases: [local-setup]
+    desc: "Developer setup on a local kind cluster. Pinned mode (default) pulls the published OCM aggregate; pass -- --local-build to use local-build mode. Sharded and reuse-existing-cluster (--iterate) are on by default; pass start.sh flags after --, e.g. task dev-setup -- --local-build --sharded=false"
     deps:
       - task: setup:mkcert
     cmds:
-      - ./local-setup/scripts/start.sh {{.CLI_ARGS}}
+      - ./development/scripts/start.sh {{.CLI_ARGS}}
