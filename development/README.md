@@ -9,6 +9,38 @@ It is meant for **local evaluation and contributor development**. For deploying
 Platform Mesh onto a real Kubernetes cluster, use the production
 [Installation guide](../installation/README.md) instead.
 
+## Operator-managed installation
+
+The `platform-mesh-operator` manages the complete Platform Mesh installation.
+Users are responsible for deploying the operator and providing the appropriate
+configuration. The operator may be deployed through KRO, as in this setup, or
+directly with its Helm chart. Once it is running and configured, it installs and
+configures the remaining services. This process normally completes within a few
+minutes.
+
+Configuration has two sources:
+
+- The profile ConfigMap contains the complete service landscape configuration.
+  The supplied profile is a starting point that advanced users can customize or
+  replace with a profile built from scratch.
+- The `PlatformMesh` custom resource contains installation-specific settings and
+  is where most user changes should be made.
+
+The operator combines these sources and applies the resulting configuration
+across all services. Do not edit generated HelmReleases, Argo CD Applications,
+or individual service values directly; make those changes in the profile or the
+`PlatformMesh` resource instead.
+
+Monitor installation progress through the status conditions of the
+`PlatformMesh` resource. Errors reported during startup are often transient
+because services depend on one another and become ready at different times. In
+most environments, the resource should report `Ready=True` within ten minutes.
+When it does, Platform Mesh has been installed successfully. Persistent errors
+after that period should be investigated using the condition messages.
+
+For details about the operator's behavior and managed resources, see the
+[platform-mesh-operator documentation](https://github.com/platform-mesh/platform-mesh/tree/main/operators/platform-mesh-operator).
+
 ## Two modes
 
 The Developer setup runs in one of two modes, selected by whether you build the OCM
