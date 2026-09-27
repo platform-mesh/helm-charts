@@ -155,6 +155,7 @@ spec:
               - localhost
               - kcp.localhost
               - root.kcp.localhost
+              - root.kcp.portal.localhost
               - nereus.kcp.localhost
               - triton.kcp.localhost
               - kcp.api.portal.localhost

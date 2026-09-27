@@ -6,6 +6,18 @@ metadata:
 data:
   profile.yaml: |
     components:
+      # Keep all in-cluster clients on the same runtime-cluster host mappings.
+      hostAliasesEntries: &hostAliasesEntries
+        - ip: "{{ .traefikClusterIP }}"
+          hostnames:
+            - "localhost"
+            - "{{ .baseDomain }}"
+            - "kcp.localhost"
+            - "root.kcp.localhost"
+            - "kcp.api.{{ .baseDomain }}"
+            - "root.kcp.{{ .baseDomain }}"
+            - "nereus.kcp.localhost"
+            - "triton.kcp.localhost"
       deploymentTechnology: argocd
       destinationServer: https://${RUNTIME_CLUSTER_IP}:6443
       iamWebhookCA: null
@@ -34,6 +46,7 @@ data:
           values:
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             crds:
               enabled: false
             kcp:
@@ -62,6 +75,7 @@ data:
               enabled: false
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             kcp:
               enabled: true
               kubeconfigSecret: extension-manager-operator-kubeconfig
@@ -249,6 +263,52 @@ data:
               enabled: true
             gatewayApi:
               enabled: true
+              listeners:
+              - name: terminate
+                hostname: "{{ .baseDomain }}"
+                port: 8443
+                protocol: HTTPS
+                tls:
+                  mode: Terminate
+                  certificateRefs:
+                  - group: ""
+                    kind: Secret
+                    name: domain-certificate
+                    namespace: platform-mesh-system
+              - name: terminate-wildstar
+                hostname: "*.{{ .baseDomain }}"
+                port: 8443
+                protocol: HTTPS
+                tls:
+                  mode: Terminate
+                  certificateRefs:
+                  - group: ""
+                    kind: Secret
+                    name: domain-certificate
+                    namespace: platform-mesh-system
+              - name: passthrough
+                port: 8443
+                protocol: TLS
+                tls:
+                  mode: Passthrough
+                allowedRoutes:
+                  namespaces:
+                    from: All
+              listenersExtra:
+              - name: terminate-services
+                hostname: "*.services.{{ .baseDomain }}"
+                port: 8443
+                protocol: HTTPS
+                tls:
+                  mode: Terminate
+                  certificateRefs:
+                  - group: ""
+                    kind: Secret
+                    name: domain-certificate
+                    namespace: platform-mesh-system
+                allowedRoutes:
+                  namespaces:
+                    from: All
             hostAliases:
               enabled: true
               entries:
@@ -259,6 +319,7 @@ data:
                 - "kcp.localhost"
                 - "root.kcp.localhost"
                 - "kcp.api.{{ .baseDomain }}"
+                - "root.kcp.{{ .baseDomain }}"
                 - "nereus.kcp.localhost"
                 - "triton.kcp.localhost"
             istio:
@@ -280,6 +341,7 @@ data:
               image:
                 tag: v0.33.0
               rootShard:
+                hostname: root.kcp.{{ .baseDomain }}
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
               shards: []
@@ -290,6 +352,7 @@ data:
                 hostname: https://{{ .baseDomainPort }}/keycloak/
                 enabled: true
                 caSecret: domain-certificate-ca
+                httpEnabled: true
                 db:
                   password: keycloak-password
                 admin:
@@ -456,6 +519,7 @@ data:
               enabled: true
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             istio:
               enabled: false
             kubeConfig:
@@ -636,6 +700,7 @@ data:
             frontendPort: '8443'
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             http:
               protocol: https
             kcp:
@@ -651,6 +716,7 @@ data:
           values:
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             certManager:
               createCA: true
               enabled: true
@@ -672,46 +738,34 @@ data:
             caSecret: domain-certificate-ca
             crds:
               enabled: false
-            fga:
-              inviteKeycloakBaseUrl: "https://{{ .baseDomainPort }}/keycloak"
-              target: openfga.platform-mesh-system.svc.cluster.local:8081
-              extraArgs:
-                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-                - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
-                - --idp-registration-allowed
-                - --set-default-password
-                - --domain-ca-lookup
-                - --development-allow-unverified-emails
-                - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
+            openfga:
+              endpoint: openfga.platform-mesh-system.svc.cluster.local:8081
+            keycloak:
+              baseUrl: 'https://{{ .baseDomainPort }}/keycloak'
+            idp:
+              smtp:
+                server: mailpit.platform-mesh-system.svc.cluster.local
+                port: "1025"
+                fromAddress: keycloak@{{ .baseDomain }}
+              additionalRedirectUrls:
+                - http://localhost:8000/callback*
+                - http://localhost:4300/callback*
+                - http://sub.localhost:4300/callback*
+              registrationAllowed: true
+              allowUnverifiedEmails: true
+              setDefaultPassword: true
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
-              extraArgs:
-                - --domain-ca-lookup
-                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-                - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
-                - --development-allow-unverified-emails
-                - --idp-additional-redirect-urls=http://localhost:8000/callback*,http://localhost:4300/callback*,http://sub.localhost:4300/callback*
-                - --idp-registration-allowed
             kubeconfigSecret: security-operator-kubeconfig
             log:
               level: debug
+              noJson: true
             operator:
               maxConcurrentReconciles: 1
               shutdownTimeout: 1m
-            system:
-              kubeconfigSecret: security-operator-kubeconfig
-              extraArgs:
-                - --domain-ca-lookup
-                - --idp-smtp-server=mailpit.platform-mesh-system.svc.cluster.local
-                - --idp-smtp-port=1025
-                - --idp-from-address=keycloak@portal.localhost
-                - --set-default-password
-                - --idp-registration-allowed
-                - --development-allow-unverified-emails
             terminator:
               kubeconfigSecret: security-terminator-kubeconfig
         virtual-workspaces:
@@ -728,6 +782,7 @@ data:
             virtualWorkspaceSecretName: virtual-workspaces-cert
             hostAliases:
               enabled: true
+              entries: *hostAliasesEntries
             deployment:
               serverUrl: "{{ .internalFrontProxyUrl }}"
               resourceSchemaName: "v250704-6d57f16.contentconfigurations.ui.platform-mesh.io"

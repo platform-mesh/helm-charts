@@ -928,8 +928,8 @@ VALEOF
   if [ "$REMOTE" = true ]; then
     # Resources are on infra cluster, targeting runtime cluster
     if [ "$DEPLOYMENT_TECH" = "argocd" ]; then
-      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd api-syncagent
-      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig argocd example-httpbin-provider
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system api-syncagent
+      wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system example-httpbin-provider
     else
       wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system api-syncagent
       wait_for_deployment_resource .secret/platform-mesh-infra.kubeconfig platform-mesh-system example-httpbin-provider
