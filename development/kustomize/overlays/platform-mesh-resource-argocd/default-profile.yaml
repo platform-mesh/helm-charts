@@ -343,6 +343,7 @@ data:
                 enabled: true
                 httpEnabled: true
                 caSecret: domain-certificate-ca
+                httpEnabled: true
                 db:
                   password: keycloak-password
                 admin:
