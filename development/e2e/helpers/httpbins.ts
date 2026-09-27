@@ -114,11 +114,11 @@ function ensureExampleHttpbinProviderWorkspace(): void {
   // on whichever cluster owns them.
   const waitKubectl = remoteMode ? runInfraKubectl : runRuntimeKubectl;
   if (remoteMode && detectRemoteDeploymentTech() === 'argocd') {
-    // ArgoCD Applications live in the argocd namespace, not platform-mesh-system.
+    // The platform-mesh operator watches Applications in platform-mesh-system.
     waitKubectl([
       'wait',
       '--namespace',
-      'argocd',
+      'platform-mesh-system',
       '--for=jsonpath={.status.health.status}=Healthy',
       'applications.argoproj.io',
       '--timeout=180s',
@@ -127,7 +127,7 @@ function ensureExampleHttpbinProviderWorkspace(): void {
     waitKubectl([
       'wait',
       '--namespace',
-      'argocd',
+      'platform-mesh-system',
       '--for=jsonpath={.status.health.status}=Healthy',
       'applications.argoproj.io',
       '--timeout=180s',
