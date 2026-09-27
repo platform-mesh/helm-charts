@@ -1,9 +1,9 @@
 dependencies:
 - name: prometheus
   repository: https://prometheus-community.github.io/helm-charts
-  version: 29.19.0
+  version: 29.31.1
 - name: common
   repository: oci://ghcr.io/platform-mesh/helm-charts
-  version: 0.15.0
-digest: sha256:e5612705f33fd6b7fea83d5e84c69701f72a995624a1900c827b6406502c6a15
-generated: "2026-09-21T14:34:31.914774118+02:00"
+  version: 0.15.1
+digest: sha256:95684d42ce0beb1fe94e9f8e09c5b959111409ebef90f56bbf45da3a0f66403d
+generated: "2026-09-27T03:49:20.388098345Z"
