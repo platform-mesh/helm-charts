@@ -338,6 +338,9 @@ data:
                 enabled: true
                 caSecret: domain-certificate-ca
                 httpEnabled: true
+              gatewayApi:
+                hostnames:
+                  - "{{ .baseDomain }}"
                 db:
                   password: keycloak-password
                 admin:
