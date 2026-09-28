@@ -148,10 +148,8 @@ export KUBECONFIG=$(pwd)/.secret/kcp/admin.kubeconfig
 
 ## Commands and Options
 
-All behavior is controlled by flags passed to `start.sh` after `--`, e.g.
-`task dev-setup -- --local-build --example-data --concurrent --sharded=false`.
-The task is `dev-setup` (the old name `local-setup` still works as an alias). For the
-full flag list, run `./development/scripts/start.sh --help`.
+Setup options are passed to `start.sh` after `--`. Run
+`task dev-setup -- --help` for the current list of supported flags.
 
 ### Version selection (pinned vs local-build)
 
@@ -180,19 +178,6 @@ task dev-setup -- --local-build
 
 `--local-build` is mutually exclusive with `PLATFORM_MESH_VERSION` (one builds from
 source, the other pulls a published version) and is not supported with `--remote`.
-
-### Common flags
-
-- **`--iterate=BOOL`** (default `true`): reuse an existing cluster and only rebuild/reapply
-  the OCM component — the fastest feedback loop. If no cluster exists yet, it falls
-  through to a full setup automatically. Iterate only rebuilds from the working tree, so
-  it is meaningful in local-build mode (`--local-build`). Pass `--iterate=false` to require a full
-  setup; if a cluster already exists, `start.sh` fails and asks you to delete it first
-  rather than guessing whether to reuse or replace it.
-- **`--concurrent`**: build charts in parallel instead of sequentially (faster on multi-core systems).
-- **`--sharded=BOOL`** (default `true`): deploy additional kcp shards alongside the root shard
-  to test multi-shard topologies. Pass `--sharded=false` for a single-shard setup.
-- **`--example-data`**: also deploy the HTTPBin example provider (requires the kubectl-kcp plugin).
 
 ### Remote (two-cluster) mode
 
@@ -488,42 +473,10 @@ After the setup is running, you can run end-to-end tests to verify portal functi
 
 **Using Task:**
 
+List all available test tasks and their descriptions with:
+
 ```sh
-# Run the full developer-setup integration suite
-task test:dev-setup
-
-# Run CLI checks for backend resource readiness
-task test:backend-resources
-
-# Run tests in headless mode
-task test:portal-e2e
-
-# Run the HTTPBin flow
-task test:portal-e2e:httpbins
-
-# Run the marketplace UI flow (default availability + UI lifecycle check)
-task test:portal-e2e:marketplace
-
-# Run the account kubeconfig flow
-task test:portal-e2e:account-kubeconfig
-
-# Run the authorization flow
-task test:portal-e2e:authorization
-
-# Run the account deletion flow
-task test:portal-e2e:deletion
-
-# Run tests with visible browser window
-task test:portal-e2e:headed
-
-# Run tests more slowly to watch each browser action
-SLOW_MO=500 task test:portal-e2e:headed
-
-# Run tests with video recording (saved to development/e2e/test-results/)
-task test:portal-e2e:video
-
-# Specify organization name (default: "default")
-ORG_NAME=myorg task test:portal-e2e
+task --list-all | grep "test:"
 ```
 
 **Without Task:**
@@ -549,27 +502,6 @@ npx playwright test test-register-and-navigate.test.ts
 - Namespace creation and HTTPBin creation in both `default` and `test`
 - Opening the HTTPBin endpoint and verifying it responds
 - Ready-condition checks for ContentConfigurations, Stores, IdentityProviderConfigurations, and WorkspaceTypes
-
-## Files and Scripts
-
-### Main scripts
-
-- `scripts/start.sh`: main bootstrap script
-- `scripts/check-environment.sh`: dependency validation
-- `scripts/check-wsl-compatibility.sh`: WSL2 compatibility checks
-- `scripts/gen-certs.sh`: SSL certificate generation
-- `scripts/createKcpAdminKubeconfig.sh`: kcp workspace access setup
-- `scripts/setup-prerelease.sh`: prerelease OCM component build and deployment
-- `scripts/setup-registry-proxies.sh`: Docker registry mirror configuration
-- `scripts/ocm-build-component.sh`: OCM component descriptor assembly
-- `scripts/ocm-build-local-charts.sh`: local chart packaging for prerelease builds
-- `scripts/check-backend-resources.sh`: post-setup resource readiness checks
-
-### Configuration
-
-- `kind/kind-config.yaml`: Kind cluster configuration
-- `kustomize/`: Kubernetes manifests and overlays
-- `webhook-config/`: authorization webhook certificates and configuration
 
 ## Troubleshooting
 
