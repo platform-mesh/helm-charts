@@ -12,7 +12,7 @@ openssl req -newkey rsa:2048 -nodes -keyout development/webhook-config/tls.key \
 
 openssl x509 -req \
   -days 365 \
-  -extfile <(printf "subjectAltName=IP:10.96.86.219") \
+  -extfile <(printf "subjectAltName=DNS:rebac-authz-webhook.platform-mesh-system.svc.cluster.local") \
   -in development/webhook-config/tls.csr \
   -CA development/webhook-config/ca.crt -CAkey development/webhook-config/ca.key -CAcreateserial \
   -out development/webhook-config/tls.crt 2>/dev/null

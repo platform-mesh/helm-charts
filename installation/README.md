@@ -84,7 +84,7 @@ KUBECONFIG=<path-to-kubeconfig> helm upgrade -i -n flux-system --create-namespac
 Generates all required secrets with random values. Safe to run multiple times (idempotent).
 
 ```bash
-NAMESPACE=platform-mesh-system bash installation/scripts/bootstrap.sh
+NAMESPACE=platform-mesh-system bash scripts/bootstrap.sh
 ```
 
 If you have an OpenSearch instance for the search-operator, set these before running:
@@ -93,12 +93,12 @@ If you have an OpenSearch instance for the search-operator, set these before run
 export OPENSEARCH_URL=https://opensearch.example.com:9200
 export OPENSEARCH_USERNAME=admin
 export OPENSEARCH_PASSWORD=<password>
-bash installation/scripts/bootstrap.sh
+bash scripts/bootstrap.sh
 ```
 
 ### 3. Set your base domain
 
-Edit `installation/kustomize/overlays/platform-mesh-resource/platform-mesh.yaml`:
+Edit `kustomize/overlays/platform-mesh-resource/platform-mesh.yaml`:
 
 ```yaml
 spec:
@@ -108,7 +108,7 @@ spec:
 
 ### 4. Set required values in the profile
 
-Edit `installation/kustomize/overlays/platform-mesh-resource/default-profile.yaml` and search for `REQUIRED`:
+Edit `kustomize/overlays/platform-mesh-resource/default-profile.yaml` and search for `REQUIRED`:
 
 **Keycloak hostname** (search `REPLACE_ME`):
 ```yaml
@@ -136,16 +136,16 @@ The PlatformMesh CRD does not exist on a fresh cluster, so applying the overlay 
 
 ```bash
 # Namespaces, KRO, OCM controller
-kubectl apply -k installation/kustomize/namespaces
-kubectl apply -k installation/kustomize/kro
-kubectl apply -k installation/kustomize/ocm-k8s-toolkit
+kubectl apply -k kustomize/namespaces
+kubectl apply -k kustomize/kro
+kubectl apply -k kustomize/ocm-k8s-toolkit
 
-kubectl apply -k installation/kustomize/ocm
+kubectl apply -k kustomize/ocm
 
 # PlatformMesh operator CRDs and operator itself
-kubectl apply -k installation/kustomize/platform-mesh-operator-crds
-kubectl apply -k installation/kustomize/rgd
-kubectl apply -k installation/kustomize/platform-mesh-operator
+kubectl apply -k kustomize/platform-mesh-operator-crds
+kubectl apply -k kustomize/rgd
+kubectl apply -k kustomize/platform-mesh-operator
 ```
 
 Wait for the platform-mesh-operator to become ready before proceeding.
@@ -153,7 +153,7 @@ Wait for the platform-mesh-operator to become ready before proceeding.
 ### 6. Apply the overlay
 
 ```bash
-kubectl apply -k installation/kustomize/overlays/platform-mesh-resource
+kubectl apply -k kustomize/overlays/platform-mesh-resource
 ```
 
 ## 7. DNS Records
