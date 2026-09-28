@@ -252,14 +252,6 @@ data:
                   - "{{ .baseDomain }}"
               keycloakConfig:
                 redirectUrls: ["http://localhost:8000/callback*"]
-            dex:
-              issuer: "https://{{ .baseDomainPort }}/dex"
-              gatewayApi:
-                hostnames:
-                  - "{{ .baseDomain }}"
-              staticClient:
-                redirectURIs:
-                  - "https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint"
             cnpg:
               enabled: true
               roles:
@@ -347,11 +339,7 @@ data:
               keycloakConfig:
                 url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
             dex:
-              enabled: true
-              issuer: https://{{ .baseDomainPort }}/dex
-              staticClient:
-                redirectURIs:
-                - https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint
+              enabled: false
             kcp:
               external:
                 hostname: kcp.api.{{ .baseDomain }}

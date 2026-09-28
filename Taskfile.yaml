@@ -78,12 +78,14 @@ tasks:
       - "./hack/lint-image-schema.sh"
       - "ct lint --target-branch main --chart-dirs=charts --validate-maintainers=false --chart-repos=bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts"
   helmtest:
+    desc: Run Helm unit tests for all selected charts
     cmds:
       - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm unittest $chart; done"
   helmtest-update:
     cmds:
       - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm unittest -u $chart; done"
   test:
+    desc: Run the chart test suite
     deps:
       - task: helmtest
   update-changed:
@@ -264,6 +266,7 @@ tasks:
       - npx playwright install chromium ffmpeg
 
   test:portal-e2e:httpbins:
+    desc: Run the portal HTTPBin provider end-to-end tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
@@ -274,6 +277,7 @@ tasks:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:marketplace:
+    desc: Run the portal marketplace end-to-end tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
@@ -283,6 +287,7 @@ tasks:
         vars: { ORG_NAME: '{{.ORG_NAME}}', TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME}}', HEADED: '{{.HEADED}}' }
 
   test:portal-e2e:marketplace-ui:
+    desc: Run the marketplace availability and provider lifecycle UI tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
@@ -293,6 +298,7 @@ tasks:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-marketplace-ui.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:account-kubeconfig:
+    desc: Run the account kubeconfig download and access tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
@@ -303,6 +309,7 @@ tasks:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:authorization:
+    desc: Run the portal authorization end-to-end tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
@@ -334,6 +341,7 @@ tasks:
       - VIDEO=true ORG_NAME=org-triton-{{.TEST_RUN_ID}} TEST_ACCOUNT_NAME=acc-triton-{{.TEST_RUN_ID}} npx playwright test portal-*.test.ts --workers=1
 
   test:portal-e2e:deletion:
+    desc: Run the account deletion end-to-end tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
@@ -424,6 +432,7 @@ tasks:
       - TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD={{.SHARDING_ORG_SHARD}} {{if .SHARDING_ACCOUNT_SHARDS}}SHARDING_ACCOUNT_SHARDS={{.SHARDING_ACCOUNT_SHARDS}} {{end}}{{if .SKIP_INVITE}}SKIP_INVITE={{.SKIP_INVITE}} {{end}}npx playwright test test-register-and-navigate.test.ts {{if .HEADED}}--headed{{end}}
 
   test:backend-resources:
+    desc: Check backend resources required by the developer setup
     cmds:
       - ./development/scripts/check-backend-resources.sh
 
