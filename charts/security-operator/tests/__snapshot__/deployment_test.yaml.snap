@@ -266,7 +266,7 @@ operator match the snapshot:
             - name: keycloak-password
               secret:
                 items:
-                  - key: secret
+                  - key: password
                     path: keycloak-password
                 secretName: keycloak-admin
             - name: external-api-server
@@ -1017,7 +1017,7 @@ operator match the snapshot w. sentry:
             - name: keycloak-password
               secret:
                 items:
-                  - key: secret
+                  - key: password
                     path: keycloak-password
                 secretName: keycloak-admin
             - name: keycloak-credentials

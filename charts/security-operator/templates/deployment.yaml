@@ -142,7 +142,7 @@ spec:
           secret:
             secretName: {{ .Values.keycloakSecret }}
             items:
-              - key: secret
+              - key: password
                 path: keycloak-password
         {{- end }}
         {{- if .Values.kubeconfigSecret }}
