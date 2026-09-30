@@ -9,9 +9,9 @@ on:
     branches:
       - main
     paths:
-    - 'local-setup/kustomize/overlays/example-data-remote/**'
-    - 'local-setup/kustomize/overlays/platform-mesh-resource-argocd/**'
-    - 'local-setup/kustomize/components/platform-mesh-operator-fluxcd/**'
+    - 'development/kustomize/overlays/example-data-remote/**'
+    - 'development/kustomize/overlays/platform-mesh-resource-argocd/**'
+    - 'development/kustomize/components/platform-mesh-operator-fluxcd/**'
     - '.github/workflows/kind-localsetup-remote.yaml'
 
 concurrency:
@@ -52,11 +52,11 @@ jobs:
           kubectl krew install oidc-login
       - name: Resolve third-party OCM versions
         id: ocm-versions
-        run: local-setup/scripts/ocm-resolve-thirdparty-versions.sh
+        run: development/scripts/ocm-resolve-thirdparty-versions.sh
       - name: Resolve platform-mesh OCM version
         id: pm-version
         run: |
-          source local-setup/scripts/ocm-setup.sh
+          source development/scripts/ocm-setup.sh
           setup_ocm_cli >/dev/null
           export_ocm_path
           VERSION=$(bin/ocm --config .ocm/config get componentversions --latest \
@@ -79,27 +79,27 @@ jobs:
           curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/download/v3.2.3/argocd-linux-amd64
           chmod +x /usr/local/bin/argocd
       - name: Generate webhook certs
-        run: local-setup/scripts/gen-certs.sh
+        run: development/scripts/gen-certs.sh
 
-      - name: Run remote local-setup (ArgoCD + example-data)
+      - name: Run remote dev-setup (ArgoCD + example-data)
         env:
           PLATFORM_MESH_VERSION: ${{ steps.pm-version.outputs.version }}
           DEBUG: true
         run: |
-          task local-setup -- --remote --deployment-tech=argocd --example-data
+          task dev-setup -- --remote --deployment-tech=argocd --example-data
 
       - name: Setup Node.js 22
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: '24'
           cache: 'npm'
-          cache-dependency-path: 'local-setup/e2e'
+          cache-dependency-path: 'development/e2e'
 
       - name: Cache Playwright browsers
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('local-setup/e2e/package-lock.json') }}
+          key: playwright-${{ runner.os }}-${{ hashFiles('development/e2e/package-lock.json') }}
 
       - name: Run remote e2e tests
         env:
@@ -109,7 +109,7 @@ jobs:
 
       - name: Dump cluster diagnostics
         if: failure()
-        run: local-setup/scripts/dump-diagnostics.sh
+        run: development/scripts/dump-diagnostics.sh
 
       - name: Upload runtime artifacts
         if: failure()
@@ -126,6 +126,6 @@ jobs:
         with:
           name: playwright-artifacts-remote
           path: |
-            local-setup/e2e/test-results/
-            local-setup/e2e/*.png
+            development/e2e/test-results/
+            development/e2e/*.png
           retention-days: 5

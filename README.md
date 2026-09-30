@@ -14,19 +14,16 @@ The helm-charts repository contains helm charts used for the deployment of platf
 - .github/workflows - GHA workflows to test, build and publish charts
 - .ocm - OCM component constructor files for individual component references
 - charts - a folder containing the HELM charts
+- installation - Installation: pure Helm/Kustomize manifests to deploy Platform Mesh to a Kubernetes cluster (the default path)
+- development - Developer setup: bring up Platform Mesh locally on kind, either from published components (PINNED, default) or built locally (DEV)
 - doc-templates - templates used to generate charts documentation
-- local-setup - scripts and manifest used to bootstrap a local developer instance of platform-mesh
 - Taskfile.yaml - script automation used by the [Taskfile](https://taskfile.dev/) cli
 
 ## Getting started
 
-- For running and building the local-setup, please refer to the [local-setup readme](local-setup/README.md) file in this repository.
+- **Installing Platform Mesh** (the default path): follow the [Installation guide](installation/README.md) to deploy to a Kubernetes cluster with Helm and Kustomize.
+- **Evaluating or developing locally**: follow the [Developer setup](development/README.md) to run Platform Mesh on a local kind cluster.
 - For adding a new service to PlatformMesh, see the [Adding a Service](docs/adding-a-service.md) guide.
-<!--
-TODO:
-- To deploy the Platform Mesh to kubernetes, please refer to ...
--->
-
 ## Releasing
 
 The release is performed automatically through a GitHub Actions Workflow.
@@ -46,7 +43,7 @@ The following is required to work with the helm charts in this repository:
 
 Please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) file in this repository for instructions on how to contribute to platform-mesh.
 
-For detailed instructions regarding local development see local-setup [README.md](local-setup/README.md) and [DEVELOPERS.md](local-setup/DEVELOPERS.md)
+For detailed instructions regarding local development see the Developer setup [README.md](development/README.md).
 
 ## Code of Conduct
 
