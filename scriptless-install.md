@@ -1,42 +1,18 @@
 # Scriptless Platform Mesh installation
 
-This creates a local kind cluster and installs the two cluster prerequisites:
-Flux and the OCM Kubernetes controller. It does not run a bootstrap script.
+This installs Platform Mesh without a bootstrap script. A Kubernetes cluster,
+Flux, and the OCM Kubernetes controller are prerequisites.
 
-## 1. Create the kind cluster
+## Prerequisites
 
-This configuration is self-contained; it does not depend on repository files.
-The development-only containerd registry-mirror configuration is deliberately
-omitted because this installation pulls its OCI artifacts directly.
+### Kind cluster
 
-```shell
-set -euo pipefail
+Create a Kind cluster before following this guide. For local Platform Mesh, it
+must expose Traefik's HTTPS NodePort on `127.0.0.1:8443` (host port `8443` to
+node port `31000`). The cluster creation method is intentionally outside this
+installation flow.
 
-# Delete this cluster first if it already exists: kind delete cluster --name platform-mesh
-kind create cluster \
-  --name platform-mesh \
-  --image kindest/node:v1.35.1 \
-  --config=- <<'EOF'
-apiVersion: kind.x-k8s.io/v1alpha4
-kind: Cluster
-networking:
-  apiServerAddress: "0.0.0.0"
-  kubeProxyMode: nftables
-nodes:
-  - role: control-plane
-    extraPortMappings:
-      - containerPort: 31000
-        hostPort: 8443
-        protocol: TCP
-        listenAddress: "127.0.0.1"
-      - containerPort: 32000
-        hostPort: 15021
-        protocol: TCP
-        listenAddress: "127.0.0.1"
-EOF
-```
-
-## 2. Install Flux
+### Flux
 
 ```shell
 helm upgrade --install flux \
@@ -51,7 +27,7 @@ helm upgrade --install flux \
   --set-json 'sourceController.container.additionalArgs=["--requeue-dependency=5s"]'
 ```
 
-## 3. Install the OCM Kubernetes controller
+### OCM Kubernetes controller
 
 Install the pinned controller chart directly from its public OCI registry. This
 does not depend on a checkout or on an unpublished Platform Mesh manifest.
@@ -65,7 +41,7 @@ helm upgrade --install ocm-k8s-toolkit \
   --set manager.concurrency.resource=3
 ```
 
-## 4. Install Platform Mesh
+## 1. Install Platform Mesh
 
 The operator chart is temporarily installed from the local checkout because it
 is not published yet. The Kind-only certificate chart in the next step is the
@@ -91,7 +67,7 @@ component, OCM signature certificate, default Platform Mesh profile, and the
 `PlatformMesh` resource. KRO and bootstrap scripts are not used.
 The local kind profile exposes HTTPS through `https://<base-domain>:8443`.
 
-## 5. Create local Gateway certificates
+## 2. Create local Gateway certificates
 
 The Platform Mesh profile installs cert-manager. Once its Helm release is ready,
 install the local Kind-only certificate chart. It creates a self-signed CA in
@@ -129,7 +105,7 @@ kubectl rollout restart --namespace platform-mesh-system deployment/platform-mes
 kubectl rollout status --namespace platform-mesh-system deployment/platform-mesh-operator --timeout=5m
 ```
 
-## 6. Verify and configure DNS
+## 3. Verify and configure DNS
 
 Wait for the Platform Mesh resource and its managed Helm releases to reconcile:
 
