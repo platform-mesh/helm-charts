@@ -3,3 +3,4 @@ kind: Kustomization
 
 resources:
   - platform-mesh.yaml
+  - default-profile.yaml
