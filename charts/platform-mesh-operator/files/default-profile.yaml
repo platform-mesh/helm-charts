@@ -152,6 +152,7 @@ data:
               for: account-operator
           syncWave: 4
           enabled: true
+          dependsOn: []
           values:
             hostAliases:
               enabled: true
@@ -179,6 +180,7 @@ data:
               for: extension-manager-operator
           syncWave: 4
           enabled: true
+          dependsOn: []
           values:
             crds:
               enabled: false
@@ -384,6 +386,7 @@ data:
               - https://*.{{ .baseDomain }}:8443
         iam-ui:
           enabled: true
+          dependsOn: []
           syncWave: 4
           imageResources:
           - annotations:
@@ -403,6 +406,7 @@ data:
               for: iam-service
           syncWave: 4
           enabled: true
+          dependsOn: []
           values:
             caSecret: domain-certificate
             extraArgs:
@@ -427,6 +431,7 @@ data:
             - name: init-agent
           syncWave: 4
           enabled: true
+          dependsOn: []
           values:
             configWorkspace: root:platform-mesh-system
             kcpKubeconfig: init-agent-kubeconfig
@@ -441,10 +446,12 @@ data:
                     - "kcp.api.{{ .baseDomain }}"
         kcp:
           external: true
+          dependsOn: []
         kcp-operator:
           syncWave: 1
           external: true
           enabled: true
+          dependsOn: []
           imageResources:
           - name: kcp-operator-image
             annotations:
@@ -457,6 +464,7 @@ data:
         keycloak-operator:
           enabled: true
           external: true
+          dependsOn: []
           imageResources:
           - name: keycloak-operator-keycloak-image
             resource: keycloak-image
@@ -488,6 +496,7 @@ data:
         cnpg-operator:
           enabled: true
           external: true
+          dependsOn: []
           targetNamespace: platform-mesh-system
           absoluteReferencePath:
           - name: cnpg-operator
@@ -507,6 +516,7 @@ data:
               for: kubernetes-graphql-gateway
           syncWave: 4
           enabled: true
+          dependsOn: []
           values:
             gateway:
               playground: true
@@ -542,6 +552,7 @@ data:
         openfga:
           enabled: true
           external: true
+          dependsOn: []
           syncWave: 2
           suspend: true
           imageResources:
@@ -616,6 +627,7 @@ data:
               for: portal
           syncWave: 4
           enabled: true
+          dependsOn: []
           values:
             auth:
               default:
@@ -694,6 +706,7 @@ data:
               for: rebac-authz-webhook
           syncWave: 4
           enabled: true
+          dependsOn: []
           values:
             hostAliases:
               enabled: true
@@ -717,6 +730,7 @@ data:
               for: security-operator
           syncWave: 4
           enabled: true
+          dependsOn: []
           values:
             baseDomain: '{{ .baseDomainPort }}'
             caSecret: domain-certificate
@@ -755,6 +769,7 @@ data:
               for: virtual-workspaces
           syncWave: 4
           enabled: true
+          dependsOn: []
           targetNamespace: platform-mesh-system
           values:
             virtualWorkspaceSecretName: virtual-workspaces-cert
@@ -767,6 +782,7 @@ data:
               resourceSchemaWorkspace: "root:platform-mesh-system"
         marketplace-ui:
           enabled: true
+          dependsOn: []
           imageResources:
           - annotations:
               repo: oci
@@ -788,6 +804,7 @@ data:
               enabled: false
         terminal-controller-manager:
           enabled: false
+          dependsOn: []
           imageResources:
           - annotations:
               repo: oci
@@ -843,11 +860,7 @@ data:
               for: observability
               path: prometheus.configmapReload.prometheus.image.tag
               image-ref: combined
-          dependsOn:
-          - name: prometheus-operator-crds
-            namespace: platform-mesh-system
-          - name: opentelemetry-operator
-            namespace: platform-mesh-system
+          dependsOn: []
           values:
             prometheus:
               server:
