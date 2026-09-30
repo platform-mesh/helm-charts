@@ -14,14 +14,14 @@ The helm-charts repository contains helm charts used for the deployment of platf
 - .github/workflows - GHA workflows to test, build and publish charts
 - .ocm - OCM component constructor files for individual component references
 - charts - a folder containing the HELM charts
-- installation - Installation: pure Helm/Kustomize manifests to deploy Platform Mesh to a Kubernetes cluster (the default path)
+- installation - Installation: declarative Helm release to deploy Platform Mesh to a Kubernetes cluster (the default path)
 - development - Developer setup: bring up Platform Mesh locally on kind, either from published components (PINNED, default) or built locally (DEV)
 - doc-templates - templates used to generate charts documentation
 - Taskfile.yaml - script automation used by the [Taskfile](https://taskfile.dev/) cli
 
 ## Getting started
 
-- **Installing Platform Mesh** (the default path): follow the [Installation guide](installation/README.md) to deploy to a Kubernetes cluster with Helm and Kustomize.
+- **Installing Platform Mesh** (the default path): follow the [Installation guide](installation/README.md) to deploy to a Kubernetes cluster with Helm.
 - **Evaluating or developing locally**: follow the [Developer setup](development/README.md) to run Platform Mesh on a local kind cluster.
 - For adding a new service to PlatformMesh, see the [Adding a Service](docs/adding-a-service.md) guide.
 ## Releasing
