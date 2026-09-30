@@ -49,16 +49,6 @@ helm upgrade --install flux \
   --set notificationController.create=false \
   --set-json 'helmController.container.additionalArgs=["--concurrent=50"]' \
   --set-json 'sourceController.container.additionalArgs=["--requeue-dependency=5s"]'
-
-kubectl wait --namespace flux-system \
-  --for=condition=available deployment/helm-controller \
-  --timeout=5m
-kubectl wait --namespace flux-system \
-  --for=condition=available deployment/source-controller \
-  --timeout=5m
-kubectl wait --namespace flux-system \
-  --for=condition=available deployment/kustomize-controller \
-  --timeout=5m
 ```
 
 ## 3. Install the OCM Kubernetes controller
@@ -73,10 +63,6 @@ helm upgrade --install ocm-k8s-toolkit \
   --create-namespace \
   --version 0.13.0 \
   --set manager.concurrency.resource=3
-
-kubectl wait --namespace ocm-system \
-  --for=condition=available deployment --all \
-  --timeout=15m
 ```
 
 ## 4. Install Platform Mesh
