@@ -45,6 +45,7 @@ The following must be installed and running before applying this overlay:
 | Requirement | Notes |
 |-------------|-------|
 | Kubernetes 1.28+ | Any CNCF-conformant distribution |
+| [OCM](https://ocm.software/) | Open Component Model (CLI locally, controller on the cluster) |
 | [FluxCD](https://fluxcd.io) 2.17.0 | See install command below |
 | External domain + wildcard TLS certificate | e.g. `*.example.com` — TLS is terminated at the ingress/gateway layer |
 | [kubectl oidc-login](https://github.com/int128/kubelogin) | Required on client machines for user OIDC auth (`kubectl krew install oidc-login`) |
