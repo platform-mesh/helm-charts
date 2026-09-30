@@ -1,0 +1,57 @@
+{{- if not .Values.dnsNames }}
+{{- fail "dnsNames must contain the Platform Mesh base domain and wildcard subdomain" }}
+{{- end }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: platform-mesh-gateway-selfsigned
+  namespace: {{ .Release.Namespace }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: platform-mesh-gateway-ca
+  namespace: {{ .Release.Namespace }}
+spec:
+  isCA: true
+  commonName: platform-mesh-gateway-ca
+  secretName: {{ .Values.caSecretName }}
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: platform-mesh-gateway-selfsigned
+  usages:
+    - cert sign
+    - crl sign
+    - digital signature
+    - key encipherment
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: platform-mesh-gateway-ca
+  namespace: {{ .Release.Namespace }}
+spec:
+  ca:
+    secretName: {{ .Values.caSecretName }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: platform-mesh-gateway
+  namespace: {{ .Release.Namespace }}
+spec:
+  commonName: {{ first .Values.dnsNames | quote }}
+  dnsNames:
+{{ toYaml .Values.dnsNames | indent 4 }}
+  secretName: {{ .Values.certificateSecretName }}
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: platform-mesh-gateway-ca
+  usages:
+    - server auth
+    - digital signature
+    - key encipherment

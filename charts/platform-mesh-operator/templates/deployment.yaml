@@ -30,6 +30,12 @@ spec:
         args:
           - operator
           {{- include "common.commonOperatorArgs" . | indent 8 }}
+          {{- if .Values.installation.enabled }}
+          # Match the RGD installation: bootstrap KCP through the in-cluster
+          # front-proxy, not through the externally terminated Gateway.
+          - --kcp-front-proxy-port={{ .Values.installation.port }}
+          - --kcp-url=https://frontproxy-front-proxy.{{ .Release.Namespace }}:{{ .Values.installation.port }}
+          {{- end }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
           {{- with .Values.jwt.userIdClaim }}
           - --user-claim={{ . }}
@@ -49,8 +55,17 @@ spec:
         {{- include "common.PortsMetricsHealth" . | nindent 10 }}
         env:
         {{- include "common.basicEnvironment" . | nindent 10 }}
+        {{- if .Values.installation.enabled }}
+        - name: SSL_CERT_FILE
+          value: /etc/platform-mesh-ca/ca.crt
+        {{- end }}
         volumeMounts:
         {{- include "common.extraVolumeMounts" . | nindent 8 }}
+        {{- if .Values.installation.enabled }}
+        - name: platform-mesh-ca
+          mountPath: /etc/platform-mesh-ca
+          readOnly: true
+        {{- end }}
         {{- if .Values.remoteInfra.enabled }}
         - name: external-infra-deployment
           mountPath: /etc/infra
@@ -61,11 +76,36 @@ spec:
           mountPath: /etc/platformmesh
           readOnly: true
         {{- end }}
+      {{- if .Values.installation.enabled }}
+      hostAliases:
+        - ip: {{ .Values.installation.traefikClusterIP | quote }}
+          hostnames:
+            - {{ .Values.installation.baseDomain | quote }}
+            - localhost
+            - kcp.localhost
+            - root.kcp.localhost
+            - {{ printf "root.kcp.%s" .Values.installation.baseDomain | quote }}
+            - nereus.kcp.localhost
+            - {{ printf "nereus.kcp.%s" .Values.installation.baseDomain | quote }}
+            - triton.kcp.localhost
+            - {{ printf "triton.kcp.%s" .Values.installation.baseDomain | quote }}
+            - {{ printf "kcp.api.%s" .Values.installation.baseDomain | quote }}
+      {{- else }}
       {{ include "common.hostAliases" $ | nindent 6 }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ include "common.terminationGracePeriodSeconds" .}}
-      {{- if or .Values.extraVolumes .Values.remoteRuntime.enabled .Values.remoteInfra.enabled }}
+      {{- if or .Values.extraVolumes .Values.remoteRuntime.enabled .Values.remoteInfra.enabled .Values.installation.enabled }}
       volumes:
       {{- include "common.extraVolumes" . | nindent 6 }}
+      {{- if .Values.installation.enabled }}
+      - name: platform-mesh-ca
+        secret:
+          secretName: {{ .Values.installation.certificateSecretName }}
+          optional: true
+          items:
+          - key: ca.crt
+            path: ca.crt
+      {{- end }}
       {{- if .Values.remoteInfra.enabled }}
       - name: external-infra-deployment
         secret:

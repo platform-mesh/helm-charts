@@ -13,6 +13,13 @@ A Helm chart to automate bootstrapping of new environment
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh/platform-mesh-operator"` | The image repository path (without registry) |
+| installation | object | `{"baseDomain":"","certificateSecretName":"domain-certificate","enabled":false,"installSigningCertificate":true,"port":8443,"traefikClusterIP":"10.96.188.4","version":"0.5.2"}` | Declaratively install a Platform Mesh instance alongside the operator. Requires Flux and the OCM Kubernetes controller to be installed beforehand. This remains opt-in because the chart is also used to deploy an operator that manages PlatformMesh resources supplied by another GitOps repository. |
+| installation.baseDomain | string | `""` | Public DNS name used for Platform Mesh endpoints. |
+| installation.certificateSecretName | string | `"domain-certificate"` | TLS Secret created by the local certificate chart. Its ca.crt is trusted by the operator. |
+| installation.installSigningCertificate | bool | `true` | Set to false when the OCM component is signed by a different trusted key. |
+| installation.port | int | `8443` | External HTTPS port. The local kind profile exposes Traefik on 8443. |
+| installation.traefikClusterIP | string | `"10.96.188.4"` | Fixed ClusterIP assigned to Traefik by the local kind profile. |
+| installation.version | string | `"0.5.2"` | Platform Mesh OCM component version to reconcile. |
 | istio.enabled | bool | `false` |  |
 | jwt.userIdClaim | string | `"email"` |  |
 | log.level | string | `"info"` | log level. Permissible values: debug, info, warn, error |

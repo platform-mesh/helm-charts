@@ -93,6 +93,31 @@ tests:
     - equal:
         path: spec.template.spec.hostAliases[0].hostnames[1]
         value: "test.example.com"
+- it: configures direct-install host aliases like the RGD deployment
+  template: deployment.yaml
+  set:
+    installation:
+      enabled: true
+      baseDomain: portal.localhost
+  asserts:
+    - equal:
+        path: spec.template.spec.hostAliases[0].ip
+        value: "10.96.188.4"
+    - contains:
+        path: spec.template.spec.hostAliases[0].hostnames
+        content: root.kcp.portal.localhost
+    - contains:
+        path: spec.template.spec.hostAliases[0].hostnames
+        content: kcp.api.portal.localhost
+    - equal:
+        path: spec.template.spec.containers[0].env[?(@.name=="SSL_CERT_FILE")].value
+        value: /etc/platform-mesh-ca/ca.crt
+    - equal:
+        path: spec.template.spec.volumes[?(@.name=="platform-mesh-ca")].secret.secretName
+        value: domain-certificate
+    - contains:
+        path: spec.template.spec.containers[0].args
+        content: "--kcp-url=https://frontproxy-front-proxy.NAMESPACE:8443"
 - it: deploy with extraArgs
   template: deployment.yaml
   set:

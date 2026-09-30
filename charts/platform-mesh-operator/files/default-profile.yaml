@@ -63,17 +63,17 @@ data:
             runAsUser: 0
           ports:
             websecure:
-              port: 443
-              expose:
-                default: true
-              exposedPort: 443
-              protocol: TCP
+              exposedPort: 8443
+              nodePort: 31000
           providers:
             kubernetesGateway:
               enabled: true
               experimentalChannel: true
           service:
-            type: LoadBalancer
+            spec:
+              clusterIP: 10.96.188.4
+              type: NodePort
+            type: NodePort
       etcdDruid:
         enabled: true
         interval: 1m
@@ -102,7 +102,7 @@ data:
         targetNamespace: observability
         values: {}
       opentelemetryOperator:
-        enabled: true
+        enabled: false
         interval: 1m
         name: opentelemetry-operator
         ocmResourceName: chart
@@ -255,10 +255,16 @@ data:
           values:
             keycloak:
               operator:
-                hostname: "https://{{ .baseDomainPort }}"
+                hostname: https://{{ .baseDomainPort }}/keycloak/
                 enabled: true
-                caSecret: domain-certificate-ca
+                # cert-manager writes the issuing CA as ca.crt in the leaf certificate Secret.
+                caSecret: domain-certificate
                 httpEnabled: true
+                db:
+                  password: keycloak-password
+                admin:
+                  password: admin
+                  secret: admin
                 health:
                   port: 9000
                   periodSeconds: 10
@@ -292,6 +298,11 @@ data:
                   - "https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint"
             cnpg:
               enabled: true
+              roles:
+                keycloak:
+                  password: keycloak-password
+                openfga:
+                  password: openfga-password
             cors:
               enabled: true
             gatewayApi:
@@ -299,7 +310,7 @@ data:
               listeners:
                 - name: terminate
                   hostname: "{{ .baseDomain }}"
-                  port: 443
+                  port: 8443
                   protocol: HTTPS
                   tls:
                     mode: Terminate
@@ -309,7 +320,7 @@ data:
                         namespace: platform-mesh-system
                 - name: terminate-wildstar
                   hostname: "*.{{ .baseDomain }}"
-                  port: 443
+                  port: 8443
                   protocol: HTTPS
                   tls:
                     mode: Terminate
@@ -318,7 +329,7 @@ data:
                         name: domain-certificate
                         namespace: platform-mesh-system
                 - name: passthrough
-                  port: 443
+                  port: 8443
                   protocol: TLS
                   tls:
                     mode: Passthrough
@@ -328,7 +339,7 @@ data:
               listenersExtra:
                 - name: terminate-services
                   hostname: "*.services.{{ .baseDomain }}"
-                  port: 443
+                  port: 8443
                   protocol: HTTPS
                   tls:
                     mode: Terminate
@@ -342,58 +353,20 @@ data:
             hostAliases:
               enabled: true
               entries: *hostAliasesEntries
-            keycloak:
-              operator:
-                hostname: https://{{ .baseDomainPort }}/keycloak/
-                enabled: true
-                caSecret: domain-certificate-ca
-                httpEnabled: true
-              gatewayApi:
-                hostnames:
-                  - "{{ .baseDomain }}"
-                db:
-                  password: keycloak-password
-                admin:
-                  password: admin
-                  secret: admin
-                health:
-                  port: 9000
-                  periodSeconds: 10
-                  liveness:
-                    path: /keycloak/health/live
-                    failureThreshold: 3
-                  readiness:
-                    path: /keycloak/health/ready
-                    initialDelaySeconds: 0
-                    periodSeconds: 10
-                  startup:
-                    path: /keycloak/health
-                    failureThreshold: 600
-              service:
-                name: keycloak-service
-                port: 8080
-              keycloakConfig:
-                url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
-            dex:
-              enabled: true
-              issuer: https://{{ .baseDomainPort }}/dex
-              staticClient:
-                redirectURIs:
-                - https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint
             kcp:
               external:
                 hostname: kcp.api.{{ .baseDomain }}
-                port: 443
+                port: 8443
               auth:
                 serviceAccount:
                   enabled: true
               frontProxy:
-                port: 443
+                port: 8443
               image:
                 tag: v0.33.0
               rootShard:
                 hostname: "root.kcp.{{ .baseDomain }}"
-                shardBaseURL: https://root.kcp.{{ .baseDomain }}/
+                shardBaseURL: https://root.kcp.{{ .baseDomain }}:8443/
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
               shards:
@@ -406,7 +379,7 @@ data:
             traefik:
               accessControlAllowOriginList:
               - https://{{ .baseDomainPort }}
-              - https://*.{{ .baseDomain }}:443
+              - https://*.{{ .baseDomain }}:8443
         iam-ui:
           enabled: true
           syncWave: 4
@@ -429,11 +402,13 @@ data:
           syncWave: 4
           enabled: true
           values:
-            caSecret: domain-certificate-ca
+            caSecret: domain-certificate
             extraArgs:
             - --no-json
             cors:
               enabled: true
+            keycloak:
+              baseUrl: "https://{{ .baseDomainPort }}/keycloak"
             hostAliases:
               enabled: true
               entries: *hostAliasesEntries
@@ -475,7 +450,8 @@ data:
               artifact: image
               for: kcp-operator
               image-ref: combined
-          targetNamespace: kcp-operator
+          targetNamespace: platform-mesh-system
+          values: {}
         keycloak-operator:
           enabled: true
           external: true
@@ -513,6 +489,7 @@ data:
           targetNamespace: platform-mesh-system
           absoluteReferencePath:
           - name: cnpg-operator
+          values: {}
           imageResources:
           - name: cnpg-operator-image
             annotations:
@@ -679,7 +656,7 @@ data:
             extraVolumes:
             - name: domain-ca
               secret:
-                secretName: domain-certificate-ca
+                secretName: domain-certificate
             - name: webhook-ca
               secret:
                 secretName: rebac-authz-webhook-cert
@@ -690,7 +667,7 @@ data:
               mountPath: /etc/ssl/certs/ca-bundle.crt
               subPath: ca-bundle.crt
               readOnly: true
-            frontendPort: '443'
+            frontendPort: '8443'
             gatewayApi:
               enabled: true
               httpRoute:
@@ -740,7 +717,7 @@ data:
           enabled: true
           values:
             baseDomain: '{{ .baseDomainPort }}'
-            caSecret: domain-certificate-ca
+            caSecret: domain-certificate
             crds:
               enabled: false
             openfga:

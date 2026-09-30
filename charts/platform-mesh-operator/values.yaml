@@ -1,6 +1,25 @@
 crds:
   enabled: true
 
+# -- Declaratively install a Platform Mesh instance alongside the operator.
+# Requires Flux and the OCM Kubernetes controller to be installed beforehand.
+# This remains opt-in because the chart is also used to deploy an operator that
+# manages PlatformMesh resources supplied by another GitOps repository.
+installation:
+  enabled: false
+  # -- Public DNS name used for Platform Mesh endpoints.
+  baseDomain: ""
+  # -- External HTTPS port. The local kind profile exposes Traefik on 8443.
+  port: 8443
+  # -- Fixed ClusterIP assigned to Traefik by the local kind profile.
+  traefikClusterIP: 10.96.188.4
+  # -- TLS Secret created by the local certificate chart. Its ca.crt is trusted by the operator.
+  certificateSecretName: domain-certificate
+  # -- Platform Mesh OCM component version to reconcile.
+  version: "0.5.2"
+  # -- Set to false when the OCM component is signed by a different trusted key.
+  installSigningCertificate: true
+
 deployment:
   replicas: 1
 

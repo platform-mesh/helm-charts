@@ -13,7 +13,7 @@
 - `charts/`: Helm charts, values, templates, tests, chart locks, and chart READMEs.
 - `docs-templates/`: templates used by `helm-docs` to generate chart documentation.
 - `.ocm/`: OCM constructor descriptors, including the aggregator (`component-constructor-aggregate.yaml`) and service-component (`component-constructor-service-component.yaml`) consumed by `ocm-aggregator.yaml` / `ocm-service-component.yaml`, plus signing material under `.ocm/signature/`.
-- `installation/`: Installation — the production deployment path. Pure Helm/Kustomize overlay plus a `bootstrap.sh` for secret generation; no ongoing shell dependencies. The default way to install Platform Mesh onto a cluster.
+- `installation/`: Installation — the production deployment path. A declarative Helm release that installs the Platform Mesh operator and its PlatformMesh resource; no bootstrap scripts. The default way to install Platform Mesh onto a cluster.
 - `development/`: Developer setup — scripts, manifests, kustomize overlays, and e2e assets for running Platform Mesh locally on kind. Two modes: pinned mode (default, pulls published OCM components) and local-build mode (`--local-build`, builds components locally). For local evaluation and contributors only; not a production path.
 - `.github/workflows/`: chart validation, publishing, developer setup, and component workflows.
 - `Taskfile.yaml`: primary local automation entrypoint.

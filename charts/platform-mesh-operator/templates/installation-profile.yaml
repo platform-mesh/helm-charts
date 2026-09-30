@@ -1,0 +1,3 @@
+{{- if .Values.installation.enabled }}
+{{ .Files.Get "files/default-profile.yaml" }}
+{{- end }}
