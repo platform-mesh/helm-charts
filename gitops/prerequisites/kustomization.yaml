@@ -1,0 +1,4 @@
+resources:
+  - namespaces.yaml
+  - ocm-k8s-toolkit.yaml
+  - cert-manager.yaml

@@ -1,0 +1,29 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: platform-mesh-operator
+  namespace: flux-system
+spec:
+  interval: 5m
+  timeout: 30m
+  releaseName: platform-mesh-operator
+  targetNamespace: platform-mesh-system
+  chart:
+    spec:
+      chart: ./charts/platform-mesh-operator
+      sourceRef:
+        kind: GitRepository
+        name: platform-mesh-install
+        namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    installation:
+      enabled: true
+      baseDomain: portal.localhost
+      port: 8443
+      version: 0.5.2

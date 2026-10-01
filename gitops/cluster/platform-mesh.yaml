@@ -1,0 +1,16 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: platform-mesh
+  namespace: flux-system
+spec:
+  dependsOn:
+    - name: platform-mesh-certificates
+  interval: 5m
+  path: ./gitops/platform-mesh
+  prune: true
+  wait: true
+  timeout: 30m
+  sourceRef:
+    kind: GitRepository
+    name: platform-mesh-install

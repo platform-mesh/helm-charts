@@ -1,0 +1,35 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: cert-manager
+  namespace: flux-system
+spec:
+  interval: 5m
+  url: oci://quay.io/jetstack/charts/cert-manager
+  ref:
+    tag: v1.20.1
+  # The first OCI layer is a Helm provenance file. Select the chart archive
+  # explicitly so source-controller does not try to extract that file.
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: flux-system
+spec:
+  interval: 5m
+  timeout: 15m
+  releaseName: cert-manager
+  targetNamespace: cert-manager
+  chartRef:
+    kind: OCIRepository
+    name: cert-manager
+  install:
+    remediation:
+      retries: -1
+  values:
+    crds:
+      enabled: true
