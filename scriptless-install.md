@@ -103,5 +103,6 @@ kubectl wait --namespace platform-mesh-system \
 # Restart PMO so Go reloads its system trust store with the generated CA.
 kubectl rollout restart --namespace platform-mesh-system deployment/platform-mesh-operator
 kubectl rollout status --namespace platform-mesh-system deployment/platform-mesh-operator --timeout=5m
+kubectl wait --namespace platform-mesh-system --for=condition=ready platformmeshes/platform-mesh --timeout=10m
 ```
 
