@@ -30,8 +30,10 @@ spec:
               hostnames:
               - "localhost"
               - "portal.localhost"
-              - "kcp.localhost"
-              - "root.kcp.localhost"
+              - "kcp.portal.localhost"
+              - "root.kcp.portal.localhost"
+              - "nereus.kcp.portal.localhost"
+              - "triton.kcp.portal.localhost"
   syncPolicy:
     automated:
       prune: true
