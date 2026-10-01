@@ -49,7 +49,7 @@ only other local resource used by this guide.
 
 ```shell
 base_domain=portal.localhost
-platform_mesh_version=0.5.2
+platform_mesh_version=0.6.0-build.6
 
 helm upgrade --install platform-mesh-operator \
   ./charts/platform-mesh-operator \
@@ -105,15 +105,3 @@ kubectl rollout restart --namespace platform-mesh-system deployment/platform-mes
 kubectl rollout status --namespace platform-mesh-system deployment/platform-mesh-operator --timeout=5m
 ```
 
-## 3. Verify and configure DNS
-
-Wait for the Platform Mesh resource and its managed Helm releases to reconcile:
-
-```shell
-kubectl get platformmesh --namespace platform-mesh-system platform-mesh
-kubectl get helmrelease --namespace platform-mesh-system
-```
-
-For Kind, map the base domain and wildcard domain to `127.0.0.1` (for example,
-with a DNS server that supports wildcard records). HTTPS is exposed at port
-`8443`; the Traefik Service is deliberately a `NodePort`, not a LoadBalancer.
