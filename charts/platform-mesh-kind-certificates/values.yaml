@@ -1,8 +1,0 @@
-# -- DNS names included in the Gateway TLS certificate. Set the base domain and its wildcard subdomain.
-dnsNames: []
-
-# -- Secret containing the self-signed CA certificate and private key.
-caSecretName: domain-certificate-ca
-
-# -- TLS Secret referenced by Platform Mesh Gateway listeners.
-certificateSecretName: domain-certificate
