@@ -211,7 +211,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | keycloak.operator.image.digest | string | `"sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"` | Keycloak image digest (when set, overrides tag: registry/repository@digest) |
 | keycloak.operator.image.registry | string | `"ghcr.io"` | Keycloak image registry |
 | keycloak.operator.image.repository | string | `"platform-mesh/custom-images/keycloak"` | Keycloak image repository (without registry) |
-| keycloak.operator.image.tag | string | `"v26.7.2"` | Keycloak image tag (defaults to appVersion) |
+| keycloak.operator.image.tag | string | `"v26.7.2@sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"` | Keycloak image tag (defaults to appVersion) |
 | keycloak.operator.instances | int | `1` | Number of Keycloak instances |
 | keycloak.operator.resources.limits.cpu | string | `"2"` |  |
 | keycloak.operator.resources.limits.memory | string | `"2Gi"` |  |
@@ -220,7 +220,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | keycloak.operator.waitForDb.image.digest | string | `""` | wait-for-db init container image digest (when set, overrides tag) |
 | keycloak.operator.waitForDb.image.registry | string | `"docker.io"` | wait-for-db init container image registry |
 | keycloak.operator.waitForDb.image.repository | string | `"library/busybox"` | wait-for-db init container image repository (without registry) |
-| keycloak.operator.waitForDb.image.tag | string | `"1.37"` | wait-for-db init container image tag |
+| keycloak.operator.waitForDb.image.tag | string | `"1.37@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e"` | wait-for-db init container image tag |
 | keycloak.service | object | `{"name":"keycloak","port":80}` | service configuration |
 | keycloak.service.name | string | `"keycloak"` | service name |
 | keycloak.service.port | int | `80` | service port |
