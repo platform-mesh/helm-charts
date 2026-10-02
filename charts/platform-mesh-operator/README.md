@@ -6,6 +6,8 @@ A Helm chart to automate bootstrapping of new environment
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
+| clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | crds.enabled | bool | `true` |  |
 | deployment.replicas | int | `1` |  |
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |

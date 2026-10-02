@@ -29,6 +29,8 @@ This fetches the CRD manifests from the [OperatorHub community-operators](https:
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
+| clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | deployment.replicas | int | `1` |  |
 | deployment.resources.limits.cpu | string | `"700m"` | CPU limit |
 | deployment.resources.limits.memory | string | `"450Mi"` | Memory limit |

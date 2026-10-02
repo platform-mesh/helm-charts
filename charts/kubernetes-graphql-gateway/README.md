@@ -15,6 +15,8 @@ kubeConfig:
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
+| clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | crds.enabled | bool | `true` |  |
 | deployment | object | `{"maxSurge":5,"maxUnavailable":0,"replicas":1,"revisionHistoryLimit":3}` | Default deployment settings applied to both the gateway and listener Deployments. Each setting can be overridden per-deployment via `gateway.deployment.<field>` or `listener.deployment.<field>` (see those blocks in this file). When a per-deployment override is unset, the value from this block is used. |
 | extraVolumeMounts | list | `[]` |  |

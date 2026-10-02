@@ -54,3 +54,9 @@ remoteRuntime:
     # -- Name of the secret containing Runtime cluster kubeconfig
     secretName: "platform-mesh-secret"
     secretKey: "kubeconfig"
+
+clusterScopedName:
+  # -- Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one
+  prefix: ""
+  # -- Suffix for the names of cluster-scoped resources
+  suffix: ""
