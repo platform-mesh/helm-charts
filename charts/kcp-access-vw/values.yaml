@@ -4,7 +4,7 @@ image:
   # -- The image repository path (without registry)
   repository: kcp-dev/contrib-virtual-workspaces/access-vw
   # -- The image tag (defaults to appVersion)
-  tag: ""
+  tag: "@sha256:2e84f6d28d949b8a55beae449b6a13af8fe13ecf324b03be15379993a0515e55"
 
 # -- The graph is held in memory; keep a single replica.
 replicas: 1
