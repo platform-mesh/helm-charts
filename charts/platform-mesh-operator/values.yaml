@@ -7,6 +7,8 @@ crds:
 # manages PlatformMesh resources supplied by another GitOps repository.
 installation:
   enabled: false
+  # -- Installation profile. `production` assumes the infrastructure prerequisites already exist.
+  profile: production
   # -- Public DNS name used for Platform Mesh endpoints.
   baseDomain: ""
   # -- External HTTPS port. The local kind profile exposes Traefik on 8443.

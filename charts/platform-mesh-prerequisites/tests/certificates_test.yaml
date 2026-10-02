@@ -4,9 +4,11 @@ templates:
 tests:
   - it: creates the CA and wildcard Gateway certificate
     set:
-      dnsNames:
-        - portal.localhost
-        - '*.portal.localhost'
+      localCertificates:
+        enabled: true
+        dnsNames:
+          - portal.localhost
+          - '*.portal.localhost'
     asserts:
       - equal:
           path: spec.isCA
@@ -23,6 +25,9 @@ tests:
           value: domain-certificate
         documentIndex: 3
   - it: requires DNS names
+    set:
+      localCertificates:
+        enabled: true
     asserts:
       - failedTemplate:
           errorMessage: dnsNames must contain the Platform Mesh base domain and wildcard subdomain

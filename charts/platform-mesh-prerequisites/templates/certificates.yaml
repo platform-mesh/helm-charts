@@ -1,11 +1,12 @@
-{{- if not .Values.dnsNames }}
+{{- if .Values.localCertificates.enabled }}
+{{- if not .Values.localCertificates.dnsNames }}
 {{- fail "dnsNames must contain the Platform Mesh base domain and wildcard subdomain" }}
 {{- end }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: platform-mesh-gateway-selfsigned
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.localCertificates.namespace }}
 spec:
   selfSigned: {}
 ---
@@ -13,11 +14,11 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: platform-mesh-gateway-ca
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.localCertificates.namespace }}
 spec:
   isCA: true
   commonName: platform-mesh-gateway-ca
-  secretName: {{ .Values.caSecretName }}
+  secretName: {{ .Values.localCertificates.caSecretName }}
   issuerRef:
     group: cert-manager.io
     kind: Issuer
@@ -32,21 +33,21 @@ apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: platform-mesh-gateway-ca
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.localCertificates.namespace }}
 spec:
   ca:
-    secretName: {{ .Values.caSecretName }}
+    secretName: {{ .Values.localCertificates.caSecretName }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: platform-mesh-gateway
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.localCertificates.namespace }}
 spec:
-  commonName: {{ first .Values.dnsNames | quote }}
+  commonName: {{ first .Values.localCertificates.dnsNames | quote }}
   dnsNames:
-{{ toYaml .Values.dnsNames | indent 4 }}
-  secretName: {{ .Values.certificateSecretName }}
+{{ toYaml .Values.localCertificates.dnsNames | indent 4 }}
+  secretName: {{ .Values.localCertificates.certificateSecretName }}
   issuerRef:
     group: cert-manager.io
     kind: Issuer
@@ -55,3 +56,4 @@ spec:
     - server auth
     - digital signature
     - key encipherment
+{{- end }}

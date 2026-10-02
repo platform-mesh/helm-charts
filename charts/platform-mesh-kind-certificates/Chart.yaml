@@ -1,6 +1,0 @@
-apiVersion: v2
-name: platform-mesh-kind-certificates
-description: Local Kind TLS certificates for Platform Mesh Gateway listeners
-type: application
-version: 0.1.0
-appVersion: "0.1.0"
