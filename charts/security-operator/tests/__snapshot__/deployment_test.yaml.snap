@@ -100,6 +100,10 @@ operator match the snapshot:
             define list_core_kcp_io_logicalclusters: member
             define watch_core_kcp_io_logicalclusters: member
 
+            define create_core_platform-mesh_io_idpregistrations: owner
+            define list_core_platform-mesh_io_idpregistrations: owner
+            define watch_core_platform-mesh_io_idpregistrations: owner
+
             # IAM specific
             define manage_iam_roles: owner
             define get_iam_roles: member
@@ -123,6 +127,17 @@ operator match the snapshot:
             define manage_iam_roles: owner
             define get_iam_roles: member
             define get_iam_users: member
+
+        type core_platform-mesh_io_idpregistration
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define owner: owner from parent
+
+            define get: owner
+            define update: owner
+            define patch: owner
+            define delete: owner
 
         type core_kcp_io_logicalcluster
           relations
@@ -517,6 +532,7 @@ operator match the snapshot:
                 - system
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
                 - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
+                - --org-idp-api-export-endpoint-slice-name=org-idp.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090
@@ -844,6 +860,10 @@ operator match the snapshot w. sentry:
             define list_core_kcp_io_logicalclusters: member
             define watch_core_kcp_io_logicalclusters: member
 
+            define create_core_platform-mesh_io_idpregistrations: owner
+            define list_core_platform-mesh_io_idpregistrations: owner
+            define watch_core_platform-mesh_io_idpregistrations: owner
+
             # IAM specific
             define manage_iam_roles: owner
             define get_iam_roles: member
@@ -867,6 +887,17 @@ operator match the snapshot w. sentry:
             define manage_iam_roles: owner
             define get_iam_roles: member
             define get_iam_users: member
+
+        type core_platform-mesh_io_idpregistration
+          relations
+            define parent: [core_platform-mesh_io_account]
+
+            define owner: owner from parent
+
+            define get: owner
+            define update: owner
+            define patch: owner
+            define delete: owner
 
         type core_kcp_io_logicalcluster
           relations
@@ -1306,6 +1337,7 @@ operator match the snapshot w. sentry:
             - args:
                 - system
                 - --fga-target=openfga.platform-mesh-system.svc.cluster.local:8081
+                - --org-idp-api-export-endpoint-slice-name=org-idp.platform-mesh.io
                 - --leader-elect
                 - --metrics-bind-address=:9090
                 - --health-probe-bind-address=:8090

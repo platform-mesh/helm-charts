@@ -36,6 +36,7 @@ spec:
           {{- if $systemKubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
           {{- end }}
+          - --org-idp-api-export-endpoint-slice-name={{ .Values.system.orgIdpApiExportEndpointSliceName }}
           {{- with .Values.idp.smtp.server }}
           - --idp-smtp-server={{ . }}
           {{- end }}
