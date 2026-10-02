@@ -14,7 +14,7 @@ keycloakImage:
   # -- The Keycloak image repository path (without registry).
   repository: platform-mesh/custom-images/keycloak
   # -- The Keycloak image tag (defaults to appVersion)
-  tag: "v26.7.2"
+  tag: "v26.7.2@sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"
   # -- The Keycloak image digest (when set, overrides tag: registry/repository@digest)
   digest: "sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"
 
