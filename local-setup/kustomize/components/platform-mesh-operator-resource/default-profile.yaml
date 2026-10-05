@@ -242,11 +242,7 @@ data:
               for: infra
               path: kcp.etcd.backup.image.tag
               image-ref: combined
-          dependsOn:
-          - name: keycloak-operator
-            namespace: platform-mesh-system
-          - name: cnpg-operator
-            namespace: platform-mesh-system
+          dependsOn: []
           values:
             keycloak:
               operator:
