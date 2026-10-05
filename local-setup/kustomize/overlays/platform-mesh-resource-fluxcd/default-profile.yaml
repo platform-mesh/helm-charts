@@ -191,13 +191,7 @@ data:
               path: kcp.etcd.backup.image.tag
               image-ref: combined
           syncWave: 4
-          dependsOn:
-          - name: kcp-operator
-            namespace: platform-mesh-system
-          - name: keycloak-operator
-            namespace: platform-mesh-system
-          - name: cnpg-operator
-            namespace: platform-mesh-system
+          dependsOn: []
           enabled: true
           values:
             cnpg:
