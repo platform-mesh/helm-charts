@@ -12,25 +12,6 @@ vars:
     sh: go env GOOS
   GOARCH:
     sh: go env GOARCH
-  OCM_VERSION:
-    sh: sed -nE 's/.*OCM_VERSION:-([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' development/scripts/ocm-setup.sh
-  COMPONENT_PRERELEASE_VERSION: "1.0.0"
-  CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
-    - account-operator: charts/account-operator
-    - example-httpbin-operator: charts/example-httpbin-operator
-    - extension-manager-operator: charts/extension-manager-operator
-    - iam-service: charts/iam-service
-    - iam-ui: charts/iam-ui
-    - infra: charts/infra
-    - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
-    - platform-mesh-operator: charts/platform-mesh-operator
-    - portal: charts/portal
-    - rebac-authz-webhook: charts/rebac-authz-webhook
-    - security-operator: charts/security-operator
-    - terminal-controller-manager: charts/terminal-controller-manager
-    - virtual-workspaces: charts/virtual-workspaces
-  COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
-    # - keycloak: 24.8.1
   CMD_SED:
     sh: |
       # Check if sed is GNU sed or BSD sed (GNU sed has --version, BSD sed doesn't)
@@ -436,17 +417,3 @@ tasks:
     cmds:
       - ./development/scripts/check-backend-resources.sh
 
-  test:dev-setup:
-    aliases: [test:local-setup]
-    desc: Run backend resource checks and portal e2e tests
-    cmds:
-      - task: test:backend-resources
-      - task: test:portal-e2e
-
-  dev-setup:
-    aliases: [local-setup]
-    desc: "Developer setup on a local kind cluster. Pinned mode (default) pulls the published OCM aggregate; pass -- --local-build to use local-build mode. Sharded and reuse-existing-cluster (--iterate) are on by default; pass start.sh flags after --, e.g. task dev-setup -- --local-build --sharded=false"
-    deps:
-      - task: setup:mkcert
-    cmds:
-      - ./development/scripts/start.sh {{.CLI_ARGS}}
