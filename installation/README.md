@@ -95,11 +95,36 @@ merge behavior, see the
 
 ## Requirements
 
-- Helm and `kubectl`, configured for the target cluster.
+### Common
+
+- Helm and `kubectl`.
+- Outbound access to the OCI registries from which the charts, Platform Mesh
+  OCM component, and container images are pulled.
 - A Platform Mesh OCM component version available from the configured registry.
-- A Traefik Gateway implementation with a `GatewayClass` named `traefik`. The
-  bundled prerequisites chart provides both by default.
-- For Kind, at least 8 vCPUs are recommended for the complete workload.
+
+### Production
+
+- An existing Kubernetes cluster and a `kubectl` context for it.
+- Permission to create namespaces, CRDs, admission webhooks, and
+  cluster-scoped RBAC resources.
+- A default `StorageClass` capable of dynamically provisioning persistent
+  volumes.
+- A working LoadBalancer integration for exposing Traefik outside the cluster.
+- Control of the selected base domain and its wildcard subdomains so that they
+  can be pointed to the Traefik LoadBalancer.
+- A certificate strategy: either allow the operator chart to issue certificates
+  from its private self-signed CA, or provision the `domain-certificate` and
+  `domain-certificate-ca` Secrets before installing the operator.
+- When the bundled prerequisites chart is not used, compatible Flux, OCM
+  controller, cert-manager, Gateway API and Traefik CRDs, Traefik
+  `GatewayClass`, CloudNativePG, and Keycloak, KCP, and etcd-druid operators.
+
+### Local Kind
+
+- Docker and `kind`, in addition to Helm and `kubectl`.
+- At least 8 CPUs and 12 GB of RAM allocated to the container runtime.
+- Host port `8443` available for mapping to Traefik's NodePort `31000`.
+- Sufficient local disk space for the Kind node and Platform Mesh workloads.
 
 ## 1. Prepare the cluster
 
