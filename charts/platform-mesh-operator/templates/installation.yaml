@@ -2,6 +2,9 @@
 {{- if not .Values.installation.baseDomain }}
 {{- fail "installation.baseDomain must be set when installation.enabled=true" }}
 {{- end }}
+{{- if and (eq .Values.installation.profile "kind") (not .Values.installation.traefikClusterIP) }}
+{{- fail "installation.traefikClusterIP must be set to the ClusterIP of the Traefik Service when using the kind profile" }}
+{{- end }}
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Repository
 metadata:

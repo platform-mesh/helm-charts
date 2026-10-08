@@ -33,8 +33,8 @@ spec:
           {{- if .Values.installation.enabled }}
           # Match the RGD installation: bootstrap KCP through the in-cluster
           # front-proxy, not through the externally terminated Gateway.
-          - --kcp-front-proxy-port={{ .Values.installation.port }}
-          - --kcp-url=https://frontproxy-front-proxy.{{ .Release.Namespace }}:{{ .Values.installation.port }}
+          - --kcp-front-proxy-port={{ .Values.installation.kcpFrontProxyPort }}
+          - --kcp-url=https://frontproxy-front-proxy.{{ .Release.Namespace }}:{{ .Values.installation.kcpFrontProxyPort }}
           {{- end }}
           - --subroutines-deployment-enable-istio={{ (include "common.istioEnabled" .) }}
           {{- with .Values.jwt.userIdClaim }}
@@ -76,7 +76,7 @@ spec:
           mountPath: /etc/platformmesh
           readOnly: true
         {{- end }}
-      {{- if .Values.installation.enabled }}
+      {{- if and .Values.installation.enabled .Values.installation.traefikClusterIP }}
       hostAliases:
         - ip: {{ .Values.installation.traefikClusterIP | quote }}
           hostnames:

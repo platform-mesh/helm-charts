@@ -23,7 +23,8 @@ data:
       traefik:
         enabled: false
       etcdDruid:
-        enabled: true
+        # Installed by platform-mesh-prerequisites.
+        enabled: false
         interval: 1m
         name: etcd-druid
         ocmResourceName: etcd-druid
@@ -358,9 +359,10 @@ data:
           external: true
           dependsOn: []
         kcp-operator:
+          # Installed by platform-mesh-prerequisites.
           syncWave: 1
           external: true
-          enabled: true
+          enabled: false
           dependsOn: []
           imageResources:
           - name: kcp-operator-image
@@ -526,7 +528,7 @@ data:
             replicaCount: 1
             telemetry:
               trace:
-                enabled: true
+                enabled: false
                 otlp:
                   endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
                   tls:
@@ -566,7 +568,7 @@ data:
               command:
               - sh
               - -c
-              - cat /domain-ca/tls.crt /webhook-ca/ca.crt > /combined-ca/ca-bundle.crt
+              - cat /domain-ca/ca.crt /webhook-ca/ca.crt > /combined-ca/ca-bundle.crt
               # busybox runs as root by default, but pod has runAsNonRoot
               securityContext:
                 runAsUser: 1000
