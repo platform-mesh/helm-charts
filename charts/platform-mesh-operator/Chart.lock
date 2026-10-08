@@ -4,6 +4,6 @@ dependencies:
   version: 0.15.0
 - name: platform-mesh-operator-crds
   repository: file://../platform-mesh-operator-crds
-  version: 0.12.0
-digest: sha256:7e598d6e9934fe65d6112cf52746ab7e301b2e16463ad322f4b534a0fb13e947
-generated: "2026-09-21T14:34:50.254459909+02:00"
+  version: 0.13.0
+digest: sha256:6ab5065c4f73be128b0d71dd266ece548a49201054d3fd37f771751df992cd8d
+generated: "2026-09-30T13:43:32.30207046+03:00"

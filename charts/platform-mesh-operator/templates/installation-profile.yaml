@@ -1,0 +1,5 @@
+{{- if .Values.installation.enabled }}
+{{- $profile := .Files.Get (printf "files/%s-profile.yaml" .Values.installation.profile) }}
+{{- $profile = replace "__EXTERNAL_PORT__" (printf "%v" .Values.installation.port) $profile }}
+{{ $profile }}
+{{- end }}

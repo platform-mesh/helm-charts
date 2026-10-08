@@ -1,0 +1,33 @@
+dependencies:
+- name: flux2
+  repository: oci://ghcr.io/fluxcd-community/charts
+  version: 2.17.2
+- name: chart
+  repository: oci://ghcr.io/open-component-model/kubernetes/controller
+  version: 0.13.0
+- name: cert-manager
+  repository: oci://quay.io/jetstack/charts
+  version: v1.20.1
+- name: gateway-api-crds
+  repository: file://../gateway-api-crds
+  version: 1.5.1
+- name: traefik
+  repository: oci://ghcr.io/traefik/helm
+  version: 41.4.0
+- name: traefik-crds
+  repository: oci://ghcr.io/platform-mesh/ocm/charts
+  version: 1.14.0
+- name: cloudnative-pg
+  repository: oci://ghcr.io/cloudnative-pg/charts
+  version: 0.28.0
+- name: keycloak-operator
+  repository: file://../keycloak-operator
+  version: 0.10.0
+- name: kcp-operator
+  repository: oci://ghcr.io/platform-mesh/helm-charts/charts/mirrored
+  version: 0.7.4
+- name: etcd-druid
+  repository: oci://ghcr.io/platform-mesh/charts/gardener
+  version: v0.36.4
+digest: sha256:dede81013c1d1e92c1af549b9f7d7aeacedcbeec7e16dab55553865bccb83f36
+generated: "2026-10-06T18:21:12.56599282+03:00"

@@ -1,0 +1,45 @@
+# Local Kind only. Replace this issuer with your organization issuer in production.
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: platform-mesh-selfsigned
+  namespace: platform-mesh-system
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: platform-mesh-gateway-ca
+  namespace: platform-mesh-system
+spec:
+  isCA: true
+  commonName: platform-mesh-gateway-ca
+  secretName: domain-certificate-ca
+  issuerRef:
+    name: platform-mesh-selfsigned
+    kind: Issuer
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: platform-mesh-gateway-ca
+  namespace: platform-mesh-system
+spec:
+  ca:
+    secretName: domain-certificate-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: platform-mesh-gateway
+  namespace: platform-mesh-system
+spec:
+  secretName: domain-certificate
+  commonName: portal.localhost
+  dnsNames:
+    - portal.localhost
+    - '*.portal.localhost'
+  issuerRef:
+    name: platform-mesh-gateway-ca
+    kind: Issuer

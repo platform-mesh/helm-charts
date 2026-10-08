@@ -1,0 +1,3 @@
+{{- if and .Values.installation.enabled .Values.installation.installSigningCertificate }}
+{{ .Files.Get "files/ocm-signing-public-cert.yaml" }}
+{{- end }}

@@ -1,0 +1,24 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: platform-mesh-install
+  namespace: flux-system
+spec:
+  interval: 1m
+  # Point this at your fork when changing domains, versions, or credentials.
+  url: https://github.com/platform-mesh/helm-charts
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: platform-mesh-install
+  namespace: flux-system
+spec:
+  interval: 5m
+  path: ./gitops/cluster
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: platform-mesh-install

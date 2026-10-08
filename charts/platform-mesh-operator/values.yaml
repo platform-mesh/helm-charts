@@ -1,6 +1,34 @@
 crds:
   enabled: true
 
+# -- Declaratively install a Platform Mesh instance alongside the operator.
+# Requires Flux and the OCM Kubernetes controller to be installed beforehand.
+# This remains opt-in because the chart is also used to deploy an operator that
+# manages PlatformMesh resources supplied by another GitOps repository.
+installation:
+  enabled: false
+  # -- Installation profile. `production` assumes the infrastructure prerequisites already exist.
+  profile: production
+  # -- Public DNS name used for Platform Mesh endpoints.
+  baseDomain: ""
+  # -- External HTTPS port exposed by the Gateway.
+  port: 8443
+  # -- Internal port of the KCP front-proxy Service. This is distinct from the external Gateway port. Production front-proxy Services expose 443; the Kind profile overrides this to 8443.
+  kcpFrontProxyPort: 443
+  # -- ClusterIP of the Traefik Service used by the local Kind profile. Production uses public DNS instead.
+  traefikClusterIP: ""
+  # -- TLS Secret containing tls.crt, tls.key, and ca.crt. Its ca.crt is trusted by the operator.
+  certificateSecretName: domain-certificate
+  # -- Create a private self-signed CA and use it to issue the gateway certificate. Requires cert-manager. Keep disabled when the TLS Secret is managed externally.
+  selfSignedCertificate:
+    enabled: false
+    # -- Secret containing the generated private CA certificate and key.
+    caSecretName: domain-certificate-ca
+  # -- Platform Mesh OCM component version to reconcile.
+  version: "0.5.2"
+  # -- Set to false when the OCM component is signed by a different trusted key.
+  installSigningCertificate: true
+
 deployment:
   replicas: 1
 
