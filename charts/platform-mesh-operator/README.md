@@ -13,12 +13,16 @@ A Helm chart to automate bootstrapping of new environment
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh/platform-mesh-operator"` | The image repository path (without registry) |
-| installation | object | `{"baseDomain":"","certificateSecretName":"domain-certificate","enabled":false,"installSigningCertificate":true,"port":8443,"traefikClusterIP":"10.96.188.4","version":"0.5.2"}` | Declaratively install a Platform Mesh instance alongside the operator. Requires Flux and the OCM Kubernetes controller to be installed beforehand. This remains opt-in because the chart is also used to deploy an operator that manages PlatformMesh resources supplied by another GitOps repository. |
+| installation | object | `{"baseDomain":"","certificateSecretName":"domain-certificate","enabled":false,"installSigningCertificate":true,"kcpFrontProxyPort":443,"port":8443,"profile":"production","selfSignedCertificate":{"caSecretName":"domain-certificate-ca","enabled":false},"traefikClusterIP":"","version":"0.5.2"}` | Declaratively install a Platform Mesh instance alongside the operator. Requires Flux and the OCM Kubernetes controller to be installed beforehand. This remains opt-in because the chart is also used to deploy an operator that manages PlatformMesh resources supplied by another GitOps repository. |
 | installation.baseDomain | string | `""` | Public DNS name used for Platform Mesh endpoints. |
-| installation.certificateSecretName | string | `"domain-certificate"` | TLS Secret created by the local certificate chart. Its ca.crt is trusted by the operator. |
+| installation.certificateSecretName | string | `"domain-certificate"` | TLS Secret containing tls.crt, tls.key, and ca.crt. Its ca.crt is trusted by the operator. |
 | installation.installSigningCertificate | bool | `true` | Set to false when the OCM component is signed by a different trusted key. |
-| installation.port | int | `8443` | External HTTPS port. The local kind profile exposes Traefik on 8443. |
-| installation.traefikClusterIP | string | `"10.96.188.4"` | Fixed ClusterIP assigned to Traefik by the local kind profile. |
+| installation.kcpFrontProxyPort | int | `443` | Internal port of the KCP front-proxy Service. This is distinct from the external Gateway port. Production front-proxy Services expose 443; the Kind profile overrides this to 8443. |
+| installation.port | int | `8443` | External HTTPS port exposed by the Gateway. |
+| installation.profile | string | `"production"` | Installation profile. `production` assumes the infrastructure prerequisites already exist. |
+| installation.selfSignedCertificate | object | `{"caSecretName":"domain-certificate-ca","enabled":false}` | Create a private self-signed CA and use it to issue the gateway certificate. Requires cert-manager. Keep disabled when the TLS Secret is managed externally. |
+| installation.selfSignedCertificate.caSecretName | string | `"domain-certificate-ca"` | Secret containing the generated private CA certificate and key. |
+| installation.traefikClusterIP | string | `""` | ClusterIP of the Traefik Service used by the local Kind profile. Production uses public DNS instead. |
 | installation.version | string | `"0.5.2"` | Platform Mesh OCM component version to reconcile. |
 | istio.enabled | bool | `false` |  |
 | jwt.userIdClaim | string | `"email"` |  |

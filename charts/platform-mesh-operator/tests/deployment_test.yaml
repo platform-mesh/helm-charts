@@ -98,7 +98,10 @@ tests:
   set:
     installation:
       enabled: true
+      profile: kind
       baseDomain: portal.localhost
+      kcpFrontProxyPort: 8443
+      traefikClusterIP: 10.96.188.4
   asserts:
     - equal:
         path: spec.template.spec.hostAliases[0].ip
@@ -118,6 +121,29 @@ tests:
     - contains:
         path: spec.template.spec.containers[0].args
         content: "--kcp-url=https://frontproxy-front-proxy.NAMESPACE:8443"
+- it: uses the production front-proxy Service port when the Gateway exposes HTTPS on 443
+  template: deployment.yaml
+  set:
+    installation:
+      enabled: true
+      baseDomain: platform.example.com
+      port: 443
+      kcpFrontProxyPort: 443
+      traefikClusterIP: 10.96.200.10
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].args
+      content: "--kcp-url=https://frontproxy-front-proxy.NAMESPACE:443"
+- it: does not add local Service host aliases to a production installation
+  template: deployment.yaml
+  set:
+    installation:
+      enabled: true
+      profile: production
+      baseDomain: platform.example.com
+  asserts:
+  - isNull:
+      path: spec.template.spec.hostAliases
 - it: deploy with extraArgs
   template: deployment.yaml
   set:

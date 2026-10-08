@@ -2,7 +2,7 @@ apiVersion: v2
 name: platform-mesh-prerequisites
 description: Optional infrastructure prerequisites for Platform Mesh
 type: application
-version: 0.1.3
+version: 0.2.0
 appVersion: "0.1.0"
 dependencies:
   - name: flux2
@@ -38,3 +38,11 @@ dependencies:
     version: 0.10.0
     repository: file://../keycloak-operator
     condition: keycloak-operator.enabled
+  - name: kcp-operator
+    version: 0.7.4
+    repository: oci://ghcr.io/platform-mesh/helm-charts/charts/mirrored
+    condition: kcp-operator.enabled
+  - name: etcd-druid
+    version: v0.36.4
+    repository: oci://ghcr.io/platform-mesh/charts/gardener
+    condition: etcd-druid.enabled

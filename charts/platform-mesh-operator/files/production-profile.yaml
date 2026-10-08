@@ -14,122 +14,30 @@ data:
         referencePath: []
         repo:
           name: platform-mesh
-        skipVerify: true
+        skipVerify: false
       certManager:
-        enabled: true
-        interval: 1m
-        name: cert-manager
-        ocmResourceName: chart
-        targetNamespace: default
-        values:
-          installCRDs: true
+        # Installed or supplied by the target cluster.
+        enabled: false
       gatewayApi:
-        syncOptions:
-        - ServerSideApply=true
-        enabled: true
-        interval: 1m
-        name: gateway-api-crds
-        chart:
-          name: gateway-api-crds
-        ocmResourceName: chart
-        targetNamespace: default
+        # Installed or supplied by the target cluster.
+        enabled: false
       traefik:
-        skipCrds: true
-        syncOptions:
-        - SkipCRDs=true
-        syncWave: 1
-        chart:
-          name: traefik
-        enabled: true
-        interval: 1m
-        name: traefik
-        ocmResourceName: chart
-        targetNamespace: default
-        values:
-          gateway:
-            enabled: false
-          gatewayClass:
-            enabled: true
-          deployment:
-            podAnnotations: {}
-          securityContext:
-            capabilities:
-              add:
-              - NET_BIND_SERVICE
-              drop:
-              - ALL
-            readOnlyRootFilesystem: true
-            runAsNonRoot: false
-            runAsUser: 0
-          ports:
-            websecure:
-              exposedPort: 8443
-              nodePort: 31000
-          providers:
-            kubernetesGateway:
-              enabled: true
-              experimentalChannel: true
-          service:
-            spec:
-              clusterIP: 10.96.188.4
-              type: NodePort
-            type: NodePort
+        # Installed or supplied by the target cluster.
+        enabled: false
       etcdDruid:
-        enabled: true
-        interval: 1m
-        name: etcd-druid
-        ocmResourceName: etcd-druid
-        ocmImageResourceName: image
-        targetNamespace: etcd-druid-system
-        values: {}
+        # Installed or supplied by the target cluster.
+        enabled: false
       traefikCRDs:
-        chart:
-          name: traefik-crds
-        enabled: true
-        interval: 1m
-        name: traefik-crds
-        ocmComponentName: traefik
-        ocmResourceName: crds
-        targetNamespace: default
-        values:
-          gatewayAPI: false
+        # Installed or supplied by the target cluster.
+        enabled: false
       prometheusOperatorCRDs:
-        enabled: true
-        interval: 1m
-        name: prometheus-operator-crds
-        ocmResourceName: chart
-        ocmComponentName: prometheus-operator-crds
-        targetNamespace: observability
-        values: {}
+        enabled: false
       opentelemetryOperator:
         enabled: false
-        interval: 1m
-        name: opentelemetry-operator
-        ocmResourceName: chart
-        ocmComponentName: opentelemetry-operator
-        targetNamespace: observability
-        values:
-          manager:
-            featureGatesMap:
-              operator.targetallocator.mtls: true
-          admissionWebhooks:
-            certManager:
-              enabled: false
-            autoGenerateCert:
-              enabled: true
     components:
-      # -- Change hostaliases here and all involved components will get the same hostaliases
-      hostAliasesEntries: &hostAliasesEntries
-        # REQUIRED: set the host aliases for kcp shards
-        - ip: "{{ .traefikClusterIP }}"
-          hostnames:
-            - "{{ .baseDomain }}"
-            - "kcp.api.{{ .baseDomain }}"
-            - "kcp.root.{{ .baseDomain }}"
-
-            # REQUIRED: enable the kcp hostaliases if shards are used
-            # - "kcp.triton.{{ .baseDomain }}"
-            # - "kcp.nereus.{{ .baseDomain }}"
+      # Production workloads resolve public Platform Mesh hostnames through DNS.
+      # Do not route them to an implementation-specific Service ClusterIP.
+      hostAliasesEntries: &hostAliasesEntries []
       deploymentTechnology: fluxcd
       ocm:
         component:
@@ -140,7 +48,7 @@ data:
         repo:
           create: true
           name: platform-mesh
-        skipVerify: true
+        skipVerify: false
       services:
         account-operator:
           imageResources:
@@ -219,14 +127,6 @@ data:
               artifact: image
               for: infra
               path: cnpg.cluster.image.tag
-          - name: dex-image
-            resource: dex-image
-            resourceName: dex-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: infra
-              path: dex.image.tag
           - name: kcp-server-image
             resource: image
             absoluteReferencePath:
@@ -290,14 +190,7 @@ data:
                 url: http://keycloak-service.platform-mesh-system.svc.cluster.local:8080/keycloak
                 redirectUrls: ["http://localhost:8000/callback*"]
             dex:
-              enabled: true
-              issuer: "https://{{ .baseDomainPort }}/dex"
-              gatewayApi:
-                hostnames:
-                  - "{{ .baseDomain }}"
-              staticClient:
-                redirectURIs:
-                  - "https://{{ .baseDomainPort }}/keycloak/realms/default/broker/dex/endpoint"
+              enabled: false
             cnpg:
               enabled: true
               roles:
@@ -358,7 +251,7 @@ data:
             kcp:
               external:
                 hostname: kcp.api.{{ .baseDomain }}
-                port: 8443
+                port: __EXTERNAL_PORT__
               auth:
                 serviceAccount:
                   enabled: true
@@ -368,7 +261,7 @@ data:
                 tag: v0.33.0
               rootShard:
                 hostname: "root.kcp.{{ .baseDomain }}"
-                shardBaseURL: https://root.kcp.{{ .baseDomain }}:8443/
+                shardBaseURL: https://root.kcp.{{ .baseDomain }}:__EXTERNAL_PORT__/
                 extraArgs:
                 - --feature-gates=WorkspaceAuthentication=true,CacheAPIs=true
               shards:
@@ -417,95 +310,17 @@ data:
               enabled: true
               entries: *hostAliasesEntries
         init-agent:
-          absoluteReferencePath:
-          - name: init-agent
-          imageResources:
-          - annotations:
-              repo: oci
-              artifact: image
-              for: init-agent
-              image-ref: combined
-            absoluteReferencePath:
-            - name: init-agent
-          syncWave: 4
-          enabled: true
-          dependsOn: []
-          values:
-            configWorkspace: root:platform-mesh-system
-            kcpKubeconfig: init-agent-kubeconfig
-            replicas: 1
-            leaderElection:
-              enabled: true
-            hostAliases:
-              enabled: true
-              values:
-                - ip: "{{ .traefikClusterIP }}"
-                  hostnames:
-                    - "kcp.api.{{ .baseDomain }}"
+          enabled: false
         kcp:
           external: true
           dependsOn: []
         kcp-operator:
-          syncWave: 1
-          external: true
-          enabled: true
-          dependsOn: []
-          imageResources:
-          - name: kcp-operator-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: kcp-operator
-              image-ref: combined
-          targetNamespace: platform-mesh-system
-          values: {}
+          # Installed by platform-mesh-prerequisites.
+          enabled: false
         keycloak-operator:
-          enabled: true
-          external: true
-          dependsOn: []
-          imageResources:
-          - name: keycloak-operator-keycloak-image
-            resource: keycloak-image
-            resourceName: keycloak-image
-            absoluteReferencePath:
-              - name: keycloak-operator
-              - name: image
-            annotations:
-              repo: oci
-              artifact: image
-              for: keycloak-operator
-              path: keycloakImage.tag
-          - name: keycloak-operator-image
-            resource: manager-image
-            resourceName: manager-image
-            absoluteReferencePath:
-              - name: keycloak-operator
-              - name: image
-            annotations:
-              repo: oci
-              artifact: image
-              for: keycloak-operator
-              path: image.tag
-          absoluteReferencePath:
-            - name: keycloak-operator
-            - name: chart
-          values:
-            watchNamespaces: platform-mesh-system
+          enabled: false
         cnpg-operator:
-          enabled: true
-          external: true
-          dependsOn: []
-          targetNamespace: platform-mesh-system
-          absoluteReferencePath:
-          - name: cnpg-operator
-          values: {}
-          imageResources:
-          - name: cnpg-operator-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: cnpg-operator
-              image-ref: combined
+          enabled: false
         kubernetes-graphql-gateway:
           imageResources:
           - annotations:
@@ -612,7 +427,7 @@ data:
             replicaCount: 1
             telemetry:
               trace:
-                enabled: true
+                enabled: false
                 otlp:
                   endpoint: observability-opentelemetry-collector.openmfp-observability.svc.cluster.local:4317
                   tls:
@@ -652,7 +467,7 @@ data:
               command:
               - sh
               - -c
-              - cat /domain-ca/tls.crt /webhook-ca/ca.crt > /combined-ca/ca-bundle.crt
+              - cat /domain-ca/ca.crt /webhook-ca/ca.crt > /combined-ca/ca-bundle.crt
               # busybox runs as root by default, but pod has runAsNonRoot
               securityContext:
                 runAsUser: 1000
@@ -679,7 +494,7 @@ data:
               mountPath: /etc/ssl/certs/ca-bundle.crt
               subPath: ca-bundle.crt
               readOnly: true
-            frontendPort: '8443'
+            frontendPort: '__EXTERNAL_PORT__'
             gatewayApi:
               enabled: true
               httpRoute:
@@ -771,6 +586,8 @@ data:
           targetNamespace: platform-mesh-system
           values:
             virtualWorkspaceSecretName: virtual-workspaces-cert
+            # The KCP operator's in-cluster front-proxy Service exposes 443.
+            serverUrl: https://frontproxy-front-proxy.platform-mesh-system:443
             hostAliases:
               enabled: true
               entries: *hostAliasesEntries
@@ -802,75 +619,6 @@ data:
               enabled: false
         terminal-controller-manager:
           enabled: false
-          dependsOn: []
-          imageResources:
-          - annotations:
-              repo: oci
-              artifact: image
-              for: terminal-controller-manager
-          - name: terminal-image
-            annotations:
-              path: terminal.image.tag
-              for: terminal-controller-manager
-              repo: oci
-              artifact: image
-            resource: terminal-image
-            referencePath:
-            - name: terminal-controller-manager
-          values:
-            kcp:
-              kubeconfigSecret: terminal-controller-manager-kubeconfig
         observability:
-          syncWave: 4
           enabled: false
-          targetNamespace: observability
-          imageResources:
-          - name: otel-collector-image
-            resource: otel-collector-image
-            resourceName: otel-collector-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: observability
-              path: otelCollector.image.tag
-          - name: kubectl-image
-            resource: kubectl-image
-            resourceName: kubectl-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: observability
-              path: serviceMonitors.kcp.certExtractor.image.tag
-          - name: prometheus-server-image
-            resource: prometheus-server-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: observability
-              path: prometheus.server.image.tag
-              image-ref: combined
-          - name: prometheus-config-reloader-image
-            resource: prometheus-config-reloader-image
-            annotations:
-              repo: oci
-              artifact: image
-              for: observability
-              path: prometheus.configmapReload.prometheus.image.tag
-              image-ref: combined
-          dependsOn: []
-          values:
-            prometheus:
-              server:
-                persistentVolume:
-                  enabled: false
-                extraFlags:
-                - web.enable-remote-write-receiver
-              alertmanager:
-                enabled: false
-              prometheus-node-exporter:
-                enabled: false
-              prometheus-pushgateway:
-                enabled: false
-              kube-state-metrics:
-                enabled: false
       targetNamespace: platform-mesh-system
