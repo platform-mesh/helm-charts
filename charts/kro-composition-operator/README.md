@@ -14,7 +14,7 @@ A Helm chart to deploy the platform-mesh kro composition operator (KROaaS)
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh/kro-composition-operator"` | The image repository path (without registry) |
-| image.tag | string | `""` | Image tag; defaults to the chart appVersion when empty |
+| image.tag | string | `"@sha256:4f4a98994506a8907ff98451e918bbefba65c85dcc1d717c07f391fe2115f429"` | Image tag; defaults to the chart appVersion when empty |
 | kcp.apiExportEndpointSlice | string | `"kro.run"` | APIExportEndpointSlice serving the kro.run RGD API |
 | kcp.providerWorkspace | string | `"root:providers:kro-provider"` | Workspace path holding the kro.run APIExport + endpointslice |
 | kubeconfigSecret | string | `"kcp-kubeconfig"` | Name of the Secret holding the operator's kcp kubeconfig (from the provider    connection). Mounted at /kubeconfig/kubeconfig and passed via --kubeconfig. |
