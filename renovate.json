@@ -38,6 +38,8 @@
         "/(^|/)\\.github/workflows/ocm-service-component\\.yaml$/",
         "/(^|/)\\.github/workflows/ocm-create-patch\\.yaml$/",
         "/(^|/)\\.github/workflows/ocm-create-draft-release\\.yaml$/",
+        "/(^|/)\\.github/workflows/ocm-aggregator\\.yaml$/",
+        "/(^|/)\\.github/workflows/example-httpbin-operator\\.yaml$/",
         "/(^|/)local-setup/scripts/ocm-setup\\.sh$/"
       ],
       "matchStrings": [
