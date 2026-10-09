@@ -29,6 +29,9 @@ spec:
           {{- with .Values.baseDomain }}
           - --base-domain={{ . }}
           {{- end }}
+          {{- with .Values.jwt.userIdClaim }}
+          - --user-claim={{ . }}
+          {{- end }}
           - --fga-target={{ .Values.openfga.endpoint }}
           {{- if .Values.initializer.kubeconfigSecret }}
           - --kcp-kubeconfig=/api-kubeconfig/kubeconfig
