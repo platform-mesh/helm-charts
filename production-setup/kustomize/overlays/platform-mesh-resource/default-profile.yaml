@@ -125,10 +125,11 @@ data:
           hostnames:
             - "{{ .baseDomain }}"
             - "kcp.api.{{ .baseDomain }}"
-            # - kcp.root.localhost
-            # - kcp.triton.localhost
-            # - kcp.nereus.localhost
-            # - localhost
+            - "kcp.root.{{ .baseDomain }}"
+
+            # REQUIRED: enable the kcp hostaliases if shards are used
+            # - "kcp.triton.{{ .baseDomain }}"
+            # - "kcp.nereus.{{ .baseDomain }}"
       deploymentTechnology: fluxcd
       ocm:
         component:
@@ -250,13 +251,7 @@ data:
               for: infra
               path: kcp.etcd.backup.image.tag
               image-ref: combined
-          dependsOn:
-          - name: keycloak-operator
-            namespace: platform-mesh-system
-          - name: cnpg-operator
-            namespace: platform-mesh-system
-          - name: traefik
-            namespace: platform-mesh-system
+          dependsOn: []
           values:
             keycloak:
               operator:

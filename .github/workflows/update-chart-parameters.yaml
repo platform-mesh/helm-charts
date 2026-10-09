@@ -16,6 +16,11 @@ permissions:
   contents: write
   pull-requests: write
 
+# Serialize runs per chart so that back-to-back dispatches cannot race each other while opening and closing bump PRs.
+concurrency:
+  group: update-chart-parameters-${{ inputs.chart }}
+  cancel-in-progress: false
+
 jobs:
   version-update:
     runs-on: ubuntu-latest
@@ -122,3 +127,28 @@ jobs:
           PR_URL: ${{ steps.pr.outputs.url }}
         run: |
           gh pr review "$PR_URL" --approve
+      - name: Close superseded PRs
+        if: steps.pr.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          INPUT_CHART: ${{ inputs.chart }}
+          BRANCH: ${{ steps.bump.outputs.branch }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: |
+          set -euo pipefail
+          # Older bump PRs for the same chart were computed off the same main
+          # and are dead once any of them merges. Match on the exact title
+          # suffix rather than the branch prefix, because chart names overlap
+          # (e.g. security-operator vs. security-operator-crds).
+          gh pr list --state open --author "app/platform-mesh-publisher" \
+            --json number,title,headRefName --limit 100 \
+          | jq -r --arg chart "$INPUT_CHART" --arg branch "$BRANCH" '
+              .[]
+              | select(.headRefName | startswith("bump/"))
+              | select(.title | endswith(" in charts/\($chart)/Chart.yaml"))
+              | select(.headRefName != $branch)
+              | .number' \
+          | while read -r number; do
+              echo "Closing #$number, superseded by $PR_URL"
+              gh pr close "$number" --delete-branch --comment "Superseded by $PR_URL."
+            done

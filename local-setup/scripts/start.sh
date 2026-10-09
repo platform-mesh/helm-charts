@@ -837,7 +837,7 @@ if [ "$EXAMPLE_DATA" = true ]; then
 
     # Add hostAliases so the syncagent pod resolves both kcp hostnames to the PM kind node, and
     # redirect port 8443→31000 on the msp-cert-manager node so cross-cluster virtual workspace
-    # URLs (triton.kcp.localhost:8443) reach the NodePort that is actually accessible in the
+    # URLs (triton.kcp.portal.localhost:8443) reach the NodePort that is actually accessible in the
     # Docker kind network (port 31000 on the PM kind node, not the host-only 8443 mapping).
     PM_NODE_IP="$(docker inspect platform-mesh-control-plane --format '{{.NetworkSettings.Networks.kind.IPAddress}}')"
     docker exec msp-cert-manager-control-plane iptables -t nat -I PREROUTING \
@@ -851,7 +851,7 @@ hostAliases:
     - ip: "${PM_NODE_IP}"
       hostnames:
         - kcp.api.portal.localhost
-        - triton.kcp.localhost
+        - triton.kcp.portal.localhost
 VALEOF
 
     helm repo add kcp https://kcp-dev.github.io/helm-charts --force-update >/dev/null
