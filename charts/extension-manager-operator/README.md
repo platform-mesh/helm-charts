@@ -13,6 +13,8 @@ A Helm chart for extension-manager-operator which manages resources like Content
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
+| clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | commonAnnotations | object | `{}` |  |
 | crds.enabled | bool | `true` |  |
 | entityTypeValidation.enabled | bool | `false` | enable entityType validation for ContentConfigurations |
