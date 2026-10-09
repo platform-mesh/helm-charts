@@ -114,11 +114,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: setup OCM CLI
         run: |
-          REPO=${repo:=open-component-model/open-component-model}
-          if [ -z "$version" -o "$version" == latest ]; then
-            version="$(basename "$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/$REPO/releases/latest)")"
-            echo "Selecting latest version: $version"
-          fi
+          REPO="open-component-model/open-component-model"
+          # renovate: datasource=github-releases depName=open-component-model/open-component-model
+          version="v0.19.1"
           echo "Installing ocm-cli version $version from $REPO"
           curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
           chmod a+x ocm
@@ -504,34 +502,9 @@ jobs:
           if ./ocm get componentversion "$ocm_target//$etcd_ref" >/dev/null 2>&1; then
             echo "etcd-druid ${{ env.GARDENER_ETCD_DRUID_VERSION }} already present in ghcr.io, skipping transfer"
           else
-            # etcd-druid v0.36.4 contains SPDX resources backed by a multi-manifest OCI index that
-            # OCM v2 cannot re-pack (no top-level parent manifest). Generate a transfer spec, strip
-            # the invalid nodes, and replay — the SPDX resources are omitted from the copy.
-            ./ocm transfer component-version --copy-resources --recursive --dry-run -o yaml \
+            ./ocm transfer component-version --copy-resources --recursive \
               "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
-              "$ocm_target" > /tmp/etcd-druid-transfer-spec.yaml
-            python3 - << 'PYEOF'
-          import yaml, sys
-          with open('/tmp/etcd-druid-transfer-spec.yaml') as f:
-              spec = yaml.safe_load(f)
-          nodes = spec['transformations']
-          spdx_ids = {n['id'] for n in nodes if 'Spdx' in n['id']}
-          def strip_spdx(obj):
-              if isinstance(obj, list):
-                  return [strip_spdx(i) for i in obj if not (isinstance(i, str) and any(s in i for s in spdx_ids))]
-              elif isinstance(obj, dict):
-                  return {k: strip_spdx(v) for k, v in obj.items()}
-              return obj
-          filtered = [strip_spdx(n) for n in nodes if n['id'] not in spdx_ids]
-          for n in filtered:
-              if 'dependsOn' in n:
-                  n['dependsOn'] = [d for d in n['dependsOn'] if d not in spdx_ids]
-          spec['transformations'] = filtered
-          with open('/tmp/etcd-druid-transfer-spec-nospdx.yaml', 'w') as f:
-              yaml.dump(spec, f, default_flow_style=False)
-          print(f"Stripped {len(spdx_ids)} SPDX nodes, {len(filtered)} nodes remaining", file=sys.stderr)
-          PYEOF
-            ./ocm transfer component-version --transfer-spec /tmp/etcd-druid-transfer-spec-nospdx.yaml
+              "$ocm_target"
           fi
 
       - name: create OCM ComponentArchive
