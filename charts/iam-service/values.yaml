@@ -63,7 +63,7 @@ keycloak:
 
 # JWT configuration
 jwt:
-  userIdClaim: "email"
+  userIdClaim: "sub"
 
 roles:
   raw:

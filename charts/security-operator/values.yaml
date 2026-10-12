@@ -67,7 +67,7 @@ baseDomain: ""
 
 # JWT configuration
 jwt:
-  userIdClaim: "email"
+  userIdClaim: "sub"
 
 # Identity provider configuration. This is MUST be set for email verification to work
 idp:

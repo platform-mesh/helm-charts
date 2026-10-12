@@ -13,7 +13,7 @@ operator:
 
 # JWT configuration
 jwt:
-  userIdClaim: "email"
+  userIdClaim: "sub"
 
 image:
   # -- The image registry

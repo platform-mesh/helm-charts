@@ -406,6 +406,8 @@ data:
           syncWave: 4
           enabled: true
           values:
+            jwt:
+              userIdClaim: "sub"
             caSecret: domain-certificate-ca
             extraArgs:
             - --no-json
@@ -731,6 +733,8 @@ data:
           values:
             baseDomain: '{{ .baseDomainPort }}'
             caSecret: domain-certificate-ca
+            jwt:
+              userIdClaim: "sub"
             crds:
               enabled: false
             openfga:
@@ -747,7 +751,7 @@ data:
                 - http://localhost:4300/callback*
                 - http://sub.localhost:4300/callback*
               registrationAllowed: true
-              allowUnverifiedEmails: true
+              allowUnverifiedEmails: false
               setDefaultPassword: true
             operator:
               maxConcurrentReconciles: 1
@@ -757,6 +761,8 @@ data:
               entries: *hostAliasesEntries
             initializer:
               kubeconfigSecret: security-initializer-kubeconfig
+              extraArgs:
+              - --initializer-invite-enabled=false
             kubeconfigSecret: security-operator-kubeconfig
             log:
               level: debug
