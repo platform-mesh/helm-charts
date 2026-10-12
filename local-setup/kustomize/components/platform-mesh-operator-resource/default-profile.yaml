@@ -827,7 +827,7 @@ data:
               kubeconfigSecret: terminal-controller-manager-kubeconfig
         observability:
           syncWave: 4
-          # when enabled, enable opentelemetry-operator and prometheusOperatorCRDs components as well
+          # when enabled, enable opentelemetryOperator and prometheusOperatorCRDs components as well
           enabled: false
           targetNamespace: observability
           imageResources:
