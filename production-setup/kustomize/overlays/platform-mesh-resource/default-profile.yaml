@@ -94,7 +94,8 @@ data:
         values:
           gatewayAPI: false
       prometheusOperatorCRDs:
-        enabled: true
+        # Enable when components.observability.enabled is true
+        enabled: false
         interval: 1m
         name: prometheus-operator-crds
         ocmResourceName: chart
@@ -102,7 +103,8 @@ data:
         targetNamespace: observability
         values: {}
       opentelemetryOperator:
-        enabled: true
+        # Enable when components.observability.enabled is true
+        enabled: false
         interval: 1m
         name: opentelemetry-operator
         ocmResourceName: chart
@@ -815,6 +817,7 @@ data:
               kubeconfigSecret: terminal-controller-manager-kubeconfig
         observability:
           syncWave: 4
+          # when enabled, enable opentelemetryOperator and prometheusOperatorCRDs component as well
           enabled: false
           targetNamespace: observability
           imageResources:
