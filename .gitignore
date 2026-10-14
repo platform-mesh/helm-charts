@@ -10,7 +10,7 @@ development/webhook-config/*
 !development/webhook-config/*.sh
 !development/webhook-config/*.yaml
 !development/webhook-config/*.conf
-development/e2e/test-results/*
+tests/test-results/*
 development/test-results/
 development/scripts/certs
 .vscode/
@@ -25,8 +25,8 @@ prerelease/
 registry-ca.pem
 .ocm/.ocmconfig
 development/rootCA.pem
-development/e2e/node_modules/
-development/e2e/*.png
+tests/node_modules/
+tests/*.png
 development/scripts/load-custom-images.sh
 /convo
 docs/migration-0.3/kcp-exports
