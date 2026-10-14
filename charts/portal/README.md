@@ -14,6 +14,7 @@ Helm Chart for the Platform Mesh Portal
 | auth.default.clientId | string | `""` | client id |
 | auth.default.discoveryUrl | string | `""` | discovery url used for the idp |
 | cookieDomain | string | `""` | cookie domain for auth session cookies. Must match the base domain of the portal deployment (e.g. example.com). Required. |
+| cors.mode | string | `"none"` | CORS mode for the HTTPRoute. One of: native (upstream Gateway API type:CORS filter, GEP-1767), none (disabled - the default for portal). |
 | developmentLandcsape | string | `"false"` | development landscape toggle. Set to "true" only in local/dev environments to enable dev-only UI features. Permissible values: "true", "false" |
 | environment | string | `""` | environment label propagated to observability (e.g. logs, traces). Permissible values: any string (e.g. production, staging, development) |
 | featureToggles | string | `"enableSessionAutoRefresh=true"` |  |
@@ -36,7 +37,6 @@ Helm Chart for the Platform Mesh Portal
 | kcp.kubeconfigSecret | string | `""` |  |
 | kcp.url | string | `""` | kcp API URL (e.g. https://localhost:8443 for local setup) |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 | uiOptions | string | `"enableFeatureToggleSetting"` |  |
 | validWebcomponentUrls | string | `".?"` |  |
 | validation.path | string | `"/validate"` | Path of the extension-manager validation webhook |

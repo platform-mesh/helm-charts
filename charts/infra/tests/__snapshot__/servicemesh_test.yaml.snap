@@ -92,11 +92,16 @@ test HTTPRoutes:
               namespace: platform-mesh-system
               port: 80
           filters:
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
-                name: cors-header
-              type: ExtensionRef
+            - cors:
+                allowCredentials: true
+                allowHeaders:
+                  - '*'
+                allowMethods:
+                  - GET
+                  - OPTIONS
+                  - POST
+                maxAge: 100
+              type: CORS
           matches:
             - path:
                 type: PathPrefix

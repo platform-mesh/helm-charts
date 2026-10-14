@@ -9,7 +9,7 @@ tests:
       gatewayApi:
         enabled: true
       cors:
-        enabled: true
+        mode: native
       istio:
         enabled: false
     asserts:

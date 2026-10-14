@@ -17,11 +17,12 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.gatewayApi.httpRoute.pathPrefix }}
-    {{- if or .Values.gatewayApi.httpRoute.filters .Values.traefik.enabled }}
-    {{- with .Values.gatewayApi.httpRoute.filters }}
+    {{- if or .Values.gatewayApi.httpRoute.filters (eq (include "common.gateway.corsEnabled" .) "true") }}
     filters:
+    {{- with .Values.gatewayApi.httpRoute.filters }}
     {{ toYaml . | nindent 4 }}
     {{- end }}
+    {{- include "common.gateway.corsFilter" . | nindent 4 }}
     {{- end }}
     backendRefs:
     - name: {{ include "common.entity.name" . }}

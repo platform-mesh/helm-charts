@@ -24,9 +24,10 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | cnpg.roles.keycloak.username | string | `"keycloak"` | PostgreSQL username for Keycloak. Written to the cnpg-keycloak-user secret. |
 | cnpg.roles.openfga.password | string | `""` | REQUIRED: set to a strong random value. |
 | cnpg.roles.openfga.username | string | `"openfga"` | PostgreSQL username for OpenFGA. Written to the cnpg-openfga-user secret. |
+| cors.allowOrigins | list | `[]` | list of origins allowed for CORS (native mode). |
+| cors.mode | string | `"none"` | CORS mode for the platform HTTPRoutes. One of: native (upstream Gateway API type:CORS filter, GEP-1767), none (disabled). |
 | dex.enabled | bool | `false` | Enable Dex as a local upstream OIDC identity provider |
-| dex.gatewayApi.corsFilters | list | `[]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
-| dex.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
+| dex.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none; CORS is added via cors.mode) |
 | dex.gatewayApi.hostnames | list | `[]` | hostnames for the Dex HTTPRoute |
 | dex.gatewayApi.pathPrefix | string | `"/dex"` | path prefix for the Dex HTTPRoute |
 | dex.health.liveness.failureThreshold | int | `3` |  |
@@ -167,8 +168,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
-| keycloak.gatewayApi.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
-| keycloak.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
+| keycloak.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none; CORS is added via cors.mode) |
 | keycloak.gatewayApi.hostnames | list | `[]` | hostnames for the Keycloak HTTPRoute |
 | keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
 | keycloak.keycloakConfig.admin | object | `{"password":{"valueFrom":{"secretKeyRef":{"key":"secret","name":"keycloak-admin"}}},"username":{"value":"keycloak-admin"}}` | admin user configuration |
@@ -227,8 +227,6 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
 | openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
-| traefik.accessControlAllowOriginList | list | `[]` | list of origins allowed for CORS (used by Traefik middleware) |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

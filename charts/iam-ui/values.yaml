@@ -20,9 +20,10 @@ health:
   readiness:
     path: /healthz
 
-traefik:
-  # -- toggle to enable traefik CORS filter in HTTPRoute
-  enabled: true
+cors:
+  # -- CORS mode for the HTTPRoute. One of: native (upstream Gateway API
+  # type:CORS filter, GEP-1767), none (disabled - the default for iam-ui).
+  mode: none
 
 gatewayApi:
   httpRoute:

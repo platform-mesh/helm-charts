@@ -45,9 +45,10 @@ kcp:
 # -- Path prefix for routing rules in Gateway API and Istio VirtualService
 pathPrefix: /validate
 
-traefik:
-  # -- toggle to enable traefik CORS filter in HTTPRoute
-  enabled: true
+cors:
+  # -- CORS mode for the HTTPRoute. One of: native (upstream Gateway API
+  # type:CORS filter, GEP-1767), none (disabled).
+  mode: none
 
 gatewayApi:
   # -- Toggle to enable/disable Gateway API resources
@@ -59,12 +60,5 @@ gatewayApi:
     gateway:
       port: 8443
   httpRoute:
-    # -- list of HTTPRoute filters (default: none)
+    # -- list of HTTPRoute filters (default: none; CORS is added via cors.mode)
     filters: []
-    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
-    corsFilters:
-      - type: ExtensionRef
-        extensionRef:
-          group: traefik.io
-          kind: Middleware
-          name: cors-header

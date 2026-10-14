@@ -6,9 +6,9 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | caSecret | string | `""` |  |
+| cors.mode | string | `"none"` | CORS mode for the HTTPRoute. One of: native (upstream Gateway API type:CORS filter, GEP-1767), none (disabled). See the common chart cors defaults for the native-mode fields. |
 | exposure.hostnames | list | `[]` | hostnames to be used for exposure |
-| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
-| gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/graphql","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only, no CORS) |
+| gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/graphql","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only; CORS is added via cors.mode) |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/iam/graphql"` |  |
 | health.port | int | `8080` |  |
@@ -39,7 +39,6 @@ A Helm chart for Kubernetes
 | roles.raw.roles[1].roles[1].description | string | `"Limited access to resources within the account. Can view and interact with resources but cannot administrate them."` |  |
 | roles.raw.roles[1].roles[1].displayName | string | `"Member"` |  |
 | roles.raw.roles[1].roles[1].id | string | `"member"` |  |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

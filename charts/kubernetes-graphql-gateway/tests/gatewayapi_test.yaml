@@ -10,13 +10,26 @@ chart:
 templates:
   - httproute.yaml
 tests:
-  - it: HTTPRoute without traefik - match the Snapshot
+  - it: HTTPRoute with CORS disabled - match the Snapshot
     set:
-      traefik.enabled: false
+      cors.mode: none
     asserts:
       - matchSnapshot: {}
-  - it: HTTPRoute with traefik enabled - match the Snapshot
+  - it: HTTPRoute with native Gateway API CORS (default) - match the Snapshot
     set:
-      traefik.enabled: true
+      cors.mode: native
     asserts:
       - matchSnapshot: {}
+      - contains:
+          path: spec.rules[0].filters
+          content:
+            type: CORS
+            cors:
+              allowMethods:
+                - GET
+                - OPTIONS
+                - POST
+              allowHeaders:
+                - "*"
+              allowCredentials: true
+              maxAge: 100

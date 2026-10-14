@@ -15,6 +15,7 @@ kubeConfig:
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| cors.mode | string | `"none"` | CORS mode for the HTTPRoute. One of: native (upstream Gateway API type:CORS filter, GEP-1767), none (disabled). |
 | crds.enabled | bool | `true` |  |
 | deployment | object | `{"maxSurge":5,"maxUnavailable":0,"replicas":1,"revisionHistoryLimit":3}` | Default deployment settings applied to both the gateway and listener Deployments. Each setting can be overridden per-deployment via `gateway.deployment.<field>` or `listener.deployment.<field>` (see those blocks in this file). When a per-deployment override is unset, the value from this block is used. |
 | extraVolumeMounts | list | `[]` |  |
@@ -34,9 +35,8 @@ kubeConfig:
 | gateway.resources.requests.memory | string | `"1000Mi"` |  |
 | gateway.shouldImpersonate | bool | `false` |  |
 | gateway.usernameClaim | string | `"email"` |  |
-| gatewayApi.httpRoute | object | `{"corsFilters":[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}],"enabled":true,"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/api/clusters/","type":"ReplacePrefixMatch"}}}],"hostnames":[],"parentRefs":[{"name":"k8sapi-gateway"}],"pathPrefix":"/gateway/api/clusters/"}` | configuration for the HTTPRoute resource |
-| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
-| gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/api/clusters/","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only, no CORS) |
+| gatewayApi.httpRoute | object | `{"enabled":true,"filters":[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/api/clusters/","type":"ReplacePrefixMatch"}}}],"hostnames":[],"parentRefs":[{"name":"k8sapi-gateway"}],"pathPrefix":"/gateway/api/clusters/"}` | configuration for the HTTPRoute resource |
+| gatewayApi.httpRoute.filters | list | `[{"type":"URLRewrite","urlRewrite":{"path":{"replacePrefixMatch":"/api/clusters/","type":"ReplacePrefixMatch"}}}]` | list of HTTPRoute filters (default: URLRewrite only; CORS is added via cors.mode) |
 | gatewayApi.httpRoute.hostnames | list | `[]` | hostnames for the HTTPRoute. When empty, the route matches all hostnames. |
 | health.liveness.failureThreshold | int | `1` |  |
 | health.liveness.path | string | `"/healthz"` |  |
@@ -87,7 +87,6 @@ kubeConfig:
 | sentry.environment | string | `"production"` | environment label reported to Sentry (e.g. production, staging, development) |
 | singleKubeConfig | object | `{"createInClusterSecret":true,"enabled":true,"path":"/app/single-kubeconfig/kubeconfig","secretName":"single-kubeconfig"}` | Single-provider kubeconfig. Used when listener.provider=multi. |
 | singleKubeConfig.createInClusterSecret | bool | `true` | Auto-generate an in-cluster kubeconfig using the pod's service account. Set to false if providing your own secret via secretName. |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

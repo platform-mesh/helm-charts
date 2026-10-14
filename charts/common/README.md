@@ -7,6 +7,13 @@ A Helm chart containing reuse templates
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | defaults.certManager.enabled | bool | `false` | toggle to enable/disable cert-manager |
+| defaults.cors.allowCredentials | bool | `true` | allow credentials |
+| defaults.cors.allowHeaders | list | `["*"]` | allowed headers |
+| defaults.cors.allowMethods | list | `["GET","OPTIONS","POST"]` | allowed methods |
+| defaults.cors.allowOrigins | list | `[]` | allowed origins |
+| defaults.cors.exposeHeaders | list | `[]` | exposed headers |
+| defaults.cors.maxAge | int | `100` | preflight cache max age in seconds |
+| defaults.cors.mode | string | `"none"` | CORS mode for HTTPRoute filters. One of: native (upstream Gateway API type:CORS filter, GEP-1767), none (no CORS filter). |
 | defaults.deployment.maxSurge | int | `5` | maxSurge |
 | defaults.deployment.maxUnavailable | int | `0` | maxUnavailable |
 | defaults.deployment.resources.limits | object | `{"cpu":"","memory":"512Mi"}` | cpu and memory limits for the deployment |
