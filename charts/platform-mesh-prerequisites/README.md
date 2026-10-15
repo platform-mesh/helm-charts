@@ -49,7 +49,7 @@ Example
 ```
 # platform-mesh-prerequisites
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
 Optional infrastructure prerequisites for Platform Mesh
 
@@ -57,13 +57,13 @@ Optional infrastructure prerequisites for Platform Mesh
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../gateway-api-crds | gateway-api-crds | 1.5.1 |
-| file://../keycloak-operator | keycloak-operator | 0.10.0 |
 | oci://ghcr.io/cloudnative-pg/charts | cloudnative-pg | 0.28.0 |
 | oci://ghcr.io/fluxcd-community/charts | flux2 | 2.17.2 |
 | oci://ghcr.io/open-component-model/kubernetes/controller | ocm-k8s-toolkit(chart) | 0.13.0 |
 | oci://ghcr.io/platform-mesh/charts/gardener | etcd-druid | v0.36.4 |
 | oci://ghcr.io/platform-mesh/helm-charts/charts/mirrored | kcp-operator | 0.7.4 |
+| oci://ghcr.io/platform-mesh/helm-charts | gateway-api-crds | 1.5.1 |
+| oci://ghcr.io/platform-mesh/helm-charts | keycloak-operator | 0.10.0 |
 | oci://ghcr.io/platform-mesh/ocm/charts | traefik-crds | 1.14.0 |
 | oci://ghcr.io/traefik/helm | traefik | 41.4.0 |
 | oci://quay.io/jetstack/charts | cert-manager | v1.20.1 |

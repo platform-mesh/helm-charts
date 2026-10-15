@@ -12,11 +12,12 @@ use that same target throughout the procedure.
 The installation has two layers:
 
 - `platform-mesh-prerequisites` installs, or can be replaced by, the cluster
-  infrastructure that Platform Mesh consumes: Flux, the OCM controller,
-  cert-manager, Gateway API CRDs, Traefik, Traefik CRDs, CloudNativePG, and the
-  Keycloak, KCP, and etcd-druid operators.
-- `platform-mesh-operator` installs PMO and a `PlatformMesh` resource. PMO then
-  reconciles the Platform Mesh component and its services.
+  infrastructure that Platform Mesh consumes: Flux, the Open Component Model
+  (OCM) controller, cert-manager, Gateway API CRDs, Traefik, Traefik CRDs,
+  CloudNativePG, and the Keycloak, kcp, and etcd-druid operators.
+- `platform-mesh-operator` installs the Platform Mesh operator (PMO) and a
+  `PlatformMesh` resource. PMO then reconciles the Platform Mesh component and
+  its services.
 
 ## How the installation works
 
@@ -48,7 +49,7 @@ flowchart TD
     PMO["platform-mesh-operator"]
     OCM["OCM Repository / Component / Resource"]
     FLUX["Flux OCIRepository / HelmRelease"]
-    WORKLOADS["Deployments, Services, Gateways,<br/>KCP resources, and other workloads"]
+    WORKLOADS["Deployments, Services, Gateways,<br/>kcp resources, and other workloads"]
 
     USER -->|configure spec| PM
     USER -->|configure profile| PROFILE
@@ -107,17 +108,17 @@ merge behavior, see the
 - An existing Kubernetes cluster and a `kubectl` context for it.
 - Permission to create namespaces, CRDs, admission webhooks, and
   cluster-scoped RBAC resources.
-- A default `StorageClass` capable of dynamically provisioning persistent
-  volumes.
+- A default `StorageClass` capable of dynamically provisioning
+  ReadWriteOnce (RWO) volumes.
 - A working LoadBalancer integration for exposing Traefik outside the cluster.
-- Control of the selected base domain and its wildcard subdomains so that they
-  can be pointed to the Traefik LoadBalancer.
+- DNS control of the selected base domain: both the apex record and a wildcard
+  (`*.base-domain`) must resolve to the Traefik LoadBalancer IP or hostname.
 - A certificate strategy: either allow the operator chart to issue certificates
   from its private self-signed CA, or provision the `domain-certificate` and
   `domain-certificate-ca` Secrets before installing the operator.
 - When the bundled prerequisites chart is not used, compatible Flux, OCM
   controller, cert-manager, Gateway API and Traefik CRDs, Traefik
-  `GatewayClass`, CloudNativePG, and Keycloak, KCP, and etcd-druid operators.
+  `GatewayClass`, CloudNativePG, and Keycloak, kcp, and etcd-druid operators.
 
 ### Local Kind
 
@@ -168,7 +169,7 @@ EOF
 
 Skip this step only when the cluster already provides compatible Flux, OCM
 controller, cert-manager, Gateway API and Traefik CRDs, a Traefik
-`GatewayClass`, CloudNativePG, and the Keycloak, KCP, and etcd-druid operators.
+`GatewayClass`, CloudNativePG, and the Keycloak, kcp, and etcd-druid operators.
 
 The bundled chart is installed in two passes. The first pass establishes the
 controllers and CRDs; the second pass enables Traefik after the Gateway API
@@ -247,8 +248,7 @@ echo "Traefik ClusterIP: ${traefik_cluster_ip}"
 
 Set the base domain and desired OCM component version before installing PMO.
 The base domain and its wildcard subdomains must resolve to Traefik. Production
-DNS must point to the LoadBalancer address; the `.localhost` domain used by Kind
-resolves to the local machine.
+DNS must point to the LoadBalancer address.
 
 Choose who manages the domain certificates with
 `installation.selfSignedCertificate.enabled`:
@@ -302,13 +302,13 @@ echo "Configure ${base_domain} and *.${base_domain} for ${load_balancer_address}
 helm upgrade --install platform-mesh-operator \
   ./charts/platform-mesh-operator \
   --namespace platform-mesh-system \
-  --set installation.enabled=true \
-  --set installation.profile=production \
+  --set ocm.enabled=true \
+  --set ocm.profile=production \
   --set installation.baseDomain="${base_domain}" \
   --set installation.port=443 \
   --set installation.kcpFrontProxyPort=443 \
   --set installation.selfSignedCertificate.enabled="${self_signed_certificates}" \
-  --set-string installation.version="${platform_mesh_version}" \
+  --set-string ocm.version="${platform_mesh_version}" \
   --wait \
   --timeout 15m
 ```
@@ -319,7 +319,7 @@ helm upgrade --install platform-mesh-operator \
 <summary><strong>Kind</strong></summary>
 
 ```shell
-base_domain=portal.localhost
+base_domain=portal.orgdomain
 platform_mesh_version=0.6.0-build.6
 self_signed_certificates=true
 test -n "${base_domain:-}"
@@ -328,14 +328,14 @@ test -n "${platform_mesh_version:-}"
 helm upgrade --install platform-mesh-operator \
   ./charts/platform-mesh-operator \
   --namespace platform-mesh-system \
-  --set installation.enabled=true \
-  --set installation.profile=kind \
+  --set ocm.enabled=true \
+  --set ocm.profile=kind \
   --set installation.baseDomain="${base_domain}" \
   --set installation.port=8443 \
   --set installation.kcpFrontProxyPort=8443 \
   --set installation.traefikClusterIP="${traefik_cluster_ip}" \
   --set installation.selfSignedCertificate.enabled="${self_signed_certificates}" \
-  --set-string installation.version="${platform_mesh_version}" \
+  --set-string ocm.version="${platform_mesh_version}" \
   --wait \
   --timeout 15m
 ```
@@ -353,7 +353,7 @@ kubectl wait --namespace platform-mesh-system \
   --timeout=30m
 ```
 
-Open the endpoint for the selected `https://${base_domain}:8443`.
+Open the Platform Mesh endpoint. For production: `https://${base_domain}`. For Kind: `https://${base_domain}:8443`.
 
 ## Organization onboarding
 
@@ -363,7 +363,7 @@ Follow these steps after Platform Mesh is ready to onboard a new organization.
 
 Create a user in the Keycloak `welcome` realm for the organization's initial
 administrator. Use the Keycloak administration console or API and mark the
-user's email address as verified before the first login. KCP's OIDC
+user's email address as verified before the first login. kcp's OIDC
 authenticator validates the `email_verified` claim and rejects unverified tokens
 with `oidc: email not verified`.
 
@@ -453,7 +453,7 @@ users:
 
 ### 3. Grant temporary access to `root:orgs`
 
-Use an administrative kubeconfig that targets the `root:orgs` KCP workspace to
+Use an administrative kubeconfig that targets the `root:orgs` kcp workspace to
 grant the new user temporary `cluster-admin` access:
 
 ```shell

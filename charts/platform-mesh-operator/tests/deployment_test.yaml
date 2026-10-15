@@ -93,15 +93,20 @@ tests:
     - equal:
         path: spec.template.spec.hostAliases[0].hostnames[1]
         value: "test.example.com"
-- it: configures direct-install host aliases like the RGD deployment
+- it: injects user-configured host aliases into the operator pod
   template: deployment.yaml
   set:
-    installation:
+    ocm:
       enabled: true
       profile: kind
+    installation:
       baseDomain: portal.localhost
       kcpFrontProxyPort: 8443
-      traefikClusterIP: 10.96.188.4
+      hostAliases:
+        - ip: "10.96.188.4"
+          hostnames:
+            - root.kcp.portal.localhost
+            - kcp.api.portal.localhost
   asserts:
     - equal:
         path: spec.template.spec.hostAliases[0].ip
@@ -124,12 +129,12 @@ tests:
 - it: uses the production front-proxy Service port when the Gateway exposes HTTPS on 443
   template: deployment.yaml
   set:
-    installation:
+    ocm:
       enabled: true
+    installation:
       baseDomain: platform.example.com
       port: 443
       kcpFrontProxyPort: 443
-      traefikClusterIP: 10.96.200.10
   asserts:
   - contains:
       path: spec.template.spec.containers[0].args
@@ -137,9 +142,10 @@ tests:
 - it: does not add local Service host aliases to a production installation
   template: deployment.yaml
   set:
-    installation:
+    ocm:
       enabled: true
       profile: production
+    installation:
       baseDomain: platform.example.com
   asserts:
   - isNull:

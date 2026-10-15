@@ -13,20 +13,22 @@ A Helm chart to automate bootstrapping of new environment
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh/platform-mesh-operator"` | The image repository path (without registry) |
-| installation | object | `{"baseDomain":"","certificateSecretName":"domain-certificate","enabled":false,"installSigningCertificate":true,"kcpFrontProxyPort":443,"port":8443,"profile":"production","selfSignedCertificate":{"caSecretName":"domain-certificate-ca","enabled":false},"traefikClusterIP":"","version":"0.5.2"}` | Declaratively install a Platform Mesh instance alongside the operator. Requires Flux and the OCM Kubernetes controller to be installed beforehand. This remains opt-in because the chart is also used to deploy an operator that manages PlatformMesh resources supplied by another GitOps repository. |
+| installation | object | `{"baseDomain":"","certificateSecretName":"domain-certificate","hostAliases":[],"kcpFrontProxyPort":443,"port":8443,"selfSignedCertificate":{"caSecretName":"domain-certificate-ca","enabled":false},"traefikClusterIP":""}` | Configuration for the declarative Platform Mesh installation. Requires Flux and the OCM Kubernetes controller to be installed beforehand. This remains opt-in (via ocm.enabled) because the chart is also used to deploy an operator that manages PlatformMesh resources supplied by another GitOps repository. |
 | installation.baseDomain | string | `""` | Public DNS name used for Platform Mesh endpoints. |
 | installation.certificateSecretName | string | `"domain-certificate"` | TLS Secret containing tls.crt, tls.key, and ca.crt. Its ca.crt is trusted by the operator. |
-| installation.installSigningCertificate | bool | `true` | Set to false when the OCM component is signed by a different trusted key. |
+| installation.hostAliases | list | `[]` | Host aliases injected into the operator pod. Each entry is `{ip, hostnames}`. Leave empty to use the chart's common host aliases. Set entries when the operator must resolve cluster-internal hostnames (e.g. on Kind, mapping kcp hostnames to the Traefik Service ClusterIP). |
 | installation.kcpFrontProxyPort | int | `443` | Internal port of the KCP front-proxy Service. This is distinct from the external Gateway port. Production front-proxy Services expose 443; the Kind profile overrides this to 8443. |
 | installation.port | int | `8443` | External HTTPS port exposed by the Gateway. |
-| installation.profile | string | `"production"` | Installation profile. `production` assumes the infrastructure prerequisites already exist. |
 | installation.selfSignedCertificate | object | `{"caSecretName":"domain-certificate-ca","enabled":false}` | Create a private self-signed CA and use it to issue the gateway certificate. Requires cert-manager. Keep disabled when the TLS Secret is managed externally. |
 | installation.selfSignedCertificate.caSecretName | string | `"domain-certificate-ca"` | Secret containing the generated private CA certificate and key. |
 | installation.traefikClusterIP | string | `""` | ClusterIP of the Traefik Service used by the local Kind profile. Production uses public DNS instead. |
-| installation.version | string | `"0.5.2"` | Platform Mesh OCM component version to reconcile. |
 | istio.enabled | bool | `false` |  |
 | jwt.userIdClaim | string | `"email"` |  |
 | log.level | string | `"info"` | log level. Permissible values: debug, info, warn, error |
+| ocm | object | `{"enabled":false,"installSigningCertificate":true,"profile":"production","version":"0.5.2"}` | When enabled, installs the OCM Repository/Component CRs, the PlatformMesh CR, and the profile ConfigMap alongside the operator. Disable to deploy only the operator binary and supply PlatformMesh resources from a separate GitOps source. |
+| ocm.installSigningCertificate | bool | `true` | Set to false when the OCM component is signed by a different trusted key. |
+| ocm.profile | string | `"production"` | Installation profile. `production` assumes the infrastructure prerequisites already exist. |
+| ocm.version | string | `"0.5.2"` | Platform Mesh OCM component version to reconcile. |
 | operator.leaderElect | bool | `true` |  |
 | remoteInfra.enabled | bool | `false` | Enables reconciliation of PlatformMesh resources on remote clusters |
 | remoteInfra.secretKey | string | `"kubeconfig"` |  |

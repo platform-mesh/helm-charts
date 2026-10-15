@@ -8,10 +8,11 @@ tests:
   - it: creates the operator-managed Platform Mesh installation
     template: installation.yaml
     set:
-      installation:
+      ocm:
         enabled: true
-        baseDomain: platform.example.com
         version: 0.5.2
+      installation:
+        baseDomain: platform.example.com
     asserts:
       - equal:
           path: spec.exposure.baseDomain
@@ -24,8 +25,9 @@ tests:
   - it: bundles the default profile
     template: installation-profile.yaml
     set:
-      installation:
+      ocm:
         enabled: true
+      installation:
         baseDomain: platform.example.com
         traefikClusterIP: 10.96.188.4
     asserts:
@@ -41,12 +43,25 @@ tests:
       - notMatchRegex:
           path: data["profile.yaml"]
           pattern: 'cat /domain-ca/tls\.crt'
+      # The external port must be substituted by Helm at template time; the
+      # __EXTERNAL_PORT__ placeholder must not leak into the ConfigMap, and
+      # PMO's template context does not define `.port`.
+      - matchRegex:
+          path: data["profile.yaml"]
+          pattern: 'port: 8443'
+      - notMatchRegex:
+          path: data["profile.yaml"]
+          pattern: '__EXTERNAL_PORT__'
+      - notMatchRegex:
+          path: data["profile.yaml"]
+          pattern: '\{\{ \.port \}\}'
   - it: disables OpenFGA tracing in the kind profile
     template: installation-profile.yaml
     set:
-      installation:
+      ocm:
         enabled: true
         profile: kind
+      installation:
         baseDomain: platform.example.com
         traefikClusterIP: 10.96.188.4
     asserts:
@@ -67,8 +82,9 @@ tests:
   - it: creates the gateway certificate from the installation base domain
     template: installation-certificate.yaml
     set:
-      installation:
+      ocm:
         enabled: true
+      installation:
         baseDomain: platform.example.com
         selfSignedCertificate:
           enabled: true
@@ -108,8 +124,9 @@ tests:
   - it: does not create certificates unless explicitly enabled
     template: installation-certificate.yaml
     set:
-      installation:
+      ocm:
         enabled: true
+      installation:
         baseDomain: platform.example.com
     asserts:
       - hasDocuments:

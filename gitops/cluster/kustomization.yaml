@@ -1,4 +1,0 @@
-resources:
-  - prerequisites.yaml
-  - certificates.yaml
-  - platform-mesh.yaml

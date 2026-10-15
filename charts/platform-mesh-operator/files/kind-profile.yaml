@@ -25,22 +25,10 @@ data:
       etcdDruid:
         # Installed by platform-mesh-prerequisites.
         enabled: false
-        interval: 1m
-        name: etcd-druid
-        ocmResourceName: etcd-druid
-        ocmImageResourceName: image
-        targetNamespace: etcd-druid-system
-        values: {}
       traefikCRDs:
         enabled: false
       prometheusOperatorCRDs:
-        enabled: true
-        interval: 1m
-        name: prometheus-operator-crds
-        ocmResourceName: chart
-        ocmComponentName: prometheus-operator-crds
-        targetNamespace: observability
-        values: {}
+        enabled: false
       opentelemetryOperator:
         enabled: false
     components:

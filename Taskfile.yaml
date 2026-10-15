@@ -171,30 +171,11 @@ tasks:
         kubectl exec -i ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
         kubectl exec -i ocm-transfer-pod -- sudo update-ca-certificates
 
-  ocm:transfer:dir-to-local-oci:
-    cmds:
-      - cmd: kubectl exec -i ocm-transfer-pod -- ocm transfer component-version "ctf::.ocm/transport.ctf//github.com/platform-mesh/prerelease:{{ .COMPONENT_PRERELEASE_VERSION }}" oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
-        ignore_error: true
-
   ocm:deploy:
     cmds:
       - task: ocm:deploy:ociregistry
       - task: ocm:deploy:transfer-pod
       - task: ocm:configure:tls
-
-  ocm:kustomize:apply:
-    aliases:
-      - ocm:apply
-    cmds:
-      - kind export kubeconfig -n platform-mesh
-      - |
-        echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
-        yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' development/kustomize/overlays/ocm-prerelease/prerelease-component.yml
-
-      - |
-        kubectl apply -k development/kustomize/overlays/ocm-prerelease
-        echo "Applied kustomize overlay"
-      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
 
   ocm:cleanup:
     cmds:
@@ -207,11 +188,6 @@ tasks:
     desc: Check which images are OCM-managed vs unmanaged on the cluster
     cmds:
       - ./development/scripts/check-ocm-images.sh
-
-  ocm:build-apply:iterate:
-    cmds:
-      - task: ocm:build:component
-      - task: ocm:kustomize:apply
 
   ocm:update:constructor:
     desc: Prepare .ocm/component-constructor-prerelease.yaml from the local aggregate descriptor.

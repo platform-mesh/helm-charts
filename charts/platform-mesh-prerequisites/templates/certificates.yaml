@@ -1,7 +1,5 @@
 {{- if .Values.localCertificates.enabled }}
-{{- if not .Values.localCertificates.dnsNames }}
-{{- fail "dnsNames must contain the Platform Mesh base domain and wildcard subdomain" }}
-{{- end }}
+{{- $_ := required "dnsNames must contain the Platform Mesh base domain and wildcard subdomain" (.Values.localCertificates.dnsNames | first | default "") }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:

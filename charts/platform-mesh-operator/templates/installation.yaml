@@ -1,9 +1,7 @@
-{{- if .Values.installation.enabled }}
-{{- if not .Values.installation.baseDomain }}
-{{- fail "installation.baseDomain must be set when installation.enabled=true" }}
-{{- end }}
-{{- if and (eq .Values.installation.profile "kind") (not .Values.installation.traefikClusterIP) }}
-{{- fail "installation.traefikClusterIP must be set to the ClusterIP of the Traefik Service when using the kind profile" }}
+{{- if .Values.ocm.enabled }}
+{{- $_ := required "installation.baseDomain must be set when ocm.enabled=true" .Values.installation.baseDomain }}
+{{- if and (eq .Values.ocm.profile "kind") (not .Values.installation.traefikClusterIP) }}
+{{- $_ = required "installation.traefikClusterIP must be set to the ClusterIP of the Traefik Service when using the kind profile" .Values.installation.traefikClusterIP }}
 {{- end }}
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Repository
@@ -25,7 +23,7 @@ spec:
   repositoryRef:
     name: platform-mesh
   component: github.com/platform-mesh/platform-mesh
-  semver: {{ .Values.installation.version | quote }}
+  semver: {{ .Values.ocm.version | quote }}
   interval: 1m
   verify:
     - signature: helm-charts.platform-mesh

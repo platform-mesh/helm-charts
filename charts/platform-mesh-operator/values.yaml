@@ -1,14 +1,23 @@
 crds:
   enabled: true
 
-# -- Declaratively install a Platform Mesh instance alongside the operator.
-# Requires Flux and the OCM Kubernetes controller to be installed beforehand.
-# This remains opt-in because the chart is also used to deploy an operator that
-# manages PlatformMesh resources supplied by another GitOps repository.
-installation:
+# -- When enabled, installs the OCM Repository/Component CRs, the PlatformMesh CR, and the
+# profile ConfigMap alongside the operator. Disable to deploy only the operator binary and
+# supply PlatformMesh resources from a separate GitOps source.
+ocm:
   enabled: false
   # -- Installation profile. `production` assumes the infrastructure prerequisites already exist.
   profile: production
+  # -- Platform Mesh OCM component version to reconcile.
+  version: "0.5.2"
+  # -- Set to false when the OCM component is signed by a different trusted key.
+  installSigningCertificate: true
+
+# -- Configuration for the declarative Platform Mesh installation.
+# Requires Flux and the OCM Kubernetes controller to be installed beforehand.
+# This remains opt-in (via ocm.enabled) because the chart is also used to deploy an operator that
+# manages PlatformMesh resources supplied by another GitOps repository.
+installation:
   # -- Public DNS name used for Platform Mesh endpoints.
   baseDomain: ""
   # -- External HTTPS port exposed by the Gateway.
@@ -17,6 +26,10 @@ installation:
   kcpFrontProxyPort: 443
   # -- ClusterIP of the Traefik Service used by the local Kind profile. Production uses public DNS instead.
   traefikClusterIP: ""
+  # -- Host aliases injected into the operator pod. Each entry is `{ip, hostnames}`. Leave empty to use the
+  # chart's common host aliases. Set entries when the operator must resolve cluster-internal hostnames
+  # (e.g. on Kind, mapping kcp hostnames to the Traefik Service ClusterIP).
+  hostAliases: []
   # -- TLS Secret containing tls.crt, tls.key, and ca.crt. Its ca.crt is trusted by the operator.
   certificateSecretName: domain-certificate
   # -- Create a private self-signed CA and use it to issue the gateway certificate. Requires cert-manager. Keep disabled when the TLS Secret is managed externally.
@@ -24,10 +37,6 @@ installation:
     enabled: false
     # -- Secret containing the generated private CA certificate and key.
     caSecretName: domain-certificate-ca
-  # -- Platform Mesh OCM component version to reconcile.
-  version: "0.5.2"
-  # -- Set to false when the OCM component is signed by a different trusted key.
-  installSigningCertificate: true
 
 deployment:
   replicas: 1

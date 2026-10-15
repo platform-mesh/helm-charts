@@ -9,7 +9,7 @@ dependencies:
   repository: oci://quay.io/jetstack/charts
   version: v1.20.1
 - name: gateway-api-crds
-  repository: file://../gateway-api-crds
+  repository: oci://ghcr.io/platform-mesh/helm-charts
   version: 1.5.1
 - name: traefik
   repository: oci://ghcr.io/traefik/helm
@@ -21,7 +21,7 @@ dependencies:
   repository: oci://ghcr.io/cloudnative-pg/charts
   version: 0.28.0
 - name: keycloak-operator
-  repository: file://../keycloak-operator
+  repository: oci://ghcr.io/platform-mesh/helm-charts
   version: 0.10.0
 - name: kcp-operator
   repository: oci://ghcr.io/platform-mesh/helm-charts/charts/mirrored
@@ -29,5 +29,5 @@ dependencies:
 - name: etcd-druid
   repository: oci://ghcr.io/platform-mesh/charts/gardener
   version: v0.36.4
-digest: sha256:dede81013c1d1e92c1af549b9f7d7aeacedcbeec7e16dab55553865bccb83f36
-generated: "2026-10-06T18:21:12.56599282+03:00"
+digest: sha256:6a71c8635a5106af34ccea42da48525608390fed9e8ced35465c50e3912dc1df
+generated: "2026-10-15T11:42:48.88077138+03:00"
