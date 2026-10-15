@@ -4,7 +4,7 @@ image:
   # -- The image repository path (without registry)
   repository: kcp-dev/contrib-virtual-workspaces/mcp-vw
   # -- The image tag (defaults to appVersion)
-  tag: ""
+  tag: "@sha256:0d937ac6644a26a215b59f5dc5352ccb0ec9a6522bb9cc79695bba3fb1b1fda5"
 
 # -- Number of server replicas
 replicas: 1

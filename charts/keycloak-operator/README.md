@@ -43,7 +43,7 @@ This fetches the CRD manifests from the [OperatorHub community-operators](https:
 | keycloakImage.digest | string | `"sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"` | The Keycloak image digest (when set, overrides tag: registry/repository@digest) |
 | keycloakImage.registry | string | `"ghcr.io"` | The Keycloak image registry |
 | keycloakImage.repository | string | `"platform-mesh/custom-images/keycloak"` | The Keycloak image repository path (without registry). |
-| keycloakImage.tag | string | `"v26.7.2"` | The Keycloak image tag (defaults to appVersion) |
+| keycloakImage.tag | string | `"v26.7.2@sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"` | The Keycloak image tag (defaults to appVersion) |
 | watchNamespaces | string | `""` | Namespace to watch for Keycloak CRs. Defaults to the release namespace. |
 
 ## Overriding Values

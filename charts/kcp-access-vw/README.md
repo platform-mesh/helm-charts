@@ -60,7 +60,7 @@ kubeconfigs resolve from inside pods.
 | hostAliases | list | `[]` | Extra /etc/hosts entries for the pod, e.g. when the front-proxy hostname only resolves via cluster-external DNS. |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"kcp-dev/contrib-virtual-workspaces/access-vw"` | The image repository path (without registry) |
-| image.tag | string | `""` | The image tag (defaults to appVersion) |
+| image.tag | string | `"@sha256:2e84f6d28d949b8a55beae449b6a13af8fe13ecf324b03be15379993a0515e55"` | The image tag (defaults to appVersion) |
 | kcp.frontProxy | string | `"frontproxy"` | FrontProxy the Kubeconfig CRs target. Bootstrapping walks workspace paths, which only resolve through the front-proxy. |
 | kcp.rootShard | string | `"root"` | RootShard the VirtualWorkspace connects to. |
 | replicas | int | `1` | The graph is held in memory; keep a single replica. |
