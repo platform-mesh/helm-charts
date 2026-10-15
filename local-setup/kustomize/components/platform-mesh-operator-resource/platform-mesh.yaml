@@ -22,3 +22,16 @@ spec:
   - name: feature-accounts-in-accounts
   - name: feature-enable-provider-permissions
   kcp: {}
+  values:
+    platform-mesh-operator:
+      values:
+        # TEMPORARY: pinned to an unreleased commit from PR #333 (core.platform-mesh.io
+        # split), not merged yet, revert once it lands on main.
+        image:
+          tag: "753a87b0"
+    security-operator:
+      values:
+        # TEMPORARY: pinned to an unreleased commit from PR #333 (core.platform-mesh.io
+        # split), not merged yet, revert once it lands on main.
+        image:
+          tag: "753a87b0"
