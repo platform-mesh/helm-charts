@@ -285,7 +285,6 @@ data:
               enabled: true
               listeners:
                 - name: terminate
-                  hostname: "{{ .baseDomain }}"
                   port: 443
                   protocol: HTTPS
                   tls:
@@ -294,24 +293,8 @@ data:
                       - kind: Secret
                         name: domain-certificate
                         namespace: platform-mesh-system
-                - name: terminate-wildstar
-                  hostname: "*.{{ .baseDomain }}"
-                  port: 443
-                  protocol: HTTPS
-                  tls:
-                    mode: Terminate
-                    certificateRefs:
-                      - kind: Secret
-                        name: domain-certificate
-                        namespace: platform-mesh-system
-                - name: passthrough
-                  port: 443
-                  protocol: TLS
-                  tls:
-                    mode: Passthrough
-                  allowedRoutes:
-                    namespaces:
-                      from: All
+              passthrough:
+                port: 443
               listenersExtra:
                 - name: terminate-services
                   hostname: "*.services.{{ .baseDomain }}"
