@@ -96,7 +96,7 @@ test.describe('Home Page', () => {
     await page.getByRole('textbox', { name: 'Password' }).fill(primaryUser.password);
     await page.getByRole('button', { name: 'Sign In' }).click();
     await completeKeycloakSetup(page);
-    await page.waitForURL(`https://${orgName}.${new URL(portalBaseUrl).hostname}/**`, { timeout: 30000 });
+    await page.waitForURL(`https://${orgName}.${new URL(portalBaseUrl).host}/**`, { timeout: 30000 });
     await expect(page.getByRole('button', { name: 'Platform Mesh Portal' }).or(
       page.getByText("Welcome! Let's get started.", { exact: true })
     ).first()).toBeVisible({ timeout: 15000 });
