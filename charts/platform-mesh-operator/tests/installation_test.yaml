@@ -74,6 +74,18 @@ tests:
       - notMatchRegex:
           path: data["profile.yaml"]
           pattern: 'cat /domain-ca/tls\.crt'
+  - it: fails when ocm.profile has no bundled profile file
+    template: installation-profile.yaml
+    set:
+      ocm:
+        enabled: true
+        profile: bogus
+      gateway:
+        baseDomain: platform.example.com
+        traefikClusterIP: 10.96.188.4
+    asserts:
+      - failedTemplate:
+          errorMessage: 'unknown ocm.profile "bogus": no files/bogus-profile.yaml exists'
   - it: does not install platform resources by default
     template: installation.yaml
     asserts:

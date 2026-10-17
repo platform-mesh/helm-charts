@@ -45,7 +45,7 @@ spec:
   dnsNames:
     - {{ .Values.gateway.baseDomain | quote }}
     - {{ printf "*.%s" .Values.gateway.baseDomain | quote }}
-  secretName: {{ required "certificates.secretName must be set when self-signed certificates are enabled" .Values.certificateSecretName | quote }}
+  secretName: {{ required "certificateSecretName must be set when self-signed certificates are enabled" .Values.certificateSecretName | quote }}
   issuerRef:
     group: cert-manager.io
     kind: Issuer
