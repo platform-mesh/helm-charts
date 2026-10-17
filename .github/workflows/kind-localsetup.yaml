@@ -248,17 +248,6 @@ jobs:
             --for=condition=Ready platformmeshes/platform-mesh \
             --timeout=30m
 
-      - name: Wait for portal and keycloak to be serving
-        # PlatformMesh Ready means the operator finished reconciling, but downstream
-        # pods (portal, keycloak) may still be pulling images or waiting for secrets
-        # provisioned by the security-operator. Wait for the deployments that the
-        # e2e browser will contact before starting the tests.
-        run: |
-          kubectl rollout status deployment/portal \
-            --namespace platform-mesh-system --timeout=15m
-          kubectl rollout status statefulset/keycloak \
-            --namespace platform-mesh-system --timeout=15m
-
       - name: Regenerate kcp admin kubeconfig
         # Run from the repo root so the kubeconfig lands at <repo>/.secret/kcp/admin.kubeconfig,
         # which is exactly the ADMIN_KUBECONFIG the e2e resolves (tests/..). The admin client
