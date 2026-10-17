@@ -1,6 +1,6 @@
 {{- if .Values.ocm.enabled }}
 {{- $_ := required "gateway.baseDomain must be set when ocm.enabled=true" .Values.gateway.baseDomain }}
-{{- if and (eq .Values.ocm.profile "kind") (not .Values.gateway.traefikClusterIP) }}
+{{- if eq .Values.ocm.profile "kind" }}
 {{- $_ = required "gateway.traefikClusterIP must be set to the ClusterIP of the Traefik Service when using the kind profile" .Values.gateway.traefikClusterIP }}
 {{- end }}
 apiVersion: delivery.ocm.software/v1alpha1
@@ -62,6 +62,9 @@ spec:
     port: {{ .Values.gateway.port }}
     baseDomain: {{ .Values.gateway.baseDomain | quote }}
     protocol: https
+    {{- if .Values.gateway.traefikClusterIP }}
+    traefikClusterIP: {{ .Values.gateway.traefikClusterIP | quote }}
+    {{- end }}
   ocm:
     repo:
       name: platform-mesh
