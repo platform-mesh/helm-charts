@@ -9,7 +9,7 @@
       "customType": "regex",
       "description": "OCM toolkit version",
       "managerFilePatterns": [
-        "/(^|/)local-setup/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit\\.yaml$/"
+        "/(^|/)development/kustomize/base/ocm-k8s-toolkit/ocm-k8s-toolkit\\.yaml$/"
       ],
       "matchStrings": [
         "version:\\s*\"?(?<currentValue>[\\d\\.]+-?[\\w\\.-]*)\"?"
@@ -31,14 +31,14 @@
     },
     {
       "customType": "regex",
-      "description": "OCM CLI version in CI workflows and local-setup script",
+      "description": "OCM CLI version in CI workflows and development script",
       "managerFilePatterns": [
         "/(^|/)\\.github/workflows/job-ocm\\.yml$/",
         "/(^|/)\\.github/workflows/pipeline-chart\\.yml$/",
         "/(^|/)\\.github/workflows/ocm-service-component\\.yaml$/",
         "/(^|/)\\.github/workflows/ocm-create-patch\\.yaml$/",
         "/(^|/)\\.github/workflows/ocm-create-draft-release\\.yaml$/",
-        "/(^|/)local-setup/scripts/ocm-setup\\.sh$/"
+        "/(^|/)development/scripts/ocm-setup\\.sh$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*version=\"v?(?<currentValue>[^\"]+)\"",

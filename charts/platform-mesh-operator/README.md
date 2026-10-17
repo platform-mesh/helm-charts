@@ -6,16 +6,30 @@ A Helm chart to automate bootstrapping of new environment
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| certificateSecretName | string | `"domain-certificate"` | TLS Secret containing tls.crt, tls.key, and ca.crt. Its ca.crt is trusted by the operator. |
+| certificates | object | `{"selfSigned":{"caSecretName":"domain-certificate-ca","enabled":false}}` | Certificate issuance configuration. Requires cert-manager when selfSigned.enabled=true. |
+| certificates.selfSigned | object | `{"caSecretName":"domain-certificate-ca","enabled":false}` | Create a private self-signed CA and use it to issue the gateway certificate. Keep disabled when the TLS Secret is managed externally. |
+| certificates.selfSigned.caSecretName | string | `"domain-certificate-ca"` | Secret containing the generated private CA certificate and key. |
 | crds.enabled | bool | `true` |  |
 | deployment.replicas | int | `1` |  |
 | extraArgs[0] | string | `"--subroutines-feature-toggles-enabled=true"` |  |
+| gateway | object | `{"baseDomain":"","port":8443,"traefikClusterIP":""}` | Gateway/exposure configuration (used when ocm.enabled=true). |
+| gateway.baseDomain | string | `""` | Public DNS name used for Platform Mesh endpoints. |
+| gateway.port | int | `8443` | External HTTPS port exposed by the Gateway. |
+| gateway.traefikClusterIP | string | `""` | ClusterIP of the Traefik Service. Required when ocm.profile=kind; production uses public DNS. |
 | idp.registrationAllowed | bool | `false` |  |
 | image.digest | string | `""` | The image digest (when set, overrides tag: registry/repository@digest) |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/platform-mesh/platform-mesh-operator"` | The image repository path (without registry) |
 | istio.enabled | bool | `false` |  |
 | jwt.userIdClaim | string | `"email"` |  |
+| kcp | object | `{"frontProxyPort":443}` | KCP connectivity configuration (used when ocm.enabled=true). |
+| kcp.frontProxyPort | int | `443` | Internal port of the KCP front-proxy Service. Production Services expose 443; the kind profile uses 8443. |
 | log.level | string | `"info"` | log level. Permissible values: debug, info, warn, error |
+| ocm | object | `{"enabled":false,"installSigningCertificate":true,"profile":"production","version":"0.5.2"}` | When enabled, installs the OCM Repository/Component CRs, the PlatformMesh CR, and the profile ConfigMap alongside the operator. Disable to deploy only the operator binary and supply PlatformMesh resources from a separate GitOps source. |
+| ocm.installSigningCertificate | bool | `true` | Set to false when the OCM component is signed by a different trusted key. |
+| ocm.profile | string | `"production"` | Installation profile. `production` assumes the infrastructure prerequisites already exist. |
+| ocm.version | string | `"0.5.2"` | Platform Mesh OCM component version to reconcile. |
 | operator.leaderElect | bool | `true` |  |
 | remoteInfra.enabled | bool | `false` | Enables reconciliation of PlatformMesh resources on remote clusters |
 | remoteInfra.secretKey | string | `"kubeconfig"` |  |
