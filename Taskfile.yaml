@@ -38,10 +38,6 @@ tasks:
     cmds:
       - test -s {{.LOCAL_BIN}}/mkcert || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install filippo.io/mkcert@latest
       - export PATH=$(pwd)/{{.LOCAL_BIN}}:$PATH
-  setup:ocm:
-    internal: true
-    cmds:
-      - ./development/scripts/ocm-setup.sh
   setup:mkbin:
     internal: true
     cmds:
@@ -124,8 +120,6 @@ tasks:
         echo "  curl --insecure https://127.0.0.1:8080/v2/"
 
   ocm:build:custom-local-charts:
-    deps:
-      - task: setup:ocm
     cmds:
       - ./development/scripts/ocm-build-local-charts.sh
 
