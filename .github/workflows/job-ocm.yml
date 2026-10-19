@@ -61,14 +61,8 @@ jobs:
           fi
       - name: Check out the repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: setup OCM CLI
-        run: |
-          REPO="open-component-model/open-component-model"
-          # renovate: datasource=github-releases depName=open-component-model/open-component-model
-          version="v0.19.1"
-          echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
-          chmod a+x ocm
+      - name: Setup OCM CLI
+        uses: platform-mesh/.github/.github/actions/setup-ocm@6871bb3d16678f962b1cd9d9e2e473c38543640d # main
       - name: Prepare Template Variables
         id: vars
         run: |
@@ -127,7 +121,7 @@ jobs:
         run: |
           ocm_ctf=ctf::.ocm/transport.ctf
           mkdir -p "$(dirname "$ocm_ctf")"
-          ./ocm add component-versions --repository "$ocm_ctf" --constructor ${{ inputs.componentConstructorFile }}
+          ocm add component-versions --repository "$ocm_ctf" --constructor ${{ inputs.componentConstructorFile }}
         env:
           VERSION: ${{ env.VERSION }}
           APP_VERSION: ${{ env.APP_VERSION }}
@@ -158,7 +152,7 @@ jobs:
                     public_key_pem: |
           $(printf '%s' "$OCM_SIGNING_CERT" | sed 's/^/            /')
           EOF
-          ./ocm sign component-version \
+          ocm sign component-version \
             --signature "helm-charts.platform-mesh" \
             "ctf::.ocm/transport.ctf//${{ inputs.componentName }}:${{ env.VERSION }}"
         env:
@@ -166,7 +160,7 @@ jobs:
           OCM_SIGNING_CERT: ${{ secrets.OCM_SIGNING_CERT }}
 
       - name: Transfer to OCM REPO
-        run: ./ocm transfer component-version "ctf::.ocm/transport.ctf//${{ inputs.componentName }}:${{ env.VERSION }}" "${{ inputs.ocmRegistryUrl }}"
+        run: ocm transfer component-version "ctf::.ocm/transport.ctf//${{ inputs.componentName }}:${{ env.VERSION }}" "${{ inputs.ocmRegistryUrl }}"
 
       - name: Cut helm-charts/ from componentName
         id: componentName

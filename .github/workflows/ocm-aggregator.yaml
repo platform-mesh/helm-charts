@@ -112,14 +112,8 @@ jobs:
           fi
       - name: Check out the repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: setup OCM CLI
-        run: |
-          REPO="open-component-model/open-component-model"
-          # renovate: datasource=github-releases depName=open-component-model/open-component-model
-          version="v0.19.1"
-          echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
-          chmod a+x ocm
+      - name: Setup OCM CLI
+        uses: platform-mesh/.github/.github/actions/setup-ocm@6871bb3d16678f962b1cd9d9e2e473c38543640d # main
       - name: Write Credentials file
         run: |
           cat <<EOF > $HOME/.ocmconfig
@@ -165,7 +159,7 @@ jobs:
           echo KEYCLOAK_VERSION=${PM_KEYCLOAK_VERSION} >> $GITHUB_ENV
 
           # Get current platform-mesh version
-          PM_VERSION=$(./ocm get componentversions --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o json | jq -r '.[0].component.version')
+          PM_VERSION=$(ocm get componentversions --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o json | jq -r '.[0].component.version')
           PM_VERSION=${PM_VERSION:-0.0.0}
           echo CURRENT_PM_VERSION="$PM_VERSION" >> $GITHUB_ENV
 
@@ -268,7 +262,7 @@ jobs:
           set -e
 
           # Get the latest platform-mesh component descriptor to compare dependencies
-          ./ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o yaml \
+          ocm get component-version --latest ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh -o yaml \
             | yq eval '.[0]' - > current_pm_component.yaml \
             || echo "No existing platform-mesh component found"
 
@@ -499,10 +493,10 @@ jobs:
           ocm_target=ghcr.io/platform-mesh
           etcd_ref="github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}"
           # Skip if etcd-druid is already in ghcr.io to avoid overwriting an existing version.
-          if ./ocm get componentversion "$ocm_target//$etcd_ref" >/dev/null 2>&1; then
+          if ocm get componentversion "$ocm_target//$etcd_ref" >/dev/null 2>&1; then
             echo "etcd-druid ${{ env.GARDENER_ETCD_DRUID_VERSION }} already present in ghcr.io, skipping transfer"
           else
-            ./ocm transfer component-version --copy-resources --recursive \
+            ocm transfer component-version --copy-resources --recursive \
               "europe-docker.pkg.dev/gardener-project/releases//github.com/gardener/etcd-druid:${{ env.GARDENER_ETCD_DRUID_VERSION }}" \
               "$ocm_target"
           fi
@@ -510,7 +504,7 @@ jobs:
       - name: create OCM ComponentArchive
         if: steps.version_check.outputs.needs_update == 'true'
         run: |
-          ./ocm add component-versions --component-version-conflict-policy skip --repository "ghcr.io/platform-mesh" --constructor .ocm/component-constructor-aggregate.yaml
+          ocm add component-versions --component-version-conflict-policy skip --repository "ghcr.io/platform-mesh" --constructor .ocm/component-constructor-aggregate.yaml
 
       - name: Sign OCM Component
         if: steps.version_check.outputs.needs_update == 'true'
@@ -530,7 +524,7 @@ jobs:
                     public_key_pem: |
           $(printf '%s' "$OCM_SIGNING_CERT" | sed 's/^/            /')
           EOF
-          ./ocm sign component-version --signature helm-charts.platform-mesh \
+          ocm sign component-version --signature helm-charts.platform-mesh \
             "oci://ghcr.io/platform-mesh//github.com/platform-mesh/platform-mesh:${{ env.VERSION }}"
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}

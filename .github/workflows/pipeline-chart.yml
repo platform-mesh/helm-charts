@@ -76,14 +76,8 @@ jobs:
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Chart version: $VERSION"
-      - name: setup OCM CLI
-        run: |
-          REPO="open-component-model/open-component-model"
-          # renovate: datasource=github-releases depName=open-component-model/open-component-model
-          version="v0.19.1"
-          echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
-          chmod a+x ocm
+      - name: Setup OCM CLI
+        uses: platform-mesh/.github/.github/actions/setup-ocm@6871bb3d16678f962b1cd9d9e2e473c38543640d # main
       - name: Write OCM credentials
         # Authenticate the lookup so ghcr.io returns a clean "not found" for a
         # component that has never been published. Anonymously, ghcr.io answers
@@ -135,7 +129,7 @@ jobs:
           # packages that have never been published, even with a valid token.
           # A 401 would indicate a broken token; 403 means the package is new.
           set +e
-          out=$(./ocm get cv \
+          out=$(ocm get cv \
             "ghcr.io/platform-mesh//${COMPONENT_NAME}:${VERSION}" 2>&1)
           rc=$?
           set -e
