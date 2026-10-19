@@ -323,8 +323,19 @@ data:
           external: true
           dependsOn: []
         kcp-operator:
-          # Installed by platform-mesh-prerequisites.
-          enabled: false
+          syncWave: 1
+          external: true
+          enabled: true
+          dependsOn: []
+          imageResources:
+          - name: kcp-operator-image
+            annotations:
+              repo: oci
+              artifact: image
+              for: kcp-operator
+              image-ref: combined
+          targetNamespace: platform-mesh-system
+          values: {}
         keycloak-operator:
           enabled: false
         cnpg-operator:

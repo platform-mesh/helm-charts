@@ -38,8 +38,6 @@ cnpg:
   enabled: true
 keycloak-operator:
   enabled: true
-kcp-operator:
-  enabled: true
 etcd-druid:
   enabled: true
 

@@ -337,10 +337,9 @@ data:
           external: true
           dependsOn: []
         kcp-operator:
-          # Installed by platform-mesh-prerequisites.
           syncWave: 1
           external: true
-          enabled: false
+          enabled: true
           dependsOn: []
           imageResources:
           - name: kcp-operator-image

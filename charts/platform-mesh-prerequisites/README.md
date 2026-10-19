@@ -14,7 +14,6 @@ Optional infrastructure prerequisites for Platform Mesh
 | flux2.helmController.container.additionalArgs[0] | string | `"--concurrent=10"` |  |
 | flux2.policies.create | bool | `false` |  |
 | gateway-api-crds.enabled | bool | `true` |  |
-| kcp-operator.enabled | bool | `true` |  |
 | keycloak-operator.enabled | bool | `true` |  |
 | localCertificates.caSecretName | string | `"domain-certificate-ca"` |  |
 | localCertificates.certificateSecretName | string | `"domain-certificate"` |  |
@@ -61,7 +60,6 @@ Optional infrastructure prerequisites for Platform Mesh
 | oci://ghcr.io/fluxcd-community/charts | flux2 | 2.17.2 |
 | oci://ghcr.io/open-component-model/kubernetes/controller | ocm-k8s-toolkit(chart) | 0.13.0 |
 | oci://ghcr.io/platform-mesh/charts/gardener | etcd-druid | v0.36.4 |
-| oci://ghcr.io/platform-mesh/helm-charts/charts/mirrored | kcp-operator | 0.7.4 |
 | oci://ghcr.io/platform-mesh/helm-charts | gateway-api-crds | 1.5.1 |
 | oci://ghcr.io/platform-mesh/helm-charts | keycloak-operator | 0.10.0 |
 | oci://ghcr.io/platform-mesh/ocm/charts | traefik-crds | 1.14.0 |
@@ -80,7 +78,6 @@ Optional infrastructure prerequisites for Platform Mesh
 | flux2.helmController.container.additionalArgs[0] | string | `"--concurrent=10"` |  |
 | flux2.policies.create | bool | `false` |  |
 | gateway-api-crds.enabled | bool | `true` |  |
-| kcp-operator.enabled | bool | `true` |  |
 | keycloak-operator.enabled | bool | `true` |  |
 | localCertificates.caSecretName | string | `"domain-certificate-ca"` |  |
 | localCertificates.certificateSecretName | string | `"domain-certificate"` |  |

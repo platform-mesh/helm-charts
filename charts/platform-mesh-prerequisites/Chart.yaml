@@ -38,10 +38,6 @@ dependencies:
     version: 0.10.0
     repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: keycloak-operator.enabled
-  - name: kcp-operator
-    version: 0.7.4
-    repository: oci://ghcr.io/platform-mesh/helm-charts/charts/mirrored
-    condition: kcp-operator.enabled
   - name: etcd-druid
     version: v0.36.4
     repository: oci://ghcr.io/platform-mesh/charts/gardener

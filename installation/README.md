@@ -14,10 +14,10 @@ The installation has two layers:
 - `platform-mesh-prerequisites` installs, or can be replaced by, the cluster
   infrastructure that Platform Mesh consumes: Flux, the Open Component Model
   (OCM) controller, cert-manager, Gateway API CRDs, Traefik, Traefik CRDs,
-  CloudNativePG, and the Keycloak, kcp, and etcd-druid operators.
+  CloudNativePG, and the Keycloak and etcd-druid operators.
 - `platform-mesh-operator` installs the Platform Mesh operator (PMO) and a
   `PlatformMesh` resource. PMO then reconciles the Platform Mesh component and
-  its services.
+  its services, including the kcp operator.
 
 ## How the installation works
 
@@ -118,7 +118,7 @@ merge behavior, see the
   `domain-certificate-ca` Secrets before installing the operator.
 - When the bundled prerequisites chart is not used, compatible Flux, OCM
   controller, cert-manager, Gateway API and Traefik CRDs, Traefik
-  `GatewayClass`, CloudNativePG, and Keycloak, kcp, and etcd-druid operators.
+  `GatewayClass`, CloudNativePG, and Keycloak and etcd-druid operators.
 
 ### Local Kind
 
@@ -169,7 +169,7 @@ EOF
 
 Skip this step only when the cluster already provides compatible Flux, OCM
 controller, cert-manager, Gateway API and Traefik CRDs, a Traefik
-`GatewayClass`, CloudNativePG, and the Keycloak, kcp, and etcd-druid operators.
+`GatewayClass`, CloudNativePG, and the Keycloak and etcd-druid operators.
 
 The bundled chart is installed in two passes. The first pass establishes the
 controllers and CRDs; the second pass enables Traefik after the Gateway API
