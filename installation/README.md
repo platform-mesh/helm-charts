@@ -319,8 +319,10 @@ helm upgrade --install platform-mesh-operator \
 base_domain=portal.orgdomain
 platform_mesh_version=0.6.0-build.6
 self_signed_certificates=true
+traefik_cluster_ip="$(kubectl -n platform-mesh-system get svc platform-mesh-prerequisites-traefik -o jsonpath='{.spec.clusterIP}')"
 test -n "${base_domain:-}"
 test -n "${platform_mesh_version:-}"
+test -n "${traefik_cluster_ip:-}"
 
 helm upgrade --install platform-mesh-operator \
   ./charts/platform-mesh-operator \
