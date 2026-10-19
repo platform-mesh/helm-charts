@@ -1,4 +1,0 @@
-installation:
-  enabled: true
-  baseDomain: portal.localhost
-  version: 0.5.2
