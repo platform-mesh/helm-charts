@@ -69,13 +69,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup OCM CLI
-        run: |
-          REPO="open-component-model/open-component-model"
-          # renovate: datasource=github-releases depName=open-component-model/open-component-model
-          version="v0.13.0"
-          echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
-          chmod a+x ocm
+        uses: platform-mesh/.github/.github/actions/setup-ocm@6871bb3d16678f962b1cd9d9e2e473c38543640d # main
 
       - name: Write OCM credentials file
         run: |
@@ -116,7 +110,7 @@ jobs:
           else
             constructor_file="${{ inputs.componentConstructorFile }}"
           fi
-          ./ocm add component-versions --repository "ghcr.io/platform-mesh" --constructor "$constructor_file"
+          ocm add component-versions --repository "ghcr.io/platform-mesh" --constructor "$constructor_file"
         env:
           COMPONENT_NAME: ${{ inputs.componentName }}
           VERSION: ${{ inputs.chartVersion }}
@@ -141,7 +135,7 @@ jobs:
                     public_key_pem: |
           $(printf '%s' "$OCM_SIGNING_CERT" | sed 's/^/            /')
           EOF
-          ./ocm sign component-version --signature helm-charts.platform-mesh \
+          ocm sign component-version --signature helm-charts.platform-mesh \
             "oci://ghcr.io/platform-mesh//${{ inputs.componentName }}:${{ inputs.chartVersion }}"
         env:
           OCM_SIGNING_PRIVATE_KEY: ${{ secrets.OCM_SIGNING_PRIVATE_KEY }}

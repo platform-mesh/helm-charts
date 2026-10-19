@@ -29,13 +29,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup OCM CLI
-        run: |
-          REPO="open-component-model/open-component-model"
-          # renovate: datasource=github-releases depName=open-component-model/open-component-model
-          version="v0.13.0"
-          echo "Installing ocm-cli version $version from $REPO"
-          curl -LsS -o ocm "https://github.com/$REPO/releases/download/${version}/ocm-linux-amd64"
-          chmod a+x ocm
+        uses: platform-mesh/.github/.github/actions/setup-ocm@6871bb3d16678f962b1cd9d9e2e473c38543640d # main
 
       - name: Write OCM credentials
         run: |
@@ -59,14 +53,14 @@ jobs:
       - name: Publish api-syncagent component
         run: |
           set +e
-          ./ocm get cv "ghcr.io/platform-mesh//github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}" > /dev/null 2>&1
+          ocm get cv "ghcr.io/platform-mesh//github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}" > /dev/null 2>&1
           rc=$?
           set -e
           if [ "$rc" -eq 0 ]; then
             echo "api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION} already present at ghcr.io/platform-mesh, skipping."
           else
             echo "Publishing github.com/platform-mesh/api-syncagent:${API_SYNCAGENT_COMPONENT_VERSION}"
-            ./ocm add component-versions \
+            ocm add component-versions \
               --repository "ghcr.io/platform-mesh" \
               --constructor .ocm/component-constructor-api-syncagent.yaml
           fi
