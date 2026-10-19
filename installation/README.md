@@ -261,6 +261,7 @@ Externally managed Secrets must provide the following data:
 |---|---|
 | `domain-certificate` | `tls.crt`: server certificate or full chain covering the base domain and wildcard subdomains; `tls.key`: matching private key; `ca.crt`: issuing CA or trust chain |
 | `domain-certificate-ca` | `tls.crt`: issuing or root CA certificate used as a trust anchor |
+| `domain-certificate-ca` | `ca.crt`: issuing or root CA certificate used as a trust anchor |
 
 The CA private key is not required in `domain-certificate-ca`. For example,
 create or update externally managed Secrets with:
@@ -276,6 +277,7 @@ kubectl --namespace platform-mesh-system create secret generic domain-certificat
 
 kubectl --namespace platform-mesh-system create secret generic domain-certificate-ca \
   --from-file=tls.crt=/path/to/ca.crt \
+  --from-file=ca.crt=/path/to/ca.crt \
   --dry-run=client \
   --output yaml | kubectl apply --filename -
 ```
