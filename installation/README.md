@@ -195,6 +195,7 @@ helm upgrade platform-mesh-prerequisites \
   --set traefik.enabled=true \
   --set traefik.service.type=LoadBalancer \
   --set traefik.service.spec.type=LoadBalancer \
+  --set traefik.ports.websecure.port=443 \
   --set traefik.ports.websecure.exposedPort=443
 
 until load_balancer_address=$(kubectl --namespace platform-mesh-system \
