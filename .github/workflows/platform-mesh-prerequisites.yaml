@@ -1,0 +1,27 @@
+name: Build platform-mesh-prerequisites Workflow
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'charts/platform-mesh-prerequisites/**'
+      - '.github/workflows/platform-mesh-prerequisites.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    concurrency:
+      group: platform-mesh-prerequisites-${{ github.ref }}
+      cancel-in-progress: true
+    uses: ./.github/workflows/pipeline-chart.yml
+    permissions:
+      contents: write
+      packages: write
+    with:
+      chartFolder: charts
+      chartName: platform-mesh-prerequisites
+      disableOCM: true
+    secrets: inherit
