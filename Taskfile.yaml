@@ -4,33 +4,10 @@ vars:
   LOCAL_BIN: bin
   CHARTS:
     sh: "printf '%s' $(ls -d charts/*/ | paste -sd ',' -)"
-  CHANGED_CHARTS:
-    sh: "( git diff --name-only main..@ ; git diff --name-only ) | grep '^charts/' | cut -d/ -f1-2 | sort | uniq | paste -sd ',' -"
-  PACKAGED_CHARTS:
-    sh: "mkdir -p oci/ && ls oci/ | sed 's/^/oci\\//g' | paste -sd ',' -"
   GOOS:
     sh: go env GOOS
   GOARCH:
     sh: go env GOARCH
-  OCM_VERSION:
-    sh: sed -nE 's/.*OCM_VERSION:-([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' local-setup/scripts/ocm-setup.sh
-  COMPONENT_PRERELEASE_VERSION: "1.0.0"
-  CUSTOM_LOCAL_COMPONENTS_CHART_PATHS:
-    - account-operator: charts/account-operator
-    - example-httpbin-operator: charts/example-httpbin-operator
-    - extension-manager-operator: charts/extension-manager-operator
-    - iam-service: charts/iam-service
-    - iam-ui: charts/iam-ui
-    - infra: charts/infra
-    - kubernetes-graphql-gateway: charts/kubernetes-graphql-gateway
-    - platform-mesh-operator: charts/platform-mesh-operator
-    - portal: charts/portal
-    - rebac-authz-webhook: charts/rebac-authz-webhook
-    - security-operator: charts/security-operator
-    - terminal-controller-manager: charts/terminal-controller-manager
-    - virtual-workspaces: charts/virtual-workspaces
-  COMPONENT_VERSION_FIX_DEPEDENCY_VERSIONS: []
-    # - keycloak: 24.8.1
   CMD_SED:
     sh: |
       # Check if sed is GNU sed or BSD sed (GNU sed has --version, BSD sed doesn't)
@@ -61,10 +38,6 @@ tasks:
     cmds:
       - test -s {{.LOCAL_BIN}}/mkcert || GOBIN=$(pwd)/{{.LOCAL_BIN}} go install filippo.io/mkcert@latest
       - export PATH=$(pwd)/{{.LOCAL_BIN}}:$PATH
-  setup:ocm:
-    internal: true
-    cmds:
-      - ./local-setup/scripts/ocm-setup.sh
   setup:mkbin:
     internal: true
     cmds:
@@ -78,12 +51,14 @@ tasks:
       - "./hack/lint-image-schema.sh"
       - "ct lint --target-branch main --chart-dirs=charts --validate-maintainers=false --chart-repos=bitnami=https://charts.bitnami.com/bitnami,openfga=https://openfga.github.io/helm-charts"
   helmtest:
+    desc: Run Helm unit tests for all selected charts
     cmds:
       - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm unittest $chart; done"
   helmtest-update:
     cmds:
       - "for chart in $(echo {{.CHARTS}} | tr ',' ' '); do helm unittest -u $chart; done"
   test:
+    desc: Run the chart test suite
     deps:
       - task: helmtest
   update-changed:
@@ -118,118 +93,6 @@ tasks:
       - "rm oci/* || true"
       - task: helmpackage
 
-  ocm:deploy:ociregistry:
-    internal: true
-    cmds:
-      - |
-        kind export kubeconfig -n platform-mesh
-        # docs: https://github.com/twuni/docker-registry.helm
-        helm repo add twuni https://twuni.github.io/docker-registry.helm || true
-        helm repo update
-        kubectl create ns registry || true
-        helm upgrade --install oci-registry twuni/docker-registry -n registry --set service.port=443 --set tlsSecretName=domain-certificate --set image.repository=ghcr.io/distribution/distribution --set image.tag=3.0.0 --set ingress.enabled=false
-
-        kubectl create secret generic domain-certificate -n registry \
-          --from-file=tls.crt=./local-setup/scripts/certs/cert.crt \
-          --from-file=tls.key=./local-setup/scripts/certs/cert.key \
-          --from-file=ca.crt=./local-setup/scripts/certs/ca.crt \
-          --type=kubernetes.io/tls --dry-run=client -oyaml | kubectl apply -f -
-
-        kubectl wait --namespace registry \
-          --for=condition=available deployment \
-          --timeout=120s oci-registry-docker-registry
-
-        echo "Local OCI registry is ready with TLS enabled."
-        echo "To access it from the host:"
-        echo "  kubectl --namespace registry port-forward service/oci-registry-docker-registry 8080:443"
-        echo "  curl --insecure https://127.0.0.1:8080/v2/"
-
-  ocm:build:custom-local-charts:
-    deps:
-      - task: setup:ocm
-    cmds:
-      - ./local-setup/scripts/ocm-build-local-charts.sh
-
-  ocm:configure:tls:
-    internal: true
-    desc: Apply ocm-k8s-toolkit patch to support oci registry with self-signed certs
-    cmds:
-      - local-setup/scripts/configureOcmTls.sh
-
-  ocm:build:component:
-    aliases:
-      - ocm:build
-    cmds:
-      - ./local-setup/scripts/ocm-build-component.sh
-
-  ocm:deploy:transfer-pod:
-    internal: true
-    cmds:
-      - |
-        set -e
-        echo "Transferring OCM transport archive to local registry from a pod..."
-        kubectl delete pod ocm-transfer-pod --ignore-not-found=true || true
-        kubectl run ocm-transfer-pod --image=ghcr.io/platform-mesh/custom-images/ocmbuilder:sha-4a328ed -- sleep infinity || true
-        transfer_pod_timeout="${KUBECTL_WAIT_TIMEOUT:-1200s}"
-        if ! kubectl wait --namespace default --for=condition=Ready pod --timeout="$transfer_pod_timeout" ocm-transfer-pod; then
-          echo "Timed out after $transfer_pod_timeout waiting for the OCM transfer pod. Pod and image-pull diagnostics:" >&2
-          kubectl get pod --namespace default ocm-transfer-pod -o wide >&2 || true
-          kubectl describe pod --namespace default ocm-transfer-pod >&2 || true
-          kubectl get events --namespace default \
-            --field-selector involvedObject.kind=Pod,involvedObject.name=ocm-transfer-pod \
-            --sort-by=.metadata.creationTimestamp >&2 || true
-          exit 1
-        fi
-        kubectl exec -i ocm-transfer-pod -- mkdir -p .ocm
-
-        # configure RootCA truststore on the pod
-        kubectl exec -i ocm-transfer-pod -- openssl s_client -connect oci-registry-docker-registry.registry.svc.cluster.local:443 -showcerts </dev/null 2>/dev/null| openssl x509 -outform PEM > registry-ca.pem
-        kubectl cp registry-ca.pem -n default ocm-transfer-pod:registry-ca.pem
-        kubectl exec -i ocm-transfer-pod -- sudo cp registry-ca.pem /usr/local/share/ca-certificates/local-oci-registry_root_ca.crt
-        kubectl exec -i ocm-transfer-pod -- sudo update-ca-certificates
-
-  ocm:transfer:dir-to-local-oci:
-    cmds:
-      - cmd: kubectl exec -i ocm-transfer-pod -- ocm transfer component-version "ctf::.ocm/transport.ctf//github.com/platform-mesh/prerelease:{{ .COMPONENT_PRERELEASE_VERSION }}" oci-registry-docker-registry.registry.svc.cluster.local/platform-mesh
-        ignore_error: true
-
-  ocm:deploy:
-    cmds:
-      - task: ocm:deploy:ociregistry
-      - task: ocm:deploy:transfer-pod
-      - task: ocm:configure:tls
-
-  ocm:kustomize:apply:
-    aliases:
-      - ocm:apply
-    cmds:
-      - kind export kubeconfig -n platform-mesh
-      - |
-        echo "Applying kustomize overlay to deploy platform-mesh, semver: {{ .COMPONENT_PRERELEASE_VERSION }}"
-        yq -i '.spec.semver = "{{ .COMPONENT_PRERELEASE_VERSION }}"' local-setup/kustomize/overlays/ocm-prerelease/prerelease-component.yml
-
-      - |
-        kubectl apply -k local-setup/kustomize/overlays/ocm-prerelease
-        echo "Applied kustomize overlay"
-      - kubectl rollout restart deployment/ocm-k8s-toolkit-controller-manager -n ocm-system
-
-  ocm:cleanup:
-    cmds:
-      - kind export kubeconfig -n platform-mesh
-      - |
-        rm registry-ca.pem
-      - cmd: kubectl delete pod ocm-transfer-pod --ignore-not-found=true
-
-  ocm:check-images:
-    desc: Check which images are OCM-managed vs unmanaged on the cluster
-    cmds:
-      - ./local-setup/scripts/check-ocm-images.sh
-
-  ocm:build-apply:iterate:
-    cmds:
-      - task: ocm:build:component
-      - task: ocm:kustomize:apply
-
   ocm:update:constructor:
     desc: Prepare .ocm/component-constructor-prerelease.yaml from the local aggregate descriptor.
     cmds:
@@ -258,22 +121,24 @@ tasks:
   test:portal-e2e:setup:
     run: once
     internal: true
-    dir: local-setup/e2e
+    dir: tests
     cmds:
       - npm ci
       - npx playwright install chromium ffmpeg
 
   test:portal-e2e:httpbins:
+    desc: Run the portal HTTPBin provider end-to-end tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: tests
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-httpbins.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:marketplace:
+    desc: Run the portal marketplace end-to-end tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
@@ -283,32 +148,35 @@ tasks:
         vars: { ORG_NAME: '{{.ORG_NAME}}', TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME}}', HEADED: '{{.HEADED}}' }
 
   test:portal-e2e:marketplace-ui:
+    desc: Run the marketplace availability and provider lifecycle UI tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: tests
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-marketplace-ui.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:account-kubeconfig:
+    desc: Run the account kubeconfig download and access tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: tests
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-account-kubeconfig.test.ts {{if .HEADED}}--headed{{end}}
 
   test:portal-e2e:authorization:
+    desc: Run the portal authorization end-to-end tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: tests
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-authorization.test.ts {{if .HEADED}}--headed{{end}}
 
@@ -326,7 +194,7 @@ tasks:
     vars:
       TEST_RUN_ID: '{{.TEST_RUN_ID | default (now | unixEpoch | printf "%.8s")}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: tests
     cmds:
       - VIDEO=true SKIP_INVITE=true TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD=root npx playwright test test-register-and-navigate.test.ts
       - VIDEO=true SKIP_INVITE=true TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD=triton npx playwright test test-register-and-navigate.test.ts
@@ -334,12 +202,13 @@ tasks:
       - VIDEO=true ORG_NAME=org-triton-{{.TEST_RUN_ID}} TEST_ACCOUNT_NAME=acc-triton-{{.TEST_RUN_ID}} npx playwright test portal-*.test.ts --workers=1
 
   test:portal-e2e:deletion:
+    desc: Run the account deletion end-to-end tests
     vars:
       ORG_NAME: '{{.ORG_NAME | default "default"}}'
       TEST_ACCOUNT_NAME: '{{.TEST_ACCOUNT_NAME | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: tests
     cmds:
       - ORG_NAME={{.ORG_NAME}} {{if .TEST_ACCOUNT_NAME}}TEST_ACCOUNT_NAME={{.TEST_ACCOUNT_NAME}}{{end}} npx playwright test portal-account-deletion.test.ts {{if .HEADED}}--headed{{end}}
 
@@ -356,15 +225,13 @@ tasks:
         vars: { TEST_RUN_ID: '{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
 
   test:portal-e2e:remote:
-    desc: Run portal e2e tests for remote setup (only root shard available; mailpit not deployed so invite step is skipped)
+    desc: Run portal e2e tests for remote setup (only root shard; tests requiring example-data providers are skipped)
     vars:
       TEST_RUN_ID: '{{.TEST_RUN_ID | default (now | unixEpoch | printf "%.8s")}}'
       HEADED: '{{.HEADED | default ""}}'
     cmds:
       - task: test:portal-e2e:sharding-setup
         vars: { TEST_RUN_ID: '{{.TEST_RUN_ID}}', SHARDING_ORG_SHARD: 'root', SHARDING_ACCOUNT_SHARDS: 'root', SKIP_INVITE: 'true', HEADED: '{{.HEADED}}' }
-      - task: test:portal-e2e:run
-        vars: { ORG_NAME: 'org-root-{{.TEST_RUN_ID}}', TEST_ACCOUNT_NAME: 'acc-root-{{.TEST_RUN_ID}}', HEADED: '{{.HEADED}}' }
 
   test:portal-e2e:shard:root:
     desc: Run portal e2e tests with org on root shard
@@ -419,23 +286,12 @@ tasks:
       SKIP_INVITE: '{{.SKIP_INVITE | default ""}}'
       HEADED: '{{.HEADED | default ""}}'
     deps: [test:portal-e2e:setup]
-    dir: local-setup/e2e
+    dir: tests
     cmds:
       - TEST_RUN_ID={{.TEST_RUN_ID}} SHARDING_ORG_SHARD={{.SHARDING_ORG_SHARD}} {{if .SHARDING_ACCOUNT_SHARDS}}SHARDING_ACCOUNT_SHARDS={{.SHARDING_ACCOUNT_SHARDS}} {{end}}{{if .SKIP_INVITE}}SKIP_INVITE={{.SKIP_INVITE}} {{end}}npx playwright test test-register-and-navigate.test.ts {{if .HEADED}}--headed{{end}}
 
   test:backend-resources:
+    desc: Check backend resources required by the developer setup
     cmds:
-      - ./local-setup/scripts/check-backend-resources.sh
+      - ./development/scripts/check-backend-resources.sh
 
-  test:local-setup:
-    desc: Run backend resource checks and portal e2e tests
-    cmds:
-      - task: test:backend-resources
-      - task: test:portal-e2e
-
-  local-setup:
-    desc: "Local setup. Sharded and reuse-existing-cluster (--iterate) are on by default; pass start.sh flags after --, e.g. task local-setup -- --iterate=false --sharded=false"
-    deps:
-      - task: setup:mkcert
-    cmds:
-      - ./local-setup/scripts/start.sh {{.CLI_ARGS}}
