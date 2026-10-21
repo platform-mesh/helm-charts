@@ -417,7 +417,7 @@ gatewayApi:
   # -- Gateway listeners. The HTTPS listener is hostname-less so all route hostnames share one listener (needed for HTTP/2 connection reuse on Istio).
   listeners:
     - name: terminate
-      port: 8443
+      port: 443
       protocol: HTTPS
       tls:
         mode: Terminate
@@ -430,7 +430,7 @@ gatewayApi:
     # -- Generate one TLS passthrough listener per kcp hostname (front proxy, root shard, shards). Disable to manage passthrough listeners yourself; kcp TLSRoutes then attach to a listener named "passthrough".
     enabled: true
     # -- Port of the generated passthrough listeners
-    port: 8443
+    port: 443
     # -- allowedRoutes of the generated passthrough listeners
     allowedRoutes:
       namespaces:
@@ -440,7 +440,7 @@ gatewayApi:
     - name: terminate-services
     # -- hostname should match the pattern "*.services.{{ .baseDomain }}"
       hostname: ""
-      port: 8443
+      port: 443
       protocol: HTTPS
       tls:
         mode: Terminate

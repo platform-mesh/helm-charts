@@ -9,7 +9,7 @@ Gateway API enabled:
       gatewayClassName: traefik
       listeners:
         - name: terminate
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -23,7 +23,7 @@ Gateway API enabled:
               from: All
           hostname: ""
           name: terminate-services
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -37,7 +37,7 @@ Gateway API enabled:
               from: All
           hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -46,7 +46,7 @@ Gateway API enabled:
               from: All
           hostname: root.kcp.localhost
           name: passthrough-root
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -55,7 +55,7 @@ Gateway API enabled:
               from: All
           hostname: nereus.kcp.localhost
           name: passthrough-nereus
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -64,7 +64,7 @@ Gateway API enabled:
               from: All
           hostname: triton.kcp.localhost
           name: passthrough-triton
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -672,7 +672,7 @@ Istio disabled:
       gatewayClassName: traefik
       listeners:
         - name: terminate
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -686,7 +686,7 @@ Istio disabled:
               from: All
           hostname: ""
           name: terminate-services
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -700,7 +700,7 @@ Istio disabled:
               from: All
           hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -709,7 +709,7 @@ Istio disabled:
               from: All
           hostname: root.kcp.localhost
           name: passthrough-root
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -718,7 +718,7 @@ Istio disabled:
               from: All
           hostname: nereus.kcp.localhost
           name: passthrough-nereus
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -727,7 +727,7 @@ Istio disabled:
               from: All
           hostname: triton.kcp.localhost
           name: passthrough-triton
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -1335,7 +1335,7 @@ Istio enabled:
       gatewayClassName: traefik
       listeners:
         - name: terminate
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -1349,7 +1349,7 @@ Istio enabled:
               from: All
           hostname: ""
           name: terminate-services
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -1363,7 +1363,7 @@ Istio enabled:
               from: All
           hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -1372,7 +1372,7 @@ Istio enabled:
               from: All
           hostname: root.kcp.localhost
           name: passthrough-root
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -1381,7 +1381,7 @@ Istio enabled:
               from: All
           hostname: nereus.kcp.localhost
           name: passthrough-nereus
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -1390,7 +1390,7 @@ Istio enabled:
               from: All
           hostname: triton.kcp.localhost
           name: passthrough-triton
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -2317,7 +2317,7 @@ match snapshots:
       gatewayClassName: traefik
       listeners:
         - name: terminate
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -2331,7 +2331,7 @@ match snapshots:
               from: All
           hostname: ""
           name: terminate-services
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -2345,7 +2345,7 @@ match snapshots:
               from: All
           hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -2354,7 +2354,7 @@ match snapshots:
               from: All
           hostname: root.kcp.localhost
           name: passthrough-root
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -2363,7 +2363,7 @@ match snapshots:
               from: All
           hostname: nereus.kcp.localhost
           name: passthrough-nereus
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -2372,7 +2372,7 @@ match snapshots:
               from: All
           hostname: triton.kcp.localhost
           name: passthrough-triton
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -2996,7 +2996,7 @@ match snapshots w. hostAliases enabled:
       gatewayClassName: traefik
       listeners:
         - name: terminate
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -3010,7 +3010,7 @@ match snapshots w. hostAliases enabled:
               from: All
           hostname: ""
           name: terminate-services
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -3024,7 +3024,7 @@ match snapshots w. hostAliases enabled:
               from: All
           hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -3033,7 +3033,7 @@ match snapshots w. hostAliases enabled:
               from: All
           hostname: root.kcp.localhost
           name: passthrough-root
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -3042,7 +3042,7 @@ match snapshots w. hostAliases enabled:
               from: All
           hostname: nereus.kcp.localhost
           name: passthrough-nereus
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -3051,7 +3051,7 @@ match snapshots w. hostAliases enabled:
               from: All
           hostname: triton.kcp.localhost
           name: passthrough-triton
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -3667,7 +3667,7 @@ match snapshots w. kcp version:
       gatewayClassName: traefik
       listeners:
         - name: terminate
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -3681,7 +3681,7 @@ match snapshots w. kcp version:
               from: All
           hostname: ""
           name: terminate-services
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -3695,7 +3695,7 @@ match snapshots w. kcp version:
               from: All
           hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -3704,7 +3704,7 @@ match snapshots w. kcp version:
               from: All
           hostname: root.kcp.localhost
           name: passthrough-root
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -3713,7 +3713,7 @@ match snapshots w. kcp version:
               from: All
           hostname: nereus.kcp.localhost
           name: passthrough-nereus
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -3722,7 +3722,7 @@ match snapshots w. kcp version:
               from: All
           hostname: triton.kcp.localhost
           name: passthrough-triton
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -4346,7 +4346,7 @@ match snapshots with mailpit enabled:
       gatewayClassName: traefik
       listeners:
         - name: terminate
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -4360,7 +4360,7 @@ match snapshots with mailpit enabled:
               from: All
           hostname: ""
           name: terminate-services
-          port: 8443
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -4374,7 +4374,7 @@ match snapshots with mailpit enabled:
               from: All
           hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -4383,7 +4383,7 @@ match snapshots with mailpit enabled:
               from: All
           hostname: root.kcp.localhost
           name: passthrough-root
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -4392,7 +4392,7 @@ match snapshots with mailpit enabled:
               from: All
           hostname: nereus.kcp.localhost
           name: passthrough-nereus
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
@@ -4401,7 +4401,7 @@ match snapshots with mailpit enabled:
               from: All
           hostname: triton.kcp.localhost
           name: passthrough-triton
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
