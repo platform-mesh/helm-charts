@@ -1,6 +1,4 @@
 {{- if eq (include "common.getKeyValue" (dict "Values" .Values "key" "certManager.enabled")) "true" -}}
-{{- if .Values.certificates.create -}}
-{{- if .Values.certManager.createCA }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
@@ -9,7 +7,6 @@ metadata:
 spec:
   selfSigned: {}
 ---
-# Create a CA certificate for the webhook to use
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -24,9 +21,6 @@ spec:
   commonName: {{ include "common.entity.name" . }}-ca
   secretName: {{ .Values.certManager.caSecretName }}
 ---
-{{- end }}
-
-# Create an Issuer that uses the above generated CA certificate to issue certs
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
@@ -35,10 +29,7 @@ metadata:
 spec:
   ca:
     secretName: {{ .Values.certManager.caSecretName }}
-
 ---
-
-# Finally, generate a serving certificate for the webhook to use
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -48,7 +39,6 @@ spec:
   secretName: {{ include "common.entity.name" . }}-cert
   issuerRef:
     name: {{ include "common.entity.name" . }}-issuer
-  dnsNames: {{ .Values.istio.dnsNames | toYaml | nindent 4 }}
+  dnsNames: {{ .Values.certManager.dnsNames | toYaml | nindent 4 }}
   ipAddresses: {{ .Values.certManager.ipAddresses | toYaml | nindent 4 }}
-{{- end -}}
 {{- end -}}

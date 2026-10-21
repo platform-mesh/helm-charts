@@ -7,11 +7,9 @@ A Helm chart for Kubernetes
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | certManager.caSecretName | string | `"rebac-authz-webhook-webhook-ca"` |  |
-| certManager.createCA | bool | `false` |  |
 | certManager.dnsNames | list | `[]` |  |
 | certManager.enabled | bool | `true` |  |
-| certManager.ipAddresses[0] | string | `"10.96.86.219"` |  |
-| certificates.create | bool | `false` |  |
+| certManager.ipAddresses | list | `[]` |  |
 | clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
 | clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | deployment.resources.limits.cpu | string | `"500m"` |  |
