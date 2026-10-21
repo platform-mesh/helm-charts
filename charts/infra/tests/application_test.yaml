@@ -50,7 +50,7 @@ tests:
     gatewayApi:
       enabled: true
     cors:
-      enabled: true
+      mode: native
   asserts:
     - matchSnapshot: {}
 - it: Istio disabled
@@ -330,10 +330,11 @@ tests:
   templates:
     - keycloak/httproute.yaml
   set:
+    cors:
+      mode: none
     keycloak:
       gatewayApi:
         filters: []
-        corsFilters: []
   asserts:
   - notExists:
       path: spec.rules[0].filters

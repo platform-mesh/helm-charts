@@ -32,8 +32,9 @@ http:
   protocol: ""
 
 cors:
-  # -- toggle to enable CORS support
-  enabled: false
+  # -- CORS mode for the HTTPRoute. One of: native (upstream Gateway API
+  # type:CORS filter, GEP-1767), none (disabled - the default).
+  mode: none
 
 gatewayApi:
   enabled: false
@@ -41,12 +42,6 @@ gatewayApi:
     pathPrefix: /ui/marketplace
     parentRefs:
     - name: k8sapi-gateway
-    corsFilters:
-    - extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header
-      type: ExtensionRef
 
 exposure:
   # -- hostnames to be used for exposure

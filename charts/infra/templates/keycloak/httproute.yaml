@@ -18,14 +18,12 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.keycloak.gatewayApi.pathPrefix }}
-    {{- if or .Values.keycloak.gatewayApi.filters .Values.keycloak.gatewayApi.corsFilters }}
+    {{- if or .Values.keycloak.gatewayApi.filters (eq (include "common.gateway.corsEnabled" .) "true") }}
     filters:
     {{- with .Values.keycloak.gatewayApi.filters }}
     {{ toYaml . | nindent 4 }}
     {{- end }}
-    {{- with .Values.keycloak.gatewayApi.corsFilters }}
-    {{ toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "common.gateway.corsFilter" . | nindent 4 }}
     {{- end }}
     backendRefs:
     - group: ""

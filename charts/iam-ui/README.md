@@ -5,6 +5,7 @@ Helm Chart for the iam-ui
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| cors.mode | string | `"none"` | CORS mode for the HTTPRoute. One of: native (upstream Gateway API type:CORS filter, GEP-1767), none (disabled - the default for iam-ui). |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | exposure.hostnames | list | `[]` | hostnames to be used for exposure |
@@ -18,7 +19,6 @@ Helm Chart for the iam-ui
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/iam-ui"` | The image repository path (without registry) |
 | port | int | `8080` |  |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

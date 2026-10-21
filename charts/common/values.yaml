@@ -92,6 +92,27 @@ defaults:
       # -- name of the gateway
       name: gateway
 
+  cors:
+    # -- CORS mode for HTTPRoute filters. One of: native (upstream Gateway API
+    # type:CORS filter, GEP-1767), none (no CORS filter).
+    mode: none
+    # -- allowed origins
+    allowOrigins: []
+    # -- allowed methods
+    allowMethods:
+      - GET
+      - OPTIONS
+      - POST
+    # -- allowed headers
+    allowHeaders:
+      - "*"
+    # -- exposed headers
+    exposeHeaders: []
+    # -- allow credentials
+    allowCredentials: true
+    # -- preflight cache max age in seconds
+    maxAge: 100
+
   sentry:
     # -- toggle to enable/disable sentry integration
     enabled: false

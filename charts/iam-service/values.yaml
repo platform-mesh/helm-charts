@@ -10,9 +10,9 @@ image:
 health:
   port: 8080
 
-traefik:
-  # -- toggle to enable traefik CORS filter in HTTPRoute
-  enabled: true
+cors:
+  # see the common chart cors defaults for the native-mode fields.
+  mode: none
 
 exposure:
   # -- hostnames to be used for exposure
@@ -23,20 +23,13 @@ gatewayApi:
     pathPrefix: /iam/graphql
     parentRefs:
       - name: k8sapi-gateway
-    # -- list of HTTPRoute filters (default: URLRewrite only, no CORS)
+    # -- list of HTTPRoute filters (default: URLRewrite only; CORS is added via cors.mode)
     filters:
       - type: URLRewrite
         urlRewrite:
           path:
             type: ReplacePrefixMatch
             replacePrefixMatch: /graphql
-    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
-    corsFilters:
-      - type: ExtensionRef
-        extensionRef:
-          group: traefik.io
-          kind: Middleware
-          name: cors-header
 
 port: 8080
 

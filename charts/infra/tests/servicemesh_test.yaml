@@ -16,7 +16,7 @@ tests:
     gatewayApi:
       enabled: true
     cors:
-      enabled: true
+      mode: native
   asserts:
   - matchSnapshot: {}
 - it: configure Gateway infrastructure

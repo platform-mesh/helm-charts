@@ -12,7 +12,7 @@ tests:
       gatewayApi:
         enabled: true
       cors:
-        enabled: true
+        mode: native
       extraArgs:
         - --test=abc
       hostAliases:

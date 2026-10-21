@@ -13,6 +13,17 @@ matches the snapshot:
             - name: RELEASE-NAME-iam-ui
               namespace: NAMESPACE
               port: 8080
+          filters:
+            - cors:
+                allowCredentials: true
+                allowHeaders:
+                  - '*'
+                allowMethods:
+                  - GET
+                  - OPTIONS
+                  - POST
+                maxAge: 100
+              type: CORS
           matches:
             - path:
                 type: PathPrefix

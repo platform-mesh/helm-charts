@@ -63,9 +63,10 @@ validation:
   # -- Protocol used to reach the extension-manager validation webhook. Permissible values: http, https
   protocol: "http"
 
-traefik:
-  # -- toggle to enable traefik CORS filter in HTTPRoute
-  enabled: true
+cors:
+  # -- CORS mode for the HTTPRoute. One of: native (upstream Gateway API
+  # type:CORS filter, GEP-1767), none (disabled - the default for portal).
+  mode: none
 
 # -- init containers to run before the main container
 initContainers: []
