@@ -36,3 +36,4 @@ tmp/
 .gitconfig
 backup/
 *.kubeconfig
+*.sh.bak

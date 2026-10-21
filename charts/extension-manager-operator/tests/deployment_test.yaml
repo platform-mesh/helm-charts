@@ -100,8 +100,6 @@ tests:
       - matchSnapshot: {}
   - it: custom certs
     set:
-      crds:
-        enabled: false
       extraVolumeMounts:
         - mountPath: /etc/ssl/certs/domain-ca.crt
           name: domain-ca
