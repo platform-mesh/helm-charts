@@ -180,14 +180,14 @@ kinds are discoverable.
 
 ```shell
 helm upgrade --install platform-mesh-prerequisites \
-  ./charts/platform-mesh-prerequisites \
+  oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-prerequisites \
   --namespace platform-mesh-system \
   --create-namespace \
   --wait \
   --timeout 15m
 
 helm upgrade platform-mesh-prerequisites \
-  ./charts/platform-mesh-prerequisites \
+  oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-prerequisites \
   --namespace platform-mesh-system \
   --reset-values \
   --wait \
@@ -216,7 +216,7 @@ echo "LoadBalancer address: ${load_balancer_address}"
 
 ```shell
 helm upgrade --install platform-mesh-prerequisites \
-  ./charts/platform-mesh-prerequisites \
+  oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-prerequisites \
   --namespace platform-mesh-system \
   --set keycloak-operator.watchNamespaces=platform-mesh-system \
   --create-namespace \
@@ -224,7 +224,7 @@ helm upgrade --install platform-mesh-prerequisites \
   --timeout 15m
 
 helm upgrade platform-mesh-prerequisites \
-  ./charts/platform-mesh-prerequisites \
+  oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-prerequisites \
   --namespace platform-mesh-system \
   --reset-values \
   --wait \
@@ -297,7 +297,7 @@ test -n "${platform_mesh_version:-}"
 echo "Configure ${base_domain} and *.${base_domain} for ${load_balancer_address}"
 
 helm upgrade --install platform-mesh-operator \
-  ./charts/platform-mesh-operator \
+  oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-operator \
   --namespace platform-mesh-system \
   --set ocm.enabled=true \
   --set ocm.profile=production \
@@ -325,7 +325,7 @@ test -n "${platform_mesh_version:-}"
 test -n "${traefik_cluster_ip:-}"
 
 helm upgrade --install platform-mesh-operator \
-  ./charts/platform-mesh-operator \
+  oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-operator \
   --namespace platform-mesh-system \
   --set ocm.enabled=true \
   --set ocm.profile=kind \
