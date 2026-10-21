@@ -239,6 +239,9 @@ data:
                   allowedRoutes:
                     namespaces:
                       from: All
+              # Traefik accepts the hostname-less passthrough listener above, so keep it instead of the generated ones.
+              passthrough:
+                enabled: false
               listenersExtra:
                 - name: terminate-services
                   hostname: "*.services.{{ .baseDomain }}"

@@ -8,20 +8,8 @@ Gateway API enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: ""
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: ""
-          name: terminate-wildstar
-          port: 8443
+        - name: terminate
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -33,25 +21,53 @@ Gateway API enabled:
         - allowedRoutes:
             namespaces:
               from: All
+          hostname: ""
+          name: terminate-services
+          port: 443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: ""
-          name: terminate-services
-          port: 8443
-          protocol: HTTPS
+          hostname: root.kcp.localhost
+          name: passthrough-root
+          port: 443
+          protocol: TLS
           tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: nereus.kcp.localhost
+          name: passthrough-nereus
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: triton.kcp.localhost
+          name: passthrough-triton
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
   2: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: Kubeconfig
@@ -324,7 +340,7 @@ Gateway API enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -448,7 +464,7 @@ Gateway API enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-nereus
       rules:
         - backendRefs:
             - group: ""
@@ -572,7 +588,7 @@ Gateway API enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-triton
       rules:
         - backendRefs:
             - group: ""
@@ -655,20 +671,8 @@ Istio disabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: ""
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: ""
-          name: terminate-wildstar
-          port: 8443
+        - name: terminate
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -680,25 +684,53 @@ Istio disabled:
         - allowedRoutes:
             namespaces:
               from: All
+          hostname: ""
+          name: terminate-services
+          port: 443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: ""
-          name: terminate-services
-          port: 8443
-          protocol: HTTPS
+          hostname: root.kcp.localhost
+          name: passthrough-root
+          port: 443
+          protocol: TLS
           tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: nereus.kcp.localhost
+          name: passthrough-nereus
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: triton.kcp.localhost
+          name: passthrough-triton
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
   2: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: Kubeconfig
@@ -971,7 +1003,7 @@ Istio disabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -1095,7 +1127,7 @@ Istio disabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-nereus
       rules:
         - backendRefs:
             - group: ""
@@ -1219,7 +1251,7 @@ Istio disabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-triton
       rules:
         - backendRefs:
             - group: ""
@@ -1302,20 +1334,8 @@ Istio enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: ""
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: ""
-          name: terminate-wildstar
-          port: 8443
+        - name: terminate
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -1327,25 +1347,53 @@ Istio enabled:
         - allowedRoutes:
             namespaces:
               from: All
+          hostname: ""
+          name: terminate-services
+          port: 443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: ""
-          name: terminate-services
-          port: 8443
-          protocol: HTTPS
+          hostname: root.kcp.localhost
+          name: passthrough-root
+          port: 443
+          protocol: TLS
           tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: nereus.kcp.localhost
+          name: passthrough-nereus
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: triton.kcp.localhost
+          name: passthrough-triton
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
   2: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: Kubeconfig
@@ -1618,7 +1666,7 @@ Istio enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -1742,7 +1790,7 @@ Istio enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-nereus
       rules:
         - backendRefs:
             - group: ""
@@ -1866,7 +1914,7 @@ Istio enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-triton
       rules:
         - backendRefs:
             - group: ""
@@ -2068,7 +2116,7 @@ configure etcd backup store:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -2250,7 +2298,7 @@ configure rootshard resources:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -2268,20 +2316,8 @@ match snapshots:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: ""
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: ""
-          name: terminate-wildstar
-          port: 8443
+        - name: terminate
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -2293,25 +2329,53 @@ match snapshots:
         - allowedRoutes:
             namespaces:
               from: All
+          hostname: ""
+          name: terminate-services
+          port: 443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: ""
-          name: terminate-services
-          port: 8443
-          protocol: HTTPS
+          hostname: root.kcp.localhost
+          name: passthrough-root
+          port: 443
+          protocol: TLS
           tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: nereus.kcp.localhost
+          name: passthrough-nereus
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: triton.kcp.localhost
+          name: passthrough-triton
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
   2: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: Kubeconfig
@@ -2592,7 +2656,7 @@ match snapshots:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -2720,7 +2784,7 @@ match snapshots:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-nereus
       rules:
         - backendRefs:
             - group: ""
@@ -2848,7 +2912,7 @@ match snapshots:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-triton
       rules:
         - backendRefs:
             - group: ""
@@ -2931,20 +2995,8 @@ match snapshots w. hostAliases enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: ""
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: ""
-          name: terminate-wildstar
-          port: 8443
+        - name: terminate
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -2956,25 +3008,53 @@ match snapshots w. hostAliases enabled:
         - allowedRoutes:
             namespaces:
               from: All
+          hostname: ""
+          name: terminate-services
+          port: 443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: ""
-          name: terminate-services
-          port: 8443
-          protocol: HTTPS
+          hostname: root.kcp.localhost
+          name: passthrough-root
+          port: 443
+          protocol: TLS
           tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: nereus.kcp.localhost
+          name: passthrough-nereus
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: triton.kcp.localhost
+          name: passthrough-triton
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
   2: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: Kubeconfig
@@ -3251,7 +3331,7 @@ match snapshots w. hostAliases enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -3377,7 +3457,7 @@ match snapshots w. hostAliases enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-nereus
       rules:
         - backendRefs:
             - group: ""
@@ -3503,7 +3583,7 @@ match snapshots w. hostAliases enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-triton
       rules:
         - backendRefs:
             - group: ""
@@ -3586,20 +3666,8 @@ match snapshots w. kcp version:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: ""
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: ""
-          name: terminate-wildstar
-          port: 8443
+        - name: terminate
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -3611,25 +3679,53 @@ match snapshots w. kcp version:
         - allowedRoutes:
             namespaces:
               from: All
+          hostname: ""
+          name: terminate-services
+          port: 443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: ""
-          name: terminate-services
-          port: 8443
-          protocol: HTTPS
+          hostname: root.kcp.localhost
+          name: passthrough-root
+          port: 443
+          protocol: TLS
           tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: nereus.kcp.localhost
+          name: passthrough-nereus
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: triton.kcp.localhost
+          name: passthrough-triton
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
   2: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: Kubeconfig
@@ -3910,7 +4006,7 @@ match snapshots w. kcp version:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -4038,7 +4134,7 @@ match snapshots w. kcp version:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-nereus
       rules:
         - backendRefs:
             - group: ""
@@ -4166,7 +4262,7 @@ match snapshots w. kcp version:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-triton
       rules:
         - backendRefs:
             - group: ""
@@ -4249,20 +4345,8 @@ match snapshots with mailpit enabled:
     spec:
       gatewayClassName: traefik
       listeners:
-        - hostname: ""
-          name: terminate
-          port: 8443
-          protocol: HTTPS
-          tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
-        - hostname: ""
-          name: terminate-wildstar
-          port: 8443
+        - name: terminate
+          port: 443
           protocol: HTTPS
           tls:
             certificateRefs:
@@ -4274,25 +4358,53 @@ match snapshots with mailpit enabled:
         - allowedRoutes:
             namespaces:
               from: All
+          hostname: ""
+          name: terminate-services
+          port: 443
+          protocol: HTTPS
+          tls:
+            certificateRefs:
+              - group: ""
+                kind: Secret
+                name: domain-certificate
+                namespace: platform-mesh-system
+            mode: Terminate
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: localhost
           name: passthrough
-          port: 8443
+          port: 443
           protocol: TLS
           tls:
             mode: Passthrough
         - allowedRoutes:
             namespaces:
               from: All
-          hostname: ""
-          name: terminate-services
-          port: 8443
-          protocol: HTTPS
+          hostname: root.kcp.localhost
+          name: passthrough-root
+          port: 443
+          protocol: TLS
           tls:
-            certificateRefs:
-              - group: ""
-                kind: Secret
-                name: domain-certificate
-                namespace: platform-mesh-system
-            mode: Terminate
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: nereus.kcp.localhost
+          name: passthrough-nereus
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
+        - allowedRoutes:
+            namespaces:
+              from: All
+          hostname: triton.kcp.localhost
+          name: passthrough-triton
+          port: 443
+          protocol: TLS
+          tls:
+            mode: Passthrough
   2: |
     apiVersion: operator.kcp.io/v1alpha1
     kind: Kubeconfig
@@ -4565,7 +4677,7 @@ match snapshots with mailpit enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-root
       rules:
         - backendRefs:
             - group: ""
@@ -4689,7 +4801,7 @@ match snapshots with mailpit enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-nereus
       rules:
         - backendRefs:
             - group: ""
@@ -4813,7 +4925,7 @@ match snapshots with mailpit enabled:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-triton
       rules:
         - backendRefs:
             - group: ""
@@ -5003,7 +5115,7 @@ render additional shard with explicit hostname:
         - group: gateway.networking.k8s.io
           kind: Gateway
           name: k8sapi-gateway
-          sectionName: passthrough
+          sectionName: passthrough-shard-1
       rules:
         - backendRefs:
             - group: ""
