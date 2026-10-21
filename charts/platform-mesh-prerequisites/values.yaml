@@ -19,6 +19,10 @@ cert-manager:
   enabled: true
   crds:
     enabled: true
+  webhook:
+    # Gardener requires admission webhooks to complete within 15 seconds so
+    # they cannot delay shoot maintenance or hibernation operations.
+    timeoutSeconds: 15
 traefik:
   # Install on the second pass, after Gateway API CRDs are established.
   enabled: false
