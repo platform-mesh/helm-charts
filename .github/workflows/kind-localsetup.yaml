@@ -248,6 +248,17 @@ jobs:
             --for=condition=Ready platformmeshes/platform-mesh \
             --timeout=30m
 
+      - name: Wait for portal data plane to become ready
+        # PlatformMesh Ready confirms PMO subroutines completed, but Flux may still
+        # be installing portal and the GraphQL gateway. Wait for both Helm releases
+        # and their deployments before sending browser traffic through Traefik.
+        run: |
+          kubectl wait --namespace platform-mesh-system \
+            --for=condition=Ready helmreleases/portal helmreleases/kubernetes-graphql-gateway \
+            --timeout=15m
+          kubectl rollout status --namespace platform-mesh-system deployment/portal --timeout=5m
+          kubectl rollout status --namespace platform-mesh-system deployment/kubernetes-graphql-gateway --timeout=5m
+
       - name: Regenerate kcp admin kubeconfig
         # Run from the repo root so the kubeconfig lands at <repo>/.secret/kcp/admin.kubeconfig,
         # which is exactly the ADMIN_KUBECONFIG the e2e resolves (tests/..). The admin client
