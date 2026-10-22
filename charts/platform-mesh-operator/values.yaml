@@ -5,6 +5,7 @@ crds:
 # profile ConfigMap alongside the operator. Disable to deploy only the operator binary and
 # supply PlatformMesh resources from a separate GitOps source.
 ocm:
+  # -- Set to true for first time installers.
   enabled: false
   # -- Installation profile. `production` assumes the infrastructure prerequisites already exist.
   profile: production
