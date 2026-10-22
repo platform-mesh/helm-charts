@@ -22,10 +22,6 @@ deployment:
       cpu: 150m
       memory: 128Mi
 
-crds:
-  # -- Install bundled CRDs. Set to false when CRDs are managed separately (e.g. via security-operator-crds chart)
-  enabled: false
-
 # -- Log level for all operator components. Permissible values: debug, info, warn, error
 logLevel: info
 
