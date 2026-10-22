@@ -12,7 +12,7 @@ spec:
   repositorySpec:
     baseUrl: ghcr.io/platform-mesh
     type: OCIRegistry
-  interval: 1m
+  interval: 1m0s
 ---
 apiVersion: delivery.ocm.software/v1alpha1
 kind: Component
@@ -24,7 +24,7 @@ spec:
     name: platform-mesh
   component: github.com/platform-mesh/platform-mesh
   semver: {{ .Values.ocm.version | quote }}
-  interval: 1m
+  interval: 1m0s
   verify:
     - signature: helm-charts.platform-mesh
       secretRef:
