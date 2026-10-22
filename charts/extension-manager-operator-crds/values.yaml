@@ -1,4 +1,0 @@
-# Place values here
-crds:
-  # Possible values: Namespaced, Cluster
-  scope: Cluster
