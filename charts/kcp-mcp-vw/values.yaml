@@ -36,7 +36,7 @@ access:
 # directly (e.g. via a dedicated hostname) instead of through the
 # front-proxy. Leave issuerURL empty to rely on front-proxy headers only.
 oidc:
-  # -- OIDC issuer URL; empty disables native bearer-token validation.
+  # -- OIDC issuer URL. Empty disables native bearer-token validation.
   issuerURL: ""
   # -- Expected audience (client ID) of accepted tokens.
   clientID: ""
@@ -45,20 +45,34 @@ oidc:
   # -- Prefix applied to usernames from tokens.
   usernamePrefix: "oidc:"
   # -- Secret in the release namespace holding the issuer CA under key
-  # ca.crt; empty means the issuer certificate must chain to a system root.
+  # ca.crt. Empty means the issuer certificate must chain to a system root.
   caSecretName: ""
 
 # RFC 9728 protected-resource discovery, so MCP clients can find the
 # authorization server on their own. Setting authorizationServers enables
 # the metadata endpoint and WWW-Authenticate hints.
 oauth:
-  # -- Authorization server issuer URLs; non-empty enables discovery.
+  # -- Authorization server issuer URLs. Non-empty enables discovery.
   authorizationServers: []
-  # -- Canonical resource identifier; empty derives it from each request's
+  # -- Canonical resource identifier. Empty derives it from each request's
   # Host header.
   resource: ""
   # -- Scopes advertised in the protected-resource metadata.
   scopes: []
+
+# Requestheader (front-proxy style) authentication trust. The operator
+# mounts kcp's own requestheader client CA, which every kcp shard also
+# trusts — a certificate from it can impersonate any user against kcp
+# itself. A gateway asserting identities to this server only should chain
+# to a dedicated CA instead, so its certificate grants nothing on kcp.
+requestheader:
+  # -- Secret in the release namespace holding a dedicated requestheader CA
+  # certificate under key tls.crt. Non-empty replaces the operator-mounted
+  # kcp requestheader CA as the trust root for X-Remote-* headers.
+  caSecretName: ""
+  # -- Client certificate common names accepted for requestheader
+  # authentication, in addition to the operator defaults.
+  allowedNames: []
 
 # -- Toolsets the server exposes (--toolsets). Empty means the server
 # default (core, read-only). Valid: core, apis, admin, write.

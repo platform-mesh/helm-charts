@@ -75,16 +75,41 @@ spec:
     {{- with .Values.oauth.scopes }}
     - --oauth-scopes={{ join "," . }}
     {{- end }}
+    {{- if .Values.requestheader.caSecretName }}
+    # Replaces the operator-mounted kcp requestheader CA: the flag is
+    # single-valued and the last occurrence wins. Certificates for this
+    # server then chain to a CA kcp shards do not trust.
+    - --requestheader-client-ca-file=/etc/requestheader-ca/tls.crt
+    {{- end }}
+    {{- with .Values.requestheader.allowedNames }}
+    # Appends to the operator's allowed names (slice flag).
+    - --requestheader-allowed-names={{ join "," . }}
+    {{- end }}
 
-  {{- if and .Values.oidc.issuerURL .Values.oidc.caSecretName }}
+  {{- $oidcCA := and .Values.oidc.issuerURL .Values.oidc.caSecretName }}
+  {{- if or $oidcCA .Values.requestheader.caSecretName }}
   extraVolumes:
+    {{- if $oidcCA }}
     - name: oidc-ca
       secret:
         secretName: {{ .Values.oidc.caSecretName }}
+    {{- end }}
+    {{- if .Values.requestheader.caSecretName }}
+    - name: requestheader-ca
+      secret:
+        secretName: {{ .Values.requestheader.caSecretName }}
+    {{- end }}
   extraVolumeMounts:
+    {{- if $oidcCA }}
     - name: oidc-ca
       mountPath: /etc/oidc-ca
       readOnly: true
+    {{- end }}
+    {{- if .Values.requestheader.caSecretName }}
+    - name: requestheader-ca
+      mountPath: /etc/requestheader-ca
+      readOnly: true
+    {{- end }}
   {{- end }}
 
   resources:
