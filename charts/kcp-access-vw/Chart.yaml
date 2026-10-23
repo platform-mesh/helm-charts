@@ -13,5 +13,5 @@ sources:
   - https://github.com/kcp-dev/contrib-virtual-workspaces
 dependencies:
   - name: common
-    version: 0.13.0
+    version: 0.15.0
     repository: oci://ghcr.io/platform-mesh/helm-charts
