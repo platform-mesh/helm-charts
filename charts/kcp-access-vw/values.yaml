@@ -6,7 +6,7 @@ image:
   # -- The image tag (defaults to appVersion)
   tag: ""
 
-# -- The graph is held in memory; keep a single replica.
+# -- The graph is held in memory, so keep a single replica.
 replicas: 1
 
 # kcp-operator objects the chart depends on, in the release namespace.
@@ -33,8 +33,8 @@ controllersWorkspace: controllers
 server:
   # -- Name of the APIExportEndpointSlice for the access VW's APIExport.
   apiExportEndpointSlice: access.contrib.kcp.io
-  # -- Base URL for per-cluster endpoints returned in SCAR responses; defaults
-  # to https://<external.hostname>:<external.port>/clusters/.
+  # -- Base URL for per-cluster endpoints returned in SCAR responses.
+  # Defaults to https://<external.hostname>:<external.port>/clusters/.
   endpointBase: ""
 
 resources:

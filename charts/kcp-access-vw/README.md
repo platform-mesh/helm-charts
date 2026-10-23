@@ -1,6 +1,6 @@
 # kcp-access-vw
 
-kcp Access Virtual Workspace — serves SelfClusterAccessReview (permission-aware workspace discovery) behind kcp's front-proxy. Renders kcp-operator VirtualWorkspace and Kubeconfig resources (kcp-operator v0.9.0 or newer required).
+kcp Access Virtual Workspace serves SelfClusterAccessReview (permission-aware workspace discovery) behind kcp's front-proxy. Renders kcp-operator VirtualWorkspace and Kubeconfig resources (kcp-operator v0.9.0 or newer required).
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 ## Requirements
@@ -13,7 +13,7 @@ kcp Access Virtual Workspace — serves SelfClusterAccessReview (permission-awar
 
 The chart renders [kcp-operator](https://github.com/kcp-dev/kcp-operator)
 `VirtualWorkspace` and `Kubeconfig` resources (operator v0.9.0 or newer) in
-the release namespace; it deploys no workloads itself. The referenced
+the release namespace. It deploys no workloads itself. The referenced
 RootShard and FrontProxy must exist, and the front-proxy needs an
 `additionalPathMappings` entry routing `/services/access` to the virtual
 workspace service.
@@ -24,7 +24,7 @@ APIExportEndpointSlice, and grants the server identity the controller role.
 
 ## Installing on top of Platform Mesh
 
-The chart is not part of the Platform Mesh default profile; it is an optional
+The chart is not part of the Platform Mesh default profile. It is an optional
 add-on for a running installation:
 
 ```sh
@@ -63,12 +63,12 @@ kubeconfigs resolve from inside pods.
 | image.tag | string | `""` | The image tag (defaults to appVersion) |
 | kcp.frontProxy | string | `"frontproxy"` | FrontProxy the Kubeconfig CRs target. Bootstrapping walks workspace paths, which only resolve through the front-proxy. |
 | kcp.rootShard | string | `"root"` | RootShard the VirtualWorkspace connects to. |
-| replicas | int | `1` | The graph is held in memory; keep a single replica. |
+| replicas | int | `1` | The graph is held in memory, so keep a single replica. |
 | resources.limits.memory | string | `"512Mi"` | Memory limit |
 | resources.requests.cpu | string | `"100m"` | CPU request |
 | resources.requests.memory | string | `"128Mi"` | Memory request |
 | server.apiExportEndpointSlice | string | `"access.contrib.kcp.io"` | Name of the APIExportEndpointSlice for the access VW's APIExport. |
-| server.endpointBase | string | `""` | Base URL for per-cluster endpoints returned in SCAR responses; defaults to https://<external.hostname>:<external.port>/clusters/. |
+| server.endpointBase | string | `""` | Base URL for per-cluster endpoints returned in SCAR responses. Defaults to https://<external.hostname>:<external.port>/clusters/. |
 | workspacePrefix | string | `"root:access"` | Bootstrap (init container): workspace prefix for the access APIExport tree. |
 
 ## Overriding Values

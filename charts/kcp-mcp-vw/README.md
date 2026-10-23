@@ -1,6 +1,6 @@
 # kcp-mcp-vw
 
-kcp MCP Virtual Workspace — an MCP (Model Context Protocol) server exposing permission-scoped kcp workspaces, served behind kcp's front-proxy. Scopes each session via the Access VW (SCAR) and acts on resources via impersonation, so kcp authorizes each request as the caller. Renders kcp-operator VirtualWorkspace and Kubeconfig resources (kcp-operator v0.9.0 or newer required).
+kcp MCP Virtual Workspace. An MCP (Model Context Protocol) server exposing permission-scoped kcp workspaces, served behind kcp's front-proxy. Scopes each session via the Access VW (SCAR) and acts on resources via impersonation, so kcp authorizes each request as the caller. Renders kcp-operator VirtualWorkspace and Kubeconfig resources (kcp-operator v0.9.0 or newer required).
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 ## Requirements
@@ -13,7 +13,7 @@ kcp MCP Virtual Workspace — an MCP (Model Context Protocol) server exposing pe
 
 The chart renders [kcp-operator](https://github.com/kcp-dev/kcp-operator)
 `VirtualWorkspace` and `Kubeconfig` resources (operator v0.9.0 or newer) in
-the release namespace; it deploys no workloads itself. The referenced
+the release namespace. It deploys no workloads itself. The referenced
 RootShard and FrontProxy must exist, and the front-proxy needs an
 `additionalPathMappings` entry routing `/services/mcp` to the virtual
 workspace service.
@@ -35,11 +35,11 @@ hostname) instead of through the front-proxy. Setting
 protected-resource metadata and `WWW-Authenticate` hints, so clients
 discover the authorization server and open a browser login on their own.
 The discovery endpoints must be reachable anonymously, which the
-front-proxy does not allow — route them to the service directly.
+front-proxy does not allow. Route them to the service directly.
 
 ## Installing on top of Platform Mesh
 
-The chart is not part of the Platform Mesh default profile; it is an optional
+The chart is not part of the Platform Mesh default profile. It is an optional
 add-on for a running installation, alongside `kcp-access-vw`:
 
 ```sh
@@ -79,15 +79,17 @@ cluster, including Keycloak client registration and RBAC seeding.
 | image.tag | string | `""` | The image tag (defaults to appVersion) |
 | kcp.frontProxy | string | `"frontproxy"` | FrontProxy the Kubeconfig CR targets. |
 | kcp.rootShard | string | `"root"` | RootShard the VirtualWorkspace connects to. |
-| oauth.authorizationServers | list | `[]` | Authorization server issuer URLs; non-empty enables discovery. |
-| oauth.resource | string | `""` | Canonical resource identifier; empty derives it from each request's Host header. |
+| oauth.authorizationServers | list | `[]` | Authorization server issuer URLs. Non-empty enables discovery. |
+| oauth.resource | string | `""` | Canonical resource identifier. Empty derives it from each request's Host header. |
 | oauth.scopes | list | `[]` | Scopes advertised in the protected-resource metadata. |
-| oidc.caSecretName | string | `""` | Secret in the release namespace holding the issuer CA under key ca.crt; empty means the issuer certificate must chain to a system root. |
+| oidc.caSecretName | string | `""` | Secret in the release namespace holding the issuer CA under key ca.crt. Empty means the issuer certificate must chain to a system root. |
 | oidc.clientID | string | `""` | Expected audience (client ID) of accepted tokens. |
-| oidc.issuerURL | string | `""` | OIDC issuer URL; empty disables native bearer-token validation. |
+| oidc.issuerURL | string | `""` | OIDC issuer URL. Empty disables native bearer-token validation. |
 | oidc.usernameClaim | string | `"email"` | Token claim used as the username. |
 | oidc.usernamePrefix | string | `"oidc:"` | Prefix applied to usernames from tokens. |
 | replicas | int | `1` | Number of server replicas |
+| requestheader.allowedNames | list | `[]` | Client certificate common names accepted for requestheader authentication, in addition to the operator defaults. |
+| requestheader.caSecretName | string | `""` | Secret in the release namespace holding a dedicated requestheader CA certificate under key tls.crt. Non-empty replaces the operator-mounted kcp requestheader CA as the trust root for X-Remote-* headers. |
 | resources.limits.memory | string | `"512Mi"` | Memory limit |
 | resources.requests.cpu | string | `"100m"` | CPU request |
 | resources.requests.memory | string | `"128Mi"` | Memory request |
