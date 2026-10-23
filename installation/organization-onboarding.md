@@ -81,16 +81,17 @@ plugin. In the example below:
 - `<external-port>` is `443` for the production example or `8443` for Kind.
 - `<oidc-client-id>` is the Keycloak OIDC client ID; the default installation
   uses `welcome`.
-- `<base64-domain-ca>` is the base64-encoded domain CA.
+- `<base64-root-ca>` is the base64-encoded kcp Root CA.
 
 Install the
 [`kubectl oidc-login`](https://github.com/int128/kubelogin) plugin with
 `kubectl krew install oidc-login`, then confirm that `kubectl oidc-login` is
 available. Install [Krew](https://krew.sigs.k8s.io/) first if necessary. Get
-the CA and substitute `domain_ca_data` for each `<base64-domain-ca>` value:
+the Root CA from the `root-ca` Secret and substitute `root_ca_data` for each
+`<base64-root-ca>` value:
 
 ```shell
-domain_ca_data=$(kubectl -n platform-mesh-system get secret domain-certificate \
+root_ca_data=$(kubectl -n platform-mesh-system get secret root-ca \
   -o jsonpath='{.data.ca\.crt}')
 ```
 
@@ -100,19 +101,19 @@ kind: Config
 clusters:
   - name: base
     cluster:
-      certificate-authority-data: <base64-domain-ca>
+      certificate-authority-data: <base64-root-ca>
       server: https://kcp.api.<base-domain>:<external-port>/clusters/root:orgs
   - name: default
     cluster:
-      certificate-authority-data: <base64-domain-ca>
+      certificate-authority-data: <base64-root-ca>
       server: https://kcp.api.<base-domain>:<external-port>/clusters/root:orgs
   - name: workspace.kcp.io/current
     cluster:
-      certificate-authority-data: <base64-domain-ca>
+      certificate-authority-data: <base64-root-ca>
       server: https://kcp.api.<base-domain>:<external-port>/clusters/root:orgs
   - name: workspace.kcp.io/previous
     cluster:
-      certificate-authority-data: <base64-domain-ca>
+      certificate-authority-data: <base64-root-ca>
       server: https://kcp.api.<base-domain>:<external-port>/clusters/root:orgs
 contexts:
   - name: base
