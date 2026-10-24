@@ -76,7 +76,7 @@ cluster, including Keycloak client registration and RBAC seeding.
 | hostAliases | list | `[]` | Extra /etc/hosts entries for the pod, e.g. when the front-proxy hostname only resolves via cluster-external DNS. |
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"kcp-dev/contrib-virtual-workspaces/mcp-vw"` | The image repository path (without registry) |
-| image.tag | string | `""` | The image tag (defaults to appVersion) |
+| image.tag | string | `"@sha256:0d937ac6644a26a215b59f5dc5352ccb0ec9a6522bb9cc79695bba3fb1b1fda5"` | The image tag (defaults to appVersion) |
 | kcp.frontProxy | string | `"frontproxy"` | FrontProxy the Kubeconfig CR targets. |
 | kcp.rootShard | string | `"root"` | RootShard the VirtualWorkspace connects to. |
 | oauth.authorizationServers | list | `[]` | Authorization server issuer URLs; non-empty enables discovery. |
