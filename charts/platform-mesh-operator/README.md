@@ -29,6 +29,7 @@ A Helm chart to automate bootstrapping of new environment
 | kcp.frontProxyPort | int | `443` | Internal port of the KCP front-proxy Service. Production Services expose 443; the kind profile uses 8443. |
 | log.level | string | `"info"` | log level. Permissible values: debug, info, warn, error |
 | ocm | object | `{"enabled":false,"installSigningCertificate":true,"profile":"production","version":"0.5.2"}` | When enabled, installs the OCM Repository/Component CRs, the PlatformMesh CR, and the profile ConfigMap alongside the operator. Disable to deploy only the operator binary and supply PlatformMesh resources from a separate GitOps source. |
+| ocm.enabled | bool | `false` | Set to true for first time installers. |
 | ocm.installSigningCertificate | bool | `true` | Set to false when the OCM component is signed by a different trusted key. |
 | ocm.profile | string | `"production"` | Installation profile. `production` assumes the infrastructure prerequisites already exist. |
 | ocm.version | string | `"0.5.2"` | Platform Mesh OCM component version to reconcile. |
