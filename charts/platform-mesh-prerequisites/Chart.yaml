@@ -2,7 +2,7 @@ apiVersion: v2
 name: platform-mesh-prerequisites
 description: Optional infrastructure prerequisites for Platform Mesh
 type: application
-version: 0.2.2
+version: 0.2.3
 appVersion: "0.1.0"
 dependencies:
   - name: flux2
@@ -35,7 +35,7 @@ dependencies:
     repository: oci://ghcr.io/cloudnative-pg/charts
     condition: cnpg.enabled
   - name: keycloak-operator
-    version: 0.10.0
+    version: 0.11.0
     repository: oci://ghcr.io/platform-mesh/helm-charts
     condition: keycloak-operator.enabled
   - name: etcd-druid

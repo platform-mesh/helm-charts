@@ -22,9 +22,9 @@ dependencies:
   version: 0.28.0
 - name: keycloak-operator
   repository: oci://ghcr.io/platform-mesh/helm-charts
-  version: 0.10.0
+  version: 0.11.0
 - name: etcd-druid
   repository: oci://ghcr.io/platform-mesh/charts/gardener
   version: v0.36.4
-digest: sha256:c1ef2a02f86ccf430dd3493fd97fcdf6e8a9b7f478092c464b8c952b80671acd
-generated: "2026-10-19T14:30:28.080984323+03:00"
+digest: sha256:2cdceb6868be157012e1aef4e2a22e217da87080e1f4a57674159f561168b930
+generated: "2026-10-24T22:29:31.407750648Z"
