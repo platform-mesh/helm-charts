@@ -9,12 +9,60 @@ GitHub-flavored Markdown does not support tabs. The command alternatives below
 use collapsible sections instead. Choose either **Production** or **Kind** and
 use that same target throughout the procedure.
 
+## Requirements
+
+### Software
+
+- `kubectl` and Helm.
+
+### Kubernetes cluster
+
+- A Kubernetes cluster and a `kubectl` context that targets it.
+- Permission to create namespaces, CRDs, admission webhooks, and cluster-scoped
+  RBAC resources.
+- A default `StorageClass` that dynamically provisions ReadWriteOnce volumes.
+- At least 8 CPUs and 12 GB of RAM available for Platform Mesh workloads.
+
+Platform Mesh requires the following cluster components at the listed versions:
+
+| Component | Version |
+|---|---|
+| Flux | 2.17.2 |
+| OCM controller (ocm-k8s-toolkit) | 0.13.0 |
+| cert-manager | v1.20.1 |
+| Gateway API CRDs | 1.5.1 |
+| Traefik | 41.4.0 |
+| Traefik CRDs | 1.14.0 |
+| CloudNativePG | 0.28.0 |
+| Keycloak operator | 0.10.0 |
+| etcd-druid | v0.36.4 |
+
+The `platform-mesh-prerequisites` chart installs all of the above at these exact
+versions and is the simplest way to satisfy this requirement. Any other
+installation method that provides compatible versions — including cluster-managed
+controllers or separately installed operators — works equally well. The cluster
+must also expose a traefik `GatewayClass`.
+
+### Production
+
+- A working LoadBalancer integration for Traefik.
+- DNS control of the base domain: the apex and `*.<base-domain>` must resolve
+  to the Traefik LoadBalancer.
+- A certificate strategy: use the chart-managed private CA, or create the
+  `domain-certificate` Secret before installing the operator.
+
+### Local Kind
+
+- Host port `8443` available for Traefik's NodePort `31000`.
+- Sufficient local disk space for the Kind node and Platform Mesh workloads.
+- `portal.localhost` is the recommended base domain; browsers resolve its
+  wildcard subdomains to loopback.
+
 The installation has two layers:
 
 - `platform-mesh-prerequisites` installs, or can be replaced by, the cluster
-  infrastructure that Platform Mesh consumes: Flux, the Open Component Model
-  (OCM) controller, cert-manager, Gateway API CRDs, Traefik, Traefik CRDs,
-  CloudNativePG, and the Keycloak and etcd-druid operators.
+  infrastructure that Platform Mesh consumes. See [Requirements](#requirements)
+  for the full component list and versions.
 - `platform-mesh-operator` installs the Platform Mesh operator (PMO) and a
   `PlatformMesh` resource. PMO then reconciles the Platform Mesh component and
   its services, including the kcp operator.
@@ -94,43 +142,21 @@ patching an operator-generated resource. For the complete input schema and
 merge behavior, see the
 [platform-mesh-operator documentation](https://github.com/platform-mesh/platform-mesh/blob/main/operators/platform-mesh-operator/README.md).
 
-## Requirements
-
-### Common
-
-- Helm and `kubectl`.
-- Outbound access to the OCI registries from which the charts, Platform Mesh
-  OCM component, and container images are pulled.
-- A Platform Mesh OCM component version available from the configured registry.
-
-### Production
-
-- An existing Kubernetes cluster and a `kubectl` context for it.
-- Permission to create namespaces, CRDs, admission webhooks, and
-  cluster-scoped RBAC resources.
-- A default `StorageClass` capable of dynamically provisioning
-  ReadWriteOnce (RWO) volumes.
-- A working LoadBalancer integration for exposing Traefik outside the cluster.
-- DNS control of the selected base domain: both the apex record and a wildcard
-  (`*.base-domain`) must resolve to the Traefik LoadBalancer IP or hostname.
-- A certificate strategy: either allow the operator chart to issue certificates
-  from its private self-signed CA, or provision the `domain-certificate` and
-  `domain-certificate-ca` Secrets before installing the operator.
-- When the bundled prerequisites chart is not used, compatible Flux, OCM
-  controller, cert-manager, Gateway API and Traefik CRDs, Traefik
-  `GatewayClass`, CloudNativePG, and Keycloak and etcd-druid operators.
-
-### Local Kind
-
-- Docker and `kind`, in addition to Helm and `kubectl`.
-- At least 8 CPUs and 12 GB of RAM allocated to the container runtime.
-- Host port `8443` available for mapping to Traefik's NodePort `31000`.
-- Sufficient local disk space for the Kind node and Platform Mesh workloads.
-
 ## 1. Prepare the cluster
 
 Start with an existing production cluster or create a local Kind cluster. The
 Kind configuration maps `127.0.0.1:8443` to Traefik's NodePort `31000`.
+
+For a clean repeat of the Kind procedure, remove only the named test cluster
+first:
+
+```shell
+kind delete cluster --name platform-mesh
+```
+
+Use `portal.localhost` for the Kind `base_domain` below. If you select another
+domain, configure DNS so the base domain, `kcp.api.<base-domain>`,
+`root.kcp.<base-domain>`, and `*.<base-domain>` resolve to `127.0.0.1`.
 
 <details open>
 <summary><strong>Production</strong></summary>
@@ -167,13 +193,16 @@ EOF
 
 ## 2. Install the prerequisites
 
-Skip this step only when the cluster already provides compatible Flux, OCM
-controller, cert-manager, Gateway API and Traefik CRDs, a Traefik
-`GatewayClass`, CloudNativePG, and the Keycloak and etcd-druid operators.
+Skip this step only when the cluster already provides all components listed in
+[Requirements](#requirements) at compatible versions, including a Traefik
+`GatewayClass`. Any installation method is acceptable.
 
 The bundled chart is installed in two passes. The first pass establishes the
 controllers and CRDs; the second pass enables Traefik after the Gateway API
-kinds are discoverable.
+kinds are discoverable. The commands below pin the prerequisite chart to the
+version tested with this guide; upgrade it together with the operator chart and
+Platform Mesh component, rather than allowing an unreviewed OCI `latest`
+release to change the installation.
 
 <details open>
 <summary><strong>Production</strong></summary>
@@ -181,6 +210,7 @@ kinds are discoverable.
 ```shell
 helm upgrade --install platform-mesh-prerequisites \
   oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-prerequisites \
+  --version 0.2.2 \
   --namespace platform-mesh-system \
   --create-namespace \
   --wait \
@@ -188,6 +218,7 @@ helm upgrade --install platform-mesh-prerequisites \
 
 helm upgrade platform-mesh-prerequisites \
   oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-prerequisites \
+  --version 0.2.2 \
   --namespace platform-mesh-system \
   --reset-values \
   --wait \
@@ -217,6 +248,7 @@ echo "LoadBalancer address: ${load_balancer_address}"
 ```shell
 helm upgrade --install platform-mesh-prerequisites \
   oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-prerequisites \
+  --version 0.2.2 \
   --namespace platform-mesh-system \
   --set keycloak-operator.watchNamespaces=platform-mesh-system \
   --create-namespace \
@@ -225,6 +257,7 @@ helm upgrade --install platform-mesh-prerequisites \
 
 helm upgrade platform-mesh-prerequisites \
   oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-prerequisites \
+  --version 0.2.2 \
   --namespace platform-mesh-system \
   --reset-values \
   --wait \
@@ -237,13 +270,22 @@ helm upgrade platform-mesh-prerequisites \
   --set traefik.ports.websecure.nodePort=31000
 ```
 
+The fixed `10.96.188.4` ClusterIP assumes Kind's default Service CIDR and must
+be unused. It makes the Kind profile's in-cluster host aliases deterministic.
+If it conflicts with an existing Service or the cluster uses another Service
+CIDR, choose an unused address in that Service CIDR, then pass the actual
+Traefik ClusterIP to `gateway.traefikClusterIP` in the next step.
+
 </details>
 
 ## 3. Configure the domain, certificates, and install Platform Mesh
 
 Set the base domain and desired OCM component version before installing PMO.
 The base domain and its wildcard subdomains must resolve to Traefik. Production
-DNS must point to the LoadBalancer address.
+DNS must point to the LoadBalancer address. The commands pin the operator chart
+to `0.61.0`, which was tested with prerequisite chart `0.2.2` and Platform
+Mesh component `0.6.0-build.6`; select and test a compatible set when
+upgrading.
 
 Choose who manages the domain certificates with
 `certificates.selfSigned.enabled`:
@@ -251,32 +293,26 @@ Choose who manages the domain certificates with
 - `true` asks cert-manager to create a private self-signed CA and issue the
   domain certificate. The operator chart creates both `domain-certificate` and
   `domain-certificate-ca`. Clients must trust the generated CA.
-- `false` disables certificate generation. Before installing PMO, provision both
-  Secrets yourself in `platform-mesh-system`. Use this mode for certificates
-  issued by an organisation-managed or publicly trusted CA.
+- `false` disables certificate generation. Before installing PMO, provision the
+  `domain-certificate` Secret yourself in `platform-mesh-system`. Use this mode
+  for certificates issued by an organisation-managed or publicly trusted CA.
 
 Externally managed Secrets must provide the following data:
 
 | Secret | Required data |
 |---|---|
 | `domain-certificate` | `tls.crt`: server certificate or full chain covering the base domain and wildcard subdomains; `tls.key`: matching private key; `ca.crt`: issuing CA or trust chain |
-| `domain-certificate-ca` | `tls.crt`: issuing or root CA certificate used as a trust anchor |
-| `domain-certificate-ca` | `ca.crt`: issuing or root CA certificate used as a trust anchor |
 
-The CA private key is not required in `domain-certificate-ca`. For example,
-create or update externally managed Secrets with:
+When self-signed certificates are enabled, cert-manager creates
+`domain-certificate-ca` with the CA certificate and private key; do not replace
+that Secret. For externally managed certificates, create or update only the
+leaf certificate Secret:
 
 ```shell
 kubectl --namespace platform-mesh-system create secret generic domain-certificate \
   --type=kubernetes.io/tls \
   --from-file=tls.crt=/path/to/tls.crt \
   --from-file=tls.key=/path/to/tls.key \
-  --from-file=ca.crt=/path/to/ca.crt \
-  --dry-run=client \
-  --output yaml | kubectl apply --filename -
-
-kubectl --namespace platform-mesh-system create secret generic domain-certificate-ca \
-  --from-file=tls.crt=/path/to/ca.crt \
   --from-file=ca.crt=/path/to/ca.crt \
   --dry-run=client \
   --output yaml | kubectl apply --filename -
@@ -298,6 +334,7 @@ echo "Configure ${base_domain} and *.${base_domain} for ${load_balancer_address}
 
 helm upgrade --install platform-mesh-operator \
   oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-operator \
+  --version 0.61.0 \
   --namespace platform-mesh-system \
   --set ocm.enabled=true \
   --set ocm.profile=production \
@@ -316,7 +353,7 @@ helm upgrade --install platform-mesh-operator \
 <summary><strong>Kind</strong></summary>
 
 ```shell
-base_domain=portal.orgdomain
+base_domain=portal.localhost
 platform_mesh_version=0.6.0-build.6
 self_signed_certificates=true
 traefik_cluster_ip="$(kubectl -n platform-mesh-system get svc platform-mesh-prerequisites-traefik -o jsonpath='{.spec.clusterIP}')"
@@ -326,6 +363,7 @@ test -n "${traefik_cluster_ip:-}"
 
 helm upgrade --install platform-mesh-operator \
   oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-operator \
+  --version 0.61.0 \
   --namespace platform-mesh-system \
   --set ocm.enabled=true \
   --set ocm.profile=kind \
@@ -348,9 +386,33 @@ Then wait for the `PlatformMesh` resource to become ready:
 
 ```shell
 kubectl wait --namespace platform-mesh-system \
+  --for=condition=Ready certificate/platform-mesh-domain \
+  --timeout=10m
+kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmeshes/platform-mesh \
   --timeout=30m
 ```
+
+If either wait times out, inspect the source-of-truth status before changing
+generated resources:
+
+```shell
+kubectl --namespace platform-mesh-system get platformmesh platform-mesh --output yaml
+kubectl --namespace platform-mesh-system get pods
+kubectl --namespace platform-mesh-system get helmreleases,ocirepositories
+```
+
+For self-signed certificates, save the CA for command-line clients and import
+it into the browser or operating-system trust store before opening the portal:
+
+```shell
+kubectl --namespace platform-mesh-system get secret domain-certificate \
+  --output jsonpath='{.data.ca\.crt}' | base64 --decode > platform-mesh-domain-ca.crt
+```
+
+For example, `curl --cacert platform-mesh-domain-ca.crt https://<base-domain>:<port>/`
+should succeed. The exact trust-store import procedure is operating-system and
+browser specific. Do not bypass certificate warnings in a normal deployment.
 
 Open the Platform Mesh endpoint. For production: `https://${base_domain}`. For Kind: `https://${base_domain}:8443`.
 
