@@ -13,8 +13,11 @@ The installation has two layers:
 
 - `platform-mesh-prerequisites` installs, or can be replaced by, the cluster
   infrastructure that Platform Mesh consumes: Flux, the Open Component Model
-  (OCM) controller, cert-manager, Gateway API CRDs, Traefik, Traefik CRDs,
-  CloudNativePG, and the Keycloak and etcd-druid operators.
+  (OCM) controller, cert-manager, Gateway API CRDs, a Gateway API controller
+  (Traefik by default, with its CRDs), CloudNativePG, and the Keycloak and
+  etcd-druid operators. Platform Mesh routes through standard Gateway API
+  resources, so any conformant controller can take Traefik's place — see
+  [Bring your own gateway](#bring-your-own-gateway).
 - `platform-mesh-operator` installs the Platform Mesh operator (PMO) and a
   `PlatformMesh` resource. PMO then reconciles the Platform Mesh component and
   its services, including the kcp operator.
@@ -110,27 +113,28 @@ merge behavior, see the
   cluster-scoped RBAC resources.
 - A default `StorageClass` capable of dynamically provisioning
   ReadWriteOnce (RWO) volumes.
-- A working LoadBalancer integration for exposing Traefik outside the cluster.
+- A working LoadBalancer integration for exposing the gateway controller outside the cluster.
 - DNS control of the selected base domain: both the apex record and a wildcard
-  (`*.base-domain`) must resolve to the Traefik LoadBalancer IP or hostname.
+  (`*.base-domain`) must resolve to the gateway LoadBalancer IP or hostname.
 - A certificate strategy: either allow the operator chart to issue certificates
   from its private self-signed CA, or provision the `domain-certificate` and
   `domain-certificate-ca` Secrets before installing the operator.
 - When the bundled prerequisites chart is not used, compatible Flux, OCM
-  controller, cert-manager, Gateway API and Traefik CRDs, Traefik
-  `GatewayClass`, CloudNativePG, and Keycloak and etcd-druid operators.
+  controller, cert-manager, Gateway API CRDs, a conformant `GatewayClass`,
+  CloudNativePG, and Keycloak and etcd-druid operators.
 
 ### Local Kind
 
 - Docker and `kind`, in addition to Helm and `kubectl`.
 - At least 8 CPUs and 12 GB of RAM allocated to the container runtime.
-- Host port `8443` available for mapping to Traefik's NodePort `31000`.
+- Host port `8443` available for mapping to the gateway controller NodePort `31000`.
 - Sufficient local disk space for the Kind node and Platform Mesh workloads.
 
 ## 1. Prepare the cluster
 
 Start with an existing production cluster or create a local Kind cluster. The
-Kind configuration maps `127.0.0.1:8443` to Traefik's NodePort `31000`.
+Kind configuration below maps `127.0.0.1:8443` to NodePort `31000` on the
+gateway controller Service.
 
 <details open>
 <summary><strong>Production</strong></summary>
@@ -168,12 +172,13 @@ EOF
 ## 2. Install the prerequisites
 
 Skip this step only when the cluster already provides compatible Flux, OCM
-controller, cert-manager, Gateway API and Traefik CRDs, a Traefik
-`GatewayClass`, CloudNativePG, and the Keycloak and etcd-druid operators.
+controller, cert-manager, Gateway API CRDs, a conformant Gateway API controller
+and its `GatewayClass`, CloudNativePG, and the Keycloak and etcd-druid operators.
 
-The bundled chart is installed in two passes. The first pass establishes the
-controllers and CRDs; the second pass enables Traefik after the Gateway API
-kinds are discoverable.
+The bundled chart installs Traefik as the default Gateway API controller in two
+passes. The first pass establishes the controllers and CRDs; the second pass
+enables Traefik after the Gateway API kinds are discoverable. To run a different
+controller instead, see [Bring your own gateway](#bring-your-own-gateway).
 
 <details open>
 <summary><strong>Production</strong></summary>
@@ -239,11 +244,33 @@ helm upgrade platform-mesh-prerequisites \
 
 </details>
 
+### Bring your own gateway
+
+Traefik is only the default example controller. Platform Mesh renders standard
+Gateway API resources, so any conformant Gateway API implementation (Envoy
+Gateway, Istio, Cilium, NGINX Gateway Fabric, …) can serve the landscape. To use
+your own controller:
+
+1. Install your Gateway API controller through your own tooling and let it register
+   a `GatewayClass`. Install it instead of enabling Traefik — skip the second
+   prerequisites pass (`--set traefik.enabled=true`). The Gateway API CRDs still
+   come from the `gateway-api-crds` chart (prerequisites pass 1) regardless of
+   controller.
+2. Point Platform Mesh at that class when installing the operator (step 3):
+   `--set gateway.className=<your-gatewayclass>`.
+3. For Kind, configure your gateway controller's NodePort Service to use port
+   `31000` (matching the Kind cluster's host port mapping). Pass its ClusterIP
+   with `--set gateway.clusterIP=<clusterIP>`.
+
+For an example you can see Envoy Gateway setup walkthrough [Running Platform Mesh with Envoy Gateway](../docs/envoy-gateway-class-example.md).
+
 ## 3. Configure the domain, certificates, and install Platform Mesh
 
 Set the base domain and desired OCM component version before installing PMO.
-The base domain and its wildcard subdomains must resolve to Traefik. Production
-DNS must point to the LoadBalancer address.
+The base domain and its wildcard subdomains must resolve to the gateway
+controller address. For production, DNS must point to the LoadBalancer address.
+For Kind, the Kind cluster maps host port `8443` to NodePort `31000` on the
+gateway Service.
 
 Choose who manages the domain certificates with
 `certificates.selfSigned.enabled`:
@@ -292,6 +319,7 @@ using these externally managed Secrets.
 base_domain=platform.example.com
 platform_mesh_version=0.6.0-build.6
 self_signed_certificates=true
+gateway_class_name=traefik
 test -n "${base_domain:-}"
 test -n "${platform_mesh_version:-}"
 echo "Configure ${base_domain} and *.${base_domain} for ${load_balancer_address}"
@@ -301,6 +329,7 @@ helm upgrade --install platform-mesh-operator \
   --namespace platform-mesh-system \
   --set ocm.enabled=true \
   --set ocm.profile=production \
+  --set gateway.className="${gateway_class_name}" \
   --set gateway.baseDomain="${base_domain}" \
   --set gateway.port=443 \
   --set kcp.frontProxyPort=443 \
@@ -319,19 +348,21 @@ helm upgrade --install platform-mesh-operator \
 base_domain=portal.orgdomain
 platform_mesh_version=0.6.0-build.6
 self_signed_certificates=true
-traefik_cluster_ip="$(kubectl -n platform-mesh-system get svc platform-mesh-prerequisites-traefik -o jsonpath='{.spec.clusterIP}')"
+gateway_class_name=traefik
+gateway_cluster_ip="$(kubectl -n platform-mesh-system get svc platform-mesh-prerequisites-traefik -o jsonpath='{.spec.clusterIP}')"
 test -n "${base_domain:-}"
 test -n "${platform_mesh_version:-}"
-test -n "${traefik_cluster_ip:-}"
+test -n "${gateway_cluster_ip:-}"
 
 helm upgrade --install platform-mesh-operator \
   oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-operator \
   --namespace platform-mesh-system \
   --set ocm.enabled=true \
   --set ocm.profile=kind \
+  --set gateway.className="${gateway_class_name}" \
   --set gateway.baseDomain="${base_domain}" \
   --set gateway.port=8443 \
-  --set gateway.traefikClusterIP="${traefik_cluster_ip}" \
+  --set gateway.clusterIP="${gateway_cluster_ip}" \
   --set kcp.frontProxyPort=8443 \
   --set certificates.selfSigned.enabled="${self_signed_certificates}" \
   --set-string ocm.version="${platform_mesh_version}" \
