@@ -12,6 +12,8 @@ A Helm chart for Kubernetes
 | certManager.enabled | bool | `true` |  |
 | certManager.ipAddresses[0] | string | `"10.96.86.219"` |  |
 | certificates.create | bool | `false` |  |
+| clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
+| clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | deployment.resources.limits.cpu | string | `"500m"` |  |
 | deployment.resources.limits.memory | string | `"128Mi"` |  |
 | deployment.resources.requests.cpu | string | `"40m"` |  |

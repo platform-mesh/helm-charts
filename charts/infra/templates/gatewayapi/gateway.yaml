@@ -7,8 +7,20 @@ metadata:
 spec:
   gatewayClassName: {{ .Values.gatewayApi.gatewayClassName }}
   listeners:
-    {{- .Values.gatewayApi.listeners | default list | toYaml | nindent 4 }}
-    {{- .Values.gatewayApi.listenersExtra | default list | toYaml | nindent 4 }}
+    {{- $listeners := concat (.Values.gatewayApi.listeners | default list) (.Values.gatewayApi.listenersExtra | default list) }}
+    {{- if .Values.gatewayApi.passthrough.enabled }}
+    {{- $generated := include "kcp.passthroughListeners" . | fromYamlArray }}
+    {{- range $generated }}
+    {{- $name := .name }}
+    {{- range $listeners }}
+    {{- if eq .name $name }}
+    {{- fail (printf "gatewayApi listener %q is generated from the kcp hostnames; remove it from gatewayApi.listeners or set gatewayApi.passthrough.enabled=false" $name) }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- $listeners = concat $listeners $generated }}
+    {{- end }}
+    {{- $listeners | toYaml | nindent 4 }}
 {{- with .Values.gatewayApi.infrastructure }}
   infrastructure:
     {{- toYaml . | nindent 4 }}
