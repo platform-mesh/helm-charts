@@ -171,10 +171,6 @@ health:
     failureThreshold: 30
     periodSeconds: 10
 
-traefik:
-  # -- toggle to enable traefik CORS filter in HTTPRoute
-  enabled: true
-
 gatewayApi:
   # -- configuration for the HTTPRoute resource
   httpRoute:
@@ -191,10 +187,3 @@ gatewayApi:
         path:
           replacePrefixMatch: /api/clusters/
           type: ReplacePrefixMatch
-    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
-    corsFilters:
-    - type: ExtensionRef
-      extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header

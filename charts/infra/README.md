@@ -1,6 +1,6 @@
 # infra
 
-Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Traefik, cert-manager, etc.). This chart is not intended to be installed directly — it is always managed by the platform-mesh-operator via its profile system, which supplies all required values overrides.
+Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, cert-manager, etc.). This chart is not intended to be installed directly — it is always managed by the platform-mesh-operator via its profile system, which supplies all required values overrides.
 
 ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 ## Values
@@ -25,7 +25,6 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | cnpg.roles.openfga.password | string | `""` | REQUIRED: set to a strong random value. |
 | cnpg.roles.openfga.username | string | `"openfga"` | PostgreSQL username for OpenFGA. Written to the cnpg-openfga-user secret. |
 | dex.enabled | bool | `false` | Enable Dex as a local upstream OIDC identity provider |
-| dex.gatewayApi.corsFilters | list | `[]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | dex.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
 | dex.gatewayApi.hostnames | list | `[]` | hostnames for the Dex HTTPRoute |
 | dex.gatewayApi.pathPrefix | string | `"/dex"` | path prefix for the Dex HTTPRoute |
@@ -167,7 +166,6 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | keycloak.domain | object | `{"name":"platform-mesh.io","pathPrefix":"/keycloak"}` | domain configuration |
 | keycloak.domain.name | string | `"platform-mesh.io"` | domain name |
 | keycloak.domain.pathPrefix | string | `"/keycloak"` | path prefix |
-| keycloak.gatewayApi.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | keycloak.gatewayApi.filters | list | `[]` | list of HTTPRoute filters (default: none) |
 | keycloak.gatewayApi.hostnames | list | `[]` | hostnames for the Keycloak HTTPRoute |
 | keycloak.gatewayApi.pathPrefix | string | `"/keycloak"` | path prefix for the Keycloak HTTPRoute |
@@ -207,7 +205,7 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | keycloak.operator.health.startup.failureThreshold | int | `600` |  |
 | keycloak.operator.health.startup.path | string | `"/keycloak/health"` |  |
 | keycloak.operator.hostname | string | `""` | Keycloak hostname (used in the Keycloak CR hostname.hostname field). Must not include a path — the operator auto-derives http-relative-path from any path component, which conflicts with the value baked into the image. |
-| keycloak.operator.httpEnabled | bool | `true` | Enable plain HTTP on the Keycloak pod. Keycloak sits behind Traefik, which handles terminates TLS. |
+| keycloak.operator.httpEnabled | bool | `true` | Enable plain HTTP on the Keycloak pod. Keycloak sits behind gatewayAPI, which handles TLS termination. |
 | keycloak.operator.image.digest | string | `"sha256:5feb71bdf548ee2f7ff33ba2eba082a94de5c16d1a50de8bca71ab78a89c986b"` | Keycloak image digest (when set, overrides tag: registry/repository@digest) |
 | keycloak.operator.image.registry | string | `"ghcr.io"` | Keycloak image registry |
 | keycloak.operator.image.repository | string | `"platform-mesh/custom-images/keycloak"` | Keycloak image repository (without registry) |
@@ -227,8 +225,6 @@ Infrastructure dependencies for a Platform Mesh installation (KCP, Keycloak, Tra
 | openfga.rbac.writePrincipals[0] | string | `"cluster.local/ns/platform-mesh-system/sa/iam-service"` |  |
 | openfga.rbac.writePrincipals[1] | string | `"cluster.local/ns/platform-mesh-system/sa/security-operator"` |  |
 | openfga.rbac.writePrincipals[2] | string | `"cluster.local/ns/platform-mesh-system/sa/account-operator"` |  |
-| traefik.accessControlAllowOriginList | list | `[]` | list of origins allowed for CORS (used by Traefik middleware) |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 

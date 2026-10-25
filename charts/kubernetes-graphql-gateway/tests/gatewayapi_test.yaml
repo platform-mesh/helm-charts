@@ -10,13 +10,6 @@ chart:
 templates:
   - httproute.yaml
 tests:
-  - it: HTTPRoute without traefik - match the Snapshot
-    set:
-      traefik.enabled: false
-    asserts:
-      - matchSnapshot: {}
-  - it: HTTPRoute with traefik enabled - match the Snapshot
-    set:
-      traefik.enabled: true
+  - it: HTTPRoute matches snapshot
     asserts:
       - matchSnapshot: {}

@@ -11,8 +11,6 @@ tests:
     set:
       gatewayApi:
         enabled: true
-      cors:
-        enabled: true
       extraArgs:
         - --test=abc
       hostAliases:

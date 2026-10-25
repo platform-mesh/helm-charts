@@ -18,13 +18,10 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.gatewayApi.httpRoute.pathPrefix }}
-    {{- if or .Values.gatewayApi.httpRoute.filters .Values.traefik.enabled }}
+    {{- if .Values.gatewayApi.httpRoute.filters }}
     filters:
     {{- with .Values.gatewayApi.httpRoute.filters }}
     {{ toYaml . | nindent 4 }}
-    {{- end }}
-    {{- if .Values.traefik.enabled }}
-    {{ toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 4 }}
     {{- end }}
     {{- end }}
     backendRefs:

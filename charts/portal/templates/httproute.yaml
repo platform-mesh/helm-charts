@@ -17,11 +17,9 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.gatewayApi.httpRoute.pathPrefix }}
-    {{- if or .Values.gatewayApi.httpRoute.filters .Values.traefik.enabled }}
     {{- with .Values.gatewayApi.httpRoute.filters }}
     filters:
     {{ toYaml . | nindent 4 }}
-    {{- end }}
     {{- end }}
     backendRefs:
     - group: ""

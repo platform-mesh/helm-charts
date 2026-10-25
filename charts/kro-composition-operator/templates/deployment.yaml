@@ -19,7 +19,7 @@ spec:
       # kcp serves each shard's APIExport virtual-workspace under an external hostname
       # (e.g. root.kcp.localhost:8443). In-cluster that resolves to 127.0.0.1, so the
       # operator can't reach the VW URL returned in the endpointslice. Map the kcp
-      # hostnames to the in-cluster gateway (traefik) IP, same as the api-syncagent.
+      # hostnames to the in-cluster gateway IP, same as the api-syncagent.
       hostAliases:
         {{- toYaml .Values.hostAliases.values | nindent 8 }}
       {{- end }}

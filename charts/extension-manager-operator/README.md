@@ -17,7 +17,6 @@ A Helm chart for extension-manager-operator which manages resources like Content
 | crds.enabled | bool | `true` |  |
 | entityTypeValidation.enabled | bool | `false` | enable entityType validation for ContentConfigurations |
 | gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
-| gatewayApi.httpRoute.corsFilters | list | `[{"extensionRef":{"group":"traefik.io","kind":"Middleware","name":"cors-header"},"type":"ExtensionRef"}]` | CORS filter referencing traefik middleware (used when traefik.enabled=true) |
 | gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
 | gatewayApi.main | object | `{"gateway":{"port":8443}}` | HTTPS Terminate configuration |
 | gatewayApi.name | string | `"k8sapi-gateway"` | Name of the Gateway resource |
@@ -29,7 +28,6 @@ A Helm chart for extension-manager-operator which manages resources like Content
 | kcp.kubeconfig.secret | string | `"extension-manager-operator-kubeconfig"` |  |
 | kubeconfigSecret | string | `""` |  |
 | pathPrefix | string | `"/validate"` | Path prefix for routing rules in Gateway API and Istio VirtualService |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 | validationServer.host | string | `"*"` | host for the validation VirtualService |
 | validationServer.port | int | `8088` | port for the validation server |
 

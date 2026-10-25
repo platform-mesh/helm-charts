@@ -206,10 +206,9 @@ data:
                   password: keycloak-password
                 openfga:
                   password: openfga-password
-            cors:
-              enabled: true
             gatewayApi:
               enabled: true
+              gatewayClassName: __GATEWAY_CLASS_NAME__
               listeners:
                 - name: terminate
                   hostname: "{{ .baseDomain }}"
@@ -279,10 +278,6 @@ data:
                   hostname: triton.kcp.{{ .baseDomain }}
               webhook:
                 enabled: true
-            traefik:
-              accessControlAllowOriginList:
-              - https://{{ .baseDomainPort }}
-              - https://*.{{ .baseDomainPort }}
         iam-ui:
           enabled: true
           dependsOn: []
@@ -310,8 +305,6 @@ data:
             caSecret: domain-certificate
             extraArgs:
             - --no-json
-            cors:
-              enabled: true
             keycloak:
               baseUrl: "https://{{ .baseDomainPort }}/keycloak"
             hostAliases:

@@ -18,9 +18,9 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.gatewayApi.httpRoute.pathPrefix }}
-    {{- if .Values.cors.enabled }}
+    {{- if .Values.gatewayApi.httpRoute.filters }}
     filters:
-    {{- toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 6 }}
+    {{- toYaml .Values.gatewayApi.httpRoute.filters | nindent 4 }}
     {{- end }}
     backendRefs:
     - name: {{ include "common.entity.name" . }}

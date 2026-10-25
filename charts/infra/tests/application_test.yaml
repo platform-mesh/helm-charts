@@ -49,8 +49,6 @@ tests:
         hostname: localhost
     gatewayApi:
       enabled: true
-    cors:
-      enabled: true
   asserts:
     - matchSnapshot: {}
 - it: Istio disabled
@@ -333,7 +331,6 @@ tests:
     keycloak:
       gatewayApi:
         filters: []
-        corsFilters: []
   asserts:
   - notExists:
       path: spec.rules[0].filters

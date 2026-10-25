@@ -13,12 +13,6 @@ matches the snapshot:
             - name: RELEASE-NAME-marketplace-ui
               namespace: NAMESPACE
               port: 8080
-          filters:
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
-                name: cors-header
-              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix

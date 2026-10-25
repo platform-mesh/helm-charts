@@ -19,12 +19,9 @@ spec:
     - path:
         type: PathPrefix
         value: {{ .Values.dex.gatewayApi.pathPrefix }}
-    {{- if or .Values.dex.gatewayApi.filters .Values.dex.gatewayApi.corsFilters }}
+    {{- if .Values.dex.gatewayApi.filters }}
     filters:
     {{- with .Values.dex.gatewayApi.filters }}
-    {{ toYaml . | nindent 4 }}
-    {{- end }}
-    {{- with .Values.dex.gatewayApi.corsFilters }}
     {{ toYaml . | nindent 4 }}
     {{- end }}
     {{- end }}

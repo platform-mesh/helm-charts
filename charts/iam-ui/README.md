@@ -18,7 +18,6 @@ Helm Chart for the iam-ui
 | image.registry | string | `"ghcr.io"` | The image registry |
 | image.repository | string | `"platform-mesh/iam-ui"` | The image repository path (without registry) |
 | port | int | `8080` |  |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 
 ## Overriding Values
 
