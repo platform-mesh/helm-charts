@@ -79,8 +79,9 @@ plugin. In the example below:
 
 - `<base-domain>` is the Platform Mesh base domain.[^localhost-cli]
 - `<external-port>` is `443` for the production example or `8443` for Kind.
-- `<oidc-client-id>` is the Keycloak OIDC client ID; the default installation
-  uses `welcome`.
+- `<oidc-client-id>` is the Keycloak OIDC client ID for the `welcome-kubectl`
+  client in the `welcome` realm; find it in the Keycloak admin console under
+  **Clients → welcome-kubectl → Settings → Client ID**.
 - `<base64-root-ca>` is the base64-encoded kcp Root CA.
 
 Install the
