@@ -82,18 +82,22 @@ plugin. In the example below:
 - `<oidc-client-id>` is the Keycloak OIDC client ID for the `welcome-kubectl`
   client in the `welcome` realm; find it in the Keycloak admin console under
   **Clients → welcome-kubectl → Settings → Client ID**.
-- `<base64-root-ca>` is the base64-encoded kcp Root CA.
+- `<base64-ca-bundle>` is a base64-encoded PEM bundle combining the kcp Root CA
+  and the domain certificate CA (both are needed: kcp for the front-proxy TLS,
+  the domain CA for the Keycloak OIDC endpoint).
 
 Install the
 [`kubectl oidc-login`](https://github.com/int128/kubelogin) plugin with
 `kubectl krew install oidc-login`, then confirm that `kubectl oidc-login` is
-available. Install [Krew](https://krew.sigs.k8s.io/) first if necessary. Get
-the Root CA from the `root-ca` Secret — the output is the base64-encoded value
-to paste in place of each `<base64-root-ca>` placeholder below:
+available. Install [Krew](https://krew.sigs.k8s.io/) first if necessary. Build
+the CA bundle and paste the output in place of each `<base64-ca-bundle>`
+placeholder below:
 
 ```shell
-kubectl -n platform-mesh-system get secret root-ca \
-  -o jsonpath='{.data.ca\.crt}'
+{ kubectl -n platform-mesh-system get secret root-ca \
+    -o jsonpath='{.data.ca\.crt}' | base64 -d; \
+  kubectl -n platform-mesh-system get secret domain-certificate \
+    -o jsonpath='{.data.ca\.crt}' | base64 -d; } | base64 -w0
 ```
 
 ```yaml
@@ -102,19 +106,19 @@ kind: Config
 clusters:
   - name: base
     cluster:
-      certificate-authority-data: <base64-root-ca>
+      certificate-authority-data: <base64-ca-bundle>
       server: https://kcp.api.<base-domain>:<external-port>/clusters/root:orgs
   - name: default
     cluster:
-      certificate-authority-data: <base64-root-ca>
+      certificate-authority-data: <base64-ca-bundle>
       server: https://kcp.api.<base-domain>:<external-port>/clusters/root:orgs
   - name: workspace.kcp.io/current
     cluster:
-      certificate-authority-data: <base64-root-ca>
+      certificate-authority-data: <base64-ca-bundle>
       server: https://kcp.api.<base-domain>:<external-port>/clusters/root:orgs
   - name: workspace.kcp.io/previous
     cluster:
-      certificate-authority-data: <base64-root-ca>
+      certificate-authority-data: <base64-ca-bundle>
       server: https://kcp.api.<base-domain>:<external-port>/clusters/root:orgs
 contexts:
   - name: base
