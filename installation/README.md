@@ -41,19 +41,19 @@ The `platform-mesh-prerequisites` chart installs all of the above at these exact
 versions and is the simplest way to satisfy this requirement. Any other
 installation method that provides compatible versions — including cluster-managed
 controllers or separately installed operators — works equally well. The cluster
-must also expose a traefik `GatewayClass`.
+must also expose a `GatewayClass`.
 
 ### Production
 
-- A working LoadBalancer integration for Traefik.
+- A working LoadBalancer integration for the gateway API controller.
 - DNS control of the base domain: the apex and `*.<base-domain>` must resolve
-  to the Traefik LoadBalancer.
+  to the gateway controller's LoadBalancer.
 - A certificate strategy: use the chart-managed private CA, or create the
   `domain-certificate` Secret before installing the operator.
 
 ### Local Kind
 
-- Host port `8443` available for Traefik's NodePort `31000`.
+- Host port `8443` available for the gateway API controller's NodePort `31000`.
 - Sufficient local disk space for the Kind node and Platform Mesh workloads.
 - `portal.localhost` is the recommended base domain; browsers resolve its
   wildcard subdomains to loopback.
