@@ -14,6 +14,9 @@ use that same target throughout the procedure.
 ### Software
 
 - `kubectl` and Helm.
+- For local Kind: Docker and `kind`.
+- Outbound access to the OCI registries from which the charts, Platform Mesh
+  OCM component, and container images are pulled.
 
 ### Kubernetes cluster
 
@@ -381,13 +384,18 @@ helm upgrade --install platform-mesh-operator \
 
 ## 4. Wait for Platform Mesh
 
-When chart-managed certificates are enabled, wait for the generated certificate.
-Then wait for the `PlatformMesh` resource to become ready:
+If chart-managed certificates are enabled (`certificates.selfSigned.enabled=true`),
+wait for the generated certificate first:
 
 ```shell
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready certificate/platform-mesh-domain \
   --timeout=10m
+```
+
+Then wait for the `PlatformMesh` resource to become ready:
+
+```shell
 kubectl wait --namespace platform-mesh-system \
   --for=condition=Ready platformmeshes/platform-mesh \
   --timeout=30m

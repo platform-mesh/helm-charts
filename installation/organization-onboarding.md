@@ -87,12 +87,12 @@ Install the
 [`kubectl oidc-login`](https://github.com/int128/kubelogin) plugin with
 `kubectl krew install oidc-login`, then confirm that `kubectl oidc-login` is
 available. Install [Krew](https://krew.sigs.k8s.io/) first if necessary. Get
-the Root CA from the `root-ca` Secret and substitute `root_ca_data` for each
-`<base64-root-ca>` value:
+the Root CA from the `root-ca` Secret — the output is the base64-encoded value
+to paste in place of each `<base64-root-ca>` placeholder below:
 
 ```shell
-root_ca_data=$(kubectl -n platform-mesh-system get secret root-ca \
-  -o jsonpath='{.data.ca\.crt}')
+kubectl -n platform-mesh-system get secret root-ca \
+  -o jsonpath='{.data.ca\.crt}'
 ```
 
 ```yaml
