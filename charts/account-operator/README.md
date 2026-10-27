@@ -9,14 +9,12 @@ A Helm chart to deploy platform-mesh Account-Operator
 | Repository | Name | Description | Sources |
 |------------|------|-------------|---------|
 | `oci://ghcr.io/platform-mesh/helm-charts` | `common` | The `common` chart is a library of common resources that are shared across all other charts in the repository. It has no templates, but provides helm template functions and [default values](https://github.com/platform-mesh/helm-charts/blob/main/charts/common/values.yaml) that can be used by other charts. |[source](https://github.com/platform-mesh/helm-charts/tree/main/charts/common)|
-| `oci://ghcr.io/platform-mesh/helm-charts` | `account-operator-crds` | The `account-operator-crds` chart provides CRDS introduced by the `account-operator`. |[source](https://github.com/platform-mesh/helm-charts/tree/main/charts/account-operator-crds)|
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
 | clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | controllers.accountInfo.enabled | bool | `true` | Enable AccountInfo controller |
-| crds.enabled | bool | `true` | Enable CRDs |
 | deployment.replicas | int | `1` |  |
 | deployment.specTemplate.annotations | object | `{}` | The annotations for the deployment |
 | deployment.specTemplate.labels | object | `{}` | The labels for the deployment |
