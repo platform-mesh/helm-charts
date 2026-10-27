@@ -11,11 +11,6 @@ image:
   ## Overwrite this value to use a different image tag then the .chart.appVersion
   # tag: v0.0.0
 
-# The Custom Resource Definitions (CRDs) configuration
-## @param crds.enabled Enable or disable the CRDs
-crds:
-  enabled: true
-
 ## @param commonAnnotations Annotations to add to all deployed objects
 ##
 commonAnnotations: {}

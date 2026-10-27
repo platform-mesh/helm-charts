@@ -5,10 +5,6 @@ type: application
 version: 0.45.0
 appVersion: "v0.10.0"
 dependencies:
-  - name: extension-manager-operator-crds
-    version: 0.3.3
-    condition: crds.enabled
-    repository: oci://ghcr.io/platform-mesh/helm-charts
   - name: common
     version: 0.16.0
     repository: oci://ghcr.io/platform-mesh/helm-charts

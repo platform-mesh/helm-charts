@@ -9,14 +9,12 @@ A Helm chart for extension-manager-operator which manages resources like Content
 | Repository | Name | Description | Sources |
 |------------|------|-------------|---------|
 | `oci://ghcr.io/platform-mesh/helm-charts` | `common` | The `common` chart is a library of common resources that are shared across all other charts in the repository. It has no templates, but provides helm template functions and [default values](https://github.com/platform-mesh/helm-charts/blob/main/charts/common/values.yaml) that can be used by other charts. |[source](https://github.com/platform-mesh/helm-charts/tree/main/charts/common)|
-| `oci://ghcr.io/platform-mesh/helm-charts` | `extension-manager-operator-crds` | The `extension-manager-operator-crds` chart provides CRDS introduced by the `extension-manager-operator`. |[source](https://github.com/platform-mesh/helm-charts/tree/main/charts/extension-manager-operator-crds)|
 ## Values
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | clusterScopedName.prefix | string | `""` | Prefix for the names of cluster-scoped resources (ClusterRoles, ClusterRoleBindings, webhook configurations), so several installations can share a cluster. A global.clusterScopedName value takes precedence over this one |
 | clusterScopedName.suffix | string | `""` | Suffix for the names of cluster-scoped resources |
 | commonAnnotations | object | `{}` |  |
-| crds.enabled | bool | `true` |  |
 | entityTypeValidation.enabled | bool | `false` | enable entityType validation for ContentConfigurations |
 | gatewayApi.enabled | bool | `false` | Toggle to enable/disable Gateway API resources |
 | gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |

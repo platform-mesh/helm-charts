@@ -8,10 +8,6 @@ image:
   # Overwrite image.tag to use a different image tag then .chart.appVersion
   #  tag: latest
 
-crds:
-  # -- Enable CRDs
-  enabled: true
-
 webhooks:
   # -- Enable webhooks
   enabled: true
