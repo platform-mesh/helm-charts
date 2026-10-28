@@ -148,7 +148,8 @@ merge behavior, see the
 ## 1. Prepare the cluster
 
 Start with an existing production cluster or create a local Kind cluster. The
-Kind configuration maps `127.0.0.1:8443` to Traefik's NodePort `31000`.
+Kind configuration below maps `127.0.0.1:8443` to NodePort `31000` on the
+gateway controller Service.
 
 For a clean repeat of the Kind procedure, remove only the named test cluster
 first:
@@ -197,7 +198,7 @@ EOF
 ## 2. Install the prerequisites
 
 Skip this step only when the cluster already provides all components listed in
-[Requirements](#requirements) at compatible versions, including a Traefik
+[Requirements](#requirements) at compatible versions, including a Traefik as a default
 `GatewayClass`. Any installation method is acceptable.
 
 The bundled chart is installed in two passes. The first pass establishes the
@@ -281,10 +282,30 @@ Traefik ClusterIP to `gateway.traefikClusterIP` in the next step.
 
 </details>
 
+### Bring your own gateway
+
+Traefik is only the default example controller. Platform Mesh renders standard
+Gateway API resources, so any conformant Gateway API implementation (Envoy
+Gateway, Istio, Cilium, NGINX Gateway Fabric, …) can serve the landscape. To use
+your own controller:
+
+1. Install your Gateway API controller through your own tooling and let it register
+   a `GatewayClass`. Install it instead of enabling Traefik — skip the second
+   prerequisites pass (`--set traefik.enabled=true`). The Gateway API CRDs still
+   come from the `gateway-api-crds` chart (prerequisites pass 1) regardless of
+   controller.
+2. Point Platform Mesh at that class when installing the operator (step 3):
+   `--set gateway.className=<your-gatewayclass>`.
+3. For Kind, configure your gateway controller's NodePort Service to use port
+   `31000` (matching the Kind cluster's host port mapping). Pass its ClusterIP
+   with `--set gateway.clusterIP=<clusterIP>`.
+
+For an example you can see Envoy Gateway setup walkthrough [Running Platform Mesh with Envoy Gateway](../docs/envoy-gateway-class-example.md).
+
 ## 3. Configure the domain, certificates, and install Platform Mesh
 
 Set the base domain and desired OCM component version before installing PMO.
-The base domain and its wildcard subdomains must resolve to Traefik. Production
+The base domain and its wildcard subdomains must resolve to gateway controller address. Production
 DNS must point to the LoadBalancer address. The commands pin the operator chart
 to `0.61.0`, which was tested with prerequisite chart `0.2.2` and Platform
 Mesh component `0.6.0-build.6`; select and test a compatible set when
@@ -331,6 +352,7 @@ using these externally managed Secrets.
 base_domain=platform.example.com
 platform_mesh_version=0.6.0-build.6
 self_signed_certificates=true
+gateway_class_name=traefik
 test -n "${base_domain:-}"
 test -n "${platform_mesh_version:-}"
 echo "Configure ${base_domain} and *.${base_domain} for ${load_balancer_address}"
@@ -341,6 +363,7 @@ helm upgrade --install platform-mesh-operator \
   --namespace platform-mesh-system \
   --set ocm.enabled=true \
   --set ocm.profile=production \
+  --set gateway.className="${gateway_class_name}" \
   --set gateway.baseDomain="${base_domain}" \
   --set gateway.port=443 \
   --set kcp.frontProxyPort=443 \
@@ -359,10 +382,11 @@ helm upgrade --install platform-mesh-operator \
 base_domain=portal.localhost
 platform_mesh_version=0.6.0-build.6
 self_signed_certificates=true
-traefik_cluster_ip="$(kubectl -n platform-mesh-system get svc platform-mesh-prerequisites-traefik -o jsonpath='{.spec.clusterIP}')"
+gateway_class_name=traefik
+gateway_cluster_ip="$(kubectl -n platform-mesh-system get svc platform-mesh-prerequisites-traefik -o jsonpath='{.spec.clusterIP}')"
 test -n "${base_domain:-}"
 test -n "${platform_mesh_version:-}"
-test -n "${traefik_cluster_ip:-}"
+test -n "${gateway_cluster_ip:-}"
 
 helm upgrade --install platform-mesh-operator \
   oci://ghcr.io/platform-mesh/helm-charts/platform-mesh-operator \
@@ -370,9 +394,10 @@ helm upgrade --install platform-mesh-operator \
   --namespace platform-mesh-system \
   --set ocm.enabled=true \
   --set ocm.profile=kind \
+  --set gateway.className="${gateway_class_name}" \
   --set gateway.baseDomain="${base_domain}" \
   --set gateway.port=8443 \
-  --set gateway.traefikClusterIP="${traefik_cluster_ip}" \
+  --set gateway.clusterIP="${gateway_cluster_ip}" \
   --set kcp.frontProxyPort=8443 \
   --set certificates.selfSigned.enabled="${self_signed_certificates}" \
   --set-string ocm.version="${platform_mesh_version}" \

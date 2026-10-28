@@ -36,7 +36,6 @@ Helm Chart for the Platform Mesh Portal
 | kcp.kubeconfigSecret | string | `""` |  |
 | kcp.url | string | `""` | kcp API URL (e.g. https://localhost:8443 for local setup) |
 | kubeconfigSecret | string | `""` | allows the configuration of a kubeconfig secret for external api servers |
-| traefik.enabled | bool | `true` | toggle to enable traefik CORS filter in HTTPRoute |
 | uiOptions | string | `"enableFeatureToggleSetting"` |  |
 | validWebcomponentUrls | string | `".?"` |  |
 | validation.path | string | `"/validate"` | Path of the extension-manager validation webhook |

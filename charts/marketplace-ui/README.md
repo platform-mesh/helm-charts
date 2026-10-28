@@ -7,15 +7,11 @@ Helm Chart for the marketplace-ui
 |-----|------|---------|-------------|
 | contentConfig.baseDomain | string | `""` | base domain for the marketplace content API (e.g. example.com). Required. |
 | contentConfig.protocol | string | `""` | protocol for the marketplace content API. Permissible values: http, https |
-| cors.enabled | bool | `false` | toggle to enable CORS support |
 | deployment.maxSurge | int | `5` |  |
 | deployment.maxUnavailable | int | `0` |  |
 | exposure.hostnames | list | `[]` | hostnames to be used for exposure |
 | gatewayApi.enabled | bool | `false` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.group | string | `"traefik.io"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.kind | string | `"Middleware"` |  |
-| gatewayApi.httpRoute.corsFilters[0].extensionRef.name | string | `"cors-header"` |  |
-| gatewayApi.httpRoute.corsFilters[0].type | string | `"ExtensionRef"` |  |
+| gatewayApi.httpRoute.filters | list | `[]` | list of HTTPRoute filters (default: none) |
 | gatewayApi.httpRoute.parentRefs[0].name | string | `"k8sapi-gateway"` |  |
 | gatewayApi.httpRoute.pathPrefix | string | `"/ui/marketplace"` |  |
 | health.port | int | `8080` |  |

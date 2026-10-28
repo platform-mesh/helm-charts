@@ -509,11 +509,6 @@ match the Snapshot:
                 path:
                   replacePrefixMatch: /api/clusters/
                   type: ReplacePrefixMatch
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
-                name: cors-header
-              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix
@@ -1107,11 +1102,6 @@ match the Snapshot with crds:
                 path:
                   replacePrefixMatch: /api/clusters/
                   type: ReplacePrefixMatch
-            - extensionRef:
-                group: traefik.io
-                kind: Middleware
-                name: cors-header
-              type: ExtensionRef
           matches:
             - path:
                 type: PathPrefix

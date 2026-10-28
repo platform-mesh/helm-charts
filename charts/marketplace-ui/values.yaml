@@ -31,22 +31,14 @@ http:
   # -- protocol used by the frontend. Must be set. Permissible values: http, https
   protocol: ""
 
-cors:
-  # -- toggle to enable CORS support
-  enabled: false
-
 gatewayApi:
   enabled: false
   httpRoute:
     pathPrefix: /ui/marketplace
     parentRefs:
     - name: k8sapi-gateway
-    corsFilters:
-    - extensionRef:
-        group: traefik.io
-        kind: Middleware
-        name: cors-header
-      type: ExtensionRef
+    # -- list of HTTPRoute filters (default: none)
+    filters: []
 
 exposure:
   # -- hostnames to be used for exposure

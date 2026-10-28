@@ -8,8 +8,6 @@ tests:
     set:
       gatewayApi:
         enabled: true
-      cors:
-        enabled: true
       istio:
         enabled: false
     asserts:

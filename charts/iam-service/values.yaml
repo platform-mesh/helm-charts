@@ -10,10 +10,6 @@ image:
 health:
   port: 8080
 
-traefik:
-  # -- toggle to enable traefik CORS filter in HTTPRoute
-  enabled: true
-
 exposure:
   # -- hostnames to be used for exposure
   hostnames: []
@@ -30,13 +26,6 @@ gatewayApi:
           path:
             type: ReplacePrefixMatch
             replacePrefixMatch: /graphql
-    # -- CORS filter referencing traefik middleware (used when traefik.enabled=true)
-    corsFilters:
-      - type: ExtensionRef
-        extensionRef:
-          group: traefik.io
-          kind: Middleware
-          name: cors-header
 
 port: 8080
 

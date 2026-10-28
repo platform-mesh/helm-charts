@@ -14,13 +14,10 @@ spec:
         - name: {{ include "common.entity.name" . }}
           namespace: {{ .Release.Namespace }}
           port: {{ .Values.port }}
-      {{- if or .Values.gatewayApi.httpRoute.filters .Values.traefik.enabled }}
+      {{- if .Values.gatewayApi.httpRoute.filters }}
       filters:
       {{- with .Values.gatewayApi.httpRoute.filters }}
         {{ toYaml . | nindent 6 }}
-      {{- end }}
-      {{- if .Values.traefik.enabled }}
-        {{ toYaml .Values.gatewayApi.httpRoute.corsFilters | nindent 6 }}
       {{- end }}
       {{- end }}
       matches:

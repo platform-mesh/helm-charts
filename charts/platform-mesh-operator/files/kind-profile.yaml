@@ -200,10 +200,9 @@ data:
                   password: keycloak-password
                 openfga:
                   password: openfga-password
-            cors:
-              enabled: true
             gatewayApi:
               enabled: true
+              gatewayClassName: __GATEWAY_CLASS_NAME__
               listeners:
                 - name: terminate
                   hostname: "{{ .baseDomain }}"
@@ -272,10 +271,6 @@ data:
               shards: []
               webhook:
                 enabled: true
-            traefik:
-              accessControlAllowOriginList:
-              - https://{{ .baseDomainPort }}
-              - https://*.{{ .baseDomain }}:8443
         iam-ui:
           enabled: true
           dependsOn: []
@@ -303,8 +298,6 @@ data:
             caSecret: domain-certificate
             extraArgs:
             - --no-json
-            cors:
-              enabled: true
             keycloak:
               baseUrl: "https://{{ .baseDomainPort }}/keycloak"
             hostAliases:

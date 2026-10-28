@@ -63,10 +63,6 @@ validation:
   # -- Protocol used to reach the extension-manager validation webhook. Permissible values: http, https
   protocol: "http"
 
-traefik:
-  # -- toggle to enable traefik CORS filter in HTTPRoute
-  enabled: true
-
 # -- init containers to run before the main container
 initContainers: []
 
